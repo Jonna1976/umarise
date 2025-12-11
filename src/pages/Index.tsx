@@ -6,6 +6,7 @@ import { ProcessingView } from '@/components/capture/ProcessingView';
 import { SnapshotView } from '@/components/codex/SnapshotView';
 import { HistoryView } from '@/components/codex/HistoryView';
 import { TestPanel } from '@/components/dev/TestPanel';
+import { PatternsView } from '@/components/dev/PatternsView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -15,7 +16,7 @@ import { Page, addPage, loadTestPages } from '@/lib/mockData';
 import { TestPage } from '@/lib/testData';
 import { FlaskConical } from 'lucide-react';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -97,6 +98,14 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleViewPatterns = useCallback(() => {
+    setView('patterns');
+  }, []);
+
+  const handleBackFromPatterns = useCallback(() => {
+    setView('history');
+  }, []);
+
   const handleLoadTestData = useCallback((testPages: TestPage[]) => {
     loadTestPages(testPages as Page[]);
     setShowTestPanel(false);
@@ -155,7 +164,13 @@ const Index = () => {
           <HistoryView
             onBack={handleBackFromHistory}
             onSelectPage={handleSelectPage}
+            onViewPatterns={handleViewPatterns}
           />
+        );
+      
+      case 'patterns':
+        return (
+          <PatternsView onBack={handleBackFromPatterns} />
         );
       
       case 'detail':
