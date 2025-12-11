@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2 } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain } from 'lucide-react';
 import { Page, getPages, deletePage } from '@/lib/mockData';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
+import { InsightsSection } from './InsightsSection';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +19,7 @@ import {
 interface HistoryViewProps {
   onBack: () => void;
   onSelectPage: (page: Page) => void;
+  onViewPatterns?: () => void;
 }
 
 type TimeFilter = 'all' | '7days' | '30days';
@@ -41,7 +43,7 @@ function getDateLabel(date: Date): string {
   return format(date, 'MMM d, yyyy');
 }
 
-export function HistoryView({ onBack, onSelectPage }: HistoryViewProps) {
+export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -87,7 +89,17 @@ export function HistoryView({ onBack, onSelectPage }: HistoryViewProps) {
           
           <h1 className="font-serif text-lg font-medium">Your Codex</h1>
           
-          <div className="w-10" /> {/* Spacer */}
+          {onViewPatterns ? (
+            <button
+              onClick={onViewPatterns}
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+              title="View Patterns"
+            >
+              <Brain className="w-5 h-5 text-codex-sepia" />
+            </button>
+          ) : (
+            <div className="w-10" />
+          )}
         </div>
 
         {/* Filter tabs */}
@@ -107,6 +119,9 @@ export function HistoryView({ onBack, onSelectPage }: HistoryViewProps) {
           ))}
         </div>
       </div>
+
+      {/* Insights Section */}
+      <InsightsSection pages={pages} />
 
       {/* Page list */}
       <div className="p-4">
