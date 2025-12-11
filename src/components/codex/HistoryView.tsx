@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X } from 'lucide-react';
 import { Page, getPages, deletePage } from '@/lib/mockData';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -45,6 +45,7 @@ function getDateLabel(date: Date): string {
 
 export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -59,9 +60,19 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
       const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
       allPages = allPages.filter(p => p.createdAt >= cutoff);
     }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      allPages = allPages.filter(p => 
+        p.summary.toLowerCase().includes(query) ||
+        p.keywords.some(k => k.toLowerCase().includes(query)) ||
+        p.tone.some(t => t.toLowerCase().includes(query))
+      );
+    }
     
     return allPages;
-  }, [filter, refreshKey]);
+  }, [filter, refreshKey, searchQuery]);
 
   const handleDelete = (page: Page) => {
     setPageToDelete(page);
@@ -102,6 +113,29 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
           )}
         </div>
 
+        {/* Search bar */}
+        <div className="px-4 pb-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search keywords, summaries..."
+              className="w-full pl-9 pr-9 py-2 rounded-full bg-secondary/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-sepia/30 focus:border-codex-sepia/50 transition-all"
+              maxLength={100}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Filter tabs */}
         <div className="flex gap-2 px-4 pb-4">
           {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
@@ -132,17 +166,29 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
             className="text-center py-16"
           >
             <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-8 h-8 text-muted-foreground" />
+              {searchQuery ? (
+                <Search className="w-8 h-8 text-muted-foreground" />
+              ) : (
+                <Calendar className="w-8 h-8 text-muted-foreground" />
+              )}
             </div>
             <p className="text-muted-foreground mb-6">
-              {filter !== 'all' 
-                ? 'No pages in this time period' 
-                : 'Your codex is empty'}
+              {searchQuery
+                ? `No pages found for "${searchQuery}"`
+                : filter !== 'all' 
+                  ? 'No pages in this time period' 
+                  : 'Your codex is empty'}
             </p>
-            <Button onClick={onBack} variant="codex">
-              <Camera className="w-4 h-4 mr-2" />
-              Capture your first page
-            </Button>
+            {searchQuery ? (
+              <Button onClick={() => setSearchQuery('')} variant="outline">
+                Clear search
+              </Button>
+            ) : (
+              <Button onClick={onBack} variant="codex">
+                <Camera className="w-4 h-4 mr-2" />
+                Capture your first page
+              </Button>
+            )}
           </motion.div>
         ) : (
           <div className="space-y-3">
