@@ -1,15 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen';
 import { CameraView } from '@/components/capture/CameraView';
 import { ProcessingView } from '@/components/capture/ProcessingView';
 import { SnapshotView } from '@/components/codex/SnapshotView';
 import { HistoryView } from '@/components/codex/HistoryView';
+import { TestPanel } from '@/components/dev/TestPanel';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
   completeOnboarding 
 } from '@/lib/deviceId';
-import { Page, addPage, mockPages } from '@/lib/mockData';
+import { Page, addPage, loadTestPages } from '@/lib/mockData';
+import { TestPage } from '@/lib/testData';
+import { FlaskConical } from 'lucide-react';
 
 type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail';
 
@@ -19,6 +23,7 @@ const Index = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isNewCapture, setIsNewCapture] = useState(false);
+  const [showTestPanel, setShowTestPanel] = useState(false);
 
   // Initialize on mount
   useEffect(() => {
@@ -92,55 +97,98 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleLoadTestData = useCallback((testPages: TestPage[]) => {
+    loadTestPages(testPages as Page[]);
+    setShowTestPanel(false);
+    setView('history');
+  }, []);
+
+  const handleViewTestPage = useCallback((testPage: TestPage) => {
+    setCurrentPage(testPage as Page);
+    setIsNewCapture(false);
+    setShowTestPanel(false);
+    setView('detail');
+  }, []);
+
+  // Dev button (only visible when not in onboarding)
+  const DevButton = view !== 'onboarding' && (
+    <button
+      onClick={() => setShowTestPanel(true)}
+      className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-codex-sepia/90 text-primary-foreground shadow-lg flex items-center justify-center hover:bg-codex-sepia transition-colors"
+      title="Open Test Panel"
+    >
+      <FlaskConical className="w-5 h-5" />
+    </button>
+  );
+
   // Render based on current view
-  switch (view) {
-    case 'onboarding':
-      return <OnboardingScreen onComplete={handleOnboardingComplete} />;
-    
-    case 'camera':
-      return (
-        <CameraView 
-          onCapture={handleCapture} 
-          onOpenHistory={handleOpenHistory} 
-        />
-      );
-    
-    case 'processing':
-      return capturedImage ? (
-        <ProcessingView imageUrl={capturedImage} />
-      ) : null;
-    
-    case 'snapshot':
-      return currentPage ? (
-        <SnapshotView
-          page={currentPage}
-          onClose={handleCloseSnapshot}
-          onViewHistory={handleOpenHistory}
-          isNewCapture={isNewCapture}
-        />
-      ) : null;
-    
-    case 'history':
-      return (
-        <HistoryView
-          onBack={handleBackFromHistory}
-          onSelectPage={handleSelectPage}
-        />
-      );
-    
-    case 'detail':
-      return currentPage ? (
-        <SnapshotView
-          page={currentPage}
-          onClose={handleBackFromDetail}
-          onViewHistory={handleOpenHistory}
-          isNewCapture={false}
-        />
-      ) : null;
-    
-    default:
-      return null;
-  }
+  const renderView = () => {
+    switch (view) {
+      case 'onboarding':
+        return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+      
+      case 'camera':
+        return (
+          <CameraView 
+            onCapture={handleCapture} 
+            onOpenHistory={handleOpenHistory} 
+          />
+        );
+      
+      case 'processing':
+        return capturedImage ? (
+          <ProcessingView imageUrl={capturedImage} />
+        ) : null;
+      
+      case 'snapshot':
+        return currentPage ? (
+          <SnapshotView
+            page={currentPage}
+            onClose={handleCloseSnapshot}
+            onViewHistory={handleOpenHistory}
+            isNewCapture={isNewCapture}
+          />
+        ) : null;
+      
+      case 'history':
+        return (
+          <HistoryView
+            onBack={handleBackFromHistory}
+            onSelectPage={handleSelectPage}
+          />
+        );
+      
+      case 'detail':
+        return currentPage ? (
+          <SnapshotView
+            page={currentPage}
+            onClose={handleBackFromDetail}
+            onViewHistory={handleOpenHistory}
+            isNewCapture={false}
+          />
+        ) : null;
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <>
+      {renderView()}
+      {DevButton}
+      
+      <AnimatePresence>
+        {showTestPanel && (
+          <TestPanel
+            onClose={() => setShowTestPanel(false)}
+            onLoadTestData={handleLoadTestData}
+            onViewPage={handleViewTestPage}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
 };
 
 export default Index;

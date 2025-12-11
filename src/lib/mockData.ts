@@ -77,3 +77,11 @@ export function addPage(page: Omit<Page, 'id'>): Page {
 export function deletePage(id: string): void {
   pages = pages.filter(p => p.id !== id);
 }
+
+export function loadTestPages(testPages: Page[]): void {
+  pages = [...testPages, ...mockPages];
+}
+
+export function clearAllPages(): void {
+  pages = [...mockPages];
+}
