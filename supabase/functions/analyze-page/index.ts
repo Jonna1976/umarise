@@ -159,8 +159,13 @@ serve(async (req) => {
     // Validate required fields
     const { ocr_text, summary, tone, keywords } = analysisResult;
     
-    if (!ocr_text || !summary || !tone || !keywords) {
-      console.error('Missing required fields in AI response:', analysisResult);
+    const hasOcrField = typeof ocr_text === 'string';
+    const hasSummary = typeof summary === 'string' && summary.trim().length > 0;
+    const hasTone = typeof tone === 'string' && tone.trim().length > 0;
+    const hasKeywords = Array.isArray(keywords) && keywords.length > 0;
+
+    if (!hasSummary || !hasTone || !hasKeywords || !hasOcrField) {
+      console.error('Missing or invalid required fields in AI response:', analysisResult);
       return new Response(
         JSON.stringify({ error: 'Incomplete AI response', partial_result: analysisResult }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
