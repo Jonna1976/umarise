@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   TrendingUp, 
@@ -15,7 +15,10 @@ import {
   Heart,
   Target,
   Eye,
-  FileText
+  FileText,
+  Info,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Page } from '@/lib/pageService';
 import { usePages } from '@/hooks/usePages';
@@ -432,6 +435,146 @@ function RedThreadViz({ pages, coreThread }: { pages: Page[]; coreThread?: strin
   );
 }
 
+// Transparency Section - How the analysis works
+function TransparencySection({ pages, aiAnalysis }: { pages: Page[]; aiAnalysis: AIPatternAnalysis | null }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showSourceData, setShowSourceData] = useState(false);
+
+  // Prepare the source data that was sent to the AI
+  const sourceData = useMemo(() => {
+    return pages.map((p, index) => ({
+      index: index + 1,
+      date: format(p.createdAt, 'dd MMM yyyy'),
+      summary: p.summary,
+      tone: p.tone.join(', '),
+      keywords: p.keywords.slice(0, 5).join(', '),
+      primary_keyword: p.primaryKeyword || '-'
+    }));
+  }, [pages]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="rounded-xl border border-border overflow-hidden bg-secondary/20"
+    >
+      {/* Header - Always visible */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full p-4 flex items-center justify-between hover:bg-secondary/30 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Info className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">How this analysis works</span>
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        )}
+      </button>
+
+      {/* Expanded content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-4 border-t border-border pt-4">
+              {/* Explanation */}
+              <div className="space-y-3 text-xs text-muted-foreground">
+                <div className="flex gap-2">
+                  <span className="text-codex-sepia font-medium shrink-0">1.</span>
+                  <p><strong>Data collection:</strong> We collect the summary, tone, and keywords from each of your {pages.length} pages.</p>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-codex-sepia font-medium shrink-0">2.</span>
+                  <p><strong>AI analysis:</strong> This data is sent to our AI (Gemini 2.5 Flash) which looks for patterns, recurring themes, and emotional trends.</p>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-codex-sepia font-medium shrink-0">3.</span>
+                  <p><strong>Your words only:</strong> The AI bases its analysis purely on what you wrote — no external data or assumptions.</p>
+                </div>
+              </div>
+
+              {/* Accuracy note */}
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  <strong>Quality depends on:</strong> How accurately your handwriting was read (OCR), and how well your pages were summarized. If something seems off, check your individual page summaries first.
+                </p>
+              </div>
+
+              {/* Toggle source data */}
+              <button
+                onClick={() => setShowSourceData(!showSourceData)}
+                className="w-full p-2 rounded-lg border border-border hover:bg-secondary/50 transition-colors flex items-center justify-center gap-2 text-xs text-muted-foreground"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                {showSourceData ? 'Hide source data' : 'View source data sent to AI'}
+                {showSourceData ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
+              </button>
+
+              {/* Source Data Table */}
+              <AnimatePresence>
+                {showSourceData && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="max-h-64 overflow-y-auto rounded-lg border border-border">
+                      <table className="w-full text-xs">
+                        <thead className="bg-secondary/50 sticky top-0">
+                          <tr>
+                            <th className="p-2 text-left font-medium text-muted-foreground">#</th>
+                            <th className="p-2 text-left font-medium text-muted-foreground">Date</th>
+                            <th className="p-2 text-left font-medium text-muted-foreground">Summary</th>
+                            <th className="p-2 text-left font-medium text-muted-foreground">Tone</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {sourceData.map((item) => (
+                            <tr key={item.index} className="hover:bg-secondary/30">
+                              <td className="p-2 text-muted-foreground">{item.index}</td>
+                              <td className="p-2 text-muted-foreground whitespace-nowrap">{item.date}</td>
+                              <td className="p-2 text-foreground/80 max-w-[200px] truncate">{item.summary}</td>
+                              <td className="p-2 text-muted-foreground capitalize">{item.tone}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/60 mt-2 text-center">
+                      This is exactly what the AI received for pattern analysis
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Analysis timestamp */}
+              {aiAnalysis && (
+                <p className="text-[10px] text-muted-foreground/60 text-center">
+                  Last analyzed: {format(new Date(aiAnalysis.analyzed_at), 'dd MMM yyyy, HH:mm')}
+                </p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 export function PatternsView({ onBack }: PatternsViewProps) {
   const { pages, isLoading: pagesLoading } = usePages();
   const [aiAnalysis, setAiAnalysis] = useState<AIPatternAnalysis | null>(null);
@@ -795,6 +938,9 @@ export function PatternsView({ onBack }: PatternsViewProps) {
               </div>
             </motion.div>
           )}
+
+          {/* How This Works - Transparency Section */}
+          <TransparencySection pages={pages} aiAnalysis={aiAnalysis} />
 
           {/* Divider */}
           <div className="border-t border-border pt-6">
