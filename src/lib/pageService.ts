@@ -13,6 +13,7 @@ export interface Page {
   keywords: string[];
   primaryKeyword?: string;
   userNote?: string;
+  sources?: string[];
   confidenceScore?: number;
   capsuleId?: string;
   pageOrder?: number;
@@ -276,6 +277,7 @@ export async function getPages(): Promise<Page[]> {
     keywords: row.keywords || [],
     primaryKeyword: row.primary_keyword || undefined,
     userNote: row.user_note || undefined,
+    sources: (row as { sources?: string[] }).sources || [],
     confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
     capsuleId: row.capsule_id || undefined,
     pageOrder: row.page_order ?? 0,
@@ -332,6 +334,7 @@ export async function getPage(id: string): Promise<Page | null> {
     keywords: data.keywords || [],
     primaryKeyword: data.primary_keyword || undefined,
     userNote: data.user_note || undefined,
+    sources: (data as { sources?: string[] }).sources || [],
     confidenceScore: data.confidence_score ? Number(data.confidence_score) : undefined,
     capsuleId: data.capsule_id || undefined,
     pageOrder: data.page_order ?? 0,
@@ -363,6 +366,7 @@ export async function getCapsulePages(capsuleId: string): Promise<Page[]> {
     keywords: row.keywords || [],
     primaryKeyword: row.primary_keyword || undefined,
     userNote: row.user_note || undefined,
+    sources: (row as { sources?: string[] }).sources || [],
     confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
     capsuleId: row.capsule_id || undefined,
     pageOrder: row.page_order ?? 0,
@@ -412,10 +416,10 @@ export async function deletePage(id: string): Promise<boolean> {
   return true;
 }
 
-// Update page with user note, primary keyword, and OCR text
+// Update page with user note, primary keyword, OCR text, and sources
 export async function updatePage(
   id: string, 
-  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string }
+  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[] }
 ): Promise<boolean> {
   const deviceUserId = getDeviceId();
   
@@ -435,6 +439,9 @@ export async function updatePage(
   }
   if (updates.ocrText !== undefined) {
     updateData.ocr_text = updates.ocrText;
+  }
+  if (updates.sources !== undefined) {
+    updateData.sources = updates.sources;
   }
 
   const { error } = await supabase
