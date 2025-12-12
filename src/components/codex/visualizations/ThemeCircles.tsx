@@ -14,10 +14,11 @@ interface ThemeCirclesProps {
   height?: number;
 }
 
+// Refined earthy palette - no INSIGHTS primary colors
 const STRENGTH_COLORS: Record<string, { fill: string; stroke: string }> = {
-  high: { fill: 'rgba(201, 162, 39, 0.2)', stroke: '#C9A227' },
-  medium: { fill: 'rgba(184, 92, 56, 0.15)', stroke: '#B85C38' },
-  emerging: { fill: 'rgba(107, 126, 122, 0.1)', stroke: '#6B7E7A' }
+  high: { fill: 'rgba(179, 155, 122, 0.15)', stroke: '#9B8A6A' },
+  medium: { fill: 'rgba(155, 107, 90, 0.12)', stroke: '#9B6B5A' },
+  emerging: { fill: 'rgba(122, 138, 138, 0.08)', stroke: '#7A8A8A' }
 };
 
 export function ThemeCircles({ 
@@ -41,41 +42,41 @@ export function ThemeCircles({
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Background
-    ctx.fillStyle = '#FAF8F5';
+    // Background - warm paper
+    ctx.fillStyle = '#FDFBF8';
     ctx.fillRect(0, 0, width, height);
 
     const centerX = width / 2;
-    const centerY = height / 2;
+    const centerY = height / 2 + 10;
 
-    // Draw concentric rings for each driver
-    const maxRadius = Math.min(width, height) * 0.4;
+    // Draw concentric rings - more refined spacing
+    const maxRadius = Math.min(width, height) * 0.35;
     const ringCount = drivers.length;
-    const ringSpacing = maxRadius / (ringCount + 1);
+    const ringSpacing = maxRadius / (ringCount + 1.5);
 
     // Draw rings from outside in
     drivers.forEach((driver, index) => {
       const radius = maxRadius - index * ringSpacing;
       const colors = STRENGTH_COLORS[driver.strength] || STRENGTH_COLORS.emerging;
 
-      // Draw main ring
+      // Draw main ring - thinner stroke
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       ctx.fillStyle = colors.fill;
       ctx.fill();
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = `${colors.stroke}60`;
+      ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Add small decorative marks around the ring (data-humanism style)
-      const markCount = 8 + index * 4;
+      // Subtle decorative marks (Lupi-style) - fewer, more refined
+      const markCount = 6 + index * 2;
       for (let i = 0; i < markCount; i++) {
         const angle = (i / markCount) * Math.PI * 2;
-        const innerR = radius - 4;
-        const outerR = radius + 4;
+        const innerR = radius - 2;
+        const outerR = radius + 2;
         
-        // Only draw some marks (creates variation)
-        if (Math.random() > 0.4) {
+        // Deterministic mark placement based on index
+        if ((i + index) % 3 === 0) {
           ctx.beginPath();
           ctx.moveTo(
             centerX + Math.cos(angle) * innerR,
@@ -85,106 +86,108 @@ export function ThemeCircles({
             centerX + Math.cos(angle) * outerR,
             centerY + Math.sin(angle) * outerR
           );
-          ctx.strokeStyle = `${colors.stroke}40`;
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = `${colors.stroke}25`;
+          ctx.lineWidth = 0.75;
           ctx.stroke();
         }
       }
 
-      // Draw driver name along a path (simplified: just at the edge)
-      const labelAngle = -Math.PI / 2 + (index * Math.PI) / 6;
-      const labelX = centerX + Math.cos(labelAngle) * (radius + 15);
-      const labelY = centerY + Math.sin(labelAngle) * (radius + 15);
+      // Draw driver name - refined positioning
+      const labelAngle = -Math.PI / 2 + (index * Math.PI) / 5;
+      const labelX = centerX + Math.cos(labelAngle) * (radius + 14);
+      const labelY = centerY + Math.sin(labelAngle) * (radius + 14);
 
       ctx.save();
       ctx.translate(labelX, labelY);
       ctx.rotate(labelAngle + Math.PI / 2);
-      ctx.fillStyle = colors.stroke;
-      ctx.font = '10px "Crimson Pro", Georgia, serif';
+      ctx.fillStyle = `${colors.stroke}90`;
+      ctx.font = '9px "Crimson Pro", Georgia, serif';
       ctx.textAlign = 'center';
-      ctx.fillText(driver.name.toUpperCase(), 0, 0);
+      ctx.fillText(driver.name.toLowerCase(), 0, 0);
       ctx.restore();
     });
 
-    // Draw center circle (superpower)
-    const centerRadius = ringSpacing * 0.8;
+    // Draw center circle (superpower) - more refined
+    const centerRadius = ringSpacing * 0.7;
     
-    // Glow effect
+    // Subtle glow effect
     const gradient = ctx.createRadialGradient(
       centerX, centerY, 0,
-      centerX, centerY, centerRadius * 1.5
+      centerX, centerY, centerRadius * 1.8
     );
-    gradient.addColorStop(0, 'rgba(201, 162, 39, 0.3)');
-    gradient.addColorStop(1, 'rgba(201, 162, 39, 0)');
+    gradient.addColorStop(0, 'rgba(179, 155, 122, 0.15)');
+    gradient.addColorStop(1, 'rgba(179, 155, 122, 0)');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, centerRadius * 1.8, 0, Math.PI * 2);
+    ctx.fill();
 
     // Center circle
     ctx.beginPath();
     ctx.arc(centerX, centerY, centerRadius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(201, 162, 39, 0.2)';
+    ctx.fillStyle = 'rgba(179, 155, 122, 0.12)';
     ctx.fill();
-    ctx.strokeStyle = '#C9A227';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#9B8A6A';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Star pattern in center
-    const starPoints = 6;
+    // Simple star/flower pattern in center - more organic
+    const petalCount = 5;
     ctx.beginPath();
-    for (let i = 0; i < starPoints * 2; i++) {
-      const angle = (i / (starPoints * 2)) * Math.PI * 2 - Math.PI / 2;
-      const r = i % 2 === 0 ? centerRadius * 0.6 : centerRadius * 0.3;
+    for (let i = 0; i < petalCount * 2; i++) {
+      const angle = (i / (petalCount * 2)) * Math.PI * 2 - Math.PI / 2;
+      const r = i % 2 === 0 ? centerRadius * 0.55 : centerRadius * 0.25;
       const x = centerX + Math.cos(angle) * r;
       const y = centerY + Math.sin(angle) * r;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
     ctx.closePath();
-    ctx.fillStyle = 'rgba(201, 162, 39, 0.4)';
+    ctx.fillStyle = 'rgba(179, 155, 122, 0.25)';
     ctx.fill();
 
-    // Superpower text in center (wrapped)
-    ctx.fillStyle = '#5C4A32';
-    ctx.font = 'bold 10px "Crimson Pro", Georgia, serif';
+    // Superpower text in center - refined
+    ctx.fillStyle = '#5C5147';
+    ctx.font = '9px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
     // Simple word wrap
-    const words = superpower.split(' ').slice(0, 4);
-    const lineHeight = 12;
+    const words = superpower.split(' ').slice(0, 3);
+    const lineHeight = 11;
     const startY = centerY - ((words.length - 1) * lineHeight) / 2;
     words.forEach((word, i) => {
       ctx.fillText(word, centerX, startY + i * lineHeight);
     });
 
-    // Draw strength legend
-    const legendY = height - 30;
+    // Draw strength legend - minimal
+    const legendY = height - 28;
     const strengths = ['high', 'medium', 'emerging'];
-    const legendX = (width - strengths.length * 70) / 2;
+    const legendX = (width - strengths.length * 60) / 2;
 
     strengths.forEach((strength, i) => {
-      const x = legendX + i * 70;
+      const x = legendX + i * 60;
       const colors = STRENGTH_COLORS[strength];
 
       ctx.beginPath();
-      ctx.arc(x, legendY, 6, 0, Math.PI * 2);
+      ctx.arc(x, legendY, 4, 0, Math.PI * 2);
       ctx.fillStyle = colors.fill;
       ctx.fill();
       ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.fillStyle = '#6B5B4F';
-      ctx.font = '9px sans-serif';
+      ctx.fillStyle = '#7A6B5F';
+      ctx.font = '8px "Crimson Pro", Georgia, serif';
       ctx.textAlign = 'left';
-      ctx.fillText(strength, x + 10, legendY + 3);
+      ctx.fillText(strength, x + 8, legendY + 2);
     });
 
     // Tagline at top
-    ctx.fillStyle = '#6B5B4F';
+    ctx.fillStyle = '#7A6B5F';
     ctx.font = 'italic 11px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`"${tagline}"`, centerX, 25);
+    ctx.fillText(`"${tagline}"`, centerX, 28);
 
   }, [drivers, superpower, tagline, width, height]);
 
