@@ -23,8 +23,8 @@ interface HistoryViewProps {
   onDeletePage: (pageId: string) => void;
   onViewPatterns?: () => void;
 }
-
 type TimeFilter = 'all' | '7days' | '30days';
+type KeywordFilter = 'all' | string;
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
@@ -47,8 +47,17 @@ function getDateLabel(date: Date): string {
 
 export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePage, onViewPatterns }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
+  const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+
+  // Get unique primary keywords for filter dropdown
+  const primaryKeywords = useMemo(() => {
+    const keywords = allPages
+      .map(p => p.primaryKeyword)
+      .filter((k): k is string => !!k);
+    return [...new Set(keywords)].sort();
+  }, [allPages]);
 
   const filteredPages = useMemo(() => {
     let pages = [...allPages];
@@ -62,18 +71,25 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
       pages = pages.filter(p => p.createdAt >= cutoff);
     }
 
-    // Apply search filter
+    // Apply keyword filter
+    if (keywordFilter !== 'all') {
+      pages = pages.filter(p => p.primaryKeyword === keywordFilter);
+    }
+
+    // Apply search filter (now includes primaryKeyword and userNote)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       pages = pages.filter(p => 
         p.summary.toLowerCase().includes(query) ||
         p.keywords.some(k => k.toLowerCase().includes(query)) ||
-        p.tone.some(t => t.toLowerCase().includes(query))
+        p.tone.some(t => t.toLowerCase().includes(query)) ||
+        p.primaryKeyword?.toLowerCase().includes(query) ||
+        p.userNote?.toLowerCase().includes(query)
       );
     }
     
     return pages;
-  }, [allPages, filter, searchQuery]);
+  }, [allPages, filter, keywordFilter, searchQuery]);
 
   const handleDelete = (page: Page) => {
     setPageToDelete(page);
@@ -137,12 +153,12 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
         </div>
 
         {/* Filter tabs */}
-        <div className="flex gap-2 px-4 pb-4">
+        <div className="flex gap-2 px-4 pb-2 overflow-x-auto">
           {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
                 filter === f
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -152,6 +168,35 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
             </button>
           ))}
         </div>
+
+        {/* Primary keyword filter */}
+        {primaryKeywords.length > 0 && (
+          <div className="flex gap-2 px-4 pb-4 overflow-x-auto">
+            <button
+              onClick={() => setKeywordFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+                keywordFilter === 'all'
+                  ? 'bg-codex-sepia text-white'
+                  : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
+              }`}
+            >
+              All keywords
+            </button>
+            {primaryKeywords.map((kw) => (
+              <button
+                key={kw}
+                onClick={() => setKeywordFilter(kw)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+                  keywordFilter === kw
+                    ? 'bg-codex-sepia text-white'
+                    : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
+                }`}
+              >
+                {kw}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Insights Section */}
@@ -216,10 +261,17 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
                     
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      {/* Date */}
-                      <p className="text-xs text-muted-foreground mb-1">
-                        {getDateLabel(page.createdAt)} · {formatDistanceToNow(page.createdAt, { addSuffix: true })}
-                      </p>
+                      {/* Primary keyword badge + Date */}
+                      <div className="flex items-center gap-2 mb-1">
+                        {page.primaryKeyword && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
+                            {page.primaryKeyword}
+                          </span>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {getDateLabel(page.createdAt)} · {formatDistanceToNow(page.createdAt, { addSuffix: true })}
+                        </p>
+                      </div>
                       
                       {/* Summary */}
                       <p className="text-sm text-foreground line-clamp-2 leading-relaxed mb-2">
