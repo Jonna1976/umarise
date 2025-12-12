@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
+
 import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen';
 import { CameraView } from '@/components/capture/CameraView';
 import { ProcessingView } from '@/components/capture/ProcessingView';
@@ -336,15 +336,13 @@ const Index = () => {
       {renderView()}
       {DevButton}
       
-      <AnimatePresence>
-        {showTestPanel && (
-          <TestPanel
-            onClose={() => setShowTestPanel(false)}
-            onLoadTestData={handleLoadTestData}
-            onViewPage={handleViewTestPage}
-          />
-        )}
-      </AnimatePresence>
+      {showTestPanel && (
+        <TestPanel
+          onClose={() => setShowTestPanel(false)}
+          onLoadTestData={handleLoadTestData}
+          onViewPage={handleViewTestPage}
+        />
+      )}
     </>
   );
 };
