@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      personality_snapshots: {
+        Row: {
+          core_identity: string
+          created_at: string
+          device_user_id: string
+          drivers: Json
+          growth_edge: string
+          id: string
+          page_count: number
+          superpower: string
+          tagline: string
+          tension_field: Json
+        }
+        Insert: {
+          core_identity: string
+          created_at?: string
+          device_user_id: string
+          drivers?: Json
+          growth_edge: string
+          id?: string
+          page_count?: number
+          superpower: string
+          tagline: string
+          tension_field: Json
+        }
+        Update: {
+          core_identity?: string
+          created_at?: string
+          device_user_id?: string
+          drivers?: Json
+          growth_edge?: string
+          id?: string
+          page_count?: number
+          superpower?: string
+          tagline?: string
+          tension_field?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
