@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -25,6 +25,7 @@ interface HistoryViewProps {
   onAddToCapsule?: (capsuleId: string) => void;
   onViewPatterns?: () => void;
   onViewPersonality?: () => void;
+  onViewKompas?: () => void;
 }
 
 type TimeFilter = 'all' | '7days' | '30days';
@@ -62,7 +63,8 @@ export function HistoryView({
   onDeletePage, 
   onAddToCapsule,
   onViewPatterns,
-  onViewPersonality 
+  onViewPersonality,
+  onViewKompas
 }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
@@ -192,6 +194,20 @@ export function HistoryView({
           <h1 className="font-serif text-lg font-medium">Your Codex</h1>
           
           <div className="flex items-center gap-1">
+            {onViewKompas && (
+              <button
+                onClick={onViewKompas}
+                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                title={allPages.length >= 3 ? "Mijn Kompas" : `${3 - allPages.length} more pages needed`}
+              >
+                <Compass className="w-5 h-5 text-red-500" />
+                {allPages.length < 3 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
+                    {3 - allPages.length}
+                  </span>
+                )}
+              </button>
+            )}
             {onViewPersonality && (
               <button
                 onClick={onViewPersonality}
