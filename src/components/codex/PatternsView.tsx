@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { VocabularySection } from './VocabularySection';
 import { TimeBasedPatterns } from './TimeBasedPatterns';
+import { ThreadsView } from './ThreadsView';
 
 interface PatternsViewProps {
   onBack: () => void;
@@ -948,6 +949,14 @@ export function PatternsView({ onBack }: PatternsViewProps) {
 
           {/* How This Works - Transparency Section */}
           <TransparencySection pages={pages} aiAnalysis={aiAnalysis} />
+
+          {/* Threads Section - Long-term recurring themes */}
+          <div className="border-t border-border pt-6">
+            <p className="text-xs text-muted-foreground text-center mb-4">
+              Long-term Threads
+            </p>
+          </div>
+          <ThreadsView pages={pages} />
 
           {/* Divider */}
           <div className="border-t border-border pt-6">
