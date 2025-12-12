@@ -97,39 +97,35 @@ function getFrequencyColor(frequency: string) {
   }
 }
 
-// Giorgia Lupi inspired visual component
-function DataHumanismViz({ pages }: { pages: Page[] }) {
-  // Calculate visual properties for each page
-  const getPageShape = (page: Page, index: number) => {
-    const tone = page.tone[0]?.toLowerCase() || 'reflective';
-    const color = toneColors[tone] || '#8B7355';
-    const keywordCount = page.keywords.length;
-    const textLength = page.ocrText?.length || 100;
-    
-    // Size based on content richness
-    const baseSize = 12 + Math.min(keywordCount * 3, 20);
-    
-    // Shape variation based on tone
-    const shapes = {
-      focused: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',      // Diamond
-      hopeful: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', // Pentagon
-      frustrated: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', // Hexagon
-      playful: 'circle(50%)',                                        // Circle
-      overwhelmed: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)', // Star
-      reflective: 'ellipse(50% 35%)',                                // Oval
-      curious: 'polygon(50% 0%, 100% 100%, 0% 100%)',               // Triangle
-      determined: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',    // Square
-      anxious: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',       // Trapezoid
-      calm: 'ellipse(50% 50%)',                                      // Circle
-    };
-    
-    const clipPath = shapes[tone as keyof typeof shapes] || 'circle(50%)';
-    
-    // Opacity based on text length (more content = more solid)
-    const opacity = 0.4 + Math.min(textLength / 1000, 0.5);
-    
-    return { color, size: baseSize, clipPath, opacity };
-  };
+// The Red Thread - Central anchoring visualization
+function RedThreadViz({ pages, coreThread }: { pages: Page[]; coreThread?: string }) {
+  // Calculate the most recurring keywords to form the "thread"
+  const keywordCounts: Record<string, number> = {};
+  pages.forEach(p => p.keywords.forEach(k => {
+    keywordCounts[k] = (keywordCounts[k] || 0) + 1;
+  }));
+  
+  const sortedKeywords = Object.entries(keywordCounts)
+    .sort((a, b) => b[1] - a[1]);
+  
+  const topThread = sortedKeywords.slice(0, 5);
+  const totalPages = pages.length;
+  
+  // Group pages by their connection to the core thread keywords
+  const threadKeywords = new Set(topThread.map(([k]) => k));
+  const connectedPages = pages.filter(p => 
+    p.keywords.some(k => threadKeywords.has(k))
+  );
+  const connectionStrength = Math.round((connectedPages.length / totalPages) * 100);
+
+  // Calculate emotional center of gravity
+  const toneCounts: Record<string, number> = {};
+  pages.forEach(p => {
+    const tone = p.tone[0]?.toLowerCase() || 'reflective';
+    toneCounts[tone] = (toneCounts[tone] || 0) + 1;
+  });
+  const dominantTone = Object.entries(toneCounts)
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'reflective';
 
   if (pages.length === 0) {
     return (
@@ -141,181 +137,297 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
 
   return (
     <div className="space-y-6">
-      {/* Legend */}
-      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Legend — each shape is a page</p>
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(toneColors).slice(0, 6).map(([tone, color]) => (
-            <div key={tone} className="flex items-center gap-1.5">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: color }}
-              />
-              <span className="text-[10px] text-muted-foreground capitalize">
-                {tone}
-              </span>
-            </div>
-          ))}
-        </div>
-        <p className="text-[10px] text-muted-foreground/60 mt-2 italic">
-          Size = keyword count · Shape = mood · Color = emotion
-        </p>
-      </div>
-
-      {/* Main visualization - Timeline flow */}
-      <div className="relative p-6 rounded-xl bg-gradient-to-br from-codex-cream/50 to-secondary/20 border border-codex-sepia/20 min-h-[300px] overflow-hidden">
-        {/* Decorative background lines - Lupi style */}
-        <svg className="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none">
-          {[...Array(8)].map((_, i) => (
-            <line
-              key={i}
-              x1="0"
-              y1={`${(i + 1) * 12}%`}
-              x2="100%"
-              y2={`${(i + 1) * 12 + (i % 2 === 0 ? 5 : -5)}%`}
-              stroke="currentColor"
-              strokeWidth="0.5"
-              className="text-codex-sepia"
-            />
-          ))}
-        </svg>
-
-        {/* Pages as organic shapes flowing across the canvas */}
-        <div className="relative flex flex-wrap items-center justify-center gap-2 py-4">
-          {pages.slice(0, 50).map((page, index) => {
-            const { color, size, clipPath, opacity } = getPageShape(page, index);
-            const rotation = (index * 13) % 30 - 15; // Slight rotation variation
-            
+      {/* The Core Thread - Hero Section */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, hsl(var(--codex-cream)) 0%, hsl(var(--secondary)) 50%, hsl(var(--codex-cream)) 100%)',
+          minHeight: '280px'
+        }}
+      >
+        {/* Subtle radiating lines from center */}
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="threadGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="hsl(var(--codex-sepia))" stopOpacity="0.15" />
+              <stop offset="100%" stopColor="hsl(var(--codex-sepia))" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="50%" cy="50%" r="40%" fill="url(#threadGlow)" />
+          
+          {/* Radiating connection lines */}
+          {[...Array(12)].map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            const x2 = 50 + Math.cos(angle) * 45;
+            const y2 = 50 + Math.sin(angle) * 45;
             return (
-              <motion.div
-                key={page.id}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ 
-                  delay: index * 0.02, 
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 15
-                }}
-                className="relative group cursor-pointer"
-                style={{
-                  transform: `rotate(${rotation}deg)`,
-                }}
-              >
-                <div
-                  style={{
-                    width: size,
-                    height: size,
-                    backgroundColor: color,
-                    opacity,
-                    clipPath,
-                  }}
-                  className="transition-all duration-300 group-hover:scale-125 group-hover:opacity-100"
-                />
-                
-                {/* Tooltip on hover */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  <div className="bg-background border border-border rounded-lg p-2 shadow-lg min-w-[120px]">
-                    <p className="text-[10px] font-medium truncate max-w-[150px]">
-                      {page.summary.slice(0, 40)}...
-                    </p>
-                    <p className="text-[9px] text-muted-foreground">
-                      {page.tone[0] || 'reflective'} · {format(page.createdAt, 'MMM d')}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
+              <motion.line
+                key={i}
+                x1="50%"
+                y1="50%"
+                x2={`${x2}%`}
+                y2={`${y2}%`}
+                stroke="hsl(var(--codex-sepia))"
+                strokeWidth="0.5"
+                strokeOpacity="0.2"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
+              />
             );
           })}
-        </div>
+        </svg>
 
-        {/* Connecting threads for shared keywords */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <span className="w-8 h-px bg-codex-sepia/40" />
-            <span>{pages.length} pages · {new Set(pages.flatMap(p => p.keywords)).size} unique themes</span>
-          </div>
-        </div>
-      </div>
+        {/* Central anchor point */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+            className="relative"
+          >
+            {/* Outer glow ring */}
+            <motion.div 
+              className="absolute -inset-8 rounded-full"
+              style={{ 
+                background: 'radial-gradient(circle, hsl(var(--codex-sepia) / 0.1) 0%, transparent 70%)'
+              }}
+              animate={{ 
+                scale: [1, 1.1, 1],
+                opacity: [0.5, 0.8, 0.5]
+              }}
+              transition={{ 
+                duration: 4, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+            />
+            
+            {/* Inner anchor circle */}
+            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-codex-sepia/20 to-codex-sepia/40 border-2 border-codex-sepia/30 flex items-center justify-center shadow-lg">
+              <div className="text-center px-2">
+                <p className="text-[10px] uppercase tracking-wider text-codex-sepia/70 mb-0.5">Your Thread</p>
+                <p className="text-lg font-serif font-medium text-codex-sepia leading-tight">
+                  {topThread[0]?.[0] || 'Emerging'}
+                </p>
+              </div>
+            </div>
 
-      {/* Keyword constellation */}
-      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Theme Constellation</p>
-        <div className="relative h-48 overflow-hidden">
-          {(() => {
-            // Get top keywords with counts
-            const keywordCounts: Record<string, number> = {};
-            pages.forEach(p => p.keywords.forEach(k => {
-              keywordCounts[k] = (keywordCounts[k] || 0) + 1;
-            }));
-            const topKeywords = Object.entries(keywordCounts)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 12);
-            
-            const maxCount = topKeywords[0]?.[1] || 1;
-            
-            return topKeywords.map(([keyword, count], i) => {
-              // Position in a loose spiral pattern
-              const angle = (i / topKeywords.length) * Math.PI * 2;
-              const radius = 30 + (i % 3) * 25;
-              const x = 50 + Math.cos(angle) * radius;
-              const y = 50 + Math.sin(angle) * radius;
-              const size = 0.7 + (count / maxCount) * 0.6;
+            {/* Orbiting secondary themes */}
+            {topThread.slice(1, 5).map(([keyword, count], i) => {
+              const angle = (i / 4) * Math.PI * 2 - Math.PI / 2;
+              const radius = 80 + (i % 2) * 20;
+              const x = Math.cos(angle) * radius;
+              const y = Math.sin(angle) * radius;
+              const size = 0.7 + (count / (topThread[0]?.[1] || 1)) * 0.3;
               
               return (
                 <motion.div
                   key={keyword}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 + i * 0.05 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
                   className="absolute"
                   style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                    transform: 'translate(-50%, -50%)',
+                    left: `calc(50% + ${x}px - 30px)`,
+                    top: `calc(50% + ${y}px - 15px)`,
                   }}
                 >
-                  <span 
-                    className="text-codex-sepia whitespace-nowrap"
+                  <div 
+                    className="px-3 py-1.5 rounded-full bg-background/80 border border-codex-sepia/20 shadow-sm backdrop-blur-sm"
                     style={{ fontSize: `${size}rem` }}
                   >
-                    {keyword}
-                  </span>
+                    <span className="text-foreground/80">{keyword}</span>
+                  </div>
                 </motion.div>
               );
-            });
-          })()}
-          
-          {/* Center point */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-codex-sepia/30" />
+            })}
+          </motion.div>
         </div>
-      </div>
 
-      {/* Emotional flow over time */}
-      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Emotional Flow</p>
-        <div className="flex items-end gap-0.5 h-16">
-          {pages.slice(-30).map((page, i) => {
-            const tone = page.tone[0]?.toLowerCase() || 'reflective';
-            const color = toneColors[tone] || '#8B7355';
+        {/* Bottom info bar */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/50 to-transparent">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              {connectionStrength}% of your pages connect to this thread
+            </span>
+            <span className="text-codex-sepia font-medium">
+              {totalPages} pages
+            </span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Core Thread Description (if AI analysis available) */}
+      {coreThread && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="p-5 rounded-xl bg-gradient-to-r from-codex-cream/50 via-background to-codex-cream/50 border border-codex-sepia/20"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-full bg-codex-sepia/10 flex items-center justify-center shrink-0 mt-0.5">
+              <Compass className="w-4 h-4 text-codex-sepia" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-codex-sepia/60 mb-1.5">The Thread That Runs Through Everything</p>
+              <p className="text-sm leading-relaxed text-foreground/90 font-serif italic">
+                "{coreThread}"
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Safe Harbor - Your Ideas Are Here */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="p-4 rounded-xl bg-secondary/30 border border-border"
+      >
+        <p className="text-xs text-muted-foreground mb-3 font-medium flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500/60" />
+          Safe Harbor — Your ideas are collected
+        </p>
+        
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="p-3 rounded-lg bg-background/50">
+            <p className="text-xl font-serif font-bold text-foreground">{totalPages}</p>
+            <p className="text-[10px] text-muted-foreground">Pages</p>
+          </div>
+          <div className="p-3 rounded-lg bg-background/50">
+            <p className="text-xl font-serif font-bold text-foreground">{sortedKeywords.length}</p>
+            <p className="text-[10px] text-muted-foreground">Themes</p>
+          </div>
+          <div className="p-3 rounded-lg bg-background/50">
+            <p className="text-xl font-serif font-bold text-codex-sepia capitalize">{dominantTone}</p>
+            <p className="text-[10px] text-muted-foreground">Mood</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Timeline: Your Journey */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="p-4 rounded-xl bg-secondary/30 border border-border"
+      >
+        <p className="text-xs text-muted-foreground mb-4 font-medium">Your Journey — Emotional Landscape</p>
+        
+        {/* The thread line with emotional colors */}
+        <div className="relative">
+          {/* Baseline thread */}
+          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-codex-sepia/20" />
+          
+          <div className="flex items-center gap-0.5 h-20 relative">
+            {pages.slice(-40).map((page, i) => {
+              const tone = page.tone[0]?.toLowerCase() || 'reflective';
+              const color = toneColors[tone] || '#8B7355';
+              const height = 20 + Math.random() * 40; // Varied heights for organic feel
+              
+              return (
+                <motion.div
+                  key={page.id}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: `${height}%`, opacity: 1 }}
+                  transition={{ delay: 0.9 + i * 0.015 }}
+                  className="flex-1 rounded-full relative group cursor-pointer"
+                  style={{ 
+                    backgroundColor: color,
+                    opacity: 0.6,
+                    minWidth: '4px'
+                  }}
+                >
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    <div className="bg-background border border-border rounded-lg p-2 shadow-lg min-w-[100px]">
+                      <p className="text-[10px] font-medium capitalize">{tone}</p>
+                      <p className="text-[9px] text-muted-foreground">
+                        {format(page.createdAt, 'MMM d, yyyy')}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+          
+          {/* Thread connection */}
+          <motion.div 
+            className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-codex-sepia/60 via-codex-sepia to-codex-sepia/60"
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ delay: 1.5, duration: 1, ease: 'easeOut' }}
+            style={{ transform: 'translateY(-50%)' }}
+          />
+        </div>
+        
+        <div className="flex justify-between mt-3 text-[10px] text-muted-foreground">
+          <span>Beginning</span>
+          <span className="text-codex-sepia">← The thread that connects →</span>
+          <span>Now</span>
+        </div>
+      </motion.div>
+
+      {/* Theme Clusters */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+        className="p-4 rounded-xl bg-secondary/30 border border-border"
+      >
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Theme Clusters — What You Keep Returning To</p>
+        
+        <div className="flex flex-wrap gap-2">
+          {sortedKeywords.slice(0, 15).map(([keyword, count], i) => {
+            const isTopThread = i < 3;
+            const maxCount = sortedKeywords[0]?.[1] || 1;
+            const opacity = 0.4 + (count / maxCount) * 0.6;
+            
             return (
               <motion.div
-                key={page.id}
-                initial={{ height: 0 }}
-                animate={{ height: '100%' }}
-                transition={{ delay: i * 0.02 }}
-                className="flex-1 rounded-t-sm"
-                style={{ backgroundColor: color, opacity: 0.7 }}
-                title={`${tone} - ${format(page.createdAt, 'MMM d')}`}
-              />
+                key={keyword}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1 + i * 0.03 }}
+                className={`px-3 py-1.5 rounded-full border transition-colors ${
+                  isTopThread 
+                    ? 'bg-codex-sepia/10 border-codex-sepia/30 text-codex-sepia' 
+                    : 'bg-secondary border-border text-foreground/70'
+                }`}
+                style={{ opacity: isTopThread ? 1 : opacity }}
+              >
+                <span className="text-xs">{keyword}</span>
+                {isTopThread && (
+                  <span className="ml-1.5 text-[10px] opacity-60">•</span>
+                )}
+              </motion.div>
             );
           })}
         </div>
-        <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
-          <span>Oldest</span>
-          <span>Newest</span>
-        </div>
-      </div>
+        
+        <p className="text-[10px] text-muted-foreground/60 mt-3 italic text-center">
+          The highlighted themes form your core thread
+        </p>
+      </motion.div>
+
+      {/* Reassurance footer */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+        className="text-center py-4"
+      >
+        <p className="text-xs text-muted-foreground/60 italic">
+          All your ideas are safe. The thread continues.
+        </p>
+      </motion.div>
     </div>
   );
 }
@@ -503,7 +615,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
         </div>
       ) : viewMode === 'visual' ? (
         <div className="p-4">
-          <DataHumanismViz pages={pages} />
+          <RedThreadViz pages={pages} coreThread={aiAnalysis?.core_thread} />
         </div>
       ) : (
         <div className="p-4 space-y-6">
