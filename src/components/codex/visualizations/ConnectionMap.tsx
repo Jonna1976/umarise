@@ -129,22 +129,22 @@ export function ConnectionMap({
 
     // Draw nodes
     nodes.forEach(node => {
-      let radius = 16;
+      let radius = 28;
       let fillColor = 'rgba(139, 123, 107, 0.08)';
       let strokeColor = '#8B7B6B';
-      let textColor = '#5C5147';
-      let fontSize = 8;
+      let textColor = '#4A4039';
+      let fontSize = 11;
 
       if (node.type === 'superpower') {
-        radius = 28;
+        radius = 45;
         fillColor = 'rgba(179, 155, 122, 0.12)';
         strokeColor = '#9B8A6A';
-        fontSize = 9;
+        fontSize = 12;
       } else if (node.type === 'tension') {
-        radius = 20;
+        radius = 35;
         fillColor = 'rgba(155, 107, 90, 0.08)';
         strokeColor = '#9B6B5A';
-        fontSize = 8;
+        fontSize = 11;
       }
 
       // Subtle glow
@@ -181,20 +181,21 @@ export function ConnectionMap({
 
       // Draw label
       ctx.fillStyle = textColor;
-      ctx.font = `${fontSize}px "Crimson Pro", Georgia, serif`;
+      ctx.font = `bold ${fontSize}px "Crimson Pro", Georgia, serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
       // Word wrap for longer labels
-      const maxWidth = radius * 1.4;
+      const maxWidth = radius * 1.6;
       const words = node.label.split(' ');
       if (words.length > 2 && node.type !== 'keyword') {
         const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
         const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
-        ctx.fillText(line1, node.x, node.y - 4);
-        ctx.fillText(line2, node.x, node.y + 6);
+        ctx.fillText(line1, node.x, node.y - 6);
+        ctx.fillText(line2, node.x, node.y + 8);
       } else {
-        ctx.fillText(node.label.slice(0, 10), node.x, node.y);
+        // Show full text, not truncated
+        ctx.fillText(node.label.slice(0, 14), node.x, node.y);
       }
     });
 
@@ -214,17 +215,17 @@ export function ConnectionMap({
       ctx.fill();
     });
 
-    // Legend - minimal
-    ctx.fillStyle = '#9A9A9A';
-    ctx.font = '8px "Crimson Pro", Georgia, serif';
+    // Legend - larger and clearer
+    ctx.fillStyle = '#7A6B5F';
+    ctx.font = '12px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText('← tension field →', centerX, height - 30);
 
-    // Tagline
-    ctx.fillStyle = '#7A6B5F';
-    ctx.font = 'italic 11px "Crimson Pro", Georgia, serif';
+    // Tagline - larger
+    ctx.fillStyle = '#5C5147';
+    ctx.font = 'italic 16px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`"${tagline}"`, centerX, 28);
+    ctx.fillText(`"${tagline}"`, centerX, 32);
 
   }, [data, tagline, width, height]);
 
