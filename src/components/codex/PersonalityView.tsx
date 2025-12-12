@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
 import { PersonalityEvolution } from './PersonalityEvolution';
 import { CompareProfilesView } from './CompareProfilesView';
+import { RecommendationsSection } from './RecommendationsSection';
 
 interface PersonalityViewProps {
   onBack: () => void;
@@ -570,6 +571,24 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                 "{currentProfile.growth_edge}"
               </p>
             </motion.div>
+
+            {/* AI Recommendations */}
+            <RecommendationsSection 
+              profile={{
+                tagline: currentProfile.tagline,
+                core_identity: currentProfile.core_identity,
+                drivers: currentProfile.drivers.map(d => ({ 
+                  name: d.name, 
+                  strength: d.strength === 'high' ? 90 : d.strength === 'medium' ? 60 : 30 
+                })),
+                superpower: currentProfile.superpower,
+                tension_field: { 
+                  pole_a: currentProfile.tension_field.side_a, 
+                  pole_b: currentProfile.tension_field.side_b 
+                },
+                growth_edge: currentProfile.growth_edge
+              }} 
+            />
 
             {/* Visualize as Art Button (only for voice) */}
             {activeTab === 'voice' && (
