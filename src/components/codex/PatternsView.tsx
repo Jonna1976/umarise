@@ -472,7 +472,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           
           <div className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-codex-sepia" />
-            <h1 className="font-serif text-lg font-medium">Patronen</h1>
+            <h1 className="font-serif text-lg font-medium">Patterns</h1>
           </div>
           
           <Button
