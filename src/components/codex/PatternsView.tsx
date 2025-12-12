@@ -13,11 +13,14 @@ import {
   AlertCircle,
   Lightbulb,
   Heart,
-  Target
+  Target,
+  Eye,
+  FileText
 } from 'lucide-react';
 import { Page } from '@/lib/pageService';
 import { usePages } from '@/hooks/usePages';
 import { format, eachWeekOfInterval, subMonths, endOfWeek } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
@@ -49,6 +52,36 @@ interface AIPatternAnalysis {
   analyzed_at: string;
 }
 
+type ViewMode = 'tekst' | 'visueel';
+
+// Tone to color mapping for visualization
+const toneColors: Record<string, string> = {
+  focused: '#4A7C59',      // Deep green
+  hopeful: '#E8B86D',      // Warm gold
+  frustrated: '#C65D3B',   // Terracotta
+  playful: '#7B68EE',      // Soft purple
+  overwhelmed: '#8B4557',  // Dusty rose
+  reflective: '#5B7C99',   // Steel blue
+  curious: '#D4A574',      // Sandy brown
+  determined: '#2F4858',   // Dark teal
+  anxious: '#9B8AA0',      // Muted lavender
+  calm: '#87A889',         // Sage green
+};
+
+// Tone Dutch translations
+const toneTranslations: Record<string, string> = {
+  focused: 'gefocust',
+  hopeful: 'hoopvol',
+  frustrated: 'gefrustreerd',
+  playful: 'speels',
+  overwhelmed: 'overweldigd',
+  reflective: 'reflectief',
+  curious: 'nieuwsgierig',
+  determined: 'vastberaden',
+  anxious: 'onrustig',
+  calm: 'kalm',
+};
+
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
     focused: 'tone-focused',
@@ -79,11 +112,251 @@ function getFrequencyColor(frequency: string) {
   }
 }
 
+function translateTone(tone: string): string {
+  return toneTranslations[tone.toLowerCase()] || tone;
+}
+
+// Giorgia Lupi inspired visual component
+function DataHumanismViz({ pages }: { pages: Page[] }) {
+  // Group pages by week for timeline
+  const pagesByWeek = useMemo(() => {
+    const groups = new Map<string, Page[]>();
+    pages.forEach(page => {
+      const weekKey = format(page.createdAt, 'yyyy-ww', { locale: nl });
+      const existing = groups.get(weekKey) || [];
+      existing.push(page);
+      groups.set(weekKey, existing);
+    });
+    return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [pages]);
+
+  // Calculate visual properties for each page
+  const getPageShape = (page: Page, index: number) => {
+    const tone = page.tone[0]?.toLowerCase() || 'reflective';
+    const color = toneColors[tone] || '#8B7355';
+    const keywordCount = page.keywords.length;
+    const textLength = page.ocrText?.length || 100;
+    
+    // Size based on content richness
+    const baseSize = 12 + Math.min(keywordCount * 3, 20);
+    
+    // Shape variation based on tone
+    const shapes = {
+      focused: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',      // Diamond
+      hopeful: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', // Pentagon
+      frustrated: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', // Hexagon
+      playful: 'circle(50%)',                                        // Circle
+      overwhelmed: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)', // Star
+      reflective: 'ellipse(50% 35%)',                                // Oval
+      curious: 'polygon(50% 0%, 100% 100%, 0% 100%)',               // Triangle
+      determined: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',    // Square
+      anxious: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',       // Trapezoid
+      calm: 'ellipse(50% 50%)',                                      // Circle
+    };
+    
+    const clipPath = shapes[tone as keyof typeof shapes] || 'circle(50%)';
+    
+    // Opacity based on text length (more content = more solid)
+    const opacity = 0.4 + Math.min(textLength / 1000, 0.5);
+    
+    return { color, size: baseSize, clipPath, opacity };
+  };
+
+  if (pages.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground text-sm">
+        Nog geen pagina's om te visualiseren
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Legend */}
+      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Legenda — elke vorm is een pagina</p>
+        <div className="flex flex-wrap gap-3">
+          {Object.entries(toneColors).slice(0, 6).map(([tone, color]) => (
+            <div key={tone} className="flex items-center gap-1.5">
+              <div 
+                className="w-3 h-3 rounded-full" 
+                style={{ backgroundColor: color }}
+              />
+              <span className="text-[10px] text-muted-foreground capitalize">
+                {translateTone(tone)}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-2 italic">
+          Grootte = aantal keywords · Vorm = stemming · Kleur = emotie
+        </p>
+      </div>
+
+      {/* Main visualization - Timeline flow */}
+      <div className="relative p-6 rounded-xl bg-gradient-to-br from-codex-cream/50 to-secondary/20 border border-codex-sepia/20 min-h-[300px] overflow-hidden">
+        {/* Decorative background lines - Lupi style */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none">
+          {[...Array(8)].map((_, i) => (
+            <line
+              key={i}
+              x1="0"
+              y1={`${(i + 1) * 12}%`}
+              x2="100%"
+              y2={`${(i + 1) * 12 + (i % 2 === 0 ? 5 : -5)}%`}
+              stroke="currentColor"
+              strokeWidth="0.5"
+              className="text-codex-sepia"
+            />
+          ))}
+        </svg>
+
+        {/* Pages as organic shapes flowing across the canvas */}
+        <div className="relative flex flex-wrap items-center justify-center gap-2 py-4">
+          {pages.slice(0, 50).map((page, index) => {
+            const { color, size, clipPath, opacity } = getPageShape(page, index);
+            const rotation = (index * 13) % 30 - 15; // Slight rotation variation
+            
+            return (
+              <motion.div
+                key={page.id}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ 
+                  delay: index * 0.02, 
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 15
+                }}
+                className="relative group cursor-pointer"
+                style={{
+                  transform: `rotate(${rotation}deg)`,
+                }}
+              >
+                <div
+                  style={{
+                    width: size,
+                    height: size,
+                    backgroundColor: color,
+                    opacity,
+                    clipPath,
+                  }}
+                  className="transition-all duration-300 group-hover:scale-125 group-hover:opacity-100"
+                />
+                
+                {/* Tooltip on hover */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  <div className="bg-background border border-border rounded-lg p-2 shadow-lg min-w-[120px]">
+                    <p className="text-[10px] font-medium truncate max-w-[150px]">
+                      {page.summary.slice(0, 40)}...
+                    </p>
+                    <p className="text-[9px] text-muted-foreground">
+                      {translateTone(page.tone[0] || 'reflectief')} · {format(page.createdAt, 'd MMM', { locale: nl })}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Connecting threads for shared keywords */}
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+            <span className="w-8 h-px bg-codex-sepia/40" />
+            <span>{pages.length} pagina's · {new Set(pages.flatMap(p => p.keywords)).size} unieke thema's</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Keyword constellation */}
+      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Thema-constellatie</p>
+        <div className="relative h-48 overflow-hidden">
+          {(() => {
+            // Get top keywords with counts
+            const keywordCounts: Record<string, number> = {};
+            pages.forEach(p => p.keywords.forEach(k => {
+              keywordCounts[k] = (keywordCounts[k] || 0) + 1;
+            }));
+            const topKeywords = Object.entries(keywordCounts)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 12);
+            
+            const maxCount = topKeywords[0]?.[1] || 1;
+            
+            return topKeywords.map(([keyword, count], i) => {
+              // Position in a loose spiral pattern
+              const angle = (i / topKeywords.length) * Math.PI * 2;
+              const radius = 30 + (i % 3) * 25;
+              const x = 50 + Math.cos(angle) * radius;
+              const y = 50 + Math.sin(angle) * radius;
+              const size = 0.7 + (count / maxCount) * 0.6;
+              
+              return (
+                <motion.div
+                  key={keyword}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 + i * 0.05 }}
+                  className="absolute"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <span 
+                    className="text-codex-sepia whitespace-nowrap"
+                    style={{ fontSize: `${size}rem` }}
+                  >
+                    {keyword}
+                  </span>
+                </motion.div>
+              );
+            });
+          })()}
+          
+          {/* Center point */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-codex-sepia/30" />
+        </div>
+      </div>
+
+      {/* Emotional flow over time */}
+      <div className="p-4 rounded-xl bg-secondary/30 border border-border">
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Emotionele stroom</p>
+        <div className="flex items-end gap-0.5 h-16">
+          {pages.slice(-30).map((page, i) => {
+            const tone = page.tone[0]?.toLowerCase() || 'reflective';
+            const color = toneColors[tone] || '#8B7355';
+            return (
+              <motion.div
+                key={page.id}
+                initial={{ height: 0 }}
+                animate={{ height: '100%' }}
+                transition={{ delay: i * 0.02 }}
+                className="flex-1 rounded-t-sm"
+                style={{ backgroundColor: color, opacity: 0.7 }}
+                title={`${translateTone(tone)} - ${format(page.createdAt, 'd MMM', { locale: nl })}`}
+              />
+            );
+          })}
+        </div>
+        <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
+          <span>Oudste</span>
+          <span>Nieuwste</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PatternsView({ onBack }: PatternsViewProps) {
   const { pages, isLoading: pagesLoading } = usePages();
   const [aiAnalysis, setAiAnalysis] = useState<AIPatternAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('tekst');
 
   // Basic statistics computed locally
   const basicPatterns = useMemo(() => {
@@ -116,7 +389,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
         p.createdAt >= weekStart && p.createdAt <= weekEnd
       );
       return {
-        week: format(weekStart, 'MMM d'),
+        week: format(weekStart, 'd MMM', { locale: nl }),
         count: weekPages.length,
         tones: weekPages.flatMap(p => p.tone),
       };
@@ -136,7 +409,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
   const runAIAnalysis = async () => {
     const deviceId = getDeviceId();
     if (!deviceId) {
-      toast.error('Device ID niet gevonden');
+      toast.error('Apparaat-ID niet gevonden');
       return;
     }
 
@@ -158,7 +431,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
       if (data.error) {
         setAnalysisError(data.error);
         if (data.page_count !== undefined) {
-          toast.error(`Je hebt ${data.page_count} pagina's - minimaal 3 nodig voor analyse`);
+          toast.error(`Je hebt ${data.page_count} pagina's — minimaal 3 nodig voor analyse`);
         } else {
           toast.error(data.error);
         }
@@ -213,9 +486,40 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           </Button>
         </div>
 
+        {/* View mode toggle */}
+        <div className="px-4 pb-3 flex justify-center">
+          <div className="inline-flex rounded-full bg-secondary/50 p-1">
+            <button
+              onClick={() => setViewMode('tekst')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm transition-colors ${
+                viewMode === 'tekst' 
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              Tekst
+            </button>
+            <button
+              onClick={() => setViewMode('visueel')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm transition-colors ${
+                viewMode === 'visueel' 
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Visueel
+            </button>
+          </div>
+        </div>
+
         <div className="px-4 pb-3">
           <p className="text-xs text-muted-foreground text-center">
-            AI-analyse van thema's, trends en rode draad
+            {viewMode === 'tekst' 
+              ? 'AI-analyse van thema\'s, trends en rode draad'
+              : 'Visuele weergave van je codex — geïnspireerd door data-humanisme'
+            }
           </p>
         </div>
       </div>
@@ -227,6 +531,10 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           <p className="text-sm text-muted-foreground/70">
             Voeg pagina's toe om patronen te ontdekken
           </p>
+        </div>
+      ) : viewMode === 'visueel' ? (
+        <div className="p-4">
+          <DataHumanismViz pages={pages} />
         </div>
       ) : (
         <div className="p-4 space-y-6">
@@ -346,7 +654,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
                     {aiAnalysis.emotional_trends.overall_direction}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Dominant: {aiAnalysis.emotional_trends.dominant_tone}
+                    Dominant: {translateTone(aiAnalysis.emotional_trends.dominant_tone)}
                   </p>
                 </div>
               </div>
@@ -441,7 +749,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-4">
               <Hash className="w-4 h-4 text-codex-sepia" />
-              <h3 className="font-medium text-sm">Top Keywords</h3>
+              <h3 className="font-medium text-sm">Top Thema's</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {basicPatterns.topKeywords.map(([keyword, count], index) => {
@@ -484,7 +792,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
                   <div key={tone}>
                     <div className="flex items-center justify-between mb-1">
                       <span className={`tone-chip text-xs ${getToneClass(tone)}`}>
-                        {tone}
+                        {translateTone(tone)}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {percentage}%
@@ -557,9 +865,9 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
-              <h3 className="font-medium text-sm text-muted-foreground">Threads</h3>
+              <h3 className="font-medium text-sm text-muted-foreground">Draden</h3>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                Coming Soon
+                Binnenkort
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
