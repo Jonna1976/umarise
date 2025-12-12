@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library } from 'lucide-react';
-import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
+import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { InsightsSection } from './InsightsSection';
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
@@ -83,6 +83,12 @@ export function HistoryView({
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('shelf');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Load projects on mount
+  useEffect(() => {
+    getProjects().then(setProjects);
+  }, []);
 
   // Get unique primary keywords for filter dropdown
   const primaryKeywords = useMemo(() => {
@@ -720,6 +726,7 @@ export function HistoryView({
                           }
                         }}
                         index={index}
+                        projects={projects}
                       />
                     </div>
                   ))}

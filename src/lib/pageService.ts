@@ -17,8 +17,16 @@ export interface Page {
   confidenceScore?: number;
   capsuleId?: string;
   pageOrder?: number;
+  projectId?: string;
   createdAt: Date;
   updatedAt?: Date;
+}
+
+export interface Project {
+  id: string;
+  deviceUserId: string;
+  name: string;
+  createdAt: Date;
 }
 
 export interface CapsulePages {
@@ -281,6 +289,7 @@ export async function getPages(): Promise<Page[]> {
     confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
     capsuleId: row.capsule_id || undefined,
     pageOrder: row.page_order ?? 0,
+    projectId: (row as { project_id?: string }).project_id || undefined,
     createdAt: new Date(row.created_at),
     updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
   }));
@@ -550,4 +559,61 @@ function calculateSimilarity(str1: string, str2: string): number {
   const intersection = [...words1].filter(w => words2.has(w));
   
   return intersection.length / Math.max(words1.size, words2.size);
+}
+
+// Get all projects for current device
+export async function getProjects(): Promise<Project[]> {
+  const deviceUserId = getDeviceId();
+  
+  if (!deviceUserId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('device_user_id', deviceUserId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Fetch projects error:', error);
+    return [];
+  }
+
+  return data.map(row => ({
+    id: row.id,
+    deviceUserId: row.device_user_id,
+    name: row.name,
+    createdAt: new Date(row.created_at),
+  }));
+}
+
+// Create a new project
+export async function createProject(name: string): Promise<Project | null> {
+  const deviceUserId = getDeviceId();
+  
+  if (!deviceUserId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('projects')
+    .insert({
+      device_user_id: deviceUserId,
+      name: name.trim(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Create project error:', error);
+    return null;
+  }
+
+  return {
+    id: data.id,
+    deviceUserId: data.device_user_id,
+    name: data.name,
+    createdAt: new Date(data.created_at),
+  };
 }

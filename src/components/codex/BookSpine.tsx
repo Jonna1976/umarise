@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
-import { Page, CapsulePages } from '@/lib/pageService';
-import { Images } from 'lucide-react';
+import { Page, CapsulePages, Project } from '@/lib/pageService';
+import { Images, FolderOpen } from 'lucide-react';
 
 interface BookSpineProps {
   page?: Page;
   capsule?: CapsulePages;
   onClick: () => void;
   index: number;
+  projects?: Project[];
 }
 
 // Extract a short title for the spine
@@ -75,13 +76,17 @@ function getSpineColor(tones: string[]): {
   return toneMap[primaryTone] || toneMap.reflective;
 }
 
-export function BookSpine({ page, capsule, onClick, index }: BookSpineProps) {
+export function BookSpine({ page, capsule, onClick, index, projects = [] }: BookSpineProps) {
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
   
   const title = extractSpineTitle(representativePage);
   const colors = getSpineColor(representativePage.tone);
   const pageCount = capsule?.pages.length || 1;
+  
+  // Find project name if page has a project
+  const projectId = representativePage.projectId;
+  const project = projectId ? projects.find(p => p.id === projectId) : null;
   
   // Spine width varies slightly based on content/page count
   const baseWidth = 44;
@@ -125,8 +130,21 @@ export function BookSpine({ page, capsule, onClick, index }: BookSpineProps) {
         }}
       />
       
+      {/* Project label at top */}
+      {project && (
+        <div className={`absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-80`}>
+          <FolderOpen className="w-2.5 h-2.5" />
+          <span 
+            className="text-[7px] font-bold uppercase tracking-wide max-w-[30px] truncate"
+            title={project.name}
+          >
+            {project.name.slice(0, 4)}
+          </span>
+        </div>
+      )}
+      
       {/* Title - vertical text */}
-      <div className="absolute inset-0 flex items-center justify-center p-2">
+      <div className={`absolute inset-0 flex items-center justify-center p-2 ${project ? 'pt-6' : ''}`}>
         <span 
           className={`
             ${colors.text} font-serif text-xs font-medium
