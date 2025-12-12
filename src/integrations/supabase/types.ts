@@ -27,6 +27,7 @@ export type Database = {
           ocr_text: string | null
           page_order: number | null
           primary_keyword: string | null
+          project_id: string | null
           sources: string[] | null
           summary: string | null
           tone: string | null
@@ -45,6 +46,7 @@ export type Database = {
           ocr_text?: string | null
           page_order?: number | null
           primary_keyword?: string | null
+          project_id?: string | null
           sources?: string[] | null
           summary?: string | null
           tone?: string | null
@@ -63,13 +65,22 @@ export type Database = {
           ocr_text?: string | null
           page_order?: number | null
           primary_keyword?: string | null
+          project_id?: string | null
           sources?: string[] | null
           summary?: string | null
           tone?: string | null
           updated_at?: string
           user_note?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personality_snapshots: {
         Row: {
@@ -110,6 +121,27 @@ export type Database = {
           superpower?: string
           tagline?: string
           tension_field?: Json
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          device_user_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          device_user_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          device_user_id?: string
+          id?: string
+          name?: string
         }
         Relationships: []
       }
