@@ -532,7 +532,7 @@ function TransparencySection({ pages, aiAnalysis }: { pages: Page[]; aiAnalysis:
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="max-h-64 overflow-y-auto rounded-lg border border-border">
+                    <div className="max-h-80 overflow-y-auto rounded-lg border border-border">
                       <table className="w-full text-xs">
                         <thead className="bg-secondary/50 sticky top-0">
                           <tr>
@@ -540,6 +540,7 @@ function TransparencySection({ pages, aiAnalysis }: { pages: Page[]; aiAnalysis:
                             <th className="p-2 text-left font-medium text-muted-foreground">Date</th>
                             <th className="p-2 text-left font-medium text-muted-foreground">Summary</th>
                             <th className="p-2 text-left font-medium text-muted-foreground">Tone</th>
+                            <th className="p-2 text-left font-medium text-muted-foreground">Keywords</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -547,8 +548,9 @@ function TransparencySection({ pages, aiAnalysis }: { pages: Page[]; aiAnalysis:
                             <tr key={item.index} className="hover:bg-secondary/30">
                               <td className="p-2 text-muted-foreground">{item.index}</td>
                               <td className="p-2 text-muted-foreground whitespace-nowrap">{item.date}</td>
-                              <td className="p-2 text-foreground/80 max-w-[200px] truncate">{item.summary}</td>
-                              <td className="p-2 text-muted-foreground capitalize">{item.tone}</td>
+                              <td className="p-2 text-foreground/80 max-w-[180px] truncate" title={item.summary}>{item.summary}</td>
+                              <td className="p-2 text-muted-foreground capitalize whitespace-nowrap">{item.tone}</td>
+                              <td className="p-2 text-codex-sepia/80 max-w-[150px] truncate" title={item.keywords}>{item.keywords}</td>
                             </tr>
                           ))}
                         </tbody>
