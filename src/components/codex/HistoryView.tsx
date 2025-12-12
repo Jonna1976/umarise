@@ -97,10 +97,11 @@ export function HistoryView({
       pages = pages.filter(p => p.primaryKeyword === keywordFilter);
     }
 
-    // Apply search filter
+    // Apply search filter (includes OCR text for full-text search)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       pages = pages.filter(p => 
+        p.ocrText.toLowerCase().includes(query) ||
         p.summary.toLowerCase().includes(query) ||
         p.keywords.some(k => k.toLowerCase().includes(query)) ||
         p.tone.some(t => t.toLowerCase().includes(query)) ||
