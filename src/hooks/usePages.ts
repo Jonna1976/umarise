@@ -5,7 +5,9 @@ import {
   Page, 
   getPages as fetchPages, 
   createPage as createPageService, 
-  deletePage as deletePageService 
+  deletePage as deletePageService,
+  updatePage as updatePageService,
+  checkDuplicate
 } from '@/lib/pageService';
 import { toast } from 'sonner';
 
@@ -34,10 +36,20 @@ export function usePages() {
     loadPages();
   }, [loadPages]);
 
-  // Create new page
+  // Create new page with duplicate detection
   const createPage = useCallback(async (imageDataUrl: string): Promise<Page | null> => {
     try {
       const newPage = await createPageService(imageDataUrl);
+      
+      // Check for duplicate after creation (we have OCR text now)
+      const duplicate = await checkDuplicate(newPage.ocrText);
+      if (duplicate && duplicate.id !== newPage.id) {
+        toast.warning('This page looks similar to one you already captured', {
+          description: `Similar to page from ${duplicate.createdAt.toLocaleDateString()}`,
+          duration: 5000,
+        });
+      }
+      
       setPages(prev => [newPage, ...prev]);
       return newPage;
     } catch (e) {
@@ -45,6 +57,23 @@ export function usePages() {
       const message = e instanceof Error ? e.message : 'Failed to save page';
       toast.error(message);
       return null;
+    }
+  }, []);
+
+  // Update page
+  const updatePage = useCallback(async (page: Page): Promise<boolean> => {
+    try {
+      const success = await updatePageService(page.id, {
+        userNote: page.userNote,
+        primaryKeyword: page.primaryKeyword,
+      });
+      if (success) {
+        setPages(prev => prev.map(p => p.id === page.id ? page : p));
+      }
+      return success;
+    } catch (e) {
+      console.error('Failed to update page:', e);
+      return false;
     }
   }, []);
 
@@ -74,6 +103,7 @@ export function usePages() {
     isLoading,
     error,
     createPage,
+    updatePage,
     deletePage,
     refresh,
   };
