@@ -1,12 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo } from 'react';
 import { InsightsSection } from './InsightsSection';
 import { BookCoverCard } from './BookCoverCard';
+import { BookSpine } from './BookSpine';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +34,7 @@ interface HistoryViewProps {
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
-type ViewMode = 'list' | 'calendar' | 'covers';
+type ViewMode = 'list' | 'calendar' | 'covers' | 'shelf';
 
 // Union type for history items
 type HistoryItem = 
@@ -80,7 +81,7 @@ export function HistoryView({
   const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('covers');
+  const [viewMode, setViewMode] = useState<ViewMode>('shelf');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   // Get unique primary keywords for filter dropdown
@@ -325,6 +326,15 @@ export function HistoryView({
           
           {/* View mode toggle */}
           <div className="flex bg-secondary rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('shelf')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Bookshelf"
+            >
+              <Library className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setViewMode('covers')}
               className={`p-1.5 rounded transition-colors ${
@@ -649,6 +659,78 @@ export function HistoryView({
                     />
                   </motion.div>
                 ))}
+              </div>
+            )}
+          </motion.div>
+        ) : viewMode === 'shelf' ? (
+          /* Bookshelf View */
+          <motion.div
+            key="shelf"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="py-4"
+          >
+            {historyItems.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16 px-4"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
+                  <Library className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground mb-6">
+                  Your bookshelf is empty
+                </p>
+                <Button onClick={onBack} variant="codex">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Start writing
+                </Button>
+              </motion.div>
+            ) : (
+              <div className="relative">
+                {/* Shelf background */}
+                <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-amber-900/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-2 bg-amber-800/40 shadow-inner" />
+                
+                {/* Books container */}
+                <div 
+                  className="flex gap-1.5 px-4 pb-6 overflow-x-auto scrollbar-hide"
+                  style={{ 
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch'
+                  }}
+                >
+                  {historyItems.map((item, index) => (
+                    <div 
+                      key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                      style={{ scrollSnapAlign: 'start' }}
+                    >
+                      <BookSpine
+                        page={item.type === 'page' ? item.page : undefined}
+                        capsule={item.type === 'capsule' ? item.capsule : undefined}
+                        onClick={() => {
+                          if (item.type === 'page') {
+                            onSelectPage(item.page);
+                          } else if (onSelectCapsule) {
+                            onSelectCapsule(item.capsule);
+                          } else {
+                            onSelectPage(item.capsule.pages[0]);
+                          }
+                        }}
+                        index={index}
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Shelf count */}
+                <div className="text-center mt-2">
+                  <span className="text-xs text-muted-foreground">
+                    {historyItems.length} {historyItems.length === 1 ? 'book' : 'books'} on your shelf
+                  </span>
+                </div>
               </div>
             )}
           </motion.div>
