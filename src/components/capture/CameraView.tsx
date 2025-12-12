@@ -323,77 +323,179 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             </div>
           </div>
         ) : (
-          // Zero UI: Pulsating upload circle
+          // Zero UI: Glowing portal upload circle
           <motion.div
             ref={dropZoneRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center p-8"
+            className="text-center p-8 relative"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Pulsating circle upload zone */}
-            <motion.button
-              onClick={() => fileInputRef.current?.click()}
-              className={`relative w-32 h-32 rounded-full mx-auto flex items-center justify-center transition-all ${
-                isDraggingOver 
-                  ? 'bg-codex-gold/30 border-2 border-codex-gold' 
-                  : 'bg-primary-foreground/5 border-2 border-primary-foreground/20 hover:bg-primary-foreground/10 hover:border-primary-foreground/30'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {/* Outer pulsing ring */}
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-codex-gold/40"
-                animate={{
-                  scale: [1, 1.15, 1],
-                  opacity: [0.6, 0, 0.6],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
+            {/* Container for circle + orbiting orbs */}
+            <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
               
-              {/* Second pulsing ring */}
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-codex-gold/30"
-                animate={{
-                  scale: [1, 1.25, 1],
-                  opacity: [0.4, 0, 0.4],
-                }}
-                transition={{
-                  duration: 2,
-                  delay: 0.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
+              {/* Orbiting orbs for each captured image */}
+              {capturedImages.map((_, index) => {
+                const totalOrbs = capturedImages.length;
+                const angle = (index / totalOrbs) * 360;
+                const orbitRadius = 120; // px from center
+                const orbColors = [
+                  'from-amber-400 to-amber-600',
+                  'from-blue-400 to-blue-600', 
+                  'from-teal-400 to-teal-600',
+                  'from-purple-400 to-purple-600',
+                  'from-rose-400 to-rose-600',
+                  'from-emerald-400 to-emerald-600',
+                  'from-orange-400 to-orange-600',
+                ];
+                const colorClass = orbColors[index % orbColors.length];
+                
+                return (
+                  <motion.div
+                    key={index}
+                    className="absolute w-4 h-4 rounded-full"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      rotate: [angle, angle + 360],
+                    }}
+                    transition={{
+                      opacity: { duration: 0.3 },
+                      scale: { duration: 0.3, type: 'spring' },
+                      rotate: { duration: 20, repeat: Infinity, ease: 'linear' },
+                    }}
+                    style={{
+                      transformOrigin: 'center center',
+                    }}
+                  >
+                    <motion.div
+                      className={`w-4 h-4 rounded-full bg-gradient-to-br ${colorClass} shadow-lg`}
+                      style={{
+                        transform: `translateX(${orbitRadius}px)`,
+                        boxShadow: `0 0 12px 2px rgba(255, 200, 100, 0.4)`,
+                      }}
+                      animate={{
+                        boxShadow: [
+                          '0 0 8px 2px rgba(255, 200, 100, 0.3)',
+                          '0 0 16px 4px rgba(255, 200, 100, 0.5)',
+                          '0 0 8px 2px rgba(255, 200, 100, 0.3)',
+                        ],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  </motion.div>
+                );
+              })}
               
-              <div className="flex flex-col items-center gap-2">
-                <Plus className={`w-10 h-10 ${isDraggingOver ? 'text-codex-gold' : 'text-primary-foreground/60'}`} strokeWidth={1.5} />
-                <span className={`text-xs ${isDraggingOver ? 'text-codex-gold' : 'text-primary-foreground/50'}`}>
-                  {isDraggingOver ? 'Drop here' : 'Upload'}
-                </span>
-              </div>
-            </motion.button>
+              {/* Glowing portal circle */}
+              <motion.button
+                onClick={() => fileInputRef.current?.click()}
+                className="relative w-36 h-36 rounded-full flex items-center justify-center"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  background: 'radial-gradient(circle, rgba(255, 191, 0, 0.15) 0%, rgba(255, 191, 0, 0.05) 50%, transparent 70%)',
+                }}
+              >
+                {/* Outer glow */}
+                <div 
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, transparent 40%, rgba(255, 180, 50, 0.1) 60%, transparent 80%)',
+                    filter: 'blur(20px)',
+                  }}
+                />
+                
+                {/* Main glowing ring */}
+                <motion.div
+                  className="absolute inset-4 rounded-full"
+                  style={{
+                    border: '2px solid transparent',
+                    background: `linear-gradient(#0a0a0a, #0a0a0a) padding-box, 
+                               linear-gradient(135deg, rgba(255, 200, 100, 0.9), rgba(255, 150, 50, 0.6), rgba(255, 200, 100, 0.9)) border-box`,
+                    boxShadow: isDraggingOver 
+                      ? '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)'
+                      : '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
+                  }}
+                  animate={{
+                    boxShadow: isDraggingOver 
+                      ? [
+                          '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)',
+                          '0 0 60px 20px rgba(255, 180, 50, 0.7), inset 0 0 40px rgba(255, 180, 50, 0.3)',
+                          '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)',
+                        ]
+                      : [
+                          '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
+                          '0 0 40px 12px rgba(255, 180, 50, 0.4), inset 0 0 25px rgba(255, 180, 50, 0.15)',
+                          '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
+                        ],
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+                
+                {/* Inner subtle glow */}
+                <motion.div
+                  className="absolute inset-8 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(255, 200, 100, 0.08) 0%, transparent 70%)',
+                  }}
+                  animate={{
+                    opacity: [0.5, 0.8, 0.5],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+                
+                {/* Pulsing attraction effect - only visible when dragging */}
+                <AnimatePresence>
+                  {isDraggingOver && (
+                    <>
+                      <motion.div
+                        className="absolute inset-2 rounded-full border border-codex-gold/60"
+                        initial={{ scale: 1.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 0.8 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      />
+                      <motion.div
+                        className="absolute inset-0 rounded-full border border-codex-gold/40"
+                        initial={{ scale: 1.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 0.6 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2, repeat: Infinity }}
+                      />
+                    </>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </div>
             
             {error && (
               <p className="text-primary-foreground/50 mt-6 text-sm">{error}</p>
             )}
             
-            <p className="text-primary-foreground/30 text-xs mt-6">
-              Click or drag photos here
+            <p className="text-primary-foreground/30 text-xs mt-8">
+              {capturedImages.length > 0 
+                ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured • tap to add more`
+                : 'Tap or drag photos here'
+              }
             </p>
             
             <button
               onClick={startCamera}
               className="block mx-auto mt-4 text-primary-foreground/40 text-xs hover:text-primary-foreground/60 transition-colors"
             >
-              Try camera again
+              Try camera instead
             </button>
           </motion.div>
         )}
