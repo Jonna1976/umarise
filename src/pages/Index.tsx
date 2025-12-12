@@ -9,6 +9,7 @@ import { CapsuleCarouselView } from '@/components/codex/CapsuleCarouselView';
 import { TestPanel } from '@/components/dev/TestPanel';
 import { PatternsView } from '@/components/codex/PatternsView';
 import { PersonalityView } from '@/components/codex/PersonalityView';
+import { KompasView } from '@/components/codex/KompasView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -19,7 +20,7 @@ import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'add-to-capsule' | 'capsule-carousel';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -204,6 +205,14 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleViewKompas = useCallback(() => {
+    setView('kompas');
+  }, []);
+
+  const handleBackFromKompas = useCallback(() => {
+    setView('history');
+  }, []);
+
   const handleLoadTestData = useCallback(() => {
     // Test data loading is no longer supported with real database
     // Just close panel and refresh
@@ -284,6 +293,7 @@ const Index = () => {
             onAddToCapsule={handleStartAddToCapsule}
             onViewPatterns={handleViewPatterns}
             onViewPersonality={handleViewPersonality}
+            onViewKompas={handleViewKompas}
           />
         );
       
@@ -339,6 +349,11 @@ const Index = () => {
       case 'personality':
         return (
           <PersonalityView onBack={handleBackFromPersonality} />
+        );
+      
+      case 'kompas':
+        return (
+          <KompasView pages={pages} onBack={handleBackFromKompas} />
         );
       
       case 'detail':
