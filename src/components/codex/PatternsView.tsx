@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
   TrendingUp, 
@@ -272,150 +272,140 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           )}
 
           {/* Core Thread / Rode Draad */}
-          <AnimatePresence>
-            {aiAnalysis && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-5 rounded-xl bg-gradient-to-br from-codex-sepia/10 via-codex-cream to-secondary/30 border border-codex-sepia/30"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Compass className="w-5 h-5 text-codex-sepia" />
-                  <h3 className="font-serif font-medium">De Rode Draad</h3>
-                </div>
-                <p className="text-sm leading-relaxed text-foreground/90">
-                  {aiAnalysis.core_thread}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-3">
-                  Gebaseerd op {aiAnalysis.page_count} pagina's
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {aiAnalysis && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-5 rounded-xl bg-gradient-to-br from-codex-sepia/10 via-codex-cream to-secondary/30 border border-codex-sepia/30"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Compass className="w-5 h-5 text-codex-sepia" />
+                <h3 className="font-serif font-medium">De Rode Draad</h3>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground/90">
+                {aiAnalysis.core_thread}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-3">
+                Gebaseerd op {aiAnalysis.page_count} pagina's
+              </p>
+            </motion.div>
+          )}
 
           {/* Recurring Themes */}
-          <AnimatePresence>
-            {aiAnalysis && aiAnalysis.recurring_themes.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="codex-card rounded-xl p-4"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Target className="w-4 h-4 text-codex-sepia" />
-                  <h3 className="font-medium text-sm">Terugkerende Thema's</h3>
-                </div>
-                <div className="space-y-3">
-                  {aiAnalysis.recurring_themes.map((theme, index) => (
-                    <motion.div
-                      key={theme.name}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.15 + index * 0.05 }}
-                      className={`p-3 rounded-lg border ${getFrequencyColor(theme.frequency)}`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-sm">{theme.name}</span>
-                        <span className="text-[10px] uppercase tracking-wide opacity-70">
-                          {theme.frequency}
-                        </span>
-                      </div>
-                      <p className="text-xs opacity-80">{theme.description}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {aiAnalysis && aiAnalysis.recurring_themes.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="codex-card rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="w-4 h-4 text-codex-sepia" />
+                <h3 className="font-medium text-sm">Terugkerende Thema's</h3>
+              </div>
+              <div className="space-y-3">
+                {aiAnalysis.recurring_themes.map((theme, index) => (
+                  <motion.div
+                    key={theme.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.15 + index * 0.05 }}
+                    className={`p-3 rounded-lg border ${getFrequencyColor(theme.frequency)}`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium text-sm">{theme.name}</span>
+                      <span className="text-[10px] uppercase tracking-wide opacity-70">
+                        {theme.frequency}
+                      </span>
+                    </div>
+                    <p className="text-xs opacity-80">{theme.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Emotional Trends */}
-          <AnimatePresence>
-            {aiAnalysis && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="codex-card rounded-xl p-4"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Heart className="w-4 h-4 text-codex-sepia" />
-                  <h3 className="font-medium text-sm">Emotionele Trends</h3>
+          {aiAnalysis && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="codex-card rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Heart className="w-4 h-4 text-codex-sepia" />
+                <h3 className="font-medium text-sm">Emotionele Trends</h3>
+              </div>
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-3xl">
+                  {getDirectionIcon(aiAnalysis.emotional_trends.overall_direction)}
+                </span>
+                <div>
+                  <p className="text-sm font-medium capitalize">
+                    {aiAnalysis.emotional_trends.overall_direction}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Dominant: {aiAnalysis.emotional_trends.dominant_tone}
+                  </p>
                 </div>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-3xl">
-                    {getDirectionIcon(aiAnalysis.emotional_trends.overall_direction)}
-                  </span>
-                  <div>
-                    <p className="text-sm font-medium capitalize">
-                      {aiAnalysis.emotional_trends.overall_direction}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Dominant: {aiAnalysis.emotional_trends.dominant_tone}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {aiAnalysis.emotional_trends.description}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {aiAnalysis.emotional_trends.description}
+              </p>
+            </motion.div>
+          )}
 
           {/* Insights */}
-          <AnimatePresence>
-            {aiAnalysis && aiAnalysis.insights.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="codex-card rounded-xl p-4"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <Lightbulb className="w-4 h-4 text-amber-600" />
-                  <h3 className="font-medium text-sm">Inzichten</h3>
-                </div>
-                <div className="space-y-2">
-                  {aiAnalysis.insights.map((insight, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.35 + index * 0.05 }}
-                      className="flex gap-2 text-sm"
-                    >
-                      <span className="text-amber-600 shrink-0">•</span>
-                      <span className="text-foreground/90">{insight}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {aiAnalysis && aiAnalysis.insights.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="codex-card rounded-xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <Lightbulb className="w-4 h-4 text-amber-600" />
+                <h3 className="font-medium text-sm">Inzichten</h3>
+              </div>
+              <div className="space-y-2">
+                {aiAnalysis.insights.map((insight, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35 + index * 0.05 }}
+                    className="flex gap-2 text-sm"
+                  >
+                    <span className="text-amber-600 shrink-0">•</span>
+                    <span className="text-foreground/90">{insight}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Suggestions */}
-          <AnimatePresence>
-            {aiAnalysis && aiAnalysis.suggestions.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="p-4 rounded-xl bg-secondary/50 border border-border"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium text-sm text-muted-foreground">Observaties</h3>
-                </div>
-                <div className="space-y-2">
-                  {aiAnalysis.suggestions.map((suggestion, index) => (
-                    <p key={index} className="text-xs text-muted-foreground italic">
-                      "{suggestion}"
-                    </p>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {aiAnalysis && aiAnalysis.suggestions.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="p-4 rounded-xl bg-secondary/50 border border-border"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-muted-foreground" />
+                <h3 className="font-medium text-sm text-muted-foreground">Observaties</h3>
+              </div>
+              <div className="space-y-2">
+                {aiAnalysis.suggestions.map((suggestion, index) => (
+                  <p key={index} className="text-xs text-muted-foreground italic">
+                    "{suggestion}"
+                  </p>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Divider */}
           <div className="border-t border-border pt-6">

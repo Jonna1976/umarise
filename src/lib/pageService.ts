@@ -74,21 +74,57 @@ function extractBase64(dataUrl: string): string {
   return dataUrl;
 }
 
-// Analyze image using AI edge function
-async function analyzeImage(imageDataUrl: string): Promise<AnalysisResult> {
+// Analyze image using AI edge function with retry logic
+async function analyzeImage(imageDataUrl: string, maxRetries = 3): Promise<AnalysisResult> {
   // Send base64 directly to edge function (more reliable than URL)
   const base64 = extractBase64(imageDataUrl);
   
-  const { data, error } = await supabase.functions.invoke('analyze-page', {
-    body: { image_base64: base64 },
-  });
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`AI analysis attempt ${attempt}/${maxRetries}...`);
+      
+      const { data, error } = await supabase.functions.invoke('analyze-page', {
+        body: { image_base64: base64 },
+      });
 
-  if (error) {
-    console.error('Analysis error:', error);
-    throw new Error('Failed to analyze image');
+      if (error) {
+        // Check for rate limit or credit errors - don't retry these
+        if (error.message?.includes('429') || error.message?.includes('402')) {
+          console.error('AI service limit reached:', error);
+          throw new Error(error.message?.includes('429') 
+            ? 'Rate limit exceeded. Please wait a moment and try again.' 
+            : 'AI credits depleted. Please add credits.');
+        }
+        throw error;
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      return data as AnalysisResult;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error('Unknown error');
+      console.warn(`Analysis attempt ${attempt} failed:`, lastError.message);
+      
+      // Don't retry on user-facing errors
+      if (lastError.message.includes('Rate limit') || lastError.message.includes('credits')) {
+        throw lastError;
+      }
+      
+      // Wait before retry with exponential backoff
+      if (attempt < maxRetries) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
 
-  return data as AnalysisResult;
+  console.error('All analysis attempts failed');
+  throw lastError || new Error('Failed to analyze image after multiple attempts');
 }
 
 // Add a page to an existing capsule
