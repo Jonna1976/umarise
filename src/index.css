@@ -128,6 +128,24 @@
       radial-gradient(circle at 0% 100%, hsl(var(--codex-sepia) / 0.03) 0%, transparent 50%);
   }
 
+  /* Uniform paper filter for all page thumbnails */
+  .page-thumbnail {
+    filter: 
+      sepia(15%) 
+      saturate(90%) 
+      brightness(105%) 
+      contrast(95%);
+    transition: filter 0.2s ease;
+  }
+
+  .page-thumbnail:hover {
+    filter: 
+      sepia(5%) 
+      saturate(100%) 
+      brightness(102%) 
+      contrast(98%);
+  }
+
   .tone-chip {
     @apply px-3 py-1 rounded-full text-xs font-medium;
   }

@@ -160,7 +160,7 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
                       <img
                         src={page.imageUrl}
                         alt={`Page ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover page-thumbnail"
                       />
                     </button>
                     
