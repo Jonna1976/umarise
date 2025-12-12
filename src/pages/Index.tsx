@@ -13,11 +13,11 @@ import {
   completeOnboarding 
 } from '@/lib/deviceId';
 import { usePages } from '@/hooks/usePages';
-import { Page } from '@/lib/pageService';
+import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'add-to-capsule';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -28,11 +28,12 @@ const Index = () => {
   const [showTestPanel, setShowTestPanel] = useState(false);
   
   // Use real pages from database
-  const { pages, createPage, createCapsule, updatePage, deletePage, refresh } = usePages();
+  const { pages, createPage, createCapsule, addToCapsule, updatePage, deletePage, refresh } = usePages();
   
   // Multi-image processing state
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [processingIndex, setProcessingIndex] = useState(0);
+  const [targetCapsuleId, setTargetCapsuleId] = useState<string | null>(null);
 
   // Handle page update from SnapshotView
   const handlePageUpdate = useCallback((updatedPage: Page) => {
@@ -114,6 +115,44 @@ const Index = () => {
       setProcessingIndex(0);
     }
   }, [createCapsule]);
+
+  // Handle adding to existing capsule
+  const handleAddToCapsuleCapture = useCallback(async (imageDataUrl: string) => {
+    if (!targetCapsuleId) {
+      toast.error('No capsule selected');
+      setView('history');
+      return;
+    }
+    
+    setCapturedImage(imageDataUrl);
+    setView('processing');
+    
+    try {
+      const newPage = await addToCapsule(imageDataUrl, targetCapsuleId);
+      
+      if (newPage) {
+        setCurrentPage(newPage);
+        setIsNewCapture(true);
+        setView('snapshot');
+      } else {
+        toast.error('Failed to add page. Please try again.');
+        setView('history');
+      }
+    } catch (error) {
+      console.error('Add to capsule error:', error);
+      toast.error('Something went wrong. Please try again.');
+      setView('history');
+    } finally {
+      setCapturedImage(null);
+      setTargetCapsuleId(null);
+    }
+  }, [addToCapsule, targetCapsuleId]);
+
+  // Handle request to add to a specific capsule
+  const handleStartAddToCapsule = useCallback((capsuleId: string) => {
+    setTargetCapsuleId(capsuleId);
+    setView('add-to-capsule');
+  }, []);
 
   const handleCloseSnapshot = useCallback(() => {
     setCapturedImage(null);
@@ -222,7 +261,25 @@ const Index = () => {
             onBack={handleBackFromHistory}
             onSelectPage={handleSelectPage}
             onDeletePage={handleDeletePage}
+            onAddToCapsule={handleStartAddToCapsule}
             onViewPatterns={handleViewPatterns}
+          />
+        );
+      
+      case 'add-to-capsule':
+        return (
+          <CameraView 
+            onCapture={handleAddToCapsuleCapture}
+            onCaptureMultiple={(images) => {
+              // For adding to capsule, just use first image
+              if (images.length > 0) {
+                handleAddToCapsuleCapture(images[0]);
+              }
+            }}
+            onOpenHistory={() => {
+              setTargetCapsuleId(null);
+              setView('history');
+            }}
           />
         );
       
