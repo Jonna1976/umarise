@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { TopicInput } from '@/components/capture/TopicInput';
 
 interface SnapshotViewProps {
   page: Page;
@@ -36,6 +37,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [ocrText, setOcrText] = useState(page.ocrText || '');
   const [sources, setSources] = useState<string[]>(page.sources || []);
   const [newSource, setNewSource] = useState('');
+  const [topic, setTopic] = useState('');
+  const [topicProjectId, setTopicProjectId] = useState<string | undefined>(page.projectId);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -45,8 +48,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const keywordChanged = primaryKeyword !== (page.primaryKeyword || '');
     const ocrChanged = ocrText !== (page.ocrText || '');
     const sourcesChanged = JSON.stringify(sources) !== JSON.stringify(page.sources || []);
-    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged);
-  }, [userNote, primaryKeyword, ocrText, sources, page.userNote, page.primaryKeyword, page.ocrText, page.sources]);
+    const topicChanged = topicProjectId !== page.projectId;
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId]);
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -57,6 +61,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       primaryKeyword: primaryKeyword || undefined,
       ocrText: ocrText || undefined,
       sources: sources,
+      projectId: topicProjectId,
     });
     
     setIsSaving(false);
@@ -65,7 +70,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId });
       }
     } else {
       toast.error('Failed to save');
@@ -81,13 +86,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         primaryKeyword: primaryKeyword || undefined,
         ocrText: ocrText || undefined,
         sources: sources,
+        projectId: topicProjectId,
       });
       setIsSaving(false);
       
       if (success) {
         toast.success('Changes saved');
         if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources });
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId });
         }
       } else {
         toast.error('Failed to save changes');
@@ -172,6 +178,25 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tone-hopeful/10 text-tone-hopeful text-sm font-medium">
               ✓ Added to your codex
             </span>
+          </motion.div>
+        )}
+
+        {/* Topic input - only for new captures */}
+        {isNewCapture && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="mb-6"
+          >
+            <TopicInput
+              value={topic}
+              onChange={(value, projectId) => {
+                setTopic(value);
+                setTopicProjectId(projectId);
+              }}
+              autoFocus
+            />
           </motion.div>
         )}
 

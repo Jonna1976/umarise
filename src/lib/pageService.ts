@@ -425,10 +425,10 @@ export async function deletePage(id: string): Promise<boolean> {
   return true;
 }
 
-// Update page with user note, primary keyword, OCR text, and sources
+// Update page with user note, primary keyword, OCR text, sources, and project
 export async function updatePage(
   id: string, 
-  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[] }
+  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[]; projectId?: string }
 ): Promise<boolean> {
   const deviceUserId = getDeviceId();
   
@@ -451,6 +451,9 @@ export async function updatePage(
   }
   if (updates.sources !== undefined) {
     updateData.sources = updates.sources;
+  }
+  if (updates.projectId !== undefined) {
+    updateData.project_id = updates.projectId || null;
   }
 
   const { error } = await supabase
