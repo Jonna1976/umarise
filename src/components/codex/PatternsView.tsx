@@ -28,6 +28,7 @@ import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { VocabularySection } from './VocabularySection';
+import { TimeBasedPatterns } from './TimeBasedPatterns';
 
 interface PatternsViewProps {
   onBack: () => void;
@@ -765,6 +766,9 @@ export function PatternsView({ onBack }: PatternsViewProps) {
         </div>
       ) : (
         <div className="p-4 space-y-6">
+          {/* Time-Based Patterns - Recent trends */}
+          <TimeBasedPatterns pages={pages} />
+
           {/* AI Analysis Loading State */}
           {isAnalyzing && (
             <motion.div
