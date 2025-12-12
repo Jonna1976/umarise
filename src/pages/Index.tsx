@@ -8,6 +8,7 @@ import { HistoryView } from '@/components/codex/HistoryView';
 import { CapsuleCarouselView } from '@/components/codex/CapsuleCarouselView';
 import { TestPanel } from '@/components/dev/TestPanel';
 import { PatternsView } from '@/components/codex/PatternsView';
+import { PersonalityView } from '@/components/codex/PersonalityView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -18,7 +19,7 @@ import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'add-to-capsule' | 'capsule-carousel';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -195,6 +196,14 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleViewPersonality = useCallback(() => {
+    setView('personality');
+  }, []);
+
+  const handleBackFromPersonality = useCallback(() => {
+    setView('history');
+  }, []);
+
   const handleLoadTestData = useCallback(() => {
     // Test data loading is no longer supported with real database
     // Just close panel and refresh
@@ -274,6 +283,7 @@ const Index = () => {
             onDeletePage={handleDeletePage}
             onAddToCapsule={handleStartAddToCapsule}
             onViewPatterns={handleViewPatterns}
+            onViewPersonality={handleViewPersonality}
           />
         );
       
@@ -313,6 +323,11 @@ const Index = () => {
       case 'patterns':
         return (
           <PatternsView onBack={handleBackFromPatterns} />
+        );
+      
+      case 'personality':
+        return (
+          <PersonalityView onBack={handleBackFromPersonality} />
         );
       
       case 'detail':

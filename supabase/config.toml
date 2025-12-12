@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.analyze-patterns]
 verify_jwt = false
+
+[functions.analyze-personality]
+verify_jwt = false
