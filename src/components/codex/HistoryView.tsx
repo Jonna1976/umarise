@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
@@ -65,6 +65,7 @@ export function HistoryView({
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
 
@@ -268,6 +269,22 @@ export function HistoryView({
             ))}
           </div>
         )}
+        
+        {/* Paper filter toggle */}
+        <div className="flex justify-end px-4 pb-2">
+          <button
+            onClick={() => setPaperFilter(!paperFilter)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors ${
+              paperFilter
+                ? 'bg-codex-gold/20 text-codex-gold'
+                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+            }`}
+            title={paperFilter ? 'Show original colors' : 'Apply paper filter'}
+          >
+            <SlidersHorizontal className="w-3 h-3" />
+            {paperFilter ? 'Paper filter on' : 'Original'}
+          </button>
+        </div>
       </div>
 
       {/* Insights Section */}
@@ -328,7 +345,7 @@ export function HistoryView({
                         <img
                           src={item.page.imageUrl}
                           alt=""
-                          className="w-full h-full object-cover page-thumbnail"
+                          className={`w-full h-full object-cover ${paperFilter ? 'page-thumbnail' : ''}`}
                         />
                       </div>
                       
@@ -396,7 +413,7 @@ export function HistoryView({
                               <img
                                 src={page.imageUrl}
                                 alt=""
-                                className="w-full h-full object-cover page-thumbnail"
+                                className={`w-full h-full object-cover ${paperFilter ? 'page-thumbnail' : ''}`}
                               />
                             </div>
                           ))}
