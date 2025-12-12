@@ -5,6 +5,7 @@ import { CameraView } from '@/components/capture/CameraView';
 import { ProcessingView } from '@/components/capture/ProcessingView';
 import { SnapshotView } from '@/components/codex/SnapshotView';
 import { HistoryView } from '@/components/codex/HistoryView';
+import { CapsuleCarouselView } from '@/components/codex/CapsuleCarouselView';
 import { TestPanel } from '@/components/dev/TestPanel';
 import { PatternsView } from '@/components/dev/PatternsView';
 import { 
@@ -17,7 +18,7 @@ import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'add-to-capsule';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -34,6 +35,7 @@ const Index = () => {
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [processingIndex, setProcessingIndex] = useState(0);
   const [targetCapsuleId, setTargetCapsuleId] = useState<string | null>(null);
+  const [currentCapsule, setCurrentCapsule] = useState<CapsulePages | null>(null);
 
   // Handle page update from SnapshotView
   const handlePageUpdate = useCallback((updatedPage: Page) => {
@@ -177,8 +179,13 @@ const Index = () => {
   }, []);
 
   const handleBackFromDetail = useCallback(() => {
-    setView('history');
-  }, []);
+    // Return to capsule carousel if we came from there
+    if (currentCapsule) {
+      setView('capsule-carousel');
+    } else {
+      setView('history');
+    }
+  }, [currentCapsule]);
 
   const handleViewPatterns = useCallback(() => {
     setView('patterns');
@@ -260,11 +267,31 @@ const Index = () => {
             pages={pages}
             onBack={handleBackFromHistory}
             onSelectPage={handleSelectPage}
+            onSelectCapsule={(capsule) => {
+              setCurrentCapsule(capsule);
+              setView('capsule-carousel');
+            }}
             onDeletePage={handleDeletePage}
             onAddToCapsule={handleStartAddToCapsule}
             onViewPatterns={handleViewPatterns}
           />
         );
+      
+      case 'capsule-carousel':
+        return currentCapsule ? (
+          <CapsuleCarouselView
+            capsule={currentCapsule}
+            onClose={() => {
+              setCurrentCapsule(null);
+              setView('history');
+            }}
+            onSelectPage={(page) => {
+              setCurrentPage(page);
+              setIsNewCapture(false);
+              setView('detail');
+            }}
+          />
+        ) : null;
       
       case 'add-to-capsule':
         return (
