@@ -2,6 +2,7 @@ import { useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical } from 'lucide-react';
+import { compressImage } from '@/lib/imageCompression';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
@@ -53,7 +54,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     }
   }, []);
 
-  const takePhoto = useCallback(() => {
+  const takePhoto = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
@@ -65,34 +66,33 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0);
-      const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      setCapturedImage(imageDataUrl);
+      const rawImage = canvas.toDataURL('image/jpeg', 0.95);
+      // Compress to max 2000px for optimal OCR + performance
+      const compressedImage = await compressImage(rawImage);
+      setCapturedImage(compressedImage);
       stopCamera();
     }
   }, [stopCamera]);
 
-  const processFiles = useCallback((files: FileList) => {
+  const processFiles = useCallback(async (files: FileList) => {
     if (files.length === 0) return;
 
-    const readers: Promise<string>[] = [];
+    const imageFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
       if (files[i].type.startsWith('image/')) {
-        readers.push(
-          new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target?.result as string);
-            reader.readAsDataURL(files[i]);
-          })
-        );
+        imageFiles.push(files[i]);
       }
     }
 
-    Promise.all(readers).then((results) => {
-      if (results.length > 0) {
-        setCapturedImages(prev => [...prev, ...results]);
-        stopCamera();
-      }
-    });
+    if (imageFiles.length === 0) return;
+
+    // Compress all images in parallel for optimal size
+    const compressedImages = await Promise.all(
+      imageFiles.map(file => compressImage(file))
+    );
+
+    setCapturedImages(prev => [...prev, ...compressedImages]);
+    stopCamera();
   }, [stopCamera]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
