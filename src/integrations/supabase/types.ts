@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       pages: {
         Row: {
+          capsule_id: string | null
           confidence_score: number | null
           created_at: string
           device_user_id: string
@@ -24,6 +25,7 @@ export type Database = {
           image_url: string
           keywords: string[] | null
           ocr_text: string | null
+          page_order: number | null
           primary_keyword: string | null
           summary: string | null
           tone: string | null
@@ -31,6 +33,7 @@ export type Database = {
           user_note: string | null
         }
         Insert: {
+          capsule_id?: string | null
           confidence_score?: number | null
           created_at?: string
           device_user_id: string
@@ -39,6 +42,7 @@ export type Database = {
           image_url: string
           keywords?: string[] | null
           ocr_text?: string | null
+          page_order?: number | null
           primary_keyword?: string | null
           summary?: string | null
           tone?: string | null
@@ -46,6 +50,7 @@ export type Database = {
           user_note?: string | null
         }
         Update: {
+          capsule_id?: string | null
           confidence_score?: number | null
           created_at?: string
           device_user_id?: string
@@ -54,6 +59,7 @@ export type Database = {
           image_url?: string
           keywords?: string[] | null
           ocr_text?: string | null
+          page_order?: number | null
           primary_keyword?: string | null
           summary?: string | null
           tone?: string | null

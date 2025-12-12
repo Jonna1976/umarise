@@ -28,7 +28,11 @@ const Index = () => {
   const [showTestPanel, setShowTestPanel] = useState(false);
   
   // Use real pages from database
-  const { pages, createPage, updatePage, deletePage, refresh } = usePages();
+  const { pages, createPage, createCapsule, updatePage, deletePage, refresh } = usePages();
+  
+  // Multi-image processing state
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
+  const [processingIndex, setProcessingIndex] = useState(0);
 
   // Handle page update from SnapshotView
   const handlePageUpdate = useCallback((updatedPage: Page) => {
@@ -53,6 +57,8 @@ const Index = () => {
 
   const handleCapture = useCallback(async (imageDataUrl: string) => {
     setCapturedImage(imageDataUrl);
+    setCapturedImages([imageDataUrl]);
+    setProcessingIndex(0);
     setView('processing');
     
     try {
@@ -64,7 +70,6 @@ const Index = () => {
         setIsNewCapture(true);
         setView('snapshot');
       } else {
-        // Failed - go back to camera
         toast.error('Failed to process page. Please try again.');
         setView('camera');
       }
@@ -74,8 +79,41 @@ const Index = () => {
       setView('camera');
     } finally {
       setCapturedImage(null);
+      setCapturedImages([]);
     }
   }, [createPage]);
+
+  const handleCaptureMultiple = useCallback(async (imageDataUrls: string[]) => {
+    if (imageDataUrls.length === 0) return;
+    
+    setCapturedImages(imageDataUrls);
+    setCapturedImage(imageDataUrls[0]);
+    setProcessingIndex(0);
+    setView('processing');
+    
+    try {
+      // Process all images as a capsule
+      const newPages = await createCapsule(imageDataUrls);
+      
+      if (newPages && newPages.length > 0) {
+        // Show the first page of the capsule
+        setCurrentPage(newPages[0]);
+        setIsNewCapture(true);
+        setView('snapshot');
+      } else {
+        toast.error('Failed to process pages. Please try again.');
+        setView('camera');
+      }
+    } catch (error) {
+      console.error('Capsule capture error:', error);
+      toast.error('Something went wrong. Please try again.');
+      setView('camera');
+    } finally {
+      setCapturedImage(null);
+      setCapturedImages([]);
+      setProcessingIndex(0);
+    }
+  }, [createCapsule]);
 
   const handleCloseSnapshot = useCallback(() => {
     setCapturedImage(null);
@@ -151,14 +189,19 @@ const Index = () => {
       case 'camera':
         return (
           <CameraView 
-            onCapture={handleCapture} 
+            onCapture={handleCapture}
+            onCaptureMultiple={handleCaptureMultiple}
             onOpenHistory={handleOpenHistory} 
           />
         );
       
       case 'processing':
         return capturedImage ? (
-          <ProcessingView imageUrl={capturedImage} />
+          <ProcessingView 
+            imageUrl={capturedImage}
+            totalImages={capturedImages.length}
+            currentIndex={processingIndex}
+          />
         ) : null;
       
       case 'snapshot':

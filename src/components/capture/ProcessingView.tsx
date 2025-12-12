@@ -1,11 +1,15 @@
 import { motion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Images } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
+  totalImages?: number;
+  currentIndex?: number;
 }
 
-export function ProcessingView({ imageUrl }: ProcessingViewProps) {
+export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: ProcessingViewProps) {
+  const isMultiple = totalImages > 1;
+  
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
       <motion.div
@@ -13,6 +17,38 @@ export function ProcessingView({ imageUrl }: ProcessingViewProps) {
         animate={{ opacity: 1, scale: 1 }}
         className="relative w-full max-w-sm"
       >
+        {/* Multi-page indicator */}
+        {isMultiple && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-center gap-2 mb-4"
+          >
+            <Images className="w-4 h-4 text-codex-gold" />
+            <span className="text-codex-sepia font-medium">
+              Processing page {currentIndex + 1} of {totalImages}
+            </span>
+          </motion.div>
+        )}
+
+        {/* Progress dots for multiple images */}
+        {isMultiple && (
+          <div className="flex justify-center gap-2 mb-4">
+            {Array.from({ length: totalImages }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  i < currentIndex
+                    ? 'bg-codex-gold'
+                    : i === currentIndex
+                    ? 'bg-codex-gold animate-pulse'
+                    : 'bg-muted'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         {/* Image preview with overlay */}
         <div className="relative rounded-xl overflow-hidden shadow-2xl">
           <img
@@ -50,7 +86,7 @@ export function ProcessingView({ imageUrl }: ProcessingViewProps) {
               }}
               className="text-primary-foreground font-serif text-lg"
             >
-              Reading your page…
+              {isMultiple ? `Reading page ${currentIndex + 1}…` : 'Reading your page…'}
             </motion.p>
           </div>
         </div>
@@ -67,6 +103,7 @@ export function ProcessingView({ imageUrl }: ProcessingViewProps) {
             ease: 'easeInOut',
           }}
           className="absolute inset-0 rounded-xl border-2 border-codex-gold/30"
+          style={{ top: isMultiple ? '4rem' : 0 }}
         />
       </motion.div>
 
@@ -77,7 +114,9 @@ export function ProcessingView({ imageUrl }: ProcessingViewProps) {
         transition={{ delay: 1 }}
         className="mt-8 text-muted-foreground text-sm text-center"
       >
-        Extracting ideas, tone, and patterns…
+        {isMultiple 
+          ? `Extracting ideas from all ${totalImages} pages…`
+          : 'Extracting ideas, tone, and patterns…'}
       </motion.p>
     </div>
   );
