@@ -20,7 +20,6 @@ import {
 import { Page } from '@/lib/pageService';
 import { usePages } from '@/hooks/usePages';
 import { format, eachWeekOfInterval, subMonths, endOfWeek } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
@@ -33,11 +32,11 @@ interface PatternsViewProps {
 interface RecurringTheme {
   name: string;
   description: string;
-  frequency: 'hoog' | 'midden' | 'laag';
+  frequency: 'high' | 'medium' | 'low';
 }
 
 interface EmotionalTrends {
-  overall_direction: 'stabiel' | 'opwaarts' | 'neerwaarts' | 'cyclisch';
+  overall_direction: 'stable' | 'upward' | 'downward' | 'cyclical';
   dominant_tone: string;
   description: string;
 }
@@ -52,7 +51,7 @@ interface AIPatternAnalysis {
   analyzed_at: string;
 }
 
-type ViewMode = 'tekst' | 'visueel';
+type ViewMode = 'text' | 'visual';
 
 // Tone to color mapping for visualization
 const toneColors: Record<string, string> = {
@@ -66,20 +65,6 @@ const toneColors: Record<string, string> = {
   determined: '#2F4858',   // Dark teal
   anxious: '#9B8AA0',      // Muted lavender
   calm: '#87A889',         // Sage green
-};
-
-// Tone Dutch translations
-const toneTranslations: Record<string, string> = {
-  focused: 'gefocust',
-  hopeful: 'hoopvol',
-  frustrated: 'gefrustreerd',
-  playful: 'speels',
-  overwhelmed: 'overweldigd',
-  reflective: 'reflectief',
-  curious: 'nieuwsgierig',
-  determined: 'vastberaden',
-  anxious: 'onrustig',
-  calm: 'kalm',
 };
 
 function getToneClass(tone: string): string {
@@ -96,40 +81,24 @@ function getToneClass(tone: string): string {
 
 function getDirectionIcon(direction: string) {
   switch (direction) {
-    case 'opwaarts': return '↗';
-    case 'neerwaarts': return '↘';
-    case 'cyclisch': return '↻';
+    case 'upward': return '↗';
+    case 'downward': return '↘';
+    case 'cyclical': return '↻';
     default: return '→';
   }
 }
 
 function getFrequencyColor(frequency: string) {
   switch (frequency) {
-    case 'hoog': return 'bg-codex-sepia/20 border-codex-sepia text-codex-sepia';
-    case 'midden': return 'bg-secondary border-border text-foreground';
-    case 'laag': return 'bg-muted border-muted-foreground/30 text-muted-foreground';
+    case 'high': return 'bg-codex-sepia/20 border-codex-sepia text-codex-sepia';
+    case 'medium': return 'bg-secondary border-border text-foreground';
+    case 'low': return 'bg-muted border-muted-foreground/30 text-muted-foreground';
     default: return 'bg-secondary border-border text-foreground';
   }
 }
 
-function translateTone(tone: string): string {
-  return toneTranslations[tone.toLowerCase()] || tone;
-}
-
 // Giorgia Lupi inspired visual component
 function DataHumanismViz({ pages }: { pages: Page[] }) {
-  // Group pages by week for timeline
-  const pagesByWeek = useMemo(() => {
-    const groups = new Map<string, Page[]>();
-    pages.forEach(page => {
-      const weekKey = format(page.createdAt, 'yyyy-ww', { locale: nl });
-      const existing = groups.get(weekKey) || [];
-      existing.push(page);
-      groups.set(weekKey, existing);
-    });
-    return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [pages]);
-
   // Calculate visual properties for each page
   const getPageShape = (page: Page, index: number) => {
     const tone = page.tone[0]?.toLowerCase() || 'reflective';
@@ -165,7 +134,7 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
   if (pages.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground text-sm">
-        Nog geen pagina's om te visualiseren
+        No pages to visualize yet
       </div>
     );
   }
@@ -174,7 +143,7 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
     <div className="space-y-6">
       {/* Legend */}
       <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Legenda — elke vorm is een pagina</p>
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Legend — each shape is a page</p>
         <div className="flex flex-wrap gap-3">
           {Object.entries(toneColors).slice(0, 6).map(([tone, color]) => (
             <div key={tone} className="flex items-center gap-1.5">
@@ -183,13 +152,13 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
                 style={{ backgroundColor: color }}
               />
               <span className="text-[10px] text-muted-foreground capitalize">
-                {translateTone(tone)}
+                {tone}
               </span>
             </div>
           ))}
         </div>
         <p className="text-[10px] text-muted-foreground/60 mt-2 italic">
-          Grootte = aantal keywords · Vorm = stemming · Kleur = emotie
+          Size = keyword count · Shape = mood · Color = emotion
         </p>
       </div>
 
@@ -251,7 +220,7 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
                       {page.summary.slice(0, 40)}...
                     </p>
                     <p className="text-[9px] text-muted-foreground">
-                      {translateTone(page.tone[0] || 'reflectief')} · {format(page.createdAt, 'd MMM', { locale: nl })}
+                      {page.tone[0] || 'reflective'} · {format(page.createdAt, 'MMM d')}
                     </p>
                   </div>
                 </div>
@@ -264,14 +233,14 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
             <span className="w-8 h-px bg-codex-sepia/40" />
-            <span>{pages.length} pagina's · {new Set(pages.flatMap(p => p.keywords)).size} unieke thema's</span>
+            <span>{pages.length} pages · {new Set(pages.flatMap(p => p.keywords)).size} unique themes</span>
           </div>
         </div>
       </div>
 
       {/* Keyword constellation */}
       <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Thema-constellatie</p>
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Theme Constellation</p>
         <div className="relative h-48 overflow-hidden">
           {(() => {
             // Get top keywords with counts
@@ -324,7 +293,7 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
 
       {/* Emotional flow over time */}
       <div className="p-4 rounded-xl bg-secondary/30 border border-border">
-        <p className="text-xs text-muted-foreground mb-3 font-medium">Emotionele stroom</p>
+        <p className="text-xs text-muted-foreground mb-3 font-medium">Emotional Flow</p>
         <div className="flex items-end gap-0.5 h-16">
           {pages.slice(-30).map((page, i) => {
             const tone = page.tone[0]?.toLowerCase() || 'reflective';
@@ -337,14 +306,14 @@ function DataHumanismViz({ pages }: { pages: Page[] }) {
                 transition={{ delay: i * 0.02 }}
                 className="flex-1 rounded-t-sm"
                 style={{ backgroundColor: color, opacity: 0.7 }}
-                title={`${translateTone(tone)} - ${format(page.createdAt, 'd MMM', { locale: nl })}`}
+                title={`${tone} - ${format(page.createdAt, 'MMM d')}`}
               />
             );
           })}
         </div>
         <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
-          <span>Oudste</span>
-          <span>Nieuwste</span>
+          <span>Oldest</span>
+          <span>Newest</span>
         </div>
       </div>
     </div>
@@ -356,7 +325,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
   const [aiAnalysis, setAiAnalysis] = useState<AIPatternAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('tekst');
+  const [viewMode, setViewMode] = useState<ViewMode>('text');
 
   // Basic statistics computed locally
   const basicPatterns = useMemo(() => {
@@ -389,7 +358,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
         p.createdAt >= weekStart && p.createdAt <= weekEnd
       );
       return {
-        week: format(weekStart, 'd MMM', { locale: nl }),
+        week: format(weekStart, 'MMM d'),
         count: weekPages.length,
         tones: weekPages.flatMap(p => p.tone),
       };
@@ -409,7 +378,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
   const runAIAnalysis = async () => {
     const deviceId = getDeviceId();
     if (!deviceId) {
-      toast.error('Apparaat-ID niet gevonden');
+      toast.error('Device ID not found');
       return;
     }
 
@@ -423,15 +392,15 @@ export function PatternsView({ onBack }: PatternsViewProps) {
 
       if (error) {
         console.error('Analysis error:', error);
-        setAnalysisError(error.message || 'Analyse mislukt');
-        toast.error('Patroonanalyse mislukt');
+        setAnalysisError(error.message || 'Analysis failed');
+        toast.error('Pattern analysis failed');
         return;
       }
 
       if (data.error) {
         setAnalysisError(data.error);
         if (data.page_count !== undefined) {
-          toast.error(`Je hebt ${data.page_count} pagina's — minimaal 3 nodig voor analyse`);
+          toast.error(`You have ${data.page_count} pages — minimum 3 needed for analysis`);
         } else {
           toast.error(data.error);
         }
@@ -439,11 +408,11 @@ export function PatternsView({ onBack }: PatternsViewProps) {
       }
 
       setAiAnalysis(data);
-      toast.success('Patroonanalyse voltooid');
+      toast.success('Pattern analysis complete');
     } catch (err) {
       console.error('Analysis error:', err);
-      setAnalysisError('Er ging iets mis');
-      toast.error('Er ging iets mis bij de analyse');
+      setAnalysisError('Something went wrong');
+      toast.error('Something went wrong with the analysis');
     } finally {
       setIsAnalyzing(false);
     }
@@ -490,35 +459,35 @@ export function PatternsView({ onBack }: PatternsViewProps) {
         <div className="px-4 pb-3 flex justify-center">
           <div className="inline-flex rounded-full bg-secondary/50 p-1">
             <button
-              onClick={() => setViewMode('tekst')}
+              onClick={() => setViewMode('text')}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm transition-colors ${
-                viewMode === 'tekst' 
+                viewMode === 'text' 
                   ? 'bg-background text-foreground shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              Tekst
+              Text
             </button>
             <button
-              onClick={() => setViewMode('visueel')}
+              onClick={() => setViewMode('visual')}
               className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm transition-colors ${
-                viewMode === 'visueel' 
+                viewMode === 'visual' 
                   ? 'bg-background text-foreground shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
-              Visueel
+              Visual
             </button>
           </div>
         </div>
 
         <div className="px-4 pb-3">
           <p className="text-xs text-muted-foreground text-center">
-            {viewMode === 'tekst' 
-              ? 'AI-analyse van thema\'s, trends en rode draad'
-              : 'Visuele weergave van je codex — geïnspireerd door data-humanisme'
+            {viewMode === 'text' 
+              ? 'AI analysis of themes, trends and core thread'
+              : 'Visual representation of your codex — inspired by data humanism'
             }
           </p>
         </div>
@@ -527,12 +496,12 @@ export function PatternsView({ onBack }: PatternsViewProps) {
       {!basicPatterns || pages.length === 0 ? (
         <div className="text-center py-16 px-4">
           <Layers className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-          <p className="text-muted-foreground mb-2">Nog geen patronen</p>
+          <p className="text-muted-foreground mb-2">No patterns yet</p>
           <p className="text-sm text-muted-foreground/70">
-            Voeg pagina's toe om patronen te ontdekken
+            Add pages to discover patterns
           </p>
         </div>
-      ) : viewMode === 'visueel' ? (
+      ) : viewMode === 'visual' ? (
         <div className="p-4">
           <DataHumanismViz pages={pages} />
         </div>
@@ -550,9 +519,9 @@ export function PatternsView({ onBack }: PatternsViewProps) {
                   <Brain className="w-5 h-5 text-codex-sepia animate-pulse" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm">AI analyseert je notities...</p>
+                  <p className="font-medium text-sm">AI is analyzing your notes...</p>
                   <p className="text-xs text-muted-foreground">
-                    {basicPatterns.totalPages} pagina's worden verwerkt
+                    Processing {basicPatterns.totalPages} pages
                   </p>
                 </div>
               </div>
@@ -568,18 +537,18 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-destructive" />
-                <span className="text-sm font-medium text-destructive">Analyse niet beschikbaar</span>
+                <span className="text-sm font-medium text-destructive">Analysis unavailable</span>
               </div>
               <p className="text-xs text-muted-foreground">{analysisError}</p>
               {pages.length < 3 && (
                 <p className="text-xs text-muted-foreground mt-2">
-                  Je hebt minimaal 3 pagina's nodig voor AI-patroonanalyse.
+                  You need at least 3 pages for AI pattern analysis.
                 </p>
               )}
             </motion.div>
           )}
 
-          {/* Core Thread / Rode Draad */}
+          {/* Core Thread */}
           {aiAnalysis && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -588,13 +557,13 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-3">
                 <Compass className="w-5 h-5 text-codex-sepia" />
-                <h3 className="font-serif font-medium">De Rode Draad</h3>
+                <h3 className="font-serif font-medium">The Core Thread</h3>
               </div>
               <p className="text-sm leading-relaxed text-foreground/90">
                 {aiAnalysis.core_thread}
               </p>
               <p className="text-[10px] text-muted-foreground mt-3">
-                Gebaseerd op {aiAnalysis.page_count} pagina's
+                Based on {aiAnalysis.page_count} pages
               </p>
             </motion.div>
           )}
@@ -609,7 +578,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Target className="w-4 h-4 text-codex-sepia" />
-                <h3 className="font-medium text-sm">Terugkerende Thema's</h3>
+                <h3 className="font-medium text-sm">Recurring Themes</h3>
               </div>
               <div className="space-y-3">
                 {aiAnalysis.recurring_themes.map((theme, index) => (
@@ -643,7 +612,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Heart className="w-4 h-4 text-codex-sepia" />
-                <h3 className="font-medium text-sm">Emotionele Trends</h3>
+                <h3 className="font-medium text-sm">Emotional Trends</h3>
               </div>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-3xl">
@@ -654,7 +623,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
                     {aiAnalysis.emotional_trends.overall_direction}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Dominant: {translateTone(aiAnalysis.emotional_trends.dominant_tone)}
+                    Dominant: {aiAnalysis.emotional_trends.dominant_tone}
                   </p>
                 </div>
               </div>
@@ -674,7 +643,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb className="w-4 h-4 text-amber-600" />
-                <h3 className="font-medium text-sm">Inzichten</h3>
+                <h3 className="font-medium text-sm">Insights</h3>
               </div>
               <div className="space-y-2">
                 {aiAnalysis.insights.map((insight, index) => (
@@ -703,7 +672,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm text-muted-foreground">Observaties</h3>
+                <h3 className="font-medium text-sm text-muted-foreground">Observations</h3>
               </div>
               <div className="space-y-2">
                 {aiAnalysis.suggestions.map((suggestion, index) => (
@@ -718,7 +687,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           {/* Divider */}
           <div className="border-t border-border pt-6">
             <p className="text-xs text-muted-foreground text-center mb-4">
-              Statistische Overzichten
+              Statistical Overview
             </p>
           </div>
 
@@ -730,13 +699,13 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Data Overzicht</span>
+              <span className="text-sm font-medium text-muted-foreground">Data Overview</span>
             </div>
             <p className="text-2xl font-serif font-bold text-foreground mb-1">
-              {basicPatterns.totalPages} pagina's
+              {basicPatterns.totalPages} pages
             </p>
             <p className="text-xs text-muted-foreground">
-              {basicPatterns.topKeywords.length} unieke thema's · {basicPatterns.topTones.length} stemmingen
+              {basicPatterns.topKeywords.length} unique themes · {basicPatterns.topTones.length} moods
             </p>
           </motion.div>
 
@@ -749,7 +718,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-4">
               <Hash className="w-4 h-4 text-codex-sepia" />
-              <h3 className="font-medium text-sm">Top Thema's</h3>
+              <h3 className="font-medium text-sm">Top Themes</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               {basicPatterns.topKeywords.map(([keyword, count], index) => {
@@ -782,7 +751,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-codex-sepia" />
-              <h3 className="font-medium text-sm">Stemming Verdeling</h3>
+              <h3 className="font-medium text-sm">Mood Distribution</h3>
             </div>
             <div className="space-y-3">
               {basicPatterns.topTones.map(([tone, count]) => {
@@ -792,7 +761,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
                   <div key={tone}>
                     <div className="flex items-center justify-between mb-1">
                       <span className={`tone-chip text-xs ${getToneClass(tone)}`}>
-                        {translateTone(tone)}
+                        {tone}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {percentage}%
@@ -822,7 +791,7 @@ export function PatternsView({ onBack }: PatternsViewProps) {
             >
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-4 h-4 text-codex-sepia" />
-                <h3 className="font-medium text-sm">Activiteit per Week</h3>
+                <h3 className="font-medium text-sm">Weekly Activity</h3>
               </div>
               <div className="flex items-end gap-1 h-24">
                 {basicPatterns.weeklyData.slice(-8).map((week, index) => {
@@ -865,13 +834,13 @@ export function PatternsView({ onBack }: PatternsViewProps) {
           >
             <div className="flex items-center gap-2 mb-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
-              <h3 className="font-medium text-sm text-muted-foreground">Draden</h3>
+              <h3 className="font-medium text-sm text-muted-foreground">Threads</h3>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                Binnenkort
+                Coming Soon
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Ontdek langetermijn thema's die maanden of jaren overspannen.
+              Discover long-term themes spanning months or years.
             </p>
           </motion.div>
         </div>
