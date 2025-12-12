@@ -96,10 +96,21 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
         .order('created_at', { ascending: true });
 
       if (!error && data) {
-        setSnapshots(data as unknown as PersonalitySnapshot[]);
+        // Parse JSON fields that come as strings
+        const parsedSnapshots = data.map(snapshot => ({
+          ...snapshot,
+          drivers: typeof snapshot.drivers === 'string' 
+            ? JSON.parse(snapshot.drivers) 
+            : snapshot.drivers || [],
+          tension_field: typeof snapshot.tension_field === 'string'
+            ? JSON.parse(snapshot.tension_field)
+            : snapshot.tension_field || {}
+        })) as PersonalitySnapshot[];
+        
+        setSnapshots(parsedSnapshots);
         // Default to comparing last two if we have at least 2
-        if (data.length >= 2) {
-          setSelectedPair([data.length - 2, data.length - 1]);
+        if (parsedSnapshots.length >= 2) {
+          setSelectedPair([parsedSnapshots.length - 2, parsedSnapshots.length - 1]);
         }
       }
       setIsLoading(false);
