@@ -28,6 +28,7 @@ import { CompareProfilesView } from './CompareProfilesView';
 
 interface PersonalityViewProps {
   onBack: () => void;
+  forceEmpty?: boolean;
 }
 
 interface PersonalityTrait {
@@ -54,8 +55,9 @@ interface PersonalityProfile {
 
 type ProfileType = 'voice' | 'influences' | 'compare';
 
-export function PersonalityView({ onBack }: PersonalityViewProps) {
-  const { pages, isLoading: pagesLoading } = usePages();
+export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewProps) {
+  const { pages: realPages, isLoading: pagesLoading } = usePages();
+  const pages = forceEmpty ? [] : realPages;
   const [activeTab, setActiveTab] = useState<ProfileType>('voice');
   const [voiceProfile, setVoiceProfile] = useState<PersonalityProfile | null>(null);
   const [influencesProfile, setInfluencesProfile] = useState<PersonalityProfile | null>(null);

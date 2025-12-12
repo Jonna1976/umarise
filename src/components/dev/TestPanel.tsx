@@ -9,7 +9,12 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
-  Shuffle
+  Shuffle,
+  Compass,
+  Brain,
+  Star,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
@@ -19,6 +24,9 @@ interface TestPanelProps {
   onClose: () => void;
   onLoadTestData: () => void;
   onViewPage: (page: Page) => void;
+  onPreviewEmptyKompas?: () => void;
+  onPreviewEmptyPatterns?: () => void;
+  onPreviewEmptyPersonality?: () => void;
 }
 
 function getToneClass(tone: string): string {
@@ -33,7 +41,14 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
 }
 
-export function TestPanel({ onClose, onLoadTestData, onViewPage }: TestPanelProps) {
+export function TestPanel({ 
+  onClose, 
+  onLoadTestData, 
+  onViewPage,
+  onPreviewEmptyKompas,
+  onPreviewEmptyPatterns,
+  onPreviewEmptyPersonality
+}: TestPanelProps) {
   const [testPages, setTestPages] = useState<TestPage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState(100);
@@ -120,7 +135,49 @@ export function TestPanel({ onClose, onLoadTestData, onViewPage }: TestPanelProp
                 <option value={50}>50</option>
                 <option value={100}>100</option>
               </select>
-            </div>
+        </div>
+
+        {/* Empty State Previews */}
+        <div className="p-4 bg-secondary/20 border-b border-border">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Preview Empty States
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {onPreviewEmptyKompas && (
+              <Button 
+                onClick={onPreviewEmptyKompas} 
+                variant="outline" 
+                size="sm"
+                className="text-xs"
+              >
+                <Compass className="w-3.5 h-3.5 mr-1.5 text-red-500" />
+                Leeg Kompas
+              </Button>
+            )}
+            {onPreviewEmptyPatterns && (
+              <Button 
+                onClick={onPreviewEmptyPatterns} 
+                variant="outline" 
+                size="sm"
+                className="text-xs"
+              >
+                <Brain className="w-3.5 h-3.5 mr-1.5 text-codex-sepia" />
+                Leeg Patterns
+              </Button>
+            )}
+            {onPreviewEmptyPersonality && (
+              <Button 
+                onClick={onPreviewEmptyPersonality} 
+                variant="outline" 
+                size="sm"
+                className="text-xs"
+              >
+                <Star className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                Leeg Personality
+              </Button>
+            )}
+          </div>
+        </div>
             
             <Button onClick={handleGenerate} variant="codex" size="sm">
               <FlaskConical className="w-4 h-4 mr-1" />
