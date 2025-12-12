@@ -153,7 +153,7 @@ function FullscreenVisualization({
         threadPositions.push({ thread, x, y, radius });
       });
 
-      // Draw connections (the "red threads")
+      // Draw connections (the golden threads)
       if (heroThread) {
         const heroPos = threadPositions.find(tp => tp.thread.keyword === heroThread.keyword);
         if (heroPos) {
@@ -168,9 +168,9 @@ function FullscreenVisualization({
             const strengthOpacity = tp.thread.strength === 'strong' ? 0.6 : 
                                    tp.thread.strength === 'growing' ? 0.35 : 0.15;
 
-            // Draw flowing thread line
+            // Draw flowing thread line - GOLD color
             ctx.beginPath();
-            ctx.strokeStyle = `hsla(0, 65%, 50%, ${connection ? strengthOpacity + 0.25 : strengthOpacity})`;
+            ctx.strokeStyle = `hsla(38, 75%, 50%, ${connection ? strengthOpacity + 0.25 : strengthOpacity})`;
             ctx.lineWidth = connection ? 2.5 : 1.5;
 
             const midX = (heroPos.x + tp.x) / 2;
@@ -201,7 +201,7 @@ function FullscreenVisualization({
                               progress*progress*tp.y;
                 
                 ctx.beginPath();
-                ctx.fillStyle = `hsla(0, 65%, 50%, ${strengthOpacity * 1.5})`;
+                ctx.fillStyle = `hsla(38, 75%, 50%, ${strengthOpacity * 1.5})`;
                 ctx.arc(nodeX, nodeY, 2.5, 0, Math.PI * 2);
                 ctx.fill();
               }
@@ -219,23 +219,23 @@ function FullscreenVisualization({
         // Glow effect
         if (isHero || isHovered) {
           const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 2.5);
-          glow.addColorStop(0, isHero ? 'hsla(0, 70%, 50%, 0.35)' : 'hsla(24, 60%, 50%, 0.25)');
-          glow.addColorStop(1, 'hsla(0, 70%, 50%, 0)');
+          glow.addColorStop(0, isHero ? 'hsla(38, 80%, 55%, 0.35)' : 'hsla(38, 70%, 55%, 0.25)');
+          glow.addColorStop(1, 'hsla(38, 80%, 55%, 0)');
           ctx.fillStyle = glow;
           ctx.beginPath();
           ctx.arc(x, y, radius * 2.5, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // Node circle
+        // Node circle - ALL GOLD tones
         ctx.beginPath();
         const nodeColor = isHero 
-          ? `hsla(0, 70%, 50%, ${0.85 + Math.sin(t * 2) * 0.1})` 
+          ? `hsla(38, 80%, 55%, ${0.85 + Math.sin(t * 2) * 0.1})` 
           : thread.strength === 'strong' 
-            ? 'hsla(0, 60%, 55%, 0.75)'
+            ? 'hsla(38, 75%, 50%, 0.85)'
             : thread.strength === 'growing'
-              ? 'hsla(38, 65%, 50%, 0.75)'
-              : 'hsla(30, 30%, 60%, 0.55)';
+              ? 'hsla(38, 65%, 55%, 0.75)'
+              : 'hsla(38, 40%, 60%, 0.55)';
         
         ctx.fillStyle = nodeColor;
         ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -262,7 +262,7 @@ function FullscreenVisualization({
             const dotY = y + Math.sin(dotAngle) * dotDist;
             
             ctx.beginPath();
-            ctx.fillStyle = 'hsla(0, 70%, 55%, 0.65)';
+            ctx.fillStyle = 'hsla(38, 75%, 55%, 0.65)';
             ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
             ctx.fill();
           }
@@ -385,8 +385,8 @@ function ThreadDetail({ thread, onClose }: { thread: Thread; onClose: () => void
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-              <GitBranch className="w-6 h-6 text-red-600" />
+            <div className="w-12 h-12 rounded-full bg-codex-gold/20 flex items-center justify-center">
+              <GitBranch className="w-6 h-6 text-codex-gold" />
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold text-foreground">{thread.keyword}</h2>
@@ -411,8 +411,8 @@ function ThreadDetail({ thread, onClose }: { thread: Thread; onClose: () => void
             <p className="text-2xl font-bold text-foreground">{thread.uniqueMonths}</p>
             <p className="text-[10px] text-muted-foreground">maanden actief</p>
           </div>
-          <div className="p-3 rounded-xl bg-red-500/10 text-center">
-            <p className="text-2xl font-bold text-red-600 capitalize">{thread.strength}</p>
+          <div className="p-3 rounded-xl bg-codex-gold/10 text-center">
+            <p className="text-2xl font-bold text-codex-gold capitalize">{thread.strength}</p>
             <p className="text-[10px] text-muted-foreground">sterkte</p>
           </div>
         </div>
@@ -420,11 +420,11 @@ function ThreadDetail({ thread, onClose }: { thread: Thread; onClose: () => void
         {/* Timeline */}
         <div className="mb-5">
           <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-red-600" />
+            <Calendar className="w-4 h-4 text-codex-gold" />
             Timeline
           </h3>
           <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-500 via-red-400 to-red-300" />
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-codex-gold via-codex-gold/70 to-codex-gold/40" />
             
             <div className="space-y-2 pl-10">
               {thread.monthlyOccurrences.slice(0, 5).map((mo, i) => (
@@ -435,14 +435,14 @@ function ThreadDetail({ thread, onClose }: { thread: Thread; onClose: () => void
                   transition={{ delay: i * 0.05 }}
                   className="relative"
                 >
-                  <div className="absolute -left-[26px] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-red-500 border-2 border-background" />
+                  <div className="absolute -left-[26px] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-codex-gold border-2 border-background" />
                   
                   <div className="p-2.5 rounded-lg bg-secondary/30 border border-border">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">
                         {format(mo.date, 'MMMM yyyy', { locale: nl })}
                       </span>
-                      <span className="text-xs text-red-600 font-medium">
+                      <span className="text-xs text-codex-gold font-medium">
                         {mo.count}×
                       </span>
                     </div>
@@ -641,7 +641,7 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
             </button>
             
             <h1 className="font-serif text-lg font-medium flex items-center gap-2">
-              <Compass className="w-5 h-5 text-red-500" />
+              <Compass className="w-5 h-5 text-codex-gold" />
               Mijn Kompas
             </h1>
             
@@ -652,7 +652,7 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
             <Compass className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-            <h2 className="font-serif text-xl font-medium mb-2">Ontdek je rode draden</h2>
+            <h2 className="font-serif text-xl font-medium mb-2">Ontdek je gouden draden</h2>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
               {pages.length < 2 
                 ? `Voeg nog ${2 - pages.length} pagina's toe om je thema's te ontdekken`
@@ -687,7 +687,7 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
           </button>
           
           <div className="pointer-events-auto px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm shadow-sm flex items-center gap-2">
-            <Compass className="w-4 h-4 text-red-500" />
+            <Compass className="w-4 h-4 text-codex-gold" />
             <span className="font-serif text-sm font-medium">Mijn Kompas</span>
           </div>
           
@@ -704,9 +704,9 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
           className="fixed bottom-24 left-0 right-0 z-10 pointer-events-none"
         >
           <div className="text-center px-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-sm text-red-600 font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-codex-gold/10 border border-codex-gold/20 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-codex-gold animate-pulse" />
+              <span className="text-sm text-codex-gold font-medium">
                 {heroThread.keyword} — {heroThread.ageLabel}
               </span>
             </div>
@@ -723,15 +723,15 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
       >
         <div className="flex justify-center gap-6 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1.5 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-codex-gold" />
             Sterk
           </span>
           <span className="flex items-center gap-1.5 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-codex-gold/70" />
             Groeiend
           </span>
           <span className="flex items-center gap-1.5 bg-background/60 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="w-2.5 h-2.5 rounded-full bg-muted-foreground/50" />
+            <span className="w-2.5 h-2.5 rounded-full bg-codex-gold/40" />
             Opkomend
           </span>
         </div>

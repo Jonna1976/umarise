@@ -21,6 +21,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   const [error, setError] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [absorbingFiles, setAbsorbingFiles] = useState<{ id: number; x: number; y: number }[]>([]);
 
   const isMultiMode = capturedImages.length > 0;
 
@@ -123,6 +124,19 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
+      // Create absorbing animation particles at drop position
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const newAbsorbing = Array.from({ length: files.length }, (_, i) => ({
+        id: Date.now() + i,
+        x: e.clientX - centerX + (Math.random() - 0.5) * 100,
+        y: e.clientY - centerY + (Math.random() - 0.5) * 100,
+      }));
+      setAbsorbingFiles(newAbsorbing);
+      
+      // Clear animation after it completes
+      setTimeout(() => setAbsorbingFiles([]), 600);
+      
       processFiles(files);
     }
   }, [processFiles]);
@@ -336,21 +350,44 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             {/* Container for circle + orbiting orbs */}
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
               
-              {/* Orbiting orbs for each captured image */}
+              {/* Absorbing file animation */}
+              <AnimatePresence>
+                {absorbingFiles.map((file) => (
+                  <motion.div
+                    key={file.id}
+                    className="absolute w-6 h-6 rounded-full bg-codex-gold/80"
+                    initial={{ 
+                      x: file.x, 
+                      y: file.y, 
+                      scale: 1.5, 
+                      opacity: 1 
+                    }}
+                    animate={{ 
+                      x: 0, 
+                      y: 0, 
+                      scale: 0, 
+                      opacity: 0 
+                    }}
+                    exit={{ opacity: 0 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      ease: [0.32, 0, 0.67, 0] 
+                    }}
+                    style={{
+                      boxShadow: '0 0 20px 8px rgba(255, 180, 50, 0.6)',
+                    }}
+                  />
+                ))}
+              </AnimatePresence>
+              
+              {/* Orbiting orbs for each captured image - ALL GOLD tones */}
               {capturedImages.map((_, index) => {
                 const totalOrbs = capturedImages.length;
                 const angle = (index / totalOrbs) * 360;
                 const orbitRadius = 120; // px from center
-                const orbColors = [
-                  'from-amber-400 to-amber-600',
-                  'from-blue-400 to-blue-600', 
-                  'from-teal-400 to-teal-600',
-                  'from-purple-400 to-purple-600',
-                  'from-rose-400 to-rose-600',
-                  'from-emerald-400 to-emerald-600',
-                  'from-orange-400 to-orange-600',
-                ];
-                const colorClass = orbColors[index % orbColors.length];
+                // Different gold/amber shades
+                const orbOpacity = 0.6 + (index % 3) * 0.15;
+                const hue = 38 + (index % 5) * 3; // Slight hue variation within gold range
                 
                 return (
                   <motion.div
@@ -372,16 +409,17 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                     }}
                   >
                     <motion.div
-                      className={`w-4 h-4 rounded-full bg-gradient-to-br ${colorClass} shadow-lg`}
+                      className="w-4 h-4 rounded-full"
                       style={{
                         transform: `translateX(${orbitRadius}px)`,
-                        boxShadow: `0 0 12px 2px rgba(255, 200, 100, 0.4)`,
+                        background: `hsl(${hue}, 75%, 55%)`,
+                        boxShadow: `0 0 12px 2px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
                       }}
                       animate={{
                         boxShadow: [
-                          '0 0 8px 2px rgba(255, 200, 100, 0.3)',
-                          '0 0 16px 4px rgba(255, 200, 100, 0.5)',
-                          '0 0 8px 2px rgba(255, 200, 100, 0.3)',
+                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.5})`,
+                          `0 0 16px 4px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
+                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.5})`,
                         ],
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
