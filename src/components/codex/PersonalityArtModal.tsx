@@ -1,20 +1,22 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   Download, 
-  Share2, 
-  Palette,
-  TreeDeciduous,
-  Mountain,
-  Waves as WavesIcon,
+  Share2,
   Sparkles,
-  Flower2,
-  CircleDot
+  CircleDot,
+  Activity,
+  Target,
+  Network
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { usePages } from '@/hooks/usePages';
+import { KeywordConstellation } from './visualizations/KeywordConstellation';
+import { EmotionRhythm } from './visualizations/EmotionRhythm';
+import { ThemeCircles } from './visualizations/ThemeCircles';
+import { ConnectionMap } from './visualizations/ConnectionMap';
 
 interface PersonalityProfile {
   core_identity: string;
@@ -37,105 +39,200 @@ interface PersonalityArtModalProps {
   profile: PersonalityProfile;
 }
 
-const artStyles = [
-  { id: 'tree', name: 'Tree of Life', icon: TreeDeciduous, description: 'Roots, trunk & branches' },
-  { id: 'landscape', name: 'Inner Landscape', icon: Mountain, description: 'Mountains & rivers' },
-  { id: 'abstract', name: 'Abstract Soul', icon: CircleDot, description: 'Lupi-inspired patterns' },
-  { id: 'ocean', name: 'Ocean Depths', icon: WavesIcon, description: 'Waves & light' },
-  { id: 'cosmos', name: 'Inner Cosmos', icon: Sparkles, description: 'Stars & nebulae' },
-  { id: 'garden', name: 'Secret Garden', icon: Flower2, description: 'Flowers & paths' },
+const visualizationStyles = [
+  { 
+    id: 'constellation', 
+    name: 'Keyword Constellatie', 
+    icon: Sparkles, 
+    description: 'Sterrenbeeld van jouw thema\'s' 
+  },
+  { 
+    id: 'rhythm', 
+    name: 'Emotie Ritme', 
+    icon: Activity, 
+    description: 'Tijdlijn van jouw tones' 
+  },
+  { 
+    id: 'circles', 
+    name: 'Thema Cirkels', 
+    icon: Target, 
+    description: 'Concentrische drivers' 
+  },
+  { 
+    id: 'connection', 
+    name: 'Verbindingskaart', 
+    icon: Network, 
+    description: 'Netwerk van ideeën' 
+  },
 ];
 
 export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArtModalProps) {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [visualizationReady, setVisualizationReady] = useState(false);
+  const visualizationRef = useRef<HTMLDivElement>(null);
+  const { pages } = usePages();
 
-  const handleGenerate = async () => {
-    if (!selectedStyle) {
-      toast.error('Select an art style first');
-      return;
-    }
-
-    setIsGenerating(true);
-    setGeneratedImage(null);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-personality-art', {
-        body: { profile, style: selectedStyle }
+  // Process page data for visualizations
+  const processedData = {
+    keywords: (() => {
+      const keywordMap = new Map<string, { count: number; tones: Set<string> }>();
+      pages.forEach(page => {
+        const pageKeywords = page.keywords || [];
+        const pageTone = typeof page.tone === 'string' ? page.tone : 'default';
+        pageKeywords.forEach((kw: string) => {
+          const existing = keywordMap.get(kw) || { count: 0, tones: new Set<string>() };
+          existing.count++;
+          existing.tones.add(pageTone);
+          keywordMap.set(kw, existing);
+        });
       });
-
-      if (error) {
-        console.error('Art generation error:', error);
-        toast.error('Failed to generate artwork');
-        return;
-      }
-
-      if (data.error) {
-        toast.error(data.error);
-        return;
-      }
-
-      setGeneratedImage(data.image_url);
-      toast.success('Your artwork is ready!');
-    } catch (err) {
-      console.error('Art generation error:', err);
-      toast.error('Something went wrong');
-    } finally {
-      setIsGenerating(false);
+      return Array.from(keywordMap.entries())
+        .map(([keyword, data]) => ({
+          keyword,
+          count: data.count,
+          tones: Array.from(data.tones)
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 12);
+    })(),
+    tones: pages.map(page => ({
+      date: page.createdAt instanceof Date ? page.createdAt.toISOString() : String(page.createdAt),
+      tone: typeof page.tone === 'string' ? page.tone : 'default'
+    })),
+    connectionData: {
+      keywords: pages.flatMap(p => p.keywords || []).slice(0, 8),
+      tensionA: profile.tension_field.side_a,
+      tensionB: profile.tension_field.side_b,
+      superpower: profile.superpower.split(' ').slice(0, 3).join(' ')
     }
   };
 
+  const handleGenerate = () => {
+    if (!selectedStyle) {
+      toast.error('Kies eerst een visualisatie stijl');
+      return;
+    }
+    setIsGenerating(true);
+    
+    // Simulate brief generation time for animation
+    setTimeout(() => {
+      setVisualizationReady(true);
+      setIsGenerating(false);
+      toast.success('Visualisatie gereed!');
+    }, 800);
+  };
+
   const handleDownload = async () => {
-    if (!generatedImage) return;
+    if (!visualizationRef.current) return;
 
     try {
+      const canvas = visualizationRef.current.querySelector('canvas');
+      if (!canvas) {
+        toast.error('Geen visualisatie gevonden');
+        return;
+      }
+
       const link = document.createElement('a');
-      link.href = generatedImage;
       link.download = `my-personality-${selectedStyle}.png`;
+      link.href = canvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success('Artwork downloaded!');
+      toast.success('Visualisatie gedownload!');
     } catch (err) {
-      toast.error('Download failed');
+      toast.error('Download mislukt');
     }
   };
 
   const handleShare = async () => {
-    if (!generatedImage) return;
+    if (!visualizationRef.current) return;
 
     try {
-      // Convert base64 to blob for sharing
-      const response = await fetch(generatedImage);
-      const blob = await response.blob();
+      const canvas = visualizationRef.current.querySelector('canvas');
+      if (!canvas) return;
+
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => resolve(b!), 'image/png');
+      });
+      
       const file = new File([blob], `my-personality-${selectedStyle}.png`, { type: 'image/png' });
 
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: profile.tagline,
-          text: `My personality visualized: ${profile.tagline}`,
+          text: `Mijn persoonlijkheid gevisualiseerd: ${profile.tagline}`,
           files: [file]
         });
-        toast.success('Shared successfully!');
+        toast.success('Gedeeld!');
       } else {
-        // Fallback: copy to clipboard or download
         handleDownload();
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        toast.error('Sharing failed');
+        toast.error('Delen mislukt');
       }
     }
   };
 
   const handleClose = () => {
     setSelectedStyle(null);
-    setGeneratedImage(null);
+    setVisualizationReady(false);
     onClose();
   };
 
+  const handleTryAnother = () => {
+    setVisualizationReady(false);
+    setSelectedStyle(null);
+  };
+
   if (!isOpen) return null;
+
+  const renderVisualization = () => {
+    const size = Math.min(window.innerWidth - 32, 400);
+    
+    switch (selectedStyle) {
+      case 'constellation':
+        return (
+          <KeywordConstellation 
+            keywords={processedData.keywords}
+            tagline={profile.tagline}
+            width={size}
+            height={size}
+          />
+        );
+      case 'rhythm':
+        return (
+          <EmotionRhythm 
+            tones={processedData.tones}
+            tagline={profile.tagline}
+            width={size}
+            height={size}
+          />
+        );
+      case 'circles':
+        return (
+          <ThemeCircles 
+            drivers={profile.drivers}
+            superpower={profile.superpower}
+            tagline={profile.tagline}
+            width={size}
+            height={size}
+          />
+        );
+      case 'connection':
+        return (
+          <ConnectionMap 
+            data={processedData.connectionData}
+            tagline={profile.tagline}
+            width={size}
+            height={size}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -143,7 +240,7 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md"
+        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md overflow-y-auto"
       >
         {/* Header */}
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
@@ -156,33 +253,27 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
             </button>
             
             <div className="flex items-center gap-2">
-              <Palette className="w-5 h-5 text-codex-sepia" />
-              <h1 className="font-serif text-lg font-medium">Visualize Your Soul</h1>
+              <CircleDot className="w-5 h-5 text-codex-sepia" />
+              <h1 className="font-serif text-lg font-medium">Data Visualisatie</h1>
             </div>
             
             <div className="w-10" />
           </div>
         </div>
 
-        <div className="p-4 max-w-lg mx-auto">
-          {/* Generated Image View */}
-          {generatedImage ? (
+        <div className="p-4 max-w-lg mx-auto pb-8">
+          {/* Visualization View */}
+          {visualizationReady ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="space-y-4"
             >
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src={generatedImage} 
-                  alt="Your personality as art"
-                  className="w-full aspect-square object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                  <p className="text-white font-serif text-lg text-center">
-                    {profile.tagline}
-                  </p>
-                </div>
+              <div 
+                ref={visualizationRef}
+                className="relative rounded-2xl overflow-hidden shadow-2xl bg-[#FAF8F5] flex items-center justify-center"
+              >
+                {renderVisualization()}
               </div>
 
               <div className="flex gap-3">
@@ -199,32 +290,50 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
                   className="flex-1 bg-codex-sepia hover:bg-codex-sepia/90"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
-                  Share
+                  Delen
                 </Button>
               </div>
 
               <Button
-                onClick={() => setGeneratedImage(null)}
+                onClick={handleTryAnother}
                 variant="ghost"
                 className="w-full text-muted-foreground"
               >
-                Try another style
+                Probeer andere stijl
               </Button>
+
+              {/* Data transparency */}
+              <div className="mt-4 p-3 rounded-lg bg-secondary/30 border border-border">
+                <p className="text-[10px] text-muted-foreground text-center">
+                  Gebaseerd op {processedData.keywords.length} keywords, {processedData.tones.length} pagina's en {profile.drivers.length} drivers uit jouw handschrift
+                </p>
+              </div>
             </motion.div>
           ) : (
             <>
-              {/* Style Selection */}
+              {/* Intro text */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6"
               >
-                <p className="text-center text-muted-foreground text-sm mb-6">
-                  Choose how to visualize your personality
+                <p className="text-center text-muted-foreground text-sm mb-2">
+                  Giorgia Lupi-geïnspireerde visualisaties
                 </p>
+                <p className="text-center text-xs text-muted-foreground/70">
+                  Jouw echte woorden en emoties worden data
+                </p>
+              </motion.div>
 
+              {/* Style Selection */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="mb-6"
+              >
                 <div className="grid grid-cols-2 gap-3">
-                  {artStyles.map((style, index) => {
+                  {visualizationStyles.map((style, index) => {
                     const Icon = style.icon;
                     const isSelected = selectedStyle === style.id;
                     
@@ -233,7 +342,7 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
                         key={style.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
+                        transition={{ delay: 0.1 + index * 0.05 }}
                         onClick={() => setSelectedStyle(style.id)}
                         className={`p-4 rounded-xl border-2 transition-all text-left ${
                           isSelected 
@@ -254,11 +363,34 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
                 </div>
               </motion.div>
 
-              {/* Generate Button */}
+              {/* Data Preview */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
+                className="mb-6 p-4 rounded-xl bg-secondary/20 border border-border"
+              >
+                <p className="text-xs text-muted-foreground mb-3">Jouw data die wordt gevisualiseerd:</p>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {processedData.keywords.slice(0, 6).map((kw, i) => (
+                    <span 
+                      key={i}
+                      className="px-2 py-0.5 rounded-full bg-codex-sepia/10 text-codex-sepia text-[10px]"
+                    >
+                      {kw.keyword} ({kw.count}×)
+                    </span>
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  + {profile.drivers.length} drivers, {new Set(processedData.tones.map(t => t.tone)).size} emoties, spanning van {profile.tension_field.side_a} tot {profile.tension_field.side_b}
+                </p>
+              </motion.div>
+
+              {/* Generate Button */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
               >
                 <Button
                   onClick={handleGenerate}
@@ -268,29 +400,19 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
                   {isGenerating ? (
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="flex items-center gap-2"
                     >
-                      <Sparkles className="w-5 h-5" />
-                      Creating your artwork...
+                      <CircleDot className="w-5 h-5" />
+                      Visualisatie maken...
                     </motion.div>
                   ) : (
                     <>
-                      <Palette className="w-5 h-5 mr-2" />
-                      Generate Artwork
+                      <CircleDot className="w-5 h-5 mr-2" />
+                      Genereer Visualisatie
                     </>
                   )}
                 </Button>
-
-                {isGenerating && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center text-xs text-muted-foreground mt-3"
-                  >
-                    This may take 10-20 seconds...
-                  </motion.p>
-                )}
               </motion.div>
             </>
           )}
