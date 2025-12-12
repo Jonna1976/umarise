@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pages: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          device_user_id: string
+          embedding: Json | null
+          id: string
+          image_url: string
+          keywords: string[] | null
+          ocr_text: string | null
+          summary: string | null
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          device_user_id: string
+          embedding?: Json | null
+          id?: string
+          image_url: string
+          keywords?: string[] | null
+          ocr_text?: string | null
+          summary?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          device_user_id?: string
+          embedding?: Json | null
+          id?: string
+          image_url?: string
+          keywords?: string[] | null
+          ocr_text?: string | null
+          summary?: string | null
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

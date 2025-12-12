@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp } from 'lucide-react';
-import { Page } from '@/lib/mockData';
+import { Page } from '@/lib/pageService';
 
 interface InsightsSectionProps {
   pages: Page[];

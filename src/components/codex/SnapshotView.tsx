@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { X, Clock, ChevronDown, ChevronUp } from 'lucide-react';
-import { Page } from '@/lib/mockData';
+import { Page } from '@/lib/pageService';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 

@@ -12,12 +12,13 @@ import {
   Shuffle
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
+import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
 
 interface TestPanelProps {
   onClose: () => void;
-  onLoadTestData: (pages: TestPage[]) => void;
-  onViewPage: (page: TestPage) => void;
+  onLoadTestData: () => void;
+  onViewPage: (page: Page) => void;
 }
 
 function getToneClass(tone: string): string {
@@ -43,9 +44,8 @@ export function TestPanel({ onClose, onLoadTestData, onViewPage }: TestPanelProp
   };
 
   const handleLoadAll = () => {
-    if (testPages.length > 0) {
-      onLoadTestData(testPages);
-    }
+    // With real database, we just refresh and go to history
+    onLoadTestData();
   };
 
   const handleClear = () => {
@@ -243,7 +243,7 @@ export function TestPanel({ onClose, onLoadTestData, onViewPage }: TestPanelProp
                             </p>
                           </div>
                           <Button
-                            onClick={() => onViewPage(page)}
+                            onClick={() => onViewPage(page as Page)}
                             variant="outline"
                             size="sm"
                             className="w-full"
