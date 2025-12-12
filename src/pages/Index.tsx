@@ -7,7 +7,7 @@ import { SnapshotView } from '@/components/codex/SnapshotView';
 import { HistoryView } from '@/components/codex/HistoryView';
 import { CapsuleCarouselView } from '@/components/codex/CapsuleCarouselView';
 import { TestPanel } from '@/components/dev/TestPanel';
-import { PatternsView } from '@/components/dev/PatternsView';
+import { PatternsView } from '@/components/codex/PatternsView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
