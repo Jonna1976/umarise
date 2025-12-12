@@ -40,8 +40,12 @@ const Index = () => {
   const [currentCapsule, setCurrentCapsule] = useState<CapsulePages | null>(null);
 
   // Handle page update from SnapshotView
+  // Note: The actual database save already happens in SnapshotView
+  // Here we just update the local state to keep UI in sync
   const handlePageUpdate = useCallback((updatedPage: Page) => {
+    // Update the pages array directly without re-saving
     updatePage(updatedPage);
+    // Also update currentPage to ensure immediate UI feedback
     setCurrentPage(updatedPage);
   }, [updatePage]);
 

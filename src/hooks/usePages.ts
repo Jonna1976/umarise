@@ -95,21 +95,12 @@ export function usePages() {
     }
   }, []);
 
-  // Update page
-  const updatePage = useCallback(async (page: Page): Promise<boolean> => {
-    try {
-      const success = await updatePageService(page.id, {
-        userNote: page.userNote,
-        primaryKeyword: page.primaryKeyword,
-      });
-      if (success) {
-        setPages(prev => prev.map(p => p.id === page.id ? page : p));
-      }
-      return success;
-    } catch (e) {
-      console.error('Failed to update page:', e);
-      return false;
-    }
+  // Update page in local state
+  // Note: Database save should already be done by the caller (e.g., SnapshotView)
+  // This function just ensures local state is synchronized
+  const updatePage = useCallback((page: Page): boolean => {
+    setPages(prev => prev.map(p => p.id === page.id ? page : p));
+    return true;
   }, []);
 
   // Delete page
