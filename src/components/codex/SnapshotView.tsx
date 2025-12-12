@@ -31,6 +31,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [showOcrText, setShowOcrText] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
   const [primaryKeyword, setPrimaryKeyword] = useState(page.primaryKeyword || '');
+  const [ocrText, setOcrText] = useState(page.ocrText || '');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -38,8 +39,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   useEffect(() => {
     const noteChanged = userNote !== (page.userNote || '');
     const keywordChanged = primaryKeyword !== (page.primaryKeyword || '');
-    setHasChanges(noteChanged || keywordChanged);
-  }, [userNote, primaryKeyword, page.userNote, page.primaryKeyword]);
+    const ocrChanged = ocrText !== (page.ocrText || '');
+    setHasChanges(noteChanged || keywordChanged || ocrChanged);
+  }, [userNote, primaryKeyword, ocrText, page.userNote, page.primaryKeyword, page.ocrText]);
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -48,6 +50,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const success = await updatePage(page.id, {
       userNote: userNote || undefined,
       primaryKeyword: primaryKeyword || undefined,
+      ocrText: ocrText || undefined,
     });
     
     setIsSaving(false);
@@ -56,7 +59,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText });
       }
     } else {
       toast.error('Failed to save');
@@ -209,7 +212,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           />
         </motion.div>
 
-        {/* OCR Text (collapsible) */}
+        {/* OCR Text (collapsible & editable) */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -221,7 +224,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             className="flex items-center justify-between w-full py-3 text-left"
           >
             <span className="text-xs text-muted-foreground uppercase tracking-wide">
-              Raw text
+              Raw text <span className="normal-case opacity-60">(editable)</span>
             </span>
             {showOcrText ? (
               <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -235,9 +238,16 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="p-4 rounded-lg bg-codex-cream border border-border text-sm text-muted-foreground leading-relaxed font-mono"
             >
-              {page.ocrText}
+              <Textarea
+                value={ocrText}
+                onChange={(e) => setOcrText(e.target.value)}
+                className="min-h-[150px] resize-y bg-codex-cream border border-border text-sm text-muted-foreground leading-relaxed font-mono"
+                placeholder="OCR text..."
+              />
+              <p className="text-xs text-muted-foreground mt-2 opacity-60">
+                Correct any OCR mistakes here
+              </p>
             </motion.div>
           )}
         </motion.div>

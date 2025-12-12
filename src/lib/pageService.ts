@@ -366,10 +366,10 @@ export async function deletePage(id: string): Promise<boolean> {
   return true;
 }
 
-// Update page with user note and primary keyword
+// Update page with user note, primary keyword, and OCR text
 export async function updatePage(
   id: string, 
-  updates: { userNote?: string; primaryKeyword?: string }
+  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string }
 ): Promise<boolean> {
   const deviceUserId = getDeviceId();
   
@@ -377,13 +377,23 @@ export async function updatePage(
     return false;
   }
 
+  const updateData: Record<string, unknown> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (updates.userNote !== undefined) {
+    updateData.user_note = updates.userNote;
+  }
+  if (updates.primaryKeyword !== undefined) {
+    updateData.primary_keyword = updates.primaryKeyword;
+  }
+  if (updates.ocrText !== undefined) {
+    updateData.ocr_text = updates.ocrText;
+  }
+
   const { error } = await supabase
     .from('pages')
-    .update({
-      user_note: updates.userNote,
-      primary_keyword: updates.primaryKeyword,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('id', id)
     .eq('device_user_id', deviceUserId);
 
