@@ -12,13 +12,15 @@ import {
   Star,
   Flame,
   Waves,
-  Lock
+  Lock,
+  Palette
 } from 'lucide-react';
 import { usePages } from '@/hooks/usePages';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { PersonalityArtModal } from './PersonalityArtModal';
 
 interface PersonalityViewProps {
   onBack: () => void;
@@ -50,6 +52,7 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
   const [profile, setProfile] = useState<PersonalityProfile | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showArtModal, setShowArtModal] = useState(false);
 
   const minPagesRequired = 5;
   const hasEnoughPages = pages.length >= minPagesRequired;
@@ -416,6 +419,24 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
             </p>
           </motion.div>
 
+          {/* Visualize as Art Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            <Button
+              onClick={() => setShowArtModal(true)}
+              className="w-full h-14 bg-gradient-to-r from-codex-sepia via-amber-600 to-codex-sepia text-white font-medium text-base shadow-lg"
+            >
+              <Palette className="w-5 h-5 mr-2" />
+              Visualize as Artwork
+            </Button>
+            <p className="text-center text-xs text-muted-foreground mt-2">
+              Transform your personality into art
+            </p>
+          </motion.div>
+
           {/* Footer */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -428,6 +449,15 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
             </p>
           </motion.div>
         </div>
+      )}
+
+      {/* Art Generation Modal */}
+      {profile && (
+        <PersonalityArtModal
+          isOpen={showArtModal}
+          onClose={() => setShowArtModal(false)}
+          profile={profile}
+        />
       )}
     </div>
   );
