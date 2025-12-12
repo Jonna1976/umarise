@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3 } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo } from 'react';
 import { InsightsSection } from './InsightsSection';
+import { BookCoverCard } from './BookCoverCard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +33,7 @@ interface HistoryViewProps {
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
-type ViewMode = 'list' | 'calendar';
+type ViewMode = 'list' | 'calendar' | 'covers';
 
 // Union type for history items
 type HistoryItem = 
@@ -79,7 +80,7 @@ export function HistoryView({
   const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>('covers');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   // Get unique primary keywords for filter dropdown
@@ -325,6 +326,15 @@ export function HistoryView({
           {/* View mode toggle */}
           <div className="flex bg-secondary rounded-lg p-1">
             <button
+              onClick={() => setViewMode('covers')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'covers' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Book covers"
+            >
+              <BookOpen className="w-4 h-4" />
+            </button>
+            <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded transition-colors ${
                 viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
@@ -475,7 +485,7 @@ export function HistoryView({
       {/* Insights Section */}
       <InsightsSection pages={filteredPages} />
 
-      {/* Calendar View */}
+      {/* View Content */}
       <AnimatePresence mode="wait">
         {viewMode === 'calendar' ? (
           <motion.div
@@ -532,11 +542,9 @@ export function HistoryView({
                     key={dayKey}
                     onClick={() => {
                       if (hasPages) {
-                        // If single page, open it. If multiple, could show a mini-list
                         if (dayPages.length === 1) {
                           onSelectPage(dayPages[0]);
                         } else {
-                          // For now, select first page - could expand to show day detail
                           onSelectPage(dayPages[0]);
                         }
                       }
@@ -581,6 +589,68 @@ export function HistoryView({
                 </span> pages in {format(calendarMonth, 'MMMM', { locale: nl })}
               </p>
             </div>
+          </motion.div>
+        ) : viewMode === 'covers' ? (
+          /* Book Covers View */
+          <motion.div
+            key="covers"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4"
+          >
+            {historyItems.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground mb-6">
+                  {searchQuery
+                    ? `No pages found for "${searchQuery}"`
+                    : 'Your library is empty'}
+                </p>
+                <Button onClick={onBack} variant="codex">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Start writing
+                </Button>
+              </motion.div>
+            ) : (
+              <div className="space-y-4">
+                {historyItems.map((item, index) => (
+                  <motion.div
+                    key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.08 }}
+                  >
+                    <BookCoverCard
+                      page={item.type === 'page' ? item.page : undefined}
+                      capsule={item.type === 'capsule' ? item.capsule : undefined}
+                      onClick={() => {
+                        if (item.type === 'page') {
+                          onSelectPage(item.page);
+                        } else if (onSelectCapsule) {
+                          onSelectCapsule(item.capsule);
+                        } else {
+                          onSelectPage(item.capsule.pages[0]);
+                        }
+                      }}
+                      onDelete={() => {
+                        if (item.type === 'page') {
+                          handleDelete(item.page);
+                        } else {
+                          handleDeleteCapsule(item.capsule);
+                        }
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
         ) : (
           /* List View */
