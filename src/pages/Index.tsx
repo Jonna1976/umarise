@@ -325,6 +325,21 @@ const Index = () => {
                 });
               }
             }}
+            onPageDeleted={async (pageId) => {
+              await refresh();
+              // Re-fetch capsule with remaining pages
+              const remainingPages = pages.filter(p => p.capsuleId === currentCapsule.capsuleId && p.id !== pageId);
+              if (remainingPages.length > 0) {
+                setCurrentCapsule({
+                  capsuleId: currentCapsule.capsuleId,
+                  pages: remainingPages.sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0))
+                });
+              } else {
+                // No pages left, close carousel
+                setCurrentCapsule(null);
+                setView('history');
+              }
+            }}
           />
         ) : null;
       
