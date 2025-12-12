@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X } from 'lucide-react';
-import { Page, getPages, deletePage } from '@/lib/mockData';
+import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
 import { InsightsSection } from './InsightsSection';
@@ -17,8 +17,10 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface HistoryViewProps {
+  pages: Page[];
   onBack: () => void;
   onSelectPage: (page: Page) => void;
+  onDeletePage: (pageId: string) => void;
   onViewPatterns?: () => void;
 }
 
@@ -43,36 +45,35 @@ function getDateLabel(date: Date): string {
   return format(date, 'MMM d, yyyy');
 }
 
-export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryViewProps) {
+export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePage, onViewPatterns }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
 
-  const pages = useMemo(() => {
-    let allPages = getPages();
+  const filteredPages = useMemo(() => {
+    let pages = [...allPages];
     
     const now = new Date();
     if (filter === '7days') {
       const cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      allPages = allPages.filter(p => p.createdAt >= cutoff);
+      pages = pages.filter(p => p.createdAt >= cutoff);
     } else if (filter === '30days') {
       const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      allPages = allPages.filter(p => p.createdAt >= cutoff);
+      pages = pages.filter(p => p.createdAt >= cutoff);
     }
 
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      allPages = allPages.filter(p => 
+      pages = pages.filter(p => 
         p.summary.toLowerCase().includes(query) ||
         p.keywords.some(k => k.toLowerCase().includes(query)) ||
         p.tone.some(t => t.toLowerCase().includes(query))
       );
     }
     
-    return allPages;
-  }, [filter, refreshKey, searchQuery]);
+    return pages;
+  }, [allPages, filter, searchQuery]);
 
   const handleDelete = (page: Page) => {
     setPageToDelete(page);
@@ -80,8 +81,7 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
 
   const confirmDelete = () => {
     if (pageToDelete) {
-      deletePage(pageToDelete.id);
-      setRefreshKey(k => k + 1);
+      onDeletePage(pageToDelete.id);
       setPageToDelete(null);
     }
   };
@@ -155,11 +155,11 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
       </div>
 
       {/* Insights Section */}
-      <InsightsSection pages={pages} />
+      <InsightsSection pages={filteredPages} />
 
       {/* Page list */}
       <div className="p-4">
-        {pages.length === 0 ? (
+        {filteredPages.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -192,7 +192,7 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
           </motion.div>
         ) : (
           <div className="space-y-3">
-            {pages.map((page, index) => (
+            {filteredPages.map((page, index) => (
               <motion.div
                 key={page.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -255,7 +255,7 @@ export function HistoryView({ onBack, onSelectPage, onViewPatterns }: HistoryVie
       </div>
 
       {/* Floating capture button */}
-      {pages.length > 0 && (
+      {filteredPages.length > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}

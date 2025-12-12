@@ -12,9 +12,10 @@ import {
   hasCompletedOnboarding, 
   completeOnboarding 
 } from '@/lib/deviceId';
-import { Page, addPage, loadTestPages } from '@/lib/mockData';
-import { TestPage } from '@/lib/testData';
+import { usePages } from '@/hooks/usePages';
+import { Page } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
+import { toast } from 'sonner';
 
 type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns';
 
@@ -25,6 +26,9 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isNewCapture, setIsNewCapture] = useState(false);
   const [showTestPanel, setShowTestPanel] = useState(false);
+  
+  // Use real pages from database
+  const { pages, createPage, deletePage, refresh } = usePages();
 
   // Initialize on mount
   useEffect(() => {
@@ -41,36 +45,31 @@ const Index = () => {
     setView('camera');
   }, []);
 
-  const handleCapture = useCallback((imageDataUrl: string) => {
+  const handleCapture = useCallback(async (imageDataUrl: string) => {
     setCapturedImage(imageDataUrl);
     setView('processing');
     
-    // Simulate AI processing (2-3 seconds)
-    setTimeout(() => {
-      // Create a new page with mock AI results
-      const mockTones = ['focused', 'reflective', 'hopeful', 'playful', 'overwhelmed', 'frustrated'];
-      const mockKeywords = ['ideas', 'clarity', 'patterns', 'growth', 'change', 'focus', 'vision', 'purpose'];
+    try {
+      // Real AI processing via edge function
+      const newPage = await createPage(imageDataUrl);
       
-      const newPage = addPage({
-        deviceUserId: deviceId || 'unknown',
-        imageUrl: imageDataUrl,
-        ocrText: 'This is a sample transcription of your handwritten text. In a real implementation, this would be the result of OCR processing on your captured image.',
-        summary: 'A moment of reflection captured in your personal codex. Your thoughts are being woven into the larger tapestry of your ideas.',
-        tone: [
-          mockTones[Math.floor(Math.random() * mockTones.length)],
-          mockTones[Math.floor(Math.random() * mockTones.length)],
-        ].filter((v, i, a) => a.indexOf(v) === i),
-        keywords: Array.from({ length: 4 + Math.floor(Math.random() * 3) }, () => 
-          mockKeywords[Math.floor(Math.random() * mockKeywords.length)]
-        ).filter((v, i, a) => a.indexOf(v) === i),
-        createdAt: new Date(),
-      });
-      
-      setCurrentPage(newPage);
-      setIsNewCapture(true);
-      setView('snapshot');
-    }, 2500);
-  }, [deviceId]);
+      if (newPage) {
+        setCurrentPage(newPage);
+        setIsNewCapture(true);
+        setView('snapshot');
+      } else {
+        // Failed - go back to camera
+        toast.error('Failed to process page. Please try again.');
+        setView('camera');
+      }
+    } catch (error) {
+      console.error('Capture error:', error);
+      toast.error('Something went wrong. Please try again.');
+      setView('camera');
+    } finally {
+      setCapturedImage(null);
+    }
+  }, [createPage]);
 
   const handleCloseSnapshot = useCallback(() => {
     setCapturedImage(null);
@@ -106,18 +105,25 @@ const Index = () => {
     setView('history');
   }, []);
 
-  const handleLoadTestData = useCallback((testPages: TestPage[]) => {
-    loadTestPages(testPages as Page[]);
+  const handleLoadTestData = useCallback(() => {
+    // Test data loading is no longer supported with real database
+    // Just close panel and refresh
     setShowTestPanel(false);
+    refresh();
     setView('history');
-  }, []);
+  }, [refresh]);
 
-  const handleViewTestPage = useCallback((testPage: TestPage) => {
-    setCurrentPage(testPage as Page);
+  const handleViewTestPage = useCallback((page: Page) => {
+    setCurrentPage(page);
     setIsNewCapture(false);
     setShowTestPanel(false);
     setView('detail');
   }, []);
+
+  // Handle page deletion from history
+  const handleDeletePage = useCallback(async (pageId: string) => {
+    await deletePage(pageId);
+  }, [deletePage]);
 
   // Dev button (only visible when not in onboarding)
   const DevButton = view !== 'onboarding' && (
@@ -162,8 +168,10 @@ const Index = () => {
       case 'history':
         return (
           <HistoryView
+            pages={pages}
             onBack={handleBackFromHistory}
             onSelectPage={handleSelectPage}
+            onDeletePage={handleDeletePage}
             onViewPatterns={handleViewPatterns}
           />
         );

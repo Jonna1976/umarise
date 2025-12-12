@@ -9,7 +9,8 @@ import {
   Sparkles,
   Brain
 } from 'lucide-react';
-import { Page, getPages } from '@/lib/mockData';
+import { Page } from '@/lib/pageService';
+import { usePages } from '@/hooks/usePages';
 import { format, startOfWeek, endOfWeek, eachWeekOfInterval, subMonths } from 'date-fns';
 
 interface PatternsViewProps {
@@ -29,7 +30,7 @@ function getToneClass(tone: string): string {
 }
 
 export function PatternsView({ onBack }: PatternsViewProps) {
-  const pages = getPages();
+  const { pages, isLoading } = usePages();
 
   const patterns = useMemo(() => {
     if (pages.length === 0) return null;
