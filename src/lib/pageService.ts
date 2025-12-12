@@ -11,6 +11,8 @@ export interface Page {
   summary: string;
   tone: string[];
   keywords: string[];
+  primaryKeyword?: string;
+  userNote?: string;
   confidenceScore?: number;
   createdAt: Date;
   updatedAt?: Date;
@@ -134,6 +136,8 @@ export async function createPage(imageDataUrl: string): Promise<Page> {
     summary: data.summary || '',
     tone: toneArray,
     keywords: data.keywords || [],
+    primaryKeyword: data.primary_keyword || undefined,
+    userNote: data.user_note || undefined,
     confidenceScore: data.confidence_score ? Number(data.confidence_score) : undefined,
     createdAt: new Date(data.created_at),
     updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
@@ -167,6 +171,8 @@ export async function getPages(): Promise<Page[]> {
     summary: row.summary || '',
     tone: row.tone ? [row.tone] : [],
     keywords: row.keywords || [],
+    primaryKeyword: row.primary_keyword || undefined,
+    userNote: row.user_note || undefined,
     confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
     createdAt: new Date(row.created_at),
     updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
@@ -194,6 +200,8 @@ export async function getPage(id: string): Promise<Page | null> {
     summary: data.summary || '',
     tone: data.tone ? [data.tone] : [],
     keywords: data.keywords || [],
+    primaryKeyword: data.primary_keyword || undefined,
+    userNote: data.user_note || undefined,
     confidenceScore: data.confidence_score ? Number(data.confidence_score) : undefined,
     createdAt: new Date(data.created_at),
     updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
@@ -239,4 +247,100 @@ export async function deletePage(id: string): Promise<boolean> {
   }
 
   return true;
+}
+
+// Update page with user note and primary keyword
+export async function updatePage(
+  id: string, 
+  updates: { userNote?: string; primaryKeyword?: string }
+): Promise<boolean> {
+  const deviceUserId = getDeviceId();
+  
+  if (!deviceUserId) {
+    return false;
+  }
+
+  const { error } = await supabase
+    .from('pages')
+    .update({
+      user_note: updates.userNote,
+      primary_keyword: updates.primaryKeyword,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .eq('device_user_id', deviceUserId);
+
+  if (error) {
+    console.error('Update page error:', error);
+    return false;
+  }
+
+  return true;
+}
+
+// Check for duplicate image by comparing OCR text similarity
+export async function checkDuplicate(ocrText: string): Promise<Page | null> {
+  const deviceUserId = getDeviceId();
+  
+  if (!deviceUserId || !ocrText || ocrText.length < 50) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from('pages')
+    .select('*')
+    .eq('device_user_id', deviceUserId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error || !data) {
+    return null;
+  }
+
+  // Simple similarity check: compare first 200 chars of OCR text
+  const normalizedNew = ocrText.slice(0, 200).toLowerCase().replace(/\s+/g, ' ').trim();
+  
+  for (const row of data) {
+    if (!row.ocr_text) continue;
+    const normalizedExisting = row.ocr_text.slice(0, 200).toLowerCase().replace(/\s+/g, ' ').trim();
+    
+    // Check if texts are very similar (>80% match)
+    const similarity = calculateSimilarity(normalizedNew, normalizedExisting);
+    if (similarity > 0.8) {
+      return {
+        id: row.id,
+        deviceUserId: row.device_user_id,
+        imageUrl: row.image_url,
+        ocrText: row.ocr_text || '',
+        summary: row.summary || '',
+        tone: row.tone ? [row.tone] : [],
+        keywords: row.keywords || [],
+        primaryKeyword: row.primary_keyword || undefined,
+        userNote: row.user_note || undefined,
+        confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
+        createdAt: new Date(row.created_at),
+        updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+      };
+    }
+  }
+
+  return null;
+}
+
+// Simple Levenshtein-based similarity
+function calculateSimilarity(str1: string, str2: string): number {
+  if (str1 === str2) return 1;
+  if (!str1 || !str2) return 0;
+  
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  
+  if (longer.length === 0) return 1;
+  
+  // Simple overlap check
+  const words1 = new Set(str1.split(' '));
+  const words2 = new Set(str2.split(' '));
+  const intersection = [...words1].filter(w => words2.has(w));
+  
+  return intersection.length / Math.max(words1.size, words2.size);
 }

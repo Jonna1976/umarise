@@ -1,15 +1,18 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, Clock, ChevronDown, ChevronUp } from 'lucide-react';
-import { Page } from '@/lib/pageService';
-import { useState } from 'react';
+import { X, Clock, ChevronDown, ChevronUp, Star, Check } from 'lucide-react';
+import { Page, updatePage } from '@/lib/pageService';
+import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface SnapshotViewProps {
   page: Page;
   onClose: () => void;
   onViewHistory: () => void;
   isNewCapture?: boolean;
+  onPageUpdate?: (page: Page) => void;
 }
 
 function getToneClass(tone: string): string {
@@ -24,8 +27,49 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
+  const [userNote, setUserNote] = useState(page.userNote || '');
+  const [primaryKeyword, setPrimaryKeyword] = useState(page.primaryKeyword || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Track changes
+  useEffect(() => {
+    const noteChanged = userNote !== (page.userNote || '');
+    const keywordChanged = primaryKeyword !== (page.primaryKeyword || '');
+    setHasChanges(noteChanged || keywordChanged);
+  }, [userNote, primaryKeyword, page.userNote, page.primaryKeyword]);
+
+  const handleSave = async () => {
+    if (!hasChanges) return;
+    
+    setIsSaving(true);
+    const success = await updatePage(page.id, {
+      userNote: userNote || undefined,
+      primaryKeyword: primaryKeyword || undefined,
+    });
+    
+    setIsSaving(false);
+    
+    if (success) {
+      toast.success('Saved');
+      setHasChanges(false);
+      if (onPageUpdate) {
+        onPageUpdate({ ...page, userNote, primaryKeyword });
+      }
+    } else {
+      toast.error('Failed to save');
+    }
+  };
+
+  const togglePrimaryKeyword = (keyword: string) => {
+    if (primaryKeyword === keyword) {
+      setPrimaryKeyword('');
+    } else {
+      setPrimaryKeyword(keyword);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,9 +83,23 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture }: Sna
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
           
-          <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-            <Clock className="w-4 h-4" />
-            <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
+          <div className="flex items-center gap-3">
+            {hasChanges && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                size="sm"
+                variant="codex"
+                className="h-8"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+                {!isSaving && <Check className="w-4 h-4 ml-1" />}
+              </Button>
+            )}
+            <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
+              <Clock className="w-4 h-4" />
+              <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -102,24 +160,53 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture }: Sna
           </div>
         </motion.div>
 
-        {/* Keywords */}
+        {/* Keywords with highlight option */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="mb-6"
         >
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Keywords</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+            Keywords <span className="normal-case opacity-60">(tap to highlight)</span>
+          </p>
           <div className="flex flex-wrap gap-2">
-            {page.keywords.map((keyword) => (
-              <span
-                key={keyword}
-                className="px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm"
-              >
-                {keyword}
-              </span>
-            ))}
+            {page.keywords.map((keyword) => {
+              const isPrimary = primaryKeyword === keyword;
+              return (
+                <button
+                  key={keyword}
+                  onClick={() => togglePrimaryKeyword(keyword)}
+                  className={`px-3 py-1 rounded-full text-sm transition-all flex items-center gap-1.5 ${
+                    isPrimary 
+                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/30' 
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  {isPrimary && <Star className="w-3 h-3" />}
+                  {keyword}
+                </button>
+              );
+            })}
           </div>
+        </motion.div>
+
+        {/* User Note */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-6"
+        >
+          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+            Your context
+          </p>
+          <Textarea
+            value={userNote}
+            onChange={(e) => setUserNote(e.target.value)}
+            placeholder="Add personal notes to help you find this later..."
+            className="min-h-[80px] resize-none bg-secondary/50 border-border/50 focus:border-primary/50"
+          />
         </motion.div>
 
         {/* OCR Text (collapsible) */}

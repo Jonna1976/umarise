@@ -28,7 +28,13 @@ const Index = () => {
   const [showTestPanel, setShowTestPanel] = useState(false);
   
   // Use real pages from database
-  const { pages, createPage, deletePage, refresh } = usePages();
+  const { pages, createPage, updatePage, deletePage, refresh } = usePages();
+
+  // Handle page update from SnapshotView
+  const handlePageUpdate = useCallback((updatedPage: Page) => {
+    updatePage(updatedPage);
+    setCurrentPage(updatedPage);
+  }, [updatePage]);
 
   // Initialize on mount
   useEffect(() => {
@@ -162,6 +168,7 @@ const Index = () => {
             onClose={handleCloseSnapshot}
             onViewHistory={handleOpenHistory}
             isNewCapture={isNewCapture}
+            onPageUpdate={handlePageUpdate}
           />
         ) : null;
       
@@ -188,6 +195,7 @@ const Index = () => {
             onClose={handleBackFromDetail}
             onViewHistory={handleOpenHistory}
             isNewCapture={false}
+            onPageUpdate={handlePageUpdate}
           />
         ) : null;
       

@@ -24,9 +24,11 @@ export type Database = {
           image_url: string
           keywords: string[] | null
           ocr_text: string | null
+          primary_keyword: string | null
           summary: string | null
           tone: string | null
           updated_at: string
+          user_note: string | null
         }
         Insert: {
           confidence_score?: number | null
@@ -37,9 +39,11 @@ export type Database = {
           image_url: string
           keywords?: string[] | null
           ocr_text?: string | null
+          primary_keyword?: string | null
           summary?: string | null
           tone?: string | null
           updated_at?: string
+          user_note?: string | null
         }
         Update: {
           confidence_score?: number | null
@@ -50,9 +54,11 @@ export type Database = {
           image_url?: string
           keywords?: string[] | null
           ocr_text?: string | null
+          primary_keyword?: string | null
           summary?: string | null
           tone?: string | null
           updated_at?: string
+          user_note?: string | null
         }
         Relationships: []
       }
