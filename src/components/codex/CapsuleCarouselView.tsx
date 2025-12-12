@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Star, Images } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles } from 'lucide-react';
 import { CapsulePages, Page } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
 import { 
@@ -28,10 +28,22 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
 }
 
+// Generate combined summary from all pages
+function generateCapsuleSummary(pages: Page[]): string {
+  const allKeywords = new Set<string>();
+  pages.forEach(p => p.keywords.forEach(k => allKeywords.add(k)));
+  
+  // Take first 2 sentences from first page summary
+  const firstSummary = pages[0]?.summary || '';
+  
+  return `${pages.length} pages covering: ${Array.from(allKeywords).slice(0, 6).join(', ')}. ${firstSummary}`;
+}
+
 export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleCarouselViewProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [showOverview, setShowOverview] = useState(false);
 
   useEffect(() => {
     if (!api) return;
@@ -53,6 +65,7 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
   }, [api]);
 
   const currentPage = capsule.pages[current];
+  const capsuleSummary = generateCapsuleSummary(capsule.pages);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -67,7 +80,18 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
           </button>
           
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-codex-gold/20 text-codex-gold">
+            <button
+              onClick={() => setShowOverview(!showOverview)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                showOverview 
+                  ? 'bg-codex-gold text-codex-ink' 
+                  : 'bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Overview
+            </button>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-secondary text-muted-foreground">
               <Images className="w-3.5 h-3.5" />
               {current + 1} / {count}
             </span>
@@ -77,8 +101,39 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
         </div>
       </div>
 
-      {/* Carousel */}
-      <div className="flex-1 flex flex-col">
+      {/* Capsule Overview */}
+      <AnimatePresence>
+        {showOverview && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="border-b border-border bg-codex-gold/5"
+          >
+            <div className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-codex-gold" />
+                <h3 className="text-sm font-medium text-foreground">Capsule Summary</h3>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                {capsuleSummary}
+              </p>
+              
+              {/* All keywords from all pages */}
+              <div className="flex flex-wrap gap-1.5">
+                {Array.from(new Set(capsule.pages.flatMap(p => p.keywords))).slice(0, 12).map((keyword) => (
+                  <span key={keyword} className="px-2 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground">
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Carousel with integrated navigation */}
+      <div className="flex-1 flex flex-col relative">
         <Carousel 
           className="flex-1 w-full"
           setApi={setApi}
@@ -96,50 +151,91 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
                   transition={{ delay: index * 0.05 }}
                   className="h-full flex flex-col items-center justify-center p-4"
                 >
-                  <button
-                    onClick={() => onSelectPage(page)}
-                    className="relative w-full max-w-sm aspect-[3/4] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                  {/* Image with integrated nav arrows */}
+                  <div className="relative w-full max-w-sm">
+                    <button
+                      onClick={() => onSelectPage(page)}
+                      className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                    >
+                      <img
+                        src={page.imageUrl}
+                        alt={`Page ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                    
+                    {/* Navigation arrows - tight to image */}
+                    {current > 0 && (
+                      <button
+                        onClick={scrollPrev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors shadow-md"
+                      >
+                        <ChevronLeft className="w-4 h-4 text-foreground" />
+                      </button>
+                    )}
+                    {current < count - 1 && (
+                      <button
+                        onClick={scrollNext}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors shadow-md"
+                      >
+                        <ChevronRight className="w-4 h-4 text-foreground" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Page details shown immediately below image */}
+                  <motion.div
+                    key={page.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full max-w-sm mt-4 p-3 bg-secondary/50 rounded-xl"
                   >
-                    <img
-                      src={page.imageUrl}
-                      alt={`Page ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {/* Overlay with page number */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                      <p className="text-white/80 text-xs">
-                        Tap to view details
-                      </p>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {page.primaryKeyword && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
+                            <Star className="w-3 h-3" />
+                            {page.primaryKeyword}
+                          </span>
+                        )}
+                        <span className="text-[10px] text-muted-foreground">
+                          Page {index + 1}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => onSelectPage(page)}
+                        className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
+                      >
+                        <FileText className="w-3 h-3" />
+                        Full details
+                      </button>
                     </div>
-                  </button>
+                    
+                    <p className="text-xs text-foreground leading-relaxed line-clamp-2 mb-2">
+                      {page.summary}
+                    </p>
+                    
+                    <div className="flex flex-wrap gap-1">
+                      {page.tone.map((t) => (
+                        <span key={t} className={`tone-chip text-[9px] ${getToneClass(t)}`}>
+                          {t}
+                        </span>
+                      ))}
+                      {page.keywords.slice(0, 3).map((k) => (
+                        <span key={k} className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                          {k}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
                 </motion.div>
               </CarouselItem>
             ))}
           </CarouselContent>
         </Carousel>
 
-        {/* Navigation arrows */}
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-          <button
-            onClick={scrollPrev}
-            disabled={current === 0}
-            className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-          <button
-            onClick={scrollNext}
-            disabled={current === count - 1}
-            className="w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary transition-colors"
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
-
         {/* Dot indicators */}
-        <div className="flex justify-center gap-1.5 py-4">
+        <div className="flex justify-center gap-1.5 py-3">
           {capsule.pages.map((_, index) => (
             <button
               key={index}
@@ -153,43 +249,6 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
           ))}
         </div>
       </div>
-
-      {/* Current page info */}
-      {currentPage && (
-        <motion.div
-          key={currentPage.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 border-t border-border bg-background"
-        >
-          {/* Primary keyword */}
-          {currentPage.primaryKeyword && (
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
-                <Star className="w-3 h-3" />
-                {currentPage.primaryKeyword}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(currentPage.createdAt, { addSuffix: true })}
-              </span>
-            </div>
-          )}
-          
-          {/* Summary */}
-          <p className="text-sm text-foreground leading-relaxed line-clamp-3 mb-3">
-            {currentPage.summary}
-          </p>
-          
-          {/* Tones */}
-          <div className="flex flex-wrap gap-1.5">
-            {currentPage.tone.map((t) => (
-              <span key={t} className={`tone-chip text-[10px] ${getToneClass(t)}`}>
-                {t}
-              </span>
-            ))}
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }

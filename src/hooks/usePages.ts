@@ -62,10 +62,13 @@ export function usePages() {
     }
   }, []);
 
-  // Create multiple pages as a capsule
-  const createCapsule = useCallback(async (imageDataUrls: string[]): Promise<Page[] | null> => {
+  // Create multiple pages as a capsule with progress callback
+  const createCapsule = useCallback(async (
+    imageDataUrls: string[], 
+    onProgress?: (completed: number, total: number) => void
+  ): Promise<Page[] | null> => {
     try {
-      const newPages = await createCapsuleService(imageDataUrls);
+      const newPages = await createCapsuleService(imageDataUrls, onProgress);
       setPages(prev => [...newPages, ...prev]);
       toast.success(`Capsule created with ${newPages.length} pages`);
       return newPages;
