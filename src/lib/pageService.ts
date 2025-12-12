@@ -54,10 +54,24 @@ async function uploadImage(imageDataUrl: string, deviceUserId: string): Promise<
   return urlData.publicUrl;
 }
 
+// Extract base64 from data URL
+function extractBase64(dataUrl: string): string {
+  // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+  const base64Match = dataUrl.match(/^data:image\/\w+;base64,(.+)$/);
+  if (base64Match) {
+    return base64Match[1];
+  }
+  // If no prefix, assume it's already base64
+  return dataUrl;
+}
+
 // Analyze image using AI edge function
-async function analyzeImage(imageUrl: string): Promise<AnalysisResult> {
+async function analyzeImage(imageDataUrl: string): Promise<AnalysisResult> {
+  // Send base64 directly to edge function (more reliable than URL)
+  const base64 = extractBase64(imageDataUrl);
+  
   const { data, error } = await supabase.functions.invoke('analyze-page', {
-    body: { image_url: imageUrl },
+    body: { image_base64: base64 },
   });
 
   if (error) {
@@ -76,15 +90,15 @@ export async function createPage(imageDataUrl: string): Promise<Page> {
     throw new Error('Device ID not initialized');
   }
 
-  // Step 1: Upload image
+  // Step 1: Analyze with AI (using base64 for reliability)
+  console.log('Analyzing image with AI...');
+  const analysis = await analyzeImage(imageDataUrl);
+  console.log('Analysis complete:', analysis);
+
+  // Step 2: Upload image to storage
   console.log('Uploading image...');
   const imageUrl = await uploadImage(imageDataUrl, deviceUserId);
   console.log('Image uploaded:', imageUrl);
-
-  // Step 2: Analyze with AI
-  console.log('Analyzing image...');
-  const analysis = await analyzeImage(imageUrl);
-  console.log('Analysis complete:', analysis);
 
   // Step 3: Parse tone (can be comma-separated or single value)
   const toneArray = analysis.tone
