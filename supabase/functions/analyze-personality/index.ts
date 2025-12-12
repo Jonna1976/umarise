@@ -193,7 +193,28 @@ ${JSON.stringify(analysisData, null, 2)}`;
       );
     }
 
-    console.log('Personality analysis complete');
+    console.log('Personality analysis complete, saving snapshot...');
+
+    // Save personality snapshot for evolution tracking
+    const { error: snapshotError } = await supabase
+      .from('personality_snapshots')
+      .insert({
+        device_user_id: device_user_id,
+        core_identity: profileResult.core_identity,
+        tagline: profileResult.tagline,
+        drivers: profileResult.drivers,
+        tension_field: profileResult.tension_field,
+        superpower: profileResult.superpower,
+        growth_edge: profileResult.growth_edge,
+        page_count: pages.length
+      });
+
+    if (snapshotError) {
+      console.error('Failed to save personality snapshot:', snapshotError);
+      // Don't fail the request, just log the error
+    } else {
+      console.log('Personality snapshot saved successfully');
+    }
 
     return new Response(
       JSON.stringify({

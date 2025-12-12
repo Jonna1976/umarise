@@ -21,6 +21,7 @@ import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
+import { PersonalityEvolution } from './PersonalityEvolution';
 
 interface PersonalityViewProps {
   onBack: () => void;
@@ -402,6 +403,9 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
               {profile.tension_field.description}
             </p>
           </motion.div>
+
+          {/* Personality Evolution - Track how you've changed */}
+          <PersonalityEvolution currentTagline={profile.tagline} />
 
           {/* Growth Edge */}
           <motion.div
