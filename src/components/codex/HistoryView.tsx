@@ -1,8 +1,9 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3 } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
-import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
+import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { useState, useMemo } from 'react';
 import { InsightsSection } from './InsightsSection';
 import {
@@ -30,11 +31,16 @@ interface HistoryViewProps {
 
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
+type ToneFilter = 'all' | string;
+type ViewMode = 'list' | 'calendar';
 
 // Union type for history items
 type HistoryItem = 
   | { type: 'page'; page: Page }
   | { type: 'capsule'; capsule: CapsulePages };
+
+// Available tones for filtering
+const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective'];
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
@@ -68,10 +74,13 @@ export function HistoryView({
 }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
+  const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
 
   // Get unique primary keywords for filter dropdown
   const primaryKeywords = useMemo(() => {
@@ -97,6 +106,11 @@ export function HistoryView({
     // Apply keyword filter
     if (keywordFilter !== 'all') {
       pages = pages.filter(p => p.primaryKeyword === keywordFilter);
+    }
+
+    // Apply tone filter
+    if (toneFilter !== 'all') {
+      pages = pages.filter(p => p.tone.some(t => t.toLowerCase() === toneFilter.toLowerCase()));
     }
 
     // Apply search filter (includes OCR text for full-text search)
@@ -136,7 +150,33 @@ export function HistoryView({
     });
     
     return items;
-  }, [allPages, filter, keywordFilter, searchQuery]);
+  }, [allPages, filter, keywordFilter, toneFilter, searchQuery]);
+
+  // Calendar data - pages grouped by day
+  const calendarData = useMemo(() => {
+    const monthStart = startOfMonth(calendarMonth);
+    const monthEnd = endOfMonth(calendarMonth);
+    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    const dayMap = new Map<string, Page[]>();
+    
+    allPages.forEach(page => {
+      const dayKey = format(page.createdAt, 'yyyy-MM-dd');
+      if (!dayMap.has(dayKey)) {
+        dayMap.set(dayKey, []);
+      }
+      dayMap.get(dayKey)!.push(page);
+    });
+    
+    return { days, dayMap };
+  }, [allPages, calendarMonth]);
+
+  // Tones used in current pages for smart filtering
+  const usedTones = useMemo(() => {
+    const tones = new Set<string>();
+    allPages.forEach(p => p.tone.forEach(t => tones.add(t.toLowerCase())));
+    return AVAILABLE_TONES.filter(t => tones.has(t));
+  }, [allPages]);
 
   // For insights, flatten all pages
   const filteredPages = useMemo(() => {
@@ -200,8 +240,7 @@ export function HistoryView({
                 className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
                 title={allPages.length >= 3 ? "Mijn Kompas" : `${3 - allPages.length} more pages needed`}
               >
-                <Compass className="w-5 h-5 text-red-500" />
-                {/* DEV MODE: Lowered from 3 to 2 */}
+                <Compass className="w-5 h-5 text-codex-gold" />
                 {allPages.length < 2 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
                     {2 - allPages.length}
@@ -242,22 +281,22 @@ export function HistoryView({
           </div>
         </div>
 
-        {/* Search bar */}
+        {/* Enhanced Search bar */}
         <div className="px-4 pb-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-codex-gold" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search keywords, summaries..."
-              className="w-full pl-9 pr-9 py-2 rounded-full bg-secondary/50 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-sepia/30 focus:border-codex-sepia/50 transition-all"
+              placeholder="Doorzoek je hele codex..."
+              className="w-full pl-12 pr-12 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-gold/50 focus:border-codex-gold transition-all font-medium"
               maxLength={100}
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -265,29 +304,82 @@ export function HistoryView({
           </div>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-2 px-4 pb-2 overflow-x-auto">
-          {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
+        {/* View mode toggle + Time filters */}
+        <div className="flex items-center justify-between px-4 pb-2">
+          <div className="flex gap-2 overflow-x-auto">
+            {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+                  filter === f
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                }`}
+              >
+                {f === 'all' ? 'All' : f === '7days' ? '7 days' : '30 days'}
+              </button>
+            ))}
+          </div>
+          
+          {/* View mode toggle */}
+          <div className="flex bg-secondary rounded-lg p-1">
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
-                filter === f
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="List view"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`p-1.5 rounded transition-colors ${
+                viewMode === 'calendar' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+              title="Calendar view"
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Tone quick filters */}
+        {usedTones.length > 0 && (
+          <div className="flex gap-2 px-4 pb-2 overflow-x-auto">
+            <button
+              onClick={() => setToneFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
+                toneFilter === 'all'
+                  ? 'bg-foreground text-background'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
-              {f === 'all' ? 'All' : f === '7days' ? 'Last 7 days' : 'Last 30 days'}
+              All moods
             </button>
-          ))}
-        </div>
+            {usedTones.map((tone) => (
+              <button
+                key={tone}
+                onClick={() => setToneFilter(toneFilter === tone ? 'all' : tone)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                  toneFilter === tone
+                    ? `${getToneClass(tone)} ring-2 ring-offset-1 ring-current`
+                    : `${getToneClass(tone)} opacity-60 hover:opacity-100`
+                }`}
+              >
+                {tone}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Primary keyword filter */}
         {primaryKeywords.length > 0 && (
-          <div className="flex gap-2 px-4 pb-4 overflow-x-auto">
+          <div className="flex gap-2 px-4 pb-3 overflow-x-auto">
             <button
               onClick={() => setKeywordFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
                 keywordFilter === 'all'
                   ? 'bg-codex-sepia text-white'
                   : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
@@ -298,8 +390,8 @@ export function HistoryView({
             {primaryKeywords.map((kw) => (
               <button
                 key={kw}
-                onClick={() => setKeywordFilter(kw)}
-                className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+                onClick={() => setKeywordFilter(keywordFilter === kw ? 'all' : kw)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
                   keywordFilter === kw
                     ? 'bg-codex-sepia text-white'
                     : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
@@ -328,11 +420,177 @@ export function HistoryView({
         </div>
       </div>
 
+      {/* Active filters summary */}
+      {(searchQuery || toneFilter !== 'all' || keywordFilter !== 'all' || filter !== 'all') && (
+        <div className="px-4 py-2 bg-codex-gold/5 border-b border-border">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">Filters:</span>
+            {searchQuery && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-codex-gold/20 text-codex-gold">
+                "{searchQuery}"
+                <button onClick={() => setSearchQuery('')} className="hover:text-codex-ink">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {toneFilter !== 'all' && (
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${getToneClass(toneFilter)}`}>
+                {toneFilter}
+                <button onClick={() => setToneFilter('all')} className="hover:opacity-70">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {keywordFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-codex-sepia text-white">
+                {keywordFilter}
+                <button onClick={() => setKeywordFilter('all')} className="hover:opacity-70">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {filter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary text-primary-foreground">
+                {filter === '7days' ? '7 days' : '30 days'}
+                <button onClick={() => setFilter('all')} className="hover:opacity-70">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setToneFilter('all');
+                setKeywordFilter('all');
+                setFilter('all');
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Clear all
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Insights Section */}
       <InsightsSection pages={filteredPages} />
 
-      {/* History list */}
-      <div className="p-4">
+      {/* Calendar View */}
+      <AnimatePresence mode="wait">
+        {viewMode === 'calendar' ? (
+          <motion.div
+            key="calendar"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4"
+          >
+            {/* Month navigation */}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <h2 className="font-serif text-lg font-medium capitalize">
+                {format(calendarMonth, 'MMMM yyyy', { locale: nl })}
+              </h2>
+              <button
+                onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors rotate-180"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map(day => (
+                <div key={day} className="text-center text-xs text-muted-foreground font-medium py-1">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {/* Empty cells for days before month start */}
+              {Array.from({ length: (calendarData.days[0]?.getDay() || 0) === 0 ? 6 : (calendarData.days[0]?.getDay() || 1) - 1 }).map((_, i) => (
+                <div key={`empty-${i}`} className="aspect-square" />
+              ))}
+              
+              {calendarData.days.map(day => {
+                const dayKey = format(day, 'yyyy-MM-dd');
+                const dayPages = calendarData.dayMap.get(dayKey) || [];
+                const hasPages = dayPages.length > 0;
+                const isCurrentMonth = isSameMonth(day, calendarMonth);
+                const isCurrentDay = isSameDay(day, new Date());
+                
+                return (
+                  <button
+                    key={dayKey}
+                    onClick={() => {
+                      if (hasPages) {
+                        // If single page, open it. If multiple, could show a mini-list
+                        if (dayPages.length === 1) {
+                          onSelectPage(dayPages[0]);
+                        } else {
+                          // For now, select first page - could expand to show day detail
+                          onSelectPage(dayPages[0]);
+                        }
+                      }
+                    }}
+                    disabled={!hasPages}
+                    className={`
+                      aspect-square rounded-lg flex flex-col items-center justify-center relative transition-all
+                      ${!isCurrentMonth ? 'opacity-30' : ''}
+                      ${isCurrentDay ? 'ring-2 ring-codex-gold' : ''}
+                      ${hasPages 
+                        ? 'bg-codex-gold/20 hover:bg-codex-gold/40 cursor-pointer' 
+                        : 'bg-secondary/30 cursor-default'
+                      }
+                    `}
+                  >
+                    <span className={`text-xs font-medium ${hasPages ? 'text-codex-gold' : 'text-muted-foreground'}`}>
+                      {format(day, 'd')}
+                    </span>
+                    {hasPages && (
+                      <div className="absolute bottom-1 flex gap-0.5">
+                        {dayPages.slice(0, 3).map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="w-1 h-1 rounded-full bg-codex-gold"
+                          />
+                        ))}
+                        {dayPages.length > 3 && (
+                          <span className="text-[8px] text-codex-gold font-bold">+{dayPages.length - 3}</span>
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Month summary */}
+            <div className="mt-4 p-3 rounded-xl bg-secondary/50">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {allPages.filter(p => isSameMonth(p.createdAt, calendarMonth)).length}
+                </span> pages in {format(calendarMonth, 'MMMM', { locale: nl })}
+              </p>
+            </div>
+          </motion.div>
+        ) : (
+          /* List View */
+          <motion.div
+            key="list"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4"
+          >
         {historyItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
@@ -530,7 +788,9 @@ export function HistoryView({
             ))}
           </div>
         )}
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating capture button */}
       {historyItems.length > 0 && (
