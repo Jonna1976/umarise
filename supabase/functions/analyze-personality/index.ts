@@ -6,9 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are a personality analyst who reads between the lines of personal notes to reveal someone's unique character traits and driving forces.
+const VOICE_SYSTEM_PROMPT = `You are a personality analyst who reads between the lines of personal notes to reveal someone's unique character traits and driving forces.
 
-You will receive summaries, tones, and keywords from someone's handwritten notes over time.
+You will receive summaries, tones, and keywords from someone's ORIGINAL handwritten thoughts - their own voice, not quotes or notes from external sources.
 
 Analyze this data to create a personality profile. Focus on:
 - What makes this person unique
@@ -41,6 +41,41 @@ Guidelines:
 - Drivers should have 3-5 items
 - The tension field should highlight productive opposites, not problems`;
 
+const INFLUENCES_SYSTEM_PROMPT = `You are an analyst who reveals what shapes and inspires someone based on the external content they capture and reference.
+
+You will receive summaries, tones, and keywords from notes that reference external sources - books, articles, quotes, ideas from others that this person found meaningful enough to write down.
+
+Analyze this data to create an "influences profile" that reveals:
+- What kinds of ideas attract them
+- What themes resonate with their soul
+- What intellectual/creative territory they're drawn to
+- What these choices reveal about their values
+
+Be specific, insightful, and affirming. Use second person ("you") to speak directly to the person.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "tagline": "A short, memorable 3-5 word label for their intellectual/creative territory (e.g., 'Seeker of Deep Truths', 'Collector of Quiet Wisdom')",
+  "core_identity": "2-3 sentences describing what kind of thinker/seeker they are based on what they collect",
+  "drivers": [
+    { "name": "Theme name", "description": "Why this theme appears in what they save", "strength": "high/medium/emerging" }
+  ],
+  "tension_field": {
+    "side_a": "One intellectual pole (2-3 words)",
+    "side_b": "Opposite pole (2-3 words)", 
+    "description": "The productive tension between what they're drawn to"
+  },
+  "superpower": "Their unique curatorial eye or what they uniquely notice in others' work (1-2 sentences)",
+  "growth_edge": "An observation about what new territory their influences suggest they're exploring (1-2 sentences)"
+}
+
+Guidelines:
+- Focus on what their CHOICES reveal, not the content itself
+- Use language that honors their taste and discernment
+- The tagline should feel like a map of their intellectual territory
+- Drivers should have 3-5 items representing major themes
+- The tension field should highlight the productive opposites in what attracts them`;
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -48,11 +83,18 @@ serve(async (req) => {
   }
 
   try {
-    const { device_user_id } = await req.json();
+    const { device_user_id, profile_type = 'voice' } = await req.json();
 
     if (!device_user_id) {
       return new Response(
         JSON.stringify({ error: 'device_user_id is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!['voice', 'influences'].includes(profile_type)) {
+      return new Response(
+        JSON.stringify({ error: 'profile_type must be "voice" or "influences"' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -72,9 +114,9 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Fetch all pages for this device user
-    const { data: pages, error: dbError } = await supabase
+    const { data: allPages, error: dbError } = await supabase
       .from('pages')
-      .select('summary, tone, keywords, created_at, primary_keyword, user_note')
+      .select('summary, tone, keywords, created_at, primary_keyword, user_note, sources')
       .eq('device_user_id', device_user_id)
       .order('created_at', { ascending: true });
 
@@ -86,21 +128,47 @@ serve(async (req) => {
       );
     }
 
-    if (!pages || pages.length === 0) {
+    if (!allPages || allPages.length === 0) {
       return new Response(
         JSON.stringify({ error: 'No pages found for analysis' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Filter pages based on profile type
+    // voice = pages WITHOUT sources (or empty sources)
+    // influences = pages WITH sources
+    const pages = allPages.filter(p => {
+      const hasSources = p.sources && Array.isArray(p.sources) && p.sources.length > 0;
+      return profile_type === 'voice' ? !hasSources : hasSources;
+    });
+
+    const profileLabel = profile_type === 'voice' ? 'Mijn Stem' : 'Mijn Invloeden';
+
+    if (!pages || pages.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          error: `No pages found for ${profileLabel}`,
+          hint: profile_type === 'voice' 
+            ? 'Upload pages without external sources for your personal voice profile'
+            : 'Add sources to pages to build your influences profile'
+        }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (pages.length < 5) {
       return new Response(
-        JSON.stringify({ error: 'Need at least 5 pages for personality analysis', page_count: pages.length }),
+        JSON.stringify({ 
+          error: `Need at least 5 pages for ${profileLabel} analysis`, 
+          page_count: pages.length,
+          profile_type: profile_type
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Analyzing personality for ${pages.length} pages...`);
+    console.log(`Analyzing ${profile_type} profile for ${pages.length} pages...`);
 
     // Prepare data for AI analysis
     const analysisData = pages.map((p, index) => ({
@@ -110,14 +178,21 @@ serve(async (req) => {
       tone: p.tone,
       keywords: p.keywords,
       primary_keyword: p.primary_keyword,
-      user_note: p.user_note
+      user_note: p.user_note,
+      ...(profile_type === 'influences' && { sources: p.sources })
     }));
 
-    const userPrompt = `Here are ${pages.length} pages of handwritten notes in chronological order. Analyze these to create a personality profile that reveals who this person truly is.
+    const systemPrompt = profile_type === 'voice' ? VOICE_SYSTEM_PROMPT : INFLUENCES_SYSTEM_PROMPT;
+    
+    const userPrompt = profile_type === 'voice'
+      ? `Here are ${pages.length} pages of original handwritten thoughts in chronological order. Analyze these to create a personality profile that reveals who this person truly is.
+
+${JSON.stringify(analysisData, null, 2)}`
+      : `Here are ${pages.length} pages of notes from external sources (books, articles, quotes) that this person found meaningful. Analyze what their choices reveal about them.
 
 ${JSON.stringify(analysisData, null, 2)}`;
 
-    console.log('Calling Lovable AI for personality analysis...');
+    console.log(`Calling Lovable AI for ${profile_type} analysis...`);
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -128,7 +203,7 @@ ${JSON.stringify(analysisData, null, 2)}`;
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
       }),
@@ -193,13 +268,14 @@ ${JSON.stringify(analysisData, null, 2)}`;
       );
     }
 
-    console.log('Personality analysis complete, saving snapshot...');
+    console.log(`${profile_type} analysis complete, saving snapshot...`);
 
     // Save personality snapshot for evolution tracking
     const { error: snapshotError } = await supabase
       .from('personality_snapshots')
       .insert({
         device_user_id: device_user_id,
+        profile_type: profile_type,
         core_identity: profileResult.core_identity,
         tagline: profileResult.tagline,
         drivers: profileResult.drivers,
@@ -213,12 +289,13 @@ ${JSON.stringify(analysisData, null, 2)}`;
       console.error('Failed to save personality snapshot:', snapshotError);
       // Don't fail the request, just log the error
     } else {
-      console.log('Personality snapshot saved successfully');
+      console.log(`${profile_type} snapshot saved successfully`);
     }
 
     return new Response(
       JSON.stringify({
         ...profileResult,
+        profile_type: profile_type,
         page_count: pages.length,
         analyzed_at: new Date().toISOString()
       }),

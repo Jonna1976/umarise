@@ -80,6 +80,7 @@ export type Database = {
           growth_edge: string
           id: string
           page_count: number
+          profile_type: string
           superpower: string
           tagline: string
           tension_field: Json
@@ -92,6 +93,7 @@ export type Database = {
           growth_edge: string
           id?: string
           page_count?: number
+          profile_type?: string
           superpower: string
           tagline: string
           tension_field: Json
@@ -104,6 +106,7 @@ export type Database = {
           growth_edge?: string
           id?: string
           page_count?: number
+          profile_type?: string
           superpower?: string
           tagline?: string
           tension_field?: Json
