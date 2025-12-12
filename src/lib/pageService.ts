@@ -14,8 +14,15 @@ export interface Page {
   primaryKeyword?: string;
   userNote?: string;
   confidenceScore?: number;
+  capsuleId?: string;
+  pageOrder?: number;
   createdAt: Date;
   updatedAt?: Date;
+}
+
+export interface CapsulePages {
+  capsuleId: string;
+  pages: Page[];
 }
 
 interface AnalysisResult {
@@ -85,7 +92,11 @@ async function analyzeImage(imageDataUrl: string): Promise<AnalysisResult> {
 }
 
 // Create a new page with image upload and AI analysis
-export async function createPage(imageDataUrl: string): Promise<Page> {
+export async function createPage(
+  imageDataUrl: string, 
+  capsuleId?: string, 
+  pageOrder?: number
+): Promise<Page> {
   const deviceUserId = getDeviceId();
   
   if (!deviceUserId) {
@@ -118,6 +129,8 @@ export async function createPage(imageDataUrl: string): Promise<Page> {
       summary: analysis.summary,
       tone: toneArray[0] || 'reflective', // Store primary tone
       keywords: analysis.keywords,
+      capsule_id: capsuleId || null,
+      page_order: pageOrder ?? 0,
     })
     .select()
     .single();
@@ -139,9 +152,31 @@ export async function createPage(imageDataUrl: string): Promise<Page> {
     primaryKeyword: data.primary_keyword || undefined,
     userNote: data.user_note || undefined,
     confidenceScore: data.confidence_score ? Number(data.confidence_score) : undefined,
+    capsuleId: data.capsule_id || undefined,
+    pageOrder: data.page_order ?? 0,
     createdAt: new Date(data.created_at),
     updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
   };
+}
+
+// Create a capsule from multiple images
+export async function createCapsule(imageDataUrls: string[]): Promise<Page[]> {
+  if (imageDataUrls.length === 0) {
+    throw new Error('No images provided');
+  }
+
+  // Generate a capsule ID
+  const capsuleId = crypto.randomUUID();
+  const pages: Page[] = [];
+
+  // Process each image in order
+  for (let i = 0; i < imageDataUrls.length; i++) {
+    console.log(`Processing image ${i + 1} of ${imageDataUrls.length}...`);
+    const page = await createPage(imageDataUrls[i], capsuleId, i);
+    pages.push(page);
+  }
+
+  return pages;
 }
 
 // Get all pages for current device
@@ -174,9 +209,36 @@ export async function getPages(): Promise<Page[]> {
     primaryKeyword: row.primary_keyword || undefined,
     userNote: row.user_note || undefined,
     confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
+    capsuleId: row.capsule_id || undefined,
+    pageOrder: row.page_order ?? 0,
     createdAt: new Date(row.created_at),
     updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
   }));
+}
+
+// Get pages grouped by capsule
+export function groupPagesByCapsule(pages: Page[]): { standalone: Page[]; capsules: CapsulePages[] } {
+  const standalone: Page[] = [];
+  const capsuleMap = new Map<string, Page[]>();
+
+  for (const page of pages) {
+    if (page.capsuleId) {
+      const existing = capsuleMap.get(page.capsuleId) || [];
+      existing.push(page);
+      capsuleMap.set(page.capsuleId, existing);
+    } else {
+      standalone.push(page);
+    }
+  }
+
+  // Sort pages within each capsule by order
+  const capsules: CapsulePages[] = [];
+  for (const [capsuleId, capsulePages] of capsuleMap) {
+    capsulePages.sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0));
+    capsules.push({ capsuleId, pages: capsulePages });
+  }
+
+  return { standalone, capsules };
 }
 
 // Get single page by ID
@@ -203,9 +265,42 @@ export async function getPage(id: string): Promise<Page | null> {
     primaryKeyword: data.primary_keyword || undefined,
     userNote: data.user_note || undefined,
     confidenceScore: data.confidence_score ? Number(data.confidence_score) : undefined,
+    capsuleId: data.capsule_id || undefined,
+    pageOrder: data.page_order ?? 0,
     createdAt: new Date(data.created_at),
     updatedAt: data.updated_at ? new Date(data.updated_at) : undefined,
   };
+}
+
+// Get all pages in a capsule
+export async function getCapsulePages(capsuleId: string): Promise<Page[]> {
+  const { data, error } = await supabase
+    .from('pages')
+    .select('*')
+    .eq('capsule_id', capsuleId)
+    .order('page_order', { ascending: true });
+
+  if (error || !data) {
+    console.error('Fetch capsule pages error:', error);
+    return [];
+  }
+
+  return data.map(row => ({
+    id: row.id,
+    deviceUserId: row.device_user_id,
+    imageUrl: row.image_url,
+    ocrText: row.ocr_text || '',
+    summary: row.summary || '',
+    tone: row.tone ? [row.tone] : [],
+    keywords: row.keywords || [],
+    primaryKeyword: row.primary_keyword || undefined,
+    userNote: row.user_note || undefined,
+    confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
+    capsuleId: row.capsule_id || undefined,
+    pageOrder: row.page_order ?? 0,
+    createdAt: new Date(row.created_at),
+    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+  }));
 }
 
 // Delete a page

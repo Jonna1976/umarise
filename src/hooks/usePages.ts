@@ -5,6 +5,7 @@ import {
   Page, 
   getPages as fetchPages, 
   createPage as createPageService, 
+  createCapsule as createCapsuleService,
   deletePage as deletePageService,
   updatePage as updatePageService,
   checkDuplicate
@@ -60,6 +61,21 @@ export function usePages() {
     }
   }, []);
 
+  // Create multiple pages as a capsule
+  const createCapsule = useCallback(async (imageDataUrls: string[]): Promise<Page[] | null> => {
+    try {
+      const newPages = await createCapsuleService(imageDataUrls);
+      setPages(prev => [...newPages, ...prev]);
+      toast.success(`Capsule created with ${newPages.length} pages`);
+      return newPages;
+    } catch (e) {
+      console.error('Failed to create capsule:', e);
+      const message = e instanceof Error ? e.message : 'Failed to save capsule';
+      toast.error(message);
+      return null;
+    }
+  }, []);
+
   // Update page
   const updatePage = useCallback(async (page: Page): Promise<boolean> => {
     try {
@@ -103,6 +119,7 @@ export function usePages() {
     isLoading,
     error,
     createPage,
+    createCapsule,
     updatePage,
     deletePage,
     refresh,

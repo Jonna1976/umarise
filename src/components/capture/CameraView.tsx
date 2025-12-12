@@ -1,20 +1,24 @@
 import { useRef, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, BookOpen } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images } from 'lucide-react';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
+  onCaptureMultiple: (imageDataUrls: string[]) => void;
   onOpenHistory: () => void;
 }
 
-export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
+export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: CameraViewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const isMultiMode = capturedImages.length > 0;
 
   const startCamera = useCallback(async () => {
     try {
@@ -65,8 +69,27 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
   }, [stopCamera]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    // Handle multiple file selection
+    if (files.length > 1) {
+      const readers: Promise<string>[] = [];
+      for (let i = 0; i < files.length; i++) {
+        readers.push(
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(files[i]);
+          })
+        );
+      }
+      Promise.all(readers).then((results) => {
+        setCapturedImages(results);
+        stopCamera();
+      });
+    } else {
+      const file = files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -75,6 +98,9 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
       };
       reader.readAsDataURL(file);
     }
+    
+    // Reset input
+    event.target.value = '';
   }, [stopCamera]);
 
   const retake = useCallback(() => {
@@ -82,12 +108,43 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
     startCamera();
   }, [startCamera]);
 
-  const confirmCapture = useCallback(() => {
+  const addToCollection = useCallback(() => {
+    if (capturedImage) {
+      setCapturedImages(prev => [...prev, capturedImage]);
+      setCapturedImage(null);
+      startCamera();
+    }
+  }, [capturedImage, startCamera]);
+
+  const removeFromCollection = useCallback((index: number) => {
+    setCapturedImages(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const confirmSingleCapture = useCallback(() => {
     if (capturedImage) {
       onCapture(capturedImage);
       setCapturedImage(null);
+      setCapturedImages([]);
     }
   }, [capturedImage, onCapture]);
+
+  const confirmMultiCapture = useCallback(() => {
+    if (capturedImages.length > 0) {
+      // If we have a current preview, add it first
+      const allImages = capturedImage 
+        ? [...capturedImages, capturedImage]
+        : capturedImages;
+      onCaptureMultiple(allImages);
+      setCapturedImage(null);
+      setCapturedImages([]);
+    }
+  }, [capturedImages, capturedImage, onCaptureMultiple]);
+
+  const cancelMultiMode = useCallback(() => {
+    setCapturedImages([]);
+    setCapturedImage(null);
+    startCamera();
+  }, [startCamera]);
 
   // Auto-start camera on mount
   useState(() => {
@@ -103,10 +160,61 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
+        multiple
         onChange={handleFileUpload}
         className="hidden"
       />
+
+      {/* Multi-image collection bar */}
+      <AnimatePresence>
+        {capturedImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="absolute top-16 left-0 right-0 z-20 p-3"
+          >
+            <div className="bg-codex-ink/90 backdrop-blur-md rounded-xl p-3 border border-primary-foreground/20">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Images className="w-4 h-4 text-codex-gold" />
+                  <span className="text-primary-foreground text-sm font-medium">
+                    {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'} in capsule
+                  </span>
+                </div>
+                <button
+                  onClick={cancelMultiMode}
+                  className="text-primary-foreground/50 hover:text-primary-foreground text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+              
+              {/* Thumbnail strip */}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {capturedImages.map((img, index) => (
+                  <div key={index} className="relative flex-shrink-0">
+                    <img
+                      src={img}
+                      alt={`Page ${index + 1}`}
+                      className="w-12 h-16 object-cover rounded-lg border border-primary-foreground/20"
+                    />
+                    <span className="absolute bottom-0.5 left-0.5 bg-codex-ink/80 text-primary-foreground text-[10px] px-1 rounded">
+                      {index + 1}
+                    </span>
+                    <button
+                      onClick={() => removeFromCollection(index)}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full flex items-center justify-center"
+                    >
+                      <X className="w-3 h-3 text-destructive-foreground" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Camera/Preview area */}
       <div className="flex-1 relative flex items-center justify-center">
@@ -170,7 +278,7 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
               variant="soft"
               size="lg"
             >
-              Upload a photo
+              Upload photos
             </Button>
             
             <button
@@ -208,7 +316,7 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-4 items-center"
+            className="flex gap-3 items-center"
           >
             <Button
               onClick={retake}
@@ -220,28 +328,73 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
               Retake
             </Button>
             
+            {/* Add more button */}
             <Button
-              onClick={confirmCapture}
+              onClick={addToCollection}
+              variant="ghost"
+              size="lg"
+              className="text-codex-gold hover:bg-codex-gold/10"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add more
+            </Button>
+            
+            {/* Confirm button */}
+            <Button
+              onClick={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
               variant="capture"
               size="capture"
-              className="bg-codex-gold hover:bg-codex-gold/90"
+              className="bg-codex-gold hover:bg-codex-gold/90 relative"
             >
               <Check className="w-7 h-7" strokeWidth={2} />
+              {isMultiMode && (
+                <span className="absolute -top-1 -right-1 bg-primary-foreground text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {capturedImages.length + 1}
+                </span>
+              )}
             </Button>
           </motion.div>
         ) : isStreaming ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center gap-4"
           >
+            {/* Upload button */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            >
+              <Images className="w-5 h-5 text-primary-foreground" />
+            </button>
+            
+            {/* Capture button */}
             <Button
               onClick={takePhoto}
               variant="capture"
               size="capture"
-              className="bg-primary-foreground text-codex-ink hover:bg-primary-foreground/90"
+              className="bg-primary-foreground text-codex-ink hover:bg-primary-foreground/90 relative"
             >
               <Camera className="w-7 h-7" strokeWidth={2} />
+              {isMultiMode && (
+                <span className="absolute -top-1 -right-1 bg-codex-gold text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {capturedImages.length}
+                </span>
+              )}
             </Button>
+            
+            {/* Finish multi-capture */}
+            {isMultiMode && (
+              <Button
+                onClick={confirmMultiCapture}
+                variant="soft"
+                size="lg"
+                className="bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30"
+              >
+                <Check className="w-5 h-5 mr-2" />
+                Done ({capturedImages.length})
+              </Button>
+            )}
           </motion.div>
         ) : null}
       </div>
@@ -254,7 +407,9 @@ export function CameraView({ onCapture, onOpenHistory }: CameraViewProps) {
           transition={{ delay: 0.5 }}
           className="absolute bottom-28 left-0 right-0 text-center text-primary-foreground/50 text-sm"
         >
-          Position your page within the frame
+          {isMultiMode 
+            ? `${capturedImages.length} pages captured. Add more or tap Done.`
+            : 'Position your page within the frame'}
         </motion.p>
       )}
     </div>
