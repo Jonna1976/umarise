@@ -1,27 +1,89 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrendingUp, ChevronDown, ChevronUp, ArrowRight, Plus, Minus, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { format } from 'date-fns';
+
+interface Driver {
+  name: string;
+  description: string;
+  strength: string;
+}
+
+interface TensionField {
+  side_a: string;
+  side_b: string;
+  description: string;
+}
 
 interface PersonalitySnapshot {
   id: string;
   tagline: string;
   superpower: string;
+  core_identity: string;
+  growth_edge: string;
   page_count: number;
   created_at: string;
-  drivers: Array<{ name: string; strength: string }>;
+  drivers: Driver[];
+  tension_field: TensionField;
 }
 
 interface PersonalityEvolutionProps {
   currentTagline?: string;
 }
 
+interface SnapshotComparison {
+  taglineChanged: boolean;
+  superpowerChanged: boolean;
+  coreIdentityChanged: boolean;
+  growthEdgeChanged: boolean;
+  tensionChanged: boolean;
+  driversAdded: string[];
+  driversRemoved: string[];
+  driversKept: string[];
+  strengthChanges: Array<{ name: string; from: string; to: string }>;
+}
+
+function compareSnapshots(older: PersonalitySnapshot, newer: PersonalitySnapshot): SnapshotComparison {
+  const olderDriverNames = new Set(older.drivers?.map(d => d.name) || []);
+  const newerDriverNames = new Set(newer.drivers?.map(d => d.name) || []);
+  
+  const driversAdded = [...newerDriverNames].filter(n => !olderDriverNames.has(n));
+  const driversRemoved = [...olderDriverNames].filter(n => !newerDriverNames.has(n));
+  const driversKept = [...newerDriverNames].filter(n => olderDriverNames.has(n));
+
+  // Check for strength changes in kept drivers
+  const strengthChanges: Array<{ name: string; from: string; to: string }> = [];
+  driversKept.forEach(name => {
+    const oldDriver = older.drivers?.find(d => d.name === name);
+    const newDriver = newer.drivers?.find(d => d.name === name);
+    if (oldDriver && newDriver && oldDriver.strength !== newDriver.strength) {
+      strengthChanges.push({ name, from: oldDriver.strength, to: newDriver.strength });
+    }
+  });
+
+  return {
+    taglineChanged: older.tagline !== newer.tagline,
+    superpowerChanged: older.superpower !== newer.superpower,
+    coreIdentityChanged: older.core_identity !== newer.core_identity,
+    growthEdgeChanged: older.growth_edge !== newer.growth_edge,
+    tensionChanged: 
+      older.tension_field?.side_a !== newer.tension_field?.side_a ||
+      older.tension_field?.side_b !== newer.tension_field?.side_b,
+    driversAdded,
+    driversRemoved,
+    driversKept,
+    strengthChanges
+  };
+}
+
 export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionProps) {
   const [snapshots, setSnapshots] = useState<PersonalitySnapshot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [selectedPair, setSelectedPair] = useState<[number, number] | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -29,13 +91,16 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
       const deviceId = getDeviceId();
       const { data, error } = await supabase
         .from('personality_snapshots')
-        .select('id, tagline, superpower, page_count, created_at, drivers')
+        .select('id, tagline, superpower, core_identity, growth_edge, page_count, created_at, drivers, tension_field')
         .eq('device_user_id', deviceId)
         .order('created_at', { ascending: true });
 
       if (!error && data) {
-        // Type cast the data since Supabase types might not be updated yet
         setSnapshots(data as unknown as PersonalitySnapshot[]);
+        // Default to comparing last two if we have at least 2
+        if (data.length >= 2) {
+          setSelectedPair([data.length - 2, data.length - 1]);
+        }
       }
       setIsLoading(false);
     }
@@ -53,92 +118,86 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
 
     const dpr = window.devicePixelRatio || 1;
     const width = canvas.offsetWidth;
-    const height = 120;
+    const height = 100;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Background
     ctx.fillStyle = '#FDFBF8';
     ctx.fillRect(0, 0, width, height);
 
     const padding = 30;
     const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
     const centerY = height / 2;
 
     // Draw timeline
     ctx.beginPath();
     ctx.moveTo(padding, centerY);
     ctx.lineTo(width - padding, centerY);
-    ctx.strokeStyle = 'rgba(155, 138, 106, 0.2)';
+    ctx.strokeStyle = 'rgba(155, 138, 106, 0.15)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Calculate positions for each snapshot
     const positions = snapshots.map((snapshot, i) => {
       const x = padding + (i / (snapshots.length - 1)) * graphWidth;
-      // Page count influences vertical position
       const maxPages = Math.max(...snapshots.map(s => s.page_count));
       const normalizedPages = snapshot.page_count / maxPages;
-      const y = centerY - normalizedPages * (graphHeight / 2 - 10);
-      return { x, y, snapshot };
+      const y = centerY - normalizedPages * 25;
+      return { x, y, snapshot, index: i };
     });
 
-    // Draw flowing line connecting snapshots
+    // Draw connecting line
     ctx.beginPath();
     positions.forEach((pos, i) => {
-      if (i === 0) {
-        ctx.moveTo(pos.x, pos.y);
-      } else {
+      if (i === 0) ctx.moveTo(pos.x, pos.y);
+      else {
         const prevPos = positions[i - 1];
         const cpX = (prevPos.x + pos.x) / 2;
         ctx.quadraticCurveTo(cpX, prevPos.y, pos.x, pos.y);
       }
     });
-    ctx.strokeStyle = 'rgba(155, 138, 106, 0.4)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(155, 138, 106, 0.3)';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Draw snapshot points
-    positions.forEach(({ x, y, snapshot }, i) => {
-      const isLatest = i === positions.length - 1;
+    // Draw points
+    positions.forEach(({ x, y, snapshot, index }) => {
+      const isSelected = selectedPair && (index === selectedPair[0] || index === selectedPair[1]);
+      const isLatest = index === positions.length - 1;
       
-      // Circle
       ctx.beginPath();
-      ctx.arc(x, y, isLatest ? 8 : 5, 0, Math.PI * 2);
-      ctx.fillStyle = isLatest ? 'rgba(155, 138, 106, 0.3)' : 'rgba(155, 138, 106, 0.15)';
+      ctx.arc(x, y, isSelected ? 7 : isLatest ? 6 : 4, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? 'rgba(155, 107, 90, 0.25)' : 'rgba(155, 138, 106, 0.15)';
       ctx.fill();
-      ctx.strokeStyle = isLatest ? '#9B8A6A' : 'rgba(155, 138, 106, 0.5)';
-      ctx.lineWidth = isLatest ? 2 : 1;
+      ctx.strokeStyle = isSelected ? '#9B6B5A' : '#9B8A6A';
+      ctx.lineWidth = isSelected ? 2 : 1;
       ctx.stroke();
 
-      // Inner dot
       ctx.beginPath();
       ctx.arc(x, y, 2, 0, Math.PI * 2);
-      ctx.fillStyle = '#9B8A6A';
+      ctx.fillStyle = isSelected ? '#9B6B5A' : '#9B8A6A';
       ctx.fill();
 
-      // Page count label below
       ctx.fillStyle = '#9A9A9A';
       ctx.font = '8px "Crimson Pro", Georgia, serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`${snapshot.page_count}p`, x, centerY + 20);
+      ctx.fillText(`${snapshot.page_count}p`, x, centerY + 22);
     });
 
-    // Growth indicator
-    if (snapshots.length >= 2) {
-      const first = snapshots[0].page_count;
-      const last = snapshots[snapshots.length - 1].page_count;
-      const growth = last - first;
-      
-      ctx.fillStyle = '#7A6B5F';
-      ctx.font = '9px "Crimson Pro", Georgia, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`+${growth} pages since first analysis`, width / 2, height - 8);
-    }
+  }, [snapshots, selectedPair]);
 
-  }, [snapshots]);
+  const comparison = selectedPair && snapshots.length >= 2
+    ? compareSnapshots(snapshots[selectedPair[0]], snapshots[selectedPair[1]])
+    : null;
+
+  const hasChanges = comparison && (
+    comparison.taglineChanged ||
+    comparison.superpowerChanged ||
+    comparison.driversAdded.length > 0 ||
+    comparison.driversRemoved.length > 0 ||
+    comparison.strengthChanges.length > 0 ||
+    comparison.tensionChanged
+  );
 
   if (isLoading) return null;
   if (snapshots.length < 2) return null;
@@ -168,60 +227,231 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
         )}
       </button>
 
-      {isExpanded && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          className="px-4 pb-4"
-        >
-          {/* Evolution canvas */}
-          <div className="rounded-lg overflow-hidden mb-4">
-            <canvas 
-              ref={canvasRef} 
-              style={{ width: '100%', height: '120px' }}
-              className="bg-[#FDFBF8]"
-            />
-          </div>
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="px-4 pb-4"
+          >
+            {/* Evolution canvas */}
+            <div className="rounded-lg overflow-hidden mb-4">
+              <canvas 
+                ref={canvasRef} 
+                style={{ width: '100%', height: '100px' }}
+                className="bg-[#FDFBF8]"
+              />
+            </div>
 
-          {/* Tagline evolution list */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground mb-2">How you've evolved:</p>
-            {snapshots.slice(-5).reverse().map((snapshot, i) => (
-              <div 
-                key={snapshot.id}
-                className={`flex items-center justify-between p-2 rounded-lg ${
-                  i === 0 ? 'bg-codex-sepia/10 border border-codex-sepia/20' : 'bg-secondary/30'
-                }`}
-              >
-                <div className="flex-1">
-                  <p className={`text-sm ${i === 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                    "{snapshot.tagline}"
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {format(new Date(snapshot.created_at), 'dd MMM yyyy')} • {snapshot.page_count} pages
-                  </p>
-                </div>
-                {i === 0 && (
-                  <span className="text-[9px] uppercase tracking-wider text-codex-sepia px-2 py-0.5 rounded-full bg-codex-sepia/10">
-                    Now
-                  </span>
-                )}
+            {/* Comparison toggle */}
+            <button
+              onClick={() => setShowComparison(!showComparison)}
+              className={`w-full p-3 rounded-lg border transition-colors mb-3 flex items-center justify-center gap-2 ${
+                showComparison 
+                  ? 'bg-codex-sepia/10 border-codex-sepia/30 text-codex-sepia' 
+                  : 'bg-secondary/30 border-border text-muted-foreground hover:border-codex-sepia/30'
+              }`}
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {showComparison ? 'Hide Comparison' : 'Compare Changes'}
+              </span>
+            </button>
+
+            {/* Comparison View */}
+            <AnimatePresence>
+              {showComparison && selectedPair && comparison && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-3 mb-4"
+                >
+                  {/* Snapshot selector */}
+                  <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-secondary/30">
+                    <div className="text-center flex-1">
+                      <p className="text-[10px] text-muted-foreground">From</p>
+                      <p className="text-xs font-medium">
+                        {format(new Date(snapshots[selectedPair[0]].created_at), 'dd MMM')}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {snapshots[selectedPair[0]].page_count} pages
+                      </p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                    <div className="text-center flex-1">
+                      <p className="text-[10px] text-muted-foreground">To</p>
+                      <p className="text-xs font-medium">
+                        {format(new Date(snapshots[selectedPair[1]].created_at), 'dd MMM')}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {snapshots[selectedPair[1]].page_count} pages
+                      </p>
+                    </div>
+                  </div>
+
+                  {!hasChanges ? (
+                    <div className="p-3 rounded-lg bg-secondary/20 text-center">
+                      <p className="text-xs text-muted-foreground italic">
+                        No significant changes detected between these snapshots
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {/* Tagline change */}
+                      {comparison.taglineChanged && (
+                        <div className="p-3 rounded-lg bg-codex-sepia/5 border border-codex-sepia/20">
+                          <p className="text-[10px] text-codex-sepia uppercase tracking-wider mb-2">Identity Shift</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground line-through">
+                              "{snapshots[selectedPair[0]].tagline}"
+                            </span>
+                            <ArrowRight className="w-3 h-3 text-codex-sepia" />
+                            <span className="text-xs font-medium text-foreground">
+                              "{snapshots[selectedPair[1]].tagline}"
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Superpower change */}
+                      {comparison.superpowerChanged && (
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="text-[10px] text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2">Superpower Evolved</p>
+                          <p className="text-xs text-muted-foreground mb-1">Was: "{snapshots[selectedPair[0]].superpower.slice(0, 60)}..."</p>
+                          <p className="text-xs text-foreground">Now: "{snapshots[selectedPair[1]].superpower.slice(0, 60)}..."</p>
+                        </div>
+                      )}
+
+                      {/* Drivers added */}
+                      {comparison.driversAdded.length > 0 && (
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="text-[10px] text-green-700 dark:text-green-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <Plus className="w-3 h-3" /> New Drivers Emerged
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {comparison.driversAdded.map(driver => (
+                              <span key={driver} className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-700 dark:text-green-400 text-xs">
+                                {driver}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Drivers removed */}
+                      {comparison.driversRemoved.length > 0 && (
+                        <div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20">
+                          <p className="text-[10px] text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <Minus className="w-3 h-3" /> Drivers Faded
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {comparison.driversRemoved.map(driver => (
+                              <span key={driver} className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-400 text-xs line-through">
+                                {driver}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Strength changes */}
+                      {comparison.strengthChanges.length > 0 && (
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="text-[10px] text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-2">Strength Shifts</p>
+                          <div className="space-y-1">
+                            {comparison.strengthChanges.map(change => (
+                              <div key={change.name} className="flex items-center gap-2 text-xs">
+                                <span className="text-foreground">{change.name}:</span>
+                                <span className="text-muted-foreground">{change.from}</span>
+                                <ArrowRight className="w-3 h-3 text-purple-500" />
+                                <span className="text-purple-700 dark:text-purple-400 font-medium">{change.to}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tension field change */}
+                      {comparison.tensionChanged && (
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="text-[10px] text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-2">Tension Field Shifted</p>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">
+                              {snapshots[selectedPair[0]].tension_field?.side_a} ↔ {snapshots[selectedPair[0]].tension_field?.side_b}
+                            </span>
+                            <ArrowRight className="w-3 h-3 text-blue-500" />
+                            <span className="text-foreground font-medium">
+                              {snapshots[selectedPair[1]].tension_field?.side_a} ↔ {snapshots[selectedPair[1]].tension_field?.side_b}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Navigate between pairs */}
+                  {snapshots.length > 2 && (
+                    <div className="flex justify-center gap-1 pt-2">
+                      {snapshots.slice(0, -1).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedPair([i, i + 1])}
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            selectedPair[0] === i 
+                              ? 'bg-codex-sepia' 
+                              : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Tagline history (collapsed when comparison is shown) */}
+            {!showComparison && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground mb-2">Your identity over time:</p>
+                {snapshots.slice(-4).reverse().map((snapshot, i) => (
+                  <div 
+                    key={snapshot.id}
+                    className={`flex items-center justify-between p-2 rounded-lg ${
+                      i === 0 ? 'bg-codex-sepia/10 border border-codex-sepia/20' : 'bg-secondary/30'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p className={`text-sm ${i === 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                        "{snapshot.tagline}"
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {format(new Date(snapshot.created_at), 'dd MMM yyyy')} • {snapshot.page_count} pages
+                      </p>
+                    </div>
+                    {i === 0 && (
+                      <span className="text-[9px] uppercase tracking-wider text-codex-sepia px-2 py-0.5 rounded-full bg-codex-sepia/10">
+                        Now
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
 
-          {/* Insight */}
-          {snapshots.length >= 3 && (
+            {/* Insight */}
             <div className="mt-4 p-3 rounded-lg bg-codex-cream/30 border border-codex-sepia/10">
               <p className="text-xs text-foreground/80 italic">
-                Your personality profile has been refined through {snapshots.length} analyses. 
-                Each new page adds nuance to who you are.
+                {hasChanges 
+                  ? `Your personality has evolved through ${snapshots.length} analyses. Each reflection reveals new facets of who you are.`
+                  : `Your core identity remains consistent across ${snapshots.length} analyses, showing a stable foundation.`
+                }
               </p>
             </div>
-          )}
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
