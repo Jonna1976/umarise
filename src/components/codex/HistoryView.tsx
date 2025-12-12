@@ -201,9 +201,10 @@ export function HistoryView({
                 title={allPages.length >= 3 ? "Mijn Kompas" : `${3 - allPages.length} more pages needed`}
               >
                 <Compass className="w-5 h-5 text-red-500" />
-                {allPages.length < 3 && (
+                {/* DEV MODE: Lowered from 3 to 2 */}
+                {allPages.length < 2 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
-                    {3 - allPages.length}
+                    {2 - allPages.length}
                   </span>
                 )}
               </button>

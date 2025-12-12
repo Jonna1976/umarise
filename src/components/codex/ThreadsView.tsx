@@ -480,7 +480,8 @@ export function ThreadsView({ pages }: ThreadsViewProps) {
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
 
   const threads = useMemo(() => {
-    if (pages.length < 3) return [];
+    // DEV MODE: Lowered from 3 to 2 pages minimum
+    if (pages.length < 2) return [];
 
     const now = new Date();
     
@@ -547,12 +548,16 @@ export function ThreadsView({ pages }: ThreadsViewProps) {
       const lastSeen = keywordLastSeen[keyword];
       const ageInDays = differenceInDays(now, firstSeen);
       
-      // Only include keywords that appear across at least 2 months or have significant recurrence
-      if (uniqueMonths >= 2 || (uniqueMonths === 1 && totalOccurrences >= 4 && ageInDays > 14)) {
+      // DEV MODE: Lowered thresholds for testing
+      // Original: uniqueMonths >= 2 || (uniqueMonths === 1 && totalOccurrences >= 4 && ageInDays > 14)
+      // Now: totalOccurrences >= 2 (any keyword appearing 2+ times becomes a thread)
+      if (totalOccurrences >= 2) {
         // Calculate age label
         let ageLabel = '';
-        if (ageInDays < 14) {
-          ageLabel = 'Nieuw';
+        if (ageInDays < 1) {
+          ageLabel = 'Vandaag';
+        } else if (ageInDays < 7) {
+          ageLabel = `${ageInDays} dagen`;
         } else if (ageInDays < 30) {
           ageLabel = `${Math.floor(ageInDays / 7)} weken`;
         } else {
@@ -560,11 +565,11 @@ export function ThreadsView({ pages }: ThreadsViewProps) {
           ageLabel = months === 1 ? '1 maand' : `${months} maanden`;
         }
 
-        // Determine strength
+        // DEV MODE: Lowered strength thresholds
         let strength: 'strong' | 'growing' | 'emerging';
-        if (uniqueMonths >= 3 && totalOccurrences >= 5) {
+        if (totalOccurrences >= 5) {
           strength = 'strong';
-        } else if (uniqueMonths >= 2 || totalOccurrences >= 4) {
+        } else if (totalOccurrences >= 3) {
           strength = 'growing';
         } else {
           strength = 'emerging';
@@ -633,7 +638,8 @@ export function ThreadsView({ pages }: ThreadsViewProps) {
 
   const heroThread = threads.find(t => t.strength === 'strong') || threads[0] || null;
 
-  if (pages.length < 3) {
+  // DEV MODE: Lowered from 3 to 2 pages minimum
+  if (pages.length < 2) {
     return (
       <div className="p-4">
         <div className="text-center py-12 text-muted-foreground">
