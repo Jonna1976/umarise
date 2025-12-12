@@ -189,7 +189,19 @@ export function PersonalityArtModal({ isOpen, onClose, profile }: PersonalityArt
   if (!isOpen) return null;
 
   const renderVisualization = () => {
-    const size = Math.min(window.innerWidth - 32, 400);
+    // Dynamic sizing based on screen width
+    const screenWidth = window.innerWidth;
+    const isLargeScreen = screenWidth >= 768;
+    const isExtraLargeScreen = screenWidth >= 1024;
+    
+    let size: number;
+    if (isExtraLargeScreen) {
+      size = Math.min(screenWidth - 200, 600); // Max 600px on large screens
+    } else if (isLargeScreen) {
+      size = Math.min(screenWidth - 100, 500); // Max 500px on tablets
+    } else {
+      size = Math.min(screenWidth - 32, 400); // Max 400px on mobile
+    }
     
     switch (selectedStyle) {
       case 'constellation':
