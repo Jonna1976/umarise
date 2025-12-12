@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2 } from 'lucide-react';
-import { CapsulePages, Page, markCapsuleAsInfluence } from '@/lib/pageService';
+import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2, Trash2 } from 'lucide-react';
+import { CapsulePages, Page, markCapsuleAsInfluence, deletePage } from '@/lib/pageService';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { 
@@ -16,6 +17,7 @@ interface CapsuleCarouselViewProps {
   onClose: () => void;
   onSelectPage: (page: Page) => void;
   onCapsuleUpdated?: () => void;
+  onPageDeleted?: (pageId: string) => void;
 }
 
 function getToneClass(tone: string): string {
@@ -41,12 +43,13 @@ function generateCapsuleSummary(pages: Page[]): string {
   return `${pages.length} pages covering: ${Array.from(allKeywords).slice(0, 6).join(', ')}. ${firstSummary}`;
 }
 
-export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleUpdated }: CapsuleCarouselViewProps) {
+export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleUpdated, onPageDeleted }: CapsuleCarouselViewProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [showOverview, setShowOverview] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Check if capsule is marked as influence (any page has sources)
   const isInfluence = capsule.pages.some(p => p.sources && p.sources.length > 0);
@@ -68,6 +71,27 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
       toast.error('Er ging iets mis');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeletePage = async (page: Page) => {
+    setIsDeleting(true);
+    try {
+      const success = await deletePage(page.id);
+      if (success) {
+        toast.success('Pagina verwijderd');
+        onPageDeleted?.(page.id);
+        // If this was the last page, close the carousel
+        if (capsule.pages.length <= 1) {
+          onClose();
+        }
+      } else {
+        toast.error('Kon pagina niet verwijderen');
+      }
+    } catch (error) {
+      toast.error('Er ging iets mis');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -244,13 +268,44 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
                           Page {index + 1}
                         </span>
                       </div>
-                      <button
-                        onClick={() => onSelectPage(page)}
-                        className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
-                      >
-                        <FileText className="w-3 h-3" />
-                        Full details
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onSelectPage(page)}
+                          className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
+                        >
+                          <FileText className="w-3 h-3" />
+                          Details
+                        </button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              className="text-[10px] text-destructive/70 hover:text-destructive flex items-center gap-1"
+                              disabled={isDeleting}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Delete
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Pagina verwijderen?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Deze actie kan niet ongedaan worden gemaakt. De pagina wordt permanent verwijderd uit deze capsule.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeletePage(page)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Verwijderen
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                     
                     <p className="text-xs text-foreground leading-relaxed line-clamp-2 mb-2">
