@@ -27,6 +27,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { VocabularySection } from './VocabularySection';
 
 interface PatternsViewProps {
   onBack: () => void;
@@ -1084,6 +1085,9 @@ export function PatternsView({ onBack }: PatternsViewProps) {
               </div>
             </motion.div>
           )}
+
+          {/* Vocabulary Section */}
+          <VocabularySection pages={pages} />
 
           {/* Coming Soon: Threads */}
           <motion.div

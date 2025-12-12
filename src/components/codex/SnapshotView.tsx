@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, Clock, ChevronDown, ChevronUp, Star, Check } from 'lucide-react';
+import { X, Clock, ChevronDown, ChevronUp, Star, Check, Link2, Plus, ExternalLink, Trash2 } from 'lucide-react';
 import { Page, updatePage } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
 interface SnapshotViewProps {
@@ -29,9 +30,12 @@ function getToneClass(tone: string): string {
 
 export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
+  const [showSources, setShowSources] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
   const [primaryKeyword, setPrimaryKeyword] = useState(page.primaryKeyword || '');
   const [ocrText, setOcrText] = useState(page.ocrText || '');
+  const [sources, setSources] = useState<string[]>(page.sources || []);
+  const [newSource, setNewSource] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -40,8 +44,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const noteChanged = userNote !== (page.userNote || '');
     const keywordChanged = primaryKeyword !== (page.primaryKeyword || '');
     const ocrChanged = ocrText !== (page.ocrText || '');
-    setHasChanges(noteChanged || keywordChanged || ocrChanged);
-  }, [userNote, primaryKeyword, ocrText, page.userNote, page.primaryKeyword, page.ocrText]);
+    const sourcesChanged = JSON.stringify(sources) !== JSON.stringify(page.sources || []);
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, page.userNote, page.primaryKeyword, page.ocrText, page.sources]);
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -51,6 +56,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       userNote: userNote || undefined,
       primaryKeyword: primaryKeyword || undefined,
       ocrText: ocrText || undefined,
+      sources: sources,
     });
     
     setIsSaving(false);
@@ -59,7 +65,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources });
       }
     } else {
       toast.error('Failed to save');
@@ -74,13 +80,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         userNote: userNote || undefined,
         primaryKeyword: primaryKeyword || undefined,
         ocrText: ocrText || undefined,
+        sources: sources,
       });
       setIsSaving(false);
       
       if (success) {
         toast.success('Changes saved');
         if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText });
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources });
         }
       } else {
         toast.error('Failed to save changes');
@@ -88,6 +95,29 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       }
     }
     onClose();
+  };
+
+  const addSource = () => {
+    const trimmed = newSource.trim();
+    if (!trimmed) return;
+    
+    // Basic URL validation
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      toast.error('Please enter a valid URL starting with http:// or https://');
+      return;
+    }
+    
+    if (sources.includes(trimmed)) {
+      toast.error('This source is already added');
+      return;
+    }
+    
+    setSources([...sources, trimmed]);
+    setNewSource('');
+  };
+
+  const removeSource = (index: number) => {
+    setSources(sources.filter((_, i) => i !== index));
   };
 
   const togglePrimaryKeyword = (keyword: string) => {
@@ -234,6 +264,91 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             placeholder="Add personal notes to help you find this later..."
             className="min-h-[80px] resize-none bg-secondary/50 border-border/50 focus:border-primary/50"
           />
+        </motion.div>
+
+        {/* Sources Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.38 }}
+          className="mb-6"
+        >
+          <button
+            onClick={() => setShowSources(!showSources)}
+            className="flex items-center justify-between w-full py-3 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                Sources {sources.length > 0 && `(${sources.length})`}
+              </span>
+            </div>
+            {showSources ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          
+          {showSources && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-3"
+            >
+              {/* Existing sources */}
+              {sources.length > 0 && (
+                <div className="space-y-2">
+                  {sources.map((source, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50 group"
+                    >
+                      <a 
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-sm text-primary hover:underline truncate flex items-center gap-1.5"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                        {source}
+                      </a>
+                      <button
+                        onClick={() => removeSource(index)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-destructive/10 rounded"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add new source */}
+              <div className="flex gap-2">
+                <Input
+                  value={newSource}
+                  onChange={(e) => setNewSource(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 text-sm"
+                  onKeyDown={(e) => e.key === 'Enter' && addSource()}
+                />
+                <Button
+                  onClick={addSource}
+                  size="sm"
+                  variant="outline"
+                  disabled={!newSource.trim()}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <p className="text-xs text-muted-foreground/60">
+                Add URLs to articles, research papers, or other references
+              </p>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* OCR Text (collapsible & editable) */}

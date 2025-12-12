@@ -27,6 +27,7 @@ export type Database = {
           ocr_text: string | null
           page_order: number | null
           primary_keyword: string | null
+          sources: string[] | null
           summary: string | null
           tone: string | null
           updated_at: string
@@ -44,6 +45,7 @@ export type Database = {
           ocr_text?: string | null
           page_order?: number | null
           primary_keyword?: string | null
+          sources?: string[] | null
           summary?: string | null
           tone?: string | null
           updated_at?: string
@@ -61,6 +63,7 @@ export type Database = {
           ocr_text?: string | null
           page_order?: number | null
           primary_keyword?: string | null
+          sources?: string[] | null
           summary?: string | null
           tone?: string | null
           updated_at?: string
