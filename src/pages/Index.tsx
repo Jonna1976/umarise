@@ -300,6 +300,17 @@ const Index = () => {
               setIsNewCapture(false);
               setView('detail');
             }}
+            onCapsuleUpdated={async () => {
+              await refresh();
+              // Re-fetch capsule with updated data
+              const updatedPages = pages.filter(p => p.capsuleId === currentCapsule.capsuleId);
+              if (updatedPages.length > 0) {
+                setCurrentCapsule({
+                  capsuleId: currentCapsule.capsuleId,
+                  pages: updatedPages.sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0))
+                });
+              }
+            }}
           />
         ) : null;
       

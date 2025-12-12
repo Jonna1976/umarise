@@ -458,6 +458,33 @@ export async function updatePage(
   return true;
 }
 
+// Mark all pages in a capsule as external source (influence)
+export async function markCapsuleAsInfluence(capsuleId: string, isInfluence: boolean): Promise<boolean> {
+  const deviceUserId = getDeviceId();
+  
+  if (!deviceUserId) {
+    return false;
+  }
+
+  const sources = isInfluence ? ['external-source'] : [];
+
+  const { error } = await supabase
+    .from('pages')
+    .update({ 
+      sources,
+      updated_at: new Date().toISOString() 
+    })
+    .eq('capsule_id', capsuleId)
+    .eq('device_user_id', deviceUserId);
+
+  if (error) {
+    console.error('Mark capsule as influence error:', error);
+    return false;
+  }
+
+  return true;
+}
+
 // Check for duplicate image by comparing OCR text similarity
 export async function checkDuplicate(ocrText: string): Promise<Page | null> {
   const deviceUserId = getDeviceId();
