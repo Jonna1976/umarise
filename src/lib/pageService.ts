@@ -181,24 +181,34 @@ export async function createPage(
   };
 }
 
-// Create a capsule from multiple images
-export async function createCapsule(imageDataUrls: string[]): Promise<Page[]> {
+// Create a capsule from multiple images - PARALLEL processing for speed
+export async function createCapsule(
+  imageDataUrls: string[], 
+  onProgress?: (completed: number, total: number) => void
+): Promise<Page[]> {
   if (imageDataUrls.length === 0) {
     throw new Error('No images provided');
   }
 
   // Generate a capsule ID
   const capsuleId = crypto.randomUUID();
-  const pages: Page[] = [];
+  let completed = 0;
 
-  // Process each image in order
-  for (let i = 0; i < imageDataUrls.length; i++) {
-    console.log(`Processing image ${i + 1} of ${imageDataUrls.length}...`);
-    const page = await createPage(imageDataUrls[i], capsuleId, i);
-    pages.push(page);
-  }
+  // Process all images in parallel for much faster results
+  const pagePromises = imageDataUrls.map(async (imageDataUrl, index) => {
+    console.log(`Starting processing of image ${index + 1}...`);
+    const page = await createPage(imageDataUrl, capsuleId, index);
+    completed++;
+    onProgress?.(completed, imageDataUrls.length);
+    console.log(`Completed image ${index + 1} of ${imageDataUrls.length}`);
+    return { page, order: index };
+  });
 
-  return pages;
+  const results = await Promise.all(pagePromises);
+  
+  // Sort by original order and extract pages
+  results.sort((a, b) => a.order - b.order);
+  return results.map(r => r.page);
 }
 
 // Get all pages for current device

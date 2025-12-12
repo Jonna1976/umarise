@@ -1,13 +1,19 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Images } from 'lucide-react';
+import { Sparkles, Images, Check } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
   totalImages?: number;
   currentIndex?: number;
+  completedCount?: number;
 }
 
-export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: ProcessingViewProps) {
+export function ProcessingView({ 
+  imageUrl, 
+  totalImages = 1, 
+  currentIndex = 0,
+  completedCount = 0 
+}: ProcessingViewProps) {
   const isMultiple = totalImages > 1;
   
   return (
@@ -17,34 +23,43 @@ export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: 
         animate={{ opacity: 1, scale: 1 }}
         className="relative w-full max-w-sm"
       >
-        {/* Multi-page indicator */}
+        {/* Multi-page indicator with parallel processing info */}
         {isMultiple && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-2 mb-4"
+            className="flex flex-col items-center gap-2 mb-4"
           >
-            <Images className="w-4 h-4 text-codex-gold" />
-            <span className="text-codex-sepia font-medium">
-              Processing page {currentIndex + 1} of {totalImages}
+            <div className="flex items-center gap-2">
+              <Images className="w-4 h-4 text-codex-gold" />
+              <span className="text-codex-sepia font-medium">
+                Processing {totalImages} pages in parallel
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {completedCount} of {totalImages} complete
             </span>
           </motion.div>
         )}
 
-        {/* Progress dots for multiple images */}
+        {/* Progress dots for multiple images - showing completion state */}
         {isMultiple && (
           <div className="flex justify-center gap-2 mb-4">
             {Array.from({ length: totalImages }).map((_, i) => (
-              <div
+              <motion.div
                 key={i}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  i < currentIndex
+                className={`w-2 h-2 rounded-full transition-colors flex items-center justify-center ${
+                  i < completedCount
                     ? 'bg-codex-gold'
-                    : i === currentIndex
-                    ? 'bg-codex-gold animate-pulse'
-                    : 'bg-muted'
+                    : 'bg-muted animate-pulse'
                 }`}
-              />
+                animate={i < completedCount ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                {i < completedCount && (
+                  <Check className="w-1.5 h-1.5 text-codex-ink" />
+                )}
+              </motion.div>
             ))}
           </div>
         )}
@@ -86,7 +101,9 @@ export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: 
               }}
               className="text-primary-foreground font-serif text-lg"
             >
-              {isMultiple ? `Reading page ${currentIndex + 1}…` : 'Reading your page…'}
+              {isMultiple 
+                ? `Reading all ${totalImages} pages…` 
+                : 'Reading your page…'}
             </motion.p>
           </div>
         </div>
@@ -103,7 +120,7 @@ export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: 
             ease: 'easeInOut',
           }}
           className="absolute inset-0 rounded-xl border-2 border-codex-gold/30"
-          style={{ top: isMultiple ? '4rem' : 0 }}
+          style={{ top: isMultiple ? '5rem' : 0 }}
         />
       </motion.div>
 
@@ -115,7 +132,7 @@ export function ProcessingView({ imageUrl, totalImages = 1, currentIndex = 0 }: 
         className="mt-8 text-muted-foreground text-sm text-center"
       >
         {isMultiple 
-          ? `Extracting ideas from all ${totalImages} pages…`
+          ? `Processing all pages simultaneously for faster results…`
           : 'Extracting ideas, tone, and patterns…'}
       </motion.p>
     </div>
