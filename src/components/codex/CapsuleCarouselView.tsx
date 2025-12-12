@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles } from 'lucide-react';
-import { CapsulePages, Page } from '@/lib/pageService';
+import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2 } from 'lucide-react';
+import { CapsulePages, Page, markCapsuleAsInfluence } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
+import { toast } from 'sonner';
 import { 
   Carousel, 
   CarouselContent, 
@@ -14,6 +15,7 @@ interface CapsuleCarouselViewProps {
   capsule: CapsulePages;
   onClose: () => void;
   onSelectPage: (page: Page) => void;
+  onCapsuleUpdated?: () => void;
 }
 
 function getToneClass(tone: string): string {
@@ -39,11 +41,35 @@ function generateCapsuleSummary(pages: Page[]): string {
   return `${pages.length} pages covering: ${Array.from(allKeywords).slice(0, 6).join(', ')}. ${firstSummary}`;
 }
 
-export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleCarouselViewProps) {
+export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleUpdated }: CapsuleCarouselViewProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [showOverview, setShowOverview] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Check if capsule is marked as influence (any page has sources)
+  const isInfluence = capsule.pages.some(p => p.sources && p.sources.length > 0);
+
+  const handleToggleInfluence = async () => {
+    setIsUpdating(true);
+    try {
+      const success = await markCapsuleAsInfluence(capsule.capsuleId, !isInfluence);
+      if (success) {
+        toast.success(isInfluence 
+          ? 'Capsule verwijderd als externe bron' 
+          : 'Capsule gemarkeerd als externe bron'
+        );
+        onCapsuleUpdated?.();
+      } else {
+        toast.error('Kon capsule niet bijwerken');
+      }
+    } catch (error) {
+      toast.error('Er ging iets mis');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   useEffect(() => {
     if (!api) return;
@@ -80,6 +106,22 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage }: CapsuleC
           </button>
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleInfluence}
+              disabled={isUpdating}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                isInfluence 
+                  ? 'bg-purple-500 text-white' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {isUpdating ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <BookMarked className="w-3.5 h-3.5" />
+              )}
+              {isInfluence ? 'Externe bron' : 'Markeer als bron'}
+            </button>
             <button
               onClick={() => setShowOverview(!showOverview)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
