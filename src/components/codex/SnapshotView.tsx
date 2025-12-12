@@ -66,6 +66,30 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
+  // Auto-save before navigating away
+  const handleCloseWithSave = async () => {
+    if (hasChanges) {
+      setIsSaving(true);
+      const success = await updatePage(page.id, {
+        userNote: userNote || undefined,
+        primaryKeyword: primaryKeyword || undefined,
+        ocrText: ocrText || undefined,
+      });
+      setIsSaving(false);
+      
+      if (success) {
+        toast.success('Changes saved');
+        if (onPageUpdate) {
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText });
+        }
+      } else {
+        toast.error('Failed to save changes');
+        return; // Don't navigate if save failed
+      }
+    }
+    onClose();
+  };
+
   const togglePrimaryKeyword = (keyword: string) => {
     if (primaryKeyword === keyword) {
       setPrimaryKeyword('');
@@ -260,12 +284,13 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="space-y-3"
         >
           <Button
-            onClick={onClose}
+            onClick={handleCloseWithSave}
+            disabled={isSaving}
             variant="codex"
             size="lg"
             className="w-full"
           >
-            Capture another page
+            {isSaving ? 'Saving...' : 'Capture another page'}
           </Button>
           
           <Button
