@@ -323,12 +323,12 @@ export function HistoryView({
                     className="w-full text-left codex-card rounded-xl p-4 hover:shadow-md transition-all"
                   >
                     <div className="flex gap-4">
-                      {/* Thumbnail */}
+                      {/* Thumbnail with paper filter */}
                       <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                         <img
                           src={item.page.imageUrl}
                           alt=""
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover page-thumbnail"
                         />
                       </div>
                       
@@ -381,7 +381,7 @@ export function HistoryView({
                       className="w-full text-left"
                     >
                       <div className="flex gap-4">
-                        {/* Stacked thumbnails */}
+                        {/* Stacked thumbnails with paper filter */}
                         <div className="relative w-16 h-20 flex-shrink-0">
                           {item.capsule.pages.slice(0, 3).map((page, i) => (
                             <div
@@ -396,7 +396,7 @@ export function HistoryView({
                               <img
                                 src={page.imageUrl}
                                 alt=""
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover page-thumbnail"
                               />
                             </div>
                           ))}
