@@ -14,7 +14,8 @@ import {
   Lock,
   Palette,
   Mic,
-  BookOpen
+  BookOpen,
+  GitCompare
 } from 'lucide-react';
 import { usePages } from '@/hooks/usePages';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +24,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
 import { PersonalityEvolution } from './PersonalityEvolution';
+import { CompareProfilesView } from './CompareProfilesView';
 
 interface PersonalityViewProps {
   onBack: () => void;
@@ -50,7 +52,7 @@ interface PersonalityProfile {
   profile_type: 'voice' | 'influences';
 }
 
-type ProfileType = 'voice' | 'influences';
+type ProfileType = 'voice' | 'influences' | 'compare';
 
 export function PersonalityView({ onBack }: PersonalityViewProps) {
   const { pages, isLoading: pagesLoading } = usePages();
@@ -72,9 +74,10 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
 
   const hasEnoughVoicePages = voicePages.length >= minPagesRequired;
   const hasEnoughInfluencePages = influencePages.length >= minPagesRequired;
-  const hasEnoughPages = activeTab === 'voice' ? hasEnoughVoicePages : hasEnoughInfluencePages;
+  const canCompare = hasEnoughVoicePages && hasEnoughInfluencePages && voiceProfile && influencesProfile;
+  const hasEnoughPages = activeTab === 'voice' ? hasEnoughVoicePages : activeTab === 'influences' ? hasEnoughInfluencePages : canCompare;
   
-  const currentProfile = activeTab === 'voice' ? voiceProfile : influencesProfile;
+  const currentProfile = activeTab === 'voice' ? voiceProfile : activeTab === 'influences' ? influencesProfile : null;
   const currentPageCount = activeTab === 'voice' ? voicePages.length : influencePages.length;
 
   const runPersonalityAnalysis = async (profileType: ProfileType) => {
@@ -203,22 +206,38 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
             <ProfileTab 
               type="voice" 
               icon={Mic} 
-              label="Mijn Stem" 
+              label="Stem" 
               count={voicePages.length}
               isActive={activeTab === 'voice'}
             />
             <ProfileTab 
               type="influences" 
               icon={BookOpen} 
-              label="Mijn Invloeden" 
+              label="Invloeden" 
               count={influencePages.length}
               isActive={activeTab === 'influences'}
             />
+            <button
+              onClick={() => setActiveTab('compare')}
+              disabled={!canCompare}
+              className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl transition-all ${
+                activeTab === 'compare'
+                  ? 'bg-gradient-to-r from-codex-sepia/20 to-blue-500/20 border border-codex-sepia/50 text-foreground' 
+                  : canCompare
+                    ? 'bg-secondary/50 border border-transparent text-muted-foreground hover:bg-secondary'
+                    : 'bg-secondary/30 border border-transparent text-muted-foreground/50 cursor-not-allowed'
+              }`}
+            >
+              <GitCompare className="w-4 h-4" />
+              <span className="text-xs font-medium">Vergelijk</span>
+            </button>
           </div>
           <p className="text-xs text-muted-foreground text-center mt-3">
             {activeTab === 'voice' 
               ? 'Your original thoughts and ideas' 
-              : 'What inspires and influences you'}
+              : activeTab === 'influences'
+                ? 'What inspires and influences you'
+                : 'Compare your voice with your influences'}
           </p>
         </div>
       </div>
@@ -340,9 +359,17 @@ export function PersonalityView({ onBack }: PersonalityViewProps) {
         </div>
       )}
 
+      {/* Compare View */}
+      {activeTab === 'compare' && canCompare && voiceProfile && influencesProfile && (
+        <CompareProfilesView 
+          voiceProfile={voiceProfile} 
+          influencesProfile={influencesProfile} 
+        />
+      )}
+
       {/* Profile content */}
       <AnimatePresence mode="wait">
-        {currentProfile && !isAnalyzing && (
+        {currentProfile && !isAnalyzing && activeTab !== 'compare' && (
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, x: activeTab === 'voice' ? -20 : 20 }}
