@@ -92,16 +92,16 @@ export function ThemeCircles({
         }
       }
 
-      // Draw driver name - refined positioning
+      // Draw driver name - refined positioning with larger text
       const labelAngle = -Math.PI / 2 + (index * Math.PI) / 5;
-      const labelX = centerX + Math.cos(labelAngle) * (radius + 14);
-      const labelY = centerY + Math.sin(labelAngle) * (radius + 14);
+      const labelX = centerX + Math.cos(labelAngle) * (radius + 18);
+      const labelY = centerY + Math.sin(labelAngle) * (radius + 18);
 
       ctx.save();
       ctx.translate(labelX, labelY);
       ctx.rotate(labelAngle + Math.PI / 2);
-      ctx.fillStyle = `${colors.stroke}90`;
-      ctx.font = '9px "Crimson Pro", Georgia, serif';
+      ctx.fillStyle = colors.stroke;
+      ctx.font = 'bold 13px "Crimson Pro", Georgia, serif';
       ctx.textAlign = 'center';
       ctx.fillText(driver.name.toLowerCase(), 0, 0);
       ctx.restore();
@@ -146,48 +146,53 @@ export function ThemeCircles({
     ctx.fillStyle = 'rgba(179, 155, 122, 0.25)';
     ctx.fill();
 
-    // Superpower text in center - refined
-    ctx.fillStyle = '#5C5147';
-    ctx.font = '9px "Crimson Pro", Georgia, serif';
+    // Superpower text in center - larger and bolder
+    ctx.fillStyle = '#4A4039';
+    ctx.font = 'bold 14px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
     // Simple word wrap
     const words = superpower.split(' ').slice(0, 3);
-    const lineHeight = 11;
+    const lineHeight = 16;
     const startY = centerY - ((words.length - 1) * lineHeight) / 2;
     words.forEach((word, i) => {
       ctx.fillText(word, centerX, startY + i * lineHeight);
     });
 
-    // Draw strength legend - minimal
-    const legendY = height - 28;
+    // Draw strength legend - larger and clearer
+    const legendY = height - 32;
     const strengths = ['high', 'medium', 'emerging'];
-    const legendX = (width - strengths.length * 60) / 2;
+    const legendX = (width - strengths.length * 85) / 2;
 
     strengths.forEach((strength, i) => {
-      const x = legendX + i * 60;
+      const x = legendX + i * 85;
       const colors = STRENGTH_COLORS[strength];
 
       ctx.beginPath();
-      ctx.arc(x, legendY, 4, 0, Math.PI * 2);
+      ctx.arc(x, legendY, 6, 0, Math.PI * 2);
       ctx.fillStyle = colors.fill;
       ctx.fill();
       ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      ctx.fillStyle = '#7A6B5F';
-      ctx.font = '8px "Crimson Pro", Georgia, serif';
+      ctx.fillStyle = '#5C5147';
+      ctx.font = '12px "Crimson Pro", Georgia, serif';
       ctx.textAlign = 'left';
-      ctx.fillText(strength, x + 8, legendY + 2);
+      ctx.fillText(strength, x + 12, legendY + 4);
     });
 
-    // Tagline at top
-    ctx.fillStyle = '#7A6B5F';
-    ctx.font = 'italic 11px "Crimson Pro", Georgia, serif';
+    // Tagline at top - larger and more prominent
+    ctx.fillStyle = '#5C5147';
+    ctx.font = 'italic 16px "Crimson Pro", Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`"${tagline}"`, centerX, 28);
+    ctx.fillText(`"${tagline}"`, centerX, 32);
+    
+    // Secondary label below tagline
+    ctx.fillStyle = '#9B8A6A';
+    ctx.font = '11px "Crimson Pro", Georgia, serif';
+    ctx.fillText(drivers[0]?.name?.toLowerCase() || '', centerX, 50);
 
   }, [drivers, superpower, tagline, width, height]);
 
