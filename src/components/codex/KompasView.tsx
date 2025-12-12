@@ -478,7 +478,8 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
 
   const threads = useMemo(() => {
-    if (pages.length < 3) return [];
+    // DEV MODE: Lowered from 3 to 2 pages minimum
+    if (pages.length < 2) return [];
 
     const now = new Date();
     
@@ -540,10 +541,15 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
       const firstSeen = keywordFirstSeen[keyword];
       const ageInDays = differenceInDays(now, firstSeen);
       
-      if (uniqueMonths >= 2 || (uniqueMonths === 1 && totalOccurrences >= 4 && ageInDays > 14)) {
+      // DEV MODE: Lowered thresholds for testing
+      // Original: uniqueMonths >= 2 || (uniqueMonths === 1 && totalOccurrences >= 4 && ageInDays > 14)
+      // Now: totalOccurrences >= 2 (any keyword appearing 2+ times becomes a thread)
+      if (totalOccurrences >= 2) {
         let ageLabel = '';
-        if (ageInDays < 14) {
-          ageLabel = 'Nieuw';
+        if (ageInDays < 1) {
+          ageLabel = 'Vandaag';
+        } else if (ageInDays < 7) {
+          ageLabel = `${ageInDays} dagen`;
         } else if (ageInDays < 30) {
           ageLabel = `${Math.floor(ageInDays / 7)} weken`;
         } else {
@@ -551,10 +557,11 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
           ageLabel = monthsAge === 1 ? '1 maand' : `${monthsAge} maanden`;
         }
 
+        // DEV MODE: Lowered strength thresholds
         let strength: 'strong' | 'growing' | 'emerging';
-        if (uniqueMonths >= 3 && totalOccurrences >= 5) {
+        if (totalOccurrences >= 5) {
           strength = 'strong';
-        } else if (uniqueMonths >= 2 || totalOccurrences >= 4) {
+        } else if (totalOccurrences >= 3) {
           strength = 'growing';
         } else {
           strength = 'emerging';
@@ -619,7 +626,8 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
 
   const heroThread = threads.find(t => t.strength === 'strong') || threads[0] || null;
 
-  if (pages.length < 3 || threads.length === 0) {
+  // DEV MODE: Lowered from 3 to 2 pages minimum
+  if (pages.length < 2 || threads.length === 0) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
@@ -646,9 +654,9 @@ export function KompasView({ pages, onBack }: KompasViewProps) {
             <Compass className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
             <h2 className="font-serif text-xl font-medium mb-2">Ontdek je rode draden</h2>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-              {pages.length < 3 
-                ? `Voeg nog ${3 - pages.length} pagina's toe om je thema's te ontdekken`
-                : 'Blijf schrijven om langetermijn patronen te zien'}
+              {pages.length < 2 
+                ? `Voeg nog ${2 - pages.length} pagina's toe om je thema's te ontdekken`
+                : 'Voeg pages toe met gedeelde keywords om threads te zien'}
             </p>
           </div>
         </div>
