@@ -6,6 +6,7 @@ import {
   getPages as fetchPages, 
   createPage as createPageService, 
   createCapsule as createCapsuleService,
+  addToCapsule as addToCapsuleService,
   deletePage as deletePageService,
   updatePage as updatePageService,
   checkDuplicate
@@ -76,6 +77,21 @@ export function usePages() {
     }
   }, []);
 
+  // Add page to existing capsule
+  const addToCapsule = useCallback(async (imageDataUrl: string, capsuleId: string): Promise<Page | null> => {
+    try {
+      const newPage = await addToCapsuleService(imageDataUrl, capsuleId);
+      setPages(prev => [newPage, ...prev]);
+      toast.success('Page added to capsule');
+      return newPage;
+    } catch (e) {
+      console.error('Failed to add to capsule:', e);
+      const message = e instanceof Error ? e.message : 'Failed to add page';
+      toast.error(message);
+      return null;
+    }
+  }, []);
+
   // Update page
   const updatePage = useCallback(async (page: Page): Promise<boolean> => {
     try {
@@ -120,6 +136,7 @@ export function usePages() {
     error,
     createPage,
     createCapsule,
+    addToCapsule,
     updatePage,
     deletePage,
     refresh,

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X } from 'lucide-react';
-import { Page } from '@/lib/pageService';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus } from 'lucide-react';
+import { Page, groupPagesByCapsule, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { useState, useMemo } from 'react';
 import { InsightsSection } from './InsightsSection';
@@ -20,11 +20,19 @@ interface HistoryViewProps {
   pages: Page[];
   onBack: () => void;
   onSelectPage: (page: Page) => void;
+  onSelectCapsule?: (capsule: CapsulePages) => void;
   onDeletePage: (pageId: string) => void;
+  onAddToCapsule?: (capsuleId: string) => void;
   onViewPatterns?: () => void;
 }
+
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
+
+// Union type for history items
+type HistoryItem = 
+  | { type: 'page'; page: Page }
+  | { type: 'capsule'; capsule: CapsulePages };
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
@@ -45,11 +53,20 @@ function getDateLabel(date: Date): string {
   return format(date, 'MMM d, yyyy');
 }
 
-export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePage, onViewPatterns }: HistoryViewProps) {
+export function HistoryView({ 
+  pages: allPages, 
+  onBack, 
+  onSelectPage, 
+  onSelectCapsule,
+  onDeletePage, 
+  onAddToCapsule,
+  onViewPatterns 
+}: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+  const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
 
   // Get unique primary keywords for filter dropdown
   const primaryKeywords = useMemo(() => {
@@ -59,7 +76,8 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
     return [...new Set(keywords)].sort();
   }, [allPages]);
 
-  const filteredPages = useMemo(() => {
+  // Filter and group pages
+  const historyItems = useMemo(() => {
     let pages = [...allPages];
     
     const now = new Date();
@@ -76,7 +94,7 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
       pages = pages.filter(p => p.primaryKeyword === keywordFilter);
     }
 
-    // Apply search filter (now includes primaryKeyword and userNote)
+    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       pages = pages.filter(p => 
@@ -88,17 +106,70 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
       );
     }
     
-    return pages;
+    // Group by capsules
+    const { standalone, capsules } = groupPagesByCapsule(pages);
+    
+    // Create unified list sorted by date
+    const items: HistoryItem[] = [];
+    
+    // Add standalone pages
+    for (const page of standalone) {
+      items.push({ type: 'page', page });
+    }
+    
+    // Add capsules (use first page's date for sorting)
+    for (const capsule of capsules) {
+      items.push({ type: 'capsule', capsule });
+    }
+    
+    // Sort by date (newest first)
+    items.sort((a, b) => {
+      const dateA = a.type === 'page' ? a.page.createdAt : a.capsule.pages[0]?.createdAt || new Date(0);
+      const dateB = b.type === 'page' ? b.page.createdAt : b.capsule.pages[0]?.createdAt || new Date(0);
+      return dateB.getTime() - dateA.getTime();
+    });
+    
+    return items;
   }, [allPages, filter, keywordFilter, searchQuery]);
+
+  // For insights, flatten all pages
+  const filteredPages = useMemo(() => {
+    return historyItems.flatMap(item => 
+      item.type === 'page' ? [item.page] : item.capsule.pages
+    );
+  }, [historyItems]);
 
   const handleDelete = (page: Page) => {
     setPageToDelete(page);
+  };
+
+  const handleDeleteCapsule = (capsule: CapsulePages) => {
+    setCapsuleToDelete(capsule);
   };
 
   const confirmDelete = () => {
     if (pageToDelete) {
       onDeletePage(pageToDelete.id);
       setPageToDelete(null);
+    }
+  };
+
+  const confirmDeleteCapsule = () => {
+    if (capsuleToDelete) {
+      // Delete all pages in capsule
+      for (const page of capsuleToDelete.pages) {
+        onDeletePage(page.id);
+      }
+      setCapsuleToDelete(null);
+    }
+  };
+
+  const handleCapsuleClick = (capsule: CapsulePages) => {
+    if (onSelectCapsule) {
+      onSelectCapsule(capsule);
+    } else {
+      // Fallback: select first page
+      onSelectPage(capsule.pages[0]);
     }
   };
 
@@ -202,9 +273,9 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
       {/* Insights Section */}
       <InsightsSection pages={filteredPages} />
 
-      {/* Page list */}
+      {/* History list */}
       <div className="p-4">
-        {filteredPages.length === 0 ? (
+        {historyItems.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -237,69 +308,166 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
           </motion.div>
         ) : (
           <div className="space-y-3">
-            {filteredPages.map((page, index) => (
+            {historyItems.map((item, index) => (
               <motion.div
-                key={page.id}
+                key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className="group"
               >
-                <button
-                  onClick={() => onSelectPage(page)}
-                  className="w-full text-left codex-card rounded-xl p-4 hover:shadow-md transition-all"
-                >
-                  <div className="flex gap-4">
-                    {/* Thumbnail */}
-                    <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                      <img
-                        src={page.imageUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      {/* Primary keyword badge + Date */}
-                      <div className="flex items-center gap-2 mb-1">
-                        {page.primaryKeyword && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
-                            {page.primaryKeyword}
-                          </span>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          {getDateLabel(page.createdAt)} · {formatDistanceToNow(page.createdAt, { addSuffix: true })}
+                {item.type === 'page' ? (
+                  // Single page item
+                  <button
+                    onClick={() => onSelectPage(item.page)}
+                    className="w-full text-left codex-card rounded-xl p-4 hover:shadow-md transition-all"
+                  >
+                    <div className="flex gap-4">
+                      {/* Thumbnail */}
+                      <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                        <img
+                          src={item.page.imageUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Primary keyword badge + Date */}
+                        <div className="flex items-center gap-2 mb-1">
+                          {item.page.primaryKeyword && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
+                              {item.page.primaryKeyword}
+                            </span>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {getDateLabel(item.page.createdAt)} · {formatDistanceToNow(item.page.createdAt, { addSuffix: true })}
+                          </p>
+                        </div>
+                        
+                        {/* Summary */}
+                        <p className="text-sm text-foreground line-clamp-2 leading-relaxed mb-2">
+                          {item.page.summary}
                         </p>
+                        
+                        {/* Tone */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {item.page.tone.slice(0, 2).map((t) => (
+                            <span key={t} className={`tone-chip text-[10px] ${getToneClass(t)}`}>
+                              {t}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                      
-                      {/* Summary */}
-                      <p className="text-sm text-foreground line-clamp-2 leading-relaxed mb-2">
-                        {page.summary}
-                      </p>
-                      
-                      {/* Tone */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {page.tone.slice(0, 2).map((t) => (
-                          <span key={t} className={`tone-chip text-[10px] ${getToneClass(t)}`}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
 
-                    {/* Delete button */}
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(item.page);
+                        }}
+                        className="w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </button>
+                    </div>
+                  </button>
+                ) : (
+                  // Capsule item
+                  <div className="codex-card rounded-xl p-4 hover:shadow-md transition-all border-l-4 border-l-codex-gold">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(page);
-                      }}
-                      className="w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all"
+                      onClick={() => handleCapsuleClick(item.capsule)}
+                      className="w-full text-left"
                     >
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                      <div className="flex gap-4">
+                        {/* Stacked thumbnails */}
+                        <div className="relative w-16 h-20 flex-shrink-0">
+                          {item.capsule.pages.slice(0, 3).map((page, i) => (
+                            <div
+                              key={page.id}
+                              className="absolute w-14 h-18 rounded-lg overflow-hidden bg-muted border border-background"
+                              style={{
+                                left: i * 4,
+                                top: i * 2,
+                                zIndex: 3 - i,
+                              }}
+                            >
+                              <img
+                                src={page.imageUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                          {/* Page count badge */}
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-codex-gold text-codex-ink text-xs font-bold flex items-center justify-center z-10">
+                            {item.capsule.pages.length}
+                          </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          {/* Capsule indicator + Date */}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-gold/20 text-codex-gold">
+                              <Images className="w-3 h-3" />
+                              {item.capsule.pages.length} pages
+                            </span>
+                            {item.capsule.pages[0]?.primaryKeyword && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
+                                {item.capsule.pages[0].primaryKeyword}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground mb-1">
+                            {getDateLabel(item.capsule.pages[0]?.createdAt || new Date())} · {formatDistanceToNow(item.capsule.pages[0]?.createdAt || new Date(), { addSuffix: true })}
+                          </p>
+                          
+                          {/* Combined summary from first page */}
+                          <p className="text-sm text-foreground line-clamp-2 leading-relaxed mb-2">
+                            {item.capsule.pages[0]?.summary || 'Multiple pages'}
+                          </p>
+                          
+                          {/* Tones from all pages */}
+                          <div className="flex flex-wrap gap-1.5">
+                            {[...new Set(item.capsule.pages.flatMap(p => p.tone))].slice(0, 3).map((t) => (
+                              <span key={t} className={`tone-chip text-[10px] ${getToneClass(t)}`}>
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-1">
+                          {onAddToCapsule && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAddToCapsule(item.capsule.capsuleId);
+                              }}
+                              className="w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-codex-gold/20 transition-all"
+                              title="Add more pages"
+                            >
+                              <Plus className="w-4 h-4 text-codex-gold" />
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCapsule(item.capsule);
+                            }}
+                            className="w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
                     </button>
                   </div>
-                </button>
+                )}
               </motion.div>
             ))}
           </div>
@@ -307,7 +475,7 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
       </div>
 
       {/* Floating capture button */}
-      {filteredPages.length > 0 && (
+      {historyItems.length > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -324,7 +492,7 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
         </motion.div>
       )}
 
-      {/* Delete confirmation dialog */}
+      {/* Delete page confirmation dialog */}
       <AlertDialog open={!!pageToDelete} onOpenChange={() => setPageToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -337,6 +505,24 @@ export function HistoryView({ pages: allPages, onBack, onSelectPage, onDeletePag
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete capsule confirmation dialog */}
+      <AlertDialog open={!!capsuleToDelete} onOpenChange={() => setCapsuleToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this capsule?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove all {capsuleToDelete?.pages.length || 0} pages in this capsule from your codex. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteCapsule} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete all
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

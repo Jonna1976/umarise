@@ -91,6 +91,28 @@ async function analyzeImage(imageDataUrl: string): Promise<AnalysisResult> {
   return data as AnalysisResult;
 }
 
+// Add a page to an existing capsule
+export async function addToCapsule(imageDataUrl: string, capsuleId: string): Promise<Page> {
+  // Get the current max page_order for this capsule
+  const { data: existingPages, error: fetchError } = await supabase
+    .from('pages')
+    .select('page_order')
+    .eq('capsule_id', capsuleId)
+    .order('page_order', { ascending: false })
+    .limit(1);
+
+  if (fetchError) {
+    console.error('Error fetching capsule pages:', fetchError);
+    throw new Error('Failed to fetch capsule pages');
+  }
+
+  const nextOrder = existingPages && existingPages.length > 0 
+    ? (existingPages[0].page_order ?? 0) + 1 
+    : 0;
+
+  return createPage(imageDataUrl, capsuleId, nextOrder);
+}
+
 // Create a new page with image upload and AI analysis
 export async function createPage(
   imageDataUrl: string, 
