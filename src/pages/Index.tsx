@@ -20,7 +20,7 @@ import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'add-to-capsule' | 'capsule-carousel';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -367,6 +367,22 @@ const Index = () => {
           />
         ) : null;
       
+      // Empty state previews for testing
+      case 'kompas-empty':
+        return (
+          <KompasView pages={[]} onBack={handleBackFromKompas} />
+        );
+      
+      case 'patterns-empty':
+        return (
+          <PatternsView onBack={handleBackFromPatterns} forceEmpty />
+        );
+      
+      case 'personality-empty':
+        return (
+          <PersonalityView onBack={handleBackFromPersonality} forceEmpty />
+        );
+      
       default:
         return null;
     }
@@ -382,6 +398,18 @@ const Index = () => {
           onClose={() => setShowTestPanel(false)}
           onLoadTestData={handleLoadTestData}
           onViewPage={handleViewTestPage}
+          onPreviewEmptyKompas={() => {
+            setShowTestPanel(false);
+            setView('kompas-empty');
+          }}
+          onPreviewEmptyPatterns={() => {
+            setShowTestPanel(false);
+            setView('patterns-empty');
+          }}
+          onPreviewEmptyPersonality={() => {
+            setShowTestPanel(false);
+            setView('personality-empty');
+          }}
         />
       )}
     </>

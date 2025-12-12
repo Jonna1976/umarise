@@ -33,6 +33,7 @@ import { ThreadsView } from './ThreadsView';
 
 interface PatternsViewProps {
   onBack: () => void;
+  forceEmpty?: boolean;
 }
 
 interface RecurringTheme {
@@ -580,8 +581,9 @@ function TransparencySection({ pages, aiAnalysis }: { pages: Page[]; aiAnalysis:
   );
 }
 
-export function PatternsView({ onBack }: PatternsViewProps) {
-  const { pages, isLoading: pagesLoading } = usePages();
+export function PatternsView({ onBack, forceEmpty = false }: PatternsViewProps) {
+  const { pages: realPages, isLoading: pagesLoading } = usePages();
+  const pages = forceEmpty ? [] : realPages;
   const [aiAnalysis, setAiAnalysis] = useState<AIPatternAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
