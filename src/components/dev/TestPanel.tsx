@@ -14,13 +14,15 @@ import {
   Brain,
   Star,
   Database,
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
+import OnePager from '@/components/OnePager';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -29,6 +31,7 @@ interface TestPanelProps {
   onPreviewEmptyKompas?: () => void;
   onPreviewEmptyPatterns?: () => void;
   onPreviewEmptyPersonality?: () => void;
+  onShowOnePager?: () => void;
 }
 
 function getToneClass(tone: string): string {
@@ -49,8 +52,10 @@ export function TestPanel({
   onViewPage,
   onPreviewEmptyKompas,
   onPreviewEmptyPatterns,
-  onPreviewEmptyPersonality
+  onPreviewEmptyPersonality,
+  onShowOnePager
 }: TestPanelProps) {
+  const [showOnePager, setShowOnePager] = useState(false);
   const [testPages, setTestPages] = useState<TestPage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState(100);
@@ -262,8 +267,22 @@ export function TestPanel({
                 Leeg Personality
               </Button>
             )}
+            <Button 
+              onClick={() => setShowOnePager(true)} 
+              variant="outline" 
+              size="sm"
+              className="text-xs"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+              One-Pager
+            </Button>
           </div>
         </div>
+
+        {/* One-Pager Modal */}
+        <AnimatePresence>
+          {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
+        </AnimatePresence>
 
         {/* Local Test Data Generator */}
         <div className="p-4 border-b border-border">
