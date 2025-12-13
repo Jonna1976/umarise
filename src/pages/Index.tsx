@@ -278,6 +278,7 @@ const Index = () => {
             imageUrl={capturedImage}
             totalImages={capturedImages.length}
             currentIndex={processingIndex}
+            currentPageCount={pages.length}
           />
         ) : null;
       
