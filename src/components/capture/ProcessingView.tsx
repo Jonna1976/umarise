@@ -1,20 +1,33 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Images, Check } from 'lucide-react';
+import { Sparkles, Images, Check, BookOpen, Brain, Star, Compass } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
   totalImages?: number;
   currentIndex?: number;
   completedCount?: number;
+  currentPageCount?: number;
 }
+
+const MILESTONES = [
+  { count: 1, label: 'First capture', icon: BookOpen },
+  { count: 2, label: 'Threads emerge', icon: Compass },
+  { count: 3, label: 'Patterns unlock', icon: Brain },
+  { count: 5, label: 'Personality reveal', icon: Star },
+];
 
 export function ProcessingView({ 
   imageUrl, 
   totalImages = 1, 
   currentIndex = 0,
-  completedCount = 0 
+  completedCount = 0,
+  currentPageCount = 0
 }: ProcessingViewProps) {
   const isMultiple = totalImages > 1;
+  
+  // Calculate what milestone we're approaching
+  const nextPageCount = currentPageCount + totalImages;
+  const upcomingMilestone = MILESTONES.find(m => currentPageCount < m.count && nextPageCount >= m.count);
   
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
@@ -124,6 +137,28 @@ export function ProcessingView({
         />
       </motion.div>
 
+      {/* Milestone teaser */}
+      {upcomingMilestone && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-codex-gold/10 border border-codex-gold/20"
+        >
+          <div className="w-10 h-10 rounded-full bg-codex-gold/20 flex items-center justify-center">
+            <upcomingMilestone.icon className="w-5 h-5 text-codex-gold" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {upcomingMilestone.label}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Unlocking after this capture...
+            </p>
+          </div>
+        </motion.div>
+      )}
+
       {/* Bottom hint */}
       <motion.p
         initial={{ opacity: 0 }}
@@ -135,6 +170,18 @@ export function ProcessingView({
           ? `Processing all pages simultaneously for faster results…`
           : 'Extracting ideas, tone, and patterns…'}
       </motion.p>
+
+      {/* Page count context */}
+      {currentPageCount > 0 && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="mt-2 text-xs text-muted-foreground/60"
+        >
+          This will be page {currentPageCount + 1}{totalImages > 1 ? `-${currentPageCount + totalImages}` : ''} in your codex
+        </motion.p>
+      )}
     </div>
   );
 }

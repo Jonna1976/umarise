@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, Clock, ChevronDown, ChevronUp, Star, Check, Link2, Plus, ExternalLink, Trash2 } from 'lucide-react';
-import { Page, updatePage } from '@/lib/pageService';
+import { X, Clock, ChevronDown, ChevronUp, Star, Check, Link2, Plus, ExternalLink, Trash2, Sparkles } from 'lucide-react';
+import { Page, updatePage, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TopicInput } from '@/components/capture/TopicInput';
+import { EarlyInsights } from './EarlyInsights';
+import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 
 interface SnapshotViewProps {
   page: Page;
@@ -41,6 +43,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [topicProjectId, setTopicProjectId] = useState<string | undefined>(page.projectId);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [allPages, setAllPages] = useState<Page[]>([]);
+
+  // Fetch all pages for insights display
+  useEffect(() => {
+    if (isNewCapture) {
+      getPages().then(setAllPages);
+    }
+  }, [isNewCapture]);
 
   // Track changes
   useEffect(() => {
@@ -168,16 +178,36 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       </div>
 
       <div className="p-6 max-w-lg mx-auto">
-        {/* Success badge for new captures */}
+        {/* Success badge and growth indicator for new captures */}
         {isNewCapture && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 text-center"
+            className="mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-tone-hopeful/10 text-tone-hopeful text-sm font-medium">
-              ✓ Added to your codex
-            </span>
+            <div className="text-center mb-4">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-codex-gold/20 text-codex-gold text-sm font-medium">
+                <Sparkles className="w-4 h-4" />
+                Page {allPages.length} added to your codex
+              </span>
+            </div>
+            
+            {/* Compact growth indicator */}
+            {allPages.length < 10 && (
+              <CodexGrowthIndicator pageCount={allPages.length} compact />
+            )}
+          </motion.div>
+        )}
+
+        {/* Early insights - show connections immediately */}
+        {isNewCapture && allPages.length >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-6"
+          >
+            <EarlyInsights pages={allPages} latestPage={page} />
           </motion.div>
         )}
 

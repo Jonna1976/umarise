@@ -8,6 +8,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { InsightsSection } from './InsightsSection';
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
+import { CodexGrowthIndicator } from './CodexGrowthIndicator';
+import { EarlyInsights } from './EarlyInsights';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -509,8 +511,22 @@ export function HistoryView({
         </div>
       )}
 
-      {/* Insights Section */}
-      <InsightsSection pages={filteredPages} />
+      {/* Codex Growth Indicator - shown when few pages */}
+      {allPages.length > 0 && allPages.length < 10 && (
+        <div className="mx-4 mb-4">
+          <CodexGrowthIndicator pageCount={allPages.length} />
+        </div>
+      )}
+
+      {/* Early Insights - connections found with just a few pages */}
+      {allPages.length >= 2 && allPages.length < 5 && (
+        <div className="mx-4 mb-4">
+          <EarlyInsights pages={allPages} latestPage={allPages[0]} />
+        </div>
+      )}
+
+      {/* Insights Section - for 5+ pages */}
+      {allPages.length >= 5 && <InsightsSection pages={filteredPages} />}
 
       {/* View Content */}
       <AnimatePresence mode="wait">
