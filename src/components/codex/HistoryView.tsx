@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -29,6 +29,7 @@ interface HistoryViewProps {
   onViewPatterns?: () => void;
   onViewPersonality?: () => void;
   onViewKompas?: () => void;
+  onViewYearReflection?: () => void;
 }
 
 type TimeFilter = 'all' | '7days' | '30days';
@@ -72,7 +73,8 @@ export function HistoryView({
   onAddToCapsule,
   onViewPatterns,
   onViewPersonality,
-  onViewKompas
+  onViewKompas,
+  onViewYearReflection
 }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
@@ -242,6 +244,15 @@ export function HistoryView({
           <h1 className="font-serif text-lg font-medium">Your Codex</h1>
           
           <div className="flex items-center gap-1">
+            {onViewYearReflection && (
+              <button
+                onClick={onViewYearReflection}
+                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                title="Jaarreflectie"
+              >
+                <Sparkles className="w-5 h-5 text-amber-500" />
+              </button>
+            )}
             {onViewKompas && (
               <button
                 onClick={onViewKompas}

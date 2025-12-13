@@ -10,6 +10,7 @@ import { TestPanel } from '@/components/dev/TestPanel';
 import { PatternsView } from '@/components/codex/PatternsView';
 import { PersonalityView } from '@/components/codex/PersonalityView';
 import { KompasView } from '@/components/codex/KompasView';
+import { YearReflectionView } from '@/components/codex/YearReflectionView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -20,7 +21,7 @@ import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
   const [view, setView] = useState<AppView>('onboarding');
@@ -217,6 +218,14 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleViewYearReflection = useCallback(() => {
+    setView('year-reflection');
+  }, []);
+
+  const handleBackFromYearReflection = useCallback(() => {
+    setView('history');
+  }, []);
+
   const handleLoadTestData = useCallback(() => {
     // Test data loading is no longer supported with real database
     // Just close panel and refresh
@@ -298,6 +307,7 @@ const Index = () => {
             onViewPatterns={handleViewPatterns}
             onViewPersonality={handleViewPersonality}
             onViewKompas={handleViewKompas}
+            onViewYearReflection={handleViewYearReflection}
           />
         );
       
@@ -373,6 +383,11 @@ const Index = () => {
       case 'kompas':
         return (
           <KompasView pages={pages} onBack={handleBackFromKompas} />
+        );
+      
+      case 'year-reflection':
+        return (
+          <YearReflectionView onBack={handleBackFromYearReflection} />
         );
       
       case 'detail':
