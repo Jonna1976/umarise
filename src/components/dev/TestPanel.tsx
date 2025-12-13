@@ -13,12 +13,14 @@ import {
   Compass,
   Brain,
   Star,
-  ToggleLeft,
-  ToggleRight
+  Database,
+  Loader2
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
+import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
+import { toast } from '@/hooks/use-toast';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -52,14 +54,64 @@ export function TestPanel({
   const [testPages, setTestPages] = useState<TestPage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState(100);
+  const [isInjecting, setIsInjecting] = useState(false);
+  const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
+  const [isClearing, setIsClearing] = useState(false);
+
+  const testDataInfo = getTestDataInfo();
 
   const handleGenerate = () => {
     const pages = generateTestPages(pageCount);
     setTestPages(pages);
   };
 
+  const handleInjectToDatabase = async () => {
+    setIsInjecting(true);
+    setInjectProgress({ current: 0, total: testDataInfo.totalPages });
+    
+    try {
+      const inserted = await injectTestData((current, total) => {
+        setInjectProgress({ current, total });
+      });
+      
+      toast({
+        title: "Testdata geïnjecteerd",
+        description: `${inserted} pagina's toegevoegd aan de database. Ga naar History om de memory loop te testen.`,
+      });
+      
+      onLoadTestData();
+    } catch (error) {
+      toast({
+        title: "Fout",
+        description: "Kon testdata niet injecteren",
+        variant: "destructive"
+      });
+    } finally {
+      setIsInjecting(false);
+    }
+  };
+
+  const handleClearTestData = async () => {
+    setIsClearing(true);
+    try {
+      const deleted = await clearTestData();
+      toast({
+        title: "Testdata verwijderd",
+        description: `${deleted} test-pagina's verwijderd.`,
+      });
+      onLoadTestData();
+    } catch (error) {
+      toast({
+        title: "Fout",
+        description: "Kon testdata niet verwijderen",
+        variant: "destructive"
+      });
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   const handleLoadAll = () => {
-    // With real database, we just refresh and go to history
     onLoadTestData();
   };
 
@@ -120,21 +172,55 @@ export function TestPanel({
           <p className="text-sm text-muted-foreground mb-4">
             Genereer fake pagina's om de app te testen met realistische data.
           </p>
+        </div>
 
-          {/* Controls */}
-          <div className="flex gap-2 flex-wrap">
-            <div className="flex items-center gap-2 bg-background rounded-lg px-3 py-1.5 border border-border">
-              <span className="text-xs text-muted-foreground">Aantal:</span>
-              <select
-                value={pageCount}
-                onChange={(e) => setPageCount(Number(e.target.value))}
-                className="bg-transparent text-sm font-medium focus:outline-none"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
+        {/* Database Injection Section - PRIMARY */}
+        <div className="p-4 bg-codex-gold/10 border-b border-border">
+          <h3 className="text-xs font-medium text-codex-gold uppercase tracking-wide mb-2 flex items-center gap-2">
+            <Database className="w-3.5 h-3.5" />
+            Memory Loop Test Data
+          </h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            Injecteer {testDataInfo.totalPages} realistische pagina's over {testDataInfo.timeSpan} met terugkerende thema's:
+          </p>
+          <ul className="text-xs text-muted-foreground mb-3 space-y-0.5 pl-3">
+            {testDataInfo.threads.map((thread, i) => (
+              <li key={i} className="list-disc list-inside">{thread}</li>
+            ))}
+          </ul>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleInjectToDatabase} 
+              variant="codex" 
+              size="sm"
+              disabled={isInjecting}
+            >
+              {isInjecting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  {injectProgress.current}/{injectProgress.total}
+                </>
+              ) : (
+                <>
+                  <Database className="w-4 h-4 mr-1" />
+                  Injecteer in Database
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={handleClearTestData} 
+              variant="ghost" 
+              size="sm"
+              disabled={isClearing}
+            >
+              {isClearing ? (
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-1" />
+              )}
+              Wis Testdata
+            </Button>
+          </div>
         </div>
 
         {/* Empty State Previews */}
@@ -178,8 +264,28 @@ export function TestPanel({
             )}
           </div>
         </div>
+
+        {/* Local Test Data Generator */}
+        <div className="p-4 border-b border-border">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Local Test Generator
+          </h3>
+          <div className="flex gap-2 flex-wrap">
+            <div className="flex items-center gap-2 bg-background rounded-lg px-3 py-1.5 border border-border">
+              <span className="text-xs text-muted-foreground">Aantal:</span>
+              <select
+                value={pageCount}
+                onChange={(e) => setPageCount(Number(e.target.value))}
+                className="bg-transparent text-sm font-medium focus:outline-none"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
             
-            <Button onClick={handleGenerate} variant="codex" size="sm">
+            <Button onClick={handleGenerate} variant="outline" size="sm">
               <FlaskConical className="w-4 h-4 mr-1" />
               Genereer
             </Button>
@@ -225,7 +331,7 @@ export function TestPanel({
             <div className="text-center py-12">
               <FlaskConical className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
               <p className="text-muted-foreground">
-                Klik op "Genereer" om test data te maken
+                Gebruik "Injecteer in Database" om de memory loop te testen
               </p>
             </div>
           ) : (
