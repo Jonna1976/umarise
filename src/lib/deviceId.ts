@@ -13,11 +13,18 @@ export function generateDeviceId(): string {
 
 export function getDeviceId(): string | null {
   try {
-    return localStorage.getItem(DEVICE_ID_KEY);
+    let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+    // Auto-initialize if not present so the rest of the app never sees a null ID
+    if (!deviceId) {
+      deviceId = generateDeviceId();
+      localStorage.setItem(DEVICE_ID_KEY, deviceId);
+    }
+    return deviceId;
   } catch {
     return null;
   }
 }
+
 
 export function setDeviceId(id: string): void {
   try {
