@@ -30,7 +30,7 @@ export function ProcessingView({
   const upcomingMilestone = MILESTONES.find(m => currentPageCount < m.count && nextPageCount >= m.count);
   
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-forest flex flex-col items-center justify-center p-8">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

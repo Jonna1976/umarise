@@ -690,9 +690,9 @@ export function PatternsView({ onBack, forceEmpty = false }: PatternsViewProps) 
   const maxCount = basicPatterns?.topKeywords[0]?.[1] || 1;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-forest">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="sticky top-0 z-10 bg-codex-ink/80 backdrop-blur-md border-b border-codex-gold/10">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={onBack}
