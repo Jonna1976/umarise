@@ -54,7 +54,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const Icon = slide.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-forest flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Skip button */}
       <div className="p-4 flex justify-end">
         <button

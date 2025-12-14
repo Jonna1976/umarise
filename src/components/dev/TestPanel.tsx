@@ -210,7 +210,7 @@ export function TestPanel({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-codex-ink/90 backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm"
     >
       <motion.div
         initial={{ x: '100%' }}
