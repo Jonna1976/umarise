@@ -90,9 +90,9 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const projectId = representativePage.projectId;
   const project = projectId ? projects.find(p => p.id === projectId) : null;
   
-  // Spine width varies slightly based on content/page count
-  const baseWidth = 44;
-  const extraWidth = Math.min(pageCount * 4, 20);
+  // Spine width varies based on page count - more pages = thicker spine
+  const baseWidth = 42;
+  const extraWidth = Math.min(pageCount * 8, 40);
   const spineWidth = baseWidth + extraWidth;
 
   return (
