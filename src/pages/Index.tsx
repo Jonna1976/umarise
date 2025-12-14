@@ -20,10 +20,12 @@ import { usePages } from '@/hooks/usePages';
 import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel';
 
 const Index = () => {
+  const { isDemoMode } = useDemoMode();
   const [view, setView] = useState<AppView>('onboarding');
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -55,10 +57,18 @@ const Index = () => {
     const id = initializeDeviceId();
     setDeviceId(id);
     
-    if (hasCompletedOnboarding()) {
+    // In Demo Mode, skip onboarding entirely
+    if (isDemoMode || hasCompletedOnboarding()) {
       setView('camera');
     }
-  }, []);
+  }, [isDemoMode]);
+
+  // When demo mode changes, adjust view accordingly
+  useEffect(() => {
+    if (isDemoMode && view === 'onboarding') {
+      setView('camera');
+    }
+  }, [isDemoMode, view]);
 
   const handleOnboardingComplete = useCallback(() => {
     completeOnboarding();
@@ -290,6 +300,7 @@ const Index = () => {
             onViewHistory={handleOpenHistory}
             isNewCapture={isNewCapture}
             onPageUpdate={handlePageUpdate}
+            isDemoMode={isDemoMode}
           />
         ) : null;
       
@@ -305,10 +316,11 @@ const Index = () => {
             }}
             onDeletePage={handleDeletePage}
             onAddToCapsule={handleStartAddToCapsule}
-            onViewPatterns={handleViewPatterns}
-            onViewPersonality={handleViewPersonality}
-            onViewKompas={handleViewKompas}
-            onViewYearReflection={handleViewYearReflection}
+            // In Demo Mode, hide all extended features
+            onViewPatterns={isDemoMode ? undefined : handleViewPatterns}
+            onViewPersonality={isDemoMode ? undefined : handleViewPersonality}
+            onViewKompas={isDemoMode ? undefined : handleViewKompas}
+            onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
           />
         );
       
