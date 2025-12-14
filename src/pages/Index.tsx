@@ -20,6 +20,7 @@ import { usePages } from '@/hooks/usePages';
 import { Page, CapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
+import { DeviceDebug } from '@/components/dev/DeviceDebug';
 
 type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel';
 
@@ -427,6 +428,7 @@ const Index = () => {
     <>
       {renderView()}
       {DevButton}
+      <DeviceDebug />
       
       {showTestPanel && (
         <TestPanel
