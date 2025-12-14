@@ -17,7 +17,8 @@ import {
   Loader2,
   FileText,
   Bug,
-  Copy
+  Copy,
+  Play
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
@@ -25,6 +26,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
+import { DemoWalkthrough } from './DemoWalkthrough';
 import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -60,6 +62,7 @@ export function TestPanel({
   onShowOnePager
 }: TestPanelProps) {
   const [showOnePager, setShowOnePager] = useState(false);
+  const [showDemoWalkthrough, setShowDemoWalkthrough] = useState(false);
   const [testPages, setTestPages] = useState<TestPage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState(100);
@@ -379,12 +382,24 @@ export function TestPanel({
               <FileText className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
               One-Pager
             </Button>
+            <Button 
+              onClick={() => setShowDemoWalkthrough(true)} 
+              variant="codex" 
+              size="sm"
+              className="text-xs"
+            >
+              <Play className="w-3.5 h-3.5 mr-1.5" />
+              Demo Walkthrough
+            </Button>
           </div>
         </div>
 
-        {/* One-Pager Modal */}
+        {/* Modals */}
         <AnimatePresence>
           {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showDemoWalkthrough && <DemoWalkthrough onClose={() => setShowDemoWalkthrough(false)} />}
         </AnimatePresence>
 
         {/* Local Test Data Generator */}
