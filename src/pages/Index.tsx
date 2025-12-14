@@ -88,17 +88,7 @@ const Index = () => {
       if (newPage) {
         setCurrentPage(newPage);
         setIsNewCapture(true);
-        // In Demo Mode, go straight to timeline after brief snapshot
-        if (isDemoMode) {
-          setView('snapshot');
-          // Auto-navigate to history after 2 seconds in demo mode
-          setTimeout(() => {
-            setView('history');
-            setIsNewCapture(false);
-          }, 2000);
-        } else {
-          setView('snapshot');
-        }
+        setView('snapshot');
       } else {
         toast.error('Failed to process page. Please try again.');
         setView('camera');
