@@ -106,6 +106,7 @@ export class LovableCloudStorage implements IStorageProvider {
         capsule_id: pageData.capsuleId || null,
         page_order: pageData.pageOrder ?? 0,
         project_id: pageData.projectId || null,
+        future_you_cue: pageData.futureYouCue || null,
       })
       .select()
       .single();
@@ -207,6 +208,7 @@ export class LovableCloudStorage implements IStorageProvider {
     if (updates.ocrText !== undefined) updateData.ocr_text = updates.ocrText;
     if (updates.sources !== undefined) updateData.sources = updates.sources;
     if (updates.projectId !== undefined) updateData.project_id = updates.projectId || null;
+    if (updates.futureYouCue !== undefined) updateData.future_you_cue = updates.futureYouCue || null;
 
     const { error } = await supabase
       .from('pages')
@@ -364,6 +366,7 @@ export class LovableCloudStorage implements IStorageProvider {
       capsuleId: (row.capsule_id as string) || undefined,
       pageOrder: (row.page_order as number) ?? 0,
       projectId: (row.project_id as string) || undefined,
+      futureYouCue: (row.future_you_cue as string) || undefined,
       createdAt: new Date(row.created_at as string),
       updatedAt: row.updated_at ? new Date(row.updated_at as string) : undefined,
     };

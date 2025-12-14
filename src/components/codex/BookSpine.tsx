@@ -178,7 +178,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       )}
       
       {/* Title - vertical text */}
-      <div className={`absolute inset-0 flex items-center justify-center p-2 ${project ? 'pt-6' : ''}`}>
+      <div className={`absolute inset-0 flex items-center justify-center p-2 ${project ? 'pt-6' : ''} ${representativePage.futureYouCue ? 'pb-8' : ''}`}>
         <span 
           className={`
             ${colors.text} font-serif text-xs font-medium
@@ -196,6 +196,20 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
           {title}
         </span>
       </div>
+      
+      {/* Future You Cue - tiny line at bottom */}
+      {representativePage.futureYouCue && (
+        <div 
+          className={`absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] text-center ${colors.text} opacity-60`}
+          title={representativePage.futureYouCue}
+        >
+          <span className="text-[6px] italic truncate block px-0.5">
+            {representativePage.futureYouCue.length > 20 
+              ? representativePage.futureYouCue.slice(0, 20) + '…' 
+              : representativePage.futureYouCue}
+          </span>
+        </div>
+      )}
       
       {/* Page count indicator for capsules */}
       {pageCount > 1 && (
