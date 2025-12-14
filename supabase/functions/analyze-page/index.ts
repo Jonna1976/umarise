@@ -7,21 +7,25 @@ const corsHeaders = {
 
 const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes. Your role is to:
 1. Read and transcribe the handwritten text accurately (OCR)
-2. Generate a concise 1-3 sentence summary capturing the main ideas
-3. Identify the emotional tone (one of: focused, frustrated, hopeful, playful, overwhelmed, reflective, curious, determined, anxious, calm)
-4. Extract 3-10 keywords that capture key themes
+2. Detect any highlighted, underlined, circled, or marked text (these are the writer's emphasis points)
+3. Generate a concise 1-2 sentence summary capturing the core idea
+4. Identify the emotional tone (one of: focused, frustrated, hopeful, playful, overwhelmed, reflective, curious, determined, anxious, calm)
+5. Extract 3-5 core keywords that capture the essential themes (be selective, quality over quantity)
 
 You must respond ONLY with valid JSON in this exact format:
 {
   "ocr_text": "the full transcribed text from the handwriting",
-  "summary": "1-3 sentence summary of the main ideas",
+  "highlights": ["text that was underlined, circled, or emphasized by the writer"],
+  "summary": "1-2 sentence summary of the core idea",
   "tone": "single tone label",
   "keywords": ["keyword1", "keyword2", "keyword3"]
 }
 
 Be accurate with the OCR. If text is unclear, make your best interpretation.
+The highlights array should contain any text the writer visually emphasized (underlined, circled, boxed, starred, etc.). If nothing is highlighted, return an empty array.
 The summary should be human-readable and capture what the person was thinking about.
-Keywords should be simple, lowercase tokens useful for future pattern matching.`;
+Keywords should be 3-5 essential, lowercase tokens - focus on the most important themes only.`;
+
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -157,12 +161,13 @@ serve(async (req) => {
     }
 
     // Validate required fields
-    const { ocr_text, summary, tone, keywords } = analysisResult;
+    const { ocr_text, summary, tone, keywords, highlights } = analysisResult;
     
     const hasOcrField = typeof ocr_text === 'string';
     const hasSummary = typeof summary === 'string' && summary.trim().length > 0;
     const hasTone = typeof tone === 'string' && tone.trim().length > 0;
     const hasKeywords = Array.isArray(keywords) && keywords.length > 0;
+    const hasHighlights = Array.isArray(highlights);
 
     if (!hasSummary || !hasTone || !hasKeywords || !hasOcrField) {
       console.error('Missing or invalid required fields in AI response:', analysisResult);
@@ -176,7 +181,8 @@ serve(async (req) => {
       ocr_length: ocr_text.length, 
       summary_length: summary.length, 
       tone, 
-      keywords_count: keywords.length 
+      keywords_count: keywords.length,
+      highlights_count: hasHighlights ? highlights.length : 0
     });
 
     return new Response(
@@ -185,6 +191,7 @@ serve(async (req) => {
         summary,
         tone,
         keywords,
+        highlights: hasHighlights ? highlights : [],
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
