@@ -134,28 +134,43 @@ export class LovableCloudStorage implements IStorageProvider {
       return [];
     }
 
-    // If no pages found, try to adopt an existing device_user_id from the database
+    // If no pages found, try to adopt the device_user_id with the most pages
     if (!data || data.length === 0) {
-      const { data: anyRows, error: anyError } = await supabase
+      const { data: allRows, error: allError } = await supabase
         .from('pages')
-        .select('device_user_id')
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .select('device_user_id');
 
-      if (!anyError && anyRows && anyRows.length > 0 && anyRows[0].device_user_id) {
-        const fallbackId = anyRows[0].device_user_id as string;
-        deviceUserId = fallbackId;
-        // Persist this so future sessions keep using the same codex identity
-        setDeviceId(fallbackId);
+      if (!allError && allRows && allRows.length > 0) {
+        const counts = new Map<string, number>();
+        for (const row of allRows) {
+          const id = row.device_user_id as string | null;
+          if (!id) continue;
+          counts.set(id, (counts.get(id) ?? 0) + 1);
+        }
 
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('pages')
-          .select('*')
-          .eq('device_user_id', fallbackId)
-          .order('created_at', { ascending: false });
+        let fallbackId: string | null = null;
+        let maxCount = 0;
+        for (const [id, count] of counts.entries()) {
+          if (count > maxCount) {
+            maxCount = count;
+            fallbackId = id;
+          }
+        }
 
-        if (!fallbackError && fallbackData) {
-          data = fallbackData;
+        if (fallbackId) {
+          deviceUserId = fallbackId;
+          // Persist this so future sessions keep using the same codex identity
+          setDeviceId(fallbackId);
+
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('pages')
+            .select('*')
+            .eq('device_user_id', fallbackId)
+            .order('created_at', { ascending: false });
+
+          if (!fallbackError && fallbackData) {
+            data = fallbackData;
+          }
         }
       }
     }

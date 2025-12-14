@@ -11,25 +11,34 @@ export function DeviceDebug() {
     const id = getDeviceId();
     setDeviceId(id);
 
-    // Check pages in DB
+    // Check which device_user_id has the most pages in the database
     const checkDb = async () => {
-      if (id) {
-        const { count } = await supabase
-          .from('pages')
-          .select('*', { count: 'exact', head: true })
-          .eq('device_user_id', id);
-        setPageCount(count || 0);
-      }
-
-      // Also check what device_user_id exists in DB
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('pages')
-        .select('device_user_id')
-        .limit(1);
-      if (data && data.length > 0) {
-        setDbDeviceId(data[0].device_user_id);
+        .select('device_user_id');
+
+      if (!error && data && data.length > 0) {
+        const counts = new Map<string, number>();
+        for (const row of data) {
+          const rowId = row.device_user_id as string | null;
+          if (!rowId) continue;
+          counts.set(rowId, (counts.get(rowId) ?? 0) + 1);
+        }
+
+        let topId: string | null = null;
+        let topCount = 0;
+        for (const [rowId, count] of counts.entries()) {
+          if (count > topCount) {
+            topId = rowId;
+            topCount = count;
+          }
+        }
+
+        setDbDeviceId(topId);
+        setPageCount(topCount);
       }
     };
+
     checkDb();
   }, []);
 
