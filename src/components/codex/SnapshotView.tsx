@@ -46,6 +46,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [allPages, setAllPages] = useState<Page[]>([]);
   const [userKeywords, setUserKeywords] = useState<string[]>([]);
   const [newUserKeyword, setNewUserKeyword] = useState('');
+  const [futureYouCue, setFutureYouCue] = useState(page.futureYouCue || '');
 
   // Fetch all pages for insights display
   useEffect(() => {
@@ -61,8 +62,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const ocrChanged = ocrText !== (page.ocrText || '');
     const sourcesChanged = JSON.stringify(sources) !== JSON.stringify(page.sources || []);
     const topicChanged = topicProjectId !== page.projectId;
-    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged);
-  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId]);
+    const cueChanged = futureYouCue !== (page.futureYouCue || '');
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cueChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCue, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCue]);
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -74,6 +76,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       ocrText: ocrText || undefined,
       sources: sources,
       projectId: topicProjectId,
+      futureYouCue: futureYouCue || undefined,
     });
     
     setIsSaving(false);
@@ -82,7 +85,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCue });
       }
     } else {
       toast.error('Failed to save');
@@ -99,13 +102,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         ocrText: ocrText || undefined,
         sources: sources,
         projectId: topicProjectId,
+        futureYouCue: futureYouCue || undefined,
       });
       setIsSaving(false);
       
       if (success) {
         toast.success('Changes saved');
         if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId });
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCue });
         }
       } else {
         toast.error('Failed to save changes');
@@ -237,6 +241,30 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             {page.summary}
           </h2>
         </motion.div>
+
+        {/* Future You Cue - only visible in Full Mode */}
+        {!isDemoMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="mb-6"
+          >
+            <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">
+              Future You cue <span className="normal-case opacity-60">(optional)</span>
+            </p>
+            <Input
+              value={futureYouCue}
+              onChange={(e) => setFutureYouCue(e.target.value.slice(0, 60))}
+              placeholder="Why does this matter?"
+              maxLength={60}
+              className="bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
+            />
+            <p className="text-[10px] text-codex-cream/40 mt-1 text-right">
+              {futureYouCue.length}/60 — Keep it short — for future retrieval.
+            </p>
+          </motion.div>
+        )}
 
         {/* Tone - compact */}
         <motion.div

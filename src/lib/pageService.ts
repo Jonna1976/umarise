@@ -183,11 +183,11 @@ export async function deletePage(id: string): Promise<boolean> {
 }
 
 /**
- * Update page with user note, primary keyword, OCR text, sources, and project
+ * Update page with user note, primary keyword, OCR text, sources, project, and future you cue
  */
 export async function updatePage(
   id: string, 
-  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[]; projectId?: string }
+  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[]; projectId?: string; futureYouCue?: string }
 ): Promise<boolean> {
   const storage = getStorageProvider();
   return storage.updatePage(id, updates);

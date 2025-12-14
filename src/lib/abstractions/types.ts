@@ -23,6 +23,7 @@ export interface Page {
   capsuleId?: string;
   pageOrder?: number;
   projectId?: string;
+  futureYouCue?: string;
   createdAt: Date;
   updatedAt?: Date;
 }

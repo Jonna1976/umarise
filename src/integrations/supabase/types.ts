@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           device_user_id: string
           embedding: Json | null
+          future_you_cue: string | null
           id: string
           image_url: string
           keywords: string[] | null
@@ -40,6 +41,7 @@ export type Database = {
           created_at?: string
           device_user_id: string
           embedding?: Json | null
+          future_you_cue?: string | null
           id?: string
           image_url: string
           keywords?: string[] | null
@@ -59,6 +61,7 @@ export type Database = {
           created_at?: string
           device_user_id?: string
           embedding?: Json | null
+          future_you_cue?: string | null
           id?: string
           image_url?: string
           keywords?: string[] | null
