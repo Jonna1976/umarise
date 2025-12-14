@@ -145,65 +145,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
-  // Demo mode shows simplified view
-  if (isDemoMode && isNewCapture) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-codex-forest-deep via-background to-background">
-        <div className="p-6 max-w-lg mx-auto pt-12">
-          {/* Success indicator */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center mb-8"
-          >
-            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-codex-gold/20 text-codex-gold text-lg font-medium">
-              <Sparkles className="w-5 h-5" />
-              Added to your codex
-            </div>
-          </motion.div>
-
-          {/* Image */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-6"
-          >
-            <img
-              src={page.imageUrl}
-              alt="Captured page"
-              className="w-full rounded-xl shadow-lg"
-            />
-          </motion.div>
-
-          {/* Summary only */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-center"
-          >
-            <h2 className="font-serif text-xl text-foreground leading-relaxed">
-              {page.summary}
-            </h2>
-          </motion.div>
-
-          {/* Auto-navigating indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-sm text-muted-foreground">Opening timeline...</p>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-codex-forest-deep/30 via-background to-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between p-4">
