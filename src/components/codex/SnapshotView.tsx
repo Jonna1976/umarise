@@ -213,7 +213,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image - smaller, centered */}
+        {/* Image - centered */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -222,7 +222,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           <img
             src={page.imageUrl}
             alt="Captured page"
-            className="max-w-[200px] w-full rounded-xl shadow-lg border border-codex-gold/20"
+            className="max-w-[400px] w-full rounded-xl shadow-lg border border-codex-gold/20"
           />
         </motion.div>
 
