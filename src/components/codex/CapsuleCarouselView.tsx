@@ -312,16 +312,28 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
                       {page.summary}
                     </p>
                     
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1.5 mb-2">
                       {page.tone.map((t) => (
-                        <span key={t} className={`tone-chip text-[9px] ${getToneClass(t)}`}>
+                        <span key={t} className={`px-2 py-0.5 rounded-full text-xs capitalize ${getToneClass(t)}`}>
                           {t}
                         </span>
                       ))}
-                      {page.keywords.slice(0, 3).map((k) => (
-                        <span key={k} className="px-1.5 py-0.5 rounded text-[9px] bg-muted text-muted-foreground">
+                    </div>
+                    
+                    {/* Keywords - clickable, consistent size with SnapshotView */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {page.keywords.map((k) => (
+                        <button
+                          key={k}
+                          onClick={() => onSelectPage(page)}
+                          className={`px-2.5 py-1 rounded-full text-xs transition-all ${
+                            page.primaryKeyword === k
+                              ? 'bg-codex-gold text-codex-ink-deep'
+                              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                          }`}
+                        >
                           {k}
-                        </span>
+                        </button>
                       ))}
                     </div>
                   </motion.div>
