@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
@@ -15,7 +15,9 @@ import {
   Star,
   Database,
   Loader2,
-  FileText
+  FileText,
+  Bug,
+  Copy
 } from 'lucide-react';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
@@ -23,6 +25,8 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
+import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -62,6 +66,62 @@ export function TestPanel({
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
   const [isClearing, setIsClearing] = useState(false);
+
+  // Device debug state
+  const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
+  const [dbDeviceId, setDbDeviceId] = useState<string | null>(null);
+  const [dbPageCount, setDbPageCount] = useState<number>(0);
+
+  useEffect(() => {
+    const id = getDeviceId();
+    setLocalDeviceId(id);
+
+    const checkDb = async () => {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('device_user_id');
+
+      if (!error && data && data.length > 0) {
+        const counts = new Map<string, number>();
+        for (const row of data) {
+          const rowId = row.device_user_id as string | null;
+          if (!rowId) continue;
+          counts.set(rowId, (counts.get(rowId) ?? 0) + 1);
+        }
+
+        let topId: string | null = null;
+        let topCount = 0;
+        for (const [rowId, count] of counts.entries()) {
+          if (count > topCount) {
+            topId = rowId;
+            topCount = count;
+          }
+        }
+
+        setDbDeviceId(topId);
+        setDbPageCount(topCount);
+      }
+    };
+
+    checkDb();
+  }, []);
+
+  const deviceIdsMatch = localDeviceId === dbDeviceId;
+
+  const handleCopyDeviceId = () => {
+    if (localDeviceId) {
+      navigator.clipboard.writeText(localDeviceId);
+      toast({ title: "Device ID gekopieerd" });
+    }
+  };
+
+  const handleAdoptDbDeviceId = () => {
+    if (dbDeviceId && dbDeviceId !== localDeviceId) {
+      persistDeviceId(dbDeviceId);
+      setLocalDeviceId(dbDeviceId);
+      toast({ title: "Device ID overgenomen", description: "Herlaad de pagina om je codex te zien." });
+    }
+  };
 
   const testDataInfo = getTestDataInfo();
 
@@ -174,9 +234,52 @@ export function TestPanel({
             </button>
           </div>
           
-          <p className="text-sm text-muted-foreground mb-4">
-            Genereer fake pagina's om de app te testen met realistische data.
+          <p className="text-sm text-muted-foreground">
+            Debug tools voor het testen van de memory loop.
           </p>
+        </div>
+
+        {/* Device Debug Section */}
+        <div className="p-4 border-b border-border bg-muted/30">
+          <h3 className="text-xs font-medium text-amber-500 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Bug className="w-3.5 h-3.5" />
+            Device ID Debug
+          </h3>
+          <div className="space-y-2 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Local ID:</span>
+              <span className="text-foreground break-all max-w-[200px] text-right">
+                {localDeviceId ? `${localDeviceId.slice(0, 8)}...${localDeviceId.slice(-4)}` : 'null'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">DB Top ID:</span>
+              <span className="text-foreground break-all max-w-[200px] text-right">
+                {dbDeviceId ? `${dbDeviceId.slice(0, 8)}...${dbDeviceId.slice(-4)}` : 'none'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Match:</span>
+              <span className={deviceIdsMatch ? 'text-green-500' : 'text-red-500'}>
+                {deviceIdsMatch ? '✓ Yes' : '✗ No'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Pages in DB:</span>
+              <span className="text-amber-400">{dbPageCount}</span>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button onClick={handleCopyDeviceId} variant="outline" size="sm" className="text-xs">
+              <Copy className="w-3 h-3 mr-1" />
+              Copy ID
+            </Button>
+            {!deviceIdsMatch && dbDeviceId && (
+              <Button onClick={handleAdoptDbDeviceId} variant="codex" size="sm" className="text-xs">
+                Adopt DB ID
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Database Injection Section - PRIMARY */}
