@@ -72,7 +72,7 @@
   .dark {
     /* Deep teal/forest green inspired by Rising app */
     --background: 165 25% 10%;
-    --foreground: 42 30% 92%;
+    --foreground: 40 30% 96%;
 
     --card: 42 35% 95%;
     --card-foreground: 160 20% 12%;
@@ -84,10 +84,10 @@
     --primary-foreground: 165 25% 10%;
 
     --secondary: 160 15% 18%;
-    --secondary-foreground: 42 25% 88%;
+    --secondary-foreground: 40 30% 96%;
 
     --muted: 160 12% 20%;
-    --muted-foreground: 42 15% 65%;
+    --muted-foreground: 40 20% 75%;
 
     --accent: 38 50% 55%;
     --accent-foreground: 165 25% 10%;
