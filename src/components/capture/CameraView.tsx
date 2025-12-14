@@ -428,22 +428,33 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 );
               })}
               
-              {/* Glowing portal circle */}
+              {/* Glowing portal circle - living organism */}
               <motion.button
                 onClick={() => fileInputRef.current?.click()}
-                className="relative w-36 h-36 rounded-full flex items-center justify-center"
+                className="relative w-44 h-44 rounded-full flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                style={{
-                  background: 'radial-gradient(circle, rgba(255, 191, 0, 0.15) 0%, rgba(255, 191, 0, 0.05) 50%, transparent 70%)',
-                }}
               >
-                {/* Outer glow */}
-                <div 
+                {/* Outer breathing glow */}
+                <motion.div 
                   className="absolute inset-0 rounded-full"
-                  style={{
-                    background: 'radial-gradient(circle, transparent 40%, rgba(255, 180, 50, 0.1) 60%, transparent 80%)',
-                    filter: 'blur(20px)',
+                  animate={{
+                    boxShadow: isDraggingOver 
+                      ? [
+                          '0 0 60px 30px rgba(255, 180, 50, 0.4)',
+                          '0 0 80px 40px rgba(255, 180, 50, 0.6)',
+                          '0 0 60px 30px rgba(255, 180, 50, 0.4)',
+                        ]
+                      : [
+                          '0 0 40px 20px rgba(255, 180, 50, 0.2)',
+                          '0 0 60px 30px rgba(255, 180, 50, 0.35)',
+                          '0 0 40px 20px rgba(255, 180, 50, 0.2)',
+                        ],
+                  }}
+                  transition={{
+                    duration: isDraggingOver ? 1.5 : 3,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
                   }}
                 />
                 
@@ -451,70 +462,97 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 <motion.div
                   className="absolute inset-4 rounded-full"
                   style={{
-                    border: '2px solid transparent',
+                    border: '3px solid transparent',
                     background: `linear-gradient(#0a0a0a, #0a0a0a) padding-box, 
-                               linear-gradient(135deg, rgba(255, 200, 100, 0.9), rgba(255, 150, 50, 0.6), rgba(255, 200, 100, 0.9)) border-box`,
-                    boxShadow: isDraggingOver 
-                      ? '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)'
-                      : '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
+                               linear-gradient(135deg, rgba(255, 200, 100, 0.95), rgba(255, 150, 50, 0.7), rgba(255, 200, 100, 0.95)) border-box`,
                   }}
                   animate={{
                     boxShadow: isDraggingOver 
                       ? [
-                          '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)',
-                          '0 0 60px 20px rgba(255, 180, 50, 0.7), inset 0 0 40px rgba(255, 180, 50, 0.3)',
-                          '0 0 40px 15px rgba(255, 180, 50, 0.5), inset 0 0 30px rgba(255, 180, 50, 0.2)',
+                          '0 0 30px 10px rgba(255, 180, 50, 0.5), inset 0 0 40px rgba(255, 180, 50, 0.15)',
+                          '0 0 50px 15px rgba(255, 180, 50, 0.7), inset 0 0 60px rgba(255, 180, 50, 0.25)',
+                          '0 0 30px 10px rgba(255, 180, 50, 0.5), inset 0 0 40px rgba(255, 180, 50, 0.15)',
                         ]
                       : [
-                          '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
-                          '0 0 40px 12px rgba(255, 180, 50, 0.4), inset 0 0 25px rgba(255, 180, 50, 0.15)',
-                          '0 0 30px 8px rgba(255, 180, 50, 0.3), inset 0 0 20px rgba(255, 180, 50, 0.1)',
+                          '0 0 20px 8px rgba(255, 180, 50, 0.25), inset 0 0 30px rgba(255, 180, 50, 0.08)',
+                          '0 0 35px 12px rgba(255, 180, 50, 0.4), inset 0 0 50px rgba(255, 180, 50, 0.15)',
+                          '0 0 20px 8px rgba(255, 180, 50, 0.25), inset 0 0 30px rgba(255, 180, 50, 0.08)',
                         ],
                   }}
                   transition={{
-                    duration: 2.5,
+                    duration: isDraggingOver ? 1.2 : 2.5,
                     repeat: Infinity,
                     ease: 'easeInOut',
                   }}
                 />
                 
-                {/* Inner subtle glow */}
+                {/* Pulsing black core - the "living organism" */}
                 <motion.div
-                  className="absolute inset-8 rounded-full"
-                  style={{
-                    background: 'radial-gradient(circle, rgba(255, 200, 100, 0.08) 0%, transparent 70%)',
-                  }}
+                  className="absolute inset-6 rounded-full bg-black"
                   animate={{
-                    opacity: [0.5, 0.8, 0.5],
+                    scale: isDraggingOver ? [1, 0.92, 1] : [1, 0.96, 1],
+                    boxShadow: isDraggingOver 
+                      ? [
+                          'inset 0 0 40px 20px rgba(255, 180, 50, 0.15)',
+                          'inset 0 0 60px 30px rgba(255, 180, 50, 0.25)',
+                          'inset 0 0 40px 20px rgba(255, 180, 50, 0.15)',
+                        ]
+                      : [
+                          'inset 0 0 30px 15px rgba(255, 180, 50, 0.05)',
+                          'inset 0 0 50px 25px rgba(255, 180, 50, 0.12)',
+                          'inset 0 0 30px 15px rgba(255, 180, 50, 0.05)',
+                        ],
                   }}
                   transition={{
-                    duration: 3,
+                    duration: isDraggingOver ? 0.8 : 2,
                     repeat: Infinity,
                     ease: 'easeInOut',
                   }}
                 />
                 
-                {/* Pulsing attraction effect - only visible when dragging */}
-                <AnimatePresence>
-                  {isDraggingOver && (
-                    <>
-                      <motion.div
-                        className="absolute inset-2 rounded-full border border-codex-gold/60"
-                        initial={{ scale: 1.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 0.8 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                      />
-                      <motion.div
-                        className="absolute inset-0 rounded-full border border-codex-gold/40"
-                        initial={{ scale: 1.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 0.6 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2, repeat: Infinity }}
-                      />
-                    </>
-                  )}
-                </AnimatePresence>
+                {/* Inner glow pulse inside the black core */}
+                <motion.div
+                  className="absolute inset-12 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(255, 180, 50, 0.15) 0%, transparent 70%)',
+                  }}
+                  animate={{
+                    opacity: isDraggingOver ? [0.4, 1, 0.4] : [0.2, 0.6, 0.2],
+                    scale: isDraggingOver ? [0.8, 1.1, 0.8] : [0.9, 1.05, 0.9],
+                  }}
+                  transition={{
+                    duration: isDraggingOver ? 0.6 : 2,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                />
+                
+                {/* Sucking ripple effect - always visible, faster when dragging */}
+                <motion.div
+                  className="absolute inset-1 rounded-full border border-codex-gold/30"
+                  animate={{
+                    scale: [1.3, 1],
+                    opacity: [0, 0.6, 0],
+                  }}
+                  transition={{
+                    duration: isDraggingOver ? 0.8 : 2,
+                    repeat: Infinity,
+                    ease: 'easeOut',
+                  }}
+                />
+                <motion.div
+                  className="absolute inset-0 rounded-full border border-codex-gold/20"
+                  animate={{
+                    scale: [1.5, 1],
+                    opacity: [0, 0.4, 0],
+                  }}
+                  transition={{
+                    duration: isDraggingOver ? 0.8 : 2,
+                    delay: isDraggingOver ? 0.3 : 0.8,
+                    repeat: Infinity,
+                    ease: 'easeOut',
+                  }}
+                />
               </motion.button>
             </div>
             
@@ -522,10 +560,10 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               <p className="text-primary-foreground/50 mt-6 text-sm">{error}</p>
             )}
             
-            <p className="text-primary-foreground/30 text-xs mt-8">
+            <p className="text-primary-foreground/40 text-sm mt-8">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured • tap to add more`
-                : 'Tap or drag photos here'
+                : 'Drag or drop photos here'
               }
             </p>
             
