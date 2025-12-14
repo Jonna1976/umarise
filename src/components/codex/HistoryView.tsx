@@ -11,6 +11,7 @@ import { BookSpine } from './BookSpine';
 import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 import { EarlyInsights } from './EarlyInsights';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,6 +82,7 @@ export function HistoryView({
   onViewYearReflection,
   highlightPageId
 }: HistoryViewProps) {
+  const { isDemoMode } = useDemoMode();
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
@@ -245,152 +247,167 @@ export function HistoryView({
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <div className="flex items-center gap-3">
-            <h1 className="font-serif text-lg font-medium">Your Codex</h1>
-            <DemoModeToggle />
-          </div>
-          
-          <div className="flex items-center gap-1">
-            {onViewYearReflection && (
-              <button
-                onClick={onViewYearReflection}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                title="Jaarreflectie"
-              >
-                <Sparkles className="w-5 h-5 text-amber-500" />
-              </button>
-            )}
-            {onViewKompas && (
-              <button
-                onClick={onViewKompas}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                title={allPages.length >= 3 ? "Mijn Kompas" : `${3 - allPages.length} more pages needed`}
-              >
-                <Compass className="w-5 h-5 text-codex-gold" />
-                {allPages.length < 2 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
-                    {2 - allPages.length}
-                  </span>
-                )}
-              </button>
-            )}
-            {onViewPersonality && (
-              <button
-                onClick={onViewPersonality}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                title={allPages.length >= 5 ? "Your Personality" : `${5 - allPages.length} more pages needed`}
-              >
-                <Star className="w-5 h-5 text-amber-500" />
-                {allPages.length < 5 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
-                    {5 - allPages.length}
-                  </span>
-                )}
-              </button>
-            )}
-            {onViewPatterns ? (
-              <button
-                onClick={onViewPatterns}
-                className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                title={allPages.length >= 3 ? "View Patterns" : `${3 - allPages.length} more pages needed for patterns`}
-              >
-                <Brain className="w-5 h-5 text-codex-sepia" />
-                {allPages.length < 3 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
-                    {3 - allPages.length}
-                  </span>
-                )}
-              </button>
+          <div className="flex flex-col items-center gap-1">
+            {isDemoMode ? (
+              <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
             ) : (
-              <div className="w-10" />
+              <>
+                <h1 className="font-serif text-lg font-medium">Your Codex</h1>
+                <DemoModeToggle />
+              </>
             )}
-          </div>
-        </div>
-
-        {/* Enhanced Search bar */}
-        <div className="px-4 pb-3">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-codex-gold" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Doorzoek je hele codex..."
-              className="w-full pl-12 pr-12 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-gold/50 focus:border-codex-gold transition-all font-medium"
-              maxLength={100}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* View mode toggle + Time filters */}
-        <div className="flex items-center justify-between px-4 pb-2">
-          <div className="flex gap-2 overflow-x-auto">
-            {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
-                  filter === f
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }`}
-              >
-                {f === 'all' ? 'All' : f === '7days' ? '7 days' : '30 days'}
-              </button>
-            ))}
           </div>
           
-          {/* View mode toggle */}
-          <div className="flex bg-secondary rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('shelf')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Bookshelf"
-            >
-              <Library className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('covers')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'covers' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Book covers"
-            >
-              <BookOpen className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="List view"
-            >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('calendar')}
-              className={`p-1.5 rounded transition-colors ${
-                viewMode === 'calendar' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-              title="Calendar view"
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Right side: feature icons - hidden in demo mode */}
+          {isDemoMode ? (
+            <div className="w-10" />
+          ) : (
+            <div className="flex items-center gap-1">
+              {onViewYearReflection && (
+                <button
+                  onClick={onViewYearReflection}
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title="Jaarreflectie"
+                >
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                </button>
+              )}
+              {onViewKompas && (
+                <button
+                  onClick={onViewKompas}
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title={allPages.length >= 3 ? "Mijn Kompas" : `${3 - allPages.length} more pages needed`}
+                >
+                  <Compass className="w-5 h-5 text-codex-gold" />
+                  {allPages.length < 2 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
+                      {2 - allPages.length}
+                    </span>
+                  )}
+                </button>
+              )}
+              {onViewPersonality && (
+                <button
+                  onClick={onViewPersonality}
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title={allPages.length >= 5 ? "Your Personality" : `${5 - allPages.length} more pages needed`}
+                >
+                  <Star className="w-5 h-5 text-amber-500" />
+                  {allPages.length < 5 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
+                      {5 - allPages.length}
+                    </span>
+                  )}
+                </button>
+              )}
+              {onViewPatterns ? (
+                <button
+                  onClick={onViewPatterns}
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title={allPages.length >= 3 ? "View Patterns" : `${3 - allPages.length} more pages needed for patterns`}
+                >
+                  <Brain className="w-5 h-5 text-codex-sepia" />
+                  {allPages.length < 3 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[9px] font-bold flex items-center justify-center border border-background">
+                      {3 - allPages.length}
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <div className="w-10" />
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Tone quick filters */}
-        {usedTones.length > 0 && (
+        {/* Enhanced Search bar - hidden in demo mode */}
+        {!isDemoMode && (
+          <div className="px-4 pb-3">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-codex-gold" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Doorzoek je hele codex..."
+                className="w-full pl-12 pr-12 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-gold/50 focus:border-codex-gold transition-all font-medium"
+                maxLength={100}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* View mode toggle + Time filters - hidden in demo mode */}
+        {!isDemoMode && (
+          <div className="flex items-center justify-between px-4 pb-2">
+            <div className="flex gap-2 overflow-x-auto">
+              {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
+                    filter === f
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
+                >
+                  {f === 'all' ? 'All' : f === '7days' ? '7 days' : '30 days'}
+                </button>
+              ))}
+            </div>
+            
+            {/* View mode toggle */}
+            <div className="flex bg-secondary rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('shelf')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Bookshelf"
+              >
+                <Library className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('covers')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'covers' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Book covers"
+              >
+                <BookOpen className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'calendar' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Calendar view"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tone quick filters - hidden in demo mode */}
+        {!isDemoMode && usedTones.length > 0 && (
           <div className="flex gap-2 px-4 pb-2 overflow-x-auto">
             <button
               onClick={() => setToneFilter('all')}
@@ -418,8 +435,8 @@ export function HistoryView({
           </div>
         )}
 
-        {/* Primary keyword filter */}
-        {primaryKeywords.length > 0 && (
+        {/* Primary keyword filter - hidden in demo mode */}
+        {!isDemoMode && primaryKeywords.length > 0 && (
           <div className="flex gap-2 px-4 pb-3 overflow-x-auto">
             <button
               onClick={() => setKeywordFilter('all')}
@@ -447,25 +464,27 @@ export function HistoryView({
           </div>
         )}
         
-        {/* Paper filter toggle */}
-        <div className="flex justify-end px-4 pb-2">
-          <button
-            onClick={() => setPaperFilter(!paperFilter)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors ${
-              paperFilter
-                ? 'bg-codex-gold/20 text-codex-gold'
-                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-            }`}
-            title={paperFilter ? 'Show original colors' : 'Apply paper filter'}
-          >
-            <SlidersHorizontal className="w-3 h-3" />
-            {paperFilter ? 'Paper filter on' : 'Original'}
-          </button>
-        </div>
+        {/* Paper filter toggle - hidden in demo mode */}
+        {!isDemoMode && (
+          <div className="flex justify-end px-4 pb-2">
+            <button
+              onClick={() => setPaperFilter(!paperFilter)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors ${
+                paperFilter
+                  ? 'bg-codex-gold/20 text-codex-gold'
+                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+              }`}
+              title={paperFilter ? 'Show original colors' : 'Apply paper filter'}
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              {paperFilter ? 'Paper filter on' : 'Original'}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Active filters summary */}
-      {(searchQuery || toneFilter !== 'all' || keywordFilter !== 'all' || filter !== 'all') && (
+      {/* Active filters summary - hidden in demo mode */}
+      {!isDemoMode && (searchQuery || toneFilter !== 'all' || keywordFilter !== 'all' || filter !== 'all') && (
         <div className="px-4 py-2 bg-codex-gold/5 border-b border-border">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-muted-foreground">Filters:</span>
@@ -516,22 +535,22 @@ export function HistoryView({
         </div>
       )}
 
-      {/* Codex Growth Indicator - shown when few pages */}
-      {allPages.length > 0 && allPages.length < 10 && (
+      {/* Codex Growth Indicator - shown when few pages, hidden in demo mode */}
+      {!isDemoMode && allPages.length > 0 && allPages.length < 10 && (
         <div className="mx-4 mb-4">
           <CodexGrowthIndicator pageCount={allPages.length} />
         </div>
       )}
 
-      {/* Early Insights - connections found with just a few pages */}
-      {allPages.length >= 2 && allPages.length < 5 && (
+      {/* Early Insights - connections found with just a few pages, hidden in demo mode */}
+      {!isDemoMode && allPages.length >= 2 && allPages.length < 5 && (
         <div className="mx-4 mb-4">
           <EarlyInsights pages={allPages} latestPage={allPages[0]} />
         </div>
       )}
 
-      {/* Insights Section - for 5+ pages */}
-      {allPages.length >= 5 && <InsightsSection pages={filteredPages} />}
+      {/* Insights Section - for 5+ pages, hidden in demo mode */}
+      {!isDemoMode && allPages.length >= 5 && <InsightsSection pages={filteredPages} />}
 
       {/* View Content */}
       <AnimatePresence mode="wait">
