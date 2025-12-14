@@ -33,6 +33,7 @@ interface HistoryViewProps {
   onViewPersonality?: () => void;
   onViewKompas?: () => void;
   onViewYearReflection?: () => void;
+  highlightPageId?: string;
 }
 
 type TimeFilter = 'all' | '7days' | '30days';
@@ -77,7 +78,8 @@ export function HistoryView({
   onViewPatterns,
   onViewPersonality,
   onViewKompas,
-  onViewYearReflection
+  onViewYearReflection,
+  highlightPageId
 }: HistoryViewProps) {
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
@@ -757,6 +759,12 @@ export function HistoryView({
                         }}
                         index={index}
                         projects={projects}
+                        isHighlighted={
+                          highlightPageId && (
+                            (item.type === 'page' && item.page.id === highlightPageId) ||
+                            (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                          )
+                        }
                       />
                     </div>
                   ))}
