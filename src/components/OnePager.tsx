@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Download, Share2, Database, Brain, Layers, Users, Shield, TrendingUp } from "lucide-react";
+import { X, Download, Share2, Database, Sparkles, Layers, Users, Shield, TrendingUp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getDeviceId } from "@/lib/deviceId";
@@ -11,7 +11,7 @@ interface OnePagerProps {
 
 interface Metrics {
   pageCount: number;
-  snapshotCount: number;
+  themeCount: number;
   uniqueDays: number;
   oldestPage: string | null;
 }
@@ -19,7 +19,7 @@ interface Metrics {
 const OnePager = ({ onClose }: OnePagerProps) => {
   const [metrics, setMetrics] = useState<Metrics>({
     pageCount: 0,
-    snapshotCount: 0,
+    themeCount: 0,
     uniqueDays: 0,
     oldestPage: null,
   });
@@ -47,7 +47,7 @@ const OnePager = ({ onClose }: OnePagerProps) => {
 
       setMetrics({
         pageCount: pages.length,
-        snapshotCount: snapshotsRes.data?.length || 0,
+        themeCount: snapshotsRes.data?.length || 0,
         uniqueDays,
         oldestPage: pages[0]?.created_at || null,
       });
@@ -64,7 +64,7 @@ const OnePager = ({ onClose }: OnePagerProps) => {
     if (navigator.share) {
       await navigator.share({
         title: "Umarise - Universal Memory Layer",
-        text: "Transform handwritten knowledge into a searchable, longitudinal Codex.",
+        text: "Most tools help you do more. Umarise helps humanity remember.",
         url: window.location.origin,
       });
     }
@@ -111,9 +111,16 @@ const OnePager = ({ onClose }: OnePagerProps) => {
             <p className="text-xl text-amber-500 font-medium mb-4">
               Universal Memory Layer
             </p>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Transform handwritten knowledge into a searchable, longitudinal Codex.
-              Your ideas compound. Your patterns emerge. Your direction becomes clear.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-2">
+              Most tools help you do more. Umarise helps humanity remember.
+            </p>
+            <p className="text-sm text-muted-foreground/80 max-w-xl mx-auto">
+              This is not a productivity company. This is memory infrastructure.
+            </p>
+            <p className="text-base text-foreground/90 max-w-2xl mx-auto mt-4">
+              Transform handwriting into a searchable, longitudinal Codex.
+              <br />
+              <span className="text-amber-500">Every capture compounds the value of your memory.</span>
             </p>
           </div>
 
@@ -125,14 +132,14 @@ const OnePager = ({ onClose }: OnePagerProps) => {
               icon={<Database className="w-5 h-5" />}
             />
             <MetricCard
-              label="Personality Snapshots"
-              value={metrics.snapshotCount}
-              icon={<Brain className="w-5 h-5" />}
-            />
-            <MetricCard
               label="Active Days"
               value={metrics.uniqueDays}
               icon={<TrendingUp className="w-5 h-5" />}
+            />
+            <MetricCard
+              label="Theme Snapshots"
+              value={metrics.themeCount}
+              icon={<Sparkles className="w-5 h-5" />}
             />
             <MetricCard
               label="Days Running"
@@ -152,9 +159,9 @@ const OnePager = ({ onClose }: OnePagerProps) => {
               </h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li>• Handwritten knowledge is fragmented and non-discoverable</li>
-                <li>• Notebooks pile up, ideas get lost, patterns stay invisible</li>
+                <li>• Notebooks pile up; insights stay invisible</li>
                 <li>• Existing tools force migration away from paper</li>
-                <li>• No longitudinal view of your thinking evolution</li>
+                <li>• No longitudinal view of your thinking over time</li>
               </ul>
             </div>
 
@@ -165,12 +172,20 @@ const OnePager = ({ onClose }: OnePagerProps) => {
                 </span>
                 The Solution
               </h2>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>• Photo your pages → AI reads, summarizes, connects</li>
-                <li>• Patterns emerge across weeks and months</li>
-                <li>• Personality profile reveals your core drivers</li>
-                <li>• Threads show your long-term direction</li>
+              <p className="text-amber-500 font-medium mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                One action. Immediate value.
+              </p>
+              <ul className="space-y-2 text-muted-foreground text-sm">
+                <li>• Open Umarise → camera opens instantly</li>
+                <li>• Capture a page → Codex updates immediately</li>
+                <li>• <strong>Snapshot:</strong> editable summary of what this page is about</li>
+                <li>• <strong>Thread signal:</strong> "you've returned to this theme for 11 months"</li>
+                <li>• <strong>Source of truth:</strong> original page always preserved</li>
               </ul>
+              <p className="text-xs text-muted-foreground/80 mt-3 italic">
+                No organization work required. Value compounds every capture.
+              </p>
             </div>
           </div>
 
@@ -179,15 +194,13 @@ const OnePager = ({ onClose }: OnePagerProps) => {
             <h2 className="text-xl font-semibold text-foreground mb-4">
               Technical Capabilities (Built)
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <CapabilityItem title="Capture Loop" desc="Camera → OCR → AI Summary" />
-              <CapabilityItem title="Pattern Analysis" desc="Themes, tones, keywords" />
-              <CapabilityItem title="Personality Engine" desc="Voice + Influences profiles" />
-              <CapabilityItem title="Thread Detection" desc="Long-term recurring themes" />
-              <CapabilityItem title="Kompas View" desc="Visual direction anchor" />
-              <CapabilityItem title="Full-text Search" desc="Find any handwritten word" />
-              <CapabilityItem title="Privacy-first" desc="No login, device-based ID" />
-              <CapabilityItem title="Partner-ready API" desc="Abstraction layer built" />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              <CapabilityItem title="Capture Loop" desc="Camera-first capture designed for messy handwriting" />
+              <CapabilityItem title="Codex Timeline + Search" desc="Find anything later—across notebooks and years" />
+              <CapabilityItem title="Threads & Patterns" desc="Recurring themes and long-term direction over time" />
+              <CapabilityItem title="Trust Layer" desc="Original always visible + confidence + edit + audit trail" />
+              <CapabilityItem title="Voice & Themes" desc="Your voice profile + what influences you" />
+              <CapabilityItem title="Portability (Vault API)" desc="Backend swappable via abstraction layer" />
             </div>
           </div>
 
@@ -199,12 +212,15 @@ const OnePager = ({ onClose }: OnePagerProps) => {
                 Partner Model
               </h2>
               <p className="text-muted-foreground mb-4">
-                Brands keep their format and ritual. Umarise provides the memory infrastructure.
+                Brands keep their format and ritual.
+                <br />
+                <span className="text-amber-500">Umarise provides the memory engine underneath.</span>
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• <strong>Moleskine</strong> → Premium notebook + Codex</li>
-                <li>• <strong>TFMJ</strong> → Journal ritual + Memory layer</li>
-                <li>• <strong>Field Notes</strong> → Quick capture + Thread detection</li>
+                <li>• <strong>Moleskine</strong> → premium notebook + Codex memory layer</li>
+                <li>• <strong>TFMJ</strong> → journaling ritual + memory layer</li>
+                <li>• <strong>Field Notes</strong> → quick capture + thread detection</li>
+                <li>• <strong>Research/Writers</strong> → notebooks → searchable longitudinal Codex</li>
               </ul>
             </div>
 
@@ -214,21 +230,30 @@ const OnePager = ({ onClose }: OnePagerProps) => {
                 Defensible Moat
               </h2>
               <ul className="space-y-2 text-muted-foreground">
-                <li>• <strong>Capture UX:</strong> Zero friction, camera-first</li>
-                <li>• <strong>Codex Graph:</strong> Longitudinal semantic mapping</li>
-                <li>• <strong>Mirror Philosophy:</strong> Reflects, never prescribes</li>
-                <li>• <strong>Data Ownership:</strong> Export anytime, your data</li>
+                <li>• <strong>Capture UX:</strong> habit ownership, zero friction</li>
+                <li>• <strong>Codex Graph:</strong> longitudinal semantic mapping</li>
+                <li>• <strong>Standard:</strong> one memory layer under every paper format</li>
+                <li>• <strong>Compounding:</strong> time makes the Codex irreplaceable</li>
+                <li>• <strong>Partner Pull:</strong> brands adopt the engine instead of rebuilding</li>
+                <li>• <strong>Data Ownership:</strong> export/delete anytime</li>
               </ul>
             </div>
+          </div>
+
+          {/* Takeaway */}
+          <div className="text-center py-4 bg-amber-500/10 rounded-lg">
+            <p className="text-foreground font-medium">
+              Storage stores. Journaling guides. Notes organize. <span className="text-amber-500">Umarise remembers.</span>
+            </p>
           </div>
 
           {/* Footer */}
           <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
             <p className="mb-2">
-              <strong>Target Users:</strong> Founders, writers, students, designers, researchers — people who think on paper
+              <strong>Target users:</strong> founders, writers, researchers, creators—people who think on paper.
             </p>
             <p className="text-amber-500 font-medium">
-              "Your inner world becomes a living universe"
+              Photos for handwriting.
             </p>
           </div>
         </div>
