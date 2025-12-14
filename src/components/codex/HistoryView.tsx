@@ -10,6 +10,7 @@ import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
 import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 import { EarlyInsights } from './EarlyInsights';
+import { DemoModeToggle } from '@/components/DemoModeToggle';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -242,8 +243,10 @@ export function HistoryView({
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          
-          <h1 className="font-serif text-lg font-medium">Your Codex</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-serif text-lg font-medium">Your Codex</h1>
+            <DemoModeToggle />
+          </div>
           
           <div className="flex items-center gap-1">
             {onViewYearReflection && (

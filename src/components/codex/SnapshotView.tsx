@@ -17,6 +17,7 @@ interface SnapshotViewProps {
   onViewHistory: () => void;
   isNewCapture?: boolean;
   onPageUpdate?: (page: Page) => void;
+  isDemoMode?: boolean;
 }
 
 function getToneClass(tone: string): string {
@@ -31,7 +32,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
@@ -211,8 +212,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Topic input - only for new captures */}
-        {isNewCapture && (
+        {/* Topic input - only for new captures, hidden in Demo Mode */}
+        {isNewCapture && !isDemoMode && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

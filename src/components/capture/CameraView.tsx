@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
@@ -11,6 +12,7 @@ interface CameraViewProps {
 }
 
 export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: CameraViewProps) {
+  const { isDemoMode } = useDemoMode();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -634,6 +636,19 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         >
           <BookOpen className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
         </button>
+        
+        {/* Demo Mode one-liner - centered */}
+        {isDemoMode && !capturedImage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute left-1/2 -translate-x-1/2"
+          >
+            <p className="text-primary-foreground/90 font-serif text-sm italic tracking-wide whitespace-nowrap">
+              Photos for handwriting.
+            </p>
+          </motion.div>
+        )}
         
         {capturedImage && (
           <button
