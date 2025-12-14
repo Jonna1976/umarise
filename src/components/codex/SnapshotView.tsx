@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2 } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X } from 'lucide-react';
 import { Page, updatePage, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
@@ -467,42 +467,51 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Actions */}
+        {/* Actions - Icon buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="space-y-3"
+          className="flex justify-center gap-8"
         >
           {isNewCapture ? (
             <>
-              <Button
+              {/* Timeline icon */}
+              <button
                 onClick={onViewHistory}
-                size="lg"
-                className="w-full bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep"
+                className="flex flex-col items-center gap-2 group"
               >
-                View timeline
-              </Button>
-              <Button
+                <div className="w-14 h-14 rounded-full bg-codex-gold/20 border border-codex-gold/40 flex items-center justify-center group-hover:bg-codex-gold/30 transition-colors">
+                  <BookOpen className="w-6 h-6 text-codex-gold" />
+                </div>
+                <span className="text-xs text-codex-gold font-medium">Timeline</span>
+              </button>
+              
+              {/* Capture another icon */}
+              <button
                 onClick={handleCloseWithSave}
                 disabled={isSaving}
-                variant="outline"
-                size="lg"
-                className="w-full border-codex-cream/20 text-codex-cream hover:bg-codex-cream/10"
+                className="flex flex-col items-center gap-2 group disabled:opacity-50"
               >
-                {isSaving ? 'Saving...' : 'Capture another'}
-              </Button>
+                <div className="w-14 h-14 rounded-full bg-codex-cream/10 border border-codex-cream/30 flex items-center justify-center group-hover:bg-codex-cream/20 transition-colors">
+                  <Camera className="w-6 h-6 text-codex-cream" />
+                </div>
+                <span className="text-xs text-codex-cream/80 font-medium">
+                  {isSaving ? 'Saving...' : 'Capture'}
+                </span>
+              </button>
             </>
           ) : (
-            <Button
+            <button
               onClick={handleCloseWithSave}
               disabled={isSaving}
-              variant="outline"
-              size="lg"
-              className="w-full border-codex-cream/20 text-codex-cream hover:bg-codex-cream/10"
+              className="flex flex-col items-center gap-2 group disabled:opacity-50"
             >
-              Close
-            </Button>
+              <div className="w-14 h-14 rounded-full bg-codex-cream/10 border border-codex-cream/30 flex items-center justify-center group-hover:bg-codex-cream/20 transition-colors">
+                <X className="w-6 h-6 text-codex-cream" />
+              </div>
+              <span className="text-xs text-codex-cream/80 font-medium">Close</span>
+            </button>
           )}
         </motion.div>
       </div>
