@@ -70,41 +70,41 @@
   }
 
   .dark {
-    /* Deep teal/forest green inspired by Rising app */
-    --background: 165 25% 10%;
-    --foreground: 40 30% 96%;
+    /* Warm beige/cream like Rising app */
+    --background: 42 35% 94%;
+    --foreground: 160 25% 12%;
 
-    --card: 42 35% 95%;
+    --card: 42 40% 97%;
     --card-foreground: 160 20% 12%;
 
-    --popover: 42 35% 95%;
+    --popover: 42 40% 97%;
     --popover-foreground: 160 20% 12%;
 
-    --primary: 38 55% 50%;
-    --primary-foreground: 165 25% 10%;
+    --primary: 38 55% 45%;
+    --primary-foreground: 42 35% 96%;
 
-    --secondary: 160 15% 18%;
-    --secondary-foreground: 40 30% 96%;
+    --secondary: 38 25% 88%;
+    --secondary-foreground: 160 20% 15%;
 
-    --muted: 160 12% 20%;
-    --muted-foreground: 40 20% 75%;
+    --muted: 35 20% 85%;
+    --muted-foreground: 160 15% 40%;
 
-    --accent: 38 50% 55%;
-    --accent-foreground: 165 25% 10%;
+    --accent: 38 50% 50%;
+    --accent-foreground: 42 35% 96%;
 
     --destructive: 0 55% 45%;
     --destructive-foreground: 40 40% 98%;
 
-    --border: 160 12% 22%;
-    --input: 160 12% 22%;
-    --ring: 38 55% 50%;
+    --border: 35 20% 82%;
+    --input: 35 20% 82%;
+    --ring: 38 55% 45%;
 
     --codex-paper: 42 35% 95%;
     --codex-ink: 160 25% 12%;
     --codex-ink-deep: 165 30% 8%;
     --codex-sepia: 32 50% 55%;
-    --codex-gold: 38 60% 55%;
-    --codex-gold-muted: 42 30% 60%;
+    --codex-gold: 38 55% 45%;
+    --codex-gold-muted: 42 30% 55%;
     --codex-cream: 42 35% 95%;
     --codex-teal: 165 25% 18%;
     --codex-forest: 160 20% 15%;

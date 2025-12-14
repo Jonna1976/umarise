@@ -213,7 +213,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-teal flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       {/* Hidden elements */}
       <canvas ref={canvasRef} className="hidden" />
       <input
@@ -234,17 +234,17 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             exit={{ opacity: 0, y: -50 }}
             className="absolute top-16 left-0 right-0 z-20 p-3"
           >
-            <div className="bg-codex-ink/90 backdrop-blur-md rounded-xl p-3 border border-primary-foreground/20">
+            <div className="bg-card/95 backdrop-blur-md rounded-xl p-3 border border-border shadow-lg">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Images className="w-4 h-4 text-codex-gold" />
-                  <span className="text-primary-foreground text-sm font-medium">
+                  <Images className="w-4 h-4 text-primary" />
+                  <span className="text-foreground text-sm font-medium">
                     {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'} in capsule
                   </span>
                 </div>
                 <button
                   onClick={cancelMultiMode}
-                  className="text-primary-foreground/50 hover:text-primary-foreground text-xs"
+                  className="text-muted-foreground hover:text-foreground text-xs"
                 >
                   Cancel
                 </button>
@@ -267,27 +267,27 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                     <img
                       src={img}
                       alt={`Page ${index + 1}`}
-                      className="w-12 h-16 object-cover rounded-lg border border-primary-foreground/20"
+                      className="w-12 h-16 object-cover rounded-lg border border-border"
                     />
                     {/* Drag handle indicator */}
                     <div className="absolute inset-x-0 top-0 flex justify-center">
-                      <GripVertical className="w-3 h-3 text-primary-foreground/40" />
+                      <GripVertical className="w-3 h-3 text-muted-foreground" />
                     </div>
-                    <span className="absolute bottom-0.5 left-0.5 bg-codex-ink/80 text-primary-foreground text-[10px] px-1 rounded">
+                    <span className="absolute bottom-0.5 left-0.5 bg-background/80 text-foreground text-[10px] px-1 rounded">
                       {index + 1}
                     </span>
                     {/* Neutral delete button (not red) */}
                     <button
                       onClick={() => removeFromCollection(index)}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-primary-foreground/20 hover:bg-primary-foreground/40 rounded-full flex items-center justify-center transition-colors"
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-muted hover:bg-muted-foreground/30 rounded-full flex items-center justify-center transition-colors"
                     >
-                      <X className="w-3 h-3 text-primary-foreground" />
+                      <X className="w-3 h-3 text-foreground" />
                     </button>
                   </motion.div>
                 ))}
               </div>
               
-              <p className="text-primary-foreground/40 text-[10px] mt-2 text-center">
+              <p className="text-muted-foreground text-[10px] mt-2 text-center">
                 Drag to reorder
               </p>
             </div>
