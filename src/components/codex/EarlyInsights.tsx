@@ -104,11 +104,11 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-codex-gold/10 border border-purple-500/20"
+      className="p-4 rounded-2xl bg-gradient-to-br from-codex-gold/10 to-codex-forest/10 border border-codex-gold/20"
     >
       <div className="flex items-center gap-2 mb-3">
-        <Zap className="w-4 h-4 text-purple-400" />
-        <span className="text-sm font-medium text-foreground">Early Patterns Detected</span>
+        <Zap className="w-4 h-4 text-codex-gold" />
+        <span className="text-sm font-medium text-codex-cream">Patterns emerging</span>
       </div>
 
       {/* Latest page connection highlight */}
@@ -138,7 +138,7 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
       {/* Keyword connections */}
       {hasConnections && (
         <div className="mb-3">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+          <div className="flex items-center gap-1.5 text-xs text-codex-cream/60 mb-2">
             <Link2 className="w-3 h-3" />
             <span>Recurring themes across pages:</span>
           </div>
@@ -148,10 +148,10 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
                 key={conn.keyword}
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-codex-cream/10"
               >
-                <span className="text-sm text-foreground">{conn.keyword}</span>
-                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+                <span className="text-sm text-codex-cream">{conn.keyword}</span>
+                <span className="text-[10px] text-codex-cream/60 bg-codex-cream/10 px-1.5 py-0.5 rounded-full">
                   {conn.count}×
                 </span>
               </motion.div>
@@ -163,7 +163,7 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
       {/* Tone patterns */}
       {hasPatterns && (
         <div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+          <div className="flex items-center gap-1.5 text-xs text-codex-cream/60 mb-2">
             <TrendingUp className="w-3 h-3" />
             <span>Your writing mood:</span>
           </div>
@@ -171,11 +171,7 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
             {insights.tonePatterns.map(pattern => (
               <span
                 key={pattern.tone}
-                className={`px-2.5 py-1 rounded-full text-sm capitalize ${
-                  pattern.trend === 'stable' 
-                    ? 'bg-tone-focused/20 text-tone-focused' 
-                    : 'bg-tone-hopeful/20 text-tone-hopeful'
-                }`}
+                className="px-2.5 py-1 rounded-full text-sm capitalize bg-codex-gold/20 text-codex-gold"
               >
                 {pattern.tone}
                 {pattern.trend === 'stable' && ' (consistent)'}
@@ -190,9 +186,9 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-3 pt-3 border-t border-border/50 text-center"
+        className="mt-3 pt-3 border-t border-codex-gold/20 text-center"
       >
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-codex-cream/60">
           {insights.totalKeywords} unique ideas captured • 
           {insights.connections.length > 0 && ` ${insights.connections.length} emerging threads`}
         </span>

@@ -32,6 +32,7 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isNewCapture, setIsNewCapture] = useState(false);
   const [showTestPanel, setShowTestPanel] = useState(false);
+  const [highlightPageId, setHighlightPageId] = useState<string | null>(null);
   
   // Use real pages from database
   const { pages, createPage, createCapsule, addToCapsule, updatePage, deletePage, refresh } = usePages();
@@ -181,9 +182,15 @@ const Index = () => {
   }, []);
 
   const handleOpenHistory = useCallback(() => {
+    // If coming from a new capture, highlight that page in the timeline
+    if (isNewCapture && currentPage) {
+      setHighlightPageId(currentPage.id);
+      // Clear highlight after animation completes
+      setTimeout(() => setHighlightPageId(null), 5000);
+    }
     setIsNewCapture(false);
     setView('history');
-  }, []);
+  }, [isNewCapture, currentPage]);
 
   const handleSelectPage = useCallback((page: Page) => {
     setCurrentPage(page);
@@ -321,6 +328,7 @@ const Index = () => {
             onViewPersonality={isDemoMode ? undefined : handleViewPersonality}
             onViewKompas={isDemoMode ? undefined : handleViewKompas}
             onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
+            highlightPageId={highlightPageId || undefined}
           />
         );
       

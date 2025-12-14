@@ -8,6 +8,7 @@ interface BookSpineProps {
   onClick: () => void;
   index: number;
   projects?: Project[];
+  isHighlighted?: boolean;
 }
 
 // Extract a short title for the spine
@@ -77,7 +78,7 @@ function getSpineColor(tones: string[]): {
   return toneMap[primaryTone] || toneMap.reflective;
 }
 
-export function BookSpine({ page, capsule, onClick, index, projects = [] }: BookSpineProps) {
+export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted }: BookSpineProps) {
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
   
@@ -96,9 +97,24 @@ export function BookSpine({ page, capsule, onClick, index, projects = [] }: Book
 
   return (
     <motion.button
-      initial={{ opacity: 0, x: 20, rotateY: -15 }}
-      animate={{ opacity: 1, x: 0, rotateY: 0 }}
-      transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
+      initial={isHighlighted ? { opacity: 0, scale: 0.8, y: -40 } : { opacity: 0, x: 20, rotateY: -15 }}
+      animate={{ 
+        opacity: 1, 
+        scale: 1,
+        x: 0, 
+        y: 0,
+        rotateY: 0 
+      }}
+      transition={isHighlighted ? { 
+        type: 'spring', 
+        stiffness: 80, 
+        damping: 12,
+        delay: 0.1
+      } : { 
+        delay: index * 0.05, 
+        type: 'spring', 
+        stiffness: 100 
+      }}
       whileHover={{ 
         y: -8, 
         scale: 1.02,
@@ -114,9 +130,26 @@ export function BookSpine({ page, capsule, onClick, index, projects = [] }: Book
         transition-shadow duration-300
         overflow-hidden
         group
+        ${isHighlighted ? 'ring-2 ring-codex-gold ring-offset-2 ring-offset-background' : ''}
       `}
       style={{ width: spineWidth }}
     >
+      {/* Highlighted glow animation */}
+      {isHighlighted && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ 
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{ 
+            duration: 1.5, 
+            repeat: 3,
+            ease: 'easeInOut'
+          }}
+          className="absolute inset-0 bg-codex-gold/30 pointer-events-none"
+        />
+      )}
+      
       {/* Spine texture overlay */}
       <div 
         className="absolute inset-0 opacity-10"
