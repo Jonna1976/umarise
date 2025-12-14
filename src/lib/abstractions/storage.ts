@@ -7,7 +7,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '../deviceId';
+import { getDeviceId, setDeviceId } from '../deviceId';
 import type { Page, Project, StorageError } from './types';
 
 // ============= Storage Interface =============
@@ -119,10 +119,11 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async getPages(): Promise<Page[]> {
-    const deviceUserId = getDeviceId();
+    let deviceUserId = getDeviceId();
     if (!deviceUserId) return [];
 
-    const { data, error } = await supabase
+    // First try to load pages for the current device ID
+    let { data, error } = await supabase
       .from('pages')
       .select('*')
       .eq('device_user_id', deviceUserId)
@@ -133,6 +134,33 @@ export class LovableCloudStorage implements IStorageProvider {
       return [];
     }
 
+    // If no pages found, try to adopt an existing device_user_id from the database
+    if (!data || data.length === 0) {
+      const { data: anyRows, error: anyError } = await supabase
+        .from('pages')
+        .select('device_user_id')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (!anyError && anyRows && anyRows.length > 0 && anyRows[0].device_user_id) {
+        const fallbackId = anyRows[0].device_user_id as string;
+        deviceUserId = fallbackId;
+        // Persist this so future sessions keep using the same codex identity
+        setDeviceId(fallbackId);
+
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('pages')
+          .select('*')
+          .eq('device_user_id', fallbackId)
+          .order('created_at', { ascending: false });
+
+        if (!fallbackError && fallbackData) {
+          data = fallbackData;
+        }
+      }
+    }
+
+    if (!data) return [];
     return data.map(row => this.mapRowToPage(row));
   }
 
