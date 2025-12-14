@@ -255,23 +255,39 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
         </motion.div>
 
-        {/* AI Keywords */}
+        {/* AI Keywords - tappable to highlight */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="mb-4"
         >
-          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Keywords</p>
+          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">
+            Keywords <span className="normal-case opacity-60">(tap to highlight)</span>
+          </p>
           <div className="flex flex-wrap gap-2">
-            {page.keywords.map((keyword) => (
-              <span
-                key={keyword}
-                className="px-3 py-1 rounded-full text-sm bg-codex-cream/10 text-codex-cream/80 border border-codex-cream/20"
-              >
-                {keyword}
-              </span>
-            ))}
+            {page.keywords.map((keyword) => {
+              const isPrimary = primaryKeyword === keyword;
+              return (
+                <button
+                  key={keyword}
+                  onClick={() => {
+                    if (primaryKeyword === keyword) {
+                      setPrimaryKeyword('');
+                    } else {
+                      setPrimaryKeyword(keyword);
+                    }
+                  }}
+                  className={`px-3 py-1 rounded-full text-sm transition-all ${
+                    isPrimary 
+                      ? 'bg-codex-gold text-codex-ink-deep ring-2 ring-codex-gold/50' 
+                      : 'bg-codex-cream/10 text-codex-cream/80 border border-codex-cream/20 hover:bg-codex-cream/20'
+                  }`}
+                >
+                  {keyword}
+                </button>
+              );
+            })}
           </div>
         </motion.div>
 
