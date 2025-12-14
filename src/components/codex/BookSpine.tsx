@@ -22,7 +22,7 @@ function extractSpineTitle(page: Page): string {
   return page.summary.split(' ').slice(0, 3).join(' ');
 }
 
-// Get spine color based on tone
+// Get spine color based on tone - natural palette only
 function getSpineColor(tones: string[]): { 
   bg: string; 
   text: string;
@@ -30,46 +30,47 @@ function getSpineColor(tones: string[]): {
 } {
   const primaryTone = tones[0]?.toLowerCase() || 'reflective';
   
+  // Natural color palette: teal, forest, cream, gold, stone variations
   const toneMap: Record<string, { bg: string; text: string; border: string }> = {
     focused: {
-      bg: 'bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900',
-      text: 'text-slate-100',
-      border: 'border-slate-600'
+      bg: 'bg-gradient-to-b from-[hsl(165,25%,18%)] via-[hsl(160,25%,14%)] to-[hsl(165,30%,10%)]',
+      text: 'text-[hsl(42,35%,92%)]',
+      border: 'border-[hsl(38,45%,40%)]'
     },
     hopeful: {
-      bg: 'bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600',
-      text: 'text-amber-950',
-      border: 'border-amber-300'
+      bg: 'bg-gradient-to-b from-[hsl(38,40%,50%)] via-[hsl(38,35%,45%)] to-[hsl(38,30%,38%)]',
+      text: 'text-[hsl(160,25%,10%)]',
+      border: 'border-[hsl(38,45%,60%)]'
     },
     frustrated: {
-      bg: 'bg-gradient-to-b from-rose-600 via-rose-700 to-rose-800',
-      text: 'text-rose-100',
-      border: 'border-rose-500'
+      bg: 'bg-gradient-to-b from-[hsl(160,20%,22%)] via-[hsl(160,18%,18%)] to-[hsl(160,15%,14%)]',
+      text: 'text-[hsl(42,30%,85%)]',
+      border: 'border-[hsl(160,15%,30%)]'
     },
     playful: {
-      bg: 'bg-gradient-to-b from-violet-400 via-violet-500 to-violet-600',
-      text: 'text-violet-950',
-      border: 'border-violet-300'
+      bg: 'bg-gradient-to-b from-[hsl(42,40%,88%)] via-[hsl(42,35%,85%)] to-[hsl(42,30%,80%)]',
+      text: 'text-[hsl(160,25%,15%)]',
+      border: 'border-[hsl(38,30%,70%)]'
     },
     overwhelmed: {
-      bg: 'bg-gradient-to-b from-gray-500 via-gray-600 to-gray-700',
-      text: 'text-gray-100',
-      border: 'border-gray-400'
+      bg: 'bg-gradient-to-b from-[hsl(160,12%,28%)] via-[hsl(160,10%,24%)] to-[hsl(160,8%,20%)]',
+      text: 'text-[hsl(42,25%,80%)]',
+      border: 'border-[hsl(160,10%,35%)]'
     },
     reflective: {
-      bg: 'bg-gradient-to-b from-stone-300 via-stone-400 to-stone-500',
-      text: 'text-stone-900',
-      border: 'border-stone-200'
+      bg: 'bg-gradient-to-b from-[hsl(42,35%,90%)] via-[hsl(40,30%,85%)] to-[hsl(38,25%,80%)]',
+      text: 'text-[hsl(160,25%,15%)]',
+      border: 'border-[hsl(35,20%,75%)]'
     },
     curious: {
-      bg: 'bg-gradient-to-b from-cyan-400 via-cyan-500 to-cyan-600',
-      text: 'text-cyan-950',
-      border: 'border-cyan-300'
+      bg: 'bg-gradient-to-b from-[hsl(165,22%,25%)] via-[hsl(165,20%,20%)] to-[hsl(165,18%,16%)]',
+      text: 'text-[hsl(42,35%,90%)]',
+      border: 'border-[hsl(38,40%,45%)]'
     },
     calm: {
-      bg: 'bg-gradient-to-b from-emerald-400 via-emerald-500 to-emerald-600',
-      text: 'text-emerald-950',
-      border: 'border-emerald-300'
+      bg: 'bg-gradient-to-b from-[hsl(160,18%,30%)] via-[hsl(160,15%,25%)] to-[hsl(160,12%,20%)]',
+      text: 'text-[hsl(42,35%,92%)]',
+      border: 'border-[hsl(160,15%,40%)]'
     }
   };
   

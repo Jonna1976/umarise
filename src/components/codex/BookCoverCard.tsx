@@ -51,7 +51,7 @@ function extractSubtitle(page: Page): string {
   return page.summary;
 }
 
-// Get visual treatment based on primary tone
+// Get visual treatment based on primary tone - natural palette only
 function getToneVisuals(tones: string[]): { 
   bg: string; 
   gradient: string;
@@ -60,54 +60,55 @@ function getToneVisuals(tones: string[]): {
 } {
   const primaryTone = tones[0]?.toLowerCase() || 'reflective';
   
+  // Natural color palette: teal, forest, cream, gold, stone variations
   const toneMap: Record<string, { bg: string; gradient: string; text: string; accent: string }> = {
     focused: {
-      bg: 'bg-slate-900',
-      gradient: 'from-slate-800 via-slate-900 to-slate-950',
-      text: 'text-slate-100',
-      accent: 'text-blue-400'
+      bg: 'bg-[hsl(165,25%,14%)]',
+      gradient: 'from-[hsl(165,25%,18%)] via-[hsl(160,25%,14%)] to-[hsl(165,30%,10%)]',
+      text: 'text-[hsl(42,35%,92%)]',
+      accent: 'text-[hsl(38,45%,55%)]'
     },
     hopeful: {
-      bg: 'bg-amber-50',
-      gradient: 'from-amber-100 via-orange-50 to-yellow-50',
-      text: 'text-amber-900',
-      accent: 'text-amber-600'
+      bg: 'bg-[hsl(42,40%,92%)]',
+      gradient: 'from-[hsl(42,45%,94%)] via-[hsl(40,40%,90%)] to-[hsl(38,35%,88%)]',
+      text: 'text-[hsl(160,25%,15%)]',
+      accent: 'text-[hsl(38,45%,40%)]'
     },
     frustrated: {
-      bg: 'bg-rose-950',
-      gradient: 'from-rose-900 via-rose-950 to-red-950',
-      text: 'text-rose-100',
-      accent: 'text-rose-400'
+      bg: 'bg-[hsl(160,18%,16%)]',
+      gradient: 'from-[hsl(160,20%,20%)] via-[hsl(160,18%,16%)] to-[hsl(160,15%,12%)]',
+      text: 'text-[hsl(42,30%,88%)]',
+      accent: 'text-[hsl(38,35%,50%)]'
     },
     playful: {
-      bg: 'bg-violet-50',
-      gradient: 'from-violet-100 via-purple-50 to-pink-50',
-      text: 'text-violet-900',
-      accent: 'text-violet-500'
+      bg: 'bg-[hsl(42,35%,90%)]',
+      gradient: 'from-[hsl(42,40%,94%)] via-[hsl(40,35%,90%)] to-[hsl(38,30%,86%)]',
+      text: 'text-[hsl(160,25%,15%)]',
+      accent: 'text-[hsl(38,40%,45%)]'
     },
     overwhelmed: {
-      bg: 'bg-gray-800',
-      gradient: 'from-gray-700 via-gray-800 to-gray-900',
-      text: 'text-gray-200',
-      accent: 'text-gray-400'
+      bg: 'bg-[hsl(160,10%,22%)]',
+      gradient: 'from-[hsl(160,12%,26%)] via-[hsl(160,10%,22%)] to-[hsl(160,8%,18%)]',
+      text: 'text-[hsl(42,25%,82%)]',
+      accent: 'text-[hsl(38,30%,50%)]'
     },
     reflective: {
-      bg: 'bg-stone-100',
-      gradient: 'from-stone-100 via-stone-50 to-amber-50',
-      text: 'text-stone-800',
-      accent: 'text-stone-500'
+      bg: 'bg-[hsl(42,35%,94%)]',
+      gradient: 'from-[hsl(42,40%,96%)] via-[hsl(40,35%,93%)] to-[hsl(38,30%,90%)]',
+      text: 'text-[hsl(160,25%,15%)]',
+      accent: 'text-[hsl(38,40%,40%)]'
     },
     curious: {
-      bg: 'bg-cyan-50',
-      gradient: 'from-cyan-50 via-sky-50 to-blue-50',
-      text: 'text-cyan-900',
-      accent: 'text-cyan-600'
+      bg: 'bg-[hsl(165,20%,18%)]',
+      gradient: 'from-[hsl(165,22%,22%)] via-[hsl(165,20%,18%)] to-[hsl(165,18%,14%)]',
+      text: 'text-[hsl(42,35%,92%)]',
+      accent: 'text-[hsl(38,45%,55%)]'
     },
     calm: {
-      bg: 'bg-emerald-50',
-      gradient: 'from-emerald-50 via-green-50 to-teal-50',
-      text: 'text-emerald-900',
-      accent: 'text-emerald-600'
+      bg: 'bg-[hsl(160,15%,24%)]',
+      gradient: 'from-[hsl(160,18%,28%)] via-[hsl(160,15%,24%)] to-[hsl(160,12%,20%)]',
+      text: 'text-[hsl(42,35%,92%)]',
+      accent: 'text-[hsl(38,40%,50%)]'
     }
   };
   
