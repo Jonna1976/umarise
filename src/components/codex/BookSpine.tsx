@@ -181,7 +181,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       <div className={`absolute inset-0 flex items-center justify-center p-2 ${project ? 'pt-6' : ''} ${representativePage.futureYouCue ? 'pb-8' : ''}`}>
         <span 
           className={`
-            ${colors.text} font-serif text-xs font-medium
+            ${colors.text} font-serif text-sm font-semibold
             writing-mode-vertical
             text-center leading-tight
             line-clamp-3
