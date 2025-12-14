@@ -213,7 +213,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   });
 
   return (
-    <div className="min-h-screen bg-codex-ink flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-teal flex flex-col relative overflow-hidden">
       {/* Hidden elements */}
       <canvas ref={canvasRef} className="hidden" />
       <input

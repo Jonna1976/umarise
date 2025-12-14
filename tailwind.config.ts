@@ -54,9 +54,13 @@ export default {
         codex: {
           paper: "hsl(var(--codex-paper))",
           ink: "hsl(var(--codex-ink))",
+          "ink-deep": "hsl(var(--codex-ink-deep))",
           sepia: "hsl(var(--codex-sepia))",
           gold: "hsl(var(--codex-gold))",
+          "gold-muted": "hsl(var(--codex-gold-muted))",
           cream: "hsl(var(--codex-cream))",
+          teal: "hsl(var(--codex-teal))",
+          forest: "hsl(var(--codex-forest))",
         },
         tone: {
           focused: "hsl(var(--tone-focused))",
