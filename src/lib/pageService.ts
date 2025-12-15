@@ -260,9 +260,9 @@ export async function markCapsuleAsInfluence(capsuleId: string, isInfluence: boo
 /**
  * Check for duplicate image by comparing OCR text similarity
  */
-export async function checkDuplicate(ocrText: string): Promise<Page | null> {
+export async function checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null> {
   const storage = getStorageProvider();
-  return storage.checkDuplicate(ocrText);
+  return storage.checkDuplicate(ocrText, excludePageId);
 }
 
 /**
