@@ -327,7 +327,7 @@ export function HistoryView({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Doorzoek je hele codex..."
+                placeholder="Rediscover your handwritten words..."
                 className="w-full pl-12 pr-12 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-gold/50 focus:border-codex-gold transition-all font-medium"
                 maxLength={100}
               />
