@@ -229,6 +229,7 @@ export async function updatePage(
     futureYouCue?: string;
     futureYouCues?: string[];
     writtenAt?: Date;
+    highlights?: string[];
   }
 ): Promise<boolean> {
   const storage = getStorageProvider();
