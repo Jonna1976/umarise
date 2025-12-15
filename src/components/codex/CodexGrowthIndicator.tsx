@@ -163,7 +163,7 @@ export function CodexGrowthIndicator({ pageCount, compact = false }: CodexGrowth
           animate={{ opacity: 1 }}
           className="text-xs text-center text-codex-gold mt-3 font-medium"
         >
-          ✨ All insights unlocked. Your codex grows wiser with each page.
+          ✨ All insights unlocked. Your memory grows wiser with each page.
         </motion.p>
       )}
     </motion.div>

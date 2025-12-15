@@ -100,7 +100,7 @@ export function WarmPaletteMockup() {
           className="grid grid-cols-2 gap-4 mb-8"
         >
           {[
-            { icon: BookOpen, label: 'Your Codex', desc: 'All your pages' },
+            { icon: BookOpen, label: 'Your Memory', desc: 'All your pages' },
             { icon: Sparkles, label: 'Patterns', desc: 'Discover themes' },
           ].map(({ icon: Icon, label, desc }) => (
             <div

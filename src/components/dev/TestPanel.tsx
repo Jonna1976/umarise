@@ -123,7 +123,7 @@ export function TestPanel({
     if (dbDeviceId && dbDeviceId !== localDeviceId) {
       persistDeviceId(dbDeviceId);
       setLocalDeviceId(dbDeviceId);
-      toast({ title: "Device ID overgenomen", description: "Herlaad de pagina om je codex te zien." });
+      toast({ title: "Device ID adopted", description: "Reload the page to see your memory." });
     }
   };
 

@@ -749,7 +749,7 @@ export function PatternsView({ onBack, forceEmpty = false }: PatternsViewProps) 
           <p className="text-xs text-muted-foreground text-center">
             {viewMode === 'text' 
               ? 'AI analysis of themes, trends and core thread'
-              : 'Visual representation of your codex — inspired by data humanism'
+              : 'Visual representation of your memory — inspired by data humanism'
             }
           </p>
         </div>

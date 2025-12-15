@@ -16,31 +16,31 @@ const steps: WalkthroughStep[] = [
     icon: <Camera className="w-4 h-4" />,
     title: "Open App",
     subtitle: "Camera opens instantly",
-    description: "App opent direct in camera view — geen onboarding, geen menu.",
+    description: "App opens directly to camera view — no onboarding, no menu.",
   },
   {
     icon: <Camera className="w-4 h-4" />,
     title: "Capture",
     subtitle: "Point & tap",
-    description: "Richt op handgeschreven pagina, tik om te fotograferen.",
+    description: "Point at your handwritten page, tap to photograph.",
   },
   {
     icon: <FileText className="w-4 h-4" />,
     title: "Processing",
     subtitle: "< 5 seconds",
-    description: "AI leest en interpreteert de handgeschreven tekst.",
+    description: "AI reads and interprets your handwritten text.",
   },
   {
     icon: <FileText className="w-4 h-4" />,
     title: "Snapshot",
     subtitle: "Instant insight",
-    description: "Samenvatting, tone, keywords — direct bruikbaar.",
+    description: "Summary, tone, keywords — immediately usable.",
   },
   {
     icon: <BookOpen className="w-4 h-4" />,
     title: "Timeline",
-    subtitle: "Codex grows",
-    description: "Elke capture voegt toe aan je persoonlijke codex.",
+    subtitle: "Memory grows",
+    description: "Each capture adds to your personal memory.",
   },
 ];
 
@@ -320,7 +320,7 @@ function TimelineIllustration() {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[11px] font-semibold text-forest">Your Codex</span>
+        <span className="text-[11px] font-semibold text-forest">Your Memory</span>
         <div className="flex gap-1">
           <div className="w-3 h-3 rounded bg-forest/20" />
         </div>
@@ -398,7 +398,7 @@ function TimelineIllustration() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        <span className="text-[9px] text-forest/50">5 pages in your codex</span>
+        <span className="text-[9px] text-forest/50">5 pages in your memory</span>
       </motion.div>
     </motion.div>
   );
