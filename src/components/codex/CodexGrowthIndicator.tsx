@@ -78,7 +78,7 @@ export function CodexGrowthIndicator({ pageCount, compact = false }: CodexGrowth
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-codex-gold" />
-          <span className="text-sm font-medium text-foreground">Your Codex</span>
+          <span className="text-sm font-medium text-foreground">Lasting Memory</span>
         </div>
         <span className="text-lg font-serif font-bold text-codex-gold">
           {pageCount} {pageCount === 1 ? 'page' : 'pages'}

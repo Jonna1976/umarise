@@ -251,7 +251,7 @@ export function HistoryView({
             {isDemoMode ? (
               <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
             ) : (
-              <h1 className="font-serif text-lg font-medium">Your Codex</h1>
+              <h1 className="font-serif text-lg font-medium">Lasting Memory</h1>
             )}
             <DemoModeToggle />
           </div>
