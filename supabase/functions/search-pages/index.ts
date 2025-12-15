@@ -14,6 +14,17 @@ interface SearchResult {
   matched_terms: string[];
 }
 
+// Common terms that should be down-ranked in text matches (demo-safe list)
+// These words appear frequently in boilerplate/templates and cause noisy results
+const COMMON_TERMS = new Set([
+  'light', 'idea', 'ideas', 'notes', 'note', 'plan', 'plans', 'page', 'pages', 
+  'today', 'want', 'need', 'the', 'and', 'your', 'you', 'this', 'that',
+  'uma', 'umarise', 'rise', 'rising' // App-specific common terms
+]);
+
+// Score multiplier for common terms in text matches (not cue matches)
+const COMMON_TERM_TEXT_MULTIPLIER = 0.15;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -109,6 +120,9 @@ serve(async (req) => {
         }
       }
 
+      // Check if query contains ONLY common terms (apply stronger demotion)
+      const queryIsOnlyCommonTerms = queryTerms.every((t: string) => COMMON_TERMS.has(t));
+
       // 3. High-confidence OCR tokens (MEDIUM SIGNAL)
       const ocrTokens: any[] = page.ocr_tokens || [];
       const highConfTokens = ocrTokens.filter(t => (t?.confidence || 0) >= 0.8);
@@ -118,7 +132,10 @@ serve(async (req) => {
         const tokenLower = token?.token?.toLowerCase() || '';
         for (const term of queryTerms) {
           if (tokenLower === term || (tokenLower.length > 3 && levenshteinDistance(tokenLower, term) <= 2)) {
-            score += 30;
+            // Apply common term demotion for text matches
+            const baseScore = 30;
+            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+            score += termScore;
             matchTypes.add('text');
             if (!matchedTerms.includes(token.token)) matchedTerms.push(token.token);
           }
@@ -130,7 +147,9 @@ serve(async (req) => {
         const tokenLower = token?.token?.toLowerCase() || '';
         for (const term of queryTerms) {
           if (tokenLower === term || (tokenLower.length > 3 && levenshteinDistance(tokenLower, term) <= 1)) {
-            score += 10;
+            const baseScore = 10;
+            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+            score += termScore;
             matchTypes.add('text');
           }
         }
@@ -141,7 +160,9 @@ serve(async (req) => {
         const ocrText = (page.ocr_text || '').toLowerCase();
         for (const term of queryTerms) {
           if (ocrText.includes(term)) {
-            score += 20;
+            const baseScore = 20;
+            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+            score += termScore;
             matchTypes.add('text');
           }
         }
@@ -153,7 +174,9 @@ serve(async (req) => {
         const keywordLower = keyword?.toLowerCase() || '';
         for (const term of queryTerms) {
           if (keywordLower === term || keywordLower.includes(term)) {
-            score += 25;
+            const baseScore = 25;
+            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+            score += termScore;
             matchTypes.add('text');
             matchedTerms.push(keyword);
           }
@@ -165,7 +188,9 @@ serve(async (req) => {
         const primaryLower = page.primary_keyword.toLowerCase();
         for (const term of queryTerms) {
           if (primaryLower.includes(term) || term.includes(primaryLower)) {
-            score += 40;
+            const baseScore = 40;
+            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+            score += termScore;
             matchTypes.add('text');
             matchedTerms.push(page.primary_keyword);
           }
@@ -176,16 +201,25 @@ serve(async (req) => {
       const summary = (page.summary || '').toLowerCase();
       const userNote = (page.user_note || '').toLowerCase();
       for (const term of queryTerms) {
-        if (summary.includes(term)) score += 15;
-        if (userNote.includes(term)) score += 15;
+        const baseScore = 15;
+        const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+        if (summary.includes(term)) score += termScore;
+        if (userNote.includes(term)) score += termScore;
       }
 
       // 9. One-line hint
       const hint = (page.one_line_hint || '').toLowerCase();
       for (const term of queryTerms) {
         if (hint.includes(term)) {
-          score += 20;
+          const baseScore = 20;
+          const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
+          score += termScore;
         }
+      }
+
+      // Apply threshold: if query is ONLY common terms, require minimum score to show
+      if (queryIsOnlyCommonTerms && score < 15) {
+        score = 0; // Filter out low-scoring common-term-only matches
       }
 
       if (score > 0) {
