@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Page, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
 import { Images, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BookCoverCardProps {
   page?: Page;
@@ -167,7 +168,12 @@ export function BookCoverCard({ page, capsule, onClick, onDelete }: BookCoverCar
                 {representativePage.highlights.slice(0, 3).map((keyword) => (
                   <span 
                     key={keyword}
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 ${visuals.text} opacity-70`}
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.5 rounded-full',
+                      'bg-background/10 border border-border/20',
+                      visuals.text,
+                      'opacity-80'
+                    )}
                   >
                     {keyword}
                   </span>
