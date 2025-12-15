@@ -5,26 +5,67 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes. Your role is to:
-1. Read and transcribe the handwritten text accurately (OCR)
-2. Detect any highlighted, underlined, circled, or marked text (these are the writer's emphasis points)
-3. Generate a concise 1-2 sentence summary capturing the core idea
-4. Identify the emotional tone (one of: focused, frustrated, hopeful, playful, overwhelmed, reflective, curious, determined, anxious, calm)
-5. Extract 3-5 core keywords that capture the essential themes (be selective, quality over quantity)
+// Controlled vocabulary for topic labels (50-200 range)
+const TOPIC_LABELS = [
+  'business', 'strategy', 'pitch', 'roadmap', 'pricing', 'product',
+  'meeting', 'brainstorm', 'research', 'notes', 'ideas', 'project',
+  'personal', 'journal', 'reflection', 'goals', 'plans', 'tasks',
+  'creative', 'writing', 'story', 'poem', 'sketch', 'design',
+  'learning', 'study', 'lecture', 'book', 'course', 'reading',
+  'travel', 'trip', 'adventure', 'memory', 'event', 'celebration',
+  'health', 'fitness', 'wellness', 'food', 'recipe', 'diet',
+  'finance', 'budget', 'investment', 'savings', 'expense', 'income',
+  'relationship', 'family', 'friend', 'love', 'gratitude', 'letter',
+  'work', 'career', 'job', 'interview', 'resume', 'networking'
+];
+
+// Generic terms to avoid in cues
+const GENERIC_TERMS = [
+  'idea', 'ideas', 'notes', 'note', 'thoughts', 'thought', 'plan', 'plans',
+  'thing', 'things', 'stuff', 'misc', 'random', 'general', 'various',
+  'important', 'remember', 'todo', 'list'
+];
+
+const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes for a personal codex/memory system. Your role is to:
+
+1. **OCR with confidence**: Read and transcribe handwritten text. For each word, estimate confidence (0.0-1.0).
+2. **Named entities**: Extract people, organizations, locations, dates, and deliverables (pitch, proposal, wedding, visa, etc.)
+3. **Highlights**: Detect underlined, circled, boxed, or starred text (writer's emphasis)
+4. **Summary**: 1-2 sentence summary of the core idea
+5. **One-line hint**: A single retrieval hint phrase (never displayed as truth, just for search)
+6. **Tone**: Single emotional tone (focused, frustrated, hopeful, playful, overwhelmed, reflective, curious, determined, anxious, calm)
+7. **Keywords**: 3-5 essential, lowercase tokens
+8. **Topic labels**: 1-3 labels from controlled vocabulary: ${TOPIC_LABELS.slice(0, 30).join(', ')}, etc.
+9. **Suggested cues**: EXACTLY 3 retrieval words/phrases that the user would type to find this page later
+
+**CRITICAL for suggested_cues:**
+- Each cue should be 1-3 words, max 30 characters
+- At least 1 cue MUST be a person/organization name OR a deliverable word (pitch, proposal, wedding, visa, roadmap)
+- AVOID generic terms: ${GENERIC_TERMS.join(', ')}
+- Think: "What would I type to find this specific page?"
+- Examples of GOOD cues: ["sarah proposal", "Q4 budget", "wedding venue"]
+- Examples of BAD cues: ["important idea", "notes", "thoughts"]
 
 You must respond ONLY with valid JSON in this exact format:
 {
-  "ocr_text": "the full transcribed text from the handwriting",
-  "highlights": ["text that was underlined, circled, or emphasized by the writer"],
-  "summary": "1-2 sentence summary of the core idea",
+  "ocr_text": "the full transcribed text",
+  "ocr_tokens": [
+    {"token": "word", "confidence": 0.95, "bbox": {"x": 10, "y": 20, "width": 50, "height": 15}}
+  ],
+  "named_entities": [
+    {"type": "person|organization|location|date|deliverable|other", "value": "entity text", "confidence": 0.9, "span": {"start": 0, "end": 10}}
+  ],
+  "highlights": ["underlined or emphasized text"],
+  "summary": "1-2 sentence summary",
+  "one_line_hint": "brief retrieval hint",
   "tone": "single tone label",
-  "keywords": ["keyword1", "keyword2", "keyword3"]
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "topic_labels": ["label1", "label2"],
+  "suggested_cues": ["cue1", "cue2", "cue3"]
 }
 
-Be accurate with the OCR. If text is unclear, make your best interpretation.
-The highlights array should contain any text the writer visually emphasized (underlined, circled, boxed, starred, etc.). If nothing is highlighted, return an empty array.
-The summary should be human-readable and capture what the person was thinking about.
-Keywords should be 3-5 essential, lowercase tokens - focus on the most important themes only.`;
+Be accurate with OCR. If text is unclear, make your best interpretation with lower confidence.
+The bbox field is optional but helps with highlighting matches later.`;
 
 
 serve(async (req) => {
@@ -77,7 +118,7 @@ serve(async (req) => {
       };
     }
 
-    console.log('Calling Lovable AI for page analysis...');
+    console.log('Calling Lovable AI for enhanced page analysis...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -92,7 +133,7 @@ serve(async (req) => {
           {
             role: 'user',
             content: [
-              { type: 'text', text: 'Please analyze this handwritten page and provide the OCR text, summary, tone, and keywords in JSON format.' },
+              { type: 'text', text: 'Analyze this handwritten page. Return OCR with confidence scores, named entities, highlights, summary, tone, keywords, topic labels, and exactly 3 suggested retrieval cues. Respond in JSON format only.' },
               imageContent
             ]
           }
@@ -139,7 +180,6 @@ serve(async (req) => {
     // Parse the JSON response - handle potential markdown code blocks
     let analysisResult;
     try {
-      // Remove potential markdown code block wrapper
       let jsonStr = content.trim();
       if (jsonStr.startsWith('```json')) {
         jsonStr = jsonStr.slice(7);
@@ -160,38 +200,84 @@ serve(async (req) => {
       );
     }
 
-    // Validate required fields
-    const { ocr_text, summary, tone, keywords, highlights } = analysisResult;
-    
-    const hasOcrField = typeof ocr_text === 'string';
-    const hasSummary = typeof summary === 'string' && summary.trim().length > 0;
-    const hasTone = typeof tone === 'string' && tone.trim().length > 0;
-    const hasKeywords = Array.isArray(keywords) && keywords.length > 0;
-    const hasHighlights = Array.isArray(highlights);
+    // Validate and normalize response
+    const {
+      ocr_text = '',
+      ocr_tokens = [],
+      named_entities = [],
+      highlights = [],
+      summary = '',
+      one_line_hint = '',
+      tone = 'reflective',
+      keywords = [],
+      topic_labels = [],
+      suggested_cues = []
+    } = analysisResult;
 
-    if (!hasSummary || !hasTone || !hasKeywords || !hasOcrField) {
-      console.error('Missing or invalid required fields in AI response:', analysisResult);
-      return new Response(
-        JSON.stringify({ error: 'Incomplete AI response', partial_result: analysisResult }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+  // Ensure we have exactly 3 cues
+  let finalCues = suggested_cues.slice(0, 3);
+  while (finalCues.length < 3) {
+    // Fallback: use named entities or keywords
+    if (named_entities.length > 0 && finalCues.length < 3) {
+      const entity = named_entities.find((e: { value: string }) => !finalCues.includes(e.value));
+      if (entity) finalCues.push(entity.value.substring(0, 30));
+    } else if (keywords.length > 0 && finalCues.length < 3) {
+      const keyword = keywords.find((k: string) => !finalCues.includes(k) && !GENERIC_TERMS.includes(k.toLowerCase()));
+      if (keyword) finalCues.push(keyword);
+    } else {
+      // Last resort: use first unique words from OCR
+      const words = ocr_text.split(/\s+/).filter((w: string) => w.length > 3 && !GENERIC_TERMS.includes(w.toLowerCase()));
+      const word = words.find((w: string) => !finalCues.includes(w));
+      if (word) finalCues.push(word.substring(0, 30));
+      else break;
     }
+  }
 
-    console.log('Page analysis complete:', { 
-      ocr_length: ocr_text.length, 
+    // Validate OCR tokens format
+    const validatedTokens = Array.isArray(ocr_tokens) 
+      ? ocr_tokens.map(t => ({
+          token: String(t.token || ''),
+          confidence: typeof t.confidence === 'number' ? t.confidence : 0.8,
+          bbox: t.bbox || undefined
+        }))
+      : [];
+
+    // Validate named entities format
+    const validatedEntities = Array.isArray(named_entities)
+      ? named_entities.map(e => ({
+          type: ['person', 'organization', 'location', 'date', 'deliverable', 'other'].includes(e.type) 
+            ? e.type 
+            : 'other',
+          value: String(e.value || ''),
+          confidence: typeof e.confidence === 'number' ? e.confidence : 0.8,
+          span: e.span || undefined
+        }))
+      : [];
+
+    console.log('Enhanced page analysis complete:', { 
+      ocr_length: ocr_text.length,
+      token_count: validatedTokens.length,
+      entity_count: validatedEntities.length,
+      highlight_count: highlights.length,
       summary_length: summary.length, 
       tone, 
       keywords_count: keywords.length,
-      highlights_count: hasHighlights ? highlights.length : 0
+      topic_labels_count: topic_labels.length,
+      cues: finalCues
     });
 
     return new Response(
       JSON.stringify({
         ocr_text,
+        ocr_tokens: validatedTokens,
+        named_entities: validatedEntities,
+        highlights: Array.isArray(highlights) ? highlights : [],
         summary,
+        one_line_hint,
         tone,
         keywords,
-        highlights: hasHighlights ? highlights : [],
+        topic_labels: Array.isArray(topic_labels) ? topic_labels : [],
+        suggested_cues: finalCues,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -17,63 +17,105 @@ export type Database = {
       pages: {
         Row: {
           capsule_id: string | null
+          capture_batch_id: string | null
           confidence_score: number | null
           created_at: string
           device_user_id: string
           embedding: Json | null
+          embedding_vector: Json | null
           future_you_cue: string | null
+          future_you_cues: string[] | null
+          future_you_cues_source: Json | null
+          highlights: string[] | null
           id: string
           image_url: string
           keywords: string[] | null
+          named_entities: Json | null
           ocr_text: string | null
+          ocr_tokens: Json | null
+          one_line_hint: string | null
           page_order: number | null
           primary_keyword: string | null
           project_id: string | null
+          session_id: string | null
+          source_container_id: string | null
           sources: string[] | null
           summary: string | null
+          thumbnail_uri: string | null
           tone: string | null
+          topic_labels: string[] | null
           updated_at: string
           user_note: string | null
+          writer_user_id: string
+          written_at: string | null
         }
         Insert: {
           capsule_id?: string | null
+          capture_batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
           device_user_id: string
           embedding?: Json | null
+          embedding_vector?: Json | null
           future_you_cue?: string | null
+          future_you_cues?: string[] | null
+          future_you_cues_source?: Json | null
+          highlights?: string[] | null
           id?: string
           image_url: string
           keywords?: string[] | null
+          named_entities?: Json | null
           ocr_text?: string | null
+          ocr_tokens?: Json | null
+          one_line_hint?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
+          session_id?: string | null
+          source_container_id?: string | null
           sources?: string[] | null
           summary?: string | null
+          thumbnail_uri?: string | null
           tone?: string | null
+          topic_labels?: string[] | null
           updated_at?: string
           user_note?: string | null
+          writer_user_id?: string
+          written_at?: string | null
         }
         Update: {
           capsule_id?: string | null
+          capture_batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
           device_user_id?: string
           embedding?: Json | null
+          embedding_vector?: Json | null
           future_you_cue?: string | null
+          future_you_cues?: string[] | null
+          future_you_cues_source?: Json | null
+          highlights?: string[] | null
           id?: string
           image_url?: string
           keywords?: string[] | null
+          named_entities?: Json | null
           ocr_text?: string | null
+          ocr_tokens?: Json | null
+          one_line_hint?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
+          session_id?: string | null
+          source_container_id?: string | null
           sources?: string[] | null
           summary?: string | null
+          thumbnail_uri?: string | null
           tone?: string | null
+          topic_labels?: string[] | null
           updated_at?: string
           user_note?: string | null
+          writer_user_id?: string
+          written_at?: string | null
         }
         Relationships: [
           {

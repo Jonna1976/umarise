@@ -13,6 +13,11 @@ import {
 } from '@/lib/pageService';
 import { toast } from 'sonner';
 
+export interface CreatePageResult {
+  page: Page;
+  suggestedCues: string[];
+}
+
 export function usePages() {
   const [pages, setPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,21 +44,21 @@ export function usePages() {
   }, [loadPages]);
 
   // Create new page with duplicate detection
-  const createPage = useCallback(async (imageDataUrl: string): Promise<Page | null> => {
+  const createPage = useCallback(async (imageDataUrl: string): Promise<CreatePageResult | null> => {
     try {
-      const newPage = await createPageService(imageDataUrl);
+      const result = await createPageService(imageDataUrl);
       
       // Check for duplicate after creation (we have OCR text now)
-      const duplicate = await checkDuplicate(newPage.ocrText);
-      if (duplicate && duplicate.id !== newPage.id) {
+      const duplicate = await checkDuplicate(result.page.ocrText);
+      if (duplicate && duplicate.id !== result.page.id) {
         toast.warning('This page looks similar to one you already captured', {
           description: `Similar to page from ${duplicate.createdAt.toLocaleDateString()}`,
           duration: 5000,
         });
       }
       
-      setPages(prev => [newPage, ...prev]);
-      return newPage;
+      setPages(prev => [result.page, ...prev]);
+      return result;
     } catch (e) {
       console.error('Failed to create page:', e);
       const message = e instanceof Error ? e.message : 'Failed to save page';
@@ -66,12 +71,12 @@ export function usePages() {
   const createCapsule = useCallback(async (
     imageDataUrls: string[], 
     onProgress?: (completed: number, total: number) => void
-  ): Promise<Page[] | null> => {
+  ): Promise<{ pages: Page[]; suggestedCuesPerPage: string[][] } | null> => {
     try {
-      const newPages = await createCapsuleService(imageDataUrls, onProgress);
-      setPages(prev => [...newPages, ...prev]);
-      toast.success(`Capsule created with ${newPages.length} pages`);
-      return newPages;
+      const result = await createCapsuleService(imageDataUrls, onProgress);
+      setPages(prev => [...result.pages, ...prev]);
+      toast.success(`Capsule created with ${result.pages.length} pages`);
+      return result;
     } catch (e) {
       console.error('Failed to create capsule:', e);
       const message = e instanceof Error ? e.message : 'Failed to save capsule';
@@ -81,12 +86,12 @@ export function usePages() {
   }, []);
 
   // Add page to existing capsule
-  const addToCapsule = useCallback(async (imageDataUrl: string, capsuleId: string): Promise<Page | null> => {
+  const addToCapsule = useCallback(async (imageDataUrl: string, capsuleId: string): Promise<CreatePageResult | null> => {
     try {
-      const newPage = await addToCapsuleService(imageDataUrl, capsuleId);
-      setPages(prev => [newPage, ...prev]);
+      const result = await addToCapsuleService(imageDataUrl, capsuleId);
+      setPages(prev => [result.page, ...prev]);
       toast.success('Page added to capsule');
-      return newPage;
+      return result;
     } catch (e) {
       console.error('Failed to add to capsule:', e);
       const message = e instanceof Error ? e.message : 'Failed to add page';
@@ -96,8 +101,6 @@ export function usePages() {
   }, []);
 
   // Update page in local state
-  // Note: Database save should already be done by the caller (e.g., SnapshotView)
-  // This function just ensures local state is synchronized
   const updatePage = useCallback((page: Page): boolean => {
     setPages(prev => prev.map(p => p.id === page.id ? page : p));
     return true;
