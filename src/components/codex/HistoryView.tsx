@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -8,6 +8,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { InsightsSection } from './InsightsSection';
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
+import { VaultView } from './VaultView';
 import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 import { EarlyInsights } from './EarlyInsights';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
@@ -40,7 +41,7 @@ interface HistoryViewProps {
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
-type ViewMode = 'list' | 'calendar' | 'covers' | 'shelf';
+type ViewMode = 'list' | 'calendar' | 'covers' | 'shelf' | 'vault';
 
 // Union type for history items
 type HistoryItem = 
@@ -90,7 +91,7 @@ export function HistoryView({
   const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('shelf');
+  const [viewMode, setViewMode] = useState<ViewMode>('vault');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -365,6 +366,15 @@ export function HistoryView({
             {/* View mode toggle */}
             <div className="flex bg-secondary rounded-lg p-1">
               <button
+                onClick={() => setViewMode('vault')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Vault (full overview)"
+              >
+                <Warehouse className="w-4 h-4" />
+              </button>
+              <button
                 onClick={() => setViewMode('shelf')}
                 className={`p-1.5 rounded transition-colors ${
                   viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
@@ -552,7 +562,22 @@ export function HistoryView({
 
       {/* View Content */}
       <AnimatePresence mode="wait">
-        {viewMode === 'calendar' ? (
+        {viewMode === 'vault' ? (
+          <motion.div
+            key="vault"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <VaultView
+              items={historyItems}
+              projects={projects}
+              onSelectPage={onSelectPage}
+              onSelectCapsule={onSelectCapsule}
+              highlightPageId={highlightPageId}
+            />
+          </motion.div>
+        ) : viewMode === 'calendar' ? (
           <motion.div
             key="calendar"
             initial={{ opacity: 0, y: 10 }}
