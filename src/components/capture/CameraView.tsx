@@ -349,6 +349,15 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
+            {/* Heading above circle */}
+            <motion.h2
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="font-playfair text-xl md:text-2xl text-primary-foreground/90 italic tracking-wide whitespace-nowrap mb-8"
+            >
+              Handwriting, turned into lasting memory.
+            </motion.h2>
+            
             {/* Container for circle + orbiting orbs */}
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
               
@@ -637,18 +646,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
           <BookOpen className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
         </button>
         
-        {/* Demo Mode one-liner - centered */}
-        {!capturedImage && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute left-1/2 -translate-x-1/2"
-          >
-            <h2 className="font-playfair text-xl md:text-2xl text-primary-foreground/90 italic tracking-wide whitespace-nowrap">
-              Handwriting, turned into lasting memory.
-            </h2>
-          </motion.div>
-        )}
         
         {capturedImage && (
           <button
