@@ -99,6 +99,11 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
 
   return (
     <div ref={containerRef} className="relative">
+      {/* Hint text - above input */}
+      <p className="mb-2 text-sm text-codex-cream/60">
+        What is this about?
+      </p>
+      
       <div className="relative">
         <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-codex-gold/60" />
         <Input
@@ -165,10 +170,6 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
         )}
       </AnimatePresence>
 
-      {/* Hint text */}
-      <p className="mt-2 text-sm text-codex-cream/60">
-        What is this about? Keep it short (2-3 words)
-      </p>
     </div>
   );
 }
