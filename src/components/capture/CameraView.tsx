@@ -327,8 +327,8 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               ))}
             </motion.h2>
             
-            {/* Container for circle + orbiting orbs */}
-            <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
+            {/* Container for circle + orbiting orbs - large enough for orbit radius */}
+            <div className="relative w-80 h-80 mx-auto flex items-center justify-center overflow-visible">
               
               {/* Absorbing file animation */}
               <AnimatePresence>
