@@ -321,28 +321,16 @@ export function HistoryView({
           )}
         </div>
 
-        {/* Enhanced Search bar - hidden in demo mode */}
-        {!isDemoMode && (
+        {/* Search button - opens full search view, hidden in demo mode */}
+        {!isDemoMode && onOpenSearch && (
           <div className="px-4 pb-3">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-codex-gold" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rediscover your handwritten words..."
-                className="w-full pl-12 pr-12 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-codex-gold/50 focus:border-codex-gold transition-all font-medium"
-                maxLength={100}
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+            <button
+              onClick={onOpenSearch}
+              className="w-full flex items-center gap-3 pl-4 pr-4 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-muted-foreground hover:bg-codex-gold/20 hover:text-foreground transition-all"
+            >
+              <Search className="w-5 h-5 text-codex-gold" />
+              <span className="font-medium">Zoek in je codex...</span>
+            </button>
           </div>
         )}
 

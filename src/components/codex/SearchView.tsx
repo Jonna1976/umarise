@@ -39,6 +39,62 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
   const [hasSearched, setHasSearched] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
   const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'all' | null>(null);
+  const [searchStartTime, setSearchStartTime] = useState<number | null>(null);
+  const [currentSearchId, setCurrentSearchId] = useState<string | null>(null);
+
+  // Track search telemetry
+  const trackSearch = async (searchQuery: string, searchResults: SearchResult[], filterUsed: string | null) => {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId || searchResults.length === 0) return;
+
+    try {
+      const top5Ids = searchResults.slice(0, 5).map(r => r.page.id);
+      const { data } = await supabase
+        .from('search_telemetry')
+        .insert({
+          device_user_id: deviceUserId,
+          query: searchQuery,
+          result_count: searchResults.length,
+          top_5_page_ids: top5Ids,
+          time_filter_used: filterUsed
+        } as never)
+        .select('id')
+        .single();
+      
+      if (data) {
+        setCurrentSearchId((data as any).id);
+        setSearchStartTime(Date.now());
+      }
+    } catch (error) {
+      console.error('Failed to track search:', error);
+    }
+  };
+
+  // Track when user selects a result
+  const trackSelection = async (selectedPage: Page, rank: number) => {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId || !currentSearchId) return;
+
+    try {
+      const timeToSelect = searchStartTime ? Date.now() - searchStartTime : null;
+      await supabase
+        .from('search_telemetry')
+        .update({
+          selected_page_id: selectedPage.id,
+          selected_rank: rank + 1, // 1-indexed
+          time_to_select_ms: timeToSelect
+        } as never)
+        .eq('id', currentSearchId);
+    } catch (error) {
+      console.error('Failed to track selection:', error);
+    }
+  };
+
+  // Handle page selection with telemetry
+  const handleSelectPage = (page: Page, index: number) => {
+    trackSelection(page, index);
+    onSelectPage(page);
+  };
 
   // Debounced search
   useEffect(() => {
@@ -97,6 +153,9 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
           matchedTerms: r.matched_terms || []
         }));
         setResults(mappedResults);
+        
+        // Track search for telemetry
+        trackSearch(searchQuery, mappedResults, filter);
       }
     } catch (error) {
       console.error('Search failed:', error);
@@ -290,7 +349,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                onClick={() => onSelectPage(result.page)}
+                onClick={() => handleSelectPage(result.page, index)}
                 className="w-full text-left p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
               >
                 <div className="flex gap-3">
