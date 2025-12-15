@@ -202,7 +202,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             className="text-center mb-6"
           >
             <h2 className="font-serif text-xl text-codex-gold tracking-wide">
-              Added to your codex
+              Part of your lasting memory
             </h2>
           </motion.div>
         )}
