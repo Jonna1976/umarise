@@ -18,7 +18,8 @@ import {
   FileText,
   Bug,
   Copy,
-  Palette
+  Palette,
+  Play
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
@@ -410,6 +411,26 @@ export function TestPanel({
               >
                 <Palette className="w-3.5 h-3.5 mr-1.5" />
                 Warm (Library)
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Alignment Tools */}
+        <div className="p-4 bg-teal/10 border-b border-border">
+          <h3 className="text-xs font-medium text-teal uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Play className="w-3.5 h-3.5" />
+            Alignment Tools
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/demo-walkthrough">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-teal/50 text-teal hover:bg-teal/10"
+              >
+                <Play className="w-3.5 h-3.5 mr-1.5" />
+                Demo Walkthrough
               </Button>
             </Link>
           </div>
