@@ -25,7 +25,7 @@ import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
-import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
+import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
 import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
@@ -180,6 +180,32 @@ export function TestPanel({
     }
   };
 
+  // Idempotent reset + inject for reproducible demo state
+  const handleResetAndInject = async () => {
+    setIsInjecting(true);
+    
+    try {
+      const { cleared, inserted } = await resetAndInjectTestData((current, total) => {
+        setInjectProgress({ current, total });
+      });
+      
+      toast({
+        title: "Demo data reset",
+        description: `${cleared} oude verwijderd, ${inserted} verse pagina's geïnjecteerd. Deterministische demo-staat klaar.`,
+      });
+      
+      onLoadTestData();
+    } catch (error) {
+      toast({
+        title: "Fout",
+        description: "Reset & inject mislukt",
+        variant: "destructive"
+      });
+    } finally {
+      setIsInjecting(false);
+    }
+  };
+
   const handleLoadAll = () => {
     onLoadTestData();
   };
@@ -292,20 +318,25 @@ export function TestPanel({
             <Database className="w-3.5 h-3.5" />
             Memory Loop Test Data
           </h3>
-          <p className="text-xs text-muted-foreground mb-3">
-            Injecteer {testDataInfo.totalPages} realistische pagina's over {testDataInfo.timeSpan} met terugkerende thema's:
+          <p className="text-xs text-muted-foreground mb-2">
+            {testDataInfo.totalPages} pagina's over {testDataInfo.timeSpan} met future_you_cues:
           </p>
+          <div className="text-xs text-muted-foreground mb-2 space-y-0.5">
+            <p className="font-medium text-codex-gold/80">Personen: {testDataInfo.personNames?.join(', ')}</p>
+            <p className="font-medium text-codex-gold/80">Projecten: {testDataInfo.projectNames?.join(', ')}</p>
+          </div>
           <ul className="text-xs text-muted-foreground mb-3 space-y-0.5 pl-3">
             {testDataInfo.threads.map((thread, i) => (
               <li key={i} className="list-disc list-inside">{thread}</li>
             ))}
           </ul>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
-              onClick={handleInjectToDatabase} 
+              onClick={handleResetAndInject} 
               variant="codex" 
               size="sm"
               disabled={isInjecting}
+              className="bg-codex-gold text-forest-deep hover:bg-codex-gold/90"
             >
               {isInjecting ? (
                 <>
@@ -315,9 +346,18 @@ export function TestPanel({
               ) : (
                 <>
                   <Database className="w-4 h-4 mr-1" />
-                  Injecteer in Database
+                  Reset + Inject (Demo)
                 </>
               )}
+            </Button>
+            <Button 
+              onClick={handleInjectToDatabase} 
+              variant="outline" 
+              size="sm"
+              disabled={isInjecting}
+            >
+              <Database className="w-4 h-4 mr-1" />
+              Add More
             </Button>
             <Button 
               onClick={handleClearTestData} 
@@ -330,7 +370,7 @@ export function TestPanel({
               ) : (
                 <Trash2 className="w-4 h-4 mr-1" />
               )}
-              Wis Testdata
+              Wis
             </Button>
           </div>
         </div>
