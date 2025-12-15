@@ -100,33 +100,56 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
+  const savePendingChanges = async (): Promise<boolean> => {
+    if (!hasChanges) return true;
+
+    setIsSaving(true);
+    const success = await updatePage(page.id, {
+      userNote: userNote || undefined,
+      primaryKeyword: primaryKeyword || undefined,
+      ocrText: ocrText || undefined,
+      sources: sources,
+      projectId: topicProjectId,
+      futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
+      writtenAt: writtenAt,
+      highlights: userKeywords,
+    });
+    setIsSaving(false);
+
+    if (success) {
+      toast.success('Changes saved');
+      setHasChanges(false);
+      if (onPageUpdate) {
+        onPageUpdate({
+          ...page,
+          userNote,
+          primaryKeyword,
+          ocrText,
+          sources,
+          projectId: topicProjectId,
+          futureYouCues,
+          writtenAt,
+          highlights: userKeywords,
+        });
+      }
+      return true;
+    }
+
+    toast.error('Failed to save changes');
+    return false;
+  };
+
   // Auto-save before navigating away
   const handleCloseWithSave = async () => {
-    if (hasChanges) {
-      setIsSaving(true);
-      const success = await updatePage(page.id, {
-        userNote: userNote || undefined,
-        primaryKeyword: primaryKeyword || undefined,
-        ocrText: ocrText || undefined,
-        sources: sources,
-        projectId: topicProjectId,
-        futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
-        writtenAt: writtenAt,
-        highlights: userKeywords,
-      });
-      setIsSaving(false);
-      
-      if (success) {
-        toast.success('Changes saved');
-        if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt, highlights: userKeywords });
-        }
-      } else {
-        toast.error('Failed to save changes');
-        return;
-      }
-    }
+    const ok = await savePendingChanges();
+    if (!ok) return;
     onClose();
+  };
+
+  const handleViewHistoryWithSave = async () => {
+    const ok = await savePendingChanges();
+    if (!ok) return;
+    onViewHistory();
   };
 
   const addSource = () => {
@@ -611,8 +634,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <>
               {/* Timeline icon */}
               <button
-                onClick={onViewHistory}
-                className="flex flex-col items-center gap-2 group"
+                onClick={handleViewHistoryWithSave}
+                disabled={isSaving}
+                className="flex flex-col items-center gap-2 group disabled:opacity-50"
               >
                 <div className="w-14 h-14 rounded-full bg-codex-gold/20 border border-codex-gold/40 flex items-center justify-center group-hover:bg-codex-gold/30 transition-colors">
                   <BookOpen className="w-6 h-6 text-codex-gold" />
