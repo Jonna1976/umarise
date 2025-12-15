@@ -216,14 +216,16 @@ const Index = () => {
     setView('camera');
   }, []);
 
-  const handleBackFromDetail = useCallback(() => {
+  const handleBackFromDetail = useCallback(async () => {
+    // Refresh pages to pick up any changes made in the detail view
+    await refresh();
     // Return to capsule carousel if we came from there
     if (currentCapsule) {
       setView('capsule-carousel');
     } else {
       setView('history');
     }
-  }, [currentCapsule]);
+  }, [currentCapsule, refresh]);
 
   const handleViewPatterns = useCallback(() => {
     setView('patterns');
