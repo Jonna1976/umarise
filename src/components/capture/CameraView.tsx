@@ -227,71 +227,28 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         className="hidden"
       />
 
-      {/* Multi-image collection bar */}
+      {/* Page count indicator - minimal, positioned above portal */}
       <AnimatePresence>
         {capturedImages.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="absolute top-16 left-0 right-0 z-20 p-3"
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-20 left-0 right-0 z-20 flex justify-center"
           >
-            <div className="bg-codex-ink/90 backdrop-blur-md rounded-xl p-3 border border-codex-cream/20">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Images className="w-4 h-4 text-codex-gold" />
-                  <span className="text-codex-cream text-sm font-medium">
-                    {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'} in capsule
-                  </span>
-                </div>
-                <button
-                  onClick={cancelMultiMode}
-                  className="text-codex-cream/50 hover:text-codex-cream text-xs"
-                >
-                  Cancel
-                </button>
+            <div className="flex items-center gap-3 bg-codex-ink/60 backdrop-blur-sm rounded-full px-4 py-2 border border-codex-gold/30">
+              <div className="flex items-center gap-2">
+                <Images className="w-4 h-4 text-codex-gold" />
+                <span className="text-codex-cream text-sm font-medium">
+                  {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
+                </span>
               </div>
-              
-              {/* Draggable thumbnail strip */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {capturedImages.map((img, index) => (
-                  <motion.div 
-                    key={index} 
-                    layout
-                    className={`relative flex-shrink-0 cursor-grab active:cursor-grabbing ${
-                      draggedIndex === index ? 'opacity-50' : ''
-                    }`}
-                    draggable
-                    onDragStart={() => handleThumbnailDragStart(index)}
-                    onDragOver={(e) => handleThumbnailDragOver(e, index)}
-                    onDragEnd={handleThumbnailDragEnd}
-                  >
-                    <img
-                      src={img}
-                      alt={`Page ${index + 1}`}
-                      className="w-12 h-16 object-cover rounded-lg border border-codex-cream/20"
-                    />
-                    {/* Drag handle indicator */}
-                    <div className="absolute inset-x-0 top-0 flex justify-center">
-                      <GripVertical className="w-3 h-3 text-codex-cream/40" />
-                    </div>
-                    <span className="absolute bottom-0.5 left-0.5 bg-codex-ink/80 text-codex-cream text-[10px] px-1 rounded">
-                      {index + 1}
-                    </span>
-                    {/* Neutral delete button */}
-                    <button
-                      onClick={() => removeFromCollection(index)}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-codex-cream/20 hover:bg-codex-cream/40 rounded-full flex items-center justify-center transition-colors"
-                    >
-                      <X className="w-3 h-3 text-codex-cream" />
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
-              
-              <p className="text-codex-cream/40 text-[10px] mt-2 text-center">
-                Drag to reorder
-              </p>
+              <button
+                onClick={cancelMultiMode}
+                className="text-codex-cream/50 hover:text-codex-cream text-xs ml-2"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </motion.div>
         )}
