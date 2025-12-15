@@ -349,13 +349,25 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Heading above circle */}
+            {/* Heading above circle - typewriter effect */}
             <motion.h2
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className="font-playfair text-xl md:text-2xl text-primary-foreground/90 italic tracking-wide whitespace-nowrap mb-8"
             >
-              Handwriting, turned into lasting memory.
+              {"Handwriting, turned into lasting memory.".split("").map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ 
+                    delay: index * 0.05,
+                    duration: 0.1
+                  }}
+                >
+                  {char}
+                </motion.span>
+              ))}
             </motion.h2>
             
             {/* Container for circle + orbiting orbs */}
