@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.generate-year-reflection]
 verify_jwt = false
+
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.search-pages]
+verify_jwt = false

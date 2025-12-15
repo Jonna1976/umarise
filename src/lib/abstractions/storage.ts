@@ -91,37 +91,40 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async createPage(pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
+    // Cast to any to handle new columns not yet in generated types
+    const insertData = {
+      device_user_id: pageData.deviceUserId,
+      writer_user_id: pageData.writerUserId || pageData.deviceUserId,
+      image_url: pageData.imageUrl,
+      thumbnail_uri: pageData.thumbnailUri || null,
+      ocr_text: pageData.ocrText,
+      ocr_tokens: pageData.ocrTokens || [],
+      named_entities: pageData.namedEntities || [],
+      summary: pageData.summary,
+      one_line_hint: pageData.oneLineHint || null,
+      tone: pageData.tone[0] || 'reflective',
+      keywords: pageData.keywords,
+      topic_labels: pageData.topicLabels || [],
+      primary_keyword: pageData.primaryKeyword || null,
+      user_note: pageData.userNote || null,
+      sources: pageData.sources || [],
+      highlights: pageData.highlights || [],
+      capsule_id: pageData.capsuleId || null,
+      page_order: pageData.pageOrder ?? 0,
+      project_id: pageData.projectId || null,
+      future_you_cue: pageData.futureYouCue || null,
+      future_you_cues: pageData.futureYouCues || [],
+      future_you_cues_source: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
+      embedding_vector: pageData.embeddingVector || null,
+      session_id: pageData.sessionId || null,
+      capture_batch_id: pageData.captureBatchId || null,
+      source_container_id: pageData.sourceContainerId || null,
+      written_at: pageData.writtenAt?.toISOString() || null,
+    } as Record<string, unknown>;
+
     const { data, error } = await supabase
       .from('pages')
-      .insert({
-        device_user_id: pageData.deviceUserId,
-        writer_user_id: pageData.writerUserId || pageData.deviceUserId,
-        image_url: pageData.imageUrl,
-        thumbnail_uri: pageData.thumbnailUri || null,
-        ocr_text: pageData.ocrText,
-        ocr_tokens: pageData.ocrTokens || [],
-        named_entities: pageData.namedEntities || [],
-        summary: pageData.summary,
-        one_line_hint: pageData.oneLineHint || null,
-        tone: pageData.tone[0] || 'reflective',
-        keywords: pageData.keywords,
-        topic_labels: pageData.topicLabels || [],
-        primary_keyword: pageData.primaryKeyword || null,
-        user_note: pageData.userNote || null,
-        sources: pageData.sources || [],
-        highlights: pageData.highlights || [],
-        capsule_id: pageData.capsuleId || null,
-        page_order: pageData.pageOrder ?? 0,
-        project_id: pageData.projectId || null,
-        future_you_cue: pageData.futureYouCue || null,
-        future_you_cues: pageData.futureYouCues || [],
-        future_you_cues_source: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
-        embedding_vector: pageData.embeddingVector || null,
-        session_id: pageData.sessionId || null,
-        capture_batch_id: pageData.captureBatchId || null,
-        source_container_id: pageData.sourceContainerId || null,
-        written_at: pageData.writtenAt?.toISOString() || null,
-      })
+      .insert(insertData as never)
       .select()
       .single();
 
