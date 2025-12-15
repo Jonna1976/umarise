@@ -50,7 +50,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [allPages, setAllPages] = useState<Page[]>([]);
-  const [userKeywords, setUserKeywords] = useState<string[]>([]);
+  const [userKeywords, setUserKeywords] = useState<string[]>(page.highlights || []);
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
   const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
@@ -73,8 +73,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const topicChanged = topicProjectId !== page.projectId;
     const cuesChanged = JSON.stringify(futureYouCues) !== JSON.stringify(page.futureYouCues || []);
     const dateChanged = writtenAt.getTime() !== (page.writtenAt || page.createdAt).getTime();
-    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged);
-  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt]);
+    const userKeywordsChanged = JSON.stringify(userKeywords) !== JSON.stringify(page.highlights || []);
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged || userKeywordsChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, userKeywords, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt, page.highlights]);
 
 
   const handleSave = async () => {
@@ -89,6 +90,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       projectId: topicProjectId,
       futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
       writtenAt: writtenAt,
+      highlights: userKeywords,
     });
     
     setIsSaving(false);
@@ -97,7 +99,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt, highlights: userKeywords });
       }
     } else {
       toast.error('Failed to save');
@@ -116,13 +118,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         projectId: topicProjectId,
         futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
         writtenAt: writtenAt,
+        highlights: userKeywords,
       });
       setIsSaving(false);
       
       if (success) {
         toast.success('Changes saved');
         if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt });
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt, highlights: userKeywords });
         }
       } else {
         toast.error('Failed to save changes');
