@@ -20,7 +20,8 @@ import {
 } from '@/lib/deviceId';
 import { usePages } from '@/hooks/usePages';
 import { Page, CapsulePages } from '@/lib/pageService';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, Palette } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
@@ -317,13 +318,22 @@ const Index = () => {
 
   // Dev button (only visible when not in onboarding)
   const DevButton = view !== 'onboarding' && (
-    <button
-      onClick={() => setShowTestPanel(true)}
-      className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-codex-sepia/90 text-primary-foreground shadow-lg flex items-center justify-center hover:bg-codex-sepia transition-colors"
-      title="Open Test Panel"
-    >
-      <FlaskConical className="w-5 h-5" />
-    </button>
+    <div className="fixed bottom-6 left-6 z-40 flex flex-col gap-2">
+      <button
+        onClick={() => setShowTestPanel(true)}
+        className="w-12 h-12 rounded-full bg-codex-sepia/90 text-primary-foreground shadow-lg flex items-center justify-center hover:bg-codex-sepia transition-colors"
+        title="Open Test Panel"
+      >
+        <FlaskConical className="w-5 h-5" />
+      </button>
+      <Link
+        to="/warm-preview"
+        className="w-12 h-12 rounded-full bg-amber-600/90 text-white shadow-lg flex items-center justify-center hover:bg-amber-600 transition-colors"
+        title="View Warm Palette Preview"
+      >
+        <Palette className="w-5 h-5" />
+      </Link>
+    </div>
   );
 
   // Render based on current view
