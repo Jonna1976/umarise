@@ -47,6 +47,16 @@ export function PostCaptureFlow({
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 flex flex-col">
+      {/* Habit anchor - "Pen down. Snap." */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25, delay: 0.1 }}
+        className="text-center text-sm text-muted-foreground mt-4 font-serif italic"
+      >
+        Pen down. Snap.
+      </motion.p>
+
       {/* Header with thumbnail */}
       <div className="p-4 flex justify-center">
         <motion.div

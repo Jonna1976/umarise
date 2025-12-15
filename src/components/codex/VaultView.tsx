@@ -146,8 +146,9 @@ export function VaultView({
   
   if (items.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <p className="text-sm">Your vault is empty</p>
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <p className="text-lg font-serif text-foreground mb-2">Pen down. Snap.</p>
+        <p className="text-sm text-muted-foreground">Your pages live here.</p>
       </div>
     );
   }
