@@ -621,7 +621,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             <p className="text-primary-foreground/40 text-sm mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                : 'Drag or drop photos here'
+                : 'Every page adds more value. Upload and drop them here.'
               }
             </p>
           </motion.div>
@@ -638,15 +638,15 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         </button>
         
         {/* Demo Mode one-liner - centered */}
-        {isDemoMode && !capturedImage && (
+        {!capturedImage && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="absolute left-1/2 -translate-x-1/2"
           >
-            <p className="text-primary-foreground/90 font-serif text-sm italic tracking-wide whitespace-nowrap">
-              Photos for handwriting.
-            </p>
+            <h2 className="font-playfair text-xl md:text-2xl text-primary-foreground/90 italic tracking-wide whitespace-nowrap">
+              Handwriting, turned into lasting memory.
+            </h2>
           </motion.div>
         )}
         
