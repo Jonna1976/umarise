@@ -190,6 +190,48 @@ export type Database = {
         }
         Relationships: []
       }
+      search_telemetry: {
+        Row: {
+          created_at: string
+          device_user_id: string
+          found_it_confirmed: boolean | null
+          id: string
+          query: string
+          result_count: number
+          selected_page_id: string | null
+          selected_rank: number | null
+          time_filter_used: string | null
+          time_to_select_ms: number | null
+          top_5_page_ids: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          device_user_id: string
+          found_it_confirmed?: boolean | null
+          id?: string
+          query: string
+          result_count?: number
+          selected_page_id?: string | null
+          selected_rank?: number | null
+          time_filter_used?: string | null
+          time_to_select_ms?: number | null
+          top_5_page_ids?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          device_user_id?: string
+          found_it_confirmed?: boolean | null
+          id?: string
+          query?: string
+          result_count?: number
+          selected_page_id?: string | null
+          selected_rank?: number | null
+          time_filter_used?: string | null
+          time_to_select_ms?: number | null
+          top_5_page_ids?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
