@@ -7,6 +7,7 @@ import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
+import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/warm-preview" element={<WarmPaletteMockup />} />
+            <Route path="/current-preview" element={<CurrentPaletteMockup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
