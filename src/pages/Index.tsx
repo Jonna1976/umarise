@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen';
 import { CameraView } from '@/components/capture/CameraView';
 import { ProcessingView } from '@/components/capture/ProcessingView';
-import { SnapshotView } from '@/components/codex/SnapshotView';
+import { SnapshotView, SnapshotMatchInfo } from '@/components/codex/SnapshotView';
 import { HistoryView } from '@/components/codex/HistoryView';
 import { CapsuleCarouselView } from '@/components/codex/CapsuleCarouselView';
 import { TestPanel } from '@/components/dev/TestPanel';
@@ -11,7 +11,7 @@ import { PatternsView } from '@/components/codex/PatternsView';
 import { PersonalityView } from '@/components/codex/PersonalityView';
 import { KompasView } from '@/components/codex/KompasView';
 import { YearReflectionView } from '@/components/codex/YearReflectionView';
-import { SearchView } from '@/components/codex/SearchView';
+import { SearchView, SearchMatchInfo } from '@/components/codex/SearchView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -46,6 +46,9 @@ const Index = () => {
   
   // Post-capture state (now inline in SnapshotView, but we still track suggested cues)
   const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
+  
+  // Search match info (to show "why matched" in SnapshotView)
+  const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
 
   // Handle page update from SnapshotView
   // Note: The actual database save already happens in SnapshotView
@@ -208,6 +211,7 @@ const Index = () => {
 
   const handleSelectPage = useCallback((page: Page) => {
     setCurrentPage(page);
+    setSearchMatchInfo(null); // Clear match info when not coming from search
     setIsNewCapture(false);
     setView('detail');
   }, []);
@@ -457,6 +461,7 @@ const Index = () => {
             onViewHistory={handleOpenHistory}
             isNewCapture={false}
             onPageUpdate={handlePageUpdate}
+            matchInfo={searchMatchInfo || undefined}
           />
         ) : null;
       
@@ -482,8 +487,9 @@ const Index = () => {
         return (
           <SearchView
             onClose={() => setView('history')}
-            onSelectPage={(page) => {
+            onSelectPage={(page, matchInfo) => {
               setCurrentPage(page);
+              setSearchMatchInfo(matchInfo || null);
               setIsNewCapture(false);
               setView('detail');
             }}

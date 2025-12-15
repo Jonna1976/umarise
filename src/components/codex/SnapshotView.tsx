@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain } from 'lucide-react';
 import { Page, updatePage, confirmFutureYouCues } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -15,6 +15,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
+// Match info type (passed from SearchView)
+export interface SnapshotMatchInfo {
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
+  matchedTerms: string[];
+}
+
 interface SnapshotViewProps {
   page: Page;
   onClose: () => void;
@@ -23,6 +29,7 @@ interface SnapshotViewProps {
   onPageUpdate?: (page: Page) => void;
   isDemoMode?: boolean;
   suggestedCues?: string[]; // AI-suggested cues for new captures
+  matchInfo?: SnapshotMatchInfo; // Search match info (when opened from search)
 }
 
 function getToneClass(tone: string): string {
@@ -37,7 +44,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
@@ -424,7 +431,38 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image - centered */}
+        {/* Match Reason Banner - shown when opened from search (FIX 1: No black box) */}
+        {matchInfo && matchInfo.matchTypes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 rounded-lg bg-codex-gold/10 border border-codex-gold/20"
+          >
+            <div className="flex items-center gap-2 text-codex-gold">
+              {matchInfo.matchTypes[0] === 'cue' && <Tag className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'entity' && <User className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'text' && <FileText className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'meaning' && <Brain className="w-4 h-4" />}
+              <span className="text-sm font-medium">
+                {matchInfo.matchTypes[0] === 'cue' && `Matched on cue: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'entity' && `Matched on name: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'text' && `Matched on text: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'meaning' && 'Matched by meaning'}
+              </span>
+            </div>
+            {matchInfo.matchedTerms.length > 1 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {matchInfo.matchedTerms.slice(1, 4).map((term, i) => (
+                  <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-codex-gold/20 text-codex-gold/80">
+                    {term}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Image - centered (FIX 2: Original scan is dominant, visible without scroll) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}

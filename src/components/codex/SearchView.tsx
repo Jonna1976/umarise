@@ -8,6 +8,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId } from '@/lib/deviceId';
 import { formatDistanceToNow } from 'date-fns';
 
+export interface SearchMatchInfo {
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
+  matchedTerms: string[];
+}
+
 interface SearchResult {
   page: Page;
   score: number;
@@ -17,7 +22,7 @@ interface SearchResult {
 
 interface SearchViewProps {
   onClose: () => void;
-  onSelectPage: (page: Page) => void;
+  onSelectPage: (page: Page, matchInfo?: SearchMatchInfo) => void;
 }
 
 // Match type badges with icons
@@ -96,8 +101,13 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
   };
 
   // Handle page selection with telemetry + first retrieval message
-  const handleSelectPage = (page: Page, index: number) => {
+  const handleSelectPage = (page: Page, index: number, result: SearchResult) => {
     trackSelection(page, index);
+    
+    const matchInfo: SearchMatchInfo = {
+      matchTypes: result.matchTypes,
+      matchedTerms: result.matchedTerms,
+    };
     
     // Show the subtle "I'm someone who doesn't lose ideas" message on first successful retrieval
     if (!hasShownFirstRetrievalMessage) {
@@ -108,10 +118,10 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
       // Auto-hide after 3 seconds, then navigate
       setTimeout(() => {
         setShowFirstRetrievalMessage(false);
-        onSelectPage(page);
+        onSelectPage(page, matchInfo);
       }, 2500);
     } else {
-      onSelectPage(page);
+      onSelectPage(page, matchInfo);
     }
   };
 
@@ -165,12 +175,15 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
         setResults([]);
       } else {
         // Map the results - edge function now returns full page object
-        const mappedResults: SearchResult[] = (data?.results || []).map((r: any) => ({
-          page: r.page ? mapToPage(r.page) : null,
-          score: r.score,
-          matchTypes: r.match_types || [],
-          matchedTerms: r.matched_terms || []
-        })).filter((r: SearchResult) => r.page !== null);
+        // (FIX 4) Filter out null/undefined pages to avoid crashes
+        const mappedResults: SearchResult[] = (data?.results || [])
+          .filter((r: any) => r.page && r.page.id) // Ensure page exists with required id field
+          .map((r: any) => ({
+            page: mapToPage(r.page),
+            score: r.score || 0,
+            matchTypes: r.match_types || [],
+            matchedTerms: r.matched_terms || []
+          }));
         setResults(mappedResults);
         
         // Track search for telemetry
@@ -396,7 +409,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                onClick={() => handleSelectPage(result.page, index)}
+                onClick={() => handleSelectPage(result.page, index, result)}
                 className="w-full text-left p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
               >
                 <div className="flex gap-3">
