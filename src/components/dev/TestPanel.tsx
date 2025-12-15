@@ -413,6 +413,16 @@ export function TestPanel({
                 Warm (Library)
               </Button>
             </Link>
+            <Link to="/demo-walkthrough">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-forest-deep/50 text-forest-deep hover:bg-forest-deep/10"
+              >
+                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                Walkthrough Colors
+              </Button>
+            </Link>
           </div>
         </div>
 
