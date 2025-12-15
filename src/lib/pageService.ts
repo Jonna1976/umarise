@@ -12,7 +12,7 @@
 
 import { getStorageProvider, getAIProvider } from './abstractions';
 import { getDeviceId } from './deviceId';
-import type { Page, Project, CapsulePages } from './abstractions/types';
+import type { Page, Project, CapsulePages, PageAnalysisResult } from './abstractions/types';
 
 // Re-export types for backward compatibility
 export type { Page, Project, CapsulePages };
@@ -31,12 +31,13 @@ function extractBase64(dataUrl: string): string {
 
 /**
  * Create a new page with image upload and AI analysis
+ * Returns the page and suggested cues for the FutureYouCue prompt
  */
 export async function createPage(
   imageDataUrl: string, 
   capsuleId?: string, 
   pageOrder?: number
-): Promise<Page> {
+): Promise<{ page: Page; suggestedCues: string[] }> {
   const deviceUserId = getDeviceId();
   if (!deviceUserId) {
     throw new Error('Device ID not initialized');
@@ -48,7 +49,7 @@ export async function createPage(
   // Step 1: Analyze with AI
   console.log('Analyzing image with AI...');
   const base64 = extractBase64(imageDataUrl);
-  const analysis = await ai.analyzePage(base64);
+  const analysis = await ai.analyzePage(base64) as PageAnalysisResult;
   console.log('Analysis complete:', analysis);
 
   // Step 2: Upload image to storage
@@ -65,22 +66,50 @@ export async function createPage(
   // Step 4: Create page in storage
   const page = await storage.createPage({
     deviceUserId,
+    writerUserId: deviceUserId,
     imageUrl,
     ocrText: analysis.ocr_text,
+    ocrTokens: analysis.ocr_tokens || [],
+    namedEntities: analysis.named_entities || [],
     summary: analysis.summary,
+    oneLineHint: analysis.one_line_hint,
     tone: toneArray.length > 0 ? toneArray : ['reflective'],
     keywords: analysis.keywords,
+    topicLabels: analysis.topic_labels || [],
+    highlights: analysis.highlights || [],
     capsuleId: capsuleId || undefined,
     pageOrder: pageOrder ?? 0,
+    futureYouCues: [], // Will be set after user confirmation
+    futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: false },
   });
 
-  return page;
+  return { 
+    page, 
+    suggestedCues: analysis.suggested_cues || [] 
+  };
+}
+
+/**
+ * Update page with confirmed Future You Cues
+ */
+export async function confirmFutureYouCues(
+  pageId: string,
+  cues: string[],
+  userEdited: boolean,
+  writtenAt?: Date
+): Promise<boolean> {
+  const storage = getStorageProvider();
+  return storage.updatePage(pageId, {
+    futureYouCues: cues.slice(0, 3),
+    futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: userEdited },
+    writtenAt,
+  });
 }
 
 /**
  * Add a page to an existing capsule
  */
-export async function addToCapsule(imageDataUrl: string, capsuleId: string): Promise<Page> {
+export async function addToCapsule(imageDataUrl: string, capsuleId: string): Promise<{ page: Page; suggestedCues: string[] }> {
   const storage = getStorageProvider();
   
   // Get the current max page_order for this capsule
@@ -97,7 +126,7 @@ export async function addToCapsule(imageDataUrl: string, capsuleId: string): Pro
 export async function createCapsule(
   imageDataUrls: string[], 
   onProgress?: (completed: number, total: number) => void
-): Promise<Page[]> {
+): Promise<{ pages: Page[]; suggestedCuesPerPage: string[][] }> {
   if (imageDataUrls.length === 0) {
     throw new Error('No images provided');
   }
@@ -107,16 +136,20 @@ export async function createCapsule(
 
   const pagePromises = imageDataUrls.map(async (imageDataUrl, index) => {
     console.log(`Starting processing of image ${index + 1}...`);
-    const page = await createPage(imageDataUrl, capsuleId, index);
+    const result = await createPage(imageDataUrl, capsuleId, index);
     completed++;
     onProgress?.(completed, imageDataUrls.length);
     console.log(`Completed image ${index + 1} of ${imageDataUrls.length}`);
-    return { page, order: index };
+    return { ...result, order: index };
   });
 
   const results = await Promise.all(pagePromises);
   results.sort((a, b) => a.order - b.order);
-  return results.map(r => r.page);
+  
+  return {
+    pages: results.map(r => r.page),
+    suggestedCuesPerPage: results.map(r => r.suggestedCues),
+  };
 }
 
 /**
@@ -187,7 +220,16 @@ export async function deletePage(id: string): Promise<boolean> {
  */
 export async function updatePage(
   id: string, 
-  updates: { userNote?: string; primaryKeyword?: string; ocrText?: string; sources?: string[]; projectId?: string; futureYouCue?: string }
+  updates: { 
+    userNote?: string; 
+    primaryKeyword?: string; 
+    ocrText?: string; 
+    sources?: string[]; 
+    projectId?: string; 
+    futureYouCue?: string;
+    futureYouCues?: string[];
+    writtenAt?: Date;
+  }
 ): Promise<boolean> {
   const storage = getStorageProvider();
   return storage.updatePage(id, updates);

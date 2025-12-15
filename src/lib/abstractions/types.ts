@@ -8,22 +8,54 @@
 
 // ============= Core Data Types =============
 
+export interface OCRToken {
+  token: string;
+  confidence: number;
+  bbox?: { x: number; y: number; width: number; height: number };
+}
+
+export interface NamedEntity {
+  type: 'person' | 'organization' | 'location' | 'date' | 'deliverable' | 'other';
+  value: string;
+  confidence: number;
+  span?: { start: number; end: number };
+}
+
+export interface FutureYouCuesSource {
+  ai_prefill_version: string | null;
+  user_edited: boolean;
+}
+
 export interface Page {
   id: string;
   deviceUserId: string;
+  writerUserId: string;
   imageUrl: string;
+  thumbnailUri?: string;
   ocrText: string;
+  ocrTokens: OCRToken[];
+  namedEntities: NamedEntity[];
   summary: string;
+  oneLineHint?: string;
   tone: string[];
   keywords: string[];
+  topicLabels: string[];
   primaryKeyword?: string;
   userNote?: string;
   sources?: string[];
+  highlights: string[];
   confidenceScore?: number;
   capsuleId?: string;
   pageOrder?: number;
   projectId?: string;
-  futureYouCue?: string;
+  futureYouCue?: string; // Legacy single cue
+  futureYouCues: string[]; // New: exactly 3 cues
+  futureYouCuesSource: FutureYouCuesSource;
+  embeddingVector?: number[];
+  sessionId?: string;
+  captureBatchId?: string;
+  sourceContainerId?: string;
+  writtenAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -58,9 +90,15 @@ export interface PersonalitySnapshot {
 
 export interface PageAnalysisResult {
   ocr_text: string;
+  ocr_tokens: OCRToken[];
+  named_entities: NamedEntity[];
   summary: string;
+  one_line_hint: string;
   tone: string;
   keywords: string[];
+  topic_labels: string[];
+  highlights: string[];
+  suggested_cues: string[]; // 3 AI-suggested retrieval cues
 }
 
 export interface PatternAnalysisResult {
@@ -98,6 +136,27 @@ export interface YearReflectionResult {
   highlights: string[];
   growth_observation: string;
   top_keywords: string[];
+}
+
+// ============= Search Types =============
+
+export type SearchMatchType = 'cue' | 'text' | 'entity' | 'meaning';
+
+export interface SearchResult {
+  page: Page;
+  score: number;
+  matchTypes: SearchMatchType[];
+  matchedTerms: string[];
+}
+
+export interface SearchOptions {
+  query: string;
+  timeFilter?: {
+    after?: Date;
+    before?: Date;
+  };
+  limit?: number;
+  includeSemantic?: boolean;
 }
 
 // ============= Backend Configuration =============

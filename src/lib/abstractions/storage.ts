@@ -8,7 +8,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, setDeviceId } from '../deviceId';
-import type { Page, Project, StorageError } from './types';
+import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
 
@@ -95,18 +95,32 @@ export class LovableCloudStorage implements IStorageProvider {
       .from('pages')
       .insert({
         device_user_id: pageData.deviceUserId,
+        writer_user_id: pageData.writerUserId || pageData.deviceUserId,
         image_url: pageData.imageUrl,
+        thumbnail_uri: pageData.thumbnailUri || null,
         ocr_text: pageData.ocrText,
+        ocr_tokens: pageData.ocrTokens || [],
+        named_entities: pageData.namedEntities || [],
         summary: pageData.summary,
+        one_line_hint: pageData.oneLineHint || null,
         tone: pageData.tone[0] || 'reflective',
         keywords: pageData.keywords,
+        topic_labels: pageData.topicLabels || [],
         primary_keyword: pageData.primaryKeyword || null,
         user_note: pageData.userNote || null,
         sources: pageData.sources || [],
+        highlights: pageData.highlights || [],
         capsule_id: pageData.capsuleId || null,
         page_order: pageData.pageOrder ?? 0,
         project_id: pageData.projectId || null,
         future_you_cue: pageData.futureYouCue || null,
+        future_you_cues: pageData.futureYouCues || [],
+        future_you_cues_source: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
+        embedding_vector: pageData.embeddingVector || null,
+        session_id: pageData.sessionId || null,
+        capture_batch_id: pageData.captureBatchId || null,
+        source_container_id: pageData.sourceContainerId || null,
+        written_at: pageData.writtenAt?.toISOString() || null,
       })
       .select()
       .single();
@@ -209,6 +223,15 @@ export class LovableCloudStorage implements IStorageProvider {
     if (updates.sources !== undefined) updateData.sources = updates.sources;
     if (updates.projectId !== undefined) updateData.project_id = updates.projectId || null;
     if (updates.futureYouCue !== undefined) updateData.future_you_cue = updates.futureYouCue || null;
+    if (updates.futureYouCues !== undefined) updateData.future_you_cues = updates.futureYouCues;
+    if (updates.futureYouCuesSource !== undefined) updateData.future_you_cues_source = updates.futureYouCuesSource;
+    if (updates.ocrTokens !== undefined) updateData.ocr_tokens = updates.ocrTokens;
+    if (updates.namedEntities !== undefined) updateData.named_entities = updates.namedEntities;
+    if (updates.oneLineHint !== undefined) updateData.one_line_hint = updates.oneLineHint;
+    if (updates.topicLabels !== undefined) updateData.topic_labels = updates.topicLabels;
+    if (updates.highlights !== undefined) updateData.highlights = updates.highlights;
+    if (updates.embeddingVector !== undefined) updateData.embedding_vector = updates.embeddingVector;
+    if (updates.writtenAt !== undefined) updateData.written_at = updates.writtenAt?.toISOString() || null;
 
     const { error } = await supabase
       .from('pages')
@@ -351,22 +374,66 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   private mapRowToPage(row: Record<string, unknown>): Page {
+    // Parse OCR tokens
+    const ocrTokens: OCRToken[] = Array.isArray(row.ocr_tokens) 
+      ? (row.ocr_tokens as unknown[]).map((t: unknown) => {
+          const token = t as Record<string, unknown>;
+          return {
+            token: String(token.token || ''),
+            confidence: Number(token.confidence || 0.8),
+            bbox: token.bbox as OCRToken['bbox'],
+          };
+        })
+      : [];
+
+    // Parse named entities
+    const namedEntities: NamedEntity[] = Array.isArray(row.named_entities)
+      ? (row.named_entities as unknown[]).map((e: unknown) => {
+          const entity = e as Record<string, unknown>;
+          return {
+            type: entity.type as NamedEntity['type'] || 'other',
+            value: String(entity.value || ''),
+            confidence: Number(entity.confidence || 0.8),
+            span: entity.span as NamedEntity['span'],
+          };
+        })
+      : [];
+
+    // Parse future you cues source
+    const futureYouCuesSource: FutureYouCuesSource = row.future_you_cues_source 
+      ? (row.future_you_cues_source as FutureYouCuesSource)
+      : { ai_prefill_version: null, user_edited: false };
+
     return {
       id: row.id as string,
       deviceUserId: row.device_user_id as string,
+      writerUserId: (row.writer_user_id as string) || (row.device_user_id as string),
       imageUrl: row.image_url as string,
+      thumbnailUri: (row.thumbnail_uri as string) || undefined,
       ocrText: (row.ocr_text as string) || '',
+      ocrTokens,
+      namedEntities,
       summary: (row.summary as string) || '',
+      oneLineHint: (row.one_line_hint as string) || undefined,
       tone: row.tone ? [row.tone as string] : [],
       keywords: (row.keywords as string[]) || [],
+      topicLabels: (row.topic_labels as string[]) || [],
       primaryKeyword: (row.primary_keyword as string) || undefined,
       userNote: (row.user_note as string) || undefined,
       sources: (row.sources as string[]) || [],
+      highlights: (row.highlights as string[]) || [],
       confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
       capsuleId: (row.capsule_id as string) || undefined,
       pageOrder: (row.page_order as number) ?? 0,
       projectId: (row.project_id as string) || undefined,
       futureYouCue: (row.future_you_cue as string) || undefined,
+      futureYouCues: (row.future_you_cues as string[]) || [],
+      futureYouCuesSource,
+      embeddingVector: row.embedding_vector as number[] || undefined,
+      sessionId: (row.session_id as string) || undefined,
+      captureBatchId: (row.capture_batch_id as string) || undefined,
+      sourceContainerId: (row.source_container_id as string) || undefined,
+      writtenAt: row.written_at ? new Date(row.written_at as string) : undefined,
       createdAt: new Date(row.created_at as string),
       updatedAt: row.updated_at ? new Date(row.updated_at as string) : undefined,
     };
@@ -379,8 +446,6 @@ export class HetznerVaultStorage implements IStorageProvider {
   constructor(private config: { vaultEndpoint: string; ipfsGateway: string }) {}
 
   async uploadImage(_imageDataUrl: string): Promise<string> {
-    // Future: Upload to Hetzner Vault with AES-256-GCM encryption
-    // Then pin to IPFS for distributed backup
     throw new Error('Hetzner storage not yet implemented');
   }
 
