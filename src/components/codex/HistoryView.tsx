@@ -329,7 +329,7 @@ export function HistoryView({
               className="w-full flex items-center gap-3 pl-4 pr-4 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-muted-foreground hover:bg-codex-gold/20 hover:text-foreground transition-all"
             >
               <Search className="w-5 h-5 text-codex-gold" />
-              <span className="font-medium">Zoek in je codex...</span>
+              <span className="font-medium">Search your memory...</span>
             </button>
           </div>
         )}
@@ -838,7 +838,7 @@ export function HistoryView({
                 ? `No pages found for "${searchQuery}"`
                 : filter !== 'all' 
                   ? 'No pages in this time period' 
-                  : 'Your codex is empty'}
+                  : 'Your memory is empty'}
             </p>
             {searchQuery ? (
               <Button onClick={() => setSearchQuery('')} variant="outline">
@@ -1045,7 +1045,7 @@ export function HistoryView({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this page?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this page from your codex. This action cannot be undone.
+              This will permanently remove this page from your memory. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1063,7 +1063,7 @@ export function HistoryView({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this capsule?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove all {capsuleToDelete?.pages.length || 0} pages in this capsule from your codex. This action cannot be undone.
+              This will permanently remove all {capsuleToDelete?.pages.length || 0} pages in this capsule from your memory. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

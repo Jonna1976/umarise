@@ -376,7 +376,7 @@ function ThreadDetail({ thread, onClose }: ThreadDetailProps) {
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold text-foreground">{thread.keyword}</h2>
-              <p className="text-xs text-muted-foreground">{thread.ageLabel} in je codex</p>
+              <p className="text-xs text-muted-foreground">{thread.ageLabel} in your memory</p>
             </div>
           </div>
           <button

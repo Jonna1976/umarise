@@ -46,7 +46,7 @@ export function PostCaptureCelebration({
   if (!isVisible) return null;
 
   const getMessage = () => {
-    if (pageNumber === 1) return "Your codex begins!";
+    if (pageNumber === 1) return "Your memory begins!";
     if (pageNumber === 2) return "Threads are forming...";
     if (pageNumber === 3) return "Patterns unlocked!";
     if (pageNumber === 5) return "Personality revealed!";
@@ -117,7 +117,7 @@ export function PostCaptureCelebration({
             >
               {pageNumber < 5 
                 ? `${5 - pageNumber} more until personality insights`
-                : "Your codex grows wiser"
+                : "Your memory grows wiser"
               }
             </motion.p>
           </motion.div>

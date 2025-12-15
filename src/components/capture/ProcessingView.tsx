@@ -179,7 +179,7 @@ export function ProcessingView({
           transition={{ delay: 1.5 }}
           className="mt-2 text-xs text-muted-foreground/60"
         >
-          This will be page {currentPageCount + 1}{totalImages > 1 ? `-${currentPageCount + totalImages}` : ''} in your codex
+          This will be page {currentPageCount + 1}{totalImages > 1 ? `-${currentPageCount + totalImages}` : ''} in your memory
         </motion.p>
       )}
     </div>

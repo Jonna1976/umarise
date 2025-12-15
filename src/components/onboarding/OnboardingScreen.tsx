@@ -22,7 +22,7 @@ const slides = [
   },
   {
     icon: Sparkles,
-    title: "We build your codex",
+    title: "We build your memory",
     description: "Snapshots of what mattered in each moment. Over time: patterns across weeks, threads across years.",
     accent: "Your ideas, connected.",
   },

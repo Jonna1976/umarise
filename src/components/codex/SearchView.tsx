@@ -237,7 +237,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Zoek in je codex..."
+              placeholder="Search your memory..."
               className="pl-10 pr-10 bg-muted/50 border-border"
               autoFocus
             />
