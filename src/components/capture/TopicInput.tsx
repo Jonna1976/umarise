@@ -100,7 +100,7 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-codex-gold/60" />
         <Input
           ref={inputRef}
           value={value}
@@ -109,7 +109,7 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="pl-10 bg-secondary/50 border-border/50 focus:border-codex-gold/50"
+          className="pl-10 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 focus:border-codex-gold/60 focus:ring-codex-gold/20"
         />
       </div>
 
@@ -166,7 +166,7 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
       </AnimatePresence>
 
       {/* Hint text */}
-      <p className="mt-2 text-sm text-foreground/70">
+      <p className="mt-2 text-sm text-codex-cream/60">
         What is this about? Keep it short (2-3 words)
       </p>
     </div>
