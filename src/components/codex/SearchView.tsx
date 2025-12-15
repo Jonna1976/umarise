@@ -145,13 +145,13 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
         console.error('Search error:', error);
         setResults([]);
       } else {
-        // Map the results
+        // Map the results - edge function now returns full page object
         const mappedResults: SearchResult[] = (data?.results || []).map((r: any) => ({
-          page: mapToPage(r.page),
+          page: r.page ? mapToPage(r.page) : null,
           score: r.score,
           matchTypes: r.match_types || [],
           matchedTerms: r.matched_terms || []
-        }));
+        })).filter((r: SearchResult) => r.page !== null);
         setResults(mappedResults);
         
         // Track search for telemetry
