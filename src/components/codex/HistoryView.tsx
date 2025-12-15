@@ -688,11 +688,14 @@ export function HistoryView({
                 <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground mb-6">
-                  {searchQuery
-                    ? `No pages found for "${searchQuery}"`
-                    : 'Your library is empty'}
-                </p>
+                {searchQuery ? (
+                  <p className="text-muted-foreground mb-6">No pages found for "{searchQuery}"</p>
+                ) : (
+                  <>
+                    <p className="text-lg font-serif text-foreground mb-2">Pen down. Snap.</p>
+                    <p className="text-sm text-muted-foreground mb-6">Your pages live here.</p>
+                  </>
+                )}
                 <Button onClick={onBack} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
                   Start writing
@@ -833,22 +836,30 @@ export function HistoryView({
                 <Calendar className="w-8 h-8 text-muted-foreground" />
               )}
             </div>
-            <p className="text-muted-foreground mb-6">
-              {searchQuery
-                ? `No pages found for "${searchQuery}"`
-                : filter !== 'all' 
-                  ? 'No pages in this time period' 
-                  : 'Your memory is empty'}
-            </p>
             {searchQuery ? (
-              <Button onClick={() => setSearchQuery('')} variant="outline">
-                Clear search
-              </Button>
+              <>
+                <p className="text-muted-foreground mb-6">No pages found for "{searchQuery}"</p>
+                <Button onClick={() => setSearchQuery('')} variant="outline">
+                  Clear search
+                </Button>
+              </>
+            ) : filter !== 'all' ? (
+              <>
+                <p className="text-muted-foreground mb-6">No pages in this time period</p>
+                <Button onClick={onBack} variant="codex">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Capture your first page
+                </Button>
+              </>
             ) : (
-              <Button onClick={onBack} variant="codex">
-                <Camera className="w-4 h-4 mr-2" />
-                Capture your first page
-              </Button>
+              <>
+                <p className="text-lg font-serif text-foreground mb-2">Pen down. Snap.</p>
+                <p className="text-sm text-muted-foreground mb-6">Your pages live here.</p>
+                <Button onClick={onBack} variant="codex">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Capture your first page
+                </Button>
+              </>
             )}
           </motion.div>
         ) : (
