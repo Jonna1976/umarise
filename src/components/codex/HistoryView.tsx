@@ -35,6 +35,7 @@ interface HistoryViewProps {
   onViewPersonality?: () => void;
   onViewKompas?: () => void;
   onViewYearReflection?: () => void;
+  onOpenSearch?: () => void;
   highlightPageId?: string;
 }
 
@@ -81,6 +82,7 @@ export function HistoryView({
   onViewPersonality,
   onViewKompas,
   onViewYearReflection,
+  onOpenSearch,
   highlightPageId
 }: HistoryViewProps) {
   const { isDemoMode } = useDemoMode();
