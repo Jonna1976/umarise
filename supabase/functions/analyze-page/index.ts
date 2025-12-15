@@ -181,17 +181,25 @@ serve(async (req) => {
     let analysisResult;
     try {
       let jsonStr = content.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.slice(7);
-      } else if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.slice(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.slice(0, -3);
-      }
+      
+      // Strip markdown code block markers more robustly
+      // Handle ```json, ```JSON, ``` with newlines, etc.
+      jsonStr = jsonStr.replace(/^```(?:json|JSON)?\s*/i, '');
+      jsonStr = jsonStr.replace(/\s*```\s*$/i, '');
       jsonStr = jsonStr.trim();
 
-      analysisResult = JSON.parse(jsonStr);
+      // Try to parse directly first
+      try {
+        analysisResult = JSON.parse(jsonStr);
+      } catch (firstParseError) {
+        // If direct parse fails, try to find JSON object in the string
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          analysisResult = JSON.parse(jsonMatch[0]);
+        } else {
+          throw firstParseError;
+        }
+      }
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', content);
       return new Response(
