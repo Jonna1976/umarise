@@ -17,15 +17,16 @@ import {
   Loader2,
   FileText,
   Bug,
-  Copy
+  Copy,
+  Palette
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
-
 import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -381,6 +382,36 @@ export function TestPanel({
               <FileText className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
               One-Pager
             </Button>
+          </div>
+        </div>
+
+        {/* Color Palette Previews */}
+        <div className="p-4 bg-amber-500/10 border-b border-border">
+          <h3 className="text-xs font-medium text-amber-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Palette className="w-3.5 h-3.5" />
+            Color Palette Vergelijking
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/current-preview">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-codex-gold/50 text-codex-gold hover:bg-codex-gold/10"
+              >
+                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                Huidig (Forest)
+              </Button>
+            </Link>
+            <Link to="/warm-preview">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-amber-600/50 text-amber-600 hover:bg-amber-600/10"
+              >
+                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                Warm (Library)
+              </Button>
+            </Link>
           </div>
         </div>
 
