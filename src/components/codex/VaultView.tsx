@@ -45,7 +45,8 @@ function MiniBook({
   
   const color = getToneColor(representativePage.tone);
   const pageCount = item.type === 'capsule' ? item.capsule.pages.length : 1;
-  const width = 8 + Math.min(pageCount * 2, 8);
+  // Bigger books for more visual impact
+  const width = 16 + Math.min(pageCount * 4, 16);
   
   // Extract first letter or keyword initial for quick recognition
   const initial = representativePage.primaryKeyword?.[0]?.toUpperCase() || 
@@ -117,17 +118,18 @@ export function VaultView({
   const { shelves, booksPerShelf, shelfHeight } = useMemo(() => {
     const itemCount = items.length;
     
+    // Larger shelf heights for bigger, more impactful books
     if (itemCount <= 20) {
-      return { shelves: 2, booksPerShelf: 10, shelfHeight: 80 };
+      return { shelves: 2, booksPerShelf: 10, shelfHeight: 120 };
     } else if (itemCount <= 50) {
-      return { shelves: 3, booksPerShelf: 17, shelfHeight: 70 };
+      return { shelves: 3, booksPerShelf: 17, shelfHeight: 110 };
     } else if (itemCount <= 100) {
-      return { shelves: 4, booksPerShelf: 25, shelfHeight: 60 };
+      return { shelves: 3, booksPerShelf: 34, shelfHeight: 100 };
     } else if (itemCount <= 200) {
-      return { shelves: 5, booksPerShelf: 40, shelfHeight: 50 };
+      return { shelves: 4, booksPerShelf: 50, shelfHeight: 90 };
     } else {
-      // 200+ pages - maximum density
-      return { shelves: 6, booksPerShelf: 50, shelfHeight: 45 };
+      // 200+ pages - still impactful
+      return { shelves: 5, booksPerShelf: 60, shelfHeight: 80 };
     }
   }, [items.length]);
   
@@ -153,9 +155,9 @@ export function VaultView({
   return (
     <div className="relative px-4 py-6">
       {/* Vault header */}
-      <div className="text-center mb-4">
-        <span className="text-xs text-muted-foreground font-medium">
-          {items.length} memories • {shelves} shelves
+      <div className="text-center mb-6">
+        <span className="text-sm text-muted-foreground font-medium">
+          {items.length} memory capture{items.length !== 1 ? 's' : ''} • {shelfItems.filter(s => s.length > 0).length} {shelfItems.filter(s => s.length > 0).length === 1 ? 'shelf' : 'shelves'}
         </span>
       </div>
       
