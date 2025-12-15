@@ -49,8 +49,8 @@ export function usePages() {
       const result = await createPageService(imageDataUrl);
       
       // Check for duplicate after creation (we have OCR text now)
-      const duplicate = await checkDuplicate(result.page.ocrText);
-      if (duplicate && duplicate.id !== result.page.id) {
+      const duplicate = await checkDuplicate(result.page.ocrText, result.page.id);
+      if (duplicate) {
         toast.warning('This page looks similar to one you already captured', {
           description: `Similar to page from ${duplicate.createdAt.toLocaleDateString()}`,
           duration: 5000,

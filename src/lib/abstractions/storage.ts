@@ -32,7 +32,7 @@ export interface IStorageProvider {
   createProject(name: string): Promise<Project | null>;
   
   // Duplicate detection
-  checkDuplicate(ocrText: string): Promise<Page | null>;
+  checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null>;
 }
 
 // ============= Lovable Cloud Implementation =============
@@ -338,25 +338,31 @@ export class LovableCloudStorage implements IStorageProvider {
     };
   }
 
-  async checkDuplicate(ocrText: string): Promise<Page | null> {
+  async checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null> {
     const deviceUserId = getDeviceId();
     if (!deviceUserId || !ocrText || ocrText.length < 50) return null;
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('pages')
       .select('*')
       .eq('device_user_id', deviceUserId)
       .order('created_at', { ascending: false })
       .limit(20);
 
+    if (excludePageId) {
+      query = query.neq('id', excludePageId);
+    }
+
+    const { data, error } = await query;
+
     if (error || !data) return null;
 
     const normalizedNew = ocrText.slice(0, 200).toLowerCase().replace(/\s+/g, ' ').trim();
-    
+
     for (const row of data) {
       if (!row.ocr_text) continue;
       const normalizedExisting = row.ocr_text.slice(0, 200).toLowerCase().replace(/\s+/g, ' ').trim();
-      
+
       if (this.calculateSimilarity(normalizedNew, normalizedExisting) > 0.8) {
         return this.mapRowToPage(row);
       }
@@ -488,7 +494,7 @@ export class HetznerVaultStorage implements IStorageProvider {
     throw new Error('Hetzner storage not yet implemented');
   }
 
-  async checkDuplicate(_ocrText: string): Promise<Page | null> {
+  async checkDuplicate(_ocrText: string, _excludePageId?: string): Promise<Page | null> {
     throw new Error('Hetzner storage not yet implemented');
   }
 }
