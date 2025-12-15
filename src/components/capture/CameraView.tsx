@@ -360,16 +360,19 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 ))}
               </AnimatePresence>
               
-              {/* Orbiting image previews - floating showcase around portal */}
-              {capturedImages.map((img, index) => {
+              {/* Orbiting golden orbs - one per captured page */}
+              {capturedImages.map((_, index) => {
                 const totalOrbs = capturedImages.length;
                 const angle = (index / totalOrbs) * 360;
-                const orbitRadius = 140; // px from center
+                const orbitRadius = 120; // px from center
+                // Slight hue variation within gold range
+                const hue = 38 + (index % 5) * 3;
+                const orbOpacity = 0.7 + (index % 3) * 0.1;
                 
                 return (
                   <motion.div
                     key={index}
-                    className="absolute"
+                    className="absolute w-5 h-5 rounded-full"
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ 
                       opacity: 1, 
@@ -377,56 +380,30 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                       rotate: [angle, angle + 360],
                     }}
                     transition={{
-                      opacity: { duration: 0.4 },
-                      scale: { duration: 0.4, type: 'spring', bounce: 0.3 },
-                      rotate: { duration: 30, repeat: Infinity, ease: 'linear' },
+                      opacity: { duration: 0.3 },
+                      scale: { duration: 0.3, type: 'spring' },
+                      rotate: { duration: 25, repeat: Infinity, ease: 'linear' },
                     }}
                     style={{
                       transformOrigin: 'center center',
                     }}
                   >
-                    {/* Image preview card - counter-rotate to stay upright */}
                     <motion.div
-                      className="relative w-14 h-18 rounded-lg overflow-hidden"
+                      className="w-5 h-5 rounded-full"
                       style={{
                         transform: `translateX(${orbitRadius}px)`,
+                        background: `hsl(${hue}, 75%, 55%)`,
+                        boxShadow: `0 0 12px 3px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
                       }}
                       animate={{
-                        rotate: [-angle, -angle - 360],
+                        boxShadow: [
+                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.6})`,
+                          `0 0 18px 6px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
+                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.6})`,
+                        ],
                       }}
-                      transition={{
-                        rotate: { duration: 30, repeat: Infinity, ease: 'linear' },
-                      }}
-                    >
-                      {/* Golden glow behind */}
-                      <motion.div 
-                        className="absolute -inset-1 rounded-lg bg-codex-gold/30"
-                        animate={{
-                          boxShadow: [
-                            '0 0 12px 4px hsla(38, 75%, 55%, 0.3)',
-                            '0 0 20px 8px hsla(38, 75%, 55%, 0.5)',
-                            '0 0 12px 4px hsla(38, 75%, 55%, 0.3)',
-                          ],
-                        }}
-                        transition={{ duration: 2.5, repeat: Infinity }}
-                      />
-                      
-                      {/* Image with golden border */}
-                      <div className="relative w-14 h-18 rounded-lg overflow-hidden border-2 border-codex-gold/70 shadow-lg">
-                        <img
-                          src={img}
-                          alt={`Page ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Subtle paper overlay for cohesion */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-codex-cream/5 to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Page number badge */}
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-codex-gold rounded-full flex items-center justify-center shadow-md">
-                        <span className="text-[10px] font-medium text-codex-ink">{index + 1}</span>
-                      </div>
-                    </motion.div>
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
                   </motion.div>
                 );
               })}
