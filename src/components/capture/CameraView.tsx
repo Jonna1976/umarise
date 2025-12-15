@@ -344,7 +344,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             ref={dropZoneRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center p-8 relative"
+            className="text-center p-8 relative group"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -618,7 +618,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               </motion.button>
             </div>
             
-            <p className="text-primary-foreground/40 text-sm mt-8">
+            <p className="text-primary-foreground/40 text-sm mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
                 : 'Drag or drop photos here'
