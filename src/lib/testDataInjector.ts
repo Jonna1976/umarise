@@ -260,13 +260,39 @@ export async function injectTestData(onProgress?: (current: number, total: numbe
   return inserted;
 }
 
+/**
+ * Clear ALL pages for the current device (FIX 3: Truly idempotent reset)
+ * This removes both demo data and manually created pages to ensure
+ * a clean slate for deterministic demo state.
+ */
+export async function clearAllPagesForDevice(): Promise<number> {
+  const deviceUserId = getDeviceId();
+  if (!deviceUserId) {
+    throw new Error('Device ID not found');
+  }
+
+  // Delete ALL pages for this device (idempotent reset)
+  const { data, error } = await supabase
+    .from('pages')
+    .delete()
+    .eq('device_user_id', deviceUserId)
+    .select('id');
+
+  if (error) {
+    console.error('Failed to clear all pages:', error);
+    return 0;
+  }
+
+  return data?.length || 0;
+}
+
 export async function clearTestData(): Promise<number> {
   const deviceUserId = getDeviceId();
   if (!deviceUserId) {
     throw new Error('Device ID not found');
   }
 
-  // Delete all pages for this device (test data uses stock images from unsplash)
+  // Delete only pages with unsplash images (test data)
   const { data, error } = await supabase
     .from('pages')
     .delete()
@@ -283,13 +309,13 @@ export async function clearTestData(): Promise<number> {
 }
 
 /**
- * Idempotent reset + inject: clears existing test data first, then injects fresh
- * Ensures deterministic state for demo
+ * Idempotent reset + inject: clears ALL existing pages first, then injects fresh demo data.
+ * (FIX 3) Ensures deterministic state for demo - one click always produces the same dataset.
  */
 export async function resetAndInjectTestData(onProgress?: (current: number, total: number) => void): Promise<{ cleared: number; inserted: number }> {
-  // First clear existing test data
-  const cleared = await clearTestData();
-  console.log(`Cleared ${cleared} existing test pages`);
+  // Clear ALL pages for this device (not just unsplash images)
+  const cleared = await clearAllPagesForDevice();
+  console.log(`Cleared ${cleared} existing pages (all data for device)`);
   
   // Then inject fresh data
   const inserted = await injectTestData(onProgress);
