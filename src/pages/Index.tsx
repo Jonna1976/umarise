@@ -18,7 +18,7 @@ import {
   completeOnboarding 
 } from '@/lib/deviceId';
 import { usePages } from '@/hooks/usePages';
-import { Page, CapsulePages } from '@/lib/pageService';
+import { Page, CapsulePages, getCapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -219,12 +219,24 @@ const Index = () => {
   const handleBackFromDetail = useCallback(async () => {
     // Refresh pages to pick up any changes made in the detail view
     await refresh();
-    // Return to capsule carousel if we came from there
+
+    // If we came from a capsule, also refresh the capsule payload itself.
+    // Otherwise the carousel can hold on to a stale page object (e.g. missing highlights).
     if (currentCapsule) {
+      try {
+        const updatedCapsulePages = await getCapsulePages(currentCapsule.capsuleId);
+        setCurrentCapsule({
+          capsuleId: currentCapsule.capsuleId,
+          pages: [...updatedCapsulePages].sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0)),
+        });
+      } catch (e) {
+        console.warn('[Index] Failed to refresh capsule pages', e);
+      }
       setView('capsule-carousel');
-    } else {
-      setView('history');
+      return;
     }
+
+    setView('history');
   }, [currentCapsule, refresh]);
 
   const handleViewPatterns = useCallback(() => {
@@ -364,27 +376,35 @@ const Index = () => {
               setView('detail');
             }}
             onCapsuleUpdated={async () => {
+              if (!currentCapsule) return;
               await refresh();
-              // Re-fetch capsule with updated data
-              const updatedPages = pages.filter(p => p.capsuleId === currentCapsule.capsuleId);
-              if (updatedPages.length > 0) {
+              try {
+                const updatedCapsulePages = await getCapsulePages(currentCapsule.capsuleId);
                 setCurrentCapsule({
                   capsuleId: currentCapsule.capsuleId,
-                  pages: updatedPages.sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0))
+                  pages: [...updatedCapsulePages].sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0)),
                 });
+              } catch (e) {
+                console.warn('[Index] Failed to refresh capsule pages (onCapsuleUpdated)', e);
               }
             }}
             onPageDeleted={async (pageId) => {
+              if (!currentCapsule) return;
               await refresh();
-              // Re-fetch capsule with remaining pages
-              const remainingPages = pages.filter(p => p.capsuleId === currentCapsule.capsuleId && p.id !== pageId);
-              if (remainingPages.length > 0) {
-                setCurrentCapsule({
-                  capsuleId: currentCapsule.capsuleId,
-                  pages: remainingPages.sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0))
-                });
-              } else {
-                // No pages left, close carousel
+
+              try {
+                const remaining = (await getCapsulePages(currentCapsule.capsuleId)).filter(p => p.id !== pageId);
+                if (remaining.length > 0) {
+                  setCurrentCapsule({
+                    capsuleId: currentCapsule.capsuleId,
+                    pages: [...remaining].sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0)),
+                  });
+                } else {
+                  setCurrentCapsule(null);
+                  setView('history');
+                }
+              } catch (e) {
+                console.warn('[Index] Failed to refresh capsule pages (onPageDeleted)', e);
                 setCurrentCapsule(null);
                 setView('history');
               }
