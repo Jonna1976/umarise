@@ -192,9 +192,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-codex-gold/20 text-codex-gold text-sm font-medium border border-codex-gold/30">
+            <h2 className="font-serif text-xl text-codex-gold tracking-wide">
               Added to your codex
-            </span>
+            </h2>
           </motion.div>
         )}
 
