@@ -11,7 +11,6 @@ import { PatternsView } from '@/components/codex/PatternsView';
 import { PersonalityView } from '@/components/codex/PersonalityView';
 import { KompasView } from '@/components/codex/KompasView';
 import { YearReflectionView } from '@/components/codex/YearReflectionView';
-import { PostCaptureFlow } from '@/components/codex/PostCaptureFlow';
 import { SearchView } from '@/components/codex/SearchView';
 import { 
   initializeDeviceId, 
@@ -24,7 +23,7 @@ import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'post-capture' | 'search';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search';
 
 const Index = () => {
   const { isDemoMode } = useDemoMode();
@@ -45,9 +44,8 @@ const Index = () => {
   const [targetCapsuleId, setTargetCapsuleId] = useState<string | null>(null);
   const [currentCapsule, setCurrentCapsule] = useState<CapsulePages | null>(null);
   
-  // Post-capture flow state
-  const [pendingPage, setPendingPage] = useState<Page | null>(null);
-  const [pendingSuggestedCues, setPendingSuggestedCues] = useState<string[]>([]);
+  // Post-capture state (now inline in SnapshotView, but we still track suggested cues)
+  const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
 
   // Handle page update from SnapshotView
   // Note: The actual database save already happens in SnapshotView
@@ -93,17 +91,11 @@ const Index = () => {
       const result = await createPage(imageDataUrl);
       
       if (result) {
-        // In Demo Mode, skip cue prompt and go straight to snapshot
-        if (isDemoMode) {
-          setCurrentPage(result.page);
-          setIsNewCapture(true);
-          setView('snapshot');
-        } else {
-          // Show mandatory Future You Cue prompt
-          setPendingPage(result.page);
-          setPendingSuggestedCues(result.suggestedCues);
-          setView('post-capture');
-        }
+        // Go directly to SnapshotView with suggested cues (no separate post-capture step)
+        setCurrentPage(result.page);
+        setSuggestedCues(isDemoMode ? [] : result.suggestedCues);
+        setIsNewCapture(true);
+        setView('snapshot');
       } else {
         toast.error('Failed to process page. Please try again.');
         setView('camera');
@@ -131,17 +123,11 @@ const Index = () => {
       const result = await createCapsule(imageDataUrls);
       
       if (result && result.pages.length > 0) {
-        // In Demo Mode, skip cue prompt
-        if (isDemoMode) {
-          setCurrentPage(result.pages[0]);
-          setIsNewCapture(true);
-          setView('snapshot');
-        } else {
-          // Show cue prompt for first page (TODO: could do for each)
-          setPendingPage(result.pages[0]);
-          setPendingSuggestedCues(result.suggestedCuesPerPage[0] || []);
-          setView('post-capture');
-        }
+        // Go directly to SnapshotView with first page and its cues
+        setCurrentPage(result.pages[0]);
+        setSuggestedCues(isDemoMode ? [] : (result.suggestedCuesPerPage[0] || []));
+        setIsNewCapture(true);
+        setView('snapshot');
       } else {
         toast.error('Failed to process pages. Please try again.');
         setView('camera');
@@ -172,15 +158,11 @@ const Index = () => {
       const result = await addToCapsule(imageDataUrl, targetCapsuleId);
       
       if (result) {
-        if (isDemoMode) {
-          setCurrentPage(result.page);
-          setIsNewCapture(true);
-          setView('snapshot');
-        } else {
-          setPendingPage(result.page);
-          setPendingSuggestedCues(result.suggestedCues);
-          setView('post-capture');
-        }
+        // Go directly to SnapshotView
+        setCurrentPage(result.page);
+        setSuggestedCues(isDemoMode ? [] : result.suggestedCues);
+        setIsNewCapture(true);
+        setView('snapshot');
       } else {
         toast.error('Failed to add page. Please try again.');
         setView('history');
@@ -194,26 +176,6 @@ const Index = () => {
       setTargetCapsuleId(null);
     }
   }, [addToCapsule, targetCapsuleId, isDemoMode]);
-
-  // Handle post-capture flow completion
-  const handlePostCaptureComplete = useCallback((updatedPage: Page) => {
-    setCurrentPage(updatedPage);
-    setIsNewCapture(true);
-    setPendingPage(null);
-    setPendingSuggestedCues([]);
-    setView('snapshot');
-  }, []);
-
-  // Handle post-capture skip
-  const handlePostCaptureSkip = useCallback(() => {
-    if (pendingPage) {
-      setCurrentPage(pendingPage);
-      setIsNewCapture(true);
-    }
-    setPendingPage(null);
-    setPendingSuggestedCues([]);
-    setView('snapshot');
-  }, [pendingPage]);
 
   // Handle opening search
   const handleOpenSearch = useCallback(() => {
@@ -360,6 +322,7 @@ const Index = () => {
             isNewCapture={isNewCapture}
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
+            suggestedCues={isNewCapture ? suggestedCues : undefined}
           />
         ) : null;
       
@@ -491,15 +454,7 @@ const Index = () => {
           <PersonalityView onBack={handleBackFromPersonality} forceEmpty />
         );
       
-      case 'post-capture':
-        return pendingPage ? (
-          <PostCaptureFlow
-            page={pendingPage}
-            suggestedCues={pendingSuggestedCues}
-            onComplete={handlePostCaptureComplete}
-            onSkip={handlePostCaptureSkip}
-          />
-        ) : null;
+      // post-capture view removed - cues now inline in SnapshotView
       
       case 'search':
         return (

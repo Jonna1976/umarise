@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar } from 'lucide-react';
-import { Page, updatePage, getPages } from '@/lib/pageService';
+import { Page, updatePage, getPages, confirmFutureYouCues } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TopicInput } from '@/components/capture/TopicInput';
 import { EarlyInsights } from './EarlyInsights';
+import { FutureYouCuePrompt } from './FutureYouCuePrompt';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ interface SnapshotViewProps {
   isNewCapture?: boolean;
   onPageUpdate?: (page: Page) => void;
   isDemoMode?: boolean;
+  suggestedCues?: string[]; // AI-suggested cues for new captures
 }
 
 function getToneClass(tone: string): string {
@@ -35,7 +37,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
@@ -52,6 +54,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
   const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
+  const [cuesConfirmed, setCuesConfirmed] = useState<boolean>((page.futureYouCues?.length ?? 0) > 0);
+  const [isConfirmingCues, setIsConfirmingCues] = useState(false);
 
   // Fetch all pages for insights display
   useEffect(() => {
@@ -169,6 +173,33 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     setUserKeywords(userKeywords.filter(k => k !== keyword));
   };
 
+  // Handle Future You Cue confirmation (inline in SnapshotView)
+  const handleCuesConfirmed = async (cues: string[], edited: boolean) => {
+    setIsConfirmingCues(true);
+    
+    try {
+      await confirmFutureYouCues(page.id, cues, edited);
+      setFutureYouCues(cues);
+      setCuesConfirmed(true);
+      
+      if (onPageUpdate) {
+        onPageUpdate({
+          ...page,
+          futureYouCues: cues,
+          futureYouCuesSource: {
+            ai_prefill_version: 'v1',
+            user_edited: edited
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Failed to save cues:', error);
+      toast.error('Failed to save cues');
+    } finally {
+      setIsConfirmingCues(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep">
       {/* Header - walkthrough style */}
@@ -194,8 +225,35 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       </div>
 
       <div className="p-6 max-w-lg mx-auto">
-        {/* Success badge for new captures - simplified, no page count */}
+        {/* Habit anchor - "Pen down. Snap." - only for new captures */}
         {isNewCapture && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.25, delay: 0.1 }}
+            className="text-center text-sm text-codex-cream/60 mb-4 font-serif italic"
+          >
+            Pen down. Snap.
+          </motion.p>
+        )}
+
+        {/* Future You Cue prompt - inline for new captures, before other content */}
+        {isNewCapture && !isDemoMode && !cuesConfirmed && suggestedCues && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <FutureYouCuePrompt
+              suggestedCues={suggestedCues}
+              onConfirm={handleCuesConfirmed}
+              isSubmitting={isConfirmingCues}
+            />
+          </motion.div>
+        )}
+
+        {/* Success badge for new captures - shown after cues confirmed or in demo mode */}
+        {isNewCapture && (cuesConfirmed || isDemoMode) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
