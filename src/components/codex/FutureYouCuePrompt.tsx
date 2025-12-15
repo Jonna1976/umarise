@@ -8,6 +8,7 @@ interface FutureYouCuePromptProps {
   suggestedCues: string[];
   onConfirm: (cues: string[], userEdited: boolean) => void;
   isLoading?: boolean;
+  isSubmitting?: boolean;
 }
 
 /**
@@ -18,7 +19,8 @@ interface FutureYouCuePromptProps {
 export function FutureYouCuePrompt({ 
   suggestedCues, 
   onConfirm,
-  isLoading = false 
+  isLoading = false,
+  isSubmitting = false
 }: FutureYouCuePromptProps) {
   const [cues, setCues] = useState<string[]>(['', '', '']);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -200,10 +202,12 @@ export function FutureYouCuePrompt({
       <div className="flex justify-center pt-2">
         <Button
           onClick={handleConfirm}
-          disabled={!canConfirm}
+          disabled={!canConfirm || isSubmitting}
           className="min-w-32 bg-primary hover:bg-primary/90 text-primary-foreground"
         >
-          {canConfirm ? (
+          {isSubmitting ? (
+            'Opslaan...'
+          ) : canConfirm ? (
             <>
               <Check className="w-4 h-4 mr-2" />
               OK

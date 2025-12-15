@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar } from 'lucide-react';
 import { Page, updatePage, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, subDays, subWeeks } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -47,6 +48,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [userKeywords, setUserKeywords] = useState<string[]>([]);
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
+  const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Fetch all pages for insights display
   useEffect(() => {
@@ -63,8 +66,25 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const sourcesChanged = JSON.stringify(sources) !== JSON.stringify(page.sources || []);
     const topicChanged = topicProjectId !== page.projectId;
     const cuesChanged = JSON.stringify(futureYouCues) !== JSON.stringify(page.futureYouCues || []);
-    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged);
-  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues]);
+    const dateChanged = writtenAt.getTime() !== (page.writtenAt || page.createdAt).getTime();
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt]);
+
+  const handleDateSelect = (option: 'today' | 'yesterday' | 'last-week') => {
+    const now = new Date();
+    switch (option) {
+      case 'today':
+        setWrittenAt(now);
+        break;
+      case 'yesterday':
+        setWrittenAt(subDays(now, 1));
+        break;
+      case 'last-week':
+        setWrittenAt(subWeeks(now, 1));
+        break;
+    }
+    setShowDatePicker(false);
+  };
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -77,6 +97,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       sources: sources,
       projectId: topicProjectId,
       futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
+      writtenAt: writtenAt,
     });
     
     setIsSaving(false);
@@ -85,7 +106,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues });
+        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt });
       }
     } else {
       toast.error('Failed to save');
@@ -103,13 +124,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         sources: sources,
         projectId: topicProjectId,
         futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
+        writtenAt: writtenAt,
       });
       setIsSaving(false);
       
       if (success) {
         toast.success('Changes saved');
         if (onPageUpdate) {
-          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues });
+          onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt });
         }
       } else {
         toast.error('Failed to save changes');
@@ -214,6 +236,53 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               }}
               autoFocus
             />
+          </motion.div>
+        )}
+
+        {/* Written at date selector - only in Full Mode */}
+        {!isDemoMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="mb-6"
+          >
+            <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Written at</p>
+            <button
+              onClick={() => setShowDatePicker(!showDatePicker)}
+              className="w-full flex items-center justify-between p-3 rounded-lg bg-codex-cream/5 border border-codex-cream/20 hover:bg-codex-cream/10 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-codex-cream/50" />
+                <span className="text-codex-cream">
+                  {format(writtenAt, 'd MMMM yyyy', { locale: nl })}
+                </span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-codex-cream/50 transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showDatePicker && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-2 space-y-1 overflow-hidden"
+              >
+                {[
+                  { key: 'today' as const, label: 'Vandaag' },
+                  { key: 'yesterday' as const, label: 'Gisteren' },
+                  { key: 'last-week' as const, label: 'Vorige week' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => handleDateSelect(key)}
+                    className="w-full p-2 rounded-md text-sm text-left text-codex-cream/80 hover:bg-codex-cream/10 transition-colors"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
           </motion.div>
         )}
 
