@@ -3,13 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar } from 'lucide-react';
 import { Page, updatePage, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
-import { formatDistanceToNow, format, subDays, subWeeks } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TopicInput } from '@/components/capture/TopicInput';
 import { EarlyInsights } from './EarlyInsights';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 interface SnapshotViewProps {
   page: Page;
@@ -49,7 +52,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
   const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Fetch all pages for insights display
   useEffect(() => {
@@ -70,21 +72,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged);
   }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt]);
 
-  const handleDateSelect = (option: 'today' | 'yesterday' | 'last-week') => {
-    const now = new Date();
-    switch (option) {
-      case 'today':
-        setWrittenAt(now);
-        break;
-      case 'yesterday':
-        setWrittenAt(subDays(now, 1));
-        break;
-      case 'last-week':
-        setWrittenAt(subWeeks(now, 1));
-        break;
-    }
-    setShowDatePicker(false);
-  };
 
   const handleSave = async () => {
     if (!hasChanges) return;
@@ -239,7 +226,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Written at date selector - only in Full Mode */}
+        {/* Written at date selector - subtle inline, only in Full Mode */}
         {!isDemoMode && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -247,42 +234,26 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             transition={{ delay: 0.08 }}
             className="mb-6"
           >
-            <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Written at</p>
-            <button
-              onClick={() => setShowDatePicker(!showDatePicker)}
-              className="w-full flex items-center justify-between p-3 rounded-lg bg-codex-cream/5 border border-codex-cream/20 hover:bg-codex-cream/10 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-codex-cream/50" />
-                <span className="text-codex-cream">
-                  {format(writtenAt, 'd MMMM yyyy', { locale: nl })}
-                </span>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-codex-cream/50 transition-transform ${showDatePicker ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {showDatePicker && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-2 space-y-1 overflow-hidden"
-              >
-                {[
-                  { key: 'today' as const, label: 'Vandaag' },
-                  { key: 'yesterday' as const, label: 'Gisteren' },
-                  { key: 'last-week' as const, label: 'Vorige week' },
-                ].map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => handleDateSelect(key)}
-                    className="w-full p-2 rounded-md text-sm text-left text-codex-cream/80 hover:bg-codex-cream/10 transition-colors"
-                  >
-                    {label}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
+                    {format(writtenAt, 'd MMMM yyyy', { locale: nl })}
                   </button>
-                ))}
-              </motion.div>
-            )}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-codex-ink-deep border-codex-cream/20" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={writtenAt}
+                    onSelect={(date) => date && setWrittenAt(date)}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </motion.div>
         )}
 
