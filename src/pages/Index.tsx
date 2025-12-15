@@ -84,12 +84,13 @@ const Index = () => {
     
     try {
       // Real AI processing via edge function
-      const newPage = await createPage(imageDataUrl);
+      const result = await createPage(imageDataUrl);
       
-      if (newPage) {
-        setCurrentPage(newPage);
+      if (result) {
+        setCurrentPage(result.page);
         setIsNewCapture(true);
         setView('snapshot');
+        // TODO: Show FutureYouCue prompt with result.suggestedCues
       } else {
         toast.error('Failed to process page. Please try again.');
         setView('camera');
@@ -114,13 +115,14 @@ const Index = () => {
     
     try {
       // Process all images as a capsule
-      const newPages = await createCapsule(imageDataUrls);
+      const result = await createCapsule(imageDataUrls);
       
-      if (newPages && newPages.length > 0) {
+      if (result && result.pages.length > 0) {
         // Show the first page of the capsule
-        setCurrentPage(newPages[0]);
+        setCurrentPage(result.pages[0]);
         setIsNewCapture(true);
         setView('snapshot');
+        // TODO: Show FutureYouCue prompt for each page with result.suggestedCuesPerPage
       } else {
         toast.error('Failed to process pages. Please try again.');
         setView('camera');
@@ -148,12 +150,13 @@ const Index = () => {
     setView('processing');
     
     try {
-      const newPage = await addToCapsule(imageDataUrl, targetCapsuleId);
+      const result = await addToCapsule(imageDataUrl, targetCapsuleId);
       
-      if (newPage) {
-        setCurrentPage(newPage);
+      if (result) {
+        setCurrentPage(result.page);
         setIsNewCapture(true);
         setView('snapshot');
+        // TODO: Show FutureYouCue prompt with result.suggestedCues
       } else {
         toast.error('Failed to add page. Please try again.');
         setView('history');
