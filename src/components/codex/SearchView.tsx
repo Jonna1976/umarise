@@ -41,6 +41,11 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
   const [timeFilter, setTimeFilter] = useState<'week' | 'month' | 'all' | null>(null);
   const [searchStartTime, setSearchStartTime] = useState<number | null>(null);
   const [currentSearchId, setCurrentSearchId] = useState<string | null>(null);
+  const [showFirstRetrievalMessage, setShowFirstRetrievalMessage] = useState(false);
+  const [hasShownFirstRetrievalMessage, setHasShownFirstRetrievalMessage] = useState(() => {
+    // Check localStorage to see if we've already shown the message
+    return localStorage.getItem('shown_first_retrieval_message') === 'true';
+  });
 
   // Track search telemetry
   const trackSearch = async (searchQuery: string, searchResults: SearchResult[], filterUsed: string | null) => {
@@ -90,10 +95,24 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
     }
   };
 
-  // Handle page selection with telemetry
+  // Handle page selection with telemetry + first retrieval message
   const handleSelectPage = (page: Page, index: number) => {
     trackSelection(page, index);
-    onSelectPage(page);
+    
+    // Show the subtle "I'm someone who doesn't lose ideas" message on first successful retrieval
+    if (!hasShownFirstRetrievalMessage) {
+      setShowFirstRetrievalMessage(true);
+      setHasShownFirstRetrievalMessage(true);
+      localStorage.setItem('shown_first_retrieval_message', 'true');
+      
+      // Auto-hide after 3 seconds, then navigate
+      setTimeout(() => {
+        setShowFirstRetrievalMessage(false);
+        onSelectPage(page);
+      }, 2500);
+    } else {
+      onSelectPage(page);
+    }
   };
 
   // Debounced search
@@ -221,7 +240,35 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* First retrieval success message - subtle overlay */}
+      <AnimatePresence>
+        {showFirstRetrievalMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="text-center px-8 py-6"
+            >
+              <p className="text-xl font-serif text-foreground/90 italic">
+                "I'm someone who doesn't lose ideas."
+              </p>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 2.5, ease: 'linear' }}
+                className="h-0.5 bg-primary/30 mt-4 rounded-full"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center gap-3 p-4">
