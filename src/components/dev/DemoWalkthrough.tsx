@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, FileText, BookOpen, ArrowRight, ArrowLeft, RotateCcw, CheckCircle, Sparkles, Images } from 'lucide-react';
+import { Camera, FileText, BookOpen, ArrowRight, ArrowLeft, RotateCcw, CheckCircle, Sparkles, Images, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface WalkthroughStep {
   icon: React.ReactNode;
@@ -439,9 +439,22 @@ export function DemoWalkthrough() {
   return (
     <div className="min-h-screen bg-forest-deep flex flex-col">
       {/* Header */}
-      <div className="p-5 pb-0">
-        <h1 className="font-playfair text-xl text-cream">Demo Walkthrough</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">60-second hero demo flow</p>
+      <div className="p-5 pb-0 flex items-start justify-between">
+        <div>
+          <h1 className="font-playfair text-xl text-cream">Demo Walkthrough</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">60-second hero demo flow</p>
+        </div>
+        <Link to="/">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-cream hover:bg-forest -mt-1"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </Link>
+      </div>
+      <div className="px-5">
         {/* Progress bar */}
         <div className="mt-4 h-1 bg-forest rounded-full overflow-hidden">
           <motion.div
