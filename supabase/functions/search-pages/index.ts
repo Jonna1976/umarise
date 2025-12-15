@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface SearchResult {
   page_id: string;
+  page: any; // Full page object for client-side rendering
   score: number;
   match_types: string[];
   matched_terms: string[];
@@ -190,6 +191,7 @@ serve(async (req) => {
       if (score > 0) {
         scoredResults.push({
           page_id: page.id,
+          page: page, // Include full page data
           score,
           match_types: Array.from(matchTypes),
           matched_terms: [...new Set(matchedTerms)].slice(0, 5)
@@ -249,6 +251,7 @@ serve(async (req) => {
                 if (similarity > 0.5) {
                   scoredResults.push({
                     page_id: page.id,
+                    page: page, // Include full page data
                     score: similarity * 50,
                     match_types: ['meaning'],
                     matched_terms: []
