@@ -27,17 +27,29 @@ interface TonePattern {
   trend: 'stable' | 'emerging';
 }
 
+// Common terms that should be filtered from pattern analysis (same as search)
+const COMMON_TERMS = new Set([
+  'light', 'idea', 'ideas', 'notes', 'note', 'plan', 'plans', 'page', 'pages', 
+  'today', 'want', 'need', 'the', 'and', 'your', 'you', 'this', 'that',
+  'uma', 'umarise', 'rise', 'rising', 'handwriting', 'demo'
+]);
+
 export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
   const insights = useMemo(() => {
     if (pages.length < 2) return null;
 
     // Find keyword connections (keywords that appear in multiple pages)
+    // Filter out common terms that aren't meaningful patterns
     const keywordMap = new Map<string, Page[]>();
     pages.forEach(page => {
       page.keywords.forEach(keyword => {
-        const existing = keywordMap.get(keyword.toLowerCase()) || [];
+        const kwLower = keyword.toLowerCase();
+        // Skip common terms
+        if (COMMON_TERMS.has(kwLower)) return;
+        
+        const existing = keywordMap.get(kwLower) || [];
         existing.push(page);
-        keywordMap.set(keyword.toLowerCase(), existing);
+        keywordMap.set(kwLower, existing);
       });
     });
 
@@ -73,11 +85,13 @@ export function EarlyInsights({ pages, latestPage }: EarlyInsightsProps) {
     });
     tonePatterns.sort((a, b) => b.count - a.count);
 
-    // Check if latest page connects to existing themes
+    // Check if latest page connects to existing themes (also filter common terms)
     const latestConnections: string[] = [];
     if (latestPage) {
       latestPage.keywords.forEach(kw => {
-        if (keywordMap.get(kw.toLowerCase())?.length && keywordMap.get(kw.toLowerCase())!.length > 1) {
+        const kwLower = kw.toLowerCase();
+        if (COMMON_TERMS.has(kwLower)) return; // Skip common terms
+        if (keywordMap.get(kwLower)?.length && keywordMap.get(kwLower)!.length > 1) {
           latestConnections.push(kw);
         }
       });
