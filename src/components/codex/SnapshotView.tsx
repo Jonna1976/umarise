@@ -72,28 +72,72 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, userKeywords, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt, page.highlights]);
 
 
+  const buildUpdates = () => {
+    const updates: {
+      userNote?: string;
+      primaryKeyword?: string;
+      ocrText?: string;
+      sources?: string[];
+      projectId?: string;
+      futureYouCues?: string[];
+      writtenAt?: Date;
+      highlights?: string[];
+    } = {};
+
+    const noteChanged = userNote !== (page.userNote || '');
+    const keywordChanged = primaryKeyword !== (page.primaryKeyword || '');
+    const ocrChanged = ocrText !== (page.ocrText || '');
+    const sourcesChanged = JSON.stringify(sources) !== JSON.stringify(page.sources || []);
+    const topicChanged = topicProjectId !== page.projectId;
+    const cuesChanged = JSON.stringify(futureYouCues) !== JSON.stringify(page.futureYouCues || []);
+    const dateChanged = writtenAt.getTime() !== (page.writtenAt || page.createdAt).getTime();
+    const userKeywordsChanged = JSON.stringify(userKeywords) !== JSON.stringify(page.highlights || []);
+
+    if (noteChanged) updates.userNote = userNote || undefined;
+    if (keywordChanged) updates.primaryKeyword = primaryKeyword || undefined;
+    if (ocrChanged) updates.ocrText = ocrText || undefined;
+    if (sourcesChanged) updates.sources = sources;
+    if (topicChanged) updates.projectId = topicProjectId;
+    if (cuesChanged) updates.futureYouCues = futureYouCues.length > 0 ? futureYouCues : undefined;
+    if (dateChanged) updates.writtenAt = writtenAt;
+    if (userKeywordsChanged) updates.highlights = userKeywords;
+
+    return updates;
+  };
+
   const handleSave = async () => {
-    if (!hasChanges) return;
-    
-    setIsSaving(true);
-    const success = await updatePage(page.id, {
-      userNote: userNote || undefined,
-      primaryKeyword: primaryKeyword || undefined,
-      ocrText: ocrText || undefined,
-      sources: sources,
-      projectId: topicProjectId,
-      futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
-      writtenAt: writtenAt,
-      highlights: userKeywords,
+    const updates = buildUpdates();
+    if (Object.keys(updates).length === 0) {
+      setHasChanges(false);
+      return;
+    }
+
+    console.log('[SnapshotView] handleSave', {
+      pageId: page.id,
+      updates,
+      currentHighlights: userKeywords,
+      pageHighlights: page.highlights,
     });
-    
+
+    setIsSaving(true);
+    const success = await updatePage(page.id, updates);
     setIsSaving(false);
-    
+
     if (success) {
       toast.success('Saved');
       setHasChanges(false);
       if (onPageUpdate) {
-        onPageUpdate({ ...page, userNote, primaryKeyword, ocrText, sources, projectId: topicProjectId, futureYouCues, writtenAt, highlights: userKeywords });
+        onPageUpdate({
+          ...page,
+          userNote,
+          primaryKeyword,
+          ocrText,
+          sources,
+          projectId: topicProjectId,
+          futureYouCues,
+          writtenAt,
+          highlights: userKeywords,
+        });
       }
     } else {
       toast.error('Failed to save');
@@ -101,19 +145,21 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   };
 
   const savePendingChanges = async (): Promise<boolean> => {
-    if (!hasChanges) return true;
+    const updates = buildUpdates();
+    if (Object.keys(updates).length === 0) {
+      setHasChanges(false);
+      return true;
+    }
+
+    console.log('[SnapshotView] savePendingChanges', {
+      pageId: page.id,
+      updates,
+      currentHighlights: userKeywords,
+      pageHighlights: page.highlights,
+    });
 
     setIsSaving(true);
-    const success = await updatePage(page.id, {
-      userNote: userNote || undefined,
-      primaryKeyword: primaryKeyword || undefined,
-      ocrText: ocrText || undefined,
-      sources: sources,
-      projectId: topicProjectId,
-      futureYouCues: futureYouCues.length > 0 ? futureYouCues : undefined,
-      writtenAt: writtenAt,
-      highlights: userKeywords,
-    });
+    const success = await updatePage(page.id, updates);
     setIsSaving(false);
 
     if (success) {
@@ -174,7 +220,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     setSources(sources.filter((_, i) => i !== index));
   };
 
-  const addUserKeyword = () => {
+  const addUserKeyword = async () => {
     const trimmed = newUserKeyword.trim().toLowerCase();
     if (!trimmed) return;
     if (userKeywords.includes(trimmed) || page.keywords.map(k => k.toLowerCase()).includes(trimmed)) {
@@ -185,12 +231,55 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       toast.error('Maximum 3 custom keywords');
       return;
     }
-    setUserKeywords([...userKeywords, trimmed]);
+
+    const next = [...userKeywords, trimmed];
+    console.log('[SnapshotView] addUserKeyword', { pageId: page.id, trimmed, next });
+
+    setUserKeywords(next);
     setNewUserKeyword('');
+
+    const success = await updatePage(page.id, { highlights: next });
+    if (success) {
+      toast.success('Keyword saved');
+      onPageUpdate?.({
+        ...page,
+        userNote,
+        primaryKeyword,
+        ocrText,
+        sources,
+        projectId: topicProjectId,
+        futureYouCues,
+        writtenAt,
+        highlights: next,
+      });
+    } else {
+      toast.error('Failed to save keyword');
+    }
   };
 
-  const removeUserKeyword = (keyword: string) => {
-    setUserKeywords(userKeywords.filter(k => k !== keyword));
+  const removeUserKeyword = async (keyword: string) => {
+    const next = userKeywords.filter(k => k !== keyword);
+    console.log('[SnapshotView] removeUserKeyword', { pageId: page.id, keyword, next });
+
+    setUserKeywords(next);
+
+    const success = await updatePage(page.id, { highlights: next });
+    if (success) {
+      toast.success('Keyword removed');
+      onPageUpdate?.({
+        ...page,
+        userNote,
+        primaryKeyword,
+        ocrText,
+        sources,
+        projectId: topicProjectId,
+        futureYouCues,
+        writtenAt,
+        highlights: next,
+      });
+    } else {
+      toast.error('Failed to update keywords');
+    }
   };
 
   // Handle Future You Cue confirmation (inline in SnapshotView)

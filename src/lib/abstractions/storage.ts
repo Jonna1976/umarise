@@ -232,7 +232,10 @@ export class LovableCloudStorage implements IStorageProvider {
     if (updates.namedEntities !== undefined) updateData.named_entities = updates.namedEntities;
     if (updates.oneLineHint !== undefined) updateData.one_line_hint = updates.oneLineHint;
     if (updates.topicLabels !== undefined) updateData.topic_labels = updates.topicLabels;
-    if (updates.highlights !== undefined) updateData.highlights = updates.highlights;
+    if (updates.highlights !== undefined) {
+      console.log('[storage.updatePage] updating highlights', { id, highlights: updates.highlights });
+      updateData.highlights = updates.highlights;
+    }
     if (updates.embeddingVector !== undefined) updateData.embedding_vector = updates.embeddingVector;
     if (updates.writtenAt !== undefined) updateData.written_at = updates.writtenAt?.toISOString() || null;
 
