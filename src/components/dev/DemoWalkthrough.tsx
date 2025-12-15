@@ -302,85 +302,103 @@ function SnapshotIllustration() {
   );
 }
 
-// Step 5: Timeline - matches HistoryView vault/shelf style
+// Step 5: Timeline - bookshelf style with book spines
 function TimelineIllustration() {
+  const spines = [
+    { color: 'bg-teal/60', width: 'w-4', label: 'idea' },
+    { color: 'bg-forest/50', width: 'w-5', label: 'plan' },
+    { color: 'bg-oker/40', width: 'w-3', label: 'note' },
+    { color: 'bg-teal/50', width: 'w-4', label: 'draft' },
+  ];
+
   return (
     <motion.div 
-      className="w-44 h-60 rounded-2xl bg-cream shadow-2xl flex flex-col p-3 relative overflow-hidden"
+      className="w-52 h-60 rounded-2xl bg-cream shadow-2xl flex flex-col p-4 relative overflow-hidden"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header - matches HistoryView */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-semibold text-forest">Lasting Memory</span>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[11px] font-semibold text-forest">Your Codex</span>
         <div className="flex gap-1">
-          <div className="w-3 h-3 rounded bg-oker/20" />
           <div className="w-3 h-3 rounded bg-forest/20" />
         </div>
       </div>
       
-      {/* Existing items - vault style */}
-      {[0, 1, 2].map((i) => (
-        <motion.div 
-          key={i}
-          className="flex gap-2 items-center mb-2 p-1.5 rounded-lg bg-paper/50"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.15 }}
-        >
-          <div className="w-8 h-10 bg-muted/40 rounded flex-shrink-0" />
-          <div className="flex-1 space-y-1">
-            <div className="h-1.5 bg-forest/25 rounded w-full" />
-            <div className="h-1.5 bg-forest/15 rounded w-3/4" />
-          </div>
-        </motion.div>
-      ))}
-      
-      {/* New item appearing with golden glow - the "aha moment" */}
-      <motion.div 
-        className="flex gap-2 items-center p-1.5 rounded-lg relative"
-        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ delay: 0.5, type: "spring" }}
-      >
-        {/* Pulsing glow background */}
-        <motion.div 
-          className="absolute inset-0 rounded-lg bg-oker/20"
-          animate={{ 
-            opacity: [0.2, 0.4, 0.2],
-            boxShadow: [
-              '0 0 0 0 hsla(38, 70%, 50%, 0)',
-              '0 0 20px 5px hsla(38, 70%, 50%, 0.3)',
-              '0 0 0 0 hsla(38, 70%, 50%, 0)',
-            ]
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-        
-        <div className="w-8 h-10 bg-oker/30 rounded flex-shrink-0 relative z-10 border border-oker/40" />
-        <div className="flex-1 space-y-1 relative z-10">
-          <div className="h-1.5 bg-oker/50 rounded w-full" />
-          <div className="h-1.5 bg-oker/30 rounded w-3/4" />
+      {/* Bookshelf */}
+      <div className="flex-1 flex flex-col justify-end">
+        {/* Shelf with books */}
+        <div className="flex items-end gap-1 px-2 pb-1">
+          {spines.map((spine, i) => (
+            <motion.div 
+              key={i}
+              className={`${spine.width} h-28 ${spine.color} rounded-t-sm relative flex items-center justify-center shadow-sm`}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 112, opacity: 1 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+            >
+              {/* Vertical text on spine */}
+              <span 
+                className="text-[7px] text-cream/80 font-medium absolute"
+                style={{ 
+                  writingMode: 'vertical-rl', 
+                  textOrientation: 'mixed',
+                  transform: 'rotate(180deg)'
+                }}
+              >
+                {spine.label}
+              </span>
+              {/* Spine accent line */}
+              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-white/20" />
+            </motion.div>
+          ))}
+          
+          {/* New book appearing with glow */}
+          <motion.div 
+            className="w-5 h-28 rounded-t-sm relative flex items-center justify-center"
+            initial={{ height: 0, opacity: 0, scale: 0.8 }}
+            animate={{ height: 112, opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, type: "spring" }}
+          >
+            {/* Glow effect */}
+            <motion.div 
+              className="absolute inset-0 rounded-t-sm bg-oker/60"
+              animate={{ 
+                boxShadow: [
+                  '0 0 0 0 hsla(38, 70%, 50%, 0)',
+                  '0 0 15px 5px hsla(38, 70%, 50%, 0.4)',
+                  '0 0 0 0 hsla(38, 70%, 50%, 0)',
+                ]
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+            <span 
+              className="text-[7px] text-forest-deep font-bold absolute z-10"
+              style={{ 
+                writingMode: 'vertical-rl', 
+                textOrientation: 'mixed',
+                transform: 'rotate(180deg)'
+              }}
+            >
+              new
+            </span>
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-oker/40 z-10" />
+          </motion.div>
         </div>
-        <motion.div
-          className="w-4 h-4 rounded-full border border-oker flex items-center justify-center relative z-10 bg-oker/20"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.8, type: "spring" }}
-        >
-          <CheckCircle className="w-3 h-3 text-oker" />
-        </motion.div>
-      </motion.div>
+        
+        {/* Shelf base */}
+        <div className="h-2 bg-gradient-to-b from-forest/30 to-forest/10 rounded-b-sm mx-1" />
+      </div>
       
-      {/* Page count indicator */}
+      {/* Page count */}
       <motion.div
-        className="mt-auto pt-2 text-center"
+        className="mt-3 text-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
+        transition={{ delay: 0.8 }}
       >
-        <span className="text-[9px] text-forest/50">4 pages in your codex</span>
+        <span className="text-[9px] text-forest/50">5 pages in your codex</span>
       </motion.div>
     </motion.div>
   );
