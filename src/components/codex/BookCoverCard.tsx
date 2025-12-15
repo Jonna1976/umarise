@@ -160,6 +160,20 @@ export function BookCoverCard({ page, capsule, onClick, onDelete }: BookCoverCar
             <p className={`text-sm ${visuals.accent} font-light italic leading-relaxed opacity-80`}>
               {subtitle}
             </p>
+            
+            {/* Your keywords (highlights) - small chips */}
+            {representativePage.highlights && representativePage.highlights.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {representativePage.highlights.slice(0, 3).map((keyword) => (
+                  <span 
+                    key={keyword}
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 ${visuals.text} opacity-70`}
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Bottom area - minimal metadata */}
