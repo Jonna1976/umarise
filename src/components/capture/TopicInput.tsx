@@ -166,7 +166,7 @@ export function TopicInput({ value, onChange, placeholder = "Topic? (2-3 words)"
       </AnimatePresence>
 
       {/* Hint text */}
-      <p className="mt-1.5 text-xs text-muted-foreground/60">
+      <p className="mt-2 text-sm text-foreground/70">
         What is this about? Keep it short (2-3 words)
       </p>
     </div>
