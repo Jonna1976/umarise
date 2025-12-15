@@ -33,9 +33,18 @@ export function PostCaptureFlow({
   const [selectedDate, setSelectedDate] = useState<Date>(page.writtenAt || page.createdAt);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCuesConfirmed = (cues: string[], edited: boolean) => {
+  const handleCuesConfirmed = async (cues: string[], edited: boolean) => {
     setConfirmedCues(cues);
     setUserEdited(edited);
+    
+    // Save cues immediately when confirmed (don't wait for date step)
+    try {
+      await confirmFutureYouCues(page.id, cues, edited);
+      console.log('Cues saved:', cues);
+    } catch (error) {
+      console.error('Failed to save cues:', error);
+    }
+    
     setStep('date');
   };
 

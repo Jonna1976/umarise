@@ -299,11 +299,16 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               return (
                 <button
                   key={keyword}
-                  onClick={() => {
-                    if (primaryKeyword === keyword) {
-                      setPrimaryKeyword('');
-                    } else {
-                      setPrimaryKeyword(keyword);
+                  onClick={async () => {
+                    const newPrimaryKeyword = primaryKeyword === keyword ? '' : keyword;
+                    setPrimaryKeyword(newPrimaryKeyword);
+                    // Auto-save primary keyword immediately
+                    const success = await updatePage(page.id, { primaryKeyword: newPrimaryKeyword || undefined });
+                    if (success) {
+                      toast.success(newPrimaryKeyword ? `'${newPrimaryKeyword}' marked as primary` : 'Primary keyword cleared');
+                      if (onPageUpdate) {
+                        onPageUpdate({ ...page, primaryKeyword: newPrimaryKeyword || undefined });
+                      }
                     }
                   }}
                   className={`px-3 py-1 rounded-full text-sm transition-all ${
