@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar } from 'lucide-react';
-import { Page, updatePage, getPages, confirmFutureYouCues } from '@/lib/pageService';
+import { Page, updatePage, confirmFutureYouCues } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { TopicInput } from '@/components/capture/TopicInput';
-import { EarlyInsights } from './EarlyInsights';
+
 import { FutureYouCuePrompt } from './FutureYouCuePrompt';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
@@ -49,7 +49,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [topicProjectId, setTopicProjectId] = useState<string | undefined>(page.projectId);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [allPages, setAllPages] = useState<Page[]>([]);
+  
   const [userKeywords, setUserKeywords] = useState<string[]>(page.highlights || []);
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
@@ -57,12 +57,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [cuesConfirmed, setCuesConfirmed] = useState<boolean>((page.futureYouCues?.length ?? 0) > 0);
   const [isConfirmingCues, setIsConfirmingCues] = useState(false);
 
-  // Fetch all pages for insights display
-  useEffect(() => {
-    if (isNewCapture) {
-      getPages().then(setAllPages);
-    }
-  }, [isNewCapture]);
 
   // Track changes
   useEffect(() => {
@@ -605,17 +599,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
-        {/* Early insights - at the bottom, brand colors */}
-        {isNewCapture && allPages.length >= 2 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="mb-8"
-          >
-            <EarlyInsights pages={allPages} latestPage={page} />
-          </motion.div>
-        )}
 
         {/* Actions - Icon buttons */}
         <motion.div
