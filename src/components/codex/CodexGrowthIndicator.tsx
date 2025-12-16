@@ -39,14 +39,14 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
 
   return (
     <div 
-      className="relative"
+      className="relative flex items-center gap-2"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
       {/* Compact icon with badge */}
       <motion.div
         className={`
-          w-8 h-8 rounded-full flex items-center justify-center cursor-pointer
+          w-8 h-8 rounded-full flex items-center justify-center cursor-pointer relative
           ${fullyUnlocked 
             ? 'bg-codex-gold/20 ring-1 ring-codex-gold/30' 
             : 'bg-muted/50 ring-1 ring-border/50'
@@ -59,9 +59,9 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
           className={`w-4 h-4 ${fullyUnlocked ? 'text-codex-gold' : 'text-muted-foreground'}`} 
         />
         
-        {/* Countdown badge */}
+        {/* Countdown badge - positioned with overflow visible */}
         {!fullyUnlocked && remaining > 0 && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-codex-gold text-[9px] font-bold text-background flex items-center justify-center">
+          <div className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-codex-gold text-[10px] font-bold text-background flex items-center justify-center">
             {remaining}
           </div>
         )}
@@ -71,56 +71,49 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-[9px] text-white flex items-center justify-center"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-[10px] text-white flex items-center justify-center"
           >
             ✓
           </motion.div>
         )}
       </motion.div>
 
-      {/* Tooltip on hover */}
+      {/* Inline tooltip - shows next to icon */}
       <AnimatePresence>
         {showTooltip && (
           <motion.div
-            initial={{ opacity: 0, y: 5, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 5, scale: 0.95 }}
+            initial={{ opacity: 0, x: -5 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -5 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
+            className="bg-popover border border-border rounded-lg shadow-lg px-3 py-2 whitespace-nowrap"
           >
-            <div className="bg-popover border border-border rounded-lg shadow-lg p-3 min-w-[180px] text-center">
-              {fullyUnlocked ? (
-                <>
-                  <p className="text-xs font-medium text-codex-gold mb-1">✨ All unlocked</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Deep insights ready
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-xs font-medium text-foreground mb-1">
-                    {remaining} to go
-                  </p>
+            {fullyUnlocked ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-codex-gold">✨ All unlocked</span>
+                <span className="text-[10px] text-muted-foreground">Deep insights ready</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div>
+                  <p className="text-xs font-medium text-foreground">{remaining} to go</p>
                   <p className="text-[10px] text-muted-foreground">
                     Next: <span className="text-foreground">{nextMilestone?.label}</span>
                   </p>
-                </>
-              )}
-              
-              {/* Mini progress dots */}
-              <div className="flex justify-center gap-1.5 mt-2">
-                {MILESTONES.map((m) => (
-                  <div
-                    key={m.count}
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      pageCount >= m.count ? 'bg-codex-gold' : 'bg-muted'
-                    }`}
-                  />
-                ))}
+                </div>
+                {/* Mini progress dots */}
+                <div className="flex gap-1">
+                  {MILESTONES.map((m) => (
+                    <div
+                      key={m.count}
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        pageCount >= m.count ? 'bg-codex-gold' : 'bg-muted'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-            {/* Arrow */}
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-popover border-l border-t border-border rotate-45" />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
