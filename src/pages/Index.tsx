@@ -368,6 +368,7 @@ const Index = () => {
           <HistoryView
             pages={pages}
             onBack={handleBackFromHistory}
+            onCapture={() => setView('camera')}
             onSelectPage={handleSelectPage}
             onSelectCapsule={(capsule) => {
               setCurrentCapsule(capsule);
