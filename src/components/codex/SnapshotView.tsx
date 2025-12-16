@@ -316,21 +316,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep relative">
-      {/* Close button - FIXED top right, always visible */}
-      <Button
-        onClick={handleCloseWithSave}
-        disabled={isSaving}
-        variant="ghost"
-        size="sm"
-        className="fixed top-4 right-4 z-20 text-codex-cream/80 hover:text-codex-cream hover:bg-codex-cream/10 h-10 w-10 p-0 rounded-full bg-codex-ink-deep/50 backdrop-blur-sm"
-      >
-        <X className="w-5 h-5" />
-      </Button>
-
+    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep">
       {/* Header - time and save */}
       <div className="sticky top-0 z-10 bg-codex-ink-deep/80 backdrop-blur-md border-b border-codex-gold/20">
-        <div className="flex items-center justify-between p-4 pr-16">
+        <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-2 text-codex-cream/60 text-sm">
             <Clock className="w-4 h-4" />
             <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
@@ -476,17 +465,27 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image - centered (FIX 2: Original scan is dominant, visible without scroll) */}
+        {/* Image with close button - positioned to right of photo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 flex justify-center"
+          className="mb-6 flex justify-center items-start gap-2"
         >
           <img
             src={page.imageUrl}
             alt="Captured page"
-            className="max-w-[400px] w-full rounded-xl shadow-lg border border-codex-gold/20"
+            className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
           />
+          {/* Close button - right of photo */}
+          <Button
+            onClick={handleCloseWithSave}
+            disabled={isSaving}
+            variant="ghost"
+            size="sm"
+            className="text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10 h-10 w-10 p-0 rounded-full flex-shrink-0"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </motion.div>
 
         {/* Summary */}
