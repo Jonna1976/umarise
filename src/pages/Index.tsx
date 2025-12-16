@@ -13,6 +13,7 @@ import { KompasView } from '@/components/codex/KompasView';
 import { YearReflectionView } from '@/components/codex/YearReflectionView';
 import { SearchView, SearchMatchInfo } from '@/components/codex/SearchView';
 import { MemoryOrbitView } from '@/components/codex/MemoryOrbitView';
+import { ShareMemoryCard } from '@/components/codex/ShareMemoryCard';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -24,7 +25,7 @@ import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit' | 'share';
 
 const Index = () => {
   const { isDemoMode } = useDemoMode();
@@ -388,6 +389,7 @@ const Index = () => {
             onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
             onViewOrbit={handleViewOrbit}
             onOpenSearch={handleOpenSearch}
+            onShareMemory={() => setView('share')}
             highlightPageId={highlightPageId || undefined}
           />
         );
@@ -511,6 +513,11 @@ const Index = () => {
             onOpenSearch={handleOpenSearch}
             highlightPageId={highlightPageId || undefined}
           />
+        );
+      
+      case 'share':
+        return (
+          <ShareMemoryCard onBack={() => setView('history')} />
         );
       
       default:
