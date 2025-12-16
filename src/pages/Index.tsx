@@ -371,8 +371,13 @@ const Index = () => {
             onCapture={() => setView('camera')}
             onSelectPage={handleSelectPage}
             onSelectCapsule={(capsule) => {
-              setCurrentCapsule(capsule);
-              setView('capsule-carousel');
+              // Go directly to first page of capsule, skip carousel
+              if (capsule.pages.length > 0) {
+                setCurrentPage(capsule.pages[0]);
+                setCurrentCapsule(capsule);
+                setIsNewCapture(false);
+                setView('detail');
+              }
             }}
             onDeletePage={handleDeletePage}
             onAddToCapsule={handleStartAddToCapsule}
