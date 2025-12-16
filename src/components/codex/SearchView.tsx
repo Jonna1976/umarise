@@ -316,13 +316,16 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
       {/* CENTERED SEARCH - Google/ChatGPT style */}
       {showCenteredSearch && (
         <div className="min-h-screen flex flex-col">
-          {/* Back button */}
-          <div className="p-4">
+          {/* Back button - larger clickable area */}
+          <div className="p-4 relative z-20">
             <button
-              onClick={onClose}
-              className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+              onClick={() => {
+                console.log('[SearchView] Back button clicked, calling onClose');
+                onClose();
+              }}
+              className="p-3 -ml-2 rounded-full hover:bg-muted transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
           </div>
 
@@ -419,11 +422,14 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
           <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
             <div className="flex items-center gap-3 p-4">
               <button
-                onClick={onClose}
-                className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
+                onClick={() => {
+                  console.log('[SearchView] Back button clicked (results view), calling onClose');
+                  onClose();
+                }}
+                className="p-3 -ml-2 rounded-full hover:bg-muted transition-colors"
                 aria-label="Back"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-5 h-5 text-foreground" />
               </button>
               
               <div className="flex-1 relative">
