@@ -39,7 +39,7 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
 
   return (
     <div 
-      className="relative flex items-center gap-2 pt-2"
+      className="relative pt-2"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
@@ -78,15 +78,15 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
         )}
       </motion.div>
 
-      {/* Inline tooltip - shows next to icon */}
+      {/* Tooltip - absolutely positioned to avoid layout shift */}
       <AnimatePresence>
         {showTooltip && (
           <motion.div
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -5 }}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 5 }}
             transition={{ duration: 0.15 }}
-            className="bg-popover border border-border rounded-lg shadow-lg px-3 py-2 whitespace-nowrap"
+            className="absolute left-10 top-1/2 -translate-y-1/2 z-50 bg-popover border border-border rounded-lg shadow-lg px-3 py-2 whitespace-nowrap"
           >
             {fullyUnlocked ? (
               <div className="flex items-center gap-2">
