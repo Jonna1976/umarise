@@ -371,48 +371,65 @@ export function TestPanel({
             Kopieer je echte {dbPageCount} pages naar demo mode. Originelen blijven veilig onder je echte device ID.
           </p>
           <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded mb-2 border border-amber-500/20">
-            ⚠️ Wist eerst bestaande demo data, dan kopieert alles.
+            ⚠️ Wist eerst bestaande demo data, dan kopieert geselecteerde aantal.
           </div>
-          <Button 
-            onClick={async () => {
-              const realId = getDeviceId();
-              if (!realId) {
-                toast({ title: "Geen device ID", description: "Kan echte pages niet vinden", variant: "destructive" });
-                return;
-              }
-              setIsInjecting(true);
-              try {
-                const { copied, skipped } = await copyRealPagesToDemo(realId, (current, total) => {
-                  setInjectProgress({ current, total });
-                });
-                toast({
-                  title: "Pages gekopieerd naar demo",
-                  description: `${copied} pages gekopieerd, ${skipped} overgeslagen. Originelen onaangetast.`,
-                });
-                onLoadTestData();
-              } catch (error) {
-                toast({ title: "Fout", description: "Kopiëren mislukt", variant: "destructive" });
-              } finally {
-                setIsInjecting(false);
-              }
-            }}
-            variant="codex" 
-            size="sm"
-            disabled={isInjecting || dbPageCount === 0}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            {isInjecting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                {injectProgress.current}/{injectProgress.total}
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-1" />
-                Copy {dbPageCount} Real → Demo
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 items-center">
+            <select 
+              className="bg-background border border-border rounded px-2 py-1 text-xs"
+              id="copyLimit"
+              defaultValue="all"
+            >
+              <option value="all">All ({dbPageCount})</option>
+              {dbPageCount > 10 && <option value="10">10 pages</option>}
+              {dbPageCount > 25 && <option value="25">25 pages</option>}
+              {dbPageCount > 50 && <option value="50">50 pages</option>}
+              {dbPageCount > 100 && <option value="100">100 pages</option>}
+            </select>
+            <Button 
+              onClick={async () => {
+                const realId = getDeviceId();
+                if (!realId) {
+                  toast({ title: "Geen device ID", description: "Kan echte pages niet vinden", variant: "destructive" });
+                  return;
+                }
+                const selectEl = document.getElementById('copyLimit') as HTMLSelectElement;
+                const limitValue = selectEl?.value;
+                const limit = limitValue === 'all' ? undefined : parseInt(limitValue, 10);
+                
+                setIsInjecting(true);
+                try {
+                  const { copied, skipped } = await copyRealPagesToDemo(realId, (current, total) => {
+                    setInjectProgress({ current, total });
+                  }, limit);
+                  toast({
+                    title: "Pages gekopieerd naar demo",
+                    description: `${copied} pages gekopieerd, ${skipped} overgeslagen. Originelen onaangetast.`,
+                  });
+                  onLoadTestData();
+                } catch (error) {
+                  toast({ title: "Fout", description: "Kopiëren mislukt", variant: "destructive" });
+                } finally {
+                  setIsInjecting(false);
+                }
+              }}
+              variant="codex" 
+              size="sm"
+              disabled={isInjecting || dbPageCount === 0}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isInjecting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  {injectProgress.current}/{injectProgress.total}
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 mr-1" />
+                  Copy → Demo
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Database Injection Section - FAKE DATA */}

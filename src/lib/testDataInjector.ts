@@ -471,16 +471,23 @@ export function getTestDataInfo() {
  */
 export async function copyRealPagesToDemo(
   realDeviceId: string,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (current: number, total: number) => void,
+  limit?: number // Optional limit: undefined = all pages
 ): Promise<{ copied: number; skipped: number }> {
-  console.log(`[copyRealPagesToDemo] Fetching pages from real device: ${realDeviceId}`);
+  console.log(`[copyRealPagesToDemo] Fetching pages from real device: ${realDeviceId}, limit: ${limit ?? 'all'}`);
   
-  // First, fetch all real pages
-  const { data: realPages, error: fetchError } = await supabase
+  // First, fetch all real pages (ordered by most recent first for limit)
+  let query = supabase
     .from('pages')
     .select('*')
     .eq('device_user_id', realDeviceId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: false });
+  
+  if (limit) {
+    query = query.limit(limit);
+  }
+  
+  const { data: realPages, error: fetchError } = await query;
 
   if (fetchError) {
     console.error('Failed to fetch real pages:', fetchError);
