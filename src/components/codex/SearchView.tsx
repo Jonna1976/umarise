@@ -52,31 +52,39 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
   const [hasShownFirstRetrievalMessage, setHasShownFirstRetrievalMessage] = useState(() => {
     return localStorage.getItem('shown_first_retrieval_message') === 'true';
   });
-  const [recentPages, setRecentPages] = useState<Page[]>([]);
+  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
 
-  // Fetch recent pages on mount
+  // Fetch recent keywords on mount (lightweight query - only keywords field)
   useEffect(() => {
-    const fetchRecentPages = async () => {
+    const fetchRecentKeywords = async () => {
       const deviceUserId = getActiveDeviceId();
       if (!deviceUserId) return;
 
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('*')
+          .select('keywords, future_you_cues')
           .eq('device_user_id', deviceUserId)
           .order('created_at', { ascending: false })
-          .limit(3);
+          .limit(10);
 
         if (!error && data) {
-          setRecentPages(data.map(mapToPage));
+          // Collect unique keywords and cues from recent pages
+          const allKeywords: string[] = [];
+          data.forEach((row: any) => {
+            if (row.future_you_cues) allKeywords.push(...row.future_you_cues);
+            if (row.keywords) allKeywords.push(...row.keywords);
+          });
+          // Deduplicate and take top 6
+          const unique = [...new Set(allKeywords)].slice(0, 6);
+          setRecentKeywords(unique);
         }
       } catch (error) {
-        console.error('Failed to fetch recent pages:', error);
+        console.error('Failed to fetch recent keywords:', error);
       }
     };
 
-    fetchRecentPages();
+    fetchRecentKeywords();
   }, []);
 
   // Track search telemetry
@@ -371,22 +379,18 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
                 />
               </div>
 
-              {/* Recent captures - subtle */}
-              {recentPages.length > 0 && (
+              {/* Recent keywords - fast loading chips */}
+              {recentKeywords.length > 0 && (
                 <div className="space-y-3 pt-4">
                   <p className="text-xs text-muted-foreground/50 uppercase tracking-wider">Recent</p>
-                  <div className="flex justify-center gap-3">
-                    {recentPages.map((page) => (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {recentKeywords.map((keyword) => (
                       <button
-                        key={page.id}
-                        onClick={() => onSelectPage(page)}
-                        className="group relative w-14 h-18 rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all hover:scale-105"
+                        key={keyword}
+                        onClick={() => setQuery(keyword)}
+                        className="px-3 py-1.5 rounded-full text-sm bg-muted/50 text-muted-foreground border border-border/50 hover:border-primary/50 hover:bg-primary/10 hover:text-foreground transition-all"
                       >
-                        <img
-                          src={page.thumbnailUri || page.imageUrl}
-                          alt=""
-                          className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
-                        />
+                        {keyword}
                       </button>
                     ))}
                   </div>
