@@ -36,7 +36,7 @@ const matchTypeBadges: Record<string, { label: string; icon: React.ComponentType
 
 /**
  * Search view with explainability badges and "Can't find it" fallback
- * Per briefing sections 6 and 9
+ * Google/ChatGPT style: centered search when no query
  */
 export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewProps) {
   const [query, setQuery] = useState('');
@@ -49,7 +49,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
   const [currentSearchId, setCurrentSearchId] = useState<string | null>(null);
   const [showFirstRetrievalMessage, setShowFirstRetrievalMessage] = useState(false);
   const [hasShownFirstRetrievalMessage, setHasShownFirstRetrievalMessage] = useState(() => {
-    // Check localStorage to see if we've already shown the message
     return localStorage.getItem('shown_first_retrieval_message') === 'true';
   });
 
@@ -92,7 +91,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
         .from('search_telemetry')
         .update({
           selected_page_id: selectedPage.id,
-          selected_rank: rank + 1, // 1-indexed
+          selected_rank: rank + 1,
           time_to_select_ms: timeToSelect
         } as never)
         .eq('id', currentSearchId);
@@ -110,13 +109,11 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
       matchedTerms: result.matchedTerms,
     };
     
-    // Show the subtle "I'm someone who doesn't lose ideas" message on first successful retrieval
     if (!hasShownFirstRetrievalMessage) {
       setShowFirstRetrievalMessage(true);
       setHasShownFirstRetrievalMessage(true);
       localStorage.setItem('shown_first_retrieval_message', 'true');
       
-      // Auto-hide after 3 seconds, then navigate
       setTimeout(() => {
         setShowFirstRetrievalMessage(false);
         onSelectPage(page, matchInfo);
@@ -149,7 +146,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
     setHasSearched(true);
 
     try {
-      // Build time filter
       let timeFilterObj: { after?: string; before?: string } | undefined;
       if (filter === 'week') {
         const weekAgo = new Date();
@@ -175,10 +171,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
         console.error('Search error:', error);
         setResults([]);
       } else {
-        // Map the results - edge function now returns full page object
-        // (FIX 4) Filter out null/undefined pages to avoid crashes
         const mappedResults: SearchResult[] = (data?.results || [])
-          .filter((r: any) => r.page && r.page.id) // Ensure page exists with required id field
+          .filter((r: any) => r.page && r.page.id)
           .map((r: any) => ({
             page: mapToPage(r.page),
             score: r.score || 0,
@@ -186,8 +180,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
             matchedTerms: r.matched_terms || []
           }));
         setResults(mappedResults);
-        
-        // Track search for telemetry
         trackSearch(searchQuery, mappedResults, filter);
       }
     } catch (error) {
@@ -198,7 +190,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
     }
   };
 
-  // Map database row to Page type
   const mapToPage = (row: any): Page => ({
     id: row.id,
     deviceUserId: row.device_user_id,
@@ -253,9 +244,12 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
     setTimeFilter(null);
   };
 
+  // Google/ChatGPT style: show centered search when no query
+  const showCenteredSearch = !hasSearched && !query;
+
   return (
     <div className="min-h-screen bg-background relative">
-      {/* First retrieval success message - subtle overlay */}
+      {/* First retrieval success message */}
       <AnimatePresence>
         {showFirstRetrievalMessage && (
           <motion.div
@@ -283,241 +277,236 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center gap-3 p-4">
-          <button
-            onClick={onClose}
-            className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search your memory..."
-              className="pl-10 pr-10 bg-muted/50 border-border"
-              autoFocus
-            />
-            {query && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-background"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
-          </div>
-        </div>
 
-        {/* Time filter pills (when active) */}
-        {timeFilter && (
-          <div className="px-4 pb-3 flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Filter:</span>
+      {/* CENTERED SEARCH - Google/ChatGPT style */}
+      {showCenteredSearch && (
+        <div className="min-h-screen flex flex-col">
+          {/* Back button */}
+          <div className="p-4">
             <button
-              onClick={() => setTimeFilter(null)}
-              className="px-2 py-1 rounded-full text-xs bg-primary/20 text-primary border border-primary/30 flex items-center gap-1"
+              onClick={onClose}
+              className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
             >
-              {timeFilter === 'week' ? 'Afgelopen week' : timeFilter === 'month' ? 'Afgelopen maand' : 'Alles'}
-              <X className="w-3 h-3" />
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
-        )}
-      </div>
 
-      {/* Results */}
-      <div className="p-4 space-y-3">
-        {isSearching && (
-          <div className="text-center py-8">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-muted-foreground mt-2">Zoeken...</p>
-          </div>
-        )}
-
-        {!isSearching && hasSearched && results.length === 0 && (
-          <div className="text-center py-8 space-y-4">
-            <p className="text-muted-foreground">Geen resultaten gevonden</p>
-            {!showFallback && (
-              <Button
-                variant="outline"
-                onClick={handleCantFind}
-                className="gap-2"
-              >
-                <HelpCircle className="w-4 h-4" />
-                Ik kan het niet vinden
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Can't find it fallback */}
-        <AnimatePresence>
-          {showFallback && (
+          {/* Centered content */}
+          <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-20">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="p-4 rounded-lg bg-muted/50 border border-border space-y-3"
+              className="w-full max-w-md text-center space-y-8"
             >
-              <div className="flex items-center gap-2 text-foreground">
-                <Calendar className="w-4 h-4" />
-                <span className="font-medium">Wanneer was het ongeveer?</span>
+              {/* Title */}
+              <div className="space-y-2">
+                <h1 className="text-2xl font-serif text-foreground">
+                  What are you looking for?
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Search by cue, name, or meaning
+                </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleTimeFilter('week')}
-                  className="gap-1"
-                >
-                  <Clock className="w-3 h-3" />
-                  Afgelopen week
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleTimeFilter('month')}
-                  className="gap-1"
-                >
-                  <Clock className="w-3 h-3" />
-                  Afgelopen maand
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleTimeFilter('all')}
-                >
-                  Alles tonen
-                </Button>
+
+              {/* Search input - prominent */}
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Type 1-3 words..."
+                  className="pl-12 pr-4 py-6 text-lg bg-muted/30 border-border rounded-xl"
+                  autoFocus
+                />
               </div>
+
+              {/* Browse all */}
+              {onBrowseAll && (
+                <button
+                  onClick={onBrowseAll}
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Browse all pages</span>
+                </button>
+              )}
             </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+        </div>
+      )}
 
-        {/* Results list */}
-        {!isSearching && results.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              {results.length} resultaten
-            </p>
-            
-            {results.map((result, index) => (
-              <motion.button
-                key={result.page.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => handleSelectPage(result.page, index, result)}
-                className="w-full text-left p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+      {/* RESULTS VIEW */}
+      {!showCenteredSearch && (
+        <>
+          {/* Header */}
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
+            <div className="flex items-center gap-3 p-4">
+              <button
+                onClick={clearSearch}
+                className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
               >
-                <div className="flex gap-3">
-                  {/* Thumbnail */}
-                  <div className="w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-muted">
-                    <img
-                      src={result.page.thumbnailUri || result.page.imageUrl}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search your memory..."
+                  className="pl-10 pr-10 bg-muted/50 border-border"
+                  autoFocus
+                />
+                {query && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-background"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
+            </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0 space-y-1">
-                    {/* Summary or hint */}
-                    <p className="text-sm text-foreground line-clamp-2">
-                      {result.page.oneLineHint || result.page.summary}
-                    </p>
-
-                    {/* Matched cues */}
-                    {result.page.futureYouCues && result.page.futureYouCues.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {result.page.futureYouCues.slice(0, 3).map((cue, i) => (
-                          <span
-                            key={i}
-                            className={`px-2 py-0.5 rounded-full text-[10px] border ${
-                              result.matchedTerms.some(t => cue.toLowerCase().includes(t.toLowerCase()))
-                                ? 'bg-primary/20 text-primary border-primary/30'
-                                : 'bg-muted text-muted-foreground border-border'
-                            }`}
-                          >
-                            {cue}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Match type badges */}
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {result.matchTypes.map((type) => {
-                        const badge = matchTypeBadges[type];
-                        if (!badge) return null;
-                        const Icon = badge.icon;
-                        return (
-                          <span
-                            key={type}
-                            className={`px-2 py-0.5 rounded-full text-[10px] border flex items-center gap-1 ${badge.className}`}
-                          >
-                            <Icon className="w-3 h-3" />
-                            {badge.label}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    {/* Date */}
-                    <p className="text-[10px] text-muted-foreground">
-                      {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
-                    </p>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-
-            {/* Can't find CTA at bottom of results */}
-            {!showFallback && results.length > 0 && results.length < 5 && (
-              <div className="text-center pt-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCantFind}
-                  className="gap-2 text-muted-foreground"
+            {timeFilter && (
+              <div className="px-4 pb-3 flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Filter:</span>
+                <button
+                  onClick={() => setTimeFilter(null)}
+                  className="px-2 py-1 rounded-full text-xs bg-primary/20 text-primary border border-primary/30 flex items-center gap-1"
                 >
-                  <HelpCircle className="w-4 h-4" />
-                  Niet gevonden? Probeer tijdfilter
-                </Button>
+                  {timeFilter === 'week' ? 'Last week' : timeFilter === 'month' ? 'Last month' : 'All'}
+                  <X className="w-3 h-3" />
+                </button>
               </div>
             )}
           </div>
-        )}
 
-        {/* Empty state (no search yet) - Search-first calm home */}
-        {!hasSearched && !query && (
-          <div className="text-center py-16 space-y-6">
-            <div className="space-y-2">
-              <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
-              <p className="text-lg font-serif text-foreground/80">
-                What are you looking for?
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Type 1-3 words to search your memory
-              </p>
-            </div>
-            
-            {/* Browse all - subtle secondary action */}
-            {onBrowseAll && (
-              <button
-                onClick={onBrowseAll}
-                className="inline-flex items-center gap-2 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Browse all pages</span>
-              </button>
+          {/* Results */}
+          <div className="p-4 space-y-3">
+            {isSearching && (
+              <div className="text-center py-8">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-sm text-muted-foreground mt-2">Searching...</p>
+              </div>
+            )}
+
+            {!isSearching && hasSearched && results.length === 0 && (
+              <div className="text-center py-8 space-y-4">
+                <p className="text-muted-foreground">No results found</p>
+                {!showFallback && (
+                  <Button variant="outline" onClick={handleCantFind} className="gap-2">
+                    <HelpCircle className="w-4 h-4" />
+                    Can't find it? Try time filter
+                  </Button>
+                )}
+              </div>
+            )}
+
+            <AnimatePresence>
+              {showFallback && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="p-4 rounded-lg bg-muted/50 border border-border space-y-3"
+                >
+                  <div className="flex items-center gap-2 text-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span className="font-medium">When was it approximately?</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleTimeFilter('week')} className="gap-1">
+                      <Clock className="w-3 h-3" />
+                      Last week
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleTimeFilter('month')} className="gap-1">
+                      <Clock className="w-3 h-3" />
+                      Last month
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleTimeFilter('all')}>
+                      Show all
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!isSearching && results.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">{results.length} results</p>
+                
+                {results.map((result, index) => (
+                  <motion.button
+                    key={result.page.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleSelectPage(result.page, index, result)}
+                    className="w-full text-left p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+                  >
+                    <div className="flex gap-3">
+                      <div className="w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-muted">
+                        <img
+                          src={result.page.thumbnailUri || result.page.imageUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap gap-1 mb-1">
+                          {result.matchTypes.slice(0, 2).map((type) => {
+                            const badge = matchTypeBadges[type];
+                            if (!badge) return null;
+                            const Icon = badge.icon;
+                            return (
+                              <span
+                                key={type}
+                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${badge.className}`}
+                              >
+                                <Icon className="w-2.5 h-2.5" />
+                                {badge.label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        
+                        <p className="text-sm text-foreground line-clamp-2">
+                          {result.page.summary || result.page.ocrText?.slice(0, 100)}
+                        </p>
+                        
+                        {result.matchedTerms.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {result.matchedTerms.slice(0, 3).map((term, i) => (
+                              <span key={i} className="text-[10px] text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">
+                                {term}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+                
+                {results.length > 0 && !showFallback && (
+                  <div className="pt-4 text-center">
+                    <Button variant="ghost" size="sm" onClick={handleCantFind} className="gap-2 text-muted-foreground">
+                      <HelpCircle className="w-4 h-4" />
+                      Not found? Try time filter
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

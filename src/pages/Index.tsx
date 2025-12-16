@@ -327,7 +327,7 @@ const Index = () => {
           <CameraView 
             onCapture={handleCapture}
             onCaptureMultiple={handleCaptureMultiple}
-            onOpenHistory={handleOpenHistory} 
+            onOpenHistory={handleOpenSearch}  // Boekje gaat naar Search-first
           />
         );
       
