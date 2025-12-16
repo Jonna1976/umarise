@@ -295,8 +295,13 @@ const Index = () => {
     await deletePage(pageId);
   }, [deletePage]);
 
-  // Dev button (only visible when not in onboarding)
-  const DevButton = view !== 'onboarding' && (
+  // Dev button visibility logic:
+  // - In Demo Mode: Only show on Memory views (history, patterns, personality, kompas, search)
+  // - Not in Demo Mode: Show on all views except onboarding
+  const isMemoryView = ['history', 'detail', 'patterns', 'personality', 'kompas', 'year-reflection', 'search', 'capsule-carousel'].includes(view);
+  const showDevButton = view !== 'onboarding' && (!isDemoMode || isMemoryView);
+  
+  const DevButton = showDevButton && (
     <button
       onClick={() => setShowTestPanel(true)}
       className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-codex-sepia/90 text-primary-foreground shadow-lg flex items-center justify-center hover:bg-codex-sepia transition-colors"
