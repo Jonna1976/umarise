@@ -5,7 +5,7 @@ import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo, useEffect } from 'react';
-import { InsightsSection } from './InsightsSection';
+
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
 import { VaultView } from './VaultView';
@@ -471,8 +471,6 @@ export function HistoryView({
         </div>
       )}
 
-      {/* Insights Section - for 5+ pages, hidden in demo mode */}
-      {!isDemoMode && allPages.length >= 5 && <InsightsSection pages={filteredPages} />}
 
       {/* View Content */}
       <AnimatePresence mode="wait">
