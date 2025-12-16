@@ -124,10 +124,9 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
         stiffness: 100 
       }}
       whileHover={{ 
-        y: -12, 
-        scale: 1.03,
-        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',
-        transition: { duration: 0.25 }
+        y: -8, 
+        scale: 1.02,
+        transition: { duration: 0.4, ease: 'easeOut' }
       }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
@@ -135,14 +134,42 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
         relative flex-shrink-0 h-64 rounded-sm
         ${colors.bg}
         border-l-2 ${colors.border}
-        shadow-lg hover:shadow-2xl
-        transition-shadow duration-300
         overflow-hidden
         group
         ${isHighlighted ? 'ring-2 ring-codex-gold ring-offset-2 ring-offset-background' : ''}
       `}
-      style={{ width: spineWidth }}
+      style={{ 
+        width: spineWidth,
+        boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25), 0 4px 16px -4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)'
+      }}
     >
+      {/* Idle breathing glow - golden aura */}
+      <motion.div
+        className="absolute -inset-1 rounded-sm pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, hsl(38 45% 50% / 0.15) 0%, transparent 70%)',
+          filter: 'blur(8px)'
+        }}
+        animate={{
+          opacity: [0.3, 0.6, 0.3],
+          scale: [1, 1.02, 1]
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: 'easeInOut'
+        }}
+      />
+      
+      {/* Hover intensified glow */}
+      <motion.div
+        className="absolute -inset-2 rounded-sm pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: 'radial-gradient(ellipse at center, hsl(38 45% 55% / 0.3) 0%, transparent 60%)',
+          filter: 'blur(12px)'
+        }}
+      />
+
       {/* Highlighted glow animation */}
       {isHighlighted && (
         <motion.div
@@ -161,14 +188,14 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       
       {/* Spine texture overlay */}
       <div 
-        className="absolute inset-0 opacity-[0.07]"
+        className="absolute inset-0 opacity-[0.05]"
         style={{
           backgroundImage: `repeating-linear-gradient(
             0deg,
             transparent,
-            transparent 3px,
-            rgba(0,0,0,0.15) 3px,
-            rgba(0,0,0,0.15) 6px
+            transparent 4px,
+            rgba(0,0,0,0.1) 4px,
+            rgba(0,0,0,0.1) 8px
           )`
         }}
       />
@@ -181,6 +208,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
             writing-mode-vertical
             text-center leading-tight
             transform rotate-180
+            drop-shadow-sm
           `}
           style={{ 
             writingMode: 'vertical-rl',
@@ -195,7 +223,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       </div>
       
       {/* Date - at bottom */}
-      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${colors.text} opacity-70`}>
+      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${colors.text} opacity-60`}>
         <span className="text-[10px] font-medium tracking-wide">
           {dateStr}
         </span>
@@ -203,22 +231,20 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       
       {/* Page count indicator for capsules */}
       {pageCount > 1 && (
-        <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-60`}>
+        <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-50`}>
           <Images className="w-3 h-3" />
           <span className="text-[9px] font-bold">{pageCount}</span>
         </div>
       )}
       
-      {/* Top edge highlight */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-white/15" />
+      {/* Top edge highlight - subtle shine */}
+      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-white/20 to-transparent" />
       
-      {/* Bottom shadow */}
-      <div className="absolute bottom-0 left-0 right-0 h-3 bg-black/15" />
+      {/* Bottom shadow - grounding */}
+      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/20 to-transparent" />
       
-      {/* Hover glow - golden breathing effect */}
-      <motion.div 
-        className="absolute inset-0 bg-codex-gold/0 group-hover:bg-codex-gold/10 transition-colors duration-300 pointer-events-none"
-      />
+      {/* Inner glow on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-t from-codex-gold/5 via-transparent to-codex-gold/10" />
     </motion.button>
   );
 }
