@@ -199,6 +199,31 @@ export function HistoryView({
     return items;
   }, [allPages, filter, keywordFilter, toneFilter, searchQuery, sortMode]);
 
+  // Group items by cue for sectioned display
+  const groupedByCue = useMemo(() => {
+    if (sortMode !== 'cue') return null;
+    
+    const groups: { cue: string; items: HistoryItem[] }[] = [];
+    const groupMap = new Map<string, HistoryItem[]>();
+    
+    for (const item of historyItems) {
+      const cue = getPrimaryCue(item);
+      const displayCue = cue === 'zzz' ? 'No cue' : (item.type === 'page' ? item.page.futureYouCues?.[0] : item.capsule.pages[0]?.futureYouCues?.[0]) || 'No cue';
+      
+      if (!groupMap.has(displayCue)) {
+        groupMap.set(displayCue, []);
+      }
+      groupMap.get(displayCue)!.push(item);
+    }
+    
+    // Convert to array maintaining sort order
+    for (const [cue, items] of groupMap) {
+      groups.push({ cue, items });
+    }
+    
+    return groups;
+  }, [historyItems, sortMode]);
+
   // Calendar data - pages grouped by day
   const calendarData = useMemo(() => {
     const monthStart = startOfMonth(calendarMonth);
@@ -750,51 +775,112 @@ export function HistoryView({
                   You are creating your own book containing ideas, thoughts and stories you want to keep. It gets richer, page by page.
                 </p>
                 
-                {/* Books container - centered */}
-                <div 
-                  className="flex gap-2 px-4 items-end justify-center overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
-                  style={{ 
-                    scrollSnapType: 'x mandatory',
-                    WebkitOverflowScrolling: 'touch'
-                  }}
-                >
-                  {historyItems.map((item, index) => (
+                {/* Books container - grouped by cue or flat */}
+                {sortMode === 'cue' && groupedByCue ? (
+                  <div className="space-y-6 pb-4">
+                    {groupedByCue.map((group) => (
+                      <div key={group.cue}>
+                        {/* Cue section header */}
+                        <div className="flex items-center gap-2 px-4 mb-2">
+                          <Tag className="w-3.5 h-3.5 text-codex-gold" />
+                          <span className="text-sm font-medium text-codex-gold">{group.cue}</span>
+                          <span className="text-xs text-muted-foreground">({group.items.length})</span>
+                        </div>
+                        
+                        {/* Books row */}
+                        <div 
+                          className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                          style={{ 
+                            scrollSnapType: 'x mandatory',
+                            WebkitOverflowScrolling: 'touch'
+                          }}
+                        >
+                          {group.items.map((item, index) => (
+                            <div 
+                              key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                              style={{ scrollSnapAlign: 'start' }}
+                            >
+                              <BookSpine
+                                page={item.type === 'page' ? item.page : undefined}
+                                capsule={item.type === 'capsule' ? item.capsule : undefined}
+                                onClick={() => {
+                                  if (item.type === 'page') {
+                                    onSelectPage(item.page);
+                                  } else if (onSelectCapsule) {
+                                    onSelectCapsule(item.capsule);
+                                  } else {
+                                    onSelectPage(item.capsule.pages[0]);
+                                  }
+                                }}
+                                index={index}
+                                projects={projects}
+                                isHighlighted={
+                                  highlightPageId && (
+                                    (item.type === 'page' && item.page.id === highlightPageId) ||
+                                    (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                                  )
+                                }
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Mini shelf per group */}
+                        <div className="relative mt-0 mx-4">
+                          <div className="h-2 bg-gradient-to-b from-codex-sepia/30 to-codex-sepia/15 rounded-t-sm" />
+                          <div className="h-1 bg-codex-sepia/20" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
                     <div 
-                      key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
-                      style={{ scrollSnapAlign: 'start' }}
+                      className="flex gap-2 px-4 items-end justify-center overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                      style={{ 
+                        scrollSnapType: 'x mandatory',
+                        WebkitOverflowScrolling: 'touch'
+                      }}
                     >
-                      <BookSpine
-                        page={item.type === 'page' ? item.page : undefined}
-                        capsule={item.type === 'capsule' ? item.capsule : undefined}
-                        onClick={() => {
-                          if (item.type === 'page') {
-                            onSelectPage(item.page);
-                          } else if (onSelectCapsule) {
-                            onSelectCapsule(item.capsule);
-                          } else {
-                            onSelectPage(item.capsule.pages[0]);
-                          }
-                        }}
-                        index={index}
-                        projects={projects}
-                        isHighlighted={
-                          highlightPageId && (
-                            (item.type === 'page' && item.page.id === highlightPageId) ||
-                            (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
-                          )
-                        }
-                      />
+                      {historyItems.map((item, index) => (
+                        <div 
+                          key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                          style={{ scrollSnapAlign: 'start' }}
+                        >
+                          <BookSpine
+                            page={item.type === 'page' ? item.page : undefined}
+                            capsule={item.type === 'capsule' ? item.capsule : undefined}
+                            onClick={() => {
+                              if (item.type === 'page') {
+                                onSelectPage(item.page);
+                              } else if (onSelectCapsule) {
+                                onSelectCapsule(item.capsule);
+                              } else {
+                                onSelectPage(item.capsule.pages[0]);
+                              }
+                            }}
+                            index={index}
+                            projects={projects}
+                            isHighlighted={
+                              highlightPageId && (
+                                (item.type === 'page' && item.page.id === highlightPageId) ||
+                                (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                              )
+                            }
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                
-                {/* Shelf - matches design system */}
-                <div className="relative mt-0">
-                  {/* Shelf top surface */}
-                  <div className="h-3 bg-gradient-to-b from-codex-sepia/40 via-codex-sepia/30 to-codex-sepia/20 rounded-t-sm shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]" />
-                  {/* Shelf front edge */}
-                  <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
-                </div>
+                    
+                    {/* Shelf - matches design system */}
+                    <div className="relative mt-0">
+                      {/* Shelf top surface */}
+                      <div className="h-3 bg-gradient-to-b from-codex-sepia/40 via-codex-sepia/30 to-codex-sepia/20 rounded-t-sm shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]" />
+                      {/* Shelf front edge */}
+                      <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
+                    </div>
+                  </>
+                )}
               </div>
               </div>
             )}
