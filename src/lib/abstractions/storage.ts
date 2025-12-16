@@ -268,6 +268,7 @@ export class LovableCloudStorage implements IStorageProvider {
       updateData.highlights = updates.highlights;
     }
     if (updates.embeddingVector !== undefined) updateData.embedding_vector = updates.embeddingVector;
+    if (updates.tone !== undefined) updateData.tone = updates.tone;
     if (updates.writtenAt !== undefined) updateData.written_at = updates.writtenAt?.toISOString() || null;
 
     const { error } = await supabase
