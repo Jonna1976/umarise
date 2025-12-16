@@ -340,23 +340,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       </div>
 
       <div className="p-6 max-w-lg mx-auto">
-        {/* Back button - top left, always visible */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mb-4"
-        >
-          <Button
-            onClick={handleCloseWithSave}
-            disabled={isSaving}
-            variant="ghost"
-            size="sm"
-            className="text-codex-cream/70 hover:text-codex-cream hover:bg-codex-cream/10 -ml-2"
-          >
-            <ChevronDown className="w-5 h-5 mr-1" />
-            {isSaving ? 'Saving...' : 'Close'}
-          </Button>
-        </motion.div>
 
         {/* Habit anchor - "Pen down. Snap." - only for new captures */}
         {isNewCapture && (
@@ -570,16 +553,16 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           />
         </motion.div>
 
-        {/* Summary */}
+        {/* Summary - left aligned, regular text */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 text-center"
+          className="mb-6"
         >
-          <h2 className="font-serif text-lg text-codex-cream leading-relaxed">
+          <p className="text-sm text-codex-cream leading-relaxed">
             {page.summary}
-          </h2>
+          </p>
         </motion.div>
 
 
@@ -821,6 +804,25 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
+        {/* Close button - bottom, always visible (except for new captures which have their own actions) */}
+        {!isNewCapture && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="mt-8 mb-4 flex justify-center"
+          >
+            <Button
+              onClick={handleCloseWithSave}
+              disabled={isSaving}
+              variant="outline"
+              className="w-full max-w-xs border-codex-cream/30 text-codex-cream hover:bg-codex-cream/10"
+            >
+              <ChevronDown className="w-4 h-4 mr-2" />
+              {isSaving ? 'Saving...' : 'Close'}
+            </Button>
+          </motion.div>
+        )}
 
         {/* Actions - only for new captures */}
         {isNewCapture && (
