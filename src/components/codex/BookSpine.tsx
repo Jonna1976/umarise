@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Page, CapsulePages, Project } from '@/lib/pageService';
-import { Images, FolderOpen } from 'lucide-react';
+import { Images } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface BookSpineProps {
   page?: Page;
@@ -11,16 +12,27 @@ interface BookSpineProps {
   isHighlighted?: boolean;
 }
 
-// Extract a short title for the spine
-function extractSpineTitle(page: Page): string {
+// Extract the primary cue for display
+function extractPrimaryCue(page: Page): string {
+  // Priority: Future You Cues > Primary Keyword > First Keyword
+  if (page.futureYouCues && page.futureYouCues.length > 0) {
+    return page.futureYouCues[0];
+  }
+  if (page.futureYouCue) {
+    return page.futureYouCue;
+  }
   if (page.primaryKeyword) {
     return page.primaryKeyword;
   }
   if (page.keywords.length > 0) {
     return page.keywords[0];
   }
-  // Take first few words of summary
-  return page.summary.split(' ').slice(0, 3).join(' ');
+  return 'Untitled';
+}
+
+// Format date compactly
+function formatSpineDate(date: Date): string {
+  return format(date, 'd MMM');
 }
 
 // Get spine color based on tone - natural palette only
@@ -31,7 +43,6 @@ function getSpineColor(tones: string[]): {
 } {
   const primaryTone = tones[0]?.toLowerCase() || 'reflective';
   
-  // Natural color palette: teal, forest, cream, gold, stone variations
   const toneMap: Record<string, { bg: string; text: string; border: string }> = {
     focused: {
       bg: 'bg-gradient-to-b from-[hsl(165,25%,18%)] via-[hsl(160,25%,14%)] to-[hsl(165,30%,10%)]',
@@ -82,17 +93,14 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
   
-  const title = extractSpineTitle(representativePage);
+  const primaryCue = extractPrimaryCue(representativePage);
+  const dateStr = formatSpineDate(representativePage.createdAt);
   const colors = getSpineColor(representativePage.tone);
   const pageCount = capsule?.pages.length || 1;
   
-  // Find project name if page has a project
-  const projectId = representativePage.projectId;
-  const project = projectId ? projects.find(p => p.id === projectId) : null;
-  
-  // Spine width varies based on page count - more pages = thicker spine
-  const baseWidth = 42;
-  const extraWidth = Math.min(pageCount * 8, 40);
+  // Larger spine dimensions
+  const baseWidth = 56;
+  const extraWidth = Math.min(pageCount * 10, 50);
   const spineWidth = baseWidth + extraWidth;
 
   return (
@@ -116,17 +124,18 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
         stiffness: 100 
       }}
       whileHover={{ 
-        y: -8, 
-        scale: 1.02,
-        transition: { duration: 0.2 }
+        y: -12, 
+        scale: 1.03,
+        boxShadow: '0 20px 40px -10px rgba(0,0,0,0.3)',
+        transition: { duration: 0.25 }
       }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative flex-shrink-0 h-48 rounded-sm
+        relative flex-shrink-0 h-64 rounded-sm
         ${colors.bg}
         border-l-2 ${colors.border}
-        shadow-lg hover:shadow-xl
+        shadow-lg hover:shadow-2xl
         transition-shadow duration-300
         overflow-hidden
         group
@@ -152,81 +161,64 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       
       {/* Spine texture overlay */}
       <div 
-        className="absolute inset-0 opacity-10"
+        className="absolute inset-0 opacity-[0.07]"
         style={{
           backgroundImage: `repeating-linear-gradient(
             0deg,
             transparent,
-            transparent 2px,
-            rgba(0,0,0,0.1) 2px,
-            rgba(0,0,0,0.1) 4px
+            transparent 3px,
+            rgba(0,0,0,0.15) 3px,
+            rgba(0,0,0,0.15) 6px
           )`
         }}
       />
       
-      {/* Project label at top */}
-      {project && (
-        <div className={`absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-80`}>
-          <FolderOpen className="w-2.5 h-2.5" />
-          <span 
-            className="text-[7px] font-bold uppercase tracking-wide max-w-[30px] truncate"
-            title={project.name}
-          >
-            {project.name.slice(0, 4)}
-          </span>
-        </div>
-      )}
-      
-      {/* Title - vertical text */}
-      <div className={`absolute inset-0 flex items-center justify-center p-2 ${project ? 'pt-6' : ''} ${representativePage.futureYouCue ? 'pb-8' : ''}`}>
+      {/* Primary Cue - main title (vertical) */}
+      <div className="absolute inset-0 flex items-center justify-center px-2 pb-14">
         <span 
           className={`
-            ${colors.text} font-serif text-sm font-semibold
+            ${colors.text} font-serif text-base font-semibold
             writing-mode-vertical
             text-center leading-tight
-            line-clamp-3
             transform rotate-180
           `}
           style={{ 
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
-            maxHeight: '90%'
+            maxHeight: '80%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}
         >
-          {title}
+          {primaryCue}
         </span>
       </div>
       
-      {/* Future You Cue - tiny line at bottom */}
-      {representativePage.futureYouCue && (
-        <div 
-          className={`absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] text-center ${colors.text} opacity-60`}
-          title={representativePage.futureYouCue}
-        >
-          <span className="text-[6px] italic truncate block px-0.5">
-            {representativePage.futureYouCue.length > 20 
-              ? representativePage.futureYouCue.slice(0, 20) + '…' 
-              : representativePage.futureYouCue}
-          </span>
-        </div>
-      )}
+      {/* Date - at bottom */}
+      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${colors.text} opacity-70`}>
+        <span className="text-[10px] font-medium tracking-wide">
+          {dateStr}
+        </span>
+      </div>
       
       {/* Page count indicator for capsules */}
       {pageCount > 1 && (
-        <div className={`absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-70`}>
-          <Images className="w-2.5 h-2.5" />
-          <span className="text-[8px] font-bold">{pageCount}</span>
+        <div className={`absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-0.5 ${colors.text} opacity-60`}>
+          <Images className="w-3 h-3" />
+          <span className="text-[9px] font-bold">{pageCount}</span>
         </div>
       )}
       
       {/* Top edge highlight */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-white/20" />
+      <div className="absolute top-0 left-0 right-0 h-1.5 bg-white/15" />
       
       {/* Bottom shadow */}
-      <div className="absolute bottom-0 left-0 right-0 h-2 bg-black/20" />
+      <div className="absolute bottom-0 left-0 right-0 h-3 bg-black/15" />
       
-      {/* Hover glow */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition-opacity duration-300" />
+      {/* Hover glow - golden breathing effect */}
+      <motion.div 
+        className="absolute inset-0 bg-codex-gold/0 group-hover:bg-codex-gold/10 transition-colors duration-300 pointer-events-none"
+      />
     </motion.button>
   );
 }
