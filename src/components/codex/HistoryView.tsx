@@ -259,9 +259,22 @@ export function HistoryView({
             <DemoModeToggle />
           </div>
           
-          {/* Right side: feature icons - hidden in demo mode */}
+          {/* Right side */}
           {isDemoMode ? (
-            <div className="w-10" />
+            <div className="flex items-center">
+              {onOpenSearch ? (
+                <button
+                  onClick={onOpenSearch}
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title="Search"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 text-foreground" />
+                </button>
+              ) : (
+                <div className="w-10" />
+              )}
+            </div>
           ) : (
             <div className="flex items-center gap-1">
               {onViewYearReflection && (
@@ -321,8 +334,8 @@ export function HistoryView({
           )}
         </div>
 
-        {/* Search button - opens full search view, hidden in demo mode */}
-        {!isDemoMode && onOpenSearch && (
+        {/* Search button - opens full search view */}
+        {onOpenSearch && (
           <div className="px-4 pb-3">
             <button
               onClick={onOpenSearch}
