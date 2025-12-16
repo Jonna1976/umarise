@@ -74,6 +74,11 @@ export function TestPanel({
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
   const [isClearing, setIsClearing] = useState(false);
+  
+  // Double confirmation safeguard for real data protection
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
+  const [pendingDeleteAction, setPendingDeleteAction] = useState<(() => Promise<void>) | null>(null);
 
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
@@ -239,6 +244,37 @@ export function TestPanel({
     };
   }, [testPages]);
 
+  // Safeguard: require double confirmation for any destructive action on real data
+  const requireDoubleConfirmation = (action: () => Promise<void>, description: string) => {
+    // Demo mode operations are always allowed without confirmation
+    if (isDemoMode) {
+      action();
+      return;
+    }
+    
+    // Real data operations require double confirmation
+    toast({
+      title: "⛔ STOP - Real Data Protected",
+      description: `You tried to: ${description}. This would affect your REAL data. Enable Demo Mode first.`,
+      variant: "destructive",
+    });
+  };
+
+  const executeConfirmedDelete = async () => {
+    if (deleteConfirmInput.toUpperCase() !== 'DELETE' || !pendingDeleteAction) return;
+    
+    await pendingDeleteAction();
+    setShowDeleteConfirm(false);
+    setDeleteConfirmInput('');
+    setPendingDeleteAction(null);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setDeleteConfirmInput('');
+    setPendingDeleteAction(null);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -246,6 +282,69 @@ export function TestPanel({
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm"
     >
+      {/* Double Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"
+            onClick={cancelDelete}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-background border-2 border-destructive rounded-xl p-6 max-w-sm w-full shadow-2xl"
+            >
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <Trash2 className="w-8 h-8 text-destructive" />
+                </div>
+                <h3 className="text-lg font-bold text-destructive">⚠️ DOUBLE CONFIRMATION</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Je staat op het punt om <strong>ECHTE DATA</strong> te verwijderen.
+                  Dit kan NIET ongedaan worden gemaakt.
+                </p>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Type <span className="text-destructive font-bold">DELETE</span> om te bevestigen:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmInput}
+                  onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-destructive/50 rounded-lg bg-background text-foreground focus:border-destructive focus:outline-none"
+                  placeholder="DELETE"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={cancelDelete}
+                >
+                  Annuleren
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  className="flex-1"
+                  disabled={deleteConfirmInput.toUpperCase() !== 'DELETE'}
+                  onClick={executeConfirmedDelete}
+                >
+                  Verwijder Data
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
@@ -303,11 +402,11 @@ export function TestPanel({
               )}
               <div className="text-left">
                 <div className="font-medium">
-                  {isDemoMode ? 'Demo Mode AAN' : 'Demo Mode UIT'}
+                  {isDemoMode ? 'Demo Mode AAN' : 'Demo Mode UIT (Jonna)'}
                 </div>
                 <div className="text-xs opacity-70">
                   {isDemoMode 
-                    ? 'Je ziet demo data (22 pages)' 
+                    ? 'Je ziet demo data' 
                     : 'Je ziet je echte data'}
                 </div>
               </div>
@@ -316,6 +415,21 @@ export function TestPanel({
               Klik om te wisselen
             </span>
           </button>
+          
+          {/* CRITICAL WARNING when Demo Mode is OFF */}
+          {!isDemoMode && (
+            <div className="mt-3 p-3 bg-red-500/20 border-2 border-red-500/50 rounded-lg">
+              <div className="flex items-start gap-2">
+                <span className="text-red-500 text-lg">🔒</span>
+                <div>
+                  <p className="text-xs font-bold text-red-600">ECHTE DATA ACTIEF</p>
+                  <p className="text-xs text-red-500/80 mt-1">
+                    Jonna's data is beschermd. Geen enkele destructieve actie is mogelijk zonder Demo Mode.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Device Debug Section */}
@@ -433,10 +547,11 @@ export function TestPanel({
         </div>
 
         {/* Database Injection Section - FAKE DATA */}
-        <div className="p-4 bg-codex-gold/10 border-b border-border">
+        <div className={`p-4 border-b border-border ${!isDemoMode ? 'opacity-50 pointer-events-none' : 'bg-codex-gold/10'}`}>
           <h3 className="text-xs font-medium text-codex-gold uppercase tracking-wide mb-2 flex items-center gap-2">
             <Database className="w-3.5 h-3.5" />
             Fake Demo Data (Fallback)
+            {!isDemoMode && <span className="text-xs text-red-500 ml-2">🔒 Demo Mode vereist</span>}
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
             {testDataInfo.totalPages} fake pages als alternatief:
@@ -446,7 +561,7 @@ export function TestPanel({
               onClick={handleResetAndInject} 
               variant="outline" 
               size="sm"
-              disabled={isInjecting}
+              disabled={isInjecting || !isDemoMode}
             >
               {isInjecting ? (
                 <>
@@ -464,7 +579,7 @@ export function TestPanel({
               onClick={handleClearTestData} 
               variant="ghost" 
               size="sm"
-              disabled={isClearing}
+              disabled={isClearing || !isDemoMode}
             >
               {isClearing ? (
                 <Loader2 className="w-4 h-4 mr-1 animate-spin" />
