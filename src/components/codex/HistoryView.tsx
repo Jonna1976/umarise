@@ -44,7 +44,7 @@ interface HistoryViewProps {
 type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
-type ViewMode = 'list' | 'calendar' | 'covers' | 'shelf' | 'vault';
+type ViewMode = 'list' | 'calendar' | 'pages' | 'shelf' | 'vault';
 
 // Union type for history items
 type HistoryItem = 
@@ -372,11 +372,11 @@ export function HistoryView({
                 <Library className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode('covers')}
+                onClick={() => setViewMode('pages')}
                 className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'covers' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
-                title="Book covers"
+                title="Pages"
               >
                 <BookOpen className="w-4 h-4" />
               </button>
@@ -592,10 +592,10 @@ export function HistoryView({
               </p>
             </div>
           </motion.div>
-        ) : viewMode === 'covers' ? (
-          /* Book Covers View */
+        ) : viewMode === 'pages' ? (
+          /* Pages View */
           <motion.div
-            key="covers"
+            key="pages"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
