@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Palette, Clock } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -46,6 +46,7 @@ type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
 type ViewMode = 'list' | 'calendar' | 'pages' | 'shelf' | 'vault';
+type SortMode = 'date' | 'color';
 
 // Union type for history items
 type HistoryItem = 
@@ -54,6 +55,16 @@ type HistoryItem =
 
 // Available tones for filtering
 const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective'];
+
+// Color spectrum order for sorting (like a rainbow/clothing rack)
+const TONE_COLOR_ORDER: Record<string, number> = {
+  'hopeful': 1,      // warm gold
+  'playful': 2,      // teal
+  'focused': 3,      // blue
+  'reflective': 4,   // violet
+  'frustrated': 5,   // rose/red
+  'overwhelmed': 6,  // slate/gray
+};
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
@@ -101,6 +112,7 @@ export function HistoryView({
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('shelf');
+  const [sortMode, setSortMode] = useState<SortMode>('date');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -169,15 +181,27 @@ export function HistoryView({
       items.push({ type: 'capsule', capsule });
     }
     
-    // Sort by date (newest first)
-    items.sort((a, b) => {
-      const dateA = a.type === 'page' ? a.page.createdAt : a.capsule.pages[0]?.createdAt || new Date(0);
-      const dateB = b.type === 'page' ? b.page.createdAt : b.capsule.pages[0]?.createdAt || new Date(0);
-      return dateB.getTime() - dateA.getTime();
-    });
+    // Sort based on sortMode
+    if (sortMode === 'color') {
+      // Sort by tone color (like a clothing rack)
+      items.sort((a, b) => {
+        const toneA = a.type === 'page' ? a.page.tone[0] : a.capsule.pages[0]?.tone[0];
+        const toneB = b.type === 'page' ? b.page.tone[0] : b.capsule.pages[0]?.tone[0];
+        const orderA = TONE_COLOR_ORDER[toneA?.toLowerCase()] ?? 99;
+        const orderB = TONE_COLOR_ORDER[toneB?.toLowerCase()] ?? 99;
+        return orderA - orderB;
+      });
+    } else {
+      // Sort by date (newest first)
+      items.sort((a, b) => {
+        const dateA = a.type === 'page' ? a.page.createdAt : a.capsule.pages[0]?.createdAt || new Date(0);
+        const dateB = b.type === 'page' ? b.page.createdAt : b.capsule.pages[0]?.createdAt || new Date(0);
+        return dateB.getTime() - dateA.getTime();
+      });
+    }
     
     return items;
-  }, [allPages, filter, keywordFilter, toneFilter, searchQuery]);
+  }, [allPages, filter, keywordFilter, toneFilter, searchQuery, sortMode]);
 
   // Calendar data - pages grouped by day
   const calendarData = useMemo(() => {
@@ -271,43 +295,59 @@ export function HistoryView({
           
           {/* Right side - Minimal mode shows view toggles */}
           {isMinimalMode ? (
-            <div className="flex bg-secondary rounded-lg p-1">
+            <div className="flex items-center gap-2">
+              {/* Sort toggle */}
               <button
-                onClick={() => setViewMode('vault')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                onClick={() => setSortMode(sortMode === 'date' ? 'color' : 'date')}
+                className={`p-2 rounded-lg transition-colors ${
+                  sortMode === 'color' 
+                    ? 'bg-codex-gold/20 text-codex-gold' 
+                    : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
-                title="Vault"
+                title={sortMode === 'date' ? 'Sort by color' : 'Sort by date'}
               >
-                <Warehouse className="w-4 h-4" />
+                {sortMode === 'date' ? <Palette className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
               </button>
-              <button
-                onClick={() => setViewMode('shelf')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Bookshelf"
-              >
-                <Library className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('pages')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Pages"
-              >
-                <BookOpen className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="List"
-              >
-                <List className="w-4 h-4" />
-              </button>
+              
+              {/* View toggles */}
+              <div className="flex bg-secondary rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('vault')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Vault"
+                >
+                  <Warehouse className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('shelf')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Bookshelf"
+                >
+                  <Library className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('pages')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Pages"
+                >
+                  <BookOpen className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="List"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ) : isDemoMode ? (
             <div className="flex items-center">
