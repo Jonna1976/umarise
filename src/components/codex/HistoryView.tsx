@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2 } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -39,6 +39,7 @@ interface HistoryViewProps {
   onViewYearReflection?: () => void;
   onViewOrbit?: () => void;
   onOpenSearch?: () => void;
+  onShareMemory?: () => void;
   highlightPageId?: string;
 }
 
@@ -97,6 +98,7 @@ export function HistoryView({
   onViewYearReflection,
   onViewOrbit,
   onOpenSearch,
+  onShareMemory,
   highlightPageId
 }: HistoryViewProps) {
   // Use onCapture for camera buttons, fallback to onBack if not provided
@@ -380,6 +382,17 @@ export function HistoryView({
           {/* Right side - Minimal mode shows view toggles */}
           {isMinimalMode ? (
             <div className="flex items-center gap-2">
+              {/* Share button - shows at 3+ pages */}
+              {allPages.length >= 3 && onShareMemory && (
+                <button
+                  onClick={onShareMemory}
+                  className="p-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+                  title="Share Memory"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              )}
+              
               {/* Insights button - shows at 5+ pages */}
               {allPages.length >= 5 && onViewPersonality && (
                 <button
