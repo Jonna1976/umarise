@@ -39,7 +39,7 @@ export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
 
   return (
     <div 
-      className="relative flex items-center gap-2"
+      className="relative flex items-center gap-2 pt-2"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
