@@ -786,11 +786,31 @@ export function HistoryView({
                   You are creating your own book containing ideas, thoughts and stories you want to keep. It gets richer, page by page.
                 </p>
                 
+                {/* Jump-to navigation for cue mode */}
+                {sortMode === 'cue' && groupedByCue && groupedByCue.length > 1 && (
+                  <div className="px-4 mb-4 overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-2 pb-2">
+                      {groupedByCue.map((group) => (
+                        <button
+                          key={group.cue}
+                          onClick={() => {
+                            const element = document.getElementById(`cue-section-${group.cue.replace(/\s+/g, '-').toLowerCase()}`);
+                            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }}
+                          className="flex-shrink-0 px-3 py-1.5 rounded-full bg-codex-gold/10 border border-codex-gold/30 text-codex-gold text-xs font-medium hover:bg-codex-gold/20 transition-colors whitespace-nowrap"
+                        >
+                          {group.cue} ({group.items.length})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Books container - grouped by cue or flat */}
                 {sortMode === 'cue' && groupedByCue ? (
                   <div className="space-y-6 pb-4">
                     {groupedByCue.map((group) => (
-                      <div key={group.cue}>
+                      <div key={group.cue} id={`cue-section-${group.cue.replace(/\s+/g, '-').toLowerCase()}`}>
                         {/* Cue section header */}
                         <div className="flex items-center gap-2 px-4 mb-2">
                           <Tag className="w-3.5 h-3.5 text-codex-gold" />
