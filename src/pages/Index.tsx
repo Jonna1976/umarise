@@ -199,14 +199,19 @@ const Index = () => {
   }, []);
 
   const handleOpenHistory = useCallback(() => {
-    // If coming from a new capture, highlight that page in the timeline
+    setIsNewCapture(false);
+    setView('history');
+  }, []);
+
+  // After snapshot, go to Search-first (not directly to History)
+  const handleViewSearchFirst = useCallback(() => {
+    // If coming from a new capture, we might want to highlight that page later
     if (isNewCapture && currentPage) {
       setHighlightPageId(currentPage.id);
-      // Clear highlight after animation completes
       setTimeout(() => setHighlightPageId(null), 5000);
     }
     setIsNewCapture(false);
-    setView('history');
+    setView('search');
   }, [isNewCapture, currentPage]);
 
   const handleSelectPage = useCallback((page: Page) => {
@@ -217,7 +222,7 @@ const Index = () => {
   }, []);
 
   const handleBackFromHistory = useCallback(() => {
-    setView('camera');
+    setView('search');  // Back from History goes to Search-first
   }, []);
 
   const handleBackFromDetail = useCallback(async () => {
@@ -341,7 +346,7 @@ const Index = () => {
           <SnapshotView
             page={currentPage}
             onClose={handleCloseSnapshot}
-            onViewHistory={handleOpenHistory}
+            onViewHistory={handleViewSearchFirst}  // Go to Search-first, not History
             isNewCapture={isNewCapture}
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
@@ -491,13 +496,14 @@ const Index = () => {
       case 'search':
         return (
           <SearchView
-            onClose={() => setView('history')}
+            onClose={() => setView('camera')}  // Back arrow goes to camera
             onSelectPage={(page, matchInfo) => {
               setCurrentPage(page);
               setSearchMatchInfo(matchInfo || null);
               setIsNewCapture(false);
               setView('detail');
             }}
+            onBrowseAll={() => setView('history')}  // "Browse all" goes to Memory
           />
         );
       
