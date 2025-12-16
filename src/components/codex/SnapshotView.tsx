@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn } from 'lucide-react';
 import { Page, updatePage, confirmFutureYouCues } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -46,6 +46,7 @@ function getToneClass(tone: string): string {
 export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
+  const [showZoomedImage, setShowZoomedImage] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
   const [primaryKeyword, setPrimaryKeyword] = useState(page.primaryKeyword || '');
   const [ocrText, setOcrText] = useState(page.ocrText || '');
@@ -540,18 +541,50 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image - centered without inline close button */}
+        {/* Image - centered with zoom icon */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="mb-6 flex justify-center"
         >
-          <img
-            src={page.imageUrl}
-            alt="Captured page"
-            className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
-          />
+          <div className="relative group">
+            <img
+              src={page.imageUrl}
+              alt="Captured page"
+              className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
+            />
+            <button
+              onClick={() => setShowZoomedImage(true)}
+              className="absolute bottom-3 right-3 p-2 rounded-full bg-codex-ink-deep/80 text-codex-cream/70 hover:text-codex-cream hover:bg-codex-ink-deep transition-all opacity-70 group-hover:opacity-100"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+          </div>
         </motion.div>
+
+        {/* Zoomed image modal */}
+        {showZoomedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-codex-ink-deep/95 flex items-center justify-center p-4"
+            onClick={() => setShowZoomedImage(false)}
+          >
+            <button
+              onClick={() => setShowZoomedImage(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-codex-cream/10 text-codex-cream hover:bg-codex-cream/20 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={page.imageUrl}
+              alt="Captured page - zoomed"
+              className="max-w-full max-h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
 
         {/* Summary - left aligned, regular text */}
         <motion.div
