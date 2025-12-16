@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Palette, Clock } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -46,7 +46,7 @@ type TimeFilter = 'all' | '7days' | '30days';
 type KeywordFilter = 'all' | string;
 type ToneFilter = 'all' | string;
 type ViewMode = 'list' | 'calendar' | 'pages' | 'shelf' | 'vault';
-type SortMode = 'date' | 'color';
+type SortMode = 'date' | 'cue';
 
 // Union type for history items
 type HistoryItem = 
@@ -56,15 +56,13 @@ type HistoryItem =
 // Available tones for filtering
 const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective'];
 
-// Color spectrum order for sorting (like a rainbow/clothing rack)
-const TONE_COLOR_ORDER: Record<string, number> = {
-  'hopeful': 1,      // warm gold
-  'playful': 2,      // teal
-  'focused': 3,      // blue
-  'reflective': 4,   // violet
-  'frustrated': 5,   // rose/red
-  'overwhelmed': 6,  // slate/gray
-};
+// Helper to get primary cue for sorting
+function getPrimaryCue(item: HistoryItem): string {
+  const cues = item.type === 'page' 
+    ? item.page.futureYouCues 
+    : item.capsule.pages[0]?.futureYouCues;
+  return cues?.[0]?.toLowerCase() || 'zzz'; // Put items without cues at end
+}
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
@@ -182,14 +180,12 @@ export function HistoryView({
     }
     
     // Sort based on sortMode
-    if (sortMode === 'color') {
-      // Sort by tone color (like a clothing rack)
+    if (sortMode === 'cue') {
+      // Sort alphabetically by first cue
       items.sort((a, b) => {
-        const toneA = a.type === 'page' ? a.page.tone[0] : a.capsule.pages[0]?.tone[0];
-        const toneB = b.type === 'page' ? b.page.tone[0] : b.capsule.pages[0]?.tone[0];
-        const orderA = TONE_COLOR_ORDER[toneA?.toLowerCase()] ?? 99;
-        const orderB = TONE_COLOR_ORDER[toneB?.toLowerCase()] ?? 99;
-        return orderA - orderB;
+        const cueA = getPrimaryCue(a);
+        const cueB = getPrimaryCue(b);
+        return cueA.localeCompare(cueB);
       });
     } else {
       // Sort by date (newest first)
@@ -298,15 +294,15 @@ export function HistoryView({
             <div className="flex items-center gap-2">
               {/* Sort toggle */}
               <button
-                onClick={() => setSortMode(sortMode === 'date' ? 'color' : 'date')}
+                onClick={() => setSortMode(sortMode === 'date' ? 'cue' : 'date')}
                 className={`p-2 rounded-lg transition-colors ${
-                  sortMode === 'color' 
+                  sortMode === 'cue' 
                     ? 'bg-codex-gold/20 text-codex-gold' 
                     : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
-                title={sortMode === 'date' ? 'Sort by color' : 'Sort by date'}
+                title={sortMode === 'date' ? 'Sort by cue' : 'Sort by date'}
               >
-                {sortMode === 'date' ? <Palette className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                {sortMode === 'date' ? <Tag className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
               </button>
               
               {/* View toggles */}
