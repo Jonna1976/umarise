@@ -1,16 +1,16 @@
 /**
  * Codex Growth Indicator
  * 
- * Visual representation of "compounding value" - shows users
- * how their codex is growing and what unlocks at each milestone.
+ * Minimal icon with tooltip showing progress to next milestone.
+ * Compact by default - shows countdown badge with explanation on hover.
  */
 
-import { motion } from 'framer-motion';
-import { Sparkles, Brain, Star, Compass, BookOpen, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Brain, Star, Compass, BookOpen } from 'lucide-react';
 
 interface CodexGrowthIndicatorProps {
   pageCount: number;
-  compact?: boolean;
 }
 
 const MILESTONES = [
@@ -21,151 +21,109 @@ const MILESTONES = [
   { count: 10, label: 'Deep insights', icon: Sparkles, color: 'text-purple-500' },
 ];
 
-export function CodexGrowthIndicator({ pageCount, compact = false }: CodexGrowthIndicatorProps) {
-  // Find current milestone and next
-  const currentMilestoneIndex = MILESTONES.findIndex(m => pageCount < m.count);
-  const nextMilestone = MILESTONES[currentMilestoneIndex] || MILESTONES[MILESTONES.length - 1];
-  const prevMilestone = MILESTONES[currentMilestoneIndex - 1];
+export function CodexGrowthIndicator({ pageCount }: CodexGrowthIndicatorProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
   
-  // Calculate progress to next milestone
-  const prevCount = prevMilestone?.count || 0;
-  const progress = nextMilestone 
-    ? Math.min(100, ((pageCount - prevCount) / (nextMilestone.count - prevCount)) * 100)
-    : 100;
-
-  // Has unlocked all milestones?
+  // Find next milestone
+  const nextMilestoneIndex = MILESTONES.findIndex(m => pageCount < m.count);
+  const nextMilestone = MILESTONES[nextMilestoneIndex];
   const fullyUnlocked = pageCount >= MILESTONES[MILESTONES.length - 1].count;
-
-  if (compact) {
-    return (
-      <div className="flex items-center gap-2">
-        <div className="flex -space-x-1">
-          {MILESTONES.slice(0, 4).map((milestone, i) => {
-            const Icon = milestone.icon;
-            const unlocked = pageCount >= milestone.count;
-            return (
-              <motion.div
-                key={milestone.count}
-                initial={false}
-                animate={{ 
-                  scale: unlocked ? 1 : 0.8,
-                  opacity: unlocked ? 1 : 0.3 
-                }}
-                className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                  unlocked ? 'bg-codex-gold/20' : 'bg-muted'
-                }`}
-                style={{ zIndex: MILESTONES.length - i }}
-              >
-                <Icon className={`w-3 h-3 ${unlocked ? milestone.color : 'text-muted-foreground'}`} />
-              </motion.div>
-            );
-          })}
-        </div>
-        <span className="text-xs text-muted-foreground">
-          {pageCount} pages
-        </span>
-      </div>
-    );
-  }
+  
+  // Calculate remaining
+  const remaining = nextMilestone ? nextMilestone.count - pageCount : 0;
+  
+  // Get appropriate icon
+  const CurrentIcon = fullyUnlocked 
+    ? Sparkles 
+    : (nextMilestone?.icon || Sparkles);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-4 rounded-2xl bg-gradient-to-br from-codex-gold/10 to-amber-500/5 border border-codex-gold/20"
+    <div 
+      className="relative"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-codex-gold" />
-          <span className="text-sm font-medium text-foreground">Lasting Memory</span>
-        </div>
-        <span className="text-lg font-serif font-bold text-codex-gold">
-          {pageCount} {pageCount === 1 ? 'page' : 'pages'}
-        </span>
-      </div>
-
-      {/* Progress bar */}
-      {!fullyUnlocked && (
-        <div className="mb-3">
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="h-full bg-gradient-to-r from-codex-gold to-amber-400 rounded-full"
-            />
+      {/* Compact icon with badge */}
+      <motion.div
+        className={`
+          w-8 h-8 rounded-full flex items-center justify-center cursor-pointer
+          ${fullyUnlocked 
+            ? 'bg-codex-gold/20 ring-1 ring-codex-gold/30' 
+            : 'bg-muted/50 ring-1 ring-border/50'
+          }
+        `}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <CurrentIcon 
+          className={`w-4 h-4 ${fullyUnlocked ? 'text-codex-gold' : 'text-muted-foreground'}`} 
+        />
+        
+        {/* Countdown badge */}
+        {!fullyUnlocked && remaining > 0 && (
+          <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-codex-gold text-[9px] font-bold text-background flex items-center justify-center">
+            {remaining}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {nextMilestone.count - pageCount} more to unlock: <span className="text-foreground font-medium">{nextMilestone.label}</span>
-          </p>
-        </div>
-      )}
+        )}
+        
+        {/* Unlocked checkmark */}
+        {fullyUnlocked && (
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-500 text-[9px] text-white flex items-center justify-center"
+          >
+            ✓
+          </motion.div>
+        )}
+      </motion.div>
 
-      {/* Milestones */}
-      <div className="flex justify-between">
-        {MILESTONES.map((milestone, index) => {
-          const Icon = milestone.icon;
-          const unlocked = pageCount >= milestone.count;
-          const isNext = !unlocked && (index === 0 || pageCount >= MILESTONES[index - 1].count);
-          
-          return (
-            <motion.div
-              key={milestone.count}
-              className="flex flex-col items-center gap-1"
-              animate={isNext ? { scale: [1, 1.1, 1] } : {}}
-              transition={{ duration: 2, repeat: isNext ? Infinity : 0 }}
-            >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                  unlocked 
-                    ? 'bg-codex-gold/20 ring-2 ring-codex-gold/30' 
-                    : isNext
-                      ? 'bg-muted ring-2 ring-dashed ring-codex-gold/50'
-                      : 'bg-muted/50'
-                }`}
-              >
-                <Icon 
-                  className={`w-4 h-4 ${
-                    unlocked ? milestone.color : 'text-muted-foreground/50'
-                  }`} 
-                />
+      {/* Tooltip on hover */}
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: 5, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 5, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
+          >
+            <div className="bg-popover border border-border rounded-lg shadow-lg p-3 min-w-[180px] text-center">
+              {fullyUnlocked ? (
+                <>
+                  <p className="text-xs font-medium text-codex-gold mb-1">✨ All unlocked</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Deep insights ready
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-medium text-foreground mb-1">
+                    {remaining} to go
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Next: <span className="text-foreground">{nextMilestone?.label}</span>
+                  </p>
+                </>
+              )}
+              
+              {/* Mini progress dots */}
+              <div className="flex justify-center gap-1.5 mt-2">
+                {MILESTONES.map((m) => (
+                  <div
+                    key={m.count}
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      pageCount >= m.count ? 'bg-codex-gold' : 'bg-muted'
+                    }`}
+                  />
+                ))}
               </div>
-              <span className={`text-[10px] text-center ${
-                unlocked ? 'text-foreground' : 'text-muted-foreground/50'
-              }`}>
-                {milestone.count}
-              </span>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Encouraging message */}
-      {pageCount < 5 && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-xs text-center text-muted-foreground mt-3 italic"
-        >
-          {pageCount === 0 && "Start capturing to build your memory..."}
-          {pageCount === 1 && "Great start! One more page and I'll find connections..."}
-          {pageCount === 2 && "Threads are forming. Keep going!"}
-          {pageCount === 3 && "Patterns unlocked! 2 more for your personality profile..."}
-          {pageCount === 4 && "Almost there! One more page reveals who you are..."}
-        </motion.p>
-      )}
-
-      {fullyUnlocked && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-xs text-center text-codex-gold mt-3 font-medium"
-        >
-          ✨ All insights unlocked. Your memory grows wiser with each page.
-        </motion.p>
-      )}
-    </motion.div>
+            </div>
+            {/* Arrow */}
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-popover border-l border-t border-border rotate-45" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
