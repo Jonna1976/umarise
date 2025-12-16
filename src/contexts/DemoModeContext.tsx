@@ -17,12 +17,18 @@ export function DemoModeProvider({ children }: { children: ReactNode }) {
     return stored === null ? true : stored === 'true';
   });
 
-  useEffect(() => {
-    localStorage.setItem(DEMO_MODE_KEY, String(isDemoMode));
-  }, [isDemoMode]);
-
-  const toggleDemoMode = () => setIsDemoMode(prev => !prev);
-  const setDemoMode = (value: boolean) => setIsDemoMode(value);
+  // Sync toggle that writes to localStorage BEFORE updating state
+  // This ensures isDemoModeActive() reads the correct value immediately
+  const toggleDemoMode = () => {
+    const newValue = !isDemoMode;
+    localStorage.setItem(DEMO_MODE_KEY, String(newValue));
+    setIsDemoMode(newValue);
+  };
+  
+  const setDemoMode = (value: boolean) => {
+    localStorage.setItem(DEMO_MODE_KEY, String(value));
+    setIsDemoMode(value);
+  };
 
   return (
     <DemoModeContext.Provider value={{ isDemoMode, toggleDemoMode, setDemoMode }}>
