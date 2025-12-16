@@ -688,10 +688,10 @@ export function HistoryView({
                 {/* Memory Pulse - subtle daily reminder */}
                 <MemoryPulse pages={allPages} />
                 
-                <div className="relative min-h-[280px] flex flex-col justify-end flex-1">
+                <div className="relative min-h-[280px] flex flex-col justify-end flex-1 pt-8">
                 {/* Books container - positioned at bottom */}
                 <div 
-                  className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1"
+                  className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
                   style={{ 
                     scrollSnapType: 'x mandatory',
                     WebkitOverflowScrolling: 'touch'
