@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, BookOpen } from 'lucide-react';
+import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, BookOpen, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Page } from '@/lib/pageService';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
@@ -300,9 +301,35 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
             >
               {/* Title */}
               <div className="space-y-2">
-                <h1 className="text-2xl font-serif text-foreground">
-                  What are you looking for?
-                </h1>
+                <div className="flex items-center justify-center gap-2">
+                  <h1 className="text-2xl font-serif text-foreground">
+                    What are you looking for?
+                  </h1>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
+                        <Info className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 text-sm" align="center">
+                      <div className="space-y-3">
+                        <p className="font-medium text-foreground">Design rationale</p>
+                        <p className="text-muted-foreground text-xs leading-relaxed">
+                          Wij hebben bewust gekozen om voor een bekende Search gewoonte te kiezen die mensen al gewend zijn. Dus geen nieuwe gewoonte of UX/UI om aan te wennen. Rust is van het grootste belang.
+                        </p>
+                        <ul className="text-xs text-muted-foreground space-y-2">
+                          <li><strong>Bekende interactie</strong> — Google/ChatGPT-stijl zoeken is universeel aangeleerd, geen leercurve</li>
+                          <li><strong>Intent-first</strong> — Gebruiker wordt gedwongen na te denken "wat zoek ik?" voordat ze bladeren</li>
+                          <li><strong>Bewijst de waarde</strong> — Elke succesvolle zoekopdracht bevestigt dat het systeem werkt</li>
+                          <li><strong>Reduceert noise</strong> — Browsen door alles is nu bewuste keuze, niet default</li>
+                        </ul>
+                        <p className="text-xs text-muted-foreground/70 italic">
+                          De flow Camera → Search → Memory dwingt het retrieval-moment af als primaire interactie.
+                        </p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   Search by cue, name, or meaning
                 </p>
