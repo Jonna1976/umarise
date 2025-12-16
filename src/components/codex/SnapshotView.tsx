@@ -340,6 +340,24 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       </div>
 
       <div className="p-6 max-w-lg mx-auto">
+        {/* Back button - top left, always visible */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-4"
+        >
+          <Button
+            onClick={handleCloseWithSave}
+            disabled={isSaving}
+            variant="ghost"
+            size="sm"
+            className="text-codex-cream/70 hover:text-codex-cream hover:bg-codex-cream/10 -ml-2"
+          >
+            <ChevronDown className="w-5 h-5 mr-1" />
+            {isSaving ? 'Saving...' : 'Close'}
+          </Button>
+        </motion.div>
+
         {/* Habit anchor - "Pen down. Snap." - only for new captures */}
         {isNewCapture && (
           <motion.p
@@ -539,27 +557,17 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image with close button - positioned to right of photo */}
+        {/* Image - centered without inline close button */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 flex justify-center items-start gap-2"
+          className="mb-6 flex justify-center"
         >
           <img
             src={page.imageUrl}
             alt="Captured page"
             className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
           />
-          {/* Close button - right of photo */}
-          <Button
-            onClick={handleCloseWithSave}
-            disabled={isSaving}
-            variant="ghost"
-            size="sm"
-            className="text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10 h-10 w-10 p-0 rounded-full flex-shrink-0"
-          >
-            <X className="w-5 h-5" />
-          </Button>
         </motion.div>
 
         {/* Summary */}
