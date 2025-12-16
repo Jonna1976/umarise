@@ -693,7 +693,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             value={userNote}
             onChange={(e) => setUserNote(e.target.value)}
             placeholder="Add personal notes to help you find this later..."
-            className="min-h-[80px] resize-none bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
+            className="min-h-[40px] resize-none bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
           />
         </motion.div>
 
