@@ -31,6 +31,8 @@ interface SnapshotViewProps {
   matchInfo?: SnapshotMatchInfo; // Search match info (when opened from search)
 }
 
+const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective', 'determined', 'curious', 'anxious', 'calm'];
+
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
     focused: 'bg-codex-gold/20 text-codex-gold',
@@ -39,6 +41,10 @@ function getToneClass(tone: string): string {
     playful: 'bg-codex-gold/20 text-codex-gold',
     overwhelmed: 'bg-codex-forest-deep/20 text-codex-forest-deep',
     reflective: 'bg-codex-sepia/20 text-codex-sepia',
+    determined: 'bg-codex-gold/30 text-codex-gold',
+    curious: 'bg-codex-teal/30 text-codex-teal',
+    anxious: 'bg-codex-forest/30 text-codex-forest',
+    calm: 'bg-codex-cream/20 text-codex-cream',
   };
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
 }
@@ -63,6 +69,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
   const [cuesConfirmed, setCuesConfirmed] = useState<boolean>((page.futureYouCues?.length ?? 0) > 0);
   const [isConfirmingCues, setIsConfirmingCues] = useState(false);
+  const [tone, setTone] = useState<string[]>(page.tone || []);
+  const [showToneSelector, setShowToneSelector] = useState(false);
 
 
   // Track changes
@@ -75,8 +83,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const cuesChanged = JSON.stringify(futureYouCues) !== JSON.stringify(page.futureYouCues || []);
     const dateChanged = writtenAt.getTime() !== (page.writtenAt || page.createdAt).getTime();
     const userKeywordsChanged = JSON.stringify(userKeywords) !== JSON.stringify(page.highlights || []);
-    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged || userKeywordsChanged);
-  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, userKeywords, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt, page.highlights]);
+    const toneChanged = JSON.stringify(tone) !== JSON.stringify(page.tone || []);
+    setHasChanges(noteChanged || keywordChanged || ocrChanged || sourcesChanged || topicChanged || cuesChanged || dateChanged || userKeywordsChanged || toneChanged);
+  }, [userNote, primaryKeyword, ocrText, sources, topicProjectId, futureYouCues, writtenAt, userKeywords, tone, page.userNote, page.primaryKeyword, page.ocrText, page.sources, page.projectId, page.futureYouCues, page.writtenAt, page.createdAt, page.highlights, page.tone]);
 
 
   const buildUpdates = () => {
@@ -89,6 +98,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       futureYouCues?: string[];
       writtenAt?: Date;
       highlights?: string[];
+      tone?: string[];
     } = {};
 
     const noteChanged = userNote !== (page.userNote || '');
@@ -99,6 +109,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     const cuesChanged = JSON.stringify(futureYouCues) !== JSON.stringify(page.futureYouCues || []);
     const dateChanged = writtenAt.getTime() !== (page.writtenAt || page.createdAt).getTime();
     const userKeywordsChanged = JSON.stringify(userKeywords) !== JSON.stringify(page.highlights || []);
+    const toneChanged = JSON.stringify(tone) !== JSON.stringify(page.tone || []);
 
     if (noteChanged) updates.userNote = userNote || undefined;
     if (keywordChanged) updates.primaryKeyword = primaryKeyword || undefined;
@@ -108,6 +119,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     if (cuesChanged) updates.futureYouCues = futureYouCues.length > 0 ? futureYouCues : undefined;
     if (dateChanged) updates.writtenAt = writtenAt;
     if (userKeywordsChanged) updates.highlights = userKeywords;
+    if (toneChanged) updates.tone = tone;
 
     return updates;
   };
@@ -144,6 +156,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           futureYouCues,
           writtenAt,
           highlights: userKeywords,
+          tone,
         });
       }
     } else {
@@ -183,6 +196,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           futureYouCues,
           writtenAt,
           highlights: userKeywords,
+          tone,
         });
       }
       return true;
@@ -599,19 +613,46 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         </motion.div>
 
 
-        {/* Tone - compact */}
+        {/* Tone - editable */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           className="mb-6"
         >
-          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Tone</p>
+          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">
+            Tone <span className="normal-case opacity-60">(tap to change)</span>
+          </p>
           <div className="flex flex-wrap gap-2">
-            {page.tone.map((t) => (
-              <span key={t} className={`px-3 py-1 rounded-full text-sm capitalize ${getToneClass(t)}`}>
-                {t}
-              </span>
+            {tone.map((t, index) => (
+              <Popover key={`${t}-${index}`}>
+                <PopoverTrigger asChild>
+                  <button className={`px-3 py-1 rounded-full text-sm capitalize cursor-pointer hover:ring-2 hover:ring-codex-gold/50 transition-all ${getToneClass(t)}`}>
+                    {t}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2 bg-codex-ink-deep border-codex-cream/20" align="start">
+                  <div className="grid grid-cols-2 gap-1">
+                    {AVAILABLE_TONES.map((availableTone) => (
+                      <button
+                        key={availableTone}
+                        onClick={() => {
+                          const newTone = [...tone];
+                          newTone[index] = availableTone;
+                          setTone(newTone);
+                        }}
+                        className={`px-2 py-1.5 rounded text-sm capitalize text-left transition-colors ${
+                          tone[index] === availableTone 
+                            ? 'bg-codex-gold/20 text-codex-gold' 
+                            : 'text-codex-cream/70 hover:bg-codex-cream/10'
+                        }`}
+                      >
+                        {availableTone}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             ))}
           </div>
         </motion.div>

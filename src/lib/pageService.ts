@@ -230,6 +230,7 @@ export async function updatePage(
     futureYouCues?: string[];
     writtenAt?: Date;
     highlights?: string[];
+    tone?: string[];
   }
 ): Promise<boolean> {
   const storage = getStorageProvider();
