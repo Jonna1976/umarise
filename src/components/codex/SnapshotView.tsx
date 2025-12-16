@@ -399,7 +399,32 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Written at date - ALWAYS VISIBLE */}
+        {/* Future You Cues - ALWAYS show question, TOP POSITION */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-6"
+        >
+          <p className="text-sm text-codex-gold mb-3">
+            Which 3 words will you type to find this later?
+          </p>
+          {futureYouCues.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {futureYouCues.map((cue, index) => (
+                <span 
+                  key={index}
+                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
+                >
+                  {cue}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-codex-cream/40 italic">No retrieval cues set</p>
+          )}
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -500,31 +525,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </h2>
         </motion.div>
 
-        {/* Future You Cues - ALWAYS show question */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-          className="mb-6"
-        >
-          <p className="text-sm text-codex-gold mb-3">
-            Which 3 words will you type to find this later?
-          </p>
-          {futureYouCues.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {futureYouCues.map((cue, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
-                >
-                  {cue}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-codex-cream/40 italic">No retrieval cues set</p>
-          )}
-        </motion.div>
 
         {/* Tone - compact */}
         <motion.div
