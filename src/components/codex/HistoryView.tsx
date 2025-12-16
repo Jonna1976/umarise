@@ -241,9 +241,12 @@ export function HistoryView({
     }
   };
 
+  // Minimal header for shelf mode
+  const isShelfMode = viewMode === 'shelf';
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header - Minimal for Shelf mode */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between p-4">
           <button
@@ -258,11 +261,35 @@ export function HistoryView({
             ) : (
               <h1 className="font-serif text-lg font-medium">Lasting Memory</h1>
             )}
-            <DemoModeToggle />
+            {!isShelfMode && <DemoModeToggle />}
           </div>
           
-          {/* Right side */}
-          {isDemoMode ? (
+          {/* Right side - Shelf mode only shows view toggles */}
+          {isShelfMode ? (
+            <div className="flex bg-secondary rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('vault')}
+                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
+                title="Vault"
+              >
+                <Warehouse className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('shelf')}
+                className="p-1.5 rounded transition-colors bg-background shadow-sm"
+                title="Bookshelf"
+              >
+                <Library className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
+                title="List"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+          ) : isDemoMode ? (
             <div className="flex items-center">
               {onOpenSearch ? (
                 <button
@@ -345,8 +372,8 @@ export function HistoryView({
           )}
         </div>
 
-        {/* Search button - opens full search view */}
-        {onOpenSearch && (
+        {/* Search button - hidden in shelf mode */}
+        {onOpenSearch && !isShelfMode && (
           <div className="px-4 pb-3">
             <button
               onClick={onOpenSearch}
@@ -358,8 +385,8 @@ export function HistoryView({
           </div>
         )}
 
-        {/* View mode toggle + Time filters - hidden in demo mode */}
-        {!isDemoMode && (
+        {/* View mode toggle + Time filters - hidden in demo mode and shelf mode */}
+        {!isDemoMode && !isShelfMode && (
           <div className="flex items-center justify-between px-4 pb-2">
             <div className="flex gap-2 overflow-x-auto">
               {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
@@ -390,9 +417,7 @@ export function HistoryView({
               </button>
               <button
                 onClick={() => setViewMode('shelf')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
                 title="Bookshelf"
               >
                 <Library className="w-4 h-4" />
@@ -786,14 +811,10 @@ export function HistoryView({
                 </Button>
               </motion.div>
             ) : (
-              <div className="relative">
-                {/* Shelf background */}
-                <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-amber-900/30 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 h-2 bg-amber-800/40 shadow-inner" />
-                
-                {/* Books container */}
+              <div className="relative min-h-[200px] flex flex-col justify-end">
+                {/* Books container - positioned at bottom */}
                 <div 
-                  className="flex gap-1.5 px-4 pb-6 overflow-x-auto scrollbar-hide"
+                  className="flex gap-1.5 px-4 items-end overflow-x-auto scrollbar-hide"
                   style={{ 
                     scrollSnapType: 'x mandatory',
                     WebkitOverflowScrolling: 'touch'
@@ -829,11 +850,12 @@ export function HistoryView({
                   ))}
                 </div>
                 
-                {/* Shelf count */}
-                <div className="text-center mt-2">
-                  <span className="text-xs text-muted-foreground">
-                    {historyItems.length} {historyItems.length === 1 ? 'book' : 'books'} on your shelf
-                  </span>
+                {/* Wooden shelf - books stand ON this */}
+                <div className="relative mt-0">
+                  {/* Shelf top surface */}
+                  <div className="h-3 bg-gradient-to-b from-amber-700/60 via-amber-800/50 to-amber-900/40 rounded-t-sm shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]" />
+                  {/* Shelf front edge */}
+                  <div className="h-2 bg-gradient-to-b from-amber-900/50 to-amber-950/40 shadow-md" />
                 </div>
               </div>
             )}
