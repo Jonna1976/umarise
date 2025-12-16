@@ -366,7 +366,7 @@ const Index = () => {
             onViewPersonality={isDemoMode ? undefined : handleViewPersonality}
             onViewKompas={isDemoMode ? undefined : handleViewKompas}
             onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
-            onOpenSearch={isDemoMode ? undefined : handleOpenSearch}
+            onOpenSearch={handleOpenSearch}
             highlightPageId={highlightPageId || undefined}
           />
         );
