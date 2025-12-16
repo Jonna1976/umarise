@@ -35,6 +35,7 @@ interface HistoryViewProps {
   onViewPersonality?: () => void;
   onViewKompas?: () => void;
   onViewYearReflection?: () => void;
+  onViewOrbit?: () => void;
   onOpenSearch?: () => void;
   highlightPageId?: string;
 }
@@ -82,6 +83,7 @@ export function HistoryView({
   onViewPersonality,
   onViewKompas,
   onViewYearReflection,
+  onViewOrbit,
   onOpenSearch,
   highlightPageId
 }: HistoryViewProps) {
@@ -329,6 +331,15 @@ export function HistoryView({
                 </button>
               ) : (
                 <div className="w-10" />
+              )}
+              {onViewOrbit && (
+                <button
+                  onClick={onViewOrbit}
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+                  title="Universe View"
+                >
+                  <Sparkles className="w-5 h-5 text-codex-gold" />
+                </button>
               )}
             </div>
           )}
