@@ -200,14 +200,16 @@ const threadedContent = [
   }
 ];
 
-// Stock images that look like handwriting/notebooks
+// Messy, realistic handwriting images - not polished stock photos
 const handwritingImages = [
-  'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1517842645767-c639042777db?w=400&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=400&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?w=400&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1544816155-12df9643f363?w=400&h=600&fit=crop', // messy notebook scribbles
+  'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&h=600&fit=crop', // rough handwritten notes
+  'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?w=400&h=600&fit=crop', // real notebook page
+  'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=400&h=600&fit=crop', // crumpled paper notes
+  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=600&fit=crop', // study notes messy
+  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=600&fit=crop', // school notebook
+  'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=600&fit=crop', // handwritten journal
+  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=600&fit=crop', // sticky notes messy
 ];
 
 function randomImage(): string {
