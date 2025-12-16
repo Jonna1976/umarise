@@ -4,7 +4,7 @@ import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, Sl
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
@@ -113,6 +113,8 @@ export function HistoryView({
   const [sortMode, setSortMode] = useState<SortMode>('date');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [projects, setProjects] = useState<Project[]>([]);
+  const [currentVisibleCue, setCurrentVisibleCue] = useState<string | null>(null);
+  const cueObserverRef = useRef<IntersectionObserver | null>(null);
 
   // Load projects on mount
   useEffect(() => {
@@ -224,7 +226,68 @@ export function HistoryView({
     return groups;
   }, [historyItems, sortMode]);
 
-  // Calendar data - pages grouped by day
+  // Track visible cue section with IntersectionObserver
+  useEffect(() => {
+    if (sortMode !== 'cue' || !groupedByCue || groupedByCue.length <= 1) {
+      setCurrentVisibleCue(null);
+      return;
+    }
+
+    // Clean up previous observer
+    if (cueObserverRef.current) {
+      cueObserverRef.current.disconnect();
+    }
+
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      // Find the entry that's most visible (highest intersection ratio near top)
+      let topEntry: IntersectionObserverEntry | null = null;
+      let topPosition = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.boundingClientRect;
+          // Prioritize sections closest to top of viewport
+          if (rect.top < topPosition && rect.top >= -100) {
+            topPosition = rect.top;
+            topEntry = entry;
+          }
+        }
+      });
+
+      if (topEntry) {
+        const id = (topEntry as IntersectionObserverEntry).target.id;
+        // Find the original cue name from groupedByCue
+        const matchedGroup = groupedByCue.find(g => 
+          g.cue.replace(/\s+/g, '-').toLowerCase() === id.replace('cue-section-', '')
+        );
+        if (matchedGroup) {
+          setCurrentVisibleCue(matchedGroup.cue);
+        }
+      }
+    };
+
+    cueObserverRef.current = new IntersectionObserver(observerCallback, {
+      root: null,
+      rootMargin: '-80px 0px -60% 0px', // Trigger when section is near top
+      threshold: [0, 0.25, 0.5, 0.75, 1]
+    });
+
+    // Observe all cue sections after a small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      groupedByCue.forEach((group) => {
+        const sectionId = `cue-section-${group.cue.replace(/\s+/g, '-').toLowerCase()}`;
+        const element = document.getElementById(sectionId);
+        if (element) {
+          cueObserverRef.current?.observe(element);
+        }
+      });
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      cueObserverRef.current?.disconnect();
+    };
+  }, [sortMode, groupedByCue]);
   const calendarData = useMemo(() => {
     const monthStart = startOfMonth(calendarMonth);
     const monthEnd = endOfMonth(calendarMonth);
@@ -496,7 +559,23 @@ export function HistoryView({
         {/* Filters hidden for cleaner UI */}
       </div>
 
-      {/* Active filters summary - hidden in demo mode */}
+      {/* Sticky cue indicator - shows current section when scrolling in cue mode */}
+      <AnimatePresence>
+        {sortMode === 'cue' && currentVisibleCue && viewMode === 'shelf' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="sticky top-[72px] z-20 flex justify-center py-2 pointer-events-none"
+          >
+            <div className="px-4 py-1.5 rounded-full bg-codex-gold/90 text-background text-sm font-medium shadow-lg backdrop-blur-sm flex items-center gap-2">
+              <Tag className="w-3.5 h-3.5" />
+              {currentVisibleCue}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {!isDemoMode && (searchQuery || toneFilter !== 'all' || keywordFilter !== 'all' || filter !== 'all') && (
         <div className="px-4 py-2 bg-codex-gold/5 border-b border-border">
           <div className="flex items-center gap-2 flex-wrap">
