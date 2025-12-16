@@ -399,7 +399,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Future You Cues - ALWAYS show question, TOP POSITION */}
+        {/* Future You Cues - ALWAYS show question, TOP POSITION, EDITABLE */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -409,18 +409,67 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           <p className="text-sm text-codex-gold mb-3">
             Which 3 words will you type to find this later?
           </p>
-          {futureYouCues.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+          
+          {/* Display existing cues with delete option */}
+          {futureYouCues.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
               {futureYouCues.map((cue, index) => (
                 <span 
                   key={index}
-                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
+                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
                 >
                   {cue}
+                  {!isDemoMode && (
+                    <button
+                      onClick={() => setFutureYouCues(prev => prev.filter((_, i) => i !== index))}
+                      className="opacity-50 hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
                 </span>
               ))}
             </div>
-          ) : (
+          )}
+          
+          {/* Add new cue input - only when not in demo mode */}
+          {!isDemoMode && futureYouCues.length < 5 && (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Add retrieval cue..."
+                className="flex-1 h-9 bg-codex-ink text-codex-cream border-codex-cream/20 focus:border-codex-gold placeholder:text-codex-cream/30"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                    const newCue = e.currentTarget.value.trim();
+                    if (!futureYouCues.includes(newCue)) {
+                      setFutureYouCues(prev => [...prev, newCue]);
+                    }
+                    e.currentTarget.value = '';
+                  }
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 border-codex-gold/30 text-codex-gold hover:bg-codex-gold/10"
+                onClick={() => {
+                  const input = document.querySelector<HTMLInputElement>('input[placeholder="Add retrieval cue..."]');
+                  if (input && input.value.trim()) {
+                    const newCue = input.value.trim();
+                    if (!futureYouCues.includes(newCue)) {
+                      setFutureYouCues(prev => [...prev, newCue]);
+                    }
+                    input.value = '';
+                  }
+                }}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+          
+          {/* Show hint when no cues */}
+          {futureYouCues.length === 0 && isDemoMode && (
             <p className="text-sm text-codex-cream/40 italic">No retrieval cues set</p>
           )}
         </motion.div>
