@@ -24,7 +24,7 @@ export function DemoModeToggle() {
         ) : (
           <>
             <Layers className="w-3.5 h-3.5" />
-            <span>Full</span>
+            <span>Jonna</span>
           </>
         )}
       </button>
