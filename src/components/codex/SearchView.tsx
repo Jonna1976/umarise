@@ -306,10 +306,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
                     What are you looking for?
                   </h1>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </button>
+                    <PopoverTrigger className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
+                      <Info className="w-4 h-4 text-muted-foreground" />
                     </PopoverTrigger>
                     <PopoverContent className="w-80 text-sm" align="center">
                       <div className="space-y-3">
