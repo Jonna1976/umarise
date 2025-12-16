@@ -12,6 +12,7 @@ import {
   checkDuplicate
 } from '@/lib/pageService';
 import { toast } from 'sonner';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 export interface CreatePageResult {
   page: Page;
@@ -19,11 +20,12 @@ export interface CreatePageResult {
 }
 
 export function usePages() {
+  const { isDemoMode } = useDemoMode();
   const [pages, setPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load pages on mount
+  // Load pages on mount and when demo mode changes
   const loadPages = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -39,9 +41,10 @@ export function usePages() {
     }
   }, []);
 
+  // Re-fetch when demo mode changes
   useEffect(() => {
     loadPages();
-  }, [loadPages]);
+  }, [loadPages, isDemoMode]);
 
   // Create new page with duplicate detection
   const createPage = useCallback(async (imageDataUrl: string): Promise<CreatePageResult | null> => {
