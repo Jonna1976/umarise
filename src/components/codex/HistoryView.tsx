@@ -317,6 +317,17 @@ export function HistoryView({
           {/* Right side - Minimal mode shows view toggles */}
           {isMinimalMode ? (
             <div className="flex items-center gap-2">
+              {/* Insights button - shows at 5+ pages */}
+              {allPages.length >= 5 && onViewPersonality && (
+                <button
+                  onClick={onViewPersonality}
+                  className="p-2 rounded-lg bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30 transition-colors"
+                  title="Insights"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
+              )}
+              
               {/* Sort toggle */}
               <button
                 onClick={() => setSortMode(sortMode === 'date' ? 'cue' : 'date')}
