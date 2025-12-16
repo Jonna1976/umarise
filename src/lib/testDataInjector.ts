@@ -463,3 +463,76 @@ export function getTestDataInfo() {
     description: 'Realistic English demo with 3 personas, multi-page capsules, diverse page types, and overlapping topics for search/disambiguation testing.'
   };
 }
+
+/**
+ * Copy real user pages to demo device ID.
+ * This creates duplicates under DEMO_DEVICE_ID while keeping originals safe.
+ * Reset+Inject will only affect the copies, never the originals.
+ */
+export async function copyRealPagesToDemo(
+  realDeviceId: string,
+  onProgress?: (current: number, total: number) => void
+): Promise<{ copied: number; skipped: number }> {
+  console.log(`[copyRealPagesToDemo] Fetching pages from real device: ${realDeviceId}`);
+  
+  // First, fetch all real pages
+  const { data: realPages, error: fetchError } = await supabase
+    .from('pages')
+    .select('*')
+    .eq('device_user_id', realDeviceId)
+    .order('created_at', { ascending: true });
+
+  if (fetchError) {
+    console.error('Failed to fetch real pages:', fetchError);
+    throw new Error('Failed to fetch real pages');
+  }
+
+  if (!realPages || realPages.length === 0) {
+    console.log('No real pages to copy');
+    return { copied: 0, skipped: 0 };
+  }
+
+  console.log(`[copyRealPagesToDemo] Found ${realPages.length} real pages to copy`);
+
+  // Clear existing demo pages first to avoid duplicates
+  const cleared = await clearAllPagesForDevice();
+  console.log(`[copyRealPagesToDemo] Cleared ${cleared} existing demo pages`);
+
+  let copied = 0;
+  let skipped = 0;
+  const total = realPages.length;
+
+  for (const page of realPages) {
+    try {
+      // Create a copy with DEMO_DEVICE_ID (new ID will be auto-generated)
+      const { id, created_at, updated_at, ...pageData } = page;
+      
+      const { error: insertError } = await supabase
+        .from('pages')
+        .insert({
+          ...pageData,
+          device_user_id: DEMO_DEVICE_ID,
+          // Keep original timestamps for realistic demo
+          created_at: page.created_at,
+          written_at: page.written_at,
+        });
+
+      if (insertError) {
+        console.error(`Failed to copy page ${id}:`, insertError);
+        skipped++;
+      } else {
+        copied++;
+      }
+
+      if (onProgress) {
+        onProgress(copied + skipped, total);
+      }
+    } catch (err) {
+      console.error(`Error copying page:`, err);
+      skipped++;
+    }
+  }
+
+  console.log(`[copyRealPagesToDemo] Copied ${copied} pages, skipped ${skipped}`);
+  return { copied, skipped };
+}

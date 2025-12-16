@@ -27,7 +27,7 @@ import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
 import { formatDistanceToNow, format } from 'date-fns';
-import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo } from '@/lib/testDataInjector';
+import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo, copyRealPagesToDemo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
 import { getDeviceId, setDeviceId as persistDeviceId, DEMO_DEVICE_ID } from '@/lib/deviceId';
@@ -361,37 +361,75 @@ export function TestPanel({
           </div>
         </div>
 
-        {/* Database Injection Section - PRIMARY */}
+        {/* Copy Real Pages to Demo - NEW PRIMARY ACTION */}
+        <div className="p-4 bg-green-500/10 border-b border-border">
+          <h3 className="text-xs font-medium text-green-600 uppercase tracking-wide mb-2 flex items-center gap-2">
+            <Copy className="w-3.5 h-3.5" />
+            Copy Real Pages to Demo
+          </h3>
+          <p className="text-xs text-muted-foreground mb-2">
+            Kopieer je echte {dbPageCount} pages naar demo mode. Originelen blijven veilig onder je echte device ID.
+          </p>
+          <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded mb-2 border border-amber-500/20">
+            ⚠️ Wist eerst bestaande demo data, dan kopieert alles.
+          </div>
+          <Button 
+            onClick={async () => {
+              const realId = getDeviceId();
+              if (!realId) {
+                toast({ title: "Geen device ID", description: "Kan echte pages niet vinden", variant: "destructive" });
+                return;
+              }
+              setIsInjecting(true);
+              try {
+                const { copied, skipped } = await copyRealPagesToDemo(realId, (current, total) => {
+                  setInjectProgress({ current, total });
+                });
+                toast({
+                  title: "Pages gekopieerd naar demo",
+                  description: `${copied} pages gekopieerd, ${skipped} overgeslagen. Originelen onaangetast.`,
+                });
+                onLoadTestData();
+              } catch (error) {
+                toast({ title: "Fout", description: "Kopiëren mislukt", variant: "destructive" });
+              } finally {
+                setIsInjecting(false);
+              }
+            }}
+            variant="codex" 
+            size="sm"
+            disabled={isInjecting || dbPageCount === 0}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            {isInjecting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                {injectProgress.current}/{injectProgress.total}
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-1" />
+                Copy {dbPageCount} Real → Demo
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Database Injection Section - FAKE DATA */}
         <div className="p-4 bg-codex-gold/10 border-b border-border">
           <h3 className="text-xs font-medium text-codex-gold uppercase tracking-wide mb-2 flex items-center gap-2">
             <Database className="w-3.5 h-3.5" />
-            Demo Data (Gescheiden)
+            Fake Demo Data (Fallback)
           </h3>
-          <div className="text-xs text-green-600 bg-green-500/10 p-2 rounded mb-2 border border-green-500/20">
-            ✓ Je echte {dbPageCount} pages blijven onaangetast. Demo data wordt apart opgeslagen.
-          </div>
           <p className="text-xs text-muted-foreground mb-2">
-            {testDataInfo.totalPages} demo pages over {testDataInfo.timeSpan} with future_you_cues:
+            {testDataInfo.totalPages} fake pages als alternatief:
           </p>
-          <div className="text-xs text-muted-foreground mb-2 space-y-1">
-            <p className="font-medium text-codex-gold/80">Personas:</p>
-            <ul className="pl-3 space-y-0.5">
-              <li>• Alexander: {testDataInfo.personas.alexander}</li>
-              <li>• Sarah: {testDataInfo.personas.sarah}</li>
-              <li>• Marco: {testDataInfo.personas.marco}</li>
-            </ul>
-          </div>
-          <div className="text-xs text-muted-foreground mb-2 space-y-0.5">
-            <p className="font-medium text-codex-gold/80">Capsules: {testDataInfo.capsules?.join(', ')}</p>
-            <p className="font-medium text-codex-gold/80">Page types: {testDataInfo.pageTypes?.join(', ')}</p>
-          </div>
           <div className="flex flex-wrap gap-2">
             <Button 
               onClick={handleResetAndInject} 
-              variant="codex" 
+              variant="outline" 
               size="sm"
               disabled={isInjecting}
-              className="bg-codex-gold text-forest-deep hover:bg-codex-gold/90"
             >
               {isInjecting ? (
                 <>
@@ -401,18 +439,9 @@ export function TestPanel({
               ) : (
                 <>
                   <Database className="w-4 h-4 mr-1" />
-                  Reset + Inject (Demo)
+                  Inject Fake Data
                 </>
               )}
-            </Button>
-            <Button 
-              onClick={handleInjectToDatabase} 
-              variant="outline" 
-              size="sm"
-              disabled={isInjecting}
-            >
-              <Database className="w-4 h-4 mr-1" />
-              Add More
             </Button>
             <Button 
               onClick={handleClearTestData} 
