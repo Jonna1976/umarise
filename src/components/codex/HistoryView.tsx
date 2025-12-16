@@ -246,8 +246,8 @@ export function HistoryView({
     }
   };
 
-  // Minimal header for shelf mode
-  const isShelfMode = viewMode === 'shelf';
+  // Minimal header for shelf/pages/vault/list mode (shows view toggles)
+  const isMinimalMode = ['shelf', 'pages', 'vault', 'list'].includes(viewMode);
 
   return (
     <div className="min-h-screen bg-background">
@@ -266,29 +266,44 @@ export function HistoryView({
             ) : (
               <h1 className="font-serif text-2xl font-semibold text-foreground">Lasting Memory</h1>
             )}
-            {!isShelfMode && <DemoModeToggle />}
+            {!isMinimalMode && <DemoModeToggle />}
           </div>
           
-          {/* Right side - Shelf mode only shows view toggles */}
-          {isShelfMode ? (
+          {/* Right side - Minimal mode shows view toggles */}
+          {isMinimalMode ? (
             <div className="flex bg-secondary rounded-lg p-1">
               <button
                 onClick={() => setViewMode('vault')}
-                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
                 title="Vault"
               >
                 <Warehouse className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('shelf')}
-                className="p-1.5 rounded transition-colors bg-background shadow-sm"
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
                 title="Bookshelf"
               >
                 <Library className="w-4 h-4" />
               </button>
               <button
+                onClick={() => setViewMode('pages')}
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Pages"
+              >
+                <BookOpen className="w-4 h-4" />
+              </button>
+              <button
                 onClick={() => setViewMode('list')}
-                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
+                className={`p-1.5 rounded transition-colors ${
+                  viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
                 title="List"
               >
                 <List className="w-4 h-4" />
@@ -325,8 +340,8 @@ export function HistoryView({
           )}
         </div>
 
-        {/* Search button - hidden in shelf mode */}
-        {onOpenSearch && !isShelfMode && (
+        {/* Search button - hidden in minimal mode */}
+        {onOpenSearch && !isMinimalMode && (
           <div className="px-4 pb-3">
             <button
               onClick={onOpenSearch}
@@ -338,8 +353,8 @@ export function HistoryView({
           </div>
         )}
 
-        {/* View mode toggle + Time filters - hidden in demo mode and shelf mode */}
-        {!isDemoMode && !isShelfMode && (
+        {/* View mode toggle + Time filters - hidden in demo mode and minimal mode */}
+        {!isDemoMode && !isMinimalMode && (
           <div className="flex items-center justify-between px-4 pb-2">
             <div className="flex gap-2 overflow-x-auto">
               {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
