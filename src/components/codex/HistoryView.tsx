@@ -100,7 +100,7 @@ export function HistoryView({
   const [paperFilter, setPaperFilter] = useState(true);
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
   const [capsuleToDelete, setCapsuleToDelete] = useState<CapsulePages | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('vault');
+  const [viewMode, setViewMode] = useState<ViewMode>('shelf');
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [projects, setProjects] = useState<Project[]>([]);
 
