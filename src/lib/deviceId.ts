@@ -1,6 +1,10 @@
 // Device ID management for anonymous privacy-first identity
 
 const DEVICE_ID_KEY = 'umarise_device_id';
+const DEMO_MODE_KEY = 'umarise_demo_mode';
+
+// Fixed demo device ID - never changes, used for all demo data
+export const DEMO_DEVICE_ID = 'demo-device-001-umarise-demo';
 
 export function generateDeviceId(): string {
   // Generate a UUID v4
@@ -11,6 +15,9 @@ export function generateDeviceId(): string {
   });
 }
 
+/**
+ * Get the user's real device ID (never the demo ID)
+ */
 export function getDeviceId(): string | null {
   try {
     let deviceId = localStorage.getItem(DEVICE_ID_KEY);
@@ -25,6 +32,27 @@ export function getDeviceId(): string | null {
   }
 }
 
+/**
+ * Check if demo mode is active
+ */
+export function isDemoModeActive(): boolean {
+  try {
+    return localStorage.getItem(DEMO_MODE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get the active device ID based on demo mode
+ * Returns DEMO_DEVICE_ID when in demo mode, otherwise the user's real ID
+ */
+export function getActiveDeviceId(): string | null {
+  if (isDemoModeActive()) {
+    return DEMO_DEVICE_ID;
+  }
+  return getDeviceId();
+}
 
 export function setDeviceId(id: string): void {
   try {

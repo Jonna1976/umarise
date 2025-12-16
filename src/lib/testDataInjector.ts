@@ -1,10 +1,13 @@
 /**
  * Test Data Injector
  * Injects realistic test pages directly into the database for memory loop testing
+ * 
+ * IMPORTANT: Demo data is always stored under DEMO_DEVICE_ID, completely separate
+ * from the user's real data. This ensures Reset+Inject never touches real pages.
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from './deviceId';
+import { DEMO_DEVICE_ID } from './deviceId';
 
 // Realistic Dutch summaries that simulate real handwritten notes over time
 const threadedContent = [
@@ -218,10 +221,8 @@ function daysAgoToDate(daysAgo: number): string {
 }
 
 export async function injectTestData(onProgress?: (current: number, total: number) => void): Promise<number> {
-  const deviceUserId = getDeviceId();
-  if (!deviceUserId) {
-    throw new Error('Device ID not found');
-  }
+  // Always use DEMO_DEVICE_ID for demo data - never touches user's real data
+  const deviceUserId = DEMO_DEVICE_ID;
 
   const total = threadedContent.length;
   let inserted = 0;
@@ -261,25 +262,19 @@ export async function injectTestData(onProgress?: (current: number, total: numbe
 }
 
 /**
- * Clear ALL pages for the current device (FIX 3: Truly idempotent reset)
- * This removes both demo data and manually created pages to ensure
- * a clean slate for deterministic demo state.
+ * Clear ALL demo pages (only DEMO_DEVICE_ID pages)
+ * This NEVER touches the user's real data.
  */
 export async function clearAllPagesForDevice(): Promise<number> {
-  const deviceUserId = getDeviceId();
-  if (!deviceUserId) {
-    throw new Error('Device ID not found');
-  }
-
-  // Delete ALL pages for this device (idempotent reset)
+  // Only clear demo pages - user's real data is safe
   const { data, error } = await supabase
     .from('pages')
     .delete()
-    .eq('device_user_id', deviceUserId)
+    .eq('device_user_id', DEMO_DEVICE_ID)
     .select('id');
 
   if (error) {
-    console.error('Failed to clear all pages:', error);
+    console.error('Failed to clear demo pages:', error);
     return 0;
   }
 
@@ -287,16 +282,11 @@ export async function clearAllPagesForDevice(): Promise<number> {
 }
 
 export async function clearTestData(): Promise<number> {
-  const deviceUserId = getDeviceId();
-  if (!deviceUserId) {
-    throw new Error('Device ID not found');
-  }
-
-  // Delete only pages with unsplash images (test data)
+  // Only clear demo pages with unsplash images
   const { data, error } = await supabase
     .from('pages')
     .delete()
-    .eq('device_user_id', deviceUserId)
+    .eq('device_user_id', DEMO_DEVICE_ID)
     .like('image_url', '%unsplash%')
     .select('id');
 

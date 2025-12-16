@@ -7,7 +7,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId, setDeviceId } from '../deviceId';
+import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
@@ -38,14 +38,27 @@ export interface IStorageProvider {
 // ============= Lovable Cloud Implementation =============
 
 export class LovableCloudStorage implements IStorageProvider {
+  /**
+   * Get the active device ID (respects demo mode)
+   */
   private getDeviceUserId(): string {
+    const id = getActiveDeviceId();
+    if (!id) throw new Error('Device ID not initialized');
+    return id;
+  }
+
+  /**
+   * Get the user's REAL device ID (never demo ID) - for uploads
+   */
+  private getRealDeviceUserId(): string {
     const id = getDeviceId();
     if (!id) throw new Error('Device ID not initialized');
     return id;
   }
 
   async uploadImage(imageDataUrl: string): Promise<string> {
-    const deviceUserId = this.getDeviceUserId();
+    // Always use real device ID for uploads (user's own captures)
+    const deviceUserId = this.getRealDeviceUserId();
     
     // Convert data URL to blob
     const response = await fetch(imageDataUrl);
@@ -137,6 +150,22 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async getPages(): Promise<Page[]> {
+    // In demo mode, always use DEMO_DEVICE_ID - no fallback logic
+    if (isDemoModeActive()) {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('*')
+        .eq('device_user_id', DEMO_DEVICE_ID)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Fetch demo pages error:', error);
+        return [];
+      }
+      return (data || []).map(row => this.mapRowToPage(row));
+    }
+
+    // Normal mode: use user's real device ID with fallback logic
     let deviceUserId = getDeviceId();
     if (!deviceUserId) return [];
 
@@ -153,6 +182,7 @@ export class LovableCloudStorage implements IStorageProvider {
     }
 
     // If no pages found, try to adopt the device_user_id with the most pages
+    // (but never adopt DEMO_DEVICE_ID)
     if (!data || data.length === 0) {
       const { data: allRows, error: allError } = await supabase
         .from('pages')
@@ -162,7 +192,8 @@ export class LovableCloudStorage implements IStorageProvider {
         const counts = new Map<string, number>();
         for (const row of allRows) {
           const id = row.device_user_id as string | null;
-          if (!id) continue;
+          // Skip demo device ID - never adopt it as user's ID
+          if (!id || id === DEMO_DEVICE_ID) continue;
           counts.set(id, (counts.get(id) ?? 0) + 1);
         }
 
@@ -213,7 +244,7 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return false;
 
     const updateData: Record<string, unknown> = {
@@ -254,7 +285,7 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async deletePage(id: string): Promise<boolean> {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return false;
 
     // First get the page to delete the image
@@ -293,7 +324,7 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async getProjects(): Promise<Project[]> {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return [];
 
     const { data, error } = await supabase
@@ -316,6 +347,7 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async createProject(name: string): Promise<Project | null> {
+    // Always use real device ID for creating projects (user's own data)
     const deviceUserId = getDeviceId();
     if (!deviceUserId) return null;
 
@@ -342,7 +374,7 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null> {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId || !ocrText || ocrText.length < 50) return null;
 
     let query = supabase

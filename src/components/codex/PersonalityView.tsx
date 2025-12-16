@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { usePages } from '@/hooks/usePages';
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
+import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
@@ -91,7 +91,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
     setError(null);
 
     try {
-      const deviceId = getDeviceId();
+      const deviceId = getActiveDeviceId();
       
       const { data, error: fnError } = await supabase.functions.invoke('analyze-personality', {
         body: { device_user_id: deviceId, profile_type: profileType }

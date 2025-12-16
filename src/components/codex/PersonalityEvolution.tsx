@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, ChevronDown, ChevronUp, ArrowRight, Plus, Minus, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
+import { getActiveDeviceId } from '@/lib/deviceId';
 import { format } from 'date-fns';
 
 interface Driver {
@@ -88,7 +88,7 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
 
   useEffect(() => {
     async function fetchSnapshots() {
-      const deviceId = getDeviceId();
+      const deviceId = getActiveDeviceId();
       const { data, error } = await supabase
         .from('personality_snapshots')
         .select('id, tagline, superpower, core_identity, growth_edge, page_count, created_at, drivers, tension_field')

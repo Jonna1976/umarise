@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { X, Download, Share2, Database, Sparkles, Layers, Users, Shield, TrendingUp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { getDeviceId } from "@/lib/deviceId";
+import { getActiveDeviceId } from "@/lib/deviceId";
 
 interface OnePagerProps {
   onClose: () => void;
@@ -26,7 +26,7 @@ const OnePager = ({ onClose }: OnePagerProps) => {
 
   useEffect(() => {
     const fetchMetrics = async () => {
-      const deviceUserId = getDeviceId();
+      const deviceUserId = getActiveDeviceId();
       
       const [pagesRes, snapshotsRes] = await Promise.all([
         supabase

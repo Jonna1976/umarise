@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Page } from '@/lib/pageService';
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
+import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
 import { formatDistanceToNow } from 'date-fns';
 
 export interface SearchMatchInfo {
@@ -54,7 +54,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
 
   // Track search telemetry
   const trackSearch = async (searchQuery: string, searchResults: SearchResult[], filterUsed: string | null) => {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId || searchResults.length === 0) return;
 
     try {
@@ -82,7 +82,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
 
   // Track when user selects a result
   const trackSelection = async (selectedPage: Page, rank: number) => {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId || !currentSearchId) return;
 
     try {
@@ -141,7 +141,7 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
   }, [query, timeFilter]);
 
   const performSearch = async (searchQuery: string, filter: 'week' | 'month' | 'all' | null) => {
-    const deviceUserId = getDeviceId();
+    const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return;
 
     setIsSearching(true);
