@@ -453,81 +453,7 @@ export function HistoryView({
           </div>
         )}
 
-        {/* Tone quick filters - hidden in demo mode */}
-        {!isDemoMode && usedTones.length > 0 && (
-          <div className="flex gap-2 px-4 pb-2 overflow-x-auto">
-            <button
-              onClick={() => setToneFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                toneFilter === 'all'
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              All moods
-            </button>
-            {usedTones.map((tone) => (
-              <button
-                key={tone}
-                onClick={() => setToneFilter(toneFilter === tone ? 'all' : tone)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                  toneFilter === tone
-                    ? `${getToneClass(tone)} ring-2 ring-offset-1 ring-current`
-                    : `${getToneClass(tone)} opacity-60 hover:opacity-100`
-                }`}
-              >
-                {tone}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Primary keyword filter - hidden in demo mode */}
-        {!isDemoMode && primaryKeywords.length > 0 && (
-          <div className="flex gap-2 px-4 pb-3 overflow-x-auto">
-            <button
-              onClick={() => setKeywordFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                keywordFilter === 'all'
-                  ? 'bg-codex-sepia text-white'
-                  : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
-              }`}
-            >
-              All keywords
-            </button>
-            {primaryKeywords.map((kw) => (
-              <button
-                key={kw}
-                onClick={() => setKeywordFilter(keywordFilter === kw ? 'all' : kw)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
-                  keywordFilter === kw
-                    ? 'bg-codex-sepia text-white'
-                    : 'bg-codex-sepia/10 text-codex-sepia hover:bg-codex-sepia/20'
-                }`}
-              >
-                {kw}
-              </button>
-            ))}
-          </div>
-        )}
-        
-        {/* Paper filter toggle - hidden in demo mode */}
-        {!isDemoMode && (
-          <div className="flex justify-end px-4 pb-2">
-            <button
-              onClick={() => setPaperFilter(!paperFilter)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors ${
-                paperFilter
-                  ? 'bg-codex-gold/20 text-codex-gold'
-                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-              }`}
-              title={paperFilter ? 'Show original colors' : 'Apply paper filter'}
-            >
-              <SlidersHorizontal className="w-3 h-3" />
-              {paperFilter ? 'Paper filter on' : 'Original'}
-            </button>
-          </div>
-        )}
+        {/* Filters hidden for cleaner UI */}
       </div>
 
       {/* Active filters summary - hidden in demo mode */}
@@ -850,12 +776,12 @@ export function HistoryView({
                   ))}
                 </div>
                 
-                {/* Wooden shelf - books stand ON this */}
+                {/* Shelf - matches design system */}
                 <div className="relative mt-0">
                   {/* Shelf top surface */}
-                  <div className="h-3 bg-gradient-to-b from-amber-700/60 via-amber-800/50 to-amber-900/40 rounded-t-sm shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]" />
+                  <div className="h-3 bg-gradient-to-b from-codex-sepia/40 via-codex-sepia/30 to-codex-sepia/20 rounded-t-sm shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]" />
                   {/* Shelf front edge */}
-                  <div className="h-2 bg-gradient-to-b from-amber-900/50 to-amber-950/40 shadow-md" />
+                  <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
                 </div>
               </div>
             )}
