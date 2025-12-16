@@ -242,7 +242,7 @@ const Index = () => {
       } catch (e) {
         console.warn('[Index] Failed to refresh capsule pages', e);
       }
-      setView('capsule-carousel');
+      setView('history');
       return;
     }
 
