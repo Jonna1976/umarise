@@ -52,6 +52,32 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
   const [hasShownFirstRetrievalMessage, setHasShownFirstRetrievalMessage] = useState(() => {
     return localStorage.getItem('shown_first_retrieval_message') === 'true';
   });
+  const [recentPages, setRecentPages] = useState<Page[]>([]);
+
+  // Fetch recent pages on mount
+  useEffect(() => {
+    const fetchRecentPages = async () => {
+      const deviceUserId = getActiveDeviceId();
+      if (!deviceUserId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('pages')
+          .select('*')
+          .eq('device_user_id', deviceUserId)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (!error && data) {
+          setRecentPages(data.map(mapToPage));
+        }
+      } catch (error) {
+        console.error('Failed to fetch recent pages:', error);
+      }
+    };
+
+    fetchRecentPages();
+  }, []);
 
   // Track search telemetry
   const trackSearch = async (searchQuery: string, searchResults: SearchResult[], filterUsed: string | null) => {
@@ -344,6 +370,28 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
                   autoFocus
                 />
               </div>
+
+              {/* Recent captures - subtle */}
+              {recentPages.length > 0 && (
+                <div className="space-y-3 pt-4">
+                  <p className="text-xs text-muted-foreground/50 uppercase tracking-wider">Recent</p>
+                  <div className="flex justify-center gap-3">
+                    {recentPages.map((page) => (
+                      <button
+                        key={page.id}
+                        onClick={() => onSelectPage(page)}
+                        className="group relative w-14 h-18 rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all hover:scale-105"
+                      >
+                        <img
+                          src={page.thumbnailUri || page.imageUrl}
+                          alt=""
+                          className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Browse all */}
               {onBrowseAll && (
