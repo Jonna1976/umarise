@@ -375,15 +375,15 @@ export function TestPanel({
           </div>
           <div className="flex gap-2 items-center">
             <select 
-              className="bg-background border border-border rounded px-2 py-1 text-xs"
+              className="bg-card border border-border rounded px-2 py-1 text-xs text-foreground"
               id="copyLimit"
               defaultValue="all"
             >
               <option value="all">All ({dbPageCount})</option>
+              {dbPageCount > 5 && <option value="5">5 pages</option>}
               {dbPageCount > 10 && <option value="10">10 pages</option>}
               {dbPageCount > 25 && <option value="25">25 pages</option>}
               {dbPageCount > 50 && <option value="50">50 pages</option>}
-              {dbPageCount > 100 && <option value="100">100 pages</option>}
             </select>
             <Button 
               onClick={async () => {
