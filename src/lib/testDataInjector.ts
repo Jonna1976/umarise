@@ -1,219 +1,340 @@
 /**
  * Test Data Injector
- * Injects realistic test pages directly into the database for memory loop testing
+ * Injects realistic test pages for demo purposes
  * 
- * IMPORTANT: Demo data is always stored under DEMO_DEVICE_ID, completely separate
- * from the user's real data. This ensures Reset+Inject never touches real pages.
+ * IMPORTANT: Demo data is stored under DEMO_DEVICE_ID, completely separate
+ * from the user's real data. Reset+Inject NEVER touches real pages.
+ * 
+ * =============================================================================
+ * PERSONA DEFINITIONS
+ * =============================================================================
+ * 
+ * ALEXANDER - Tech founder, 34
+ * - Obsessed with AI developments, follows OpenAI, Anthropic, Google closely
+ * - Building a startup, constantly thinking about funding, pitch decks
+ * - Meeting notes with investors, strategy sessions, competitor analysis
+ * - Writing style: bullet points, abbreviations, quick sketches
+ *
+ * SARAH - Writer & researcher, 41  
+ * - Working on a book about creativity and memory
+ * - Philosophical reflections, quotes from interviews, character sketches
+ * - Research notes on neuroscience, interviews with artists
+ * - Writing style: flowing prose, marginalia, circled key phrases
+ *
+ * MARCO - UX Designer, 29
+ * - User testing observations, wireframe annotations, design sprint notes
+ * - Collaboration notes with dev team, client feedback sessions
+ * - Writing style: sketches mixed with text, arrows, highlighted insights
+ * =============================================================================
  */
 
 import { supabase } from '@/integrations/supabase/client';
 import { DEMO_DEVICE_ID } from './deviceId';
 
-// Realistic English summaries that simulate real handwritten notes over time
-const threadedContent = [
-  // Thread 1: Business/Startup (recurring over months)
+// Capsule IDs for multi-page groupings
+const CAPSULE_INVESTOR_PITCH = 'capsule-investor-pitch-001';
+const CAPSULE_BOOK_CHAPTER = 'capsule-book-chapter-001';
+const CAPSULE_DESIGN_SPRINT = 'capsule-design-sprint-001';
+
+// Page type indicators for variety
+type PageType = 'moleskine' | 'spiral' | 'sticky' | 'loose' | 'napkin' | 'index-card';
+
+interface DemoPage {
+  persona: 'alexander' | 'sarah' | 'marco';
+  pageType: PageType;
+  summary: string;
+  ocrText: string;
+  tone: string;
+  keywords: string[];
+  futureYouCues: string[];
+  daysAgo: number;
+  capsuleId?: string;
+  pageOrder?: number;
+}
+
+const demoPages: DemoPage[] = [
+  // =============================================================================
+  // ALEXANDER - Tech Founder (AI, Funding, Startup)
+  // =============================================================================
+  
+  // Capsule: Investor Pitch Prep (3 pages)
   {
-    summary: "Thoughts about starting my own business. The freedom appeals, but so does the uncertainty.",
-    ocrText: "Do I want to start my own thing? The consultancy pays well but I feel empty. What if I build something that's truly mine?",
-    tone: "reflective",
-    keywords: ["entrepreneurship", "freedom", "uncertainty", "consulting", "startup"],
-    futureYouCues: ["startup", "consultancy", "freedom"],
-    daysAgo: 120
-  },
-  {
-    summary: "More thoughts on entrepreneurship. Had a conversation with Marco.",
-    ocrText: "Talked to Marco. He says: don't jump without a parachute, but also don't wait until everything is perfect.",
-    tone: "hopeful",
-    keywords: ["entrepreneurship", "mentor", "advice", "risk", "starting"],
-    futureYouCues: ["Marco", "mentor", "advice"],
-    daysAgo: 95
-  },
-  {
-    summary: "First concrete steps for the new company. Business plan sketches.",
-    ocrText: "Core value: helping people preserve their handwritten thoughts. Technology as a bridge, not a goal.",
+    persona: 'alexander',
+    pageType: 'moleskine',
+    summary: "Pitch deck structure for Series A. Three core slides that matter.",
+    ocrText: "PITCH STRUCTURE\n- Slide 1: Problem (30 sec max)\n- Slide 2: Solution demo (show dont tell!)\n- Slide 3: Why us / moat\n\nEverything else is appendix. Investors decide in first 2 min.",
     tone: "focused",
-    keywords: ["entrepreneurship", "business-plan", "handwriting", "technology", "value"],
-    futureYouCues: ["business-plan", "core-value", "technology"],
-    daysAgo: 70
+    keywords: ["pitch", "series-a", "investors"],
+    futureYouCues: ["pitch", "series-a", "slides"],
+    daysAgo: 45,
+    capsuleId: CAPSULE_INVESTOR_PITCH,
+    pageOrder: 0
   },
   {
-    summary: "Doubts about the venture. Is this the right moment?",
-    ocrText: "Market is uncertain. Competition is fierce. But: nobody does exactly this. The niche is there.",
-    tone: "frustrated",
-    keywords: ["entrepreneurship", "doubt", "market", "competition", "niche"],
-    futureYouCues: ["market", "competition", "doubt"],
-    daysAgo: 45
+    persona: 'alexander',
+    pageType: 'moleskine',
+    summary: "Competitive analysis notes. What makes us different from Notion, Evernote.",
+    ocrText: "COMPETITORS\nNotion = organizing, not memory\nEvernote = dead, no AI\nApple Notes = no retrieval\n\nOUR MOAT:\n1. Handwriting-first (unique input)\n2. Semantic memory layer\n3. Time compounds value",
+    tone: "focused",
+    keywords: ["competition", "moat", "notion"],
+    futureYouCues: ["competitors", "moat", "notion"],
+    daysAgo: 44,
+    capsuleId: CAPSULE_INVESTOR_PITCH,
+    pageOrder: 1
   },
   {
-    summary: "Breakthrough! The concept is clear. Time to push forward.",
-    ocrText: "Memory layer for handwriting. That's it. Not another notes app, but memory infrastructure.",
-    tone: "hopeful",
-    keywords: ["entrepreneurship", "memory", "handwriting", "concept", "breakthrough"],
-    futureYouCues: ["memory-layer", "concept", "breakthrough"],
-    daysAgo: 20
+    persona: 'alexander',
+    pageType: 'moleskine',
+    summary: "Revenue model sketches. B2B vs B2C considerations.",
+    ocrText: "REVENUE?\nB2C: freemium hard, churn risk\nB2B: enterprise = long sales cycle\n\nHYBRID:\n- Free tier (5 pages/mo)\n- Pro $9/mo unlimited\n- Team $29/seat\n- Enterprise: custom\n\nAsk: what would YOU pay?",
+    tone: "reflective",
+    keywords: ["revenue", "pricing", "b2b"],
+    futureYouCues: ["revenue", "pricing", "model"],
+    daysAgo: 43,
+    capsuleId: CAPSULE_INVESTOR_PITCH,
+    pageOrder: 2
   },
 
-  // Thread 2: Creativity/Art (recurring)
+  // Alexander single pages
   {
-    summary: "Reflection on creativity and discipline. They are not opposites.",
-    ocrText: "Creativity doesn't come from waiting for inspiration. It comes from showing up every day, even when it's hard.",
-    tone: "reflective",
-    keywords: ["creativity", "discipline", "inspiration", "routine", "work"],
-    futureYouCues: ["creativity", "discipline", "routine"],
-    daysAgo: 110
-  },
-  {
-    summary: "Sketches for a new visual concept. Combining geometry and warmth.",
-    ocrText: "The shapes must radiate strength but also softness. Gold as an accent, not as dominance.",
-    tone: "playful",
-    keywords: ["creativity", "design", "geometry", "color", "visual"],
-    futureYouCues: ["design", "gold", "geometry"],
-    daysAgo: 85
-  },
-  {
-    summary: "Frustration about creative block. Nothing feels right.",
-    ocrText: "Stuck for days. Maybe I should stop forcing it and go for a walk.",
-    tone: "frustrated",
-    keywords: ["creativity", "block", "frustration", "walking", "pause"],
-    futureYouCues: ["creative-block", "walking", "pause"],
-    daysAgo: 60
-  },
-  {
-    summary: "Breakthrough after the walk. Ideas are flowing again.",
-    ocrText: "Nature resets the mind. Came back with three new concepts. Letting go works.",
+    persona: 'alexander',
+    pageType: 'napkin',
+    summary: "Quick notes from coffee with Ben at Google. AI roadmap insider view.",
+    ocrText: "Ben @ Google\n- Gemini 2.0 coming Q1\n- Focus on multimodal\n- They're scared of Anthropic\n\nOpportunity: they need partners who do verticle well. Memory = vertical.",
     tone: "hopeful",
-    keywords: ["creativity", "nature", "ideas", "letting-go", "breakthrough"],
-    futureYouCues: ["nature", "ideas", "letting-go"],
-    daysAgo: 35
-  },
-
-  // Thread 3: Personal Growth (recurring) - with person names
-  {
-    summary: "Thoughts about who I want to become. Viktor Frankl quote.",
-    ocrText: "Viktor Frankl: you become who you are not by thinking about who you are, but by acting and creating meaning.",
-    tone: "reflective",
-    keywords: ["growth", "meaning", "identity", "action", "frankl"],
-    futureYouCues: ["Frankl", "meaning", "identity"],
-    daysAgo: 100
-  },
-  {
-    summary: "Setting boundaries is not a luxury but a necessity.",
-    ocrText: "Work-life balance is a myth if you don't learn to say no. No to others is yes to yourself.",
-    tone: "focused",
-    keywords: ["growth", "boundaries", "balance", "saying-no", "self-care"],
-    futureYouCues: ["boundaries", "balance", "self-care"],
-    daysAgo: 75
-  },
-  {
-    summary: "Coaching session with Anna about leadership.",
-    ocrText: "Anna asked: what would you do if you weren't afraid? Good question. I would dream bigger.",
-    tone: "reflective",
-    keywords: ["growth", "coaching", "leadership", "fear", "dreams"],
-    futureYouCues: ["Anna", "coaching", "leadership"],
-    daysAgo: 50
-  },
-  {
-    summary: "Milestone reached. Survived first year as entrepreneur.",
-    ocrText: "365 days. Not everything went well, but I've grown. That counts more than success.",
-    tone: "hopeful",
-    keywords: ["growth", "milestone", "entrepreneur", "reflection", "success"],
-    futureYouCues: ["milestone", "year", "entrepreneur"],
-    daysAgo: 25
-  },
-
-  // Thread 4: Technology & Product - with project names
-  {
-    summary: "Notes about Umarise product vision.",
-    ocrText: "Umarise must be a memory layer, not a notes app. It's about retrieval, not organizing.",
-    tone: "focused",
-    keywords: ["product", "vision", "memory", "umarise", "retrieval"],
-    futureYouCues: ["Umarise", "vision", "memory"],
-    daysAgo: 80
-  },
-  {
-    summary: "Meeting with Moleskine team about partnership.",
-    ocrText: "Moleskine wants to keep their ritual, we provide the memory layer. Win-win if we do it right.",
-    tone: "hopeful",
-    keywords: ["product", "moleskine", "partnership", "ritual", "collaboration"],
-    futureYouCues: ["Moleskine", "partnership", "meeting"],
-    daysAgo: 40
-  },
-  {
-    summary: "Demo feedback from Peter. He got it immediately.",
-    ocrText: "Peter: 'This is Photos for handwriting.' Exactly. Finally someone who gets the core.",
-    tone: "hopeful",
-    keywords: ["product", "demo", "feedback", "peter", "photos"],
-    futureYouCues: ["Peter", "demo", "feedback"],
-    daysAgo: 15
-  },
-
-  // Thread 5: Funding & Investment - overlapping topics for disambiguation test
-  {
-    summary: "Preparing funding conversation with investor.",
-    ocrText: "Pitch deck needs to be sharper. Three slides: problem, solution, moat. The rest is noise.",
-    tone: "focused",
-    keywords: ["funding", "pitch", "investor", "deck", "moat"],
-    futureYouCues: ["funding", "pitch", "deck"],
+    keywords: ["google", "gemini", "ben"],
+    futureYouCues: ["Ben", "Google", "Gemini"],
     daysAgo: 30
   },
   {
-    summary: "Funding meeting with Sarah from Venture Capital.",
-    ocrText: "Sarah from VC fund was positive. Asks for follow-up with tech due diligence. Exciting.",
+    persona: 'alexander',
+    pageType: 'loose',
+    summary: "OpenAI dev day notes. GPT-5 implications for our product.",
+    ocrText: "OPENAI DEV DAY\n- GPT-5 = massive context window\n- Agents are coming (2025)\n- Altman: 'AI will be infrastructure'\n\nFor us: dont compete on AI, use AI. Focus on UX + data moat.",
+    tone: "focused",
+    keywords: ["openai", "gpt-5", "agents"],
+    futureYouCues: ["OpenAI", "GPT-5", "devday"],
+    daysAgo: 21
+  },
+  {
+    persona: 'alexander',
+    pageType: 'spiral',
+    summary: "Meeting with Lisa from Sequoia. She wants a follow-up.",
+    ocrText: "Lisa / Sequoia\n- Liked the demo (!)\n- Wants to see retention data\n- 'Interesting angle on memory'\n\nFollow-up: send deck + metrics\nDeadline: Friday\n\nShe mentioned portfolio co doing similar??",
     tone: "hopeful",
-    keywords: ["funding", "meeting", "sarah", "vc", "due-diligence"],
-    futureYouCues: ["Sarah", "VC", "funding"],
+    keywords: ["sequoia", "lisa", "vc"],
+    futureYouCues: ["Lisa", "Sequoia", "meeting"],
+    daysAgo: 14
+  },
+  {
+    persona: 'alexander',
+    pageType: 'index-card',
+    summary: "Anthropic vs OpenAI comparison for our stack.",
+    ocrText: "Claude vs GPT?\nClaude: better reasoning, safer\nGPT: faster, cheaper\n\nFor OCR: GPT-4V good enough\nFor summaries: Claude better\n\nDecision: use both, abstract the layer",
+    tone: "focused",
+    keywords: ["anthropic", "claude", "tech-stack"],
+    futureYouCues: ["Claude", "GPT", "stack"],
+    daysAgo: 7
+  },
+
+  // =============================================================================
+  // SARAH - Writer & Researcher (Book, Creativity, Memory)
+  // =============================================================================
+
+  // Capsule: Book Chapter Draft (2 pages)
+  {
+    persona: 'sarah',
+    pageType: 'spiral',
+    summary: "Chapter 3 draft: Why handwriting encodes memory differently than typing.",
+    ocrText: "CHAPTER 3: THE HAND REMEMBERS\n\nWhen we write by hand, three things happen:\n1. Motor cortex activates (muscle memory)\n2. Visual processing of own marks\n3. Slower pace = deeper encoding\n\nStudies show 29% better recall vs typing. The friction is the feature.",
+    tone: "reflective",
+    keywords: ["memory", "handwriting", "encoding"],
+    futureYouCues: ["chapter-3", "encoding", "recall"],
+    daysAgo: 60,
+    capsuleId: CAPSULE_BOOK_CHAPTER,
+    pageOrder: 0
+  },
+  {
+    persona: 'sarah',
+    pageType: 'spiral',
+    summary: "Continuation of chapter 3. Interview quote from neuroscientist.",
+    ocrText: "Dr. Elena Voss quote:\n'The hand is an extension of thought. When you write, you're not recording - you're thinking through the pen.'\n\nThis connects to embodied cognition. Mind is not just brain, its brain + body + environment.",
+    tone: "reflective",
+    keywords: ["neuroscience", "voss", "cognition"],
+    futureYouCues: ["Voss", "quote", "embodied"],
+    daysAgo: 59,
+    capsuleId: CAPSULE_BOOK_CHAPTER,
+    pageOrder: 1
+  },
+
+  // Sarah single pages
+  {
+    persona: 'sarah',
+    pageType: 'moleskine',
+    summary: "Interview notes with artist James Chen about his creative process.",
+    ocrText: "JAMES CHEN interview\n\nHe keeps 40+ notebooks. Never throws them away.\n'Looking back is like archaeology of my own mind'\n\nHe re-reads old notebooks before starting new projects. Says patterns emerge he didnt see at the time.",
+    tone: "hopeful",
+    keywords: ["interview", "james", "notebooks"],
+    futureYouCues: ["James", "interview", "artist"],
+    daysAgo: 52
+  },
+  {
+    persona: 'sarah',
+    pageType: 'sticky',
+    summary: "Book title brainstorm. Playing with different angles.",
+    ocrText: "TITLE IDEAS:\n- The Memory of Paper\n- Written to Remember\n- Ink & Recall\n- The Analog Mind\n\nFavorite: 'The Memory of Paper' - poetic but clear",
+    tone: "playful",
+    keywords: ["title", "book", "brainstorm"],
+    futureYouCues: ["title", "brainstorm", "book"],
+    daysAgo: 40
+  },
+  {
+    persona: 'sarah',
+    pageType: 'loose',
+    summary: "Research on forgetting curve. Ebbinghaus findings still hold.",
+    ocrText: "EBBINGHAUS CURVE\n- 50% forgotten in 1 hour\n- 70% forgotten in 24 hours\n- BUT: spaced retrieval reverses this\n\nHandwriting + periodic review = long-term encoding. The app could prompt review...",
+    tone: "focused",
+    keywords: ["ebbinghaus", "forgetting", "research"],
+    futureYouCues: ["Ebbinghaus", "forgetting", "curve"],
+    daysAgo: 28
+  },
+  {
+    persona: 'sarah',
+    pageType: 'napkin',
+    summary: "Idea sparked at cafe. Connection between memory and identity.",
+    ocrText: "Thought at Cafe Luna:\n\nMemory isnt just recall, its who we ARE. We construct identity from what we remember.\n\nIf handwriting strengthens memory, does it strengthen self?\n\nThis could be chapter 7...",
+    tone: "reflective",
+    keywords: ["identity", "memory", "chapter"],
+    futureYouCues: ["identity", "cafe", "chapter-7"],
+    daysAgo: 18
+  },
+  {
+    persona: 'sarah',
+    pageType: 'index-card',
+    summary: "Publisher feedback on draft. They want more personal stories.",
+    ocrText: "EDITOR NOTES:\n- More personal anecdotes\n- Less academic tone\n- 'Where are YOU in this?'\n\nFair point. I hide behind research. Need to be vulnerable.\n\nDeadline: Jan 15 for revision",
+    tone: "frustrated",
+    keywords: ["editor", "feedback", "revision"],
+    futureYouCues: ["editor", "feedback", "deadline"],
+    daysAgo: 5
+  },
+
+  // =============================================================================
+  // MARCO - UX Designer (User Testing, Design Sprints, Client Work)
+  // =============================================================================
+
+  // Capsule: Design Sprint (3 pages)
+  {
+    persona: 'marco',
+    pageType: 'spiral',
+    summary: "Day 1 of design sprint. Problem definition with the team.",
+    ocrText: "SPRINT DAY 1\n\nProblem: Users dont find their old notes\nHMW: How might we make retrieval feel magical?\n\nInsights from research:\n- Users search by emotion, not keyword\n- 'I know I wrote something about...'\n- Context matters more than content",
+    tone: "focused",
+    keywords: ["sprint", "hmw", "retrieval"],
+    futureYouCues: ["sprint", "day-1", "problem"],
+    daysAgo: 35,
+    capsuleId: CAPSULE_DESIGN_SPRINT,
+    pageOrder: 0
+  },
+  {
+    persona: 'marco',
+    pageType: 'spiral',
+    summary: "Day 2 sketches. Three concepts for the search experience.",
+    ocrText: "SPRINT DAY 2 - SKETCHES\n\nConcept A: Timeline scroll (visual)\nConcept B: AI chat (conversational)\nConcept C: Cue chips (3 words)\n\nTeam voted: Concept C wins\nWhy: fastest to first result, no typing essays",
+    tone: "playful",
+    keywords: ["sketches", "concepts", "search"],
+    futureYouCues: ["sprint", "day-2", "sketches"],
+    daysAgo: 34,
+    capsuleId: CAPSULE_DESIGN_SPRINT,
+    pageOrder: 1
+  },
+  {
+    persona: 'marco',
+    pageType: 'spiral',
+    summary: "Day 5 prototype test results. Users loved the cue system.",
+    ocrText: "SPRINT DAY 5 - TEST RESULTS\n\n5/5 users found target page in <10 sec\n\nQuotes:\n- 'Oh thats clever'\n- 'Like tags but I chose them'\n- 'Finally something that works like my brain'\n\nShip it.",
+    tone: "hopeful",
+    keywords: ["testing", "results", "prototype"],
+    futureYouCues: ["sprint", "day-5", "results"],
+    daysAgo: 31,
+    capsuleId: CAPSULE_DESIGN_SPRINT,
+    pageOrder: 2
+  },
+
+  // Marco single pages
+  {
+    persona: 'marco',
+    pageType: 'sticky',
+    summary: "User testing observation. People scroll more than they search.",
+    ocrText: "USER INSIGHT:\nPeople prefer scrolling to searching!\n\nWhy? Searching = knowing what you want\nScrolling = discovering what you forgot\n\nImplication: make timeline browsable, not just searchable",
+    tone: "reflective",
+    keywords: ["scrolling", "discovery", "insight"],
+    futureYouCues: ["scrolling", "discovery", "users"],
+    daysAgo: 25
+  },
+  {
+    persona: 'marco',
+    pageType: 'loose',
+    summary: "Client meeting notes. Moleskine wants white-label version.",
+    ocrText: "MOLESKINE MEETING\n\nThey want:\n- Their branding\n- Integration with paper notebooks\n- Custom onboarding\n\nWe need:\n- API documentation\n- Brand guidelines from them\n- Legal review (IP)\n\nNext: proposal by Friday",
+    tone: "focused",
+    keywords: ["moleskine", "client", "whitelabel"],
+    futureYouCues: ["Moleskine", "client", "proposal"],
+    daysAgo: 20
+  },
+  {
+    persona: 'marco',
+    pageType: 'napkin',
+    summary: "Quick wireframe sketch for the capture flow improvement.",
+    ocrText: "[SKETCH]\n\nCamera → Snap → Cues → Done\n\nNo extra screens!\nReduce taps from 7 to 3\n\nThe capture must feel instant. Every extra step = dropout.",
+    tone: "focused",
+    keywords: ["wireframe", "capture", "flow"],
+    futureYouCues: ["wireframe", "capture", "taps"],
     daysAgo: 12
   },
   {
-    summary: "Another funding conversation, but different angle.",
-    ocrText: "This investor focuses on pricing and revenue model. Different questions than Sarah, but equally important.",
-    tone: "reflective",
-    keywords: ["funding", "pricing", "revenue", "investor", "model"],
-    futureYouCues: ["pricing", "revenue", "investor"],
-    daysAgo: 8
-  },
-
-  // Recent captures
-  {
-    summary: "Observations about user behavior during demo.",
-    ocrText: "They only understood it when they tried it themselves. Show, don't tell. The demo is the product.",
-    tone: "hopeful",
-    keywords: ["user", "demo", "product", "feedback", "insight"],
-    futureYouCues: ["demo", "user", "show-dont-tell"],
-    daysAgo: 7
-  },
-  {
-    summary: "Reflection on the journey so far. Proud of what's been built.",
-    ocrText: "From idea to working product in 6 months. Not perfect, but real. That counts.",
-    tone: "reflective",
-    keywords: ["reflection", "product", "journey", "pride", "progress"],
-    futureYouCues: ["journey", "pride", "progress"],
+    persona: 'marco',
+    pageType: 'index-card',
+    summary: "Accessibility notes. Color contrast issues to fix.",
+    ocrText: "A11Y AUDIT:\n- Gold on cream = fails WCAG\n- Need darker text alt\n- Screen reader labels missing\n\nPriority: high (legal risk)\nDeadline: before launch",
+    tone: "frustrated",
+    keywords: ["accessibility", "wcag", "audit"],
+    futureYouCues: ["accessibility", "wcag", "contrast"],
     daysAgo: 3
-  },
-  {
-    summary: "New ideas for the future. The roadmap is becoming clear.",
-    ocrText: "Phase 1: MVP. Phase 2: Partners. Phase 3: Scale. One thing at a time, but the big picture is clear.",
-    tone: "hopeful",
-    keywords: ["future", "roadmap", "phases", "strategy", "vision"],
-    futureYouCues: ["roadmap", "phases", "MVP"],
-    daysAgo: 1
   }
 ];
 
-// Messy, realistic handwriting images - not polished stock photos
-const handwritingImages = [
-  'https://images.unsplash.com/photo-1544816155-12df9643f363?w=400&h=600&fit=crop', // messy notebook scribbles
-  'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400&h=600&fit=crop', // rough handwritten notes
-  'https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?w=400&h=600&fit=crop', // real notebook page
-  'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=400&h=600&fit=crop', // crumpled paper notes
-  'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=600&fit=crop', // study notes messy
-  'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&h=600&fit=crop', // school notebook
-  'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=600&fit=crop', // handwritten journal
-  'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=600&fit=crop', // sticky notes messy
-];
+// Realistic messy handwriting images per page type
+const imagesByPageType: Record<PageType, string[]> = {
+  'moleskine': [
+    'https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&h=1000&fit=crop', // dark notebook
+    'https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=800&h=1000&fit=crop', // moleskine page
+  ],
+  'spiral': [
+    'https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&h=1000&fit=crop', // spiral notebook
+    'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=800&h=1000&fit=crop', // lined paper
+  ],
+  'sticky': [
+    'https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=800&h=1000&fit=crop', // sticky notes
+    'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=1000&fit=crop', // yellow stickies
+  ],
+  'loose': [
+    'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=800&h=1000&fit=crop', // loose paper
+    'https://images.unsplash.com/photo-1471107340929-a87cd0f5b5f3?w=800&h=1000&fit=crop', // white paper notes
+  ],
+  'napkin': [
+    'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&h=1000&fit=crop', // napkin/paper
+    'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=800&h=1000&fit=crop', // rough paper
+  ],
+  'index-card': [
+    'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&h=1000&fit=crop', // index cards
+    'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=1000&fit=crop', // note cards
+  ]
+};
 
-function randomImage(): string {
-  return handwritingImages[Math.floor(Math.random() * handwritingImages.length)];
+function getImageForPageType(pageType: PageType): string {
+  const images = imagesByPageType[pageType];
+  return images[Math.floor(Math.random() * images.length)];
 }
 
 function daysAgoToDate(daysAgo: number): string {
@@ -223,31 +344,29 @@ function daysAgoToDate(daysAgo: number): string {
 }
 
 export async function injectTestData(onProgress?: (current: number, total: number) => void): Promise<number> {
-  // Always use DEMO_DEVICE_ID for demo data - never touches user's real data
   const deviceUserId = DEMO_DEVICE_ID;
-
-  const total = threadedContent.length;
+  const total = demoPages.length;
   let inserted = 0;
 
-  for (let i = 0; i < threadedContent.length; i++) {
-    const content = threadedContent[i];
+  for (let i = 0; i < demoPages.length; i++) {
+    const page = demoPages[i];
     
     const { error } = await supabase
       .from('pages')
       .insert({
         device_user_id: deviceUserId,
-        image_url: randomImage(),
-        ocr_text: content.ocrText,
-        summary: content.summary,
-        tone: content.tone,
-        keywords: content.keywords,
-        primary_keyword: content.keywords[0],
-        future_you_cues: content.futureYouCues,
-        future_you_cues_source: { ai_prefill_version: 'demo-v1', user_edited: false },
-        created_at: daysAgoToDate(content.daysAgo),
+        image_url: getImageForPageType(page.pageType),
+        ocr_text: page.ocrText,
+        summary: page.summary,
+        tone: page.tone,
+        keywords: page.keywords,
+        primary_keyword: page.keywords[0],
+        future_you_cues: page.futureYouCues,
+        future_you_cues_source: { ai_prefill_version: 'demo-v2', user_edited: false },
+        created_at: daysAgoToDate(page.daysAgo),
         sources: [],
-        capsule_id: null,
-        page_order: 0,
+        capsule_id: page.capsuleId || null,
+        page_order: page.pageOrder || 0,
         project_id: null
       });
 
@@ -268,7 +387,6 @@ export async function injectTestData(onProgress?: (current: number, total: numbe
  * This NEVER touches the user's real data.
  */
 export async function clearAllPagesForDevice(): Promise<number> {
-  // Only clear demo pages - user's real data is safe
   const { data, error } = await supabase
     .from('pages')
     .delete()
@@ -284,7 +402,6 @@ export async function clearAllPagesForDevice(): Promise<number> {
 }
 
 export async function clearTestData(): Promise<number> {
-  // Only clear demo pages with unsplash images
   const { data, error } = await supabase
     .from('pages')
     .delete()
@@ -301,35 +418,48 @@ export async function clearTestData(): Promise<number> {
 }
 
 /**
- * Idempotent reset + inject: clears ALL existing pages first, then injects fresh demo data.
- * (FIX 3) Ensures deterministic state for demo - one click always produces the same dataset.
+ * Idempotent reset + inject: clears ALL existing demo pages, then injects fresh data.
+ * One click = deterministic demo state.
  */
 export async function resetAndInjectTestData(onProgress?: (current: number, total: number) => void): Promise<{ cleared: number; inserted: number }> {
-  // Clear ALL pages for this device (not just unsplash images)
   const cleared = await clearAllPagesForDevice();
-  console.log(`Cleared ${cleared} existing pages (all data for device)`);
+  console.log(`Cleared ${cleared} existing demo pages`);
   
-  // Then inject fresh data
   const inserted = await injectTestData(onProgress);
-  console.log(`Injected ${inserted} fresh test pages`);
+  console.log(`Injected ${inserted} fresh demo pages`);
   
   return { cleared, inserted };
 }
 
 export function getTestDataInfo() {
+  const alexanderPages = demoPages.filter(p => p.persona === 'alexander').length;
+  const sarahPages = demoPages.filter(p => p.persona === 'sarah').length;
+  const marcoPages = demoPages.filter(p => p.persona === 'marco').length;
+  const capsulePages = demoPages.filter(p => p.capsuleId).length;
+
   return {
-    totalPages: threadedContent.length,
-    timeSpan: '4 months',
-    threads: [
-      'Business/Startup (5 pages)',
-      'Creativity/Art (4 pages)',
-      'Personal Growth + People (4 pages: Anna, Frankl)',
-      'Technology + Projects (3 pages: Umarise, Moleskine, Peter)',
-      'Funding (3 pages: Sarah, pricing)',
-      'Recent captures (3 pages)'
+    totalPages: demoPages.length,
+    timeSpan: '2 months',
+    personas: {
+      alexander: `${alexanderPages} pages (tech founder, AI, funding)`,
+      sarah: `${sarahPages} pages (writer, book on memory)`,
+      marco: `${marcoPages} pages (UX designer, sprints)`
+    },
+    capsules: [
+      'Investor Pitch Prep (3 pages)',
+      'Book Chapter Draft (2 pages)',
+      'Design Sprint (3 pages)'
     ],
-    personNames: ['Marco', 'Anna', 'Peter', 'Sarah', 'Viktor Frankl'],
-    projectNames: ['Umarise', 'Moleskine'],
-    description: 'Realistic English handwritten notes with recurring themes, person names and project names over 4 months. Each page has 3 future_you_cues for search testing.'
+    singlePages: demoPages.length - capsulePages,
+    pageTypes: ['moleskine', 'spiral', 'sticky', 'loose', 'napkin', 'index-card'],
+    personNames: ['Ben (Google)', 'Lisa (Sequoia)', 'James Chen (artist)', 'Dr. Elena Voss', 'Moleskine team'],
+    searchTestQueries: [
+      '"Lisa" → Sequoia meeting',
+      '"pitch" → investor capsule',
+      '"chapter-3" → Sarah book draft',
+      '"sprint" → Marco design sprint capsule',
+      '"Moleskine" → appears in both Alexander + Marco (disambiguation test)'
+    ],
+    description: 'Realistic English demo with 3 personas, multi-page capsules, diverse page types, and overlapping topics for search/disambiguation testing.'
   };
 }

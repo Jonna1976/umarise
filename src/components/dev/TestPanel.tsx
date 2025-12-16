@@ -371,17 +371,20 @@ export function TestPanel({
             ✓ Je echte {dbPageCount} pages blijven onaangetast. Demo data wordt apart opgeslagen.
           </div>
           <p className="text-xs text-muted-foreground mb-2">
-            {testDataInfo.totalPages} demo pagina's over {testDataInfo.timeSpan} met future_you_cues:
+            {testDataInfo.totalPages} demo pages over {testDataInfo.timeSpan} with future_you_cues:
           </p>
-          <div className="text-xs text-muted-foreground mb-2 space-y-0.5">
-            <p className="font-medium text-codex-gold/80">Personen: {testDataInfo.personNames?.join(', ')}</p>
-            <p className="font-medium text-codex-gold/80">Projecten: {testDataInfo.projectNames?.join(', ')}</p>
+          <div className="text-xs text-muted-foreground mb-2 space-y-1">
+            <p className="font-medium text-codex-gold/80">Personas:</p>
+            <ul className="pl-3 space-y-0.5">
+              <li>• Alexander: {testDataInfo.personas.alexander}</li>
+              <li>• Sarah: {testDataInfo.personas.sarah}</li>
+              <li>• Marco: {testDataInfo.personas.marco}</li>
+            </ul>
           </div>
-          <ul className="text-xs text-muted-foreground mb-3 space-y-0.5 pl-3">
-            {testDataInfo.threads.map((thread, i) => (
-              <li key={i} className="list-disc list-inside">{thread}</li>
-            ))}
-          </ul>
+          <div className="text-xs text-muted-foreground mb-2 space-y-0.5">
+            <p className="font-medium text-codex-gold/80">Capsules: {testDataInfo.capsules?.join(', ')}</p>
+            <p className="font-medium text-codex-gold/80">Page types: {testDataInfo.pageTypes?.join(', ')}</p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button 
               onClick={handleResetAndInject} 
