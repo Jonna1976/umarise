@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle } from 'lucide-react';
+import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Page } from '@/lib/pageService';
@@ -23,6 +23,7 @@ interface SearchResult {
 interface SearchViewProps {
   onClose: () => void;
   onSelectPage: (page: Page, matchInfo?: SearchMatchInfo) => void;
+  onBrowseAll?: () => void; // Navigate to full Memory/History view
 }
 
 // Match type badges with icons
@@ -37,7 +38,7 @@ const matchTypeBadges: Record<string, { label: string; icon: React.ComponentType
  * Search view with explainability badges and "Can't find it" fallback
  * Per briefing sections 6 and 9
  */
-export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
+export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -491,16 +492,29 @@ export function SearchView({ onClose, onSelectPage }: SearchViewProps) {
           </div>
         )}
 
-        {/* Empty state (no search yet) */}
+        {/* Empty state (no search yet) - Search-first calm home */}
         {!hasSearched && !query && (
-          <div className="text-center py-12 space-y-2">
-            <Search className="w-8 h-8 text-muted-foreground/50 mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Typ 1-3 woorden om te zoeken
-            </p>
-            <p className="text-xs text-muted-foreground/70">
-              Zoekt in cues, tekst, namen en betekenis
-            </p>
+          <div className="text-center py-16 space-y-6">
+            <div className="space-y-2">
+              <Search className="w-10 h-10 text-muted-foreground/40 mx-auto" />
+              <p className="text-lg font-serif text-foreground/80">
+                What are you looking for?
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Type 1-3 words to search your memory
+              </p>
+            </div>
+            
+            {/* Browse all - subtle secondary action */}
+            {onBrowseAll && (
+              <button
+                onClick={onBrowseAll}
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Browse all pages</span>
+              </button>
+            )}
           </div>
         )}
       </div>
