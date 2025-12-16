@@ -285,8 +285,8 @@ export function TestPanel({
               toast({
                 title: isDemoMode ? "Switched to Your Data" : "Switched to Demo Data",
                 description: isDemoMode 
-                  ? "Nu zie je je eigen 88 pages" 
-                  : "Nu zie je de 22 demo pages",
+                  ? "Nu zie je je echte pages" 
+                  : "Nu zie je de demo pages",
               });
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
