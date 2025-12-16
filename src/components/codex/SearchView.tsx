@@ -528,6 +528,22 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
                       </div>
                       
                       <div className="flex-1 min-w-0">
+                        {/* Future You Cues - prominent golden chips */}
+                        {result.page.futureYouCues && result.page.futureYouCues.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {result.page.futureYouCues.slice(0, 3).map((cue, i) => (
+                              <span 
+                                key={i} 
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30"
+                              >
+                                <Tag className="w-3 h-3" />
+                                {cue}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Match type badges - smaller, secondary */}
                         <div className="flex flex-wrap gap-1 mb-1">
                           {result.matchTypes.slice(0, 2).map((type) => {
                             const badge = matchTypeBadges[type];
@@ -548,16 +564,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
                         <p className="text-sm text-foreground line-clamp-2">
                           {result.page.summary || result.page.ocrText?.slice(0, 100)}
                         </p>
-                        
-                        {result.matchedTerms.length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
-                            {result.matchedTerms.slice(0, 3).map((term, i) => (
-                              <span key={i} className="text-[10px] text-primary/80 bg-primary/10 px-1.5 py-0.5 rounded">
-                                {term}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                         
                         <p className="text-[10px] text-muted-foreground mt-1">
                           {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
