@@ -12,6 +12,7 @@ import { PersonalityView } from '@/components/codex/PersonalityView';
 import { KompasView } from '@/components/codex/KompasView';
 import { YearReflectionView } from '@/components/codex/YearReflectionView';
 import { SearchView, SearchMatchInfo } from '@/components/codex/SearchView';
+import { MemoryOrbitView } from '@/components/codex/MemoryOrbitView';
 import { 
   initializeDeviceId, 
   hasCompletedOnboarding, 
@@ -23,7 +24,7 @@ import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search';
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit';
 
 const Index = () => {
   const { isDemoMode } = useDemoMode();
@@ -280,6 +281,14 @@ const Index = () => {
     setView('history');
   }, []);
 
+  const handleViewOrbit = useCallback(() => {
+    setView('orbit');
+  }, []);
+
+  const handleBackFromOrbit = useCallback(() => {
+    setView('history');
+  }, []);
+
   const handleLoadTestData = useCallback(() => {
     // Test data loading is no longer supported with real database
     // Just close panel and refresh
@@ -303,7 +312,7 @@ const Index = () => {
   // Dev button visibility logic:
   // - In Demo Mode: Only show on Memory views (history, patterns, personality, kompas, search)
   // - Not in Demo Mode: Show on all views except onboarding
-  const isMemoryView = ['history', 'detail', 'patterns', 'personality', 'kompas', 'year-reflection', 'search', 'capsule-carousel'].includes(view);
+  const isMemoryView = ['history', 'detail', 'patterns', 'personality', 'kompas', 'year-reflection', 'search', 'capsule-carousel', 'orbit'].includes(view);
   const showDevButton = view !== 'onboarding' && (!isDemoMode || isMemoryView);
   
   const DevButton = showDevButton && (
@@ -371,6 +380,7 @@ const Index = () => {
             onViewPersonality={isDemoMode ? undefined : handleViewPersonality}
             onViewKompas={isDemoMode ? undefined : handleViewKompas}
             onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
+            onViewOrbit={handleViewOrbit}
             onOpenSearch={handleOpenSearch}
             highlightPageId={highlightPageId || undefined}
           />
@@ -504,6 +514,17 @@ const Index = () => {
               setView('detail');
             }}
             onBrowseAll={() => setView('history')}  // "Browse all" goes to Memory
+          />
+        );
+      
+      case 'orbit':
+        return (
+          <MemoryOrbitView
+            pages={pages}
+            onBack={handleBackFromOrbit}
+            onSelectPage={handleSelectPage}
+            onOpenSearch={handleOpenSearch}
+            highlightPageId={highlightPageId || undefined}
           />
         );
       
