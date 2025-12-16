@@ -4,7 +4,8 @@ const DEVICE_ID_KEY = 'umarise_device_id';
 const DEMO_MODE_KEY = 'umarise_demo_mode';
 
 // Fixed demo device ID - never changes, used for all demo data
-export const DEMO_DEVICE_ID = 'demo-device-001-umarise-demo';
+// Must match the ID used when demo data was originally injected
+export const DEMO_DEVICE_ID = 'demo-device-001';
 
 export function generateDeviceId(): string {
   // Generate a UUID v4
