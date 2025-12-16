@@ -413,27 +413,6 @@ const Index = () => {
                 console.warn('[Index] Failed to refresh capsule pages (onCapsuleUpdated)', e);
               }
             }}
-            onPageDeleted={async (pageId) => {
-              if (!currentCapsule) return;
-              await refresh();
-
-              try {
-                const remaining = (await getCapsulePages(currentCapsule.capsuleId)).filter(p => p.id !== pageId);
-                if (remaining.length > 0) {
-                  setCurrentCapsule({
-                    capsuleId: currentCapsule.capsuleId,
-                    pages: [...remaining].sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0)),
-                  });
-                } else {
-                  setCurrentCapsule(null);
-                  setView('history');
-                }
-              } catch (e) {
-                console.warn('[Index] Failed to refresh capsule pages (onPageDeleted)', e);
-                setCurrentCapsule(null);
-                setView('history');
-              }
-            }}
           />
         ) : null;
       
