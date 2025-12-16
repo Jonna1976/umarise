@@ -3,9 +3,9 @@
 const DEVICE_ID_KEY = 'umarise_device_id';
 const DEMO_MODE_KEY = 'umarise_demo_mode';
 
-// Fixed demo device ID - never changes, used for all demo data
-// Must match the ID used when demo data was originally injected
-export const DEMO_DEVICE_ID = 'demo-device-001';
+// Fixed demo device ID - must be 36+ chars to pass RLS policy
+// Using a fixed UUID that will never collide with real user IDs
+export const DEMO_DEVICE_ID = 'demo0000-0000-0000-0000-000000000001';
 
 export function generateDeviceId(): string {
   // Generate a UUID v4
