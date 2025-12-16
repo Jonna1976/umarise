@@ -21,7 +21,8 @@ import {
   Palette,
   Play,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Layout
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
@@ -33,6 +34,7 @@ import OnePager from '@/components/OnePager';
 import { getDeviceId, setDeviceId as persistDeviceId, DEMO_DEVICE_ID } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { PageFormatMockup } from './PageFormatMockup';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -67,6 +69,7 @@ export function TestPanel({
 }: TestPanelProps) {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
   const [showOnePager, setShowOnePager] = useState(false);
+  const [showPageFormat, setShowPageFormat] = useState(false);
   
   const [testPages, setTestPages] = useState<TestPage[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -430,6 +433,26 @@ export function TestPanel({
           </div>
         </div>
 
+        {/* Page Format Reference - PRIMARY */}
+        <div className="p-4 bg-green-500/10 border-b border-border">
+          <h3 className="text-xs font-medium text-green-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Layout className="w-3.5 h-3.5" />
+            Page Format Reference
+          </h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            View the ideal page structure with all criteria defined.
+          </p>
+          <Button 
+            onClick={() => setShowPageFormat(true)} 
+            variant="codex" 
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Layout className="w-4 h-4 mr-1.5" />
+            Show Page Format
+          </Button>
+        </div>
+
         {/* Empty State Previews */}
         <div className="p-4 bg-secondary/20 border-b border-border">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
@@ -544,6 +567,7 @@ export function TestPanel({
         {/* Modals */}
         <AnimatePresence>
           {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
+          {showPageFormat && <PageFormatMockup onClose={() => setShowPageFormat(false)} />}
         </AnimatePresence>
 
         {/* Local Test Data Generator */}
