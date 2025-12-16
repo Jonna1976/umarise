@@ -279,8 +279,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewPro
     setTimeFilter(null);
   };
 
-  // Google/ChatGPT style: show centered search when no query
-  const showCenteredSearch = !hasSearched && !query;
+  // Google/ChatGPT style: show centered search until search is performed
+  const showCenteredSearch = !hasSearched;
 
   return (
     <div className="min-h-screen bg-background relative">
