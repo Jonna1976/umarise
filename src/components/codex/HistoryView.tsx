@@ -11,6 +11,7 @@ import { BookSpine } from './BookSpine';
 import { VaultView } from './VaultView';
 import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 import { EarlyInsights } from './EarlyInsights';
+import { MemoryPulse } from './MemoryPulse';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import {
@@ -685,7 +686,11 @@ export function HistoryView({
                 </Button>
               </motion.div>
             ) : (
-              <div className="relative min-h-[200px] flex flex-col justify-end">
+              <div className="flex flex-col h-full">
+                {/* Memory Pulse - subtle daily reminder */}
+                <MemoryPulse pages={allPages} />
+                
+                <div className="relative min-h-[200px] flex flex-col justify-end flex-1">
                 {/* Books container - positioned at bottom */}
                 <div 
                   className="flex gap-1.5 px-4 items-end overflow-x-auto scrollbar-hide"
@@ -731,6 +736,7 @@ export function HistoryView({
                   {/* Shelf front edge */}
                   <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
                 </div>
+              </div>
               </div>
             )}
           </motion.div>
