@@ -500,17 +500,17 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </h2>
         </motion.div>
 
-        {/* Future You Cues - with question prompt */}
-        {futureYouCues.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 }}
-            className="mb-6"
-          >
-            <p className="text-sm text-codex-gold mb-3">
-              Which 3 words will you type to find this later?
-            </p>
+        {/* Future You Cues - ALWAYS show question */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="mb-6"
+        >
+          <p className="text-sm text-codex-gold mb-3">
+            Which 3 words will you type to find this later?
+          </p>
+          {futureYouCues.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {futureYouCues.map((cue, index) => (
                 <span 
@@ -521,8 +521,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                 </span>
               ))}
             </div>
-          </motion.div>
-        )}
+          ) : (
+            <p className="text-sm text-codex-cream/40 italic">No retrieval cues set</p>
+          )}
+        </motion.div>
 
         {/* Tone - compact */}
         <motion.div
