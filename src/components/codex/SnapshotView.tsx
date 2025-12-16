@@ -672,27 +672,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
-        {/* Your Context */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-6"
-        >
-          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Your context</p>
-          <Textarea
-            value={userNote}
-            onChange={(e) => setUserNote(e.target.value)}
-            placeholder="Add personal notes to help you find this later..."
-            className="min-h-[40px] resize-none bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
-          />
-        </motion.div>
-
         {/* OCR Text (collapsible & editable) */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
+          transition={{ delay: 0.3 }}
           className="mb-4"
         >
           <button
@@ -726,6 +710,22 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               </p>
             </motion.div>
           )}
+        </motion.div>
+
+        {/* Your Context - under Raw Text */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-6"
+        >
+          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Your context</p>
+          <Textarea
+            value={userNote}
+            onChange={(e) => setUserNote(e.target.value)}
+            placeholder="Add personal notes to help you find this later..."
+            className="min-h-[40px] resize-none bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
+          />
         </motion.div>
 
         {/* Sources Section - under Raw Text */}
@@ -815,8 +815,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <Button
               onClick={handleCloseWithSave}
               disabled={isSaving}
-              variant="outline"
-              className="w-full max-w-xs border-codex-cream/30 text-codex-cream hover:bg-codex-cream/10"
+              variant="ghost"
+              className="w-full max-w-xs bg-codex-cream/10 text-codex-cream hover:bg-codex-cream/20"
             >
               <ChevronDown className="w-4 h-4 mr-2" />
               {isSaving ? 'Saving...' : 'Close'}
