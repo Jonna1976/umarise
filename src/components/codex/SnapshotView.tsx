@@ -4,7 +4,6 @@ import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X
 import { Page, updatePage, confirmFutureYouCues } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -318,7 +317,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep">
-      {/* Header - walkthrough style */}
+      {/* Header - CLOSE BUTTON ALWAYS VISIBLE */}
       <div className="sticky top-0 z-10 bg-codex-ink-deep/80 backdrop-blur-md border-b border-codex-gold/20">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-2 text-codex-cream/60 text-sm">
@@ -326,17 +325,30 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
           </div>
           
-          {hasChanges && (
+          <div className="flex items-center gap-2">
+            {hasChanges && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                size="sm"
+                className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+                {!isSaving && <Check className="w-4 h-4 ml-1" />}
+              </Button>
+            )}
+            
+            {/* Close button - always visible in header */}
             <Button
-              onClick={handleSave}
+              onClick={handleCloseWithSave}
               disabled={isSaving}
+              variant="ghost"
               size="sm"
-              className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
+              className="text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10 h-8 w-8 p-0"
             >
-              {isSaving ? 'Saving...' : 'Save'}
-              {!isSaving && <Check className="w-4 h-4 ml-1" />}
+              <X className="w-5 h-5" />
             </Button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -400,20 +412,24 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Written at date selector - subtle inline, only in Full Mode */}
-        {!isDemoMode && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="mb-6"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
+        {/* Written at date - ALWAYS VISIBLE */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mb-6"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
+            {isDemoMode ? (
+              <span className="text-sm text-codex-cream/80">
+                {format(writtenAt, 'd MMMM yyyy')}
+              </span>
+            ) : (
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
-                    {format(writtenAt, 'd MMMM yyyy', { locale: nl })}
+                    {format(writtenAt, 'd MMMM yyyy')}
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-codex-ink-deep border-codex-cream/20" align="start">
@@ -427,9 +443,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                   />
                 </PopoverContent>
               </Popover>
-            </div>
-          </motion.div>
-        )}
+            )}
+          </div>
+        </motion.div>
 
         {/* Match Reason Banner - shown when opened from search (FIX 1: No black box) */}
         {matchInfo && matchInfo.matchTypes.length > 0 && (
@@ -487,22 +503,22 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </h2>
         </motion.div>
 
-        {/* Future You Cues - 3 chips display (only visible in Full Mode) */}
-        {!isDemoMode && futureYouCues.length > 0 && (
+        {/* Future You Cues - with question prompt */}
+        {futureYouCues.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12 }}
             className="mb-6"
           >
-            <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">
-              Your retrieval cues
+            <p className="text-sm text-codex-gold mb-3">
+              Which 3 words will you type to find this later?
             </p>
             <div className="flex flex-wrap gap-2">
               {futureYouCues.map((cue, index) => (
                 <span 
                   key={index}
-                  className="px-3 py-1 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
+                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
                 >
                   {cue}
                 </span>
@@ -750,54 +766,41 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         </motion.div>
 
 
-        {/* Actions - Icon buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="flex justify-center gap-8"
-        >
-          {isNewCapture ? (
-            <>
-              {/* Timeline icon */}
-              <button
-                onClick={handleViewHistoryWithSave}
-                disabled={isSaving}
-                className="flex flex-col items-center gap-2 group disabled:opacity-50"
-              >
-                <div className="w-14 h-14 rounded-full bg-codex-gold/20 border border-codex-gold/40 flex items-center justify-center group-hover:bg-codex-gold/30 transition-colors">
-                  <BookOpen className="w-6 h-6 text-codex-gold" />
-                </div>
-                <span className="text-xs text-codex-gold font-medium">Timeline</span>
-              </button>
-              
-              {/* Capture another icon */}
-              <button
-                onClick={handleCloseWithSave}
-                disabled={isSaving}
-                className="flex flex-col items-center gap-2 group disabled:opacity-50"
-              >
-                <div className="w-14 h-14 rounded-full bg-codex-cream/10 border border-codex-cream/30 flex items-center justify-center group-hover:bg-codex-cream/20 transition-colors">
-                  <Camera className="w-6 h-6 text-codex-cream" />
-                </div>
-                <span className="text-xs text-codex-cream/80 font-medium">
-                  {isSaving ? 'Saving...' : 'Capture'}
-                </span>
-              </button>
-            </>
-          ) : (
+        {/* Actions - only for new captures */}
+        {isNewCapture && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex justify-center gap-8"
+          >
+            {/* Timeline icon */}
+            <button
+              onClick={handleViewHistoryWithSave}
+              disabled={isSaving}
+              className="flex flex-col items-center gap-2 group disabled:opacity-50"
+            >
+              <div className="w-14 h-14 rounded-full bg-codex-gold/20 border border-codex-gold/40 flex items-center justify-center group-hover:bg-codex-gold/30 transition-colors">
+                <BookOpen className="w-6 h-6 text-codex-gold" />
+              </div>
+              <span className="text-xs text-codex-gold font-medium">Timeline</span>
+            </button>
+            
+            {/* Capture another icon */}
             <button
               onClick={handleCloseWithSave}
               disabled={isSaving}
               className="flex flex-col items-center gap-2 group disabled:opacity-50"
             >
               <div className="w-14 h-14 rounded-full bg-codex-cream/10 border border-codex-cream/30 flex items-center justify-center group-hover:bg-codex-cream/20 transition-colors">
-                <X className="w-6 h-6 text-codex-cream" />
+                <Camera className="w-6 h-6 text-codex-cream" />
               </div>
-              <span className="text-xs text-codex-cream/80 font-medium">Close</span>
+              <span className="text-xs text-codex-cream/80 font-medium">
+                {isSaving ? 'Saving...' : 'Capture'}
+              </span>
             </button>
-          )}
-        </motion.div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
