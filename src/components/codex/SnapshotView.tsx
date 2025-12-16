@@ -316,39 +316,37 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep">
-      {/* Header - CLOSE BUTTON ALWAYS VISIBLE */}
+    <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep relative">
+      {/* Close button - FIXED top right, always visible */}
+      <Button
+        onClick={handleCloseWithSave}
+        disabled={isSaving}
+        variant="ghost"
+        size="sm"
+        className="fixed top-4 right-4 z-20 text-codex-cream/80 hover:text-codex-cream hover:bg-codex-cream/10 h-10 w-10 p-0 rounded-full bg-codex-ink-deep/50 backdrop-blur-sm"
+      >
+        <X className="w-5 h-5" />
+      </Button>
+
+      {/* Header - time and save */}
       <div className="sticky top-0 z-10 bg-codex-ink-deep/80 backdrop-blur-md border-b border-codex-gold/20">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-between p-4 pr-16">
           <div className="flex items-center gap-2 text-codex-cream/60 text-sm">
             <Clock className="w-4 h-4" />
             <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
           </div>
           
-          <div className="flex items-center gap-2">
-            {hasChanges && (
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                size="sm"
-                className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
-              >
-                {isSaving ? 'Saving...' : 'Save'}
-                {!isSaving && <Check className="w-4 h-4 ml-1" />}
-              </Button>
-            )}
-            
-            {/* Close button - always visible in header */}
+          {hasChanges && (
             <Button
-              onClick={handleCloseWithSave}
+              onClick={handleSave}
               disabled={isSaving}
-              variant="ghost"
               size="sm"
-              className="text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10 h-8 w-8 p-0"
+              className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
             >
-              <X className="w-5 h-5" />
+              {isSaving ? 'Saving...' : 'Save'}
+              {!isSaving && <Check className="w-4 h-4 ml-1" />}
             </Button>
-          </div>
+          )}
         </div>
       </div>
 
