@@ -316,10 +316,13 @@ export function TestPanel({
         <div className="p-4 bg-codex-gold/10 border-b border-border">
           <h3 className="text-xs font-medium text-codex-gold uppercase tracking-wide mb-2 flex items-center gap-2">
             <Database className="w-3.5 h-3.5" />
-            Memory Loop Test Data
+            Demo Data (Gescheiden)
           </h3>
+          <div className="text-xs text-green-600 bg-green-500/10 p-2 rounded mb-2 border border-green-500/20">
+            ✓ Je echte {dbPageCount} pages blijven onaangetast. Demo data wordt apart opgeslagen.
+          </div>
           <p className="text-xs text-muted-foreground mb-2">
-            {testDataInfo.totalPages} pagina's over {testDataInfo.timeSpan} met future_you_cues:
+            {testDataInfo.totalPages} demo pagina's over {testDataInfo.timeSpan} met future_you_cues:
           </p>
           <div className="text-xs text-muted-foreground mb-2 space-y-0.5">
             <p className="font-medium text-codex-gold/80">Personen: {testDataInfo.personNames?.join(', ')}</p>
@@ -370,7 +373,7 @@ export function TestPanel({
               ) : (
                 <Trash2 className="w-4 h-4 mr-1" />
               )}
-              Wis
+              Wis Demo
             </Button>
           </div>
         </div>

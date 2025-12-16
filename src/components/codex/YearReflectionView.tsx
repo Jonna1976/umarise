@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
+import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 
 interface MonthData {
@@ -80,7 +80,7 @@ export function YearReflectionView({ onBack }: YearReflectionViewProps) {
   const [hasGenerated, setHasGenerated] = useState(false);
 
   const generateReflection = async () => {
-    const deviceId = getDeviceId();
+    const deviceId = getActiveDeviceId();
     if (!deviceId) {
       toast.error('Device ID not found');
       return;

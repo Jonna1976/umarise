@@ -24,7 +24,7 @@ import { Page } from '@/lib/pageService';
 import { usePages } from '@/hooks/usePages';
 import { format, eachWeekOfInterval, subMonths, endOfWeek } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
+import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { VocabularySection } from './VocabularySection';
@@ -638,7 +638,7 @@ export function PatternsView({ onBack, forceEmpty = false }: PatternsViewProps) 
   }, [pages]);
 
   const runAIAnalysis = async () => {
-    const deviceId = getDeviceId();
+    const deviceId = getActiveDeviceId();
     if (!deviceId) {
       toast.error('Device ID not found');
       return;
