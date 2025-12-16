@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, FileText, BookOpen, ArrowRight, ArrowLeft, RotateCcw, CheckCircle, Sparkles, Images, X } from 'lucide-react';
+import { Camera, FileText, BookOpen, ArrowRight, ArrowLeft, RotateCcw, CheckCircle, Sparkles, Images, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -35,6 +35,12 @@ const steps: WalkthroughStep[] = [
     title: "Snapshot",
     subtitle: "Instant insight",
     description: "Summary, tone, keywords — immediately usable.",
+  },
+  {
+    icon: <Search className="w-4 h-4" />,
+    title: "Search",
+    subtitle: "Intent-first retrieval",
+    description: "Think before you browse. Search by cue, name, or meaning.",
   },
   {
     icon: <BookOpen className="w-4 h-4" />,
@@ -302,7 +308,68 @@ function SnapshotIllustration() {
   );
 }
 
-// Step 5: Timeline - bookshelf style with book spines
+// Step 5: Search - search-first calm home
+function SearchIllustration() {
+  return (
+    <motion.div 
+      className="w-44 h-60 rounded-2xl bg-gradient-to-b from-forest-deep via-forest to-forest-deep flex flex-col items-center justify-center p-4 relative overflow-hidden border border-forest"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Search icon */}
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Search className="w-8 h-8 text-cream/40" />
+      </motion.div>
+      
+      {/* Question text */}
+      <motion.p
+        className="text-cream/80 font-serif text-sm mb-4 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        What are you looking for?
+      </motion.p>
+      
+      {/* Search bar mockup */}
+      <motion.div
+        className="w-full px-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <div className="bg-forest/50 rounded-lg px-3 py-2 flex items-center gap-2 border border-cream/10">
+          <Search className="w-3 h-3 text-cream/40" />
+          <motion.div 
+            className="h-0.5 bg-cream/30 rounded"
+            initial={{ width: 0 }}
+            animate={{ width: 60 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+          />
+        </div>
+      </motion.div>
+      
+      {/* Browse all link */}
+      <motion.div
+        className="mt-6 flex items-center gap-1.5 text-cream/40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        <BookOpen className="w-3 h-3" />
+        <span className="text-[9px]">Browse all pages</span>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// Step 6: Timeline - bookshelf style with book spines
 function TimelineIllustration() {
   const spines = [
     { color: 'bg-teal/60', width: 'w-4', label: 'idea' },
@@ -409,6 +476,7 @@ const illustrations = [
   CaptureIllustration,
   ProcessingIllustration,
   SnapshotIllustration,
+  SearchIllustration,
   TimelineIllustration,
 ];
 
