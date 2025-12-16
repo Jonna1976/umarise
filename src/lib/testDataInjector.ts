@@ -9,138 +9,138 @@
 import { supabase } from '@/integrations/supabase/client';
 import { DEMO_DEVICE_ID } from './deviceId';
 
-// Realistic Dutch summaries that simulate real handwritten notes over time
+// Realistic English summaries that simulate real handwritten notes over time
 const threadedContent = [
   // Thread 1: Business/Startup (recurring over months)
   {
-    summary: "Gedachten over het starten van een eigen bedrijf. De vrijheid trekt, maar de onzekerheid ook.",
-    ocrText: "Wil ik voor mezelf beginnen? De consultancy betaalt goed maar ik voel me leeg. Wat als ik iets bouw dat echt van mij is?",
+    summary: "Thoughts about starting my own business. The freedom appeals, but so does the uncertainty.",
+    ocrText: "Do I want to start my own thing? The consultancy pays well but I feel empty. What if I build something that's truly mine?",
     tone: "reflective",
-    keywords: ["ondernemen", "vrijheid", "onzekerheid", "consulting", "eigen bedrijf"],
-    futureYouCues: ["startup", "consultancy", "vrijheid"],
+    keywords: ["entrepreneurship", "freedom", "uncertainty", "consulting", "startup"],
+    futureYouCues: ["startup", "consultancy", "freedom"],
     daysAgo: 120
   },
   {
-    summary: "Verder nadenken over ondernemerschap. Gesprek met Marco gehad.",
-    ocrText: "Gesprek met Marco gehad. Hij zegt: spring niet zonder parachute, maar wacht ook niet tot alles perfect is.",
+    summary: "More thoughts on entrepreneurship. Had a conversation with Marco.",
+    ocrText: "Talked to Marco. He says: don't jump without a parachute, but also don't wait until everything is perfect.",
     tone: "hopeful",
-    keywords: ["ondernemen", "mentor", "advies", "risico", "starten"],
-    futureYouCues: ["Marco", "mentor", "advies"],
+    keywords: ["entrepreneurship", "mentor", "advice", "risk", "starting"],
+    futureYouCues: ["Marco", "mentor", "advice"],
     daysAgo: 95
   },
   {
-    summary: "Eerste concrete stappen voor het nieuwe bedrijf. Businessplan skeletjes.",
-    ocrText: "Kernwaarde: mensen helpen hun handgeschreven gedachten te bewaren. Technologie als brug, niet als doel.",
+    summary: "First concrete steps for the new company. Business plan sketches.",
+    ocrText: "Core value: helping people preserve their handwritten thoughts. Technology as a bridge, not a goal.",
     tone: "focused",
-    keywords: ["ondernemen", "businessplan", "handschrift", "technologie", "waarde"],
-    futureYouCues: ["businessplan", "kernwaarde", "technologie"],
+    keywords: ["entrepreneurship", "business-plan", "handwriting", "technology", "value"],
+    futureYouCues: ["business-plan", "core-value", "technology"],
     daysAgo: 70
   },
   {
-    summary: "Twijfels over de onderneming. Is dit wel het juiste moment?",
-    ocrText: "Markt is onzeker. Concurrentie groot. Maar: niemand doet precies dit. De niche is er.",
+    summary: "Doubts about the venture. Is this the right moment?",
+    ocrText: "Market is uncertain. Competition is fierce. But: nobody does exactly this. The niche is there.",
     tone: "frustrated",
-    keywords: ["ondernemen", "twijfel", "markt", "concurrentie", "niche"],
-    futureYouCues: ["markt", "concurrentie", "twijfel"],
+    keywords: ["entrepreneurship", "doubt", "market", "competition", "niche"],
+    futureYouCues: ["market", "competition", "doubt"],
     daysAgo: 45
   },
   {
-    summary: "Doorbraak! Het concept is helder. Nu doorpakken.",
-    ocrText: "Memory layer voor handschrift. Dat is het. Niet nog een notes app, maar geheugen infrastructuur.",
+    summary: "Breakthrough! The concept is clear. Time to push forward.",
+    ocrText: "Memory layer for handwriting. That's it. Not another notes app, but memory infrastructure.",
     tone: "hopeful",
-    keywords: ["ondernemen", "memory", "handschrift", "concept", "doorbraak"],
-    futureYouCues: ["memory-layer", "concept", "doorbraak"],
+    keywords: ["entrepreneurship", "memory", "handwriting", "concept", "breakthrough"],
+    futureYouCues: ["memory-layer", "concept", "breakthrough"],
     daysAgo: 20
   },
 
   // Thread 2: Creativity/Art (recurring)
   {
-    summary: "Reflectie op creativiteit en discipline. Ze zijn geen tegenpolen.",
-    ocrText: "Creativiteit komt niet van wachten op inspiratie. Het komt van elke dag opduiken, ook als het moeilijk is.",
+    summary: "Reflection on creativity and discipline. They are not opposites.",
+    ocrText: "Creativity doesn't come from waiting for inspiration. It comes from showing up every day, even when it's hard.",
     tone: "reflective",
-    keywords: ["creativiteit", "discipline", "inspiratie", "routine", "werk"],
-    futureYouCues: ["creativiteit", "discipline", "routine"],
+    keywords: ["creativity", "discipline", "inspiration", "routine", "work"],
+    futureYouCues: ["creativity", "discipline", "routine"],
     daysAgo: 110
   },
   {
-    summary: "Schetsen voor een nieuw visueel concept. Geometrie en warmte combineren.",
-    ocrText: "De vormen moeten kracht uitstralen maar ook zachtheid. Goud als accent, niet als dominantie.",
+    summary: "Sketches for a new visual concept. Combining geometry and warmth.",
+    ocrText: "The shapes must radiate strength but also softness. Gold as an accent, not as dominance.",
     tone: "playful",
-    keywords: ["creativiteit", "design", "geometrie", "kleur", "visueel"],
-    futureYouCues: ["design", "goud", "geometrie"],
+    keywords: ["creativity", "design", "geometry", "color", "visual"],
+    futureYouCues: ["design", "gold", "geometry"],
     daysAgo: 85
   },
   {
-    summary: "Frustratie over creatief blok. Niets voelt goed.",
-    ocrText: "Al dagen vastgelopen. Misschien moet ik juist stoppen met forceren en gaan wandelen.",
+    summary: "Frustration about creative block. Nothing feels right.",
+    ocrText: "Stuck for days. Maybe I should stop forcing it and go for a walk.",
     tone: "frustrated",
-    keywords: ["creativiteit", "blok", "frustratie", "wandelen", "pauze"],
-    futureYouCues: ["creatief-blok", "wandelen", "pauze"],
+    keywords: ["creativity", "block", "frustration", "walking", "pause"],
+    futureYouCues: ["creative-block", "walking", "pause"],
     daysAgo: 60
   },
   {
-    summary: "Doorbraak na de wandeling. De ideeën stromen weer.",
-    ocrText: "De natuur reset de geest. Teruggekomen met drie nieuwe concepten. Loslaten werkt.",
+    summary: "Breakthrough after the walk. Ideas are flowing again.",
+    ocrText: "Nature resets the mind. Came back with three new concepts. Letting go works.",
     tone: "hopeful",
-    keywords: ["creativiteit", "natuur", "ideeën", "loslaten", "doorbraak"],
-    futureYouCues: ["natuur", "ideeën", "loslaten"],
+    keywords: ["creativity", "nature", "ideas", "letting-go", "breakthrough"],
+    futureYouCues: ["nature", "ideas", "letting-go"],
     daysAgo: 35
   },
 
   // Thread 3: Personal Growth (recurring) - with person names
   {
-    summary: "Gedachten over wie ik wil worden. Viktor Frankl citaat.",
-    ocrText: "Viktor Frankl: je wordt niet wie je bent door na te denken over wie je bent, maar door te handelen en betekenis te scheppen.",
+    summary: "Thoughts about who I want to become. Viktor Frankl quote.",
+    ocrText: "Viktor Frankl: you become who you are not by thinking about who you are, but by acting and creating meaning.",
     tone: "reflective",
-    keywords: ["groei", "betekenis", "identiteit", "handelen", "frankl"],
-    futureYouCues: ["Frankl", "betekenis", "identiteit"],
+    keywords: ["growth", "meaning", "identity", "action", "frankl"],
+    futureYouCues: ["Frankl", "meaning", "identity"],
     daysAgo: 100
   },
   {
-    summary: "Grenzen stellen is geen luxe maar noodzaak.",
-    ocrText: "Werk-privé balans is een mythe als je geen nee leert zeggen. Nee tegen anderen is ja tegen jezelf.",
+    summary: "Setting boundaries is not a luxury but a necessity.",
+    ocrText: "Work-life balance is a myth if you don't learn to say no. No to others is yes to yourself.",
     tone: "focused",
-    keywords: ["groei", "grenzen", "balans", "nee zeggen", "zelfzorg"],
-    futureYouCues: ["grenzen", "balans", "zelfzorg"],
+    keywords: ["growth", "boundaries", "balance", "saying-no", "self-care"],
+    futureYouCues: ["boundaries", "balance", "self-care"],
     daysAgo: 75
   },
   {
-    summary: "Coaching sessie met Anna over leiderschap.",
-    ocrText: "Anna vroeg: wat zou je doen als je niet bang was? Goede vraag. Ik zou groter dromen.",
+    summary: "Coaching session with Anna about leadership.",
+    ocrText: "Anna asked: what would you do if you weren't afraid? Good question. I would dream bigger.",
     tone: "reflective",
-    keywords: ["groei", "coaching", "leiderschap", "angst", "dromen"],
-    futureYouCues: ["Anna", "coaching", "leiderschap"],
+    keywords: ["growth", "coaching", "leadership", "fear", "dreams"],
+    futureYouCues: ["Anna", "coaching", "leadership"],
     daysAgo: 50
   },
   {
-    summary: "Mijlpaal bereikt. Eerste jaar als ondernemer overleefd.",
-    ocrText: "365 dagen. Niet alles ging goed, maar ik ben gegroeid. Dat telt meer dan succes.",
+    summary: "Milestone reached. Survived first year as entrepreneur.",
+    ocrText: "365 days. Not everything went well, but I've grown. That counts more than success.",
     tone: "hopeful",
-    keywords: ["groei", "mijlpaal", "ondernemer", "reflectie", "succes"],
-    futureYouCues: ["mijlpaal", "jaar", "ondernemer"],
+    keywords: ["growth", "milestone", "entrepreneur", "reflection", "success"],
+    futureYouCues: ["milestone", "year", "entrepreneur"],
     daysAgo: 25
   },
 
   // Thread 4: Technology & Product - with project names
   {
-    summary: "Notities over Umarise productvisie.",
-    ocrText: "Umarise moet een memory layer zijn, geen notes app. Het gaat om terugvinden, niet organiseren.",
+    summary: "Notes about Umarise product vision.",
+    ocrText: "Umarise must be a memory layer, not a notes app. It's about retrieval, not organizing.",
     tone: "focused",
-    keywords: ["product", "visie", "memory", "umarise", "terugvinden"],
-    futureYouCues: ["Umarise", "visie", "memory"],
+    keywords: ["product", "vision", "memory", "umarise", "retrieval"],
+    futureYouCues: ["Umarise", "vision", "memory"],
     daysAgo: 80
   },
   {
-    summary: "Meeting met Moleskine team over partnership.",
-    ocrText: "Moleskine wil hun ritueel behouden, wij leveren de memory layer. Win-win als we het goed doen.",
+    summary: "Meeting with Moleskine team about partnership.",
+    ocrText: "Moleskine wants to keep their ritual, we provide the memory layer. Win-win if we do it right.",
     tone: "hopeful",
-    keywords: ["product", "moleskine", "partnership", "ritueel", "samenwerking"],
+    keywords: ["product", "moleskine", "partnership", "ritual", "collaboration"],
     futureYouCues: ["Moleskine", "partnership", "meeting"],
     daysAgo: 40
   },
   {
-    summary: "Demo feedback van Peter. Hij snapte het meteen.",
-    ocrText: "Peter: 'Dit is Photos voor handschrift.' Precies. Eindelijk iemand die de kern pakt.",
+    summary: "Demo feedback from Peter. He got it immediately.",
+    ocrText: "Peter: 'This is Photos for handwriting.' Exactly. Finally someone who gets the core.",
     tone: "hopeful",
     keywords: ["product", "demo", "feedback", "peter", "photos"],
     futureYouCues: ["Peter", "demo", "feedback"],
@@ -149,53 +149,53 @@ const threadedContent = [
 
   // Thread 5: Funding & Investment - overlapping topics for disambiguation test
   {
-    summary: "Funding gesprek met investeerder voorbereiden.",
-    ocrText: "Pitch deck moet scherper. Drie slides: probleem, oplossing, moat. De rest is ruis.",
+    summary: "Preparing funding conversation with investor.",
+    ocrText: "Pitch deck needs to be sharper. Three slides: problem, solution, moat. The rest is noise.",
     tone: "focused",
-    keywords: ["funding", "pitch", "investeerder", "deck", "moat"],
+    keywords: ["funding", "pitch", "investor", "deck", "moat"],
     futureYouCues: ["funding", "pitch", "deck"],
     daysAgo: 30
   },
   {
-    summary: "Funding meeting met Sarah van Venture Capital.",
-    ocrText: "Sarah van VC fund was positief. Vraagt om follow-up met tech due diligence. Spannend.",
+    summary: "Funding meeting with Sarah from Venture Capital.",
+    ocrText: "Sarah from VC fund was positive. Asks for follow-up with tech due diligence. Exciting.",
     tone: "hopeful",
     keywords: ["funding", "meeting", "sarah", "vc", "due-diligence"],
     futureYouCues: ["Sarah", "VC", "funding"],
     daysAgo: 12
   },
   {
-    summary: "Nog een funding gesprek, maar andere hoek.",
-    ocrText: "Deze investeerder focust op pricing en revenue model. Andere vragen dan Sarah, maar net zo belangrijk.",
+    summary: "Another funding conversation, but different angle.",
+    ocrText: "This investor focuses on pricing and revenue model. Different questions than Sarah, but equally important.",
     tone: "reflective",
-    keywords: ["funding", "pricing", "revenue", "investeerder", "model"],
-    futureYouCues: ["pricing", "revenue", "investeerder"],
+    keywords: ["funding", "pricing", "revenue", "investor", "model"],
+    futureYouCues: ["pricing", "revenue", "investor"],
     daysAgo: 8
   },
 
   // Recent captures
   {
-    summary: "Observaties over gebruikersgedrag tijdens demo.",
-    ocrText: "Ze begrepen het pas toen ze het zelf probeerden. Show, don't tell. De demo is het product.",
+    summary: "Observations about user behavior during demo.",
+    ocrText: "They only understood it when they tried it themselves. Show, don't tell. The demo is the product.",
     tone: "hopeful",
-    keywords: ["gebruiker", "demo", "product", "feedback", "inzicht"],
-    futureYouCues: ["demo", "gebruiker", "show-dont-tell"],
+    keywords: ["user", "demo", "product", "feedback", "insight"],
+    futureYouCues: ["demo", "user", "show-dont-tell"],
     daysAgo: 7
   },
   {
-    summary: "Reflectie op de reis tot nu toe. Trots op wat al gebouwd is.",
-    ocrText: "Van idee naar werkend product in 6 maanden. Niet perfect, maar echt. Dat telt.",
+    summary: "Reflection on the journey so far. Proud of what's been built.",
+    ocrText: "From idea to working product in 6 months. Not perfect, but real. That counts.",
     tone: "reflective",
-    keywords: ["reflectie", "product", "reis", "trots", "voortgang"],
-    futureYouCues: ["reis", "trots", "voortgang"],
+    keywords: ["reflection", "product", "journey", "pride", "progress"],
+    futureYouCues: ["journey", "pride", "progress"],
     daysAgo: 3
   },
   {
-    summary: "Nieuwe ideeën voor de toekomst. De roadmap wordt helder.",
-    ocrText: "Fase 1: MVP. Fase 2: Partners. Fase 3: Schaal. Eén ding tegelijk, maar het grote plaatje helder.",
+    summary: "New ideas for the future. The roadmap is becoming clear.",
+    ocrText: "Phase 1: MVP. Phase 2: Partners. Phase 3: Scale. One thing at a time, but the big picture is clear.",
     tone: "hopeful",
-    keywords: ["toekomst", "roadmap", "fases", "strategie", "visie"],
-    futureYouCues: ["roadmap", "fases", "MVP"],
+    keywords: ["future", "roadmap", "phases", "strategy", "vision"],
+    futureYouCues: ["roadmap", "phases", "MVP"],
     daysAgo: 1
   }
 ];
@@ -319,7 +319,7 @@ export function getTestDataInfo() {
     totalPages: threadedContent.length,
     timeSpan: '4 months',
     threads: [
-      'Business/Ondernemen (5 pages)',
+      'Business/Startup (5 pages)',
       'Creativity/Art (4 pages)',
       'Personal Growth + People (4 pages: Anna, Frankl)',
       'Technology + Projects (3 pages: Umarise, Moleskine, Peter)',
@@ -328,6 +328,6 @@ export function getTestDataInfo() {
     ],
     personNames: ['Marco', 'Anna', 'Peter', 'Sarah', 'Viktor Frankl'],
     projectNames: ['Umarise', 'Moleskine'],
-    description: 'Realistische Nederlandse handschrift-notities met terugkerende thema\'s, persoonsnamen en projectnamen over 4 maanden. Elke page heeft 3 future_you_cues voor search testing.'
+    description: 'Realistic English handwritten notes with recurring themes, person names and project names over 4 months. Each page has 3 future_you_cues for search testing.'
   };
 }
