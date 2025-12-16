@@ -28,6 +28,7 @@ import {
 interface HistoryViewProps {
   pages: Page[];
   onBack: () => void;
+  onCapture?: () => void; // Separate handler for camera button
   onSelectPage: (page: Page) => void;
   onSelectCapsule?: (capsule: CapsulePages) => void;
   onDeletePage: (pageId: string) => void;
@@ -76,6 +77,7 @@ function getDateLabel(date: Date): string {
 export function HistoryView({ 
   pages: allPages, 
   onBack, 
+  onCapture,
   onSelectPage, 
   onSelectCapsule,
   onDeletePage, 
@@ -88,6 +90,8 @@ export function HistoryView({
   onOpenSearch,
   highlightPageId
 }: HistoryViewProps) {
+  // Use onCapture for camera buttons, fallback to onBack if not provided
+  const handleCapture = onCapture || onBack;
   const { isDemoMode } = useDemoMode();
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
@@ -618,7 +622,7 @@ export function HistoryView({
                     <p className="text-sm text-muted-foreground mb-6">Your pages live here.</p>
                   </>
                 )}
-                <Button onClick={onBack} variant="codex">
+                <Button onClick={handleCapture} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
                   Start writing
                 </Button>
@@ -678,7 +682,7 @@ export function HistoryView({
                 <p className="text-muted-foreground mb-6">
                   Your bookshelf is empty
                 </p>
-                <Button onClick={onBack} variant="codex">
+                <Button onClick={handleCapture} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
                   Start writing
                 </Button>
@@ -776,7 +780,7 @@ export function HistoryView({
             ) : filter !== 'all' ? (
               <>
                 <p className="text-muted-foreground mb-6">No pages in this time period</p>
-                <Button onClick={onBack} variant="codex">
+                <Button onClick={handleCapture} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
                   Capture your first page
                 </Button>
@@ -785,7 +789,7 @@ export function HistoryView({
               <>
                 <p className="text-lg font-serif text-foreground mb-2">Pen down. Snap.</p>
                 <p className="text-sm text-muted-foreground mb-6">Your pages live here.</p>
-                <Button onClick={onBack} variant="codex">
+                <Button onClick={handleCapture} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
                   Capture your first page
                 </Button>
@@ -970,7 +974,7 @@ export function HistoryView({
           className="fixed bottom-6 right-6"
         >
           <Button
-            onClick={onBack}
+            onClick={handleCapture}
             variant="capture"
             size="capture"
             className="shadow-xl"
