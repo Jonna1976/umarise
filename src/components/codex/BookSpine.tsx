@@ -99,8 +99,8 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const pageCount = capsule?.pages.length || 1;
   
   // Larger spine dimensions
-  const baseWidth = 56;
-  const extraWidth = Math.min(pageCount * 10, 50);
+  const baseWidth = 64;
+  const extraWidth = Math.min(pageCount * 12, 60);
   const spineWidth = baseWidth + extraWidth;
 
   return (
@@ -131,7 +131,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative flex-shrink-0 h-64 rounded-sm
+        relative flex-shrink-0 h-72 rounded-sm
         ${colors.bg}
         border-l-2 ${colors.border}
         overflow-hidden
