@@ -145,55 +145,68 @@ export function BookCoverCard({ page, capsule, onClick, onDelete }: BookCoverCar
           shadow-lg hover:shadow-xl
           transition-all duration-300
           hover:scale-[1.02] active:scale-[0.99]
-          min-h-[160px] relative
+          min-h-[140px] relative
         `}
       >
         {/* Book spine accent */}
         <div className={`absolute left-0 top-0 bottom-0 w-2 ${visuals.bg} opacity-60`} />
         
-        {/* Main content area */}
-        <div className="p-6 pl-8 flex flex-col justify-between h-full min-h-[160px]">
-          {/* Title area */}
-          <div>
-            <h3 className={`font-serif text-2xl font-semibold leading-tight ${visuals.text} mb-2`}>
-              {title}
-            </h3>
-            <p className={`text-sm ${visuals.accent} font-light italic leading-relaxed opacity-80`}>
-              {subtitle}
-            </p>
-            
-            {/* Your keywords (highlights) - small chips */}
-            {representativePage.highlights && representativePage.highlights.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {representativePage.highlights.slice(0, 3).map((keyword) => (
-                  <span 
-                    key={keyword}
-                    className={cn(
-                      'text-[10px] px-1.5 py-0.5 rounded-full',
-                      'bg-background/10 border border-border/20',
-                      visuals.text,
-                      'opacity-80'
-                    )}
-                  >
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Bottom area - minimal metadata */}
-          <div className="flex items-end justify-between mt-4">
-            <div className={`text-xs ${visuals.accent} opacity-60`}>
-              {formatDistanceToNow(representativePage.createdAt, { addSuffix: true })}
+        {/* Main content area - with thumbnail */}
+        <div className="flex">
+          {/* Text content */}
+          <div className="flex-1 p-5 pl-6 flex flex-col justify-between min-h-[140px]">
+            {/* Title area */}
+            <div>
+              <h3 className={`font-serif text-xl font-semibold leading-tight ${visuals.text} mb-1.5`}>
+                {title}
+              </h3>
+              <p className={`text-sm ${visuals.accent} font-light italic leading-relaxed opacity-80 line-clamp-2`}>
+                {subtitle}
+              </p>
+              
+              {/* Future You Cues - most important */}
+              {representativePage.futureYouCues && representativePage.futureYouCues.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {representativePage.futureYouCues.slice(0, 3).map((cue) => (
+                    <span 
+                      key={cue}
+                      className={cn(
+                        'text-xs px-2 py-0.5 rounded-full',
+                        'bg-background/15 border border-border/30',
+                        visuals.text
+                      )}
+                    >
+                      {cue}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             
-            {pageCount > 1 && (
-              <div className={`flex items-center gap-1 text-xs ${visuals.accent} opacity-70`}>
-                <Images className="w-3.5 h-3.5" />
-                <span>{pageCount}</span>
+            {/* Bottom area - minimal metadata */}
+            <div className="flex items-end justify-between mt-3">
+              <div className={`text-xs ${visuals.accent} opacity-60`}>
+                {formatDistanceToNow(representativePage.createdAt, { addSuffix: true })}
               </div>
-            )}
+              
+              {pageCount > 1 && (
+                <div className={`flex items-center gap-1 text-xs ${visuals.accent} opacity-70`}>
+                  <Images className="w-3.5 h-3.5" />
+                  <span>{pageCount}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Thumbnail - original page preview */}
+          <div className="w-24 flex-shrink-0 relative overflow-hidden">
+            <img 
+              src={representativePage.imageUrl} 
+              alt="Page preview"
+              className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity"
+            />
+            {/* Fade overlay to blend with card */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${visuals.gradient} opacity-60`} />
           </div>
         </div>
         
