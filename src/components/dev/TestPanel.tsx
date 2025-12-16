@@ -19,7 +19,9 @@ import {
   Bug,
   Copy,
   Palette,
-  Play
+  Play,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { generateTestPages, TestPage } from '@/lib/testData';
@@ -28,8 +30,9 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
-import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
+import { getDeviceId, setDeviceId as persistDeviceId, DEMO_DEVICE_ID } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -62,6 +65,7 @@ export function TestPanel({
   onPreviewEmptyPersonality,
   onShowOnePager
 }: TestPanelProps) {
+  const { isDemoMode, toggleDemoMode } = useDemoMode();
   const [showOnePager, setShowOnePager] = useState(false);
   
   const [testPages, setTestPages] = useState<TestPage[]>([]);
@@ -267,6 +271,51 @@ export function TestPanel({
           <p className="text-sm text-muted-foreground">
             Debug tools voor het testen van de memory loop.
           </p>
+        </div>
+
+        {/* Demo Mode Toggle - PROMINENT */}
+        <div className="p-4 border-b border-border">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Data Mode
+          </h3>
+          <button
+            onClick={() => {
+              toggleDemoMode();
+              onLoadTestData(); // Refresh data after toggle
+              toast({
+                title: isDemoMode ? "Switched to Your Data" : "Switched to Demo Data",
+                description: isDemoMode 
+                  ? "Nu zie je je eigen 88 pages" 
+                  : "Nu zie je de 22 demo pages",
+              });
+            }}
+            className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+              isDemoMode 
+                ? 'bg-amber-500/10 border-amber-500/50 text-amber-600' 
+                : 'bg-green-500/10 border-green-500/50 text-green-600'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {isDemoMode ? (
+                <ToggleRight className="w-6 h-6" />
+              ) : (
+                <ToggleLeft className="w-6 h-6" />
+              )}
+              <div className="text-left">
+                <div className="font-medium">
+                  {isDemoMode ? 'Demo Mode AAN' : 'Demo Mode UIT'}
+                </div>
+                <div className="text-xs opacity-70">
+                  {isDemoMode 
+                    ? 'Je ziet demo data (22 pages)' 
+                    : 'Je ziet je echte data'}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs px-2 py-1 rounded bg-background/50">
+              Klik om te wisselen
+            </span>
+          </button>
         </div>
 
         {/* Device Debug Section */}
