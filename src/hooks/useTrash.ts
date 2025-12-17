@@ -1,0 +1,114 @@
+import { useState, useCallback, useEffect } from 'react';
+import { Page } from '@/lib/pageService';
+
+const TRASH_STORAGE_KEY = 'umarise_trash';
+
+interface TrashState {
+  pageIds: string[];
+}
+
+export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => void) {
+  const [trashedIds, setTrashedIds] = useState<Set<string>>(new Set());
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Load trash state from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(TRASH_STORAGE_KEY);
+      if (stored) {
+        const state: TrashState = JSON.parse(stored);
+        setTrashedIds(new Set(state.pageIds));
+      }
+    } catch (e) {
+      console.error('Failed to load trash state:', e);
+    }
+  }, []);
+
+  // Persist trash state to localStorage
+  const persistTrash = useCallback((ids: Set<string>) => {
+    try {
+      const state: TrashState = { pageIds: Array.from(ids) };
+      localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error('Failed to persist trash state:', e);
+    }
+  }, []);
+
+  // Move page to trash (soft delete)
+  const moveToTrash = useCallback((pageId: string) => {
+    setTrashedIds(prev => {
+      const next = new Set(prev);
+      next.add(pageId);
+      persistTrash(next);
+      return next;
+    });
+  }, [persistTrash]);
+
+  // Restore page from trash
+  const restoreFromTrash = useCallback((pageId: string) => {
+    setTrashedIds(prev => {
+      const next = new Set(prev);
+      next.delete(pageId);
+      persistTrash(next);
+      return next;
+    });
+  }, [persistTrash]);
+
+  // Permanently delete a page
+  const permanentlyDelete = useCallback((pageId: string) => {
+    // First remove from trash state
+    setTrashedIds(prev => {
+      const next = new Set(prev);
+      next.delete(pageId);
+      persistTrash(next);
+      return next;
+    });
+    // Then call the actual delete function
+    onPermanentDelete(pageId);
+  }, [onPermanentDelete, persistTrash]);
+
+  // Empty entire trash
+  const emptyTrash = useCallback(() => {
+    // Get all trashed page IDs before clearing
+    const toDelete = Array.from(trashedIds);
+    
+    // Clear trash state first
+    setTrashedIds(new Set());
+    persistTrash(new Set());
+    
+    // Delete all pages
+    toDelete.forEach(pageId => {
+      onPermanentDelete(pageId);
+    });
+  }, [trashedIds, onPermanentDelete, persistTrash]);
+
+  // Get pages that are NOT in trash (for main view)
+  const visiblePages = allPages.filter(page => !trashedIds.has(page.id));
+  
+  // Get pages that ARE in trash
+  const trashedPages = allPages.filter(page => trashedIds.has(page.id));
+
+  // Clean up trash state by removing IDs for pages that no longer exist
+  useEffect(() => {
+    const existingIds = new Set(allPages.map(p => p.id));
+    const validTrashedIds = Array.from(trashedIds).filter(id => existingIds.has(id));
+    
+    if (validTrashedIds.length !== trashedIds.size) {
+      const cleaned = new Set(validTrashedIds);
+      setTrashedIds(cleaned);
+      persistTrash(cleaned);
+    }
+  }, [allPages, trashedIds, persistTrash]);
+
+  return {
+    visiblePages,
+    trashedPages,
+    trashedCount: trashedPages.length,
+    isDragging,
+    setIsDragging,
+    moveToTrash,
+    restoreFromTrash,
+    permanentlyDelete,
+    emptyTrash,
+  };
+}
