@@ -381,13 +381,18 @@ export function HistoryView({
     <div className="min-h-screen bg-background">
       {/* Header - Minimal for Shelf mode */}
       <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between p-4">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
+        <div className="flex items-center p-4">
+          {/* Left side - fixed width for balance */}
+          <div className="flex-1 flex items-center">
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+          
+          {/* Center - title always centered */}
           <div className="flex flex-col items-center gap-1">
             {isDemoMode ? (
               <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
@@ -397,7 +402,8 @@ export function HistoryView({
             {!isMinimalMode && <DemoModeToggle />}
           </div>
           
-          {/* Right side - Minimal mode shows view toggles */}
+          {/* Right side - flex-1 to balance with left */}
+          <div className="flex-1 flex justify-end">
           {isMinimalMode ? (
             <div className="flex items-center gap-2">
               {/* Share button - shows at 3+ pages */}
@@ -504,6 +510,7 @@ export function HistoryView({
               )}
             </div>
           )}
+          </div>
         </div>
 
         {/* Search button - hidden in minimal mode */}
