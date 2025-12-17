@@ -111,7 +111,7 @@ export function ProcessingView({
           <p className="text-codex-gold font-serif text-2xl mb-3">
             What is this about?
           </p>
-          <p className="text-muted-foreground text-base mb-6">
+          <p className="text-foreground/70 text-base mb-6">
             What words would you type in 2030 to find this page again?
           </p>
 
@@ -119,11 +119,11 @@ export function ProcessingView({
             value={preCue}
             onChange={(e) => setPreCue(e.target.value)}
             placeholder="e.g. funding pitch, Marco meeting..."
-            className="bg-background/60 border-border/40 text-center text-lg h-12 placeholder:text-muted-foreground/40"
+            className="bg-background/60 border-border/40 text-center text-lg h-12 placeholder:text-foreground/50"
             autoComplete="off"
           />
           
-          <p className="text-muted-foreground/50 text-sm mt-5">
+          <p className="text-foreground/60 text-sm mt-5">
             Optional — you can refine this after processing
           </p>
         </div>
