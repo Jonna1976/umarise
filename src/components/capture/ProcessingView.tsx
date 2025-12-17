@@ -217,16 +217,14 @@ export function ProcessingView({
           </Button>
         </motion.div>
 
-        {/* Breathing text - only while processing */}
-        {!isProcessingComplete && (
-          <motion.p
-            animate={{ opacity: [0.4, 0.7, 0.4] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            className="mt-6 text-muted-foreground/60 text-sm text-center"
-          >
-            Breathe. Your thoughts are being preserved.
-          </motion.p>
-        )}
+        {/* Breathing text - always visible */}
+        <motion.p
+          animate={{ opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="mt-6 text-muted-foreground/60 text-sm text-center"
+        >
+          Breathe. Your thoughts are being preserved.
+        </motion.p>
       </motion.div>
     </div>
   );
