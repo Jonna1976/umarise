@@ -501,13 +501,16 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="mb-6"
         >
           <p className="text-sm text-codex-gold mb-1">
-            In the future you can find this page by searching:
+            In 2 words: what is this about?
+          </p>
+          <p className="text-xs text-codex-cream/50 mb-2">
+            These words appear on the spine of this page in your memory.
           </p>
           
-          {/* Display existing cues with delete option */}
+          {/* Display existing cues with delete option (max 2) */}
           {futureYouCues.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3 mt-2">
-              {futureYouCues.map((cue, index) => (
+              {futureYouCues.slice(0, 2).map((cue, index) => (
                 <span 
                   key={index}
                   className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
@@ -531,23 +534,18 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <p className="text-sm text-codex-cream/40 italic">No search words set</p>
           )}
           
-          {/* Topic input moved here - only when not in demo mode */}
+          {/* Topic input - for additional project classification */}
           {!isDemoMode && (
-            <>
-              <div className="mt-3">
-                <TopicInput
-                  value={topic}
-                  onChange={(value, projectId) => {
-                    setTopic(value);
-                    setTopicProjectId(projectId);
-                  }}
-                  autoFocus={isNewCapture}
-                />
-              </div>
-              <p className="text-xs text-codex-cream/40 mt-2">
-                The more detail you add, the easier it is to find this page later.
-              </p>
-            </>
+            <div className="mt-3">
+              <TopicInput
+                value={topic}
+                onChange={(value, projectId) => {
+                  setTopic(value);
+                  setTopicProjectId(projectId);
+                }}
+                autoFocus={isNewCapture}
+              />
+            </div>
           )}
         </motion.div>
 

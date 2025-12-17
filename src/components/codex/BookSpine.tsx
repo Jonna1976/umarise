@@ -15,14 +15,14 @@ interface BookSpineProps {
 }
 
 // Extract the primary cue for display - this is the spine title
-// Joins all Future You Cues together as the full answer from the user
+// Takes max 2 words from Future You Cues (user's answer from processing)
 function extractPrimaryCue(page: Page): string {
-  // Priority: Future You Cues (user's full answer from processing) > User highlights > AI Keywords
+  // Priority: Future You Cues (max 2 words) > User highlights > AI Keywords
   if (page.futureYouCues && page.futureYouCues.length > 0) {
-    return page.futureYouCues.join(' ');
+    return page.futureYouCues.slice(0, 2).join(' ');
   }
   if (page.futureYouCue) {
-    return page.futureYouCue;
+    return page.futureYouCue.split(/\s+/).slice(0, 2).join(' ');
   }
   if (page.highlights && page.highlights.length > 0) {
     return page.highlights[0];
