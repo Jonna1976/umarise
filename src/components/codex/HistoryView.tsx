@@ -1006,8 +1006,8 @@ export function HistoryView({
                           style={{ scrollSnapAlign: 'start' }}
                           className="relative"
                         >
-                          {/* Golden leather frame for latest page */}
-                          {index === 0 && (
+                          {/* Golden leather frame for latest (newest) page */}
+                          {index === historyItems.length - 1 && (
                             <div 
                               className="absolute -inset-1.5 rounded-md z-0"
                               style={{
@@ -1016,7 +1016,7 @@ export function HistoryView({
                               }}
                             />
                           )}
-                          <div className={index === 0 ? 'relative z-10' : ''}>
+                          <div className={index === historyItems.length - 1 ? 'relative z-10' : ''}>
                             <BookSpine
                               page={item.type === 'page' ? item.page : undefined}
                               capsule={item.type === 'capsule' ? item.capsule : undefined}
