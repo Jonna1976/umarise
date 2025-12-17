@@ -433,13 +433,13 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
           </motion.div>
 
           {/* Orbit Circles */}
-          <div className="relative w-full max-w-xl mx-auto aspect-square flex items-center justify-center">
+          <div className="relative w-full max-w-lg mx-auto aspect-square flex items-center justify-center">
             {/* Orbit ring */}
-            <div className="absolute inset-12 rounded-full border border-dashed border-muted-foreground/20" />
+            <div className="absolute inset-16 rounded-full border border-dashed border-muted-foreground/20" />
             
             {/* Orbit items */}
             {orbitItems.map((item, index) => {
-              const radius = 38; // percentage from center - smaller to fit larger circles
+              const radius = 36; // percentage from center
               const angleRad = (item.angle - 90) * (Math.PI / 180);
               const x = 50 + radius * Math.cos(angleRad);
               const y = 50 + radius * Math.sin(angleRad);
@@ -471,13 +471,13 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                       ]
                     } : {}}
                     transition={isActive ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-                    className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
+                    className={`w-[5.5rem] h-[5.5rem] sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
                       isActive
                         ? 'bg-codex-sepia text-white'
                         : 'bg-secondary/80 hover:bg-secondary border border-border hover:border-codex-gold/50'
                     }`}
                   >
-                    <Icon className={`w-6 h-6 sm:w-7 sm:h-7 mb-1 ${isActive ? 'text-white' : 'text-codex-gold'}`} />
+                    <Icon className={`w-6 h-6 sm:w-8 sm:h-8 mb-1.5 ${isActive ? 'text-white' : 'text-codex-gold'}`} />
                     <span className={`text-[10px] sm:text-xs font-medium leading-tight text-center px-2 ${
                       isActive ? 'text-white' : 'text-foreground/70'
                     }`}>
