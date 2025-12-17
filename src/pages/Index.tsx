@@ -20,7 +20,7 @@ import {
   completeOnboarding 
 } from '@/lib/deviceId';
 import { usePages } from '@/hooks/usePages';
-import { Page, CapsulePages, getCapsulePages } from '@/lib/pageService';
+import { Page, CapsulePages, getCapsulePages, confirmFutureYouCues } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -46,12 +46,12 @@ const Index = () => {
   const [targetCapsuleId, setTargetCapsuleId] = useState<string | null>(null);
   const [currentCapsule, setCurrentCapsule] = useState<CapsulePages | null>(null);
   
-  // Post-capture state (now inline in SnapshotView, but we still track suggested cues)
+  // Post-capture state (we keep this for backward compatibility in SnapshotView)
   const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
   
-  // Processing state - tracks when AI is done but user hasn't confirmed cues yet
+  // Processing gate: AI finishes first, then user must enter + confirm cues to proceed
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
-  const [pendingPageResult, setPendingPageResult] = useState<{ page: Page; suggestedCues: string[] } | null>(null);
+  const [pendingPagesToCue, setPendingPagesToCue] = useState<Page[] | null>(null);
   
   // Search match info (to show "why matched" in SnapshotView)
   const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
@@ -94,18 +94,17 @@ const Index = () => {
     setCapturedImages([imageDataUrl]);
     setProcessingIndex(0);
     setIsProcessingComplete(false);
-    setPendingPageResult(null);
+    setPendingPagesToCue(null);
     setView('processing');
     
     try {
-      // Real AI processing via edge function
+      // Real AI processing via backend function
       const result = await createPage(imageDataUrl);
       
       if (result) {
-        // Store result and mark processing as complete - user still needs to add cues
-        setPendingPageResult(result);
+        // Wait for user cues confirmation before going to snapshot
+        setPendingPagesToCue([result.page]);
         setIsProcessingComplete(true);
-        // Don't go to snapshot yet - wait for user to confirm cues in ProcessingView
       } else {
         toast.error('Failed to process page. Please try again.');
         setView('camera');
@@ -122,26 +121,48 @@ const Index = () => {
   }, [createPage]);
 
   // Handle user confirming cues in ProcessingView
-  const handleProcessingContinue = useCallback((userCues: string[]) => {
-    if (!pendingPageResult) return;
-    
-    // Set up the page with user's cues as futureYouCues
-    const pageWithCues = {
-      ...pendingPageResult.page,
-      futureYouCues: userCues
-    };
-    
-    setCurrentPage(pageWithCues);
-    setSuggestedCues(userCues); // Use user's cues, not AI suggested
-    setIsNewCapture(true);
-    setView('snapshot');
-    
-    // Clean up
-    setCapturedImage(null);
-    setCapturedImages([]);
-    setPendingPageResult(null);
-    setIsProcessingComplete(false);
-  }, [pendingPageResult]);
+  const handleProcessingContinue = useCallback(async (userCues: string[]) => {
+    if (!pendingPagesToCue || pendingPagesToCue.length === 0) return;
+
+    const normalized = userCues
+      .map(c => c.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+    const uniqueCues = Array.from(new Set(normalized)).slice(0, 5);
+
+    if (uniqueCues.length === 0) return;
+
+    try {
+      const saves = await Promise.all(
+        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, uniqueCues, true))
+      );
+
+      if (!saves.every(Boolean)) {
+        toast.error('Failed to save your cues. Please try again.');
+        return;
+      }
+
+      // Update local cache so the Memory book spines update immediately
+      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
+      updatedPages.forEach(p => updatePage(p));
+
+      // Open snapshot for the first page in this processing batch
+      setCurrentPage(updatedPages[0]);
+      setSuggestedCues(uniqueCues);
+      setIsNewCapture(true);
+      setView('snapshot');
+
+      // Clean up processing state
+      setCapturedImage(null);
+      setCapturedImages([]);
+      setPendingPagesToCue(null);
+      setIsProcessingComplete(false);
+      setTargetCapsuleId(null);
+    } catch (e) {
+      console.error('[Index] Failed to confirm cues:', e);
+      toast.error('Failed to save your cues. Please try again.');
+    }
+  }, [pendingPagesToCue, updatePage]);
 
   const handleCaptureMultiple = useCallback(async (imageDataUrls: string[]) => {
     if (imageDataUrls.length === 0) return;
@@ -149,6 +170,8 @@ const Index = () => {
     setCapturedImages(imageDataUrls);
     setCapturedImage(imageDataUrls[0]);
     setProcessingIndex(0);
+    setIsProcessingComplete(false);
+    setPendingPagesToCue(null);
     setView('processing');
     
     try {
@@ -156,25 +179,23 @@ const Index = () => {
       const result = await createCapsule(imageDataUrls);
       
       if (result && result.pages.length > 0) {
-        // Go directly to SnapshotView with first page and its cues
-        setCurrentPage(result.pages[0]);
-        setSuggestedCues(isDemoMode ? [] : (result.suggestedCuesPerPage[0] || []));
-        setIsNewCapture(true);
-        setView('snapshot');
+        // Require user confirmation before snapshot (applies cues to all pages in this batch)
+        setPendingPagesToCue(result.pages);
+        setIsProcessingComplete(true);
       } else {
         toast.error('Failed to process pages. Please try again.');
         setView('camera');
+        setCapturedImage(null);
+        setCapturedImages([]);
       }
     } catch (error) {
       console.error('Capsule capture error:', error);
       toast.error('Something went wrong. Please try again.');
       setView('camera');
-    } finally {
       setCapturedImage(null);
       setCapturedImages([]);
-      setProcessingIndex(0);
     }
-  }, [createCapsule, isDemoMode]);
+  }, [createCapsule]);
 
   // Handle adding to existing capsule
   const handleAddToCapsuleCapture = useCallback(async (imageDataUrl: string) => {
@@ -185,30 +206,33 @@ const Index = () => {
     }
     
     setCapturedImage(imageDataUrl);
+    setCapturedImages([imageDataUrl]);
+    setIsProcessingComplete(false);
+    setPendingPagesToCue(null);
     setView('processing');
     
     try {
       const result = await addToCapsule(imageDataUrl, targetCapsuleId);
       
       if (result) {
-        // Go directly to SnapshotView
-        setCurrentPage(result.page);
-        setSuggestedCues(isDemoMode ? [] : result.suggestedCues);
-        setIsNewCapture(true);
-        setView('snapshot');
+        setPendingPagesToCue([result.page]);
+        setIsProcessingComplete(true);
       } else {
         toast.error('Failed to add page. Please try again.');
         setView('history');
+        setCapturedImage(null);
+        setCapturedImages([]);
       }
     } catch (error) {
       console.error('Add to capsule error:', error);
       toast.error('Something went wrong. Please try again.');
       setView('history');
-    } finally {
       setCapturedImage(null);
+      setCapturedImages([]);
+    } finally {
       setTargetCapsuleId(null);
     }
-  }, [addToCapsule, targetCapsuleId, isDemoMode]);
+  }, [addToCapsule, targetCapsuleId]);
 
   // Handle opening search
   const handleOpenSearch = useCallback(() => {

@@ -520,7 +520,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="mb-6"
         >
           <p className="text-sm text-codex-gold mb-3">
-            Which 3 words will you type to find this later?
+            Which words will you type to find this later? (max 5)
           </p>
           
           {/* Display existing cues with delete option */}
