@@ -554,18 +554,6 @@ const Index = () => {
           onClose={() => setShowTestPanel(false)}
           onLoadTestData={handleLoadTestData}
           onViewPage={handleViewTestPage}
-          onPreviewEmptyKompas={() => {
-            setShowTestPanel(false);
-            setView('kompas-empty');
-          }}
-          onPreviewEmptyPatterns={() => {
-            setShowTestPanel(false);
-            setView('patterns-empty');
-          }}
-          onPreviewEmptyPersonality={() => {
-            setShowTestPanel(false);
-            setView('personality-empty');
-          }}
         />
       )}
     </>
