@@ -937,14 +937,13 @@ export function HistoryView({
                         </div>
                         
                         {/* Books row */}
-                        <div className="flex justify-center">
-                          <div 
-                            className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
-                            style={{ 
-                              scrollSnapType: 'x mandatory',
-                              WebkitOverflowScrolling: 'touch'
-                            }}
-                          >
+                        <div 
+                          className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                          style={{ 
+                            scrollSnapType: 'x mandatory',
+                            WebkitOverflowScrolling: 'touch'
+                          }}
+                        >
                           {group.items.map((item, index) => (
                             <div 
                               key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
@@ -976,7 +975,6 @@ export function HistoryView({
                             </div>
                           ))}
                         </div>
-                        </div>
                         
                         {/* Mini shelf per group */}
                         <div className="relative mt-0 mx-4">
@@ -987,15 +985,14 @@ export function HistoryView({
                     ))}
                   </div>
                 ) : (
-                  <div className="max-w-4xl mx-auto w-full">
-                    <div className="flex justify-center">
-                      <div 
-                        className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
-                        style={{ 
-                          scrollSnapType: 'x mandatory',
-                          WebkitOverflowScrolling: 'touch'
-                        }}
-                      >
+                  <>
+                    <div 
+                      className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                      style={{ 
+                        scrollSnapType: 'x mandatory',
+                        WebkitOverflowScrolling: 'touch'
+                      }}
+                    >
                       {historyItems.map((item, index) => (
                         <div 
                           key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
@@ -1026,7 +1023,6 @@ export function HistoryView({
                           />
                         </div>
                       ))}
-                      </div>
                     </div>
                     
                     {/* Shelf - matches design system */}
@@ -1036,7 +1032,7 @@ export function HistoryView({
                       {/* Shelf front edge */}
                       <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
               </div>
