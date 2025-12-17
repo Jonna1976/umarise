@@ -310,7 +310,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             <motion.h2
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="font-playfair text-2xl md:text-3xl text-primary-foreground/90 italic tracking-wide whitespace-nowrap mb-8"
+              className="font-playfair text-[1.4rem] md:text-[1.65rem] text-primary-foreground/90 italic tracking-wide whitespace-nowrap mb-8"
             >
               {"Handwriting, turned into lasting memory.".split("").map((char, index) => (
                 <motion.span
