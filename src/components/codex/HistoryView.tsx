@@ -12,8 +12,11 @@ import { VaultView } from './VaultView';
 import { CodexGrowthIndicator } from './CodexGrowthIndicator';
 import { EarlyInsights } from './EarlyInsights';
 import { MemoryPulse } from './MemoryPulse';
+import { TrashDropZone } from './TrashDropZone';
+import { TrashView } from './TrashView';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { useTrash } from '@/hooks/useTrash';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -104,6 +107,21 @@ export function HistoryView({
   // Use onCapture for camera buttons, fallback to onBack if not provided
   const handleCapture = onCapture || onBack;
   const { isDemoMode } = useDemoMode();
+  
+  // Trash management
+  const {
+    visiblePages,
+    trashedPages,
+    trashedCount,
+    isDragging,
+    setIsDragging,
+    moveToTrash,
+    restoreFromTrash,
+    permanentlyDelete,
+    emptyTrash,
+  } = useTrash(allPages, onDeletePage);
+  const [showTrash, setShowTrash] = useState(false);
+  
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
@@ -125,15 +143,15 @@ export function HistoryView({
 
   // Get unique primary keywords for filter dropdown
   const primaryKeywords = useMemo(() => {
-    const keywords = allPages
+    const keywords = visiblePages
       .map(p => p.primaryKeyword)
       .filter((k): k is string => !!k);
     return [...new Set(keywords)].sort();
-  }, [allPages]);
+  }, [visiblePages]);
 
-  // Filter and group pages
+  // Filter and group pages (use visiblePages to exclude trashed)
   const historyItems = useMemo(() => {
-    let pages = [...allPages];
+    let pages = [...visiblePages];
     
     const now = new Date();
     if (filter === '7days') {
@@ -201,7 +219,7 @@ export function HistoryView({
     }
     
     return items;
-  }, [allPages, filter, keywordFilter, toneFilter, searchQuery, sortMode]);
+  }, [visiblePages, filter, keywordFilter, toneFilter, searchQuery, sortMode]);
 
   // Group items by cue for sectioned display
   const groupedByCue = useMemo(() => {
@@ -311,7 +329,7 @@ export function HistoryView({
   // Tones used in current pages for smart filtering
   const usedTones = useMemo(() => {
     const tones = new Set<string>();
-    allPages.forEach(p => p.tone.forEach(t => tones.add(t.toLowerCase())));
+    visiblePages.forEach(p => p.tone.forEach(t => tones.add(t.toLowerCase())));
     return AVAILABLE_TONES.filter(t => tones.has(t));
   }, [allPages]);
 
@@ -943,6 +961,8 @@ export function HistoryView({
                                     (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
                                   )
                                 }
+                                onDragStart={() => setIsDragging(true)}
+                                onDragEnd={() => setIsDragging(false)}
                               />
                             </div>
                           ))}
@@ -990,6 +1010,8 @@ export function HistoryView({
                                 (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
                               )
                             }
+                            onDragStart={() => setIsDragging(true)}
+                            onDragEnd={() => setIsDragging(false)}
                           />
                         </div>
                       ))}
@@ -1279,6 +1301,27 @@ export function HistoryView({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Trash drop zone - always visible */}
+      <TrashDropZone
+        trashedCount={trashedCount}
+        onDrop={moveToTrash}
+        onOpenTrash={() => setShowTrash(true)}
+        isDragging={isDragging}
+      />
+
+      {/* Trash view modal */}
+      <AnimatePresence>
+        {showTrash && (
+          <TrashView
+            trashedPages={trashedPages}
+            onRestore={restoreFromTrash}
+            onPermanentDelete={permanentlyDelete}
+            onEmptyTrash={emptyTrash}
+            onClose={() => setShowTrash(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

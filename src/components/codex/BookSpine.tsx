@@ -10,6 +10,8 @@ interface BookSpineProps {
   index: number;
   projects?: Project[];
   isHighlighted?: boolean;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 // Extract the primary cue for display
@@ -89,7 +91,7 @@ function getSpineColor(tones: string[]): {
   return toneMap[primaryTone] || toneMap.reflective;
 }
 
-export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted }: BookSpineProps) {
+export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted, onDragStart, onDragEnd }: BookSpineProps) {
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
   
@@ -102,47 +104,64 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const baseWidth = 64;
   const extraWidth = Math.min(pageCount * 12, 60);
   const spineWidth = baseWidth + extraWidth;
+  
+  // Drag handlers
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', representativePage.id);
+    e.dataTransfer.effectAllowed = 'move';
+    onDragStart?.();
+  };
+  
+  const handleDragEnd = () => {
+    onDragEnd?.();
+  };
 
   return (
-    <motion.button
-      initial={isHighlighted ? { opacity: 0, scale: 0.8, y: -40 } : { opacity: 0, x: 20, rotateY: -15 }}
-      animate={{ 
-        opacity: 1, 
-        scale: 1,
-        x: 0, 
-        y: 0,
-        rotateY: 0 
-      }}
-      transition={isHighlighted ? { 
-        type: 'spring', 
-        stiffness: 80, 
-        damping: 12,
-        delay: 0.1
-      } : { 
-        delay: index * 0.05, 
-        type: 'spring', 
-        stiffness: 100 
-      }}
-      whileHover={{ 
-        y: -8, 
-        scale: 1.02,
-        transition: { duration: 0.4, ease: 'easeOut' }
-      }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`
-        relative flex-shrink-0 h-72 rounded-sm
-        ${colors.bg}
-        border-l-2 ${colors.border}
-        overflow-hidden
-        group
-        ${isHighlighted ? 'ring-2 ring-codex-gold ring-offset-2 ring-offset-background' : ''}
-      `}
-      style={{ 
-        width: spineWidth,
-        boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25), 0 4px 16px -4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)'
-      }}
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className="cursor-grab active:cursor-grabbing"
     >
+      <motion.button
+        initial={isHighlighted ? { opacity: 0, scale: 0.8, y: -40 } : { opacity: 0, x: 20, rotateY: -15 }}
+        animate={{ 
+          opacity: 1, 
+          scale: 1,
+          x: 0, 
+          y: 0,
+          rotateY: 0 
+        }}
+        transition={isHighlighted ? { 
+          type: 'spring', 
+          stiffness: 80, 
+          damping: 12,
+          delay: 0.1
+        } : { 
+          delay: index * 0.05, 
+          type: 'spring', 
+          stiffness: 100 
+        }}
+        whileHover={{ 
+          y: -8, 
+          scale: 1.02,
+          transition: { duration: 0.4, ease: 'easeOut' }
+        }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onClick}
+        className={`
+          relative flex-shrink-0 h-72 rounded-sm
+          ${colors.bg}
+          border-l-2 ${colors.border}
+          overflow-hidden
+          group
+          ${isHighlighted ? 'ring-2 ring-codex-gold ring-offset-2 ring-offset-background' : ''}
+        `}
+        style={{ 
+          width: spineWidth,
+          boxShadow: '0 8px 32px -8px rgba(0,0,0,0.25), 0 4px 16px -4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.1)'
+        }}
+      >
       {/* Idle breathing glow - golden aura */}
       <motion.div
         className="absolute -inset-1 rounded-sm pointer-events-none"
@@ -245,6 +264,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       
       {/* Inner glow on hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-gradient-to-t from-codex-gold/5 via-transparent to-codex-gold/10" />
-    </motion.button>
+      </motion.button>
+    </div>
   );
 }
