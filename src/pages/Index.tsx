@@ -49,8 +49,9 @@ const Index = () => {
   // Post-capture state (now inline in SnapshotView, but we still track suggested cues)
   const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
   
-  // Pre-cue typed during processing (mindful moment)
-  const [preCue, setPreCue] = useState<string>('');
+  // Processing state - tracks when AI is done but user hasn't confirmed cues yet
+  const [isProcessingComplete, setIsProcessingComplete] = useState(false);
+  const [pendingPageResult, setPendingPageResult] = useState<{ page: Page; suggestedCues: string[] } | null>(null);
   
   // Search match info (to show "why matched" in SnapshotView)
   const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
@@ -92,6 +93,8 @@ const Index = () => {
     setCapturedImage(imageDataUrl);
     setCapturedImages([imageDataUrl]);
     setProcessingIndex(0);
+    setIsProcessingComplete(false);
+    setPendingPageResult(null);
     setView('processing');
     
     try {
@@ -99,24 +102,46 @@ const Index = () => {
       const result = await createPage(imageDataUrl);
       
       if (result) {
-        // Go directly to SnapshotView with suggested cues (no separate post-capture step)
-        setCurrentPage(result.page);
-        setSuggestedCues(isDemoMode ? [] : result.suggestedCues);
-        setIsNewCapture(true);
-        setView('snapshot');
+        // Store result and mark processing as complete - user still needs to add cues
+        setPendingPageResult(result);
+        setIsProcessingComplete(true);
+        // Don't go to snapshot yet - wait for user to confirm cues in ProcessingView
       } else {
         toast.error('Failed to process page. Please try again.');
         setView('camera');
+        setCapturedImage(null);
+        setCapturedImages([]);
       }
     } catch (error) {
       console.error('Capture error:', error);
       toast.error('Something went wrong. Please try again.');
       setView('camera');
-    } finally {
       setCapturedImage(null);
       setCapturedImages([]);
     }
-  }, [createPage, isDemoMode]);
+  }, [createPage]);
+
+  // Handle user confirming cues in ProcessingView
+  const handleProcessingContinue = useCallback((userCues: string[]) => {
+    if (!pendingPageResult) return;
+    
+    // Set up the page with user's cues as futureYouCues
+    const pageWithCues = {
+      ...pendingPageResult.page,
+      futureYouCues: userCues
+    };
+    
+    setCurrentPage(pageWithCues);
+    setSuggestedCues(userCues); // Use user's cues, not AI suggested
+    setIsNewCapture(true);
+    setView('snapshot');
+    
+    // Clean up
+    setCapturedImage(null);
+    setCapturedImages([]);
+    setPendingPageResult(null);
+    setIsProcessingComplete(false);
+  }, [pendingPageResult]);
 
   const handleCaptureMultiple = useCallback(async (imageDataUrls: string[]) => {
     if (imageDataUrls.length === 0) return;
@@ -354,7 +379,8 @@ const Index = () => {
             totalImages={capturedImages.length}
             currentIndex={processingIndex}
             currentPageCount={pages.length}
-            onPreCue={setPreCue}
+            isProcessingComplete={isProcessingComplete}
+            onContinue={handleProcessingContinue}
           />
         ) : null;
       
@@ -368,7 +394,6 @@ const Index = () => {
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
             suggestedCues={isNewCapture ? suggestedCues : undefined}
-            preCue={isNewCapture ? preCue : undefined}
             allPages={pages}
             onNavigateToPage={(page, matchInfo) => {
               setCurrentPage(page);
