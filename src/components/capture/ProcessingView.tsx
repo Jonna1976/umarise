@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Sparkles, Images, Check, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -12,7 +12,6 @@ interface ProcessingViewProps {
   onPreCue?: (cue: string) => void;
 }
 
-// Average processing time in seconds (for estimation)
 const ESTIMATED_TIME = 15;
 
 export function ProcessingView({ 
@@ -26,9 +25,7 @@ export function ProcessingView({
   const isMultiple = totalImages > 1;
   const [elapsedTime, setElapsedTime] = useState(0);
   const [preCue, setPreCue] = useState('');
-  const [showInput, setShowInput] = useState(false);
   
-  // Timer for elapsed time
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsedTime(prev => prev + 1);
@@ -36,13 +33,6 @@ export function ProcessingView({
     return () => clearInterval(interval);
   }, []);
 
-  // Show input after 2 seconds delay for smooth UX
-  useEffect(() => {
-    const timer = setTimeout(() => setShowInput(true), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Pass pre-cue to parent when it changes
   useEffect(() => {
     if (preCue && onPreCue) {
       onPreCue(preCue);
@@ -52,151 +42,101 @@ export function ProcessingView({
   const remainingTime = Math.max(0, ESTIMATED_TIME - elapsedTime);
   
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6 pt-12">
+      {/* Image thumbnail - compact */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative w-full max-w-sm"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="relative w-32 h-24 rounded-lg overflow-hidden shadow-lg mb-8"
       >
-        {/* Multi-page indicator */}
-        {isMultiple && (
+        <img
+          src={imageUrl}
+          alt="Processing"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-codex-ink/40 flex items-center justify-center">
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-2 mb-4"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
           >
-            <div className="flex items-center gap-2">
-              <Images className="w-4 h-4 text-codex-gold" />
-              <span className="text-codex-sepia font-medium">
-                Processing {totalImages} pages
-              </span>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {completedCount} of {totalImages} complete
-            </span>
+            <Sparkles className="w-5 h-5 text-codex-gold" />
           </motion.div>
-        )}
-
-        {/* Progress dots for multiple images */}
-        {isMultiple && (
-          <div className="flex justify-center gap-2 mb-4">
-            {Array.from({ length: totalImages }).map((_, i) => (
-              <motion.div
-                key={i}
-                className={`w-2 h-2 rounded-full transition-colors flex items-center justify-center ${
-                  i < completedCount
-                    ? 'bg-codex-gold'
-                    : 'bg-muted animate-pulse'
-                }`}
-                animate={i < completedCount ? { scale: [1, 1.2, 1] } : {}}
-                transition={{ duration: 0.3 }}
-              >
-                {i < completedCount && (
-                  <Check className="w-1.5 h-1.5 text-codex-ink" />
-                )}
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {/* Image preview - smaller to make room for reflection */}
-        <div className="relative rounded-xl overflow-hidden shadow-xl">
-          <img
-            src={imageUrl}
-            alt="Processing page"
-            className="w-full aspect-[4/3] object-cover"
-          />
-          
-          {/* Processing overlay with timer */}
-          <div className="absolute inset-0 bg-gradient-to-t from-codex-ink/95 via-codex-ink/60 to-codex-ink/30 flex flex-col items-center justify-end p-4">
-            {/* Rotating sparkle */}
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-              className="mb-2"
-            >
-              <div className="w-10 h-10 rounded-full bg-codex-gold/20 flex items-center justify-center backdrop-blur-sm">
-                <Sparkles className="w-5 h-5 text-codex-gold" />
-              </div>
-            </motion.div>
-
-            {/* Time indicator */}
-            <div className="flex items-center gap-2 text-primary-foreground/80 text-sm">
-              <Clock className="w-3.5 h-3.5" />
-              <span>
-                {remainingTime > 0 
-                  ? `~${remainingTime}s remaining` 
-                  : 'Almost done...'}
-              </span>
-            </div>
-          </div>
         </div>
       </motion.div>
 
-      {/* Mindful reflection section */}
-      <AnimatePresence>
-        {showInput && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8 w-full max-w-sm text-center"
-          >
-            {/* Mindful prompt */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="mb-6"
-            >
-              <p className="text-xl font-serif text-foreground mb-3">
-                A moment for yourself.
-              </p>
-              <p className="text-muted-foreground text-base leading-relaxed">
-                While we read your handwriting, think about this:
-              </p>
-            </motion.div>
+      {/* Multi-page indicator */}
+      {isMultiple && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-3 mb-6"
+        >
+          <Images className="w-4 h-4 text-codex-gold" />
+          <span className="text-codex-sepia">
+            {completedCount} of {totalImages} complete
+          </span>
+        </motion.div>
+      )}
 
-            {/* The question */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 }}
-              className="bg-secondary/50 rounded-2xl p-6 border border-border/50"
-            >
-              <p className="text-codex-gold font-serif text-xl mb-2">
-                What is this about?
-              </p>
-              <p className="text-muted-foreground text-sm mb-5">
-                What words would you type in 2030 to find this page again?
-              </p>
+      {/* Timer */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center gap-2 text-muted-foreground mb-10"
+      >
+        <Clock className="w-4 h-4" />
+        <span className="text-base">
+          {remainingTime > 0 ? `~${remainingTime}s` : 'Almost done...'}
+        </span>
+      </motion.div>
 
-              <Input
-                value={preCue}
-                onChange={(e) => setPreCue(e.target.value)}
-                placeholder="e.g. funding pitch, Marco meeting, wedding plans..."
-                className="bg-background/50 border-border/30 text-center text-base placeholder:text-muted-foreground/50"
-                autoComplete="off"
-              />
-              
-              <p className="text-muted-foreground/60 text-xs mt-4">
-                Optional — you can refine this after processing
-              </p>
-            </motion.div>
+      {/* Main reflection content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="w-full max-w-md text-center"
+      >
+        <h2 className="text-2xl font-serif text-foreground mb-3">
+          A moment for yourself.
+        </h2>
+        <p className="text-lg text-muted-foreground mb-8">
+          While we read your handwriting, think about this:
+        </p>
 
-            {/* Subtle breathing reminder */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ delay: 1, duration: 3, repeat: Infinity }}
-              className="mt-6 text-muted-foreground/50 text-sm"
-            >
-              Breathe. Your thoughts are being preserved.
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {/* Question card */}
+        <div className="bg-secondary/60 rounded-2xl p-8 border border-border/30">
+          <p className="text-codex-gold font-serif text-2xl mb-3">
+            What is this about?
+          </p>
+          <p className="text-muted-foreground text-base mb-6">
+            What words would you type in 2030 to find this page again?
+          </p>
+
+          <Input
+            value={preCue}
+            onChange={(e) => setPreCue(e.target.value)}
+            placeholder="e.g. funding pitch, Marco meeting..."
+            className="bg-background/60 border-border/40 text-center text-lg h-12 placeholder:text-muted-foreground/40"
+            autoComplete="off"
+          />
+          
+          <p className="text-muted-foreground/50 text-sm mt-5">
+            Optional — you can refine this after processing
+          </p>
+        </div>
+
+        {/* Breathing text */}
+        <motion.p
+          animate={{ opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="mt-8 text-muted-foreground/60 text-base"
+        >
+          Breathe. Your thoughts are being preserved.
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
