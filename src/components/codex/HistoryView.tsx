@@ -136,6 +136,18 @@ export function HistoryView({
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentVisibleCue, setCurrentVisibleCue] = useState<string | null>(null);
   const cueObserverRef = useRef<IntersectionObserver | null>(null);
+  const [selectedPageIds, setSelectedPageIds] = useState<string[]>([]);
+
+  // Toggle page selection for export
+  const togglePageSelection = (pageId: string) => {
+    setSelectedPageIds(prev => 
+      prev.includes(pageId) 
+        ? prev.filter(id => id !== pageId)
+        : [...prev, pageId]
+    );
+  };
+
+  const clearSelection = () => setSelectedPageIds([]);
 
   // Load projects on mount
   useEffect(() => {
@@ -409,7 +421,13 @@ export function HistoryView({
             <div className="flex items-center gap-2">
               {/* Export button - shows at 1+ pages */}
               {allPages.length >= 1 && (
-                <ExportButton variant="ghost" size="icon" showLabel={false} />
+                <ExportButton 
+                  variant="ghost" 
+                  size="icon" 
+                  showLabel={false} 
+                  selectedPageIds={selectedPageIds}
+                  onClearSelection={clearSelection}
+                />
               )}
               
               {/* Share button - shows at 3+ pages */}
@@ -506,7 +524,13 @@ export function HistoryView({
             <div className="flex items-center gap-2">
               {/* Export button */}
               {allPages.length >= 1 && (
-                <ExportButton variant="outline" size="sm" showLabel={true} />
+                <ExportButton 
+                  variant="outline" 
+                  size="sm" 
+                  showLabel={true}
+                  selectedPageIds={selectedPageIds}
+                  onClearSelection={clearSelection}
+                />
               )}
               {/* Single Insights button - only shows at 5+ pages */}
               {allPages.length >= 5 && onViewPersonality && (
@@ -869,6 +893,9 @@ export function HistoryView({
                           handleDeleteCapsule(item.capsule);
                         }
                       }}
+                      isSelectable={viewMode === 'pages'}
+                      isSelected={item.type === 'page' ? selectedPageIds.includes(item.page.id) : false}
+                      onToggleSelect={item.type === 'page' ? () => togglePageSelection(item.page.id) : undefined}
                     />
                   </motion.div>
                 ))}

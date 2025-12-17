@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Page, CapsulePages } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
-import { Images, ChevronDown } from 'lucide-react';
+import { Images, ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BookCoverCardProps {
@@ -10,6 +10,9 @@ interface BookCoverCardProps {
   capsule?: CapsulePages;
   onClick: () => void;
   onDelete?: () => void;
+  isSelectable?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
 // Extract the most compelling title from OCR text or summary
@@ -116,7 +119,15 @@ function getToneVisuals(tones: string[]): {
   return toneMap[primaryTone] || toneMap.reflective;
 }
 
-export function BookCoverCard({ page, capsule, onClick, onDelete }: BookCoverCardProps) {
+export function BookCoverCard({ 
+  page, 
+  capsule, 
+  onClick, 
+  onDelete,
+  isSelectable = false,
+  isSelected = false,
+  onToggleSelect
+}: BookCoverCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Get the representative page (first page for capsules)
@@ -131,12 +142,32 @@ export function BookCoverCard({ page, capsule, onClick, onDelete }: BookCoverCar
     ? [...new Set(capsule.pages.flatMap(p => p.tone))]
     : representativePage.tone;
 
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleSelect?.();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group"
+      className={cn("group relative", isSelected && "ring-2 ring-codex-gold rounded-2xl")}
     >
+      {/* Selection checkbox */}
+      {isSelectable && (
+        <button
+          onClick={handleCheckboxClick}
+          className={cn(
+            "absolute -left-2 top-4 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            isSelected 
+              ? "bg-codex-gold border-codex-gold text-codex-ink-deep" 
+              : "bg-background/80 border-border hover:border-codex-gold/50"
+          )}
+        >
+          {isSelected && <Check className="w-4 h-4" />}
+        </button>
+      )}
+      
       <button
         onClick={onClick}
         className={`
