@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check, Share2, Twitter, Linkedin, Mail, Instagram, Loader2, Sparkles } from 'lucide-react';
+import { X, Copy, Check, Share2, Twitter, Linkedin, Mail, Instagram, Loader2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
@@ -12,6 +12,11 @@ interface ShareContent {
   lesson: string;
   idea: string;
   caption: string;
+}
+
+interface ScoredSentence {
+  text: string;
+  score: number;
 }
 
 interface SharePageModalProps {
@@ -58,6 +63,8 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [content, setContent] = useState<ShareContent | null>(null);
   const [editedContent, setEditedContent] = useState<ShareContent | null>(null);
+  const [allSentences, setAllSentences] = useState<ScoredSentence[]>([]);
+  const [showAllSentences, setShowAllSentences] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState<ContentFormat>('quote');
   const [copiedFormat, setCopiedFormat] = useState<ContentFormat | null>(null);
 
@@ -76,23 +83,33 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
 
       if (error) {
         console.error('[SharePageModal] Error:', error);
-        toast.error('Failed to generate content');
+        toast.error('Failed to extract content');
         return;
       }
 
       if (data?.success && data?.content) {
         setContent(data.content);
         setEditedContent(data.content);
-        console.log('[SharePageModal] Content generated successfully');
+        setAllSentences(data.allSentences || []);
+        console.log('[SharePageModal] Content extracted successfully, found', data.allSentences?.length || 0, 'sentences');
       } else {
-        toast.error(data?.error || 'Failed to generate content');
+        toast.error(data?.error || 'Failed to extract content');
       }
     } catch (err) {
       console.error('[SharePageModal] Exception:', err);
-      toast.error('Failed to generate content');
+      toast.error('Failed to extract content');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const selectSentence = (sentence: string) => {
+    if (!editedContent) return;
+    setEditedContent({
+      ...editedContent,
+      [selectedFormat]: sentence,
+    });
+    toast.success('Sentence selected');
   };
 
   const handleCopy = async (format: ContentFormat) => {
@@ -237,8 +254,47 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
                       value={currentContent}
                       onChange={(e) => handleContentEdit(selectedFormat, e.target.value)}
                       className="min-h-[120px] bg-codex-ink-deep/50 border-codex-gold/20 text-codex-cream resize-none"
-                      placeholder="Generated content will appear here..."
+                      placeholder="Select a sentence or edit here..."
                     />
+
+                    {/* All sentences preview */}
+                    {allSentences.length > 0 && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => setShowAllSentences(!showAllSentences)}
+                          className="flex items-center gap-2 text-xs text-codex-cream/50 hover:text-codex-cream transition-colors"
+                        >
+                          {showAllSentences ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          {allSentences.length} sentences found in your text
+                        </button>
+                        
+                        <AnimatePresence>
+                          {showAllSentences && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="mt-2 max-h-48 overflow-y-auto space-y-1 pr-2">
+                                {allSentences.map((s, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => selectSentence(s.text)}
+                                    className="w-full text-left p-2 rounded-lg text-sm text-codex-cream/70 hover:text-codex-cream hover:bg-codex-gold/10 transition-colors border border-transparent hover:border-codex-gold/20"
+                                  >
+                                    <span className="line-clamp-2">{s.text}</span>
+                                    <span className="text-xs text-codex-cream/30 ml-2">
+                                      ({s.text.length} chars)
+                                    </span>
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
 
                     {/* Action buttons */}
                     <div className="flex gap-2">

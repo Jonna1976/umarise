@@ -117,6 +117,11 @@ serve(async (req) => {
     }
 
     const content = selectContent(sentences, keywords || []);
+    
+    // Score all sentences for display
+    const scoredSentences = sentences
+      .map(s => ({ text: s, score: scoreSentence(s, keywords || []) }))
+      .sort((a, b) => b.score - a.score);
 
     console.log('[generate-share-content] Successfully extracted', sentences.length, 'sentences');
 
@@ -124,7 +129,8 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         content,
-        source: 'extracted', // Indicate this is real text, not AI-generated
+        allSentences: scoredSentences, // Return all sentences for preview
+        source: 'extracted',
         sentences_found: sentences.length,
         generated_at: new Date().toISOString()
       }),
