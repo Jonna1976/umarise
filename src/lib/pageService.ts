@@ -100,7 +100,7 @@ export async function confirmFutureYouCues(
 ): Promise<boolean> {
   const storage = getStorageProvider();
   return storage.updatePage(pageId, {
-    futureYouCues: cues.slice(0, 3),
+    futureYouCues: cues.slice(0, 5),
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: userEdited },
     writtenAt,
   });
