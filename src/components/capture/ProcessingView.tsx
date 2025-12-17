@@ -53,9 +53,9 @@ export function ProcessingView({
       .split(/[,\s]+/)
       .map(w => w.trim())
       .filter(w => w.length > 0)
-      .slice(0, 5);
+      .slice(0, 2);
 
-    return Array.from(new Set(normalized)).slice(0, 5);
+    return Array.from(new Set(normalized)).slice(0, 2);
   };
 
   const submit = () => {
@@ -171,10 +171,10 @@ export function ProcessingView({
       >
         <div className="bg-secondary/60 rounded-2xl p-6 border border-border/30">
           <p className="text-codex-gold font-serif text-2xl mb-3 text-center">
-            What is this about?
+            In 2 words: what is this about?
           </p>
           <p className="text-foreground/60 text-base mb-6 text-center">
-            What words would you type in 2030 to find this page again?
+            These words will appear on the spine of this page in your memory.
           </p>
 
           {/* Input */}
@@ -185,7 +185,7 @@ export function ProcessingView({
               if (isConfirmed) setIsConfirmed(false);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="e.g. funding pitch, Marco meeting..."
+            placeholder="e.g. funding pitch"
             className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
             autoComplete="off"
             disabled={hasSubmitted}
