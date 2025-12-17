@@ -512,20 +512,20 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Future You Cues - ALWAYS show question, TOP POSITION, EDITABLE */}
+        {/* Future You Cues - ALWAYS show, TOP POSITION, EDITABLE */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
           className="mb-6"
         >
-          <p className="text-sm text-codex-gold mb-3">
-            Which words will you type to find this later? (max 5)
+          <p className="text-sm text-codex-gold mb-1">
+            In the future you can find this page by searching:
           </p>
           
           {/* Display existing cues with delete option */}
           {futureYouCues.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 mb-3 mt-2">
               {futureYouCues.map((cue, index) => (
                 <span 
                   key={index}
@@ -547,43 +547,48 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           
           {/* Add new cue input - only when not in demo mode */}
           {!isDemoMode && futureYouCues.length < 5 && (
-            <div className="flex gap-2">
-              <Input
-                placeholder="Add retrieval cue..."
-                className="flex-1 h-9 bg-codex-ink text-codex-cream border-codex-cream/20 focus:border-codex-gold placeholder:text-codex-cream/30"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                    const newCue = e.currentTarget.value.trim();
-                    if (!futureYouCues.includes(newCue)) {
-                      setFutureYouCues(prev => [...prev, newCue]);
+            <>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Add another word..."
+                  className="flex-1 h-9 bg-codex-ink text-codex-cream border-codex-cream/20 focus:border-codex-gold placeholder:text-codex-cream/30"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                      const newCue = e.currentTarget.value.trim();
+                      if (!futureYouCues.includes(newCue)) {
+                        setFutureYouCues(prev => [...prev, newCue]);
+                      }
+                      e.currentTarget.value = '';
                     }
-                    e.currentTarget.value = '';
-                  }
-                }}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 border-codex-gold/30 text-codex-gold hover:bg-codex-gold/10"
-                onClick={() => {
-                  const input = document.querySelector<HTMLInputElement>('input[placeholder="Add retrieval cue..."]');
-                  if (input && input.value.trim()) {
-                    const newCue = input.value.trim();
-                    if (!futureYouCues.includes(newCue)) {
-                      setFutureYouCues(prev => [...prev, newCue]);
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 border-codex-gold/30 text-codex-gold hover:bg-codex-gold/10"
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>('input[placeholder="Add another word..."]');
+                    if (input && input.value.trim()) {
+                      const newCue = input.value.trim();
+                      if (!futureYouCues.includes(newCue)) {
+                        setFutureYouCues(prev => [...prev, newCue]);
+                      }
+                      input.value = '';
                     }
-                    input.value = '';
-                  }
-                }}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-codex-cream/40 mt-2">
+                The more detail you add, the easier it is to find this page later.
+              </p>
+            </>
           )}
           
           {/* Show hint when no cues */}
           {futureYouCues.length === 0 && isDemoMode && (
-            <p className="text-sm text-codex-cream/40 italic">No retrieval cues set</p>
+            <p className="text-sm text-codex-cream/40 italic">No search words set</p>
           )}
         </motion.div>
 
