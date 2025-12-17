@@ -11,10 +11,10 @@ const DemoModeContext = createContext<DemoModeContextType | undefined>(undefined
 const DEMO_MODE_KEY = 'umarise_demo_mode';
 
 export function DemoModeProvider({ children }: { children: ReactNode }) {
-  // Default to Demo Mode (true)
+  // Default to normal mode (false) - demo mode must be explicitly enabled
   const [isDemoMode, setIsDemoMode] = useState(() => {
     const stored = localStorage.getItem(DEMO_MODE_KEY);
-    return stored === null ? true : stored === 'true';
+    return stored === 'true';
   });
 
   // Sync toggle that writes to localStorage BEFORE updating state
