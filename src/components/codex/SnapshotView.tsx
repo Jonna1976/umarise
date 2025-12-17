@@ -596,40 +596,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-          className="mb-6"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
-            {isDemoMode ? (
-              <span className="text-sm text-codex-cream/80">
-                {format(writtenAt, 'd MMMM yyyy')}
-              </span>
-            ) : (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
-                    {format(writtenAt, 'd MMMM yyyy')}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-codex-ink-deep border-codex-cream/20" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={writtenAt}
-                    onSelect={(date) => date && setWrittenAt(date)}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            )}
-          </div>
-        </motion.div>
-
         {/* Match Reason Banner - shown when opened from search (FIX 1: No black box) */}
         {matchInfo && matchInfo.matchTypes.length > 0 && (
           <motion.div
@@ -705,6 +671,41 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             />
           </motion.div>
         )}
+
+        {/* Written date - below image, above text */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="mb-4"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
+            {isDemoMode ? (
+              <span className="text-sm text-codex-cream/80">
+                {format(writtenAt, 'd MMMM yyyy')}
+              </span>
+            ) : (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
+                    {format(writtenAt, 'd MMMM yyyy')}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-codex-ink-deep border-codex-cream/20" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={writtenAt}
+                    onSelect={(date) => date && setWrittenAt(date)}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
+        </motion.div>
 
         {/* Summary - left aligned, regular text */}
         <motion.div
