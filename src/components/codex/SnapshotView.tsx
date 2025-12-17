@@ -928,7 +928,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.35 }}
           className="mb-6"
         >
-          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Your context</p>
+          <p className="text-xs text-codex-cream/50 uppercase tracking-wide mb-2">Your notes</p>
           <Textarea
             value={userNote}
             onChange={(e) => setUserNote(e.target.value)}
