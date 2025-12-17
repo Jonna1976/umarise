@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn } from 'lucide-react';
+import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn, Share2 } from 'lucide-react';
 import { Page, updatePage, confirmFutureYouCues, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { RelatedPages } from './RelatedPages';
 import { findRelatedPages, RelatedPage } from '@/lib/relatedPages';
 import { findMatchedPassages, generateHighlightedSegments, TextSegment, CiteResult } from '@/lib/citeToSource';
+import { SharePageModal } from './SharePageModal';
 
 // Match info type (passed from SearchView)
 export interface SnapshotMatchInfo {
@@ -78,6 +79,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [tone, setTone] = useState<string[]>(page.tone || []);
   const [showToneSelector, setShowToneSelector] = useState(false);
   const [relatedPages, setRelatedPages] = useState<RelatedPage[]>([]);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   // Cite-to-source: highlighted passages when opened from search (Layer A)
   const [citeResult, setCiteResult] = useState<CiteResult | null>(null);
@@ -421,7 +423,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-forest-deep to-codex-ink-deep">
-      {/* Header - time and save */}
+      {/* Header - time, share and save */}
       <div className="sticky top-0 z-10 bg-codex-ink-deep/80 backdrop-blur-md border-b border-codex-gold/20">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-2 text-codex-cream/60 text-sm">
@@ -429,17 +431,32 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <span>{formatDistanceToNow(page.createdAt, { addSuffix: true })}</span>
           </div>
           
-          {hasChanges && (
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              size="sm"
-              className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-              {!isSaving && <Check className="w-4 h-4 ml-1" />}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Share button - always visible when not a new capture */}
+            {!isNewCapture && (
+              <Button
+                onClick={() => setShowShareModal(true)}
+                variant="ghost"
+                size="sm"
+                className="text-codex-cream/60 hover:text-codex-gold hover:bg-codex-gold/10 h-8"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                Share
+              </Button>
+            )}
+            
+            {hasChanges && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                size="sm"
+                className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-8"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+                {!isSaving && <Check className="w-4 h-4 ml-1" />}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1091,6 +1108,13 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
       </div>
+
+      {/* Share Modal */}
+      <SharePageModal
+        page={page}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }
