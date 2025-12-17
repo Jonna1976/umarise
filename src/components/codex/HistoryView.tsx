@@ -1103,7 +1103,7 @@ export function HistoryView({
             {searchQuery ? (
               <>
                 <p className="text-muted-foreground mb-6">No pages found for "{searchQuery}"</p>
-                <Button onClick={() => setSearchQuery('')} variant="outline">
+                <Button onClick={() => setSearchQuery('')} variant="outline" className="text-foreground">
                   Clear search
                 </Button>
               </>
