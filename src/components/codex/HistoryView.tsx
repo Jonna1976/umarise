@@ -887,17 +887,19 @@ export function HistoryView({
             ) : (
               <div className="flex flex-col h-full">
                 {/* Memory Pulse - subtle daily reminder */}
-                <MemoryPulse pages={allPages} />
+                <div className="mt-4 mb-8">
+                  <MemoryPulse pages={allPages} />
+                </div>
                 
-                <div className="relative min-h-[320px] flex flex-col justify-end flex-1 pt-8">
+                <div className="relative min-h-[320px] flex flex-col justify-end flex-1">
                 
                 {/* Handwritten message with page count */}
-                <div className="text-center px-6 mb-6">
-                  <p className="text-base text-foreground/80 font-serif leading-relaxed">
+                <div className="text-center px-8 mb-10 max-w-xl mx-auto">
+                  <p className="text-base text-foreground/70 font-serif leading-relaxed mb-3">
                     You are creating your own book containing ideas, thoughts and stories you want to keep. 
                     It gets richer, page by page.
                   </p>
-                  <p className="text-lg text-codex-gold font-serif mt-2">
+                  <p className="text-lg text-codex-gold font-serif">
                     Your book contains {visiblePages.length} {visiblePages.length === 1 ? 'page' : 'pages'} as we speak.
                   </p>
                 </div>
