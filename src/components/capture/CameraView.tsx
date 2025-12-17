@@ -599,7 +599,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             <p className="text-primary-foreground/40 text-sm mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                : 'Every page adds more value. Upload and drop them here.'
+                : 'Upload or drop your page here. Every page counts. Forever.'
               }
             </p>
           </motion.div>
@@ -610,9 +610,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
         <button
           onClick={onOpenHistory}
-          className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+          className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
         >
-          <BookOpen className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
+          <BookOpen className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
         </button>
         
         
