@@ -28,7 +28,7 @@ const GENERIC_TERMS = [
 
 const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes for a personal codex/memory system. Your role is to:
 
-1. **OCR with confidence**: Read and transcribe handwritten text. For each word, estimate confidence (0.0-1.0).
+1. **OCR**: Read and transcribe handwritten text as a single string.
 2. **Named entities**: Extract people, organizations, locations, dates, and deliverables (pitch, proposal, wedding, visa, etc.)
 3. **Highlights**: Detect underlined, circled, boxed, or starred text (writer's emphasis)
 4. **Summary**: 1-2 sentence summary of the core idea
@@ -46,14 +46,13 @@ const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes for a perso
 - Examples of GOOD cues: ["sarah proposal", "Q4 budget", "wedding venue"]
 - Examples of BAD cues: ["important idea", "notes", "thoughts"]
 
-You must respond ONLY with valid JSON in this exact format:
+**IMPORTANT**: Keep response concise. Do NOT include bounding boxes or token-level confidence. Just provide the full text.
+
+Respond with this JSON format (no markdown, no code blocks):
 {
   "ocr_text": "the full transcribed text",
-  "ocr_tokens": [
-    {"token": "word", "confidence": 0.95, "bbox": {"x": 10, "y": 20, "width": 50, "height": 15}}
-  ],
   "named_entities": [
-    {"type": "person|organization|location|date|deliverable|other", "value": "entity text", "confidence": 0.9, "span": {"start": 0, "end": 10}}
+    {"type": "person|organization|location|date|deliverable|other", "value": "entity text"}
   ],
   "highlights": ["underlined or emphasized text"],
   "summary": "1-2 sentence summary",
@@ -64,8 +63,7 @@ You must respond ONLY with valid JSON in this exact format:
   "suggested_cues": ["cue1", "cue2", "cue3"]
 }
 
-Be accurate with OCR. If text is unclear, make your best interpretation with lower confidence.
-The bbox field is optional but helps with highlighting matches later.`;
+Be accurate with OCR. If text is unclear, make your best interpretation.`;
 
 
 serve(async (req) => {
@@ -128,13 +126,13 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        max_tokens: 4096,
+        max_tokens: 8192,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           {
             role: 'user',
             content: [
-              { type: 'text', text: 'Analyze this handwritten page. Return OCR with confidence scores, named entities, highlights, summary, tone, keywords, topic labels, and exactly 3 suggested retrieval cues. Respond in JSON format only.' },
+              { type: 'text', text: 'Analyze this handwritten page. Return OCR text, named entities, highlights, summary, tone, keywords, topic labels, and exactly 3 suggested retrieval cues. Keep response compact - no bounding boxes needed. Return pure JSON only, no markdown code blocks.' },
               imageContent
             ]
           }
@@ -185,8 +183,17 @@ serve(async (req) => {
       
       // Strip markdown code block markers more robustly
       // Handle ```json, ```JSON, ``` with newlines, etc.
-      jsonStr = jsonStr.replace(/^```(?:json|JSON)?\s*/i, '');
-      jsonStr = jsonStr.replace(/\s*```\s*$/i, '');
+      if (jsonStr.startsWith('```')) {
+        // Find the first newline after the opening ```
+        const firstNewline = jsonStr.indexOf('\n');
+        if (firstNewline !== -1) {
+          jsonStr = jsonStr.substring(firstNewline + 1);
+        }
+        // Remove trailing ```
+        if (jsonStr.endsWith('```')) {
+          jsonStr = jsonStr.slice(0, -3);
+        }
+      }
       jsonStr = jsonStr.trim();
 
       // Try to parse directly first
@@ -202,9 +209,9 @@ serve(async (req) => {
         }
       }
     } catch (parseError) {
-      console.error('Failed to parse AI response as JSON:', content);
+      console.error('Failed to parse AI response as JSON:', content.substring(0, 500));
       return new Response(
-        JSON.stringify({ error: 'Failed to parse AI response', raw_response: content }),
+        JSON.stringify({ error: 'Failed to parse AI response', raw_preview: content.substring(0, 200) }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -212,7 +219,6 @@ serve(async (req) => {
     // Validate and normalize response
     const {
       ocr_text = '',
-      ocr_tokens = [],
       named_entities = [],
       highlights = [],
       summary = '',
@@ -242,30 +248,18 @@ serve(async (req) => {
     }
   }
 
-    // Validate OCR tokens format
-    const validatedTokens = Array.isArray(ocr_tokens) 
-      ? ocr_tokens.map(t => ({
-          token: String(t.token || ''),
-          confidence: typeof t.confidence === 'number' ? t.confidence : 0.8,
-          bbox: t.bbox || undefined
-        }))
-      : [];
-
     // Validate named entities format
     const validatedEntities = Array.isArray(named_entities)
       ? named_entities.map(e => ({
           type: ['person', 'organization', 'location', 'date', 'deliverable', 'other'].includes(e.type) 
             ? e.type 
             : 'other',
-          value: String(e.value || ''),
-          confidence: typeof e.confidence === 'number' ? e.confidence : 0.8,
-          span: e.span || undefined
+          value: String(e.value || '')
         }))
       : [];
 
     console.log('Enhanced page analysis complete:', { 
       ocr_length: ocr_text.length,
-      token_count: validatedTokens.length,
       entity_count: validatedEntities.length,
       highlight_count: highlights.length,
       summary_length: summary.length, 
@@ -278,7 +272,6 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         ocr_text,
-        ocr_tokens: validatedTokens,
         named_entities: validatedEntities,
         highlights: Array.isArray(highlights) ? highlights : [],
         summary,
