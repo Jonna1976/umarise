@@ -987,7 +987,7 @@ export function HistoryView({
                     ))}
                   </div>
                 ) : (
-                  <>
+                  <div className="max-w-4xl mx-auto w-full">
                     <div className="flex justify-center">
                       <div 
                         className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
@@ -1036,7 +1036,7 @@ export function HistoryView({
                       {/* Shelf front edge */}
                       <div className="h-1.5 bg-codex-sepia/25 shadow-sm" />
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
               </div>
