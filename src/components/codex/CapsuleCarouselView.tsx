@@ -1,9 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2 } from 'lucide-react';
-import { CapsulePages, Page, markCapsuleAsInfluence } from '@/lib/pageService';
+import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2, Trash2 } from 'lucide-react';
+import { CapsulePages, Page, markCapsuleAsInfluence, deletePage } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Carousel, 
   CarouselContent, 
@@ -47,6 +57,8 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
   const [count, setCount] = useState(0);
   const [showOverview, setShowOverview] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Check if capsule is marked as influence (any page has sources)
   const isInfluence = capsule.pages.some(p => p.sources && p.sources.length > 0);
@@ -68,6 +80,38 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
       toast.error('Er ging iets mis');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeletePage = async () => {
+    if (!pageToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = await deletePage(pageToDelete.id);
+      if (success) {
+        toast.success('Page deleted');
+        
+        // If this was the last page in the capsule, close the view
+        if (capsule.pages.length <= 1) {
+          onClose();
+        } else {
+          // Refresh capsule to update the pages list
+          onCapsuleUpdated?.();
+          
+          // If we deleted the last page, go to previous
+          if (current >= capsule.pages.length - 1 && current > 0) {
+            api?.scrollTo(current - 1);
+          }
+        }
+      } else {
+        toast.error('Failed to delete page');
+      }
+    } catch (error) {
+      toast.error('Failed to delete page');
+    } finally {
+      setIsDeleting(false);
+      setPageToDelete(null);
     }
   };
 
@@ -244,13 +288,22 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
                           Page {index + 1}
                         </span>
                       </div>
-                      <button
-                        onClick={() => onSelectPage(page)}
-                        className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
-                      >
-                        <FileText className="w-3 h-3" />
-                        Details
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setPageToDelete(page)}
+                          className="text-[10px] text-destructive/70 hover:text-destructive flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => onSelectPage(page)}
+                          className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
+                        >
+                          <FileText className="w-3 h-3" />
+                          Details
+                        </button>
+                      </div>
                     </div>
                     
                     <p className="text-xs text-foreground leading-relaxed line-clamp-2 mb-2">
@@ -303,6 +356,30 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
           ))}
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!pageToDelete} onOpenChange={() => setPageToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this page?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove page {pageToDelete ? capsule.pages.findIndex(p => p.id === pageToDelete.id) + 1 : ''} from this capsule. 
+              The capsule will have {capsule.pages.length - 1} page{capsule.pages.length - 1 !== 1 ? 's' : ''} remaining.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeletePage}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
