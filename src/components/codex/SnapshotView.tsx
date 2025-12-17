@@ -493,25 +493,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Topic input - only for new captures, hidden in Demo Mode */}
-        {isNewCapture && !isDemoMode && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="mb-6"
-          >
-            <TopicInput
-              value={topic}
-              onChange={(value, projectId) => {
-                setTopic(value);
-                setTopicProjectId(projectId);
-              }}
-              autoFocus
-            />
-          </motion.div>
-        )}
-
         {/* Future You Cues - ALWAYS show, TOP POSITION, EDITABLE */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -545,50 +526,28 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </div>
           )}
           
-          {/* Add new cue input - only when not in demo mode */}
-          {!isDemoMode && futureYouCues.length < 5 && (
+          {/* Show hint when no cues */}
+          {futureYouCues.length === 0 && isDemoMode && (
+            <p className="text-sm text-codex-cream/40 italic">No search words set</p>
+          )}
+          
+          {/* Topic input moved here - only when not in demo mode */}
+          {!isDemoMode && (
             <>
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Add another word..."
-                  className="flex-1 h-9 bg-codex-ink text-codex-cream border-codex-cream/20 focus:border-codex-gold placeholder:text-codex-cream/30"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                      const newCue = e.currentTarget.value.trim();
-                      if (!futureYouCues.includes(newCue)) {
-                        setFutureYouCues(prev => [...prev, newCue]);
-                      }
-                      e.currentTarget.value = '';
-                    }
+              <div className="mt-3">
+                <TopicInput
+                  value={topic}
+                  onChange={(value, projectId) => {
+                    setTopic(value);
+                    setTopicProjectId(projectId);
                   }}
+                  autoFocus={isNewCapture}
                 />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 border-codex-gold/30 text-codex-gold hover:bg-codex-gold/10"
-                  onClick={() => {
-                    const input = document.querySelector<HTMLInputElement>('input[placeholder="Add another word..."]');
-                    if (input && input.value.trim()) {
-                      const newCue = input.value.trim();
-                      if (!futureYouCues.includes(newCue)) {
-                        setFutureYouCues(prev => [...prev, newCue]);
-                      }
-                      input.value = '';
-                    }
-                  }}
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
               </div>
               <p className="text-xs text-codex-cream/40 mt-2">
                 The more detail you add, the easier it is to find this page later.
               </p>
             </>
-          )}
-          
-          {/* Show hint when no cues */}
-          {futureYouCues.length === 0 && isDemoMode && (
-            <p className="text-sm text-codex-cream/40 italic">No search words set</p>
           )}
         </motion.div>
 
