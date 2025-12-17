@@ -25,6 +25,7 @@ interface SearchViewProps {
   onClose: () => void;
   onSelectPage: (page: Page, matchInfo?: SearchMatchInfo) => void;
   onBrowseAll?: () => void; // Navigate to full Memory/History view
+  initialQuery?: string; // Pre-fill search with this query
 }
 
 // Match type badges with icons
@@ -39,8 +40,8 @@ const matchTypeBadges: Record<string, { label: string; icon: React.ComponentType
  * Search view with explainability badges and "Can't find it" fallback
  * Google/ChatGPT style: centered search when no query
  */
-export function SearchView({ onClose, onSelectPage, onBrowseAll }: SearchViewProps) {
-  const [query, setQuery] = useState('');
+export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }: SearchViewProps) {
+  const [query, setQuery] = useState(initialQuery || '');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);

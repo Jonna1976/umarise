@@ -55,6 +55,9 @@ const Index = () => {
   
   // Search match info (to show "why matched" in SnapshotView)
   const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
+  
+  // Initial search query (when clicking a cue to search)
+  const [initialSearchQuery, setInitialSearchQuery] = useState<string | null>(null);
 
   // Handle page update from SnapshotView
   // Note: The actual database save already happens in SnapshotView
@@ -236,6 +239,13 @@ const Index = () => {
 
   // Handle opening search
   const handleOpenSearch = useCallback(() => {
+    setInitialSearchQuery(null); // Clear any previous query
+    setView('search');
+  }, []);
+
+  // Handle search with a specific cue (clicking on a cue word)
+  const handleSearchCue = useCallback((cue: string) => {
+    setInitialSearchQuery(cue);
     setView('search');
   }, []);
 
@@ -424,6 +434,7 @@ const Index = () => {
               setSearchMatchInfo(matchInfo || null);
               setIsNewCapture(false);
             }}
+            onSearchCue={handleSearchCue}
           />
         ) : null;
       
@@ -535,6 +546,7 @@ const Index = () => {
               setCurrentPage(page);
               setSearchMatchInfo(matchInfo || null);
             }}
+            onSearchCue={handleSearchCue}
           />
         ) : null;
       
@@ -567,6 +579,7 @@ const Index = () => {
               setView('detail');
             }}
             onBrowseAll={() => setView('history')}  // "Browse all" goes to Memory
+            initialQuery={initialSearchQuery || undefined}
           />
         );
       
