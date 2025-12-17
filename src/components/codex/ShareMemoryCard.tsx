@@ -178,7 +178,7 @@ export function ShareMemoryCard({ onBack }: ShareMemoryCardProps) {
             className="text-center py-12"
           >
             <p className="text-destructive mb-4">{error}</p>
-            <Button onClick={generateSummary} variant="outline">
+            <Button onClick={generateSummary} variant="outline" className="text-foreground">
               Try again
             </Button>
           </motion.div>
@@ -243,7 +243,7 @@ export function ShareMemoryCard({ onBack }: ShareMemoryCardProps) {
                 <Button
                   onClick={handleDownload}
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 text-foreground"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
