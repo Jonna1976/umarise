@@ -5,7 +5,6 @@ import {
   Sparkles, 
   Target, 
   Zap,
-  Compass,
   RefreshCw,
   AlertCircle,
   Star,
@@ -13,9 +12,11 @@ import {
   Waves,
   Lock,
   Palette,
-  Mic,
+  User,
   BookOpen,
-  GitCompare
+  GitCompare,
+  Lightbulb,
+  X
 } from 'lucide-react';
 import { usePages } from '@/hooks/usePages';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,7 +24,6 @@ import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
-import { PersonalityEvolution } from './PersonalityEvolution';
 import { CompareProfilesView } from './CompareProfilesView';
 import { RecommendationsSection } from './RecommendationsSection';
 
@@ -56,6 +56,23 @@ interface PersonalityProfile {
 
 type ProfileType = 'voice' | 'influences' | 'compare';
 
+interface OrbitItem {
+  id: string;
+  label: string;
+  icon: typeof Flame;
+  angle: number;
+  color: string;
+}
+
+const orbitItems: OrbitItem[] = [
+  { id: 'drivers', label: 'Drivers', icon: Flame, angle: 0, color: 'text-amber-500' },
+  { id: 'superpower', label: 'Super Power', icon: Zap, angle: 60, color: 'text-yellow-500' },
+  { id: 'tension', label: 'Tension Field', icon: Waves, angle: 120, color: 'text-blue-500' },
+  { id: 'growth', label: 'Growth Edge', icon: Target, angle: 180, color: 'text-emerald-500' },
+  { id: 'recommendations', label: 'Recommendations', icon: Lightbulb, angle: 240, color: 'text-purple-500' },
+  { id: 'artwork', label: 'Artwork', icon: Palette, angle: 300, color: 'text-rose-500' },
+];
+
 export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewProps) {
   const { pages: realPages, isLoading: pagesLoading } = usePages();
   const pages = forceEmpty ? [] : realPages;
@@ -65,10 +82,10 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showArtModal, setShowArtModal] = useState(false);
+  const [expandedOrbit, setExpandedOrbit] = useState<string | null>(null);
 
   const minPagesRequired = 5;
 
-  // Count pages by type
   const { voicePages, influencePages } = useMemo(() => {
     const voice = pages.filter(p => !p.sources || p.sources.length === 0);
     const influences = pages.filter(p => p.sources && p.sources.length > 0);
@@ -116,8 +133,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
         setInfluencesProfile(data);
       }
       
-      const label = profileType === 'voice' ? 'Mijn Stem' : 'Mijn Invloeden';
-      toast.success(`${label} profile generated`);
+      toast.success('Profile generated');
     } catch (err) {
       console.error('Personality analysis error:', err);
       setError('Something went wrong');
@@ -127,32 +143,137 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
     }
   };
 
-  // Auto-run on mount if enough pages for voice profile
   useEffect(() => {
     if (!pagesLoading && hasEnoughVoicePages && !voiceProfile && !isAnalyzing) {
       runPersonalityAnalysis('voice');
     }
   }, [pagesLoading, voicePages.length]);
 
-  // Run analysis when switching tabs if needed
   useEffect(() => {
     if (activeTab === 'influences' && hasEnoughInfluencePages && !influencesProfile && !isAnalyzing) {
       runPersonalityAnalysis('influences');
     }
   }, [activeTab, influencePages.length]);
 
-  const getStrengthColor = (strength: string) => {
+  const getStrengthLabel = (strength: string) => {
     switch (strength) {
-      case 'high': return 'bg-codex-sepia/20 border-codex-sepia text-codex-sepia';
-      case 'medium': return 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400';
-      case 'emerging': return 'bg-secondary border-border text-muted-foreground';
-      default: return 'bg-secondary border-border text-foreground';
+      case 'high': return 'Strong';
+      case 'medium': return 'Moderate';
+      case 'emerging': return 'Emerging';
+      default: return strength;
+    }
+  };
+
+  const renderOrbitContent = (itemId: string) => {
+    if (!currentProfile) return null;
+
+    switch (itemId) {
+      case 'drivers':
+        return (
+          <div className="space-y-3">
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">What Drives You</h4>
+            {currentProfile.drivers.map((driver, idx) => (
+              <div key={idx} className="p-3 rounded-lg bg-secondary/50">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-sm text-foreground">{driver.name}</span>
+                  <span className="text-xs text-muted-foreground">{getStrengthLabel(driver.strength)}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{driver.description}</p>
+              </div>
+            ))}
+          </div>
+        );
+      case 'superpower':
+        return (
+          <div>
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Super Power</h4>
+            <p className="text-base text-foreground/90 leading-relaxed font-serif italic">
+              "{currentProfile.superpower}"
+            </p>
+          </div>
+        );
+      case 'tension':
+        return (
+          <div>
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Tension Field</h4>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
+                <p className="text-sm font-medium text-foreground">{currentProfile.tension_field.side_a}</p>
+              </div>
+              <div className="text-muted-foreground text-lg">↔</div>
+              <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
+                <p className="text-sm font-medium text-foreground">{currentProfile.tension_field.side_b}</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {currentProfile.tension_field.description}
+            </p>
+          </div>
+        );
+      case 'growth':
+        return (
+          <div>
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Growth Edge</h4>
+            <p className="text-base text-foreground/80 italic leading-relaxed">
+              "{currentProfile.growth_edge}"
+            </p>
+          </div>
+        );
+      case 'recommendations':
+        return (
+          <div>
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Recommendations</h4>
+            <RecommendationsSection 
+              profile={{
+                tagline: currentProfile.tagline,
+                core_identity: currentProfile.core_identity,
+                drivers: currentProfile.drivers.map(d => ({ 
+                  name: d.name, 
+                  strength: d.strength === 'high' ? 90 : d.strength === 'medium' ? 60 : 30 
+                })),
+                superpower: currentProfile.superpower,
+                tension_field: { 
+                  pole_a: currentProfile.tension_field.side_a, 
+                  pole_b: currentProfile.tension_field.side_b 
+                },
+                growth_edge: currentProfile.growth_edge
+              }}
+            />
+          </div>
+        );
+      case 'artwork':
+        return (
+          <div className="text-center">
+            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Visualize Your Personality</h4>
+            <p className="text-sm text-muted-foreground mb-6">
+              Transform your personality into art through different visualization styles.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-6">
+              <div className="p-2 rounded bg-secondary/30">Keyword Constellation</div>
+              <div className="p-2 rounded bg-secondary/30">Emotion Rhythm</div>
+              <div className="p-2 rounded bg-secondary/30">Theme Circles</div>
+              <div className="p-2 rounded bg-secondary/30">Connection Map</div>
+            </div>
+            <Button
+              onClick={() => {
+                setExpandedOrbit(null);
+                setShowArtModal(true);
+              }}
+              className="bg-gradient-to-r from-codex-sepia via-amber-600 to-codex-sepia text-white"
+            >
+              <Palette className="w-4 h-4 mr-2" />
+              Create Artwork
+            </Button>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
   const ProfileTab = ({ type, icon: Icon, label, count, isActive }: { 
     type: ProfileType; 
-    icon: typeof Mic; 
+    icon: typeof User; 
     label: string; 
     count: number;
     isActive: boolean;
@@ -208,15 +329,15 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
           <div className="flex gap-2">
             <ProfileTab 
               type="voice" 
-              icon={Mic} 
-              label="Stem" 
+              icon={User} 
+              label="Voice" 
               count={voicePages.length}
               isActive={activeTab === 'voice'}
             />
             <ProfileTab 
               type="influences" 
               icon={BookOpen} 
-              label="Invloeden" 
+              label="Influences" 
               count={influencePages.length}
               isActive={activeTab === 'influences'}
             />
@@ -232,44 +353,35 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
               }`}
             >
               <GitCompare className="w-4 h-4" />
-              <span className="text-xs font-medium">Vergelijk</span>
+              <span className="text-xs font-medium">Compare</span>
             </button>
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-3">
-            {activeTab === 'voice' 
-              ? 'Your original thoughts and ideas' 
-              : activeTab === 'influences'
-                ? 'What inspires and influences you'
-                : 'Compare your voice with your influences'}
-          </p>
         </div>
       </div>
 
       {/* Not enough pages */}
       {!hasEnoughPages && (
-        <div className="p-6">
+        <div className="p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
+            className="text-center py-16"
           >
-            <div className="w-20 h-20 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-10 h-10 text-muted-foreground/50" />
+            <div className="w-24 h-24 rounded-full bg-secondary/50 flex items-center justify-center mx-auto mb-8">
+              <Lock className="w-12 h-12 text-muted-foreground/50" />
             </div>
-            <h2 className="font-serif text-xl font-medium mb-3">
-              Unlock {activeTab === 'voice' ? 'Mijn Stem' : 'Mijn Invloeden'}
+            <h2 className="font-serif text-2xl font-medium mb-4">
+              Unlock Your Profile
             </h2>
-            <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-              {activeTab === 'voice' 
-                ? `Capture at least ${minPagesRequired} pages without sources to reveal your unique voice.`
-                : `Add sources to at least ${minPagesRequired} pages to reveal what shapes you.`}
+            <p className="text-muted-foreground text-base mb-8 max-w-sm mx-auto leading-relaxed">
+              Capture at least {minPagesRequired} pages to reveal your unique personality profile.
             </p>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-3">
               <div className="flex">
                 {[...Array(minPagesRequired)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-3 h-3 rounded-full border-2 -ml-1 first:ml-0 ${
+                    className={`w-4 h-4 rounded-full border-2 -ml-1 first:ml-0 ${
                       i < currentPageCount 
                         ? 'bg-codex-sepia border-codex-sepia' 
                         : 'bg-transparent border-muted-foreground/30'
@@ -277,49 +389,21 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                   />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-base text-muted-foreground">
                 {currentPageCount} / {minPagesRequired} pages
               </span>
             </div>
-
-            {/* Teaser */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-10 p-6 rounded-2xl bg-gradient-to-br from-codex-cream/30 to-secondary/20 border border-codex-sepia/10 max-w-sm mx-auto"
-            >
-              <p className="text-xs text-muted-foreground mb-4">Coming soon for you...</p>
-              <div className="space-y-3 text-left">
-                <div className="flex items-center gap-3 text-sm text-foreground/60">
-                  <Compass className="w-4 h-4 text-codex-sepia/50" />
-                  <span>{activeTab === 'voice' ? 'Your core identity' : 'Your intellectual territory'}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-foreground/60">
-                  <Flame className="w-4 h-4 text-codex-sepia/50" />
-                  <span>{activeTab === 'voice' ? 'What drives you' : 'Themes that attract you'}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-foreground/60">
-                  <Zap className="w-4 h-4 text-codex-sepia/50" />
-                  <span>{activeTab === 'voice' ? 'Your superpower' : 'Your curatorial eye'}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-foreground/60">
-                  <Waves className="w-4 h-4 text-codex-sepia/50" />
-                  <span>{activeTab === 'voice' ? 'Your growth edge' : 'New territories'}</span>
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
       )}
 
       {/* Loading state */}
       {isAnalyzing && (
-        <div className="p-6">
+        <div className="p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16"
+            className="text-center py-20"
           >
             <motion.div
               animate={{ 
@@ -331,14 +415,14 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="w-20 h-20 rounded-full bg-gradient-to-br from-codex-sepia/20 to-codex-cream flex items-center justify-center mx-auto mb-6"
+              className="w-24 h-24 rounded-full bg-gradient-to-br from-codex-sepia/20 to-codex-cream flex items-center justify-center mx-auto mb-8"
             >
-              <Sparkles className="w-10 h-10 text-codex-sepia" />
+              <Sparkles className="w-12 h-12 text-codex-sepia" />
             </motion.div>
-            <h2 className="font-serif text-xl font-medium mb-2">
-              {activeTab === 'voice' ? 'Discovering your voice...' : 'Mapping your influences...'}
+            <h2 className="font-serif text-2xl font-medium mb-3">
+              Discovering your essence...
             </h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-base">
               Analyzing {currentPageCount} pages
             </p>
           </motion.div>
@@ -347,17 +431,17 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
 
       {/* Error state */}
       {error && !isAnalyzing && hasEnoughPages && (
-        <div className="p-6">
+        <div className="p-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl bg-destructive/10 border border-destructive/20"
+            className="p-6 rounded-xl bg-destructive/10 border border-destructive/20"
           >
             <div className="flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-destructive" />
-              <span className="text-sm font-medium text-destructive">Analysis unavailable</span>
+              <AlertCircle className="w-5 h-5 text-destructive" />
+              <span className="text-base font-medium text-destructive">Analysis unavailable</span>
             </div>
-            <p className="text-xs text-muted-foreground">{error}</p>
+            <p className="text-sm text-muted-foreground">{error}</p>
           </motion.div>
         </div>
       )}
@@ -370,260 +454,134 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
         />
       )}
 
-      {/* Profile content */}
-      <AnimatePresence mode="wait">
-        {currentProfile && !isAnalyzing && activeTab !== 'compare' && (
+      {/* Orbit Visualization */}
+      {currentProfile && !isAnalyzing && activeTab !== 'compare' && (
+        <div className="px-6 py-12">
+          {/* Center - Core Identity */}
           <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: activeTab === 'voice' ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: activeTab === 'voice' ? 20 : -20 }}
-            className="p-4 space-y-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center mb-16"
           >
-            {/* Core Identity - Hero Section */}
+            {/* User Icon */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative rounded-2xl overflow-hidden"
-              style={{
-                background: activeTab === 'voice'
-                  ? 'linear-gradient(135deg, hsl(var(--codex-sepia) / 0.15) 0%, hsl(var(--codex-cream)) 50%, hsl(var(--secondary)) 100%)'
-                  : 'linear-gradient(135deg, hsl(220 50% 50% / 0.15) 0%, hsl(var(--codex-cream)) 50%, hsl(var(--secondary)) 100%)',
-                minHeight: '200px'
-              }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', delay: 0.2 }}
+              className="w-20 h-20 rounded-full bg-codex-sepia/20 border-2 border-codex-sepia/30 flex items-center justify-center mx-auto mb-6"
             >
-              {/* Decorative elements */}
-              <div className="absolute inset-0 overflow-hidden">
-                <motion.div
-                  animate={{ 
-                    opacity: [0.3, 0.5, 0.3],
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                  className={`absolute -top-10 -right-10 w-40 h-40 rounded-full ${
-                    activeTab === 'voice' ? 'bg-codex-sepia/10' : 'bg-blue-500/10'
-                  }`}
-                />
-                <motion.div
-                  animate={{ 
-                    opacity: [0.2, 0.4, 0.2],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ duration: 5, repeat: Infinity, delay: 1 }}
-                  className={`absolute -bottom-10 -left-10 w-32 h-32 rounded-full ${
-                    activeTab === 'voice' ? 'bg-codex-sepia/10' : 'bg-blue-500/10'
-                  }`}
-                />
-              </div>
-
-              <div className="relative p-6 text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', delay: 0.2 }}
-                  className={`w-16 h-16 rounded-full border-2 flex items-center justify-center mx-auto mb-4 ${
-                    activeTab === 'voice' 
-                      ? 'bg-codex-sepia/20 border-codex-sepia/30' 
-                      : 'bg-blue-500/20 border-blue-500/30'
-                  }`}
-                >
-                  {activeTab === 'voice' 
-                    ? <Mic className="w-8 h-8 text-codex-sepia" />
-                    : <BookOpen className="w-8 h-8 text-blue-600" />
-                  }
-                </motion.div>
-                
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className={`text-[10px] uppercase tracking-widest mb-2 ${
-                    activeTab === 'voice' ? 'text-codex-sepia/60' : 'text-blue-600/60'
-                  }`}
-                >
-                  {activeTab === 'voice' ? 'You are' : 'You are drawn to'}
-                </motion.p>
-                
-                <motion.h2
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="font-serif text-2xl font-bold text-foreground mb-3"
-                >
-                  {currentProfile.tagline}
-                </motion.h2>
-                
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-sm text-foreground/80 leading-relaxed max-w-sm mx-auto"
-                >
-                  {currentProfile.core_identity}
-                </motion.p>
-              </div>
+              <User className="w-10 h-10 text-codex-sepia" />
             </motion.div>
-
-            {/* Drivers */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="codex-card rounded-xl p-4"
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <Flame className={`w-4 h-4 ${activeTab === 'voice' ? 'text-codex-sepia' : 'text-blue-600'}`} />
-                <h3 className="font-medium text-sm">
-                  {activeTab === 'voice' ? 'What Drives You' : 'Themes That Attract You'}
-                </h3>
-              </div>
-              <div className="space-y-3">
-                {currentProfile.drivers.map((driver, index) => (
-                  <motion.div
-                    key={driver.name}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                    className={`p-3 rounded-lg border ${getStrengthColor(driver.strength)}`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-sm">{driver.name}</span>
-                      <span className="text-[10px] uppercase tracking-wide opacity-70">
-                        {driver.strength}
-                      </span>
-                    </div>
-                    <p className="text-xs opacity-80">{driver.description}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Superpower */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className={`p-5 rounded-xl border ${
-                activeTab === 'voice'
-                  ? 'bg-gradient-to-r from-amber-500/10 via-codex-cream to-amber-500/10 border-amber-500/20'
-                  : 'bg-gradient-to-r from-blue-500/10 via-codex-cream to-blue-500/10 border-blue-500/20'
-              }`}
+              className="text-xs uppercase tracking-[0.2em] text-codex-sepia/60 mb-4"
             >
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className={`w-5 h-5 ${activeTab === 'voice' ? 'text-amber-600' : 'text-blue-600'}`} />
-                <h3 className="font-medium text-sm">
-                  {activeTab === 'voice' ? 'Your Superpower' : 'Your Curatorial Eye'}
-                </h3>
-              </div>
-              <p className="text-sm text-foreground/90 leading-relaxed font-serif italic">
-                "{currentProfile.superpower}"
-              </p>
-            </motion.div>
-
-            {/* Tension Field */}
-            <motion.div
+              You are
+            </motion.p>
+            
+            <motion.h2
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="codex-card rounded-xl p-4"
+              className="font-serif text-3xl font-bold text-foreground mb-6"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <Waves className={`w-4 h-4 ${activeTab === 'voice' ? 'text-codex-sepia' : 'text-blue-600'}`} />
-                <h3 className="font-medium text-sm">
-                  {activeTab === 'voice' ? 'Your Tension Field' : 'Your Intellectual Tension'}
-                </h3>
-              </div>
-              
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
-                  <p className="text-sm font-medium">{currentProfile.tension_field.side_a}</p>
-                </div>
-                <div className="text-muted-foreground">↔</div>
-                <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
-                  <p className="text-sm font-medium">{currentProfile.tension_field.side_b}</p>
-                </div>
-              </div>
-              
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {currentProfile.tension_field.description}
-              </p>
-            </motion.div>
-
-            {/* Personality Evolution - Track how you've changed (only for voice) */}
-            {activeTab === 'voice' && (
-              <PersonalityEvolution currentTagline={currentProfile.tagline} />
-            )}
-
-            {/* Growth Edge */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="p-4 rounded-xl bg-secondary/30 border border-border"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm text-muted-foreground">
-                  {activeTab === 'voice' ? 'Growth Edge' : 'New Territories'}
-                </h3>
-              </div>
-              <p className="text-xs text-muted-foreground italic leading-relaxed">
-                "{currentProfile.growth_edge}"
-              </p>
-            </motion.div>
-
-            {/* AI Recommendations */}
-            <RecommendationsSection 
-              profile={{
-                tagline: currentProfile.tagline,
-                core_identity: currentProfile.core_identity,
-                drivers: currentProfile.drivers.map(d => ({ 
-                  name: d.name, 
-                  strength: d.strength === 'high' ? 90 : d.strength === 'medium' ? 60 : 30 
-                })),
-                superpower: currentProfile.superpower,
-                tension_field: { 
-                  pole_a: currentProfile.tension_field.side_a, 
-                  pole_b: currentProfile.tension_field.side_b 
-                },
-                growth_edge: currentProfile.growth_edge
-              }} 
-            />
-
-            {/* Visualize as Art Button (only for voice) */}
-            {activeTab === 'voice' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 }}
-              >
-                <Button
-                  onClick={() => setShowArtModal(true)}
-                  className="w-full h-14 bg-gradient-to-r from-codex-sepia via-amber-600 to-codex-sepia text-white font-medium text-base shadow-lg"
-                >
-                  <Palette className="w-5 h-5 mr-2" />
-                  Visualize as Artwork
-                </Button>
-                <p className="text-center text-xs text-muted-foreground mt-2">
-                  Transform your personality into art
-                </p>
-              </motion.div>
-            )}
-
-            {/* Footer */}
-            <motion.div
+              {currentProfile.tagline}
+            </motion.h2>
+            
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-center py-4"
+              transition={{ delay: 0.5 }}
+              className="text-base text-foreground/70 leading-relaxed max-w-md mx-auto"
             >
-              <p className="text-[10px] text-muted-foreground/60">
-                Based on {currentProfile.page_count} pages {activeTab === 'voice' ? 'of your original thoughts' : 'with external sources'}
-              </p>
-            </motion.div>
+              {currentProfile.core_identity}
+            </motion.p>
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          {/* Orbit Circles */}
+          <div className="relative w-full max-w-md mx-auto aspect-square">
+            {/* Orbit ring */}
+            <div className="absolute inset-8 rounded-full border border-dashed border-muted-foreground/20" />
+            
+            {/* Orbit items */}
+            {orbitItems.map((item, index) => {
+              const radius = 42; // percentage from center
+              const angleRad = (item.angle - 90) * (Math.PI / 180);
+              const x = 50 + radius * Math.cos(angleRad);
+              const y = 50 + radius * Math.sin(angleRad);
+              const Icon = item.icon;
+              
+              return (
+                <motion.button
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 + index * 0.1, type: 'spring' }}
+                  onClick={() => setExpandedOrbit(expandedOrbit === item.id ? null : item.id)}
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
+                    expandedOrbit === item.id 
+                      ? 'z-20 scale-110' 
+                      : 'z-10 hover:scale-110'
+                  }`}
+                  style={{ left: `${x}%`, top: `${y}%` }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`w-16 h-16 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
+                      expandedOrbit === item.id
+                        ? 'bg-codex-sepia text-white shadow-lg shadow-codex-sepia/30'
+                        : 'bg-secondary/80 hover:bg-secondary border border-border hover:border-codex-sepia/30'
+                    }`}
+                  >
+                    <Icon className={`w-5 h-5 mb-0.5 ${expandedOrbit === item.id ? 'text-white' : item.color}`} />
+                    <span className={`text-[9px] font-medium leading-tight text-center px-1 ${
+                      expandedOrbit === item.id ? 'text-white' : 'text-foreground/70'
+                    }`}>
+                      {item.label}
+                    </span>
+                  </motion.div>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* Expanded Content Panel */}
+          <AnimatePresence>
+            {expandedOrbit && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="mt-12 p-6 rounded-2xl bg-secondary/30 border border-border relative"
+              >
+                <button
+                  onClick={() => setExpandedOrbit(null)}
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-secondary hover:bg-muted flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+                {renderOrbitContent(expandedOrbit)}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-center mt-16"
+          >
+            <p className="text-sm text-muted-foreground/60">
+              Based on {currentProfile.page_count} pages of your writing
+            </p>
+          </motion.div>
+        </div>
+      )}
 
       {/* Art Generation Modal */}
       {voiceProfile && (
