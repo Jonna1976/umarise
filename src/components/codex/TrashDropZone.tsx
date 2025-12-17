@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
+import { triggerHaptic } from '@/lib/haptics';
 
 interface TrashDropZoneProps {
   trashedCount: number;
@@ -28,6 +29,8 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
     
     const pageId = e.dataTransfer.getData('text/plain');
     if (pageId) {
+      // Haptic feedback on successful drop
+      triggerHaptic('medium');
       onDrop(pageId);
     }
   }, [onDrop]);
@@ -48,20 +51,17 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          relative w-14 h-14 rounded-xl flex items-center justify-center
+          relative w-12 h-12 rounded-full flex items-center justify-center
           transition-all duration-200
           ${isOver 
-            ? 'bg-destructive/30 border-2 border-destructive shadow-lg shadow-destructive/20' 
-            : trashedCount > 0
-              ? 'bg-secondary/80 border border-border hover:bg-secondary'
-              : 'bg-secondary/50 border border-border/50 hover:bg-secondary/80'
+            ? 'bg-destructive/30 shadow-lg shadow-destructive/20' 
+            : 'bg-transparent hover:bg-secondary/50'
           }
-          ${isDragging ? 'ring-2 ring-destructive/30 ring-offset-2 ring-offset-background' : ''}
         `}
-        title={trashedCount > 0 ? `Prullenbak (${trashedCount})` : 'Sleep hier naartoe om te verwijderen'}
+        title={trashedCount > 0 ? `Prullenbak (${trashedCount})` : 'Prullenbak'}
       >
         <Trash2 
-          className={`w-6 h-6 transition-colors ${
+          className={`w-5 h-5 transition-colors ${
             isOver ? 'text-destructive' : 'text-muted-foreground'
           }`} 
         />
@@ -73,27 +73,13 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-xs font-medium"
+              className="absolute -top-1 -right-1 w-4 h-4 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center text-[10px] font-medium"
             >
               {trashedCount}
             </motion.div>
           )}
         </AnimatePresence>
       </button>
-      
-      {/* Hint when dragging */}
-      <AnimatePresence>
-        {isDragging && !isOver && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 5 }}
-            className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-muted-foreground bg-background/90 px-2 py-1 rounded shadow"
-          >
-            Sleep hierheen
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
