@@ -267,6 +267,34 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
                         Share
                       </Button>
                     </div>
+
+                    {/* Direct platform links */}
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        onClick={() => {
+                          const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(currentContent)}`;
+                          window.open(url, '_blank', 'width=550,height=420');
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-codex-gold/20 text-codex-cream/70 hover:bg-codex-gold/10 hover:text-codex-cream"
+                      >
+                        <Twitter className="w-4 h-4 mr-2" />
+                        Post to X
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://umarise.com')}&summary=${encodeURIComponent(currentContent)}`;
+                          window.open(url, '_blank', 'width=600,height=600');
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-codex-gold/20 text-codex-cream/70 hover:bg-codex-gold/10 hover:text-codex-cream"
+                      >
+                        <Linkedin className="w-4 h-4 mr-2" />
+                        Post to LinkedIn
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Regenerate */}
