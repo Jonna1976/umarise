@@ -891,10 +891,16 @@ export function HistoryView({
                 
                 <div className="relative min-h-[320px] flex flex-col justify-end flex-1 pt-8">
                 
-                {/* Handwritten message */}
-                <p className="text-center text-sm text-muted-foreground/70 italic font-serif px-8 mb-4">
-                  You are creating your own book containing ideas, thoughts and stories you want to keep. It gets richer, page by page.
-                </p>
+                {/* Handwritten message with page count */}
+                <div className="text-center px-6 mb-6">
+                  <p className="text-base text-foreground/80 font-serif leading-relaxed">
+                    You are creating your own book containing ideas, thoughts and stories you want to keep. 
+                    It gets richer, page by page.
+                  </p>
+                  <p className="text-lg text-codex-gold font-serif mt-2">
+                    Your book contains {visiblePages.length} {visiblePages.length === 1 ? 'page' : 'pages'} as we speak.
+                  </p>
+                </div>
                 
                 {/* Jump-to navigation for cue mode */}
                 {sortMode === 'cue' && groupedByCue && groupedByCue.length > 1 && (
