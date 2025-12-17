@@ -760,15 +760,70 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                     {format(writtenAt, 'd MMMM yyyy')}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-codex-ink-deep border-codex-cream/20" align="start">
-                  <CalendarComponent
-                    mode="single"
-                    selected={writtenAt}
-                    onSelect={(date) => date && setWrittenAt(date)}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
+                <PopoverContent className="w-auto p-3 bg-codex-ink-deep border-codex-cream/20" align="start">
+                  {/* Direct date input for easy year entry */}
+                  <div className="mb-3">
+                    <label className="text-xs text-codex-cream/60 mb-1.5 block">Type date (dd-mm-yyyy)</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. 15-03-1988"
+                      defaultValue={format(writtenAt, 'dd-MM-yyyy')}
+                      className="bg-codex-ink border-codex-cream/30 text-codex-cream placeholder:text-codex-cream/40 h-9"
+                      onBlur={(e) => {
+                        const value = e.target.value;
+                        // Try to parse various formats
+                        const parts = value.split(/[-/\.]/);
+                        if (parts.length === 3) {
+                          const [day, month, year] = parts.map(p => parseInt(p, 10));
+                          const fullYear = year < 100 ? (year > 50 ? 1900 + year : 2000 + year) : year;
+                          const date = new Date(fullYear, month - 1, day);
+                          if (!isNaN(date.getTime()) && date <= new Date()) {
+                            setWrittenAt(date);
+                          }
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="border-t border-codex-cream/10 pt-3">
+                    <CalendarComponent
+                      mode="single"
+                      selected={writtenAt}
+                      onSelect={(date) => date && setWrittenAt(date)}
+                      disabled={(date) => date > new Date()}
+                      defaultMonth={writtenAt}
+                      initialFocus
+                      className={cn("p-0 pointer-events-auto")}
+                      classNames={{
+                        months: "flex flex-col",
+                        month: "space-y-3",
+                        caption: "flex justify-center pt-1 relative items-center text-codex-cream",
+                        caption_label: "text-sm font-medium text-codex-cream",
+                        nav: "space-x-1 flex items-center",
+                        nav_button: "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 text-codex-cream hover:bg-codex-cream/10 rounded",
+                        nav_button_previous: "absolute left-1",
+                        nav_button_next: "absolute right-1",
+                        table: "w-full border-collapse",
+                        head_row: "flex",
+                        head_cell: "text-codex-cream/50 rounded-md w-9 font-normal text-[0.8rem]",
+                        row: "flex w-full mt-1",
+                        cell: "h-9 w-9 text-center text-sm p-0 relative",
+                        day: "h-9 w-9 p-0 font-normal text-codex-cream/80 hover:bg-codex-cream/10 rounded aria-selected:opacity-100",
+                        day_selected: "bg-codex-gold text-codex-ink hover:bg-codex-gold hover:text-codex-ink focus:bg-codex-gold focus:text-codex-ink",
+                        day_today: "bg-codex-cream/10 text-codex-cream",
+                        day_outside: "text-codex-cream/30 opacity-50",
+                        day_disabled: "text-codex-cream/20 opacity-50",
+                        day_hidden: "invisible",
+                      }}
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
             )}
