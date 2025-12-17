@@ -41,18 +41,26 @@ const AVAILABLE_TONES = ['grateful', 'happy', 'energetic', 'peaceful', 'excited'
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
-    focused: 'bg-codex-gold/20 text-codex-gold',
-    hopeful: 'bg-codex-teal/20 text-codex-teal',
-    frustrated: 'bg-codex-forest/20 text-codex-forest',
-    playful: 'bg-codex-gold/20 text-codex-gold',
-    overwhelmed: 'bg-codex-forest-deep/20 text-codex-forest-deep',
-    reflective: 'bg-codex-sepia/20 text-codex-sepia',
-    determined: 'bg-codex-gold/30 text-codex-gold',
-    curious: 'bg-codex-teal/30 text-codex-teal',
-    anxious: 'bg-codex-forest/30 text-codex-forest',
-    calm: 'bg-codex-cream/20 text-codex-cream',
+    grateful: 'bg-amber-500/20 text-amber-300',
+    happy: 'bg-yellow-500/20 text-yellow-300',
+    energetic: 'bg-orange-500/20 text-orange-300',
+    peaceful: 'bg-emerald-500/20 text-emerald-300',
+    excited: 'bg-pink-500/20 text-pink-300',
+    nostalgic: 'bg-purple-500/20 text-purple-300',
+    determined: 'bg-red-500/20 text-red-300',
+    curious: 'bg-cyan-500/20 text-cyan-300',
+    anxious: 'bg-slate-500/20 text-slate-300',
+    frustrated: 'bg-rose-500/20 text-rose-300',
+    hopeful: 'bg-teal-500/20 text-teal-300',
+    tender: 'bg-pink-400/20 text-pink-300',
+    restless: 'bg-amber-600/20 text-amber-300',
+    melancholic: 'bg-indigo-500/20 text-indigo-300',
+    playful: 'bg-lime-500/20 text-lime-300',
+    focused: 'bg-blue-500/20 text-blue-300',
+    overwhelmed: 'bg-gray-500/20 text-gray-300',
+    reflective: 'bg-violet-500/20 text-violet-300',
   };
-  return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
+  return toneMap[tone.toLowerCase()] || 'bg-codex-gold/20 text-codex-gold';
 }
 
 export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages }: SnapshotViewProps) {
