@@ -1,18 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { 
   X, 
   FlaskConical, 
-  Download, 
   Trash2, 
-  Eye,
-  ChevronDown,
-  ChevronUp,
-  Shuffle,
-  Compass,
-  Brain,
-  Star,
   Database,
   Loader2,
   FileText,
@@ -24,13 +16,11 @@ import {
   ToggleRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { generateTestPages, TestPage } from '@/lib/testData';
 import { Page } from '@/lib/pageService';
-import { formatDistanceToNow, format } from 'date-fns';
 import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo, copyRealPagesToDemo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
-import { getDeviceId, setDeviceId as persistDeviceId, DEMO_DEVICE_ID } from '@/lib/deviceId';
+import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
@@ -38,39 +28,15 @@ interface TestPanelProps {
   onClose: () => void;
   onLoadTestData: () => void;
   onViewPage: (page: Page) => void;
-  onPreviewEmptyKompas?: () => void;
-  onPreviewEmptyPatterns?: () => void;
-  onPreviewEmptyPersonality?: () => void;
-  onShowOnePager?: () => void;
-}
-
-function getToneClass(tone: string): string {
-  const toneMap: Record<string, string> = {
-    focused: 'tone-focused',
-    hopeful: 'tone-hopeful',
-    frustrated: 'tone-frustrated',
-    playful: 'tone-playful',
-    overwhelmed: 'tone-overwhelmed',
-    reflective: 'tone-reflective',
-  };
-  return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
 }
 
 export function TestPanel({ 
   onClose, 
   onLoadTestData, 
-  onViewPage,
-  onPreviewEmptyKompas,
-  onPreviewEmptyPatterns,
-  onPreviewEmptyPersonality,
-  onShowOnePager
 }: TestPanelProps) {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
   const [showOnePager, setShowOnePager] = useState(false);
   
-  const [testPages, setTestPages] = useState<TestPage[]>([]);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [pageCount, setPageCount] = useState(100);
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
   const [isClearing, setIsClearing] = useState(false);
@@ -124,7 +90,7 @@ export function TestPanel({
   const handleCopyDeviceId = () => {
     if (localDeviceId) {
       navigator.clipboard.writeText(localDeviceId);
-      toast({ title: "Device ID gekopieerd" });
+      toast({ title: "Device ID copied" });
     }
   };
 
@@ -138,50 +104,19 @@ export function TestPanel({
 
   const testDataInfo = getTestDataInfo();
 
-  const handleGenerate = () => {
-    const pages = generateTestPages(pageCount);
-    setTestPages(pages);
-  };
-
-  const handleInjectToDatabase = async () => {
-    setIsInjecting(true);
-    setInjectProgress({ current: 0, total: testDataInfo.totalPages });
-    
-    try {
-      const inserted = await injectTestData((current, total) => {
-        setInjectProgress({ current, total });
-      });
-      
-      toast({
-        title: "Testdata geïnjecteerd",
-        description: `${inserted} pagina's toegevoegd aan de database. Ga naar History om de memory loop te testen.`,
-      });
-      
-      onLoadTestData();
-    } catch (error) {
-      toast({
-        title: "Fout",
-        description: "Kon testdata niet injecteren",
-        variant: "destructive"
-      });
-    } finally {
-      setIsInjecting(false);
-    }
-  };
-
   const handleClearTestData = async () => {
     setIsClearing(true);
     try {
       const deleted = await clearTestData();
       toast({
-        title: "Testdata verwijderd",
-        description: `${deleted} test-pagina's verwijderd.`,
+        title: "Test data deleted",
+        description: `${deleted} test pages removed.`,
       });
       onLoadTestData();
     } catch (error) {
       toast({
-        title: "Fout",
-        description: "Kon testdata niet verwijderen",
+        title: "Error",
+        description: "Could not delete test data",
         variant: "destructive"
       });
     } finally {
@@ -200,49 +135,20 @@ export function TestPanel({
       
       toast({
         title: "Demo data reset",
-        description: `${cleared} oude verwijderd, ${inserted} verse pagina's geïnjecteerd. Deterministische demo-staat klaar.`,
+        description: `${cleared} old removed, ${inserted} fresh pages injected. Deterministic demo state ready.`,
       });
       
       onLoadTestData();
     } catch (error) {
       toast({
-        title: "Fout",
-        description: "Reset & inject mislukt",
+        title: "Error",
+        description: "Reset & inject failed",
         variant: "destructive"
       });
     } finally {
       setIsInjecting(false);
     }
   };
-
-  const handleLoadAll = () => {
-    onLoadTestData();
-  };
-
-  const handleClear = () => {
-    setTestPages([]);
-  };
-
-  const handleShuffle = () => {
-    const pages = generateTestPages(pageCount);
-    setTestPages(pages);
-  };
-
-  const stats = useMemo(() => {
-    if (testPages.length === 0) return null;
-    
-    const toneCount: Record<string, number> = {};
-    testPages.forEach(p => {
-      p.tone.forEach(t => {
-        toneCount[t] = (toneCount[t] || 0) + 1;
-      });
-    });
-    
-    return {
-      total: testPages.length,
-      tones: Object.entries(toneCount).sort((a, b) => b[1] - a[1]),
-    };
-  }, [testPages]);
 
   // Safeguard: require double confirmation for any destructive action on real data
   const requireDoubleConfirmation = (action: () => Promise<void>, description: string) => {
@@ -368,7 +274,7 @@ export function TestPanel({
           </div>
           
           <p className="text-sm text-muted-foreground">
-            Debug tools voor het testen van de memory loop.
+            Debug tools for testing the memory loop.
           </p>
         </div>
 
@@ -384,8 +290,8 @@ export function TestPanel({
               toast({
                 title: isDemoMode ? "Switched to Your Data" : "Switched to Demo Data",
                 description: isDemoMode 
-                  ? "Nu zie je je echte pages" 
-                  : "Nu zie je de demo pages",
+                  ? "Now viewing your real pages" 
+                  : "Now viewing demo pages",
               });
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
@@ -402,17 +308,17 @@ export function TestPanel({
               )}
               <div className="text-left">
                 <div className="font-medium">
-                  {isDemoMode ? 'Demo Mode AAN' : 'Demo Mode UIT (Jonna)'}
+                  {isDemoMode ? 'Demo Mode ON' : 'Demo Mode OFF (Jonna)'}
                 </div>
                 <div className="text-xs opacity-70">
                   {isDemoMode 
-                    ? 'Je ziet demo data' 
-                    : 'Je ziet je echte data'}
+                    ? 'Viewing demo data' 
+                    : 'Viewing your real data'}
                 </div>
               </div>
             </div>
             <span className="text-xs px-2 py-1 rounded bg-secondary">
-              Klik om te wisselen
+              Click to switch
             </span>
           </button>
           
@@ -422,9 +328,9 @@ export function TestPanel({
               <div className="flex items-start gap-2">
                 <span className="text-primary text-lg">🔒</span>
                 <div>
-                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Echte Data Actief</p>
+                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Real Data Active</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Jonna's data is beschermd. Geen enkele destructieve actie is mogelijk zonder Demo Mode.
+                    Jonna's data is protected. No destructive actions possible without Demo Mode.
                   </p>
                 </div>
               </div>
@@ -482,10 +388,10 @@ export function TestPanel({
             Copy Real Pages to Demo
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
-            Kopieer je echte {dbPageCount} pages naar demo mode. Originelen blijven veilig onder je echte device ID.
+            Copy your {dbPageCount} real pages to demo mode. Originals stay safe under your real device ID.
           </p>
           <div className="text-xs text-primary bg-primary/10 p-2 rounded mb-2 border border-primary/20">
-            ⚠️ Wist eerst bestaande demo data, dan kopieert geselecteerde aantal.
+            ⚠️ Clears existing demo data first, then copies selected amount.
           </div>
           <div className="flex gap-2 items-center">
             <select 
@@ -503,7 +409,7 @@ export function TestPanel({
               onClick={async () => {
                 const realId = getDeviceId();
                 if (!realId) {
-                  toast({ title: "Geen device ID", description: "Kan echte pages niet vinden", variant: "destructive" });
+                  toast({ title: "No device ID", description: "Cannot find real pages", variant: "destructive" });
                   return;
                 }
                 const selectEl = document.getElementById('copyLimit') as HTMLSelectElement;
@@ -516,12 +422,12 @@ export function TestPanel({
                     setInjectProgress({ current, total });
                   }, limit);
                   toast({
-                    title: "Pages gekopieerd naar demo",
-                    description: `${copied} pages gekopieerd, ${skipped} overgeslagen. Originelen onaangetast.`,
+                    title: "Pages copied to demo",
+                    description: `${copied} pages copied, ${skipped} skipped. Originals untouched.`,
                   });
                   onLoadTestData();
                 } catch (error) {
-                  toast({ title: "Fout", description: "Kopiëren mislukt", variant: "destructive" });
+                  toast({ title: "Error", description: "Copy failed", variant: "destructive" });
                 } finally {
                   setIsInjecting(false);
                 }
@@ -550,10 +456,10 @@ export function TestPanel({
           <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-2 flex items-center gap-2">
             <Database className="w-3.5 h-3.5" />
             Fake Demo Data (Fallback)
-            {!isDemoMode && <span className="text-xs text-muted-foreground ml-2">🔒 Demo Mode vereist</span>}
+            {!isDemoMode && <span className="text-xs text-muted-foreground ml-2">🔒 Demo Mode required</span>}
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
-            {testDataInfo.totalPages} fake pages als alternatief:
+            {testDataInfo.totalPages} fake pages as fallback:
           </p>
           <div className="flex flex-wrap gap-2">
             <Button 
@@ -585,58 +491,7 @@ export function TestPanel({
               ) : (
                 <Trash2 className="w-4 h-4 mr-1" />
               )}
-              Wis Demo
-            </Button>
-          </div>
-        </div>
-
-        {/* Empty State Previews */}
-        <div className="p-4 bg-secondary/20 border-b border-border">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Preview Empty States
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {onPreviewEmptyKompas && (
-              <Button 
-                onClick={onPreviewEmptyKompas} 
-                variant="outline" 
-                size="sm"
-                className="text-xs"
-              >
-                <Compass className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Leeg Kompas
-              </Button>
-            )}
-            {onPreviewEmptyPatterns && (
-              <Button 
-                onClick={onPreviewEmptyPatterns} 
-                variant="outline" 
-                size="sm"
-                className="text-xs"
-              >
-                <Brain className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Leeg Patterns
-              </Button>
-            )}
-            {onPreviewEmptyPersonality && (
-              <Button 
-                onClick={onPreviewEmptyPersonality} 
-                variant="outline" 
-                size="sm"
-                className="text-xs"
-              >
-                <Star className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Leeg Personality
-              </Button>
-            )}
-            <Button 
-              onClick={() => setShowOnePager(true)} 
-              variant="outline" 
-              size="sm"
-              className="text-xs"
-            >
-              <FileText className="w-3.5 h-3.5 mr-1.5 text-primary" />
-              One-Pager
+              Clear Demo
             </Button>
           </div>
         </div>
@@ -645,7 +500,7 @@ export function TestPanel({
         <div className="p-4 bg-primary/5 border-b border-border">
           <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
             <Palette className="w-3.5 h-3.5" />
-            Color Palette Vergelijking
+            Color Palette
           </h3>
           <div className="flex flex-wrap gap-2">
             <Link to="/current-preview">
@@ -655,7 +510,7 @@ export function TestPanel({
                 className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
               >
                 <Palette className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Huidig (Forest)
+                Current (Forest)
               </Button>
             </Link>
             <Link to="/warm-preview">
@@ -675,7 +530,7 @@ export function TestPanel({
                 className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
               >
                 <Palette className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
-                Walkthrough Colors
+                Walkthrough (Calm)
               </Button>
             </Link>
           </div>
@@ -698,6 +553,15 @@ export function TestPanel({
                 Demo Walkthrough
               </Button>
             </Link>
+            <Button 
+              onClick={() => setShowOnePager(true)} 
+              variant="outline" 
+              size="sm"
+              className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
+            >
+              <FileText className="w-3.5 h-3.5 mr-1.5 text-primary" />
+              One-Pager
+            </Button>
           </div>
         </div>
 
@@ -706,164 +570,8 @@ export function TestPanel({
           {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
         </AnimatePresence>
 
-        {/* Local Test Data Generator */}
-        <div className="p-4 border-b border-border">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Local Test Generator
-          </h3>
-          <div className="flex gap-2 flex-wrap">
-            <div className="flex items-center gap-2 bg-background rounded-lg px-3 py-1.5 border border-border">
-              <span className="text-xs text-muted-foreground">Aantal:</span>
-              <select
-                value={pageCount}
-                onChange={(e) => setPageCount(Number(e.target.value))}
-                className="bg-transparent text-sm font-medium focus:outline-none text-foreground"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-            
-            <Button onClick={handleGenerate} variant="outline" size="sm">
-              <FlaskConical className="w-4 h-4 mr-1" />
-              Genereer
-            </Button>
-            
-            {testPages.length > 0 && (
-              <>
-                <Button onClick={handleShuffle} variant="outline" size="sm">
-                  <Shuffle className="w-4 h-4 mr-1" />
-                  Shuffle
-                </Button>
-                <Button onClick={handleClear} variant="ghost" size="sm">
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Wissen
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Stats */}
-        {stats && (
-          <div className="p-4 bg-secondary/30 border-b border-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-foreground">{stats.total} pagina's gegenereerd</span>
-              <Button onClick={handleLoadAll} variant="default" size="sm">
-                <Download className="w-4 h-4 mr-1" />
-                Laad in app
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {stats.tones.map(([tone, count]) => (
-                <span key={tone} className={`tone-chip text-[10px] ${getToneClass(tone)}`}>
-                  {tone}: {count}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Page list */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {testPages.length === 0 ? (
-            <div className="text-center py-12">
-              <FlaskConical className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                Gebruik "Injecteer in Database" om de memory loop te testen
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {testPages.map((page, index) => (
-                <motion.div
-                  key={page.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.02, 1) }}
-                  className="border border-border rounded-lg overflow-hidden bg-card"
-                >
-                  <button
-                    onClick={() => setExpandedId(expandedId === page.id ? null : page.id)}
-                    className="w-full text-left p-3 hover:bg-secondary/30 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      <img
-                        src={page.imageUrl}
-                        alt=""
-                        className="w-10 h-12 rounded object-cover flex-shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          {format(page.createdAt, 'dd MMM yyyy')} · {formatDistanceToNow(page.createdAt, { addSuffix: true })}
-                        </p>
-                        <p className="text-sm line-clamp-1 text-foreground">
-                          {page.summary}
-                        </p>
-                      </div>
-                      {expandedId === page.id ? (
-                        <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      )}
-                    </div>
-                  </button>
-                  
-                  <AnimatePresence>
-                    {expandedId === page.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-border"
-                      >
-                        <div className="p-3 space-y-3">
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase mb-1">Tones</p>
-                            <div className="flex flex-wrap gap-1">
-                              {page.tone.map(t => (
-                                <span key={t} className={`tone-chip text-[10px] ${getToneClass(t)}`}>
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase mb-1">Keywords</p>
-                            <div className="flex flex-wrap gap-1">
-                              {page.keywords.map(k => (
-                                <span key={k} className="px-2 py-0.5 rounded-full bg-secondary text-[10px] text-foreground">
-                                  {k}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase mb-1">OCR Text</p>
-                            <p className="text-xs text-muted-foreground line-clamp-3 font-mono">
-                              {page.ocrText}
-                            </p>
-                          </div>
-                          <Button
-                            onClick={() => onViewPage(page as Page)}
-                            variant="outline"
-                            size="sm"
-                            className="w-full"
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            Bekijk in Snapshot View
-                          </Button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Spacer to fill remaining space */}
+        <div className="flex-1" />
       </motion.div>
     </motion.div>
   );
