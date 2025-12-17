@@ -4,19 +4,22 @@ import { Page } from '@/lib/pageService';
 
 interface MemoryPulseProps {
   pages: Page[];
+  onSelectPage?: (page: Page) => void;
 }
 
 /**
  * Memory Pulse - A subtle daily reminder from your writing
  * Shows one meaningful fragment from recent pages
  */
-export function MemoryPulse({ pages }: MemoryPulseProps) {
+export function MemoryPulse({ pages, onSelectPage }: MemoryPulseProps) {
   const [pulse, setPulse] = useState<string | null>(null);
   const [sourceDate, setSourceDate] = useState<Date | null>(null);
+  const [sourcePage, setSourcePage] = useState<Page | null>(null);
 
   useEffect(() => {
     if (pages.length === 0) {
       setPulse(null);
+      setSourcePage(null);
       return;
     }
 
@@ -25,10 +28,17 @@ export function MemoryPulse({ pages }: MemoryPulseProps) {
     if (fragment) {
       setPulse(fragment.text);
       setSourceDate(fragment.date);
+      setSourcePage(fragment.page);
     }
   }, [pages]);
 
   if (!pulse) return null;
+
+  const handleClick = () => {
+    if (sourcePage && onSelectPage) {
+      onSelectPage(sourcePage);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -41,19 +51,26 @@ export function MemoryPulse({ pages }: MemoryPulseProps) {
       >
         <div className="text-center space-y-2">
           <motion.p
-            className="text-base font-serif text-foreground/80 italic leading-relaxed"
+            className={`text-base font-serif text-foreground/80 italic leading-relaxed ${
+              onSelectPage ? 'cursor-pointer hover:text-primary transition-colors' : ''
+            }`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
+            onClick={handleClick}
+            title={onSelectPage ? 'Click to view this page' : undefined}
           >
             "{pulse}"
           </motion.p>
           {sourceDate && (
             <motion.p
-              className="text-xs text-muted-foreground/50"
+              className={`text-xs text-muted-foreground/50 ${
+                onSelectPage ? 'cursor-pointer hover:text-muted-foreground transition-colors' : ''
+              }`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.4 }}
+              onClick={handleClick}
             >
               — {formatRelativeDate(sourceDate)}
             </motion.p>
@@ -67,6 +84,7 @@ export function MemoryPulse({ pages }: MemoryPulseProps) {
 interface PulseFragment {
   text: string;
   date: Date;
+  page: Page;
 }
 
 function selectPulseFragment(pages: Page[]): PulseFragment | null {
@@ -86,21 +104,21 @@ function selectPulseFragment(pages: Page[]): PulseFragment | null {
     if (page.highlights && page.highlights.length > 0) {
       for (const highlight of page.highlights) {
         if (highlight && highlight.length > 10 && highlight.length < 150) {
-          candidates.push({ text: cleanFragment(highlight), date: page.createdAt });
+          candidates.push({ text: cleanFragment(highlight), date: page.createdAt, page });
         }
       }
     }
 
     // One-line hints are good
     if (page.oneLineHint && page.oneLineHint.length > 10 && page.oneLineHint.length < 150) {
-      candidates.push({ text: cleanFragment(page.oneLineHint), date: page.createdAt });
+      candidates.push({ text: cleanFragment(page.oneLineHint), date: page.createdAt, page });
     }
 
     // Summary first sentence
     if (page.summary) {
       const firstSentence = extractFirstSentence(page.summary);
       if (firstSentence && firstSentence.length > 15 && firstSentence.length < 150) {
-        candidates.push({ text: cleanFragment(firstSentence), date: page.createdAt });
+        candidates.push({ text: cleanFragment(firstSentence), date: page.createdAt, page });
       }
     }
   }

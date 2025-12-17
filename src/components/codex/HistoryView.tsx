@@ -905,7 +905,7 @@ export function HistoryView({
               <div className="flex flex-col h-full">
                 {/* Memory Pulse - subtle daily reminder */}
                 <div className="mt-4 mb-8">
-                  <MemoryPulse pages={allPages} />
+                  <MemoryPulse pages={allPages} onSelectPage={onSelectPage} />
                 </div>
                 
                 <div className="relative min-h-[320px] flex flex-col justify-end flex-1">
