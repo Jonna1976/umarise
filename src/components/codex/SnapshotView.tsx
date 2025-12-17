@@ -37,7 +37,7 @@ interface SnapshotViewProps {
   allPages?: Page[]; // All pages for finding related (optional, will fetch if not provided)
 }
 
-const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective', 'determined', 'curious', 'anxious', 'calm'];
+const AVAILABLE_TONES = ['grateful', 'happy', 'energetic', 'peaceful', 'excited', 'nostalgic', 'determined', 'curious', 'anxious', 'frustrated', 'hopeful', 'tender', 'restless', 'melancholic', 'playful', 'focused', 'overwhelmed', 'reflective'];
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {

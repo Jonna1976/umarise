@@ -59,7 +59,7 @@ type HistoryItem =
   | { type: 'capsule'; capsule: CapsulePages };
 
 // Available tones for filtering
-const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective'];
+const AVAILABLE_TONES = ['grateful', 'happy', 'energetic', 'peaceful', 'excited', 'nostalgic', 'determined', 'curious', 'anxious', 'frustrated', 'hopeful', 'tender', 'restless', 'melancholic', 'playful', 'focused', 'overwhelmed', 'reflective'];
 
 // Helper to get primary cue for sorting
 function getPrimaryCue(item: HistoryItem): string {

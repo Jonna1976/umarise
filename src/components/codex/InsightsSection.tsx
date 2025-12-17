@@ -9,10 +9,22 @@ interface InsightsSectionProps {
 
 function getToneClass(tone: string): string {
   const toneMap: Record<string, string> = {
-    focused: 'tone-focused',
-    hopeful: 'tone-hopeful',
+    grateful: 'tone-hopeful',
+    happy: 'tone-playful',
+    energetic: 'tone-focused',
+    peaceful: 'tone-reflective',
+    excited: 'tone-playful',
+    nostalgic: 'tone-reflective',
+    determined: 'tone-focused',
+    curious: 'tone-hopeful',
+    anxious: 'tone-overwhelmed',
     frustrated: 'tone-frustrated',
+    hopeful: 'tone-hopeful',
+    tender: 'tone-reflective',
+    restless: 'tone-overwhelmed',
+    melancholic: 'tone-frustrated',
     playful: 'tone-playful',
+    focused: 'tone-focused',
     overwhelmed: 'tone-overwhelmed',
     reflective: 'tone-reflective',
   };

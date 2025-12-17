@@ -33,7 +33,7 @@ const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes for a perso
 3. **Highlights**: Detect underlined, circled, boxed, or starred text (writer's emphasis)
 4. **Summary**: 1-2 sentence summary of the core idea
 5. **One-line hint**: A single retrieval hint phrase (never displayed as truth, just for search)
-6. **Tone**: Single emotional tone (focused, frustrated, hopeful, playful, overwhelmed, reflective, curious, determined, anxious, calm)
+6. **Tone**: Single emotional tone (grateful, happy, energetic, peaceful, excited, nostalgic, determined, curious, anxious, frustrated, hopeful, tender, restless, melancholic, playful, focused, overwhelmed, reflective)
 7. **Keywords**: 3-5 essential, lowercase tokens
 8. **Topic labels**: 1-3 labels from controlled vocabulary: ${TOPIC_LABELS.slice(0, 30).join(', ')}, etc.
 9. **Suggested cues**: EXACTLY 3 retrieval words/phrases that the user would type to find this page later
