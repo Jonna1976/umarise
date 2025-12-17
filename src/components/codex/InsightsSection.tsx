@@ -63,7 +63,7 @@ export function InsightsSection({ pages }: InsightsSectionProps) {
     >
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="w-4 h-4 text-codex-sepia" />
-        <h3 className="text-sm font-medium text-foreground">Quick Insights</h3>
+        <h3 className="text-sm font-medium text-foreground">AI Hypotheses</h3>
         <span className="text-xs text-muted-foreground ml-auto">
           {insights.totalPages} pages
         </span>
