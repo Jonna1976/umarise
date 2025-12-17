@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn } from 'lucide-react';
-import { Page, updatePage, confirmFutureYouCues } from '@/lib/pageService';
+import { Page, updatePage, confirmFutureYouCues, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,8 @@ import { FutureYouCuePrompt } from './FutureYouCuePrompt';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { RelatedPages } from './RelatedPages';
+import { findRelatedPages, RelatedPage } from '@/lib/relatedPages';
 
 // Match info type (passed from SearchView)
 export interface SnapshotMatchInfo {
@@ -29,6 +31,8 @@ interface SnapshotViewProps {
   isDemoMode?: boolean;
   suggestedCues?: string[]; // AI-suggested cues for new captures
   matchInfo?: SnapshotMatchInfo; // Search match info (when opened from search)
+  onNavigateToPage?: (page: Page, matchInfo?: SnapshotMatchInfo) => void; // Navigate to related page
+  allPages?: Page[]; // All pages for finding related (optional, will fetch if not provided)
 }
 
 const AVAILABLE_TONES = ['focused', 'hopeful', 'frustrated', 'playful', 'overwhelmed', 'reflective', 'determined', 'curious', 'anxious', 'calm'];
@@ -49,7 +53,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showZoomedImage, setShowZoomedImage] = useState(false);
@@ -71,7 +75,50 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [isConfirmingCues, setIsConfirmingCues] = useState(false);
   const [tone, setTone] = useState<string[]>(page.tone || []);
   const [showToneSelector, setShowToneSelector] = useState(false);
+  const [relatedPages, setRelatedPages] = useState<RelatedPage[]>([]);
 
+  // Fetch related pages on mount (Connection Layer B)
+  useEffect(() => {
+    async function loadRelatedPages() {
+      // Skip for new captures
+      if (isNewCapture) return;
+      
+      try {
+        const pages = providedPages || await getPages();
+        const related = findRelatedPages(page, pages, 5);
+        setRelatedPages(related);
+        
+        // Track: related_shown (for compounding metrics)
+        if (related.length > 0) {
+          console.log('[RelatedPages] Showing', related.length, 'related pages for', page.id);
+        }
+      } catch (error) {
+        console.error('[RelatedPages] Failed to load:', error);
+      }
+    }
+    
+    loadRelatedPages();
+  }, [page.id, isNewCapture, providedPages]);
+
+  // Handle navigation to related page
+  const handleRelatedPageClick = async (relatedPage: Page, reasons: RelatedPage['reasons']) => {
+    // Track: related_opened (for reuse metrics)
+    console.log('[RelatedPages] Opened related page', relatedPage.id, 'reasons:', reasons.map(r => `${r.type}:${r.value}`));
+    
+    // Save pending changes before navigating
+    const ok = await savePendingChanges();
+    if (!ok) return;
+    
+    // Navigate to the related page
+    if (onNavigateToPage) {
+      // Pass the reason as match info so it shows why this page was opened
+      const matchInfo: SnapshotMatchInfo = {
+        matchTypes: reasons.map(r => r.type === 'cue' ? 'cue' : r.type === 'entity' ? 'entity' : 'text'),
+        matchedTerms: reasons.map(r => r.value),
+      };
+      onNavigateToPage(relatedPage, matchInfo);
+    }
+  };
 
   // Track changes
   useEffect(() => {
@@ -877,6 +924,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </motion.div>
           )}
         </motion.div>
+
+        {/* Related Pages - Connection Layer (B) - only for existing pages, not new captures */}
+        {!isNewCapture && onNavigateToPage && (
+          <RelatedPages
+            relatedPages={relatedPages}
+            onPageClick={handleRelatedPageClick}
+          />
+        )}
 
         {/* Close button - bottom, always visible (except for new captures which have their own actions) */}
         {!isNewCapture && (

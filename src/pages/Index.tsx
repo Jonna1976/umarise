@@ -361,6 +361,12 @@ const Index = () => {
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
             suggestedCues={isNewCapture ? suggestedCues : undefined}
+            allPages={pages}
+            onNavigateToPage={(page, matchInfo) => {
+              setCurrentPage(page);
+              setSearchMatchInfo(matchInfo || null);
+              setIsNewCapture(false);
+            }}
           />
         ) : null;
       
@@ -469,6 +475,11 @@ const Index = () => {
             isNewCapture={false}
             onPageUpdate={handlePageUpdate}
             matchInfo={searchMatchInfo || undefined}
+            allPages={pages}
+            onNavigateToPage={(page, matchInfo) => {
+              setCurrentPage(page);
+              setSearchMatchInfo(matchInfo || null);
+            }}
           />
         ) : null;
       
