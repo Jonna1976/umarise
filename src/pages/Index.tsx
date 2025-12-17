@@ -49,6 +49,9 @@ const Index = () => {
   // Post-capture state (now inline in SnapshotView, but we still track suggested cues)
   const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
   
+  // Pre-cue typed during processing (mindful moment)
+  const [preCue, setPreCue] = useState<string>('');
+  
   // Search match info (to show "why matched" in SnapshotView)
   const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
 
@@ -351,6 +354,7 @@ const Index = () => {
             totalImages={capturedImages.length}
             currentIndex={processingIndex}
             currentPageCount={pages.length}
+            onPreCue={setPreCue}
           />
         ) : null;
       
@@ -364,6 +368,7 @@ const Index = () => {
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
             suggestedCues={isNewCapture ? suggestedCues : undefined}
+            preCue={isNewCapture ? preCue : undefined}
             allPages={pages}
             onNavigateToPage={(page, matchInfo) => {
               setCurrentPage(page);

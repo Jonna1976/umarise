@@ -31,6 +31,7 @@ interface SnapshotViewProps {
   onPageUpdate?: (page: Page) => void;
   isDemoMode?: boolean;
   suggestedCues?: string[]; // AI-suggested cues for new captures
+  preCue?: string; // User's early input during processing (mindful moment)
   matchInfo?: SnapshotMatchInfo; // Search match info (when opened from search)
   onNavigateToPage?: (page: Page, matchInfo?: SnapshotMatchInfo) => void; // Navigate to related page
   allPages?: Page[]; // All pages for finding related (optional, will fetch if not provided)
@@ -54,7 +55,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/10 text-codex-gold';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, preCue, matchInfo, onNavigateToPage, allPages: providedPages }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showZoomedImage, setShowZoomedImage] = useState(false);
@@ -105,7 +106,20 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   }, [matchInfo, page.ocrText]);
 
-  // Fetch related pages on mount (Connection Layer B)
+  // Merge pre-cue (from processing screen) with suggested cues
+  useEffect(() => {
+    if (isNewCapture && preCue && preCue.trim()) {
+      const trimmedPreCue = preCue.trim().toLowerCase();
+      // Add preCue to the front if it's not already in the list
+      setFutureYouCues(prev => {
+        const existingLower = prev.map(c => c.toLowerCase());
+        if (!existingLower.includes(trimmedPreCue)) {
+          return [preCue.trim(), ...prev.slice(0, 2)]; // Keep max 3 cues
+        }
+        return prev;
+      });
+    }
+  }, [isNewCapture, preCue]);
   useEffect(() => {
     async function loadRelatedPages() {
       // Skip for new captures
