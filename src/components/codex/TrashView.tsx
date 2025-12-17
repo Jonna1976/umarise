@@ -4,6 +4,7 @@ import { Page } from '@/lib/pageService';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,17 +33,55 @@ export function TrashView({
   onClose 
 }: TrashViewProps) {
   const [confirmEmpty, setConfirmEmpty] = useState(false);
+  const [confirmEmptyFinal, setConfirmEmptyFinal] = useState(false);
+  const [emptyConfirmText, setEmptyConfirmText] = useState('');
+  
   const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+  const [showFinalConfirm, setShowFinalConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   const handlePermanentDelete = (page: Page) => {
     setPageToDelete(page);
   };
 
+  const proceedToFinalConfirm = () => {
+    setShowFinalConfirm(true);
+    setDeleteConfirmText('');
+  };
+
   const confirmPermanentDelete = () => {
-    if (pageToDelete) {
+    if (pageToDelete && deleteConfirmText.toUpperCase() === 'DELETE') {
       onPermanentDelete(pageToDelete.id);
       setPageToDelete(null);
+      setShowFinalConfirm(false);
+      setDeleteConfirmText('');
     }
+  };
+
+  const cancelDelete = () => {
+    setPageToDelete(null);
+    setShowFinalConfirm(false);
+    setDeleteConfirmText('');
+  };
+
+  const proceedToFinalEmptyConfirm = () => {
+    setConfirmEmpty(false);
+    setConfirmEmptyFinal(true);
+    setEmptyConfirmText('');
+  };
+
+  const confirmEmptyTrash = () => {
+    if (emptyConfirmText.toUpperCase() === 'DELETE') {
+      onEmptyTrash();
+      setConfirmEmptyFinal(false);
+      setEmptyConfirmText('');
+    }
+  };
+
+  const cancelEmptyTrash = () => {
+    setConfirmEmpty(false);
+    setConfirmEmptyFinal(false);
+    setEmptyConfirmText('');
   };
 
   return (
@@ -164,7 +203,7 @@ export function TrashView({
         </div>
       </motion.div>
 
-      {/* Empty trash confirmation */}
+      {/* Empty trash - First confirmation */}
       <AlertDialog open={confirmEmpty} onOpenChange={setConfirmEmpty}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -178,37 +217,110 @@ export function TrashView({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelEmptyTrash}>Annuleren</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onEmptyTrash();
-                setConfirmEmpty(false);
-              }}
+              onClick={proceedToFinalEmptyConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Definitief verwijderen
+              Doorgaan
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Single page delete confirmation */}
-      <AlertDialog open={!!pageToDelete} onOpenChange={() => setPageToDelete(null)}>
+      {/* Empty trash - Final confirmation with text input */}
+      <AlertDialog open={confirmEmptyFinal} onOpenChange={(open) => !open && cancelEmptyTrash()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Laatste waarschuwing
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Je staat op het punt om <strong>{trashedPages.length} {trashedPages.length === 1 ? 'page' : 'pages'}</strong> permanent te verwijderen. 
+                Deze actie kan <strong>NIET</strong> ongedaan worden gemaakt.
+              </p>
+              <p className="font-medium">
+                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> om te bevestigen:
+              </p>
+              <Input
+                value={emptyConfirmText}
+                onChange={(e) => setEmptyConfirmText(e.target.value)}
+                placeholder="Type DELETE"
+                className="font-mono"
+                autoFocus
+              />
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelEmptyTrash}>Annuleren</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={confirmEmptyTrash}
+              disabled={emptyConfirmText.toUpperCase() !== 'DELETE'}
+            >
+              Definitief verwijderen
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Single page delete - First confirmation */}
+      <AlertDialog open={!!pageToDelete && !showFinalConfirm} onOpenChange={() => cancelDelete()}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Page definitief verwijderen?</AlertDialogTitle>
             <AlertDialogDescription>
-              Dit kan niet ongedaan worden gemaakt.
+              Deze page wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelDelete}>Annuleren</AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmPermanentDelete}
+              onClick={proceedToFinalConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Verwijderen
+              Doorgaan
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Single page delete - Final confirmation with text input */}
+      <AlertDialog open={showFinalConfirm} onOpenChange={(open) => !open && cancelDelete()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Laatste waarschuwing
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Je staat op het punt om deze page <strong>permanent</strong> te verwijderen. 
+                Deze actie kan <strong>NIET</strong> ongedaan worden gemaakt.
+              </p>
+              <p className="font-medium">
+                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> om te bevestigen:
+              </p>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE"
+                className="font-mono"
+                autoFocus
+              />
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Annuleren</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={confirmPermanentDelete}
+              disabled={deleteConfirmText.toUpperCase() !== 'DELETE'}
+            >
+              Definitief verwijderen
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
