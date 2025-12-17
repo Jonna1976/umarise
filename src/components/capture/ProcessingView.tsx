@@ -109,22 +109,22 @@ export function ProcessingView({
         {/* Question card */}
         <div className="bg-secondary/60 rounded-2xl p-8 border border-border/30">
           <p className="text-codex-gold font-serif text-2xl mb-3">
-            What is this about?
+            Give this page a title
           </p>
           <p className="text-foreground/70 text-base mb-6">
-            What words would you type in 2030 to find this page again?
+            Max 5 words — this becomes your book spine label
           </p>
 
           <Input
             value={preCue}
             onChange={(e) => setPreCue(e.target.value)}
-            placeholder="e.g. funding pitch, Marco meeting..."
+            placeholder="e.g. Funding pitch Marco"
             className="bg-background/60 border-border/40 text-center text-lg h-12 placeholder:text-foreground/50"
             autoComplete="off"
           />
           
           <p className="text-foreground/60 text-sm mt-5">
-            Optional — you can refine this after processing
+            You can refine this after processing
           </p>
         </div>
 

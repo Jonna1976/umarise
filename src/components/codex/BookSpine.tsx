@@ -14,17 +14,17 @@ interface BookSpineProps {
   onDragEnd?: () => void;
 }
 
-// Extract the primary cue for display
+// Extract the primary cue for display - this is the spine title
 function extractPrimaryCue(page: Page): string {
-  // Priority: User highlights (user-tagged) > Future You Cues > Primary Keyword > AI Keywords
-  if (page.highlights && page.highlights.length > 0) {
-    return page.highlights[0];
-  }
+  // Priority: Future You Cues (user's title from processing) > User highlights > AI Keywords
   if (page.futureYouCues && page.futureYouCues.length > 0) {
     return page.futureYouCues[0];
   }
   if (page.futureYouCue) {
     return page.futureYouCue;
+  }
+  if (page.highlights && page.highlights.length > 0) {
+    return page.highlights[0];
   }
   if (page.primaryKeyword) {
     return page.primaryKeyword;
