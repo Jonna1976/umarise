@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check, Share2, Twitter, Linkedin, Mail, Instagram, Loader2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Copy, Check, Share2, Twitter, Linkedin, Mail, Instagram, Loader2, Sparkles, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Page } from '@/lib/pageService';
@@ -65,8 +66,32 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
   const [editedContent, setEditedContent] = useState<ShareContent | null>(null);
   const [allSentences, setAllSentences] = useState<ScoredSentence[]>([]);
   const [showAllSentences, setShowAllSentences] = useState(false);
+  const [sentenceSearch, setSentenceSearch] = useState('');
   const [selectedFormat, setSelectedFormat] = useState<ContentFormat>('quote');
   const [copiedFormat, setCopiedFormat] = useState<ContentFormat | null>(null);
+
+  // Filter sentences by search term
+  const filteredSentences = allSentences.filter(s => 
+    s.text.toLowerCase().includes(sentenceSearch.toLowerCase())
+  );
+
+  // Highlight keywords in text
+  const highlightKeywords = (text: string) => {
+    const keywords = page.keywords || [];
+    if (keywords.length === 0) return text;
+    
+    // Create regex pattern for all keywords (case insensitive)
+    const pattern = new RegExp(`(${keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+    const parts = text.split(pattern);
+    
+    return parts.map((part, i) => {
+      const isKeyword = keywords.some(k => k.toLowerCase() === part.toLowerCase());
+      if (isKeyword) {
+        return <span key={i} className="bg-codex-gold/30 text-codex-gold px-0.5 rounded">{part}</span>;
+      }
+      return part;
+    });
+  };
 
   const generateContent = async () => {
     setIsGenerating(true);
@@ -276,19 +301,36 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="mt-2 max-h-48 overflow-y-auto space-y-1 pr-2">
-                                {allSentences.map((s, i) => (
-                                  <button
-                                    key={i}
-                                    onClick={() => selectSentence(s.text)}
-                                    className="w-full text-left p-2 rounded-lg text-sm text-codex-cream/70 hover:text-codex-cream hover:bg-codex-gold/10 transition-colors border border-transparent hover:border-codex-gold/20"
-                                  >
-                                    <span className="line-clamp-2">{s.text}</span>
-                                    <span className="text-xs text-codex-cream/30 ml-2">
-                                      ({s.text.length} chars)
-                                    </span>
-                                  </button>
-                                ))}
+                              {/* Search input */}
+                              <div className="mt-2 mb-2 relative">
+                                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-codex-cream/40" />
+                                <Input
+                                  value={sentenceSearch}
+                                  onChange={(e) => setSentenceSearch(e.target.value)}
+                                  placeholder="Search sentences..."
+                                  className="pl-7 h-8 text-xs bg-codex-ink-deep/50 border-codex-gold/20 text-codex-cream placeholder:text-codex-cream/30"
+                                />
+                              </div>
+
+                              <div className="max-h-48 overflow-y-auto space-y-1 pr-2">
+                                {filteredSentences.length === 0 ? (
+                                  <p className="text-xs text-codex-cream/40 py-2 text-center">
+                                    No sentences match "{sentenceSearch}"
+                                  </p>
+                                ) : (
+                                  filteredSentences.map((s, i) => (
+                                    <button
+                                      key={i}
+                                      onClick={() => selectSentence(s.text)}
+                                      className="w-full text-left p-2 rounded-lg text-sm text-codex-cream/70 hover:text-codex-cream hover:bg-codex-gold/10 transition-colors border border-transparent hover:border-codex-gold/20"
+                                    >
+                                      <span className="line-clamp-2">{highlightKeywords(s.text)}</span>
+                                      <span className="text-xs text-codex-cream/30 ml-2">
+                                        ({s.text.length} chars)
+                                      </span>
+                                    </button>
+                                  ))
+                                )}
                               </div>
                             </motion.div>
                           )}
