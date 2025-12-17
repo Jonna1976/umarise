@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Copy, Check, Share2, Twitter, Linkedin, Mail, Instagram, Loader2, Sparkles, ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { X, Copy, Check, Share2, Mail, Instagram, Loader2, Sparkles, ChevronDown, ChevronUp, Search, MessageCircle, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -36,15 +36,15 @@ const FORMAT_CONFIG: Record<ContentFormat, {
 }> = {
   quote: { 
     label: 'Quote', 
-    icon: <Twitter className="w-4 h-4" />, 
-    platform: 'Twitter/X',
-    description: 'Max 280 chars'
+    icon: <Pin className="w-4 h-4" />, 
+    platform: 'Pinterest',
+    description: 'Inspiring quote'
   },
   lesson: { 
-    label: 'Lesson', 
-    icon: <Linkedin className="w-4 h-4" />, 
-    platform: 'LinkedIn',
-    description: '3-5 sentences'
+    label: 'Message', 
+    icon: <MessageCircle className="w-4 h-4" />, 
+    platform: 'WhatsApp',
+    description: 'Personal share'
   },
   idea: { 
     label: 'Idea', 
@@ -370,27 +370,27 @@ export function SharePageModal({ page, isOpen, onClose }: SharePageModalProps) {
                     <div className="flex gap-2 mt-3">
                       <Button
                         onClick={() => {
-                          const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(currentContent)}`;
-                          window.open(url, '_blank', 'width=550,height=420');
+                          const url = `https://wa.me/?text=${encodeURIComponent(currentContent)}`;
+                          window.open(url, '_blank');
                         }}
                         variant="outline"
                         size="sm"
                         className="flex-1 border-codex-gold/20 text-codex-cream/70 hover:bg-codex-gold/10 hover:text-codex-cream"
                       >
-                        <Twitter className="w-4 h-4 mr-2" />
-                        Post to X
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        WhatsApp
                       </Button>
                       <Button
                         onClick={() => {
-                          const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://umarise.com')}&summary=${encodeURIComponent(currentContent)}`;
+                          const url = `https://pinterest.com/pin/create/button/?description=${encodeURIComponent(currentContent)}`;
                           window.open(url, '_blank', 'width=600,height=600');
                         }}
                         variant="outline"
                         size="sm"
                         className="flex-1 border-codex-gold/20 text-codex-cream/70 hover:bg-codex-gold/10 hover:text-codex-cream"
                       >
-                        <Linkedin className="w-4 h-4 mr-2" />
-                        Post to LinkedIn
+                        <Pin className="w-4 h-4 mr-2" />
+                        Pinterest
                       </Button>
                     </div>
                   </div>
