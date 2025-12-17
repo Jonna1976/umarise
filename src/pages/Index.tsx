@@ -205,16 +205,19 @@ const Index = () => {
     setView('history');
   }, []);
 
-  // After snapshot, go to Search-first (not directly to History)
-  const handleViewSearchFirst = useCallback(() => {
-    // If coming from a new capture, we might want to highlight that page later
+  // After snapshot, go directly to Memory to see new acquisition
+  const handleViewMemory = useCallback(async () => {
+    // Refresh pages to ensure new capture is included
+    await refresh();
+    
+    // Highlight the new page for a few seconds
     if (isNewCapture && currentPage) {
       setHighlightPageId(currentPage.id);
       setTimeout(() => setHighlightPageId(null), 5000);
     }
     setIsNewCapture(false);
-    setView('search');
-  }, [isNewCapture, currentPage]);
+    setView('history');
+  }, [isNewCapture, currentPage, refresh]);
 
   const handleSelectPage = useCallback((page: Page) => {
     setCurrentPage(page);
@@ -356,7 +359,7 @@ const Index = () => {
           <SnapshotView
             page={currentPage}
             onClose={handleCloseSnapshot}
-            onViewHistory={handleViewSearchFirst}  // Go to Search-first, not History
+            onViewHistory={handleViewMemory}  // Go directly to Memory to see new acquisition
             isNewCapture={isNewCapture}
             onPageUpdate={handlePageUpdate}
             isDemoMode={isDemoMode}
