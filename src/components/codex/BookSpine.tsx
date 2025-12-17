@@ -15,10 +15,11 @@ interface BookSpineProps {
 }
 
 // Extract the primary cue for display - this is the spine title
+// Joins all Future You Cues together as the full answer from the user
 function extractPrimaryCue(page: Page): string {
-  // Priority: Future You Cues (user's title from processing) > User highlights > AI Keywords
+  // Priority: Future You Cues (user's full answer from processing) > User highlights > AI Keywords
   if (page.futureYouCues && page.futureYouCues.length > 0) {
-    return page.futureYouCues[0];
+    return page.futureYouCues.join(' ');
   }
   if (page.futureYouCue) {
     return page.futureYouCue;
