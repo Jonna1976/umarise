@@ -993,76 +993,6 @@ export function HistoryView({
                   </div>
                 ) : (
                   <>
-                    {/* Showcase: Latest page lying flat */}
-                    {historyItems.length > 0 && (
-                      <div className="px-4 mb-4">
-                        <motion.button
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                          onClick={() => {
-                            const item = historyItems[0];
-                            if (item.type === 'page') {
-                              onSelectPage(item.page);
-                            } else if (onSelectCapsule) {
-                              onSelectCapsule(item.capsule);
-                            } else {
-                              onSelectPage(item.capsule.pages[0]);
-                            }
-                          }}
-                          className="w-full max-w-xs mx-auto block"
-                        >
-                          {/* Flat book cover - lying horizontally */}
-                          <div 
-                            className="relative h-16 rounded-md overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                            style={{
-                              background: 'linear-gradient(135deg, hsl(38 35% 25%) 0%, hsl(35 30% 20%) 50%, hsl(32 25% 15%) 100%)',
-                              boxShadow: '0 4px 20px -4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.2)'
-                            }}
-                          >
-                            {/* Leather texture overlay */}
-                            <div 
-                              className="absolute inset-0 opacity-20"
-                              style={{
-                                backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
-                              }}
-                            />
-                            
-                            {/* Gold embossed border */}
-                            <div className="absolute inset-2 border border-codex-gold/30 rounded-sm" />
-                            
-                            {/* Title - horizontal, readable */}
-                            <div className="absolute inset-0 flex items-center justify-center px-4">
-                              <span className="font-serif text-sm text-codex-gold/90 tracking-wide truncate">
-                                {(() => {
-                                  const item = historyItems[0];
-                                  const page = item.type === 'page' ? item.page : item.capsule.pages[0];
-                                  if (page.futureYouCues?.length) return page.futureYouCues.slice(0, 2).join(' ');
-                                  if (page.futureYouCue) return page.futureYouCue.split(/\s+/).slice(0, 2).join(' ');
-                                  if (page.primaryKeyword) return page.primaryKeyword;
-                                  return 'Latest';
-                                })()}
-                              </span>
-                            </div>
-                            
-                            {/* Subtle shine effect */}
-                            <div 
-                              className="absolute inset-0 opacity-30"
-                              style={{
-                                background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)'
-                              }}
-                            />
-                          </div>
-                          
-                          {/* Label */}
-                          <p className="text-xs text-muted-foreground/60 text-center mt-2 font-serif italic">
-                            nieuwste
-                          </p>
-                        </motion.button>
-                      </div>
-                    )}
-                    
-                    {/* Standing spines - skip first item (shown in showcase) */}
                     <div 
                       className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
                       style={{ 
@@ -1070,41 +1000,53 @@ export function HistoryView({
                         WebkitOverflowScrolling: 'touch'
                       }}
                     >
-                      {historyItems.slice(1).map((item, index) => (
+                      {historyItems.map((item, index) => (
                         <div 
                           key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
                           style={{ scrollSnapAlign: 'start' }}
+                          className="relative"
                         >
-                          <BookSpine
-                            page={item.type === 'page' ? item.page : undefined}
-                            capsule={item.type === 'capsule' ? item.capsule : undefined}
-                            onClick={() => {
-                              if (item.type === 'page') {
-                                onSelectPage(item.page);
-                              } else if (onSelectCapsule) {
-                                onSelectCapsule(item.capsule);
-                              } else {
-                                onSelectPage(item.capsule.pages[0]);
+                          {/* Golden leather frame for latest page */}
+                          {index === 0 && (
+                            <div 
+                              className="absolute -inset-1.5 rounded-md z-0"
+                              style={{
+                                background: 'linear-gradient(135deg, hsl(38 50% 45%) 0%, hsl(35 45% 35%) 50%, hsl(38 50% 45%) 100%)',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                              }}
+                            />
+                          )}
+                          <div className={index === 0 ? 'relative z-10' : ''}>
+                            <BookSpine
+                              page={item.type === 'page' ? item.page : undefined}
+                              capsule={item.type === 'capsule' ? item.capsule : undefined}
+                              onClick={() => {
+                                if (item.type === 'page') {
+                                  onSelectPage(item.page);
+                                } else if (onSelectCapsule) {
+                                  onSelectCapsule(item.capsule);
+                                } else {
+                                  onSelectPage(item.capsule.pages[0]);
+                                }
+                              }}
+                              index={index}
+                              projects={projects}
+                              isHighlighted={
+                                highlightPageId && (
+                                  (item.type === 'page' && item.page.id === highlightPageId) ||
+                                  (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                                )
                               }
-                            }}
-                            index={index}
-                            projects={projects}
-                            isHighlighted={
-                              highlightPageId && (
-                                (item.type === 'page' && item.page.id === highlightPageId) ||
-                                (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
-                              )
-                            }
-                            onDragStart={() => setIsDragging(true)}
-                            onDragEnd={() => setIsDragging(false)}
-                          />
+                              onDragStart={() => setIsDragging(true)}
+                              onDragEnd={() => setIsDragging(false)}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
                     
                     {/* Shelf - styled like leather book cover */}
                     <div className="relative mt-0">
-                      {/* Main shelf surface - leather texture */}
                       <div 
                         className="h-4 rounded-t-sm"
                         style={{
@@ -1112,7 +1054,6 @@ export function HistoryView({
                           boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), inset 0 -1px 0 rgba(255,255,255,0.05)'
                         }}
                       />
-                      {/* Gold trim edge */}
                       <div 
                         className="h-1"
                         style={{
