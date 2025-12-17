@@ -72,6 +72,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [userKeywords, setUserKeywords] = useState<string[]>(page.highlights || []);
   const [newUserKeyword, setNewUserKeyword] = useState('');
   const [futureYouCues, setFutureYouCues] = useState<string[]>(page.futureYouCues || []);
+  const [newCueInput, setNewCueInput] = useState('');
   const [writtenAt, setWrittenAt] = useState<Date>(page.writtenAt || page.createdAt);
   const [cuesConfirmed, setCuesConfirmed] = useState<boolean>((page.futureYouCues?.length ?? 0) > 0);
   const [isConfirmingCues, setIsConfirmingCues] = useState(false);
@@ -385,6 +386,54 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
+  // Handle adding a new cue word
+  const handleAddCue = async () => {
+    const trimmed = newCueInput.trim().toLowerCase();
+    if (!trimmed) return;
+    if (futureYouCues.length >= 2) {
+      toast.error('Maximum 2 words allowed');
+      return;
+    }
+    if (futureYouCues.includes(trimmed)) {
+      toast.error('Word already added');
+      return;
+    }
+
+    const newCues = [...futureYouCues, trimmed].slice(0, 2);
+    setFutureYouCues(newCues);
+    setNewCueInput('');
+
+    // Save immediately
+    const success = await updatePage(page.id, { futureYouCues: newCues });
+    if (success) {
+      toast.success('Saved');
+      onPageUpdate?.({
+        ...page,
+        futureYouCues: newCues,
+      });
+    } else {
+      toast.error('Failed to save');
+    }
+  };
+
+  // Handle removing a cue word
+  const handleRemoveCue = async (index: number) => {
+    const newCues = futureYouCues.filter((_, i) => i !== index);
+    setFutureYouCues(newCues);
+
+    // Save immediately
+    const success = await updatePage(page.id, { futureYouCues: newCues.length > 0 ? newCues : undefined });
+    if (success) {
+      toast.success('Removed');
+      onPageUpdate?.({
+        ...page,
+        futureYouCues: newCues,
+      });
+    } else {
+      toast.error('Failed to save');
+    }
+  };
+
   // Handle Future You Cue confirmation (inline in SnapshotView)
   const handleCuesConfirmed = async (cues: string[], edited: boolean) => {
     setIsConfirmingCues(true);
@@ -518,7 +567,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                   {cue}
                   {!isDemoMode && (
                     <button
-                      onClick={() => setFutureYouCues(prev => prev.filter((_, i) => i !== index))}
+                      onClick={() => handleRemoveCue(index)}
                       className="opacity-50 hover:opacity-100 transition-opacity"
                     >
                       <X className="w-3 h-3" />
@@ -529,7 +578,34 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </div>
           )}
           
-          {/* Show hint when no cues */}
+          {/* Input for adding/editing cues - only when not in demo mode and less than 2 cues */}
+          {!isDemoMode && futureYouCues.length < 2 && (
+            <div className="flex gap-2 mt-2">
+              <Input
+                value={newCueInput}
+                onChange={(e) => setNewCueInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCue();
+                  }
+                }}
+                placeholder={futureYouCues.length === 0 ? "e.g. funding pitch" : "Add second word..."}
+                className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10"
+                maxLength={30}
+              />
+              <Button
+                onClick={handleAddCue}
+                disabled={!newCueInput.trim()}
+                size="sm"
+                className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-10 px-4"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+          
+          {/* Show hint when no cues in demo mode */}
           {futureYouCues.length === 0 && isDemoMode && (
             <p className="text-sm text-codex-cream/40 italic">No search words set</p>
           )}
