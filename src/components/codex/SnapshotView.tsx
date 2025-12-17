@@ -15,6 +15,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { RelatedPages } from './RelatedPages';
 import { findRelatedPages, RelatedPage } from '@/lib/relatedPages';
+import { findMatchedPassages, generateHighlightedSegments, TextSegment, CiteResult } from '@/lib/citeToSource';
 
 // Match info type (passed from SearchView)
 export interface SnapshotMatchInfo {
@@ -76,6 +77,33 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const [tone, setTone] = useState<string[]>(page.tone || []);
   const [showToneSelector, setShowToneSelector] = useState(false);
   const [relatedPages, setRelatedPages] = useState<RelatedPage[]>([]);
+  
+  // Cite-to-source: highlighted passages when opened from search (Layer A)
+  const [citeResult, setCiteResult] = useState<CiteResult | null>(null);
+  const [highlightedSegments, setHighlightedSegments] = useState<TextSegment[]>([]);
+
+  // Compute highlighted passages when matchInfo is present
+  useEffect(() => {
+    if (matchInfo && matchInfo.matchedTerms.length > 0 && page.ocrText) {
+      const result = findMatchedPassages(page.ocrText, matchInfo.matchedTerms, matchInfo.matchTypes);
+      setCiteResult(result);
+      
+      if (result.passages.length > 0) {
+        const segments = generateHighlightedSegments(page.ocrText, result.passages);
+        setHighlightedSegments(segments);
+        
+        // Auto-expand Raw Text when there are highlights to show
+        setShowOcrText(true);
+        
+        console.log('[CiteToSource] Found', result.passages.length, 'passages for terms:', matchInfo.matchedTerms);
+      } else if (result.likelySentences && result.likelySentences.length > 0) {
+        console.log('[CiteToSource] Meaning match - showing likely sentences');
+      }
+    } else {
+      setCiteResult(null);
+      setHighlightedSegments([]);
+    }
+  }, [matchInfo, page.ocrText]);
 
   // Fetch related pages on mount (Connection Layer B)
   useEffect(() => {
@@ -793,7 +821,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
-        {/* OCR Text (collapsible & editable) */}
+        {/* OCR Text (collapsible & editable) - with Cite-to-Source highlights */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -805,7 +833,13 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             className="flex items-center justify-between w-full py-3 text-left"
           >
             <span className="text-xs text-codex-cream/50 uppercase tracking-wide">
-              Raw text <span className="normal-case opacity-60">(editable)</span>
+              Raw text 
+              {highlightedSegments.length > 0 && (
+                <span className="ml-2 normal-case text-codex-gold opacity-80">
+                  (matched passages highlighted)
+                </span>
+              )}
+              {!matchInfo && <span className="normal-case opacity-60">(editable)</span>}
             </span>
             {showOcrText ? (
               <ChevronUp className="w-4 h-4 text-codex-cream/50" />
@@ -820,15 +854,69 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <Textarea
-                value={ocrText}
-                onChange={(e) => setOcrText(e.target.value)}
-                className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono"
-                placeholder="OCR text..."
-              />
-              <p className="text-xs text-codex-cream/40 mt-2">
-                Correct any OCR mistakes here
-              </p>
+              {/* Show highlighted text when opened from search (Cite-to-Source A) */}
+              {highlightedSegments.length > 0 ? (
+                <div className="min-h-[100px] p-3 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
+                  {highlightedSegments.map((segment, i) => (
+                    segment.isHighlighted ? (
+                      <mark
+                        key={i}
+                        className="bg-codex-gold/30 text-codex-gold px-0.5 rounded"
+                        title={`Matched ${segment.matchType}: ${segment.matchedTerm}`}
+                      >
+                        {segment.text}
+                      </mark>
+                    ) : (
+                      <span key={i}>{segment.text}</span>
+                    )
+                  ))}
+                </div>
+              ) : citeResult?.likelySentences && citeResult.likelySentences.length > 0 ? (
+                /* Meaning match - show likely sentences */
+                <div className="space-y-2">
+                  <p className="text-xs text-codex-cream/50 italic mb-2">
+                    Matched by meaning — showing likely passages:
+                  </p>
+                  {citeResult.likelySentences.map((sentence, i) => (
+                    <div
+                      key={i}
+                      className="p-2 rounded bg-codex-gold/10 border border-codex-gold/20 text-sm text-codex-cream/80 font-mono"
+                    >
+                      "{sentence}"
+                    </div>
+                  ))}
+                  <Textarea
+                    value={ocrText}
+                    onChange={(e) => setOcrText(e.target.value)}
+                    className="min-h-[100px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono mt-3"
+                    placeholder="Full OCR text..."
+                  />
+                </div>
+              ) : (
+                /* No match info - show editable textarea */
+                <Textarea
+                  value={ocrText}
+                  onChange={(e) => setOcrText(e.target.value)}
+                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono"
+                  placeholder="OCR text..."
+                />
+              )}
+              
+              {/* Edit button to switch to editable mode when viewing highlights */}
+              {highlightedSegments.length > 0 && (
+                <button
+                  onClick={() => setHighlightedSegments([])}
+                  className="text-xs text-codex-cream/40 hover:text-codex-cream/60 mt-2 underline"
+                >
+                  Edit raw text
+                </button>
+              )}
+              
+              {!highlightedSegments.length && !citeResult?.likelySentences?.length && (
+                <p className="text-xs text-codex-cream/40 mt-2">
+                  Correct any OCR mistakes here
+                </p>
+              )}
             </motion.div>
           )}
         </motion.div>
