@@ -416,7 +416,28 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
-  // Handle removing a cue word
+  // Handle removing a specific word from cues
+  const handleRemoveWord = async (wordToRemove: string) => {
+    // Rebuild cues: flatten all words, remove the target, then save as individual words
+    const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0));
+    const newWords = allWords.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase());
+    
+    setFutureYouCues(newWords);
+
+    // Save immediately
+    const success = await updatePage(page.id, { futureYouCues: newWords.length > 0 ? newWords : undefined });
+    if (success) {
+      toast.success('Removed');
+      onPageUpdate?.({
+        ...page,
+        futureYouCues: newWords,
+      });
+    } else {
+      toast.error('Failed to save');
+    }
+  };
+
+  // Handle removing a cue by index (legacy)
   const handleRemoveCue = async (index: number) => {
     const newCues = futureYouCues.filter((_, i) => i !== index);
     setFutureYouCues(newCues);
@@ -556,59 +577,69 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             These words appear on the spine of this page in your memory.
           </p>
           
-          {/* Display existing cues with delete option (max 2) */}
-          {futureYouCues.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3 mt-2">
-              {futureYouCues.slice(0, 2).map((cue, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
-                >
-                  {cue}
-                  {!isDemoMode && (
-                    <button
-                      onClick={() => handleRemoveCue(index)}
-                      className="opacity-50 hover:opacity-100 transition-opacity"
+          {/* Display existing cues as individual words (max 2) */}
+          {(() => {
+            // Normalize: split all cues into individual words, take max 2
+            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 2);
+            const wordCount = allWords.length;
+            
+            return (
+              <>
+                {wordCount > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3 mt-2">
+                    {allWords.map((word, index) => (
+                      <span 
+                        key={index}
+                        className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
+                      >
+                        {word}
+                        {!isDemoMode && (
+                          <button
+                            onClick={() => handleRemoveWord(word)}
+                            className="opacity-50 hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Input for adding words - only when not in demo mode and less than 2 words */}
+                {!isDemoMode && wordCount < 2 && (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      value={newCueInput}
+                      onChange={(e) => setNewCueInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCue();
+                        }
+                      }}
+                      placeholder={wordCount === 0 ? "e.g. funding" : "Add second word..."}
+                      className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10"
+                      maxLength={30}
+                    />
+                    <Button
+                      onClick={handleAddCue}
+                      disabled={!newCueInput.trim()}
+                      size="sm"
+                      className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-10 px-4"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </span>
-              ))}
-            </div>
-          )}
-          
-          {/* Input for adding/editing cues - only when not in demo mode and less than 2 cues */}
-          {!isDemoMode && futureYouCues.length < 2 && (
-            <div className="flex gap-2 mt-2">
-              <Input
-                value={newCueInput}
-                onChange={(e) => setNewCueInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddCue();
-                  }
-                }}
-                placeholder={futureYouCues.length === 0 ? "e.g. funding pitch" : "Add second word..."}
-                className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10"
-                maxLength={30}
-              />
-              <Button
-                onClick={handleAddCue}
-                disabled={!newCueInput.trim()}
-                size="sm"
-                className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-10 px-4"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-          
-          {/* Show hint when no cues in demo mode */}
-          {futureYouCues.length === 0 && isDemoMode && (
-            <p className="text-sm text-codex-cream/40 italic">No search words set</p>
-          )}
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Show hint when no words in demo mode */}
+                {wordCount === 0 && isDemoMode && (
+                  <p className="text-sm text-codex-cream/40 italic">No search words set</p>
+                )}
+              </>
+            );
+          })()}
           
           {/* Topic input - for additional project classification */}
           {!isDemoMode && (
