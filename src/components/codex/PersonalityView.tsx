@@ -15,7 +15,8 @@ import {
   User,
   BookOpen,
   Lightbulb,
-  X
+  X,
+  TrendingUp
 } from 'lucide-react';
 import { usePages } from '@/hooks/usePages';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +25,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
 import { RecommendationsSection } from './RecommendationsSection';
+import { PersonalityEvolution } from './PersonalityEvolution';
 
 interface PersonalityViewProps {
   onBack: () => void;
@@ -64,12 +66,13 @@ interface OrbitItem {
 
 const orbitItems: OrbitItem[] = [
   { id: 'drivers', label: 'Drivers', icon: Flame, angle: 0, color: 'text-codex-gold' },
-  { id: 'superpower', label: 'Super Power', icon: Zap, angle: 51, color: 'text-codex-gold' },
-  { id: 'tension', label: 'Tension Field', icon: Waves, angle: 102, color: 'text-codex-gold' },
-  { id: 'growth', label: 'Growth Edge', icon: Target, angle: 154, color: 'text-codex-gold' },
-  { id: 'recommendations', label: 'Recommendations', icon: Lightbulb, angle: 206, color: 'text-codex-gold' },
-  { id: 'artwork', label: 'Artwork', icon: Palette, angle: 257, color: 'text-codex-gold' },
-  { id: 'influences', label: 'Influences', icon: BookOpen, angle: 308, color: 'text-codex-gold' },
+  { id: 'superpower', label: 'Super Power', icon: Zap, angle: 45, color: 'text-codex-gold' },
+  { id: 'tension', label: 'Tension Field', icon: Waves, angle: 90, color: 'text-codex-gold' },
+  { id: 'growth', label: 'Growth Edge', icon: Target, angle: 135, color: 'text-codex-gold' },
+  { id: 'evolution', label: 'Evolution', icon: TrendingUp, angle: 180, color: 'text-codex-gold' },
+  { id: 'recommendations', label: 'Recommend', icon: Lightbulb, angle: 225, color: 'text-codex-gold' },
+  { id: 'artwork', label: 'Artwork', icon: Palette, angle: 270, color: 'text-codex-gold' },
+  { id: 'influences', label: 'Influences', icon: BookOpen, angle: 315, color: 'text-codex-gold' },
 ];
 
 export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewProps) {
@@ -200,6 +203,16 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
             <p className="text-lg text-foreground/80 italic leading-relaxed">
               "{currentProfile.growth_edge}"
             </p>
+          </div>
+        );
+      case 'evolution':
+        return (
+          <div>
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Your Evolution</h4>
+            <p className="text-base text-muted-foreground mb-4">
+              See how your personality profile has changed over time as you add more pages.
+            </p>
+            <PersonalityEvolution currentTagline={currentProfile.tagline} />
           </div>
         );
       case 'recommendations':
