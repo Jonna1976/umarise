@@ -210,11 +210,11 @@ export function HistoryView({
         return cueA.localeCompare(cueB);
       });
     } else {
-      // Sort by date (newest first)
+      // Sort by date (oldest first = left to right timeline)
       items.sort((a, b) => {
         const dateA = a.type === 'page' ? a.page.createdAt : a.capsule.pages[0]?.createdAt || new Date(0);
         const dateB = b.type === 'page' ? b.page.createdAt : b.capsule.pages[0]?.createdAt || new Date(0);
-        return dateB.getTime() - dateA.getTime();
+        return dateA.getTime() - dateB.getTime();
       });
     }
     
