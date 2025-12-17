@@ -14,7 +14,6 @@ import {
   Palette,
   User,
   BookOpen,
-  GitCompare,
   Lightbulb,
   X
 } from 'lucide-react';
@@ -24,7 +23,6 @@ import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { PersonalityArtModal } from './PersonalityArtModal';
-import { CompareProfilesView } from './CompareProfilesView';
 import { RecommendationsSection } from './RecommendationsSection';
 
 interface PersonalityViewProps {
@@ -54,7 +52,7 @@ interface PersonalityProfile {
   profile_type: 'voice' | 'influences';
 }
 
-type ProfileType = 'voice' | 'influences' | 'compare';
+type ProfileType = 'voice';
 
 interface OrbitItem {
   id: string;
@@ -65,20 +63,19 @@ interface OrbitItem {
 }
 
 const orbitItems: OrbitItem[] = [
-  { id: 'drivers', label: 'Drivers', icon: Flame, angle: 0, color: 'text-amber-500' },
-  { id: 'superpower', label: 'Super Power', icon: Zap, angle: 60, color: 'text-yellow-500' },
-  { id: 'tension', label: 'Tension Field', icon: Waves, angle: 120, color: 'text-blue-500' },
-  { id: 'growth', label: 'Growth Edge', icon: Target, angle: 180, color: 'text-emerald-500' },
-  { id: 'recommendations', label: 'Recommendations', icon: Lightbulb, angle: 240, color: 'text-purple-500' },
-  { id: 'artwork', label: 'Artwork', icon: Palette, angle: 300, color: 'text-rose-500' },
+  { id: 'drivers', label: 'Drivers', icon: Flame, angle: 0, color: 'text-codex-gold' },
+  { id: 'superpower', label: 'Super Power', icon: Zap, angle: 51, color: 'text-codex-gold' },
+  { id: 'tension', label: 'Tension Field', icon: Waves, angle: 102, color: 'text-codex-gold' },
+  { id: 'growth', label: 'Growth Edge', icon: Target, angle: 154, color: 'text-codex-gold' },
+  { id: 'recommendations', label: 'Recommendations', icon: Lightbulb, angle: 206, color: 'text-codex-gold' },
+  { id: 'artwork', label: 'Artwork', icon: Palette, angle: 257, color: 'text-codex-gold' },
+  { id: 'influences', label: 'Influences', icon: BookOpen, angle: 308, color: 'text-codex-gold' },
 ];
 
 export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewProps) {
   const { pages: realPages, isLoading: pagesLoading } = usePages();
   const pages = forceEmpty ? [] : realPages;
-  const [activeTab, setActiveTab] = useState<ProfileType>('voice');
   const [voiceProfile, setVoiceProfile] = useState<PersonalityProfile | null>(null);
-  const [influencesProfile, setInfluencesProfile] = useState<PersonalityProfile | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showArtModal, setShowArtModal] = useState(false);
@@ -93,16 +90,13 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
   }, [pages]);
 
   const hasEnoughVoicePages = voicePages.length >= minPagesRequired;
-  const hasEnoughInfluencePages = influencePages.length >= minPagesRequired;
-  const canCompare = hasEnoughVoicePages && hasEnoughInfluencePages && voiceProfile && influencesProfile;
-  const hasEnoughPages = activeTab === 'voice' ? hasEnoughVoicePages : activeTab === 'influences' ? hasEnoughInfluencePages : canCompare;
+  const hasEnoughPages = hasEnoughVoicePages;
   
-  const currentProfile = activeTab === 'voice' ? voiceProfile : activeTab === 'influences' ? influencesProfile : null;
-  const currentPageCount = activeTab === 'voice' ? voicePages.length : influencePages.length;
+  const currentProfile = voiceProfile;
+  const currentPageCount = voicePages.length;
 
-  const runPersonalityAnalysis = async (profileType: ProfileType) => {
-    const requiredPages = profileType === 'voice' ? hasEnoughVoicePages : hasEnoughInfluencePages;
-    if (!requiredPages) return;
+  const runPersonalityAnalysis = async () => {
+    if (!hasEnoughVoicePages) return;
     
     setIsAnalyzing(true);
     setError(null);
@@ -111,7 +105,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       const deviceId = getActiveDeviceId();
       
       const { data, error: fnError } = await supabase.functions.invoke('analyze-personality', {
-        body: { device_user_id: deviceId, profile_type: profileType }
+        body: { device_user_id: deviceId, profile_type: 'voice' }
       });
 
       if (fnError) {
@@ -127,12 +121,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
         return;
       }
 
-      if (profileType === 'voice') {
-        setVoiceProfile(data);
-      } else {
-        setInfluencesProfile(data);
-      }
-      
+      setVoiceProfile(data);
       toast.success('Profile generated');
     } catch (err) {
       console.error('Personality analysis error:', err);
@@ -145,15 +134,9 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
 
   useEffect(() => {
     if (!pagesLoading && hasEnoughVoicePages && !voiceProfile && !isAnalyzing) {
-      runPersonalityAnalysis('voice');
+      runPersonalityAnalysis();
     }
   }, [pagesLoading, voicePages.length]);
-
-  useEffect(() => {
-    if (activeTab === 'influences' && hasEnoughInfluencePages && !influencesProfile && !isAnalyzing) {
-      runPersonalityAnalysis('influences');
-    }
-  }, [activeTab, influencePages.length]);
 
   const getStrengthLabel = (strength: string) => {
     switch (strength) {
@@ -170,15 +153,15 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
     switch (itemId) {
       case 'drivers':
         return (
-          <div className="space-y-3">
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">What Drives You</h4>
+          <div className="space-y-4">
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">What Drives You</h4>
             {currentProfile.drivers.map((driver, idx) => (
-              <div key={idx} className="p-3 rounded-lg bg-secondary/50">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-sm text-foreground">{driver.name}</span>
-                  <span className="text-xs text-muted-foreground">{getStrengthLabel(driver.strength)}</span>
+              <div key={idx} className="p-4 rounded-lg bg-secondary/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-base text-foreground">{driver.name}</span>
+                  <span className="text-sm text-muted-foreground">{getStrengthLabel(driver.strength)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">{driver.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{driver.description}</p>
               </div>
             ))}
           </div>
@@ -186,8 +169,8 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       case 'superpower':
         return (
           <div>
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Super Power</h4>
-            <p className="text-base text-foreground/90 leading-relaxed font-serif italic">
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Your Super Power</h4>
+            <p className="text-lg text-foreground/90 leading-relaxed font-serif italic">
               "{currentProfile.superpower}"
             </p>
           </div>
@@ -195,17 +178,17 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       case 'tension':
         return (
           <div>
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Tension Field</h4>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
-                <p className="text-sm font-medium text-foreground">{currentProfile.tension_field.side_a}</p>
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Your Tension Field</h4>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 p-4 rounded-lg bg-secondary/50 text-center">
+                <p className="text-base font-medium text-foreground">{currentProfile.tension_field.side_a}</p>
               </div>
-              <div className="text-muted-foreground text-lg">↔</div>
-              <div className="flex-1 p-3 rounded-lg bg-secondary/50 text-center">
-                <p className="text-sm font-medium text-foreground">{currentProfile.tension_field.side_b}</p>
+              <div className="text-muted-foreground text-xl">↔</div>
+              <div className="flex-1 p-4 rounded-lg bg-secondary/50 text-center">
+                <p className="text-base font-medium text-foreground">{currentProfile.tension_field.side_b}</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-muted-foreground leading-relaxed">
               {currentProfile.tension_field.description}
             </p>
           </div>
@@ -213,8 +196,8 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       case 'growth':
         return (
           <div>
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Your Growth Edge</h4>
-            <p className="text-base text-foreground/80 italic leading-relaxed">
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Your Growth Edge</h4>
+            <p className="text-lg text-foreground/80 italic leading-relaxed">
               "{currentProfile.growth_edge}"
             </p>
           </div>
@@ -222,7 +205,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       case 'recommendations':
         return (
           <div>
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Recommendations</h4>
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Recommendations</h4>
             <RecommendationsSection 
               profile={{
                 tagline: currentProfile.tagline,
@@ -244,15 +227,15 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
       case 'artwork':
         return (
           <div className="text-center">
-            <h4 className="font-serif text-lg font-medium text-foreground mb-4">Visualize Your Personality</h4>
-            <p className="text-sm text-muted-foreground mb-6">
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Visualize Your Personality</h4>
+            <p className="text-base text-muted-foreground mb-6">
               Transform your personality into art through different visualization styles.
             </p>
-            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground mb-6">
-              <div className="p-2 rounded bg-secondary/30">Keyword Constellation</div>
-              <div className="p-2 rounded bg-secondary/30">Emotion Rhythm</div>
-              <div className="p-2 rounded bg-secondary/30">Theme Circles</div>
-              <div className="p-2 rounded bg-secondary/30">Connection Map</div>
+            <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground mb-6">
+              <div className="p-3 rounded bg-secondary/30">Keyword Constellation</div>
+              <div className="p-3 rounded bg-secondary/30">Emotion Rhythm</div>
+              <div className="p-3 rounded bg-secondary/30">Theme Circles</div>
+              <div className="p-3 rounded bg-secondary/30">Connection Map</div>
             </div>
             <Button
               onClick={() => {
@@ -266,35 +249,25 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
             </Button>
           </div>
         );
+      case 'influences':
+        return (
+          <div>
+            <h4 className="font-serif text-xl font-medium text-foreground mb-4">Your Influences</h4>
+            <p className="text-base text-muted-foreground leading-relaxed mb-4">
+              Pages captured from books, articles, and other sources that shape your thinking.
+            </p>
+            <div className="p-4 rounded-lg bg-secondary/50">
+              <p className="text-lg text-foreground font-medium">{influencePages.length} influence pages</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                These are pages with source references that inform your perspective.
+              </p>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
   };
-
-  const ProfileTab = ({ type, icon: Icon, label, count, isActive }: { 
-    type: ProfileType; 
-    icon: typeof User; 
-    label: string; 
-    count: number;
-    isActive: boolean;
-  }) => (
-    <button
-      onClick={() => setActiveTab(type)}
-      className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all ${
-        isActive 
-          ? 'bg-codex-sepia/20 border border-codex-sepia text-codex-sepia' 
-          : 'bg-secondary/50 border border-transparent text-muted-foreground hover:bg-secondary'
-      }`}
-    >
-      <Icon className="w-4 h-4" />
-      <span className="text-sm font-medium">{label}</span>
-      <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-        isActive ? 'bg-codex-sepia/20' : 'bg-muted'
-      }`}>
-        {count}
-      </span>
-    </button>
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -316,46 +289,12 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => runPersonalityAnalysis(activeTab)}
+            onClick={() => runPersonalityAnalysis()}
             disabled={isAnalyzing || !hasEnoughPages}
             className="w-10 h-10"
           >
             <RefreshCw className={`w-5 h-5 ${isAnalyzing ? 'animate-spin' : ''}`} />
           </Button>
-        </div>
-
-        {/* Profile Type Tabs */}
-        <div className="px-4 pb-4">
-          <div className="flex gap-2">
-            <ProfileTab 
-              type="voice" 
-              icon={User} 
-              label="Voice" 
-              count={voicePages.length}
-              isActive={activeTab === 'voice'}
-            />
-            <ProfileTab 
-              type="influences" 
-              icon={BookOpen} 
-              label="Influences" 
-              count={influencePages.length}
-              isActive={activeTab === 'influences'}
-            />
-            <button
-              onClick={() => setActiveTab('compare')}
-              disabled={!canCompare}
-              className={`flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl transition-all ${
-                activeTab === 'compare'
-                  ? 'bg-gradient-to-r from-codex-sepia/20 to-blue-500/20 border border-codex-sepia/50 text-foreground' 
-                  : canCompare
-                    ? 'bg-secondary/50 border border-transparent text-muted-foreground hover:bg-secondary'
-                    : 'bg-secondary/30 border border-transparent text-muted-foreground/50 cursor-not-allowed'
-              }`}
-            >
-              <GitCompare className="w-4 h-4" />
-              <span className="text-xs font-medium">Compare</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -446,16 +385,8 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
         </div>
       )}
 
-      {/* Compare View */}
-      {activeTab === 'compare' && canCompare && voiceProfile && influencesProfile && (
-        <CompareProfilesView 
-          voiceProfile={voiceProfile} 
-          influencesProfile={influencesProfile} 
-        />
-      )}
-
       {/* Orbit Visualization */}
-      {currentProfile && !isAnalyzing && activeTab !== 'compare' && (
+      {currentProfile && !isAnalyzing && (
         <div className="px-6 py-12">
           {/* Center - Core Identity */}
           <motion.div
@@ -502,17 +433,18 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
           </motion.div>
 
           {/* Orbit Circles */}
-          <div className="relative w-full max-w-md mx-auto aspect-square">
+          <div className="relative w-full max-w-lg mx-auto aspect-square">
             {/* Orbit ring */}
-            <div className="absolute inset-8 rounded-full border border-dashed border-muted-foreground/20" />
+            <div className="absolute inset-4 rounded-full border border-dashed border-muted-foreground/20" />
             
             {/* Orbit items */}
             {orbitItems.map((item, index) => {
-              const radius = 42; // percentage from center
+              const radius = 44; // percentage from center
               const angleRad = (item.angle - 90) * (Math.PI / 180);
               const x = 50 + radius * Math.cos(angleRad);
               const y = 50 + radius * Math.sin(angleRad);
               const Icon = item.icon;
+              const isActive = expandedOrbit === item.id;
               
               return (
                 <motion.button
@@ -520,26 +452,34 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.6 + index * 0.1, type: 'spring' }}
-                  onClick={() => setExpandedOrbit(expandedOrbit === item.id ? null : item.id)}
+                  onClick={() => setExpandedOrbit(isActive ? null : item.id)}
                   className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-                    expandedOrbit === item.id 
+                    isActive 
                       ? 'z-20 scale-110' 
                       : 'z-10 hover:scale-110'
                   }`}
                   style={{ left: `${x}%`, top: `${y}%` }}
                 >
                   <motion.div
-                    whileHover={{ scale: 1.15 }}
+                    whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`w-16 h-16 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
-                      expandedOrbit === item.id
-                        ? 'bg-codex-sepia text-white shadow-lg shadow-codex-sepia/30'
-                        : 'bg-secondary/80 hover:bg-secondary border border-border hover:border-codex-sepia/30'
+                    animate={isActive ? {
+                      boxShadow: [
+                        '0 0 20px rgba(180, 140, 80, 0.4)',
+                        '0 0 30px rgba(180, 140, 80, 0.6)',
+                        '0 0 20px rgba(180, 140, 80, 0.4)'
+                      ]
+                    } : {}}
+                    transition={isActive ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
+                    className={`w-20 h-20 rounded-full flex flex-col items-center justify-center transition-all duration-300 ${
+                      isActive
+                        ? 'bg-codex-sepia text-white'
+                        : 'bg-secondary/80 hover:bg-secondary border border-border hover:border-codex-gold/50'
                     }`}
                   >
-                    <Icon className={`w-5 h-5 mb-0.5 ${expandedOrbit === item.id ? 'text-white' : item.color}`} />
-                    <span className={`text-[9px] font-medium leading-tight text-center px-1 ${
-                      expandedOrbit === item.id ? 'text-white' : 'text-foreground/70'
+                    <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-white' : 'text-codex-gold'}`} />
+                    <span className={`text-[10px] font-medium leading-tight text-center px-1 ${
+                      isActive ? 'text-white' : 'text-foreground/70'
                     }`}>
                       {item.label}
                     </span>
@@ -556,7 +496,7 @@ export function PersonalityView({ onBack, forceEmpty = false }: PersonalityViewP
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="mt-12 p-6 rounded-2xl bg-secondary/30 border border-border relative"
+                className="mt-16 p-8 rounded-2xl bg-secondary/30 border border-border relative"
               >
                 <button
                   onClick={() => setExpandedOrbit(null)}
