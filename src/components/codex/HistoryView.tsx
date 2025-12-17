@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2 } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2, Download } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -17,6 +17,7 @@ import { TrashView } from './TrashView';
 import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useTrash } from '@/hooks/useTrash';
+import { ExportButton } from './ExportButton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -406,6 +407,11 @@ export function HistoryView({
           <div className="flex-1 flex justify-end">
           {isMinimalMode ? (
             <div className="flex items-center gap-2">
+              {/* Export button - shows at 1+ pages */}
+              {allPages.length >= 1 && (
+                <ExportButton variant="ghost" size="icon" showLabel={false} />
+              )}
+              
               {/* Share button - shows at 3+ pages */}
               {allPages.length >= 3 && onShareMemory && (
                 <button
@@ -498,6 +504,10 @@ export function HistoryView({
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              {/* Export button */}
+              {allPages.length >= 1 && (
+                <ExportButton variant="outline" size="sm" showLabel={true} />
+              )}
               {/* Single Insights button - only shows at 5+ pages */}
               {allPages.length >= 5 && onViewPersonality && (
                 <button
