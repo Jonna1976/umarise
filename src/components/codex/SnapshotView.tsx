@@ -35,6 +35,7 @@ interface SnapshotViewProps {
   matchInfo?: SnapshotMatchInfo; // Search match info (when opened from search)
   onNavigateToPage?: (page: Page, matchInfo?: SnapshotMatchInfo) => void; // Navigate to related page
   allPages?: Page[]; // All pages for finding related (optional, will fetch if not provided)
+  onSearchCue?: (cue: string) => void; // Navigate to search with cue as query
 }
 
 const AVAILABLE_TONES = ['grateful', 'happy', 'energetic', 'peaceful', 'excited', 'nostalgic', 'determined', 'curious', 'anxious', 'frustrated', 'hopeful', 'tender', 'restless', 'melancholic', 'playful', 'focused', 'overwhelmed', 'reflective'];
@@ -63,7 +64,7 @@ function getToneClass(tone: string): string {
   return toneMap[tone.toLowerCase()] || 'bg-codex-gold/20 text-codex-gold';
 }
 
-export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages }: SnapshotViewProps) {
+export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages, onSearchCue }: SnapshotViewProps) {
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showZoomedImage, setShowZoomedImage] = useState(false);
@@ -600,7 +601,13 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                         key={index}
                         className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
                       >
-                        {word}
+                        <button
+                          onClick={() => onSearchCue?.(word)}
+                          className="hover:underline cursor-pointer"
+                          title={`Search for "${word}"`}
+                        >
+                          {word}
+                        </button>
                         {!isDemoMode && (
                           <button
                             onClick={() => handleRemoveWord(word)}
