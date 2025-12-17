@@ -610,9 +610,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
         <button
           onClick={onOpenHistory}
-          className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+          className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
         >
-          <BookOpen className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+          <BookOpen className="w-6 h-6 text-primary-foreground" strokeWidth={1.5} />
         </button>
         
         

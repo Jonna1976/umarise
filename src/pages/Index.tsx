@@ -325,7 +325,7 @@ const Index = () => {
   const DevButton = showDevButton && (
     <button
       onClick={() => setShowTestPanel(true)}
-      className="fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-codex-sepia/90 text-primary-foreground shadow-lg flex items-center justify-center hover:bg-codex-sepia transition-colors"
+      className="fixed bottom-6 left-6 z-40 p-2 text-primary-foreground/40 hover:text-primary-foreground/70 transition-colors"
       title="Open Test Panel"
     >
       <FlaskConical className="w-5 h-5" />
