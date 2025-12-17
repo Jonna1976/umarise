@@ -116,7 +116,7 @@ const ocrTexts = [
   "Gedachten over het team: diversiteit in achtergrond maar eenheid in visie. Dat is de magic formula.",
 ];
 
-const toneOptions = ['focused', 'reflective', 'hopeful', 'playful', 'overwhelmed', 'frustrated'] as const;
+const toneOptions = ['grateful', 'happy', 'energetic', 'peaceful', 'excited', 'nostalgic', 'determined', 'curious', 'anxious', 'frustrated', 'hopeful', 'tender', 'restless', 'melancholic', 'playful', 'focused', 'overwhelmed', 'reflective'] as const;
 
 const keywordSets = [
   ['design', 'simplicity', 'user', 'experience', 'flow'],
