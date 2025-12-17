@@ -16,7 +16,10 @@ interface BookSpineProps {
 
 // Extract the primary cue for display
 function extractPrimaryCue(page: Page): string {
-  // Priority: Future You Cues > Primary Keyword > First Keyword
+  // Priority: User highlights (user-tagged) > Future You Cues > Primary Keyword > AI Keywords
+  if (page.highlights && page.highlights.length > 0) {
+    return page.highlights[0];
+  }
   if (page.futureYouCues && page.futureYouCues.length > 0) {
     return page.futureYouCues[0];
   }
