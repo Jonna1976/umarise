@@ -28,6 +28,8 @@ export function ProcessingView({
   const isMultiple = totalImages > 1;
   const [elapsedTime, setElapsedTime] = useState(0);
   const [cueInput, setCueInput] = useState('');
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,32 +38,64 @@ export function ProcessingView({
     return () => clearInterval(interval);
   }, []);
 
+  // Reset confirmation state when a new image starts processing
+  useEffect(() => {
+    setIsConfirmed(false);
+    setHasSubmitted(false);
+    setCueInput('');
+    setElapsedTime(0);
+  }, [imageUrl]);
+
   const remainingTime = Math.max(0, ESTIMATED_TIME - elapsedTime);
 
-  const handleContinue = () => {
-    // Split input by commas or spaces, filter empty, take max 5
-    const words = cueInput
+  const extractCues = () => {
+    const normalized = cueInput
       .split(/[,\s]+/)
       .map(w => w.trim())
       .filter(w => w.length > 0)
       .slice(0, 5);
-    
-    if (words.length > 0 && onContinue) {
-      onContinue(words);
+
+    return Array.from(new Set(normalized)).slice(0, 5);
+  };
+
+  const submit = () => {
+    const cues = extractCues();
+    if (cues.length > 0 && onContinue) {
+      onContinue(cues);
     }
+  };
+
+  // If user confirmed early, auto-continue the moment analysis completes
+  useEffect(() => {
+    if (hasSubmitted) return;
+    if (!isConfirmed) return;
+    if (!isProcessingComplete) return;
+
+    setHasSubmitted(true);
+    submit();
+  }, [hasSubmitted, isConfirmed, isProcessingComplete]);
+
+  const hasInput = cueInput.trim().length > 0;
+
+  const handleConfirmAndContinue = () => {
+    if (!hasInput || hasSubmitted) return;
+
+    if (isProcessingComplete) {
+      setHasSubmitted(true);
+      submit();
+      return;
+    }
+
+    // Confirm now; we'll continue automatically once analysis is ready
+    setIsConfirmed(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && canContinue) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      handleContinue();
+      handleConfirmAndContinue();
     }
   };
-
-  // Can only continue when processing is done AND user has entered at least one word
-  const hasInput = cueInput.trim().length > 0;
-  const canContinue = isProcessingComplete && hasInput;
-  
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6 pt-12">
       {/* Image thumbnail - compact */}
@@ -146,11 +180,15 @@ export function ProcessingView({
           {/* Input */}
           <Input
             value={cueInput}
-            onChange={(e) => setCueInput(e.target.value)}
+            onChange={(e) => {
+              setCueInput(e.target.value);
+              if (isConfirmed) setIsConfirmed(false);
+            }}
             onKeyDown={handleKeyDown}
             placeholder="e.g. funding pitch, Marco meeting..."
             className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
             autoComplete="off"
+            disabled={hasSubmitted}
           />
 
           <p className="text-foreground/40 text-sm mt-4 text-center">
@@ -158,7 +196,7 @@ export function ProcessingView({
           </p>
         </div>
 
-        {/* Continue button */}
+        {/* Confirm / Continue button */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -166,17 +204,22 @@ export function ProcessingView({
           className="mt-6"
         >
           <Button
-            onClick={handleContinue}
-            disabled={!canContinue}
+            onClick={handleConfirmAndContinue}
+            disabled={!hasInput || hasSubmitted}
             className="w-full h-12 bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep font-medium text-base disabled:opacity-40"
           >
-            {!isProcessingComplete ? (
-              'Waiting for analysis...'
-            ) : !hasInput ? (
-              'Enter words to continue'
+            {hasSubmitted ? (
+              'Continuing...'
+            ) : isProcessingComplete ? (
+              <>
+                Confirm & continue
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            ) : isConfirmed ? (
+              'Confirmed — waiting for analysis...'
             ) : (
               <>
-                Continue
+                Confirm
                 <ArrowRight className="w-4 h-4 ml-2" />
               </>
             )}
