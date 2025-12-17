@@ -280,7 +280,7 @@ export function TestPanel({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-codex-ink/80 backdrop-blur-sm"
     >
       {/* Double Confirmation Modal */}
       <AnimatePresence>
@@ -289,7 +289,7 @@ export function TestPanel({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[60] bg-codex-ink-deep/90 flex items-center justify-center p-4"
             onClick={cancelDelete}
           >
             <motion.div
@@ -297,13 +297,13 @@ export function TestPanel({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-background border-2 border-destructive rounded-xl p-6 max-w-sm w-full shadow-2xl"
+              className="bg-card border-2 border-primary/50 rounded-xl p-6 max-w-sm w-full shadow-2xl"
             >
               <div className="text-center mb-4">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
-                  <Trash2 className="w-8 h-8 text-destructive" />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Trash2 className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold text-destructive">⚠️ DOUBLE CONFIRMATION</h3>
+                <h3 className="text-lg font-serif font-bold text-foreground">Bevestiging Vereist</h3>
                 <p className="text-sm text-muted-foreground mt-2">
                   Je staat op het punt om <strong>ECHTE DATA</strong> te verwijderen.
                   Dit kan NIET ongedaan worden gemaakt.
@@ -311,14 +311,14 @@ export function TestPanel({
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  Type <span className="text-destructive font-bold">DELETE</span> om te bevestigen:
+                <label className="block text-sm font-medium mb-2 text-foreground">
+                  Type <span className="text-primary font-bold">DELETE</span> om te bevestigen:
                 </label>
                 <input
                   type="text"
                   value={deleteConfirmInput}
                   onChange={(e) => setDeleteConfirmInput(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-destructive/50 rounded-lg bg-background text-foreground focus:border-destructive focus:outline-none"
+                  className="w-full px-3 py-2 border-2 border-primary/30 rounded-lg bg-background text-foreground focus:border-primary focus:outline-none"
                   placeholder="DELETE"
                   autoFocus
                 />
@@ -333,7 +333,7 @@ export function TestPanel({
                   Annuleren
                 </Button>
                 <Button 
-                  variant="destructive" 
+                  variant="default" 
                   className="flex-1"
                   disabled={deleteConfirmInput.toUpperCase() !== 'DELETE'}
                   onClick={executeConfirmedDelete}
@@ -350,20 +350,20 @@ export function TestPanel({
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-background border-l border-border shadow-2xl overflow-hidden flex flex-col"
+        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="p-4 border-b border-border bg-secondary/30">
+        <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-codex-sepia" />
-              <h2 className="font-serif text-lg font-medium">Test Panel</h2>
+              <FlaskConical className="w-5 h-5 text-primary" />
+              <h2 className="font-serif text-lg font-medium text-foreground">Test Panel</h2>
             </div>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
           
@@ -373,14 +373,14 @@ export function TestPanel({
         </div>
 
         {/* Demo Mode Toggle - PROMINENT */}
-        <div className="p-4 border-b border-border">
+        <div className="p-4 border-b border-border bg-background">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
             Data Mode
           </h3>
           <button
             onClick={() => {
               toggleDemoMode();
-              onLoadTestData(); // Refresh data after toggle
+              onLoadTestData();
               toast({
                 title: isDemoMode ? "Switched to Your Data" : "Switched to Demo Data",
                 description: isDemoMode 
@@ -390,8 +390,8 @@ export function TestPanel({
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
               isDemoMode 
-                ? 'bg-amber-500/10 border-amber-500/50 text-amber-600' 
-                : 'bg-green-500/10 border-green-500/50 text-green-600'
+                ? 'bg-primary/10 border-primary/50 text-primary' 
+                : 'bg-codex-teal/10 border-codex-teal/50 text-foreground'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -411,19 +411,19 @@ export function TestPanel({
                 </div>
               </div>
             </div>
-            <span className="text-xs px-2 py-1 rounded bg-background/50">
+            <span className="text-xs px-2 py-1 rounded bg-secondary">
               Klik om te wisselen
             </span>
           </button>
           
-          {/* CRITICAL WARNING when Demo Mode is OFF */}
+          {/* Warning when Demo Mode is OFF */}
           {!isDemoMode && (
-            <div className="mt-3 p-3 bg-red-500/20 border-2 border-red-500/50 rounded-lg">
+            <div className="mt-3 p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <span className="text-red-500 text-lg">🔒</span>
+                <span className="text-primary text-lg">🔒</span>
                 <div>
-                  <p className="text-xs font-bold text-red-600">ECHTE DATA ACTIEF</p>
-                  <p className="text-xs text-red-500/80 mt-1">
+                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Echte Data Actief</p>
+                  <p className="text-xs text-muted-foreground mt-1">
                     Jonna's data is beschermd. Geen enkele destructieve actie is mogelijk zonder Demo Mode.
                   </p>
                 </div>
@@ -433,8 +433,8 @@ export function TestPanel({
         </div>
 
         {/* Device Debug Section */}
-        <div className="p-4 border-b border-border bg-muted/30">
-          <h3 className="text-xs font-medium text-amber-500 uppercase tracking-wide mb-3 flex items-center gap-2">
+        <div className="p-4 border-b border-border bg-secondary/30">
+          <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
             <Bug className="w-3.5 h-3.5" />
             Device ID Debug
           </h3>
@@ -453,13 +453,13 @@ export function TestPanel({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Match:</span>
-              <span className={deviceIdsMatch ? 'text-green-500' : 'text-red-500'}>
+              <span className={deviceIdsMatch ? 'text-codex-teal' : 'text-primary'}>
                 {deviceIdsMatch ? '✓ Yes' : '✗ No'}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Pages in DB:</span>
-              <span className="text-amber-400">{dbPageCount}</span>
+              <span className="text-primary">{dbPageCount}</span>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
@@ -468,23 +468,23 @@ export function TestPanel({
               Copy ID
             </Button>
             {!deviceIdsMatch && dbDeviceId && (
-              <Button onClick={handleAdoptDbDeviceId} variant="codex" size="sm" className="text-xs">
+              <Button onClick={handleAdoptDbDeviceId} variant="default" size="sm" className="text-xs">
                 Adopt DB ID
               </Button>
             )}
           </div>
         </div>
 
-        {/* Copy Real Pages to Demo - NEW PRIMARY ACTION */}
-        <div className="p-4 bg-green-500/10 border-b border-border">
-          <h3 className="text-xs font-medium text-green-600 uppercase tracking-wide mb-2 flex items-center gap-2">
+        {/* Copy Real Pages to Demo */}
+        <div className="p-4 bg-codex-teal/10 border-b border-border">
+          <h3 className="text-xs font-medium text-codex-teal uppercase tracking-wide mb-2 flex items-center gap-2">
             <Copy className="w-3.5 h-3.5" />
             Copy Real Pages to Demo
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
             Kopieer je echte {dbPageCount} pages naar demo mode. Originelen blijven veilig onder je echte device ID.
           </p>
-          <div className="text-xs text-amber-600 bg-amber-500/10 p-2 rounded mb-2 border border-amber-500/20">
+          <div className="text-xs text-primary bg-primary/10 p-2 rounded mb-2 border border-primary/20">
             ⚠️ Wist eerst bestaande demo data, dan kopieert geselecteerde aantal.
           </div>
           <div className="flex gap-2 items-center">
@@ -526,10 +526,9 @@ export function TestPanel({
                   setIsInjecting(false);
                 }
               }}
-              variant="codex" 
+              variant="default" 
               size="sm"
               disabled={isInjecting || dbPageCount === 0}
-              className="bg-green-600 hover:bg-green-700 text-white"
             >
               {isInjecting ? (
                 <>
@@ -547,11 +546,11 @@ export function TestPanel({
         </div>
 
         {/* Database Injection Section - FAKE DATA */}
-        <div className={`p-4 border-b border-border ${!isDemoMode ? 'opacity-50 pointer-events-none' : 'bg-codex-gold/10'}`}>
-          <h3 className="text-xs font-medium text-codex-gold uppercase tracking-wide mb-2 flex items-center gap-2">
+        <div className={`p-4 border-b border-border ${!isDemoMode ? 'opacity-50 pointer-events-none' : 'bg-primary/5'}`}>
+          <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-2 flex items-center gap-2">
             <Database className="w-3.5 h-3.5" />
             Fake Demo Data (Fallback)
-            {!isDemoMode && <span className="text-xs text-red-500 ml-2">🔒 Demo Mode vereist</span>}
+            {!isDemoMode && <span className="text-xs text-muted-foreground ml-2">🔒 Demo Mode vereist</span>}
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
             {testDataInfo.totalPages} fake pages als alternatief:
@@ -604,7 +603,7 @@ export function TestPanel({
                 size="sm"
                 className="text-xs"
               >
-                <Compass className="w-3.5 h-3.5 mr-1.5 text-red-500" />
+                <Compass className="w-3.5 h-3.5 mr-1.5 text-primary" />
                 Leeg Kompas
               </Button>
             )}
@@ -615,7 +614,7 @@ export function TestPanel({
                 size="sm"
                 className="text-xs"
               >
-                <Brain className="w-3.5 h-3.5 mr-1.5 text-codex-sepia" />
+                <Brain className="w-3.5 h-3.5 mr-1.5 text-primary" />
                 Leeg Patterns
               </Button>
             )}
@@ -626,7 +625,7 @@ export function TestPanel({
                 size="sm"
                 className="text-xs"
               >
-                <Star className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                <Star className="w-3.5 h-3.5 mr-1.5 text-primary" />
                 Leeg Personality
               </Button>
             )}
@@ -636,15 +635,15 @@ export function TestPanel({
               size="sm"
               className="text-xs"
             >
-              <FileText className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+              <FileText className="w-3.5 h-3.5 mr-1.5 text-primary" />
               One-Pager
             </Button>
           </div>
         </div>
 
         {/* Color Palette Previews */}
-        <div className="p-4 bg-amber-500/10 border-b border-border">
-          <h3 className="text-xs font-medium text-amber-600 uppercase tracking-wide mb-3 flex items-center gap-2">
+        <div className="p-4 bg-primary/5 border-b border-border">
+          <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
             <Palette className="w-3.5 h-3.5" />
             Color Palette Vergelijking
           </h3>
@@ -653,9 +652,9 @@ export function TestPanel({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="text-xs border-codex-gold/50 text-codex-gold hover:bg-codex-gold/10"
+                className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
               >
-                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                <Palette className="w-3.5 h-3.5 mr-1.5 text-primary" />
                 Huidig (Forest)
               </Button>
             </Link>
@@ -663,9 +662,9 @@ export function TestPanel({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="text-xs border-amber-600/50 text-amber-600 hover:bg-amber-600/10"
+                className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
               >
-                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                <Palette className="w-3.5 h-3.5 mr-1.5 text-primary" />
                 Warm (Library)
               </Button>
             </Link>
@@ -673,9 +672,9 @@ export function TestPanel({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="text-xs border-forest-deep/50 text-forest-deep hover:bg-forest-deep/10"
+                className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
               >
-                <Palette className="w-3.5 h-3.5 mr-1.5" />
+                <Palette className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
                 Walkthrough Colors
               </Button>
             </Link>
@@ -683,8 +682,8 @@ export function TestPanel({
         </div>
 
         {/* Alignment Tools */}
-        <div className="p-4 bg-teal/10 border-b border-border">
-          <h3 className="text-xs font-medium text-teal uppercase tracking-wide mb-3 flex items-center gap-2">
+        <div className="p-4 bg-codex-teal/10 border-b border-border">
+          <h3 className="text-xs font-medium text-codex-teal uppercase tracking-wide mb-3 flex items-center gap-2">
             <Play className="w-3.5 h-3.5" />
             Alignment Tools
           </h3>
@@ -693,9 +692,9 @@ export function TestPanel({
               <Button 
                 variant="outline" 
                 size="sm"
-                className="text-xs border-teal/50 text-teal hover:bg-teal/10"
+                className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
               >
-                <Play className="w-3.5 h-3.5 mr-1.5" />
+                <Play className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
                 Demo Walkthrough
               </Button>
             </Link>
@@ -718,7 +717,7 @@ export function TestPanel({
               <select
                 value={pageCount}
                 onChange={(e) => setPageCount(Number(e.target.value))}
-                className="bg-transparent text-sm font-medium focus:outline-none"
+                className="bg-transparent text-sm font-medium focus:outline-none text-foreground"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -749,10 +748,10 @@ export function TestPanel({
 
         {/* Stats */}
         {stats && (
-          <div className="p-4 bg-codex-cream/50 border-b border-border">
+          <div className="p-4 bg-secondary/30 border-b border-border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">{stats.total} pagina's gegenereerd</span>
-              <Button onClick={handleLoadAll} variant="codex" size="sm">
+              <span className="text-sm font-medium text-foreground">{stats.total} pagina's gegenereerd</span>
+              <Button onClick={handleLoadAll} variant="default" size="sm">
                 <Download className="w-4 h-4 mr-1" />
                 Laad in app
               </Button>
@@ -800,7 +799,7 @@ export function TestPanel({
                         <p className="text-xs text-muted-foreground mb-1">
                           {format(page.createdAt, 'dd MMM yyyy')} · {formatDistanceToNow(page.createdAt, { addSuffix: true })}
                         </p>
-                        <p className="text-sm line-clamp-1">
+                        <p className="text-sm line-clamp-1 text-foreground">
                           {page.summary}
                         </p>
                       </div>
@@ -835,7 +834,7 @@ export function TestPanel({
                             <p className="text-xs text-muted-foreground uppercase mb-1">Keywords</p>
                             <div className="flex flex-wrap gap-1">
                               {page.keywords.map(k => (
-                                <span key={k} className="px-2 py-0.5 rounded-full bg-secondary text-[10px]">
+                                <span key={k} className="px-2 py-0.5 rounded-full bg-secondary text-[10px] text-foreground">
                                   {k}
                                 </span>
                               ))}
