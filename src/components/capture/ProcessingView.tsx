@@ -150,10 +150,10 @@ export function ProcessingView({
               transition={{ delay: 0.3 }}
               className="mb-6"
             >
-              <p className="text-lg font-serif text-foreground mb-2">
+              <p className="text-xl font-serif text-foreground mb-3">
                 A moment for yourself.
               </p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-base leading-relaxed">
                 While we read your handwriting, think about this:
               </p>
             </motion.div>
@@ -163,12 +163,12 @@ export function ProcessingView({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 }}
-              className="bg-secondary/50 rounded-2xl p-5 border border-border/50"
+              className="bg-secondary/50 rounded-2xl p-6 border border-border/50"
             >
-              <p className="text-codex-gold font-serif text-lg mb-1">
+              <p className="text-codex-gold font-serif text-xl mb-2">
                 What is this about?
               </p>
-              <p className="text-muted-foreground text-xs mb-4">
+              <p className="text-muted-foreground text-sm mb-5">
                 What words would you type in 2030 to find this page again?
               </p>
 
@@ -176,11 +176,11 @@ export function ProcessingView({
                 value={preCue}
                 onChange={(e) => setPreCue(e.target.value)}
                 placeholder="e.g. funding pitch, Marco meeting, wedding plans..."
-                className="bg-background/50 border-border/30 text-center placeholder:text-muted-foreground/50"
+                className="bg-background/50 border-border/30 text-center text-base placeholder:text-muted-foreground/50"
                 autoComplete="off"
               />
               
-              <p className="text-muted-foreground/60 text-[10px] mt-3">
+              <p className="text-muted-foreground/60 text-xs mt-4">
                 Optional — you can refine this after processing
               </p>
             </motion.div>
@@ -190,7 +190,7 @@ export function ProcessingView({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0.3, 0.6, 0.3] }}
               transition={{ delay: 1, duration: 3, repeat: Infinity }}
-              className="mt-6 text-muted-foreground/50 text-xs"
+              className="mt-6 text-muted-foreground/50 text-sm"
             >
               Breathe. Your thoughts are being preserved.
             </motion.p>
