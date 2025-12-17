@@ -34,9 +34,9 @@ const typeIcons = {
 };
 
 const typeLabels = {
-  book: 'Boek',
+  book: 'Book',
   film: 'Film',
-  article: 'Artikel',
+  article: 'Article',
 };
 
 const typeColors = {
@@ -67,8 +67,8 @@ export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
     } catch (error) {
       console.error('Failed to generate recommendations:', error);
       toast({
-        title: "Kon aanbevelingen niet genereren",
-        description: error instanceof Error ? error.message : "Probeer het later opnieuw",
+        title: "Could not generate recommendations",
+        description: error instanceof Error ? error.message : "Please try again later",
         variant: "destructive",
       });
     } finally {
@@ -93,9 +93,9 @@ export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
             <Sparkles className="w-8 h-8 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Persoonlijke Aanbevelingen</h3>
+            <h3 className="text-lg font-semibold text-foreground">Personal Recommendations</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Ontdek boeken, films en artikelen die bij jouw profiel passen
+              Discover books, films and articles that match your profile
             </p>
           </div>
           <Button
@@ -106,12 +106,12 @@ export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
             {isLoading ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Genereren...
+                Generating...
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Genereer Aanbevelingen
+                Generate Recommendations
               </>
             )}
           </Button>
@@ -135,7 +135,7 @@ export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
-          Voor Jou Geselecteerd
+          Selected For You
         </h3>
         <Button
           variant="ghost"
@@ -169,7 +169,7 @@ export const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ 
               <div key={type} className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                   {React.createElement(typeIcons[type], { className: 'w-4 h-4' })}
-                  {typeLabels[type]}en
+                  {typeLabels[type]}s
                 </div>
                 <div className="grid gap-3">
                   {groupedRecs[type].map((rec, index) => (
