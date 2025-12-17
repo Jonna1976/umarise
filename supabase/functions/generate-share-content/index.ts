@@ -5,31 +5,81 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are a content strategist helping writers transform their handwritten notes into shareable digital content.
+// Extract meaningful sentences from OCR text
+function extractSentences(ocrText: string): string[] {
+  if (!ocrText) return [];
+  
+  // Split by common sentence endings, keeping the delimiter
+  const rawSentences = ocrText
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 10 && s.length < 300); // Filter very short or very long
+  
+  // Also try splitting by newlines for bullet points or short phrases
+  const lineBasedPhrases = ocrText
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 15 && s.length < 200);
+  
+  // Combine and deduplicate
+  const all = [...rawSentences, ...lineBasedPhrases];
+  const unique = [...new Set(all)];
+  
+  return unique;
+}
 
-Given the raw text, summary, keywords, and tone of a handwritten page, generate 4 content formats:
+// Score sentences by interest/shareability
+function scoreSentence(sentence: string, keywords: string[] = []): number {
+  let score = 0;
+  
+  // Prefer sentences that start with capital letters (proper sentences)
+  if (/^[A-Z]/.test(sentence)) score += 2;
+  
+  // Prefer sentences with keywords
+  keywords.forEach(kw => {
+    if (sentence.toLowerCase().includes(kw.toLowerCase())) score += 3;
+  });
+  
+  // Prefer medium-length sentences (not too short, not too long)
+  if (sentence.length > 30 && sentence.length < 150) score += 2;
+  
+  // Prefer sentences with questions
+  if (sentence.includes('?')) score += 2;
+  
+  // Prefer sentences with action words
+  const actionWords = ['want', 'need', 'think', 'believe', 'feel', 'create', 'build', 'make', 'learn', 'grow'];
+  actionWords.forEach(word => {
+    if (sentence.toLowerCase().includes(word)) score += 1;
+  });
+  
+  // Deprioritize sentences that look like dates or headers
+  if (/^\d/.test(sentence) || sentence.length < 20) score -= 2;
+  
+  return score;
+}
 
-1. **Quote** (max 280 characters): A punchy, memorable quote or insight that works on Twitter/X. Extract the most powerful single idea.
-
-2. **Lesson** (3-5 sentences): A LinkedIn-style insight with context. Start with the key learning, then explain why it matters.
-
-3. **Idea** (newsletter-ready, 100-150 words): A thoughtful exploration suitable for Substack or email. Include the insight and its implications.
-
-4. **Caption** (Instagram-style, 2-3 sentences): An engaging, personal reflection that invites connection. End with a question or call to engage.
-
-IMPORTANT:
-- Preserve the writer's voice and authenticity
-- Do not add hashtags unless naturally fitting
-- Make each format feel distinct, not just shorter/longer versions
-- The content should feel like it came from the writer, not AI
-
-Return ONLY valid JSON in this exact format:
-{
-  "quote": "...",
-  "lesson": "...",
-  "idea": "...",
-  "caption": "..."
-}`;
+// Select best sentences for each format
+function selectContent(sentences: string[], keywords: string[] = []) {
+  // Score all sentences
+  const scored = sentences.map(s => ({ sentence: s, score: scoreSentence(s, keywords) }));
+  scored.sort((a, b) => b.score - a.score);
+  
+  const topSentences = scored.slice(0, 6).map(s => s.sentence);
+  
+  return {
+    // Quote: Best single sentence, trimmed for Twitter length
+    quote: topSentences[0]?.slice(0, 280) || '',
+    
+    // Lesson: Top 2-3 sentences combined
+    lesson: topSentences.slice(0, 3).join(' ') || '',
+    
+    // Idea: Top 4-5 sentences for newsletter format
+    idea: topSentences.slice(0, 5).join('\n\n') || '',
+    
+    // Caption: First sentence as personal reflection
+    caption: topSentences[1] || topSentences[0] || '',
+  };
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -39,110 +89,43 @@ serve(async (req) => {
   try {
     const { summary, ocrText, keywords, tone } = await req.json();
 
-    if (!summary && !ocrText) {
+    if (!ocrText) {
       return new Response(
-        JSON.stringify({ error: 'Either summary or ocrText is required' }),
+        JSON.stringify({ error: 'OCR text is required for source extraction' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY is not configured');
+    console.log('[generate-share-content] Extracting real sentences from OCR text...');
+
+    // Extract and score sentences from actual OCR text
+    const sentences = extractSentences(ocrText);
+    
+    if (sentences.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'AI service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'No suitable sentences found in OCR text',
+          content: {
+            quote: ocrText.slice(0, 280),
+            lesson: ocrText,
+            idea: ocrText,
+            caption: ocrText.slice(0, 150),
+          }
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const userPrompt = `Transform this handwritten page into shareable content:
+    const content = selectContent(sentences, keywords || []);
 
-**Summary:** ${summary || 'Not available'}
-
-**Raw Text (OCR):** ${ocrText || 'Not available'}
-
-**Keywords:** ${keywords?.join(', ') || 'None'}
-
-**Tone:** ${tone?.join(', ') || 'Unknown'}
-
-Generate the 4 content formats (quote, lesson, idea, caption) as JSON.`;
-
-    console.log('[generate-share-content] Generating content for page...');
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt }
-        ],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[generate-share-content] AI gateway error:', response.status, errorText);
-
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded, please try again later' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'AI credits depleted' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate content' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content?.trim();
-
-    if (!rawContent) {
-      console.error('[generate-share-content] No content in response:', data);
-      return new Response(
-        JSON.stringify({ error: 'No response from AI' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Parse JSON from response (handle markdown code blocks)
-    let content;
-    try {
-      const jsonMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, rawContent];
-      const jsonStr = jsonMatch[1] || rawContent;
-      content = JSON.parse(jsonStr.trim());
-    } catch (parseError) {
-      console.error('[generate-share-content] Failed to parse JSON:', rawContent);
-      return new Response(
-        JSON.stringify({ error: 'Failed to parse AI response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('[generate-share-content] Successfully generated content');
+    console.log('[generate-share-content] Successfully extracted', sentences.length, 'sentences');
 
     return new Response(
       JSON.stringify({
         success: true,
-        content: {
-          quote: content.quote || '',
-          lesson: content.lesson || '',
-          idea: content.idea || '',
-          caption: content.caption || '',
-        },
+        content,
+        source: 'extracted', // Indicate this is real text, not AI-generated
+        sentences_found: sentences.length,
         generated_at: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
