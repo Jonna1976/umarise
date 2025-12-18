@@ -4,10 +4,14 @@
  * Defines the contract for all storage operations.
  * Current implementation: Lovable Cloud (Supabase)
  * Future implementation: Hetzner (Vault + IPFS)
+ * 
+ * PRIVATE VAULT: Images are encrypted client-side with AES-256-GCM
+ * before upload. Keys stay on device - zero-knowledge architecture.
  */
 
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
+import { encryptImage, decryptImage, hasVaultKey } from '../crypto';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
@@ -16,6 +20,10 @@ export interface IStorageProvider {
   // Image operations
   uploadImage(imageDataUrl: string): Promise<string>;
   deleteImage(imageUrl: string): Promise<void>;
+  
+  // Encrypted image operations (Private Vault)
+  getDecryptedImageUrl(encryptedUrl: string): Promise<string>;
+  isEncryptedUrl(url: string): boolean;
   
   // Page CRUD
   createPage(page: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page>;
@@ -56,37 +64,79 @@ export class LovableCloudStorage implements IStorageProvider {
     return id;
   }
 
+  /**
+   * Upload image with client-side AES-256-GCM encryption (Private Vault)
+   * The encrypted blob is stored - only this device can decrypt it.
+   */
   async uploadImage(imageDataUrl: string): Promise<string> {
     // Always use real device ID for uploads (user's own captures)
     const deviceUserId = this.getRealDeviceUserId();
-    
-    // Convert data URL to blob
-    const response = await fetch(imageDataUrl);
-    const blob = await response.blob();
-    
-    // Generate unique filename
     const timestamp = Date.now();
-    const filename = `${deviceUserId}/${timestamp}.jpg`;
     
-    // Upload to storage
+    // PRIVATE VAULT: Encrypt image before upload
+    console.log('[Vault] Encrypting image before upload...');
+    const encryptedBase64 = await encryptImage(imageDataUrl);
+    
+    // Convert encrypted base64 to blob
+    const encryptedBytes = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    const encryptedBlob = new Blob([encryptedBytes], { type: 'application/octet-stream' });
+    
+    // Store in encrypted folder with .enc extension
+    const filename = `encrypted/${deviceUserId}/${timestamp}.enc`;
+    
+    // Upload encrypted blob to storage
     const { data, error } = await supabase.storage
       .from('page-images')
-      .upload(filename, blob, {
-        contentType: 'image/jpeg',
+      .upload(filename, encryptedBlob, {
+        contentType: 'application/octet-stream',
         cacheControl: '3600',
       });
 
     if (error) {
       console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
+      throw new Error('Failed to upload encrypted image');
     }
 
-    // Get public URL
+    // Get public URL (to encrypted blob)
     const { data: urlData } = supabase.storage
       .from('page-images')
       .getPublicUrl(data.path);
 
+    console.log('[Vault] Encrypted image uploaded successfully');
     return urlData.publicUrl;
+  }
+
+  /**
+   * Decrypt and return a viewable image URL from an encrypted storage URL
+   */
+  async getDecryptedImageUrl(encryptedUrl: string): Promise<string> {
+    try {
+      // Fetch the encrypted blob
+      const response = await fetch(encryptedUrl);
+      if (!response.ok) throw new Error('Failed to fetch encrypted image');
+      
+      const encryptedBlob = await response.blob();
+      const arrayBuffer = await encryptedBlob.arrayBuffer();
+      
+      // Convert to base64 for decryption
+      const bytes = new Uint8Array(arrayBuffer);
+      const encryptedBase64 = btoa(String.fromCharCode(...bytes));
+      
+      // Decrypt and return object URL
+      const decryptedUrl = await decryptImage(encryptedBase64);
+      console.log('[Vault] Image decrypted successfully');
+      return decryptedUrl;
+    } catch (e) {
+      console.error('[Vault] Decryption failed:', e);
+      throw new Error('Failed to decrypt image. Key may be missing or corrupted.');
+    }
+  }
+
+  /**
+   * Check if an image URL points to an encrypted file
+   */
+  isEncryptedUrl(url: string): boolean {
+    return url.includes('/encrypted/') && url.endsWith('.enc');
   }
 
   async deleteImage(imageUrl: string): Promise<void> {
@@ -501,6 +551,15 @@ export class HetznerVaultStorage implements IStorageProvider {
 
   async deleteImage(_imageUrl: string): Promise<void> {
     throw new Error('Hetzner storage not yet implemented');
+  }
+
+  async getDecryptedImageUrl(_encryptedUrl: string): Promise<string> {
+    throw new Error('Hetzner storage not yet implemented');
+  }
+
+  isEncryptedUrl(_url: string): boolean {
+    // Hetzner vault stores everything encrypted
+    return true;
   }
 
   async createPage(_page: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
