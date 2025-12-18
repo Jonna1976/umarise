@@ -6,8 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-// Use HTTPS on port 443
-const DEFAULT_BASE_URL = "https://94.130.180.233";
+// Production URL with valid SSL certificate
+const DEFAULT_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 8000; // 8 second timeout
 
 type HealthStatus = {
