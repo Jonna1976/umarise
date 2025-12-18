@@ -20,20 +20,56 @@ import { LovableAIProvider, HetznerAIProvider, type IAIProvider } from './ai';
 
 // ============= Configuration =============
 
+// Hetzner Privacy Vault endpoints (production-ready as of 2025-12-18)
+const HETZNER_ENDPOINTS = {
+  baseUrl: 'http://94.130.180.233',
+  vaultPort: 3342,      // Codex Storage
+  visionPort: 3341,     // Vision/AI Service
+  ipfsPort: 5001,       // IPFS Gateway
+  ollamaPort: 11434,    // Ollama LLM
+  bertPort: 3337,       // BERT embeddings
+  whisperPort: 3335,    // Whisper audio
+  spacyPort: 8081,      // SpaCy NLP
+};
+
+/**
+ * Check if Hetzner backend is enabled
+ * Can be toggled via localStorage for testing without env vars
+ */
+export function isHetznerEnabled(): boolean {
+  // Check localStorage first (for testing toggle)
+  const localToggle = localStorage.getItem('umarise_hetzner_enabled');
+  if (localToggle === 'true') return true;
+  if (localToggle === 'false') return false;
+  
+  // Fall back to env var
+  return import.meta.env.VITE_BACKEND_PROVIDER === 'hetzner';
+}
+
+/**
+ * Toggle Hetzner backend on/off (for testing)
+ */
+export function setHetznerEnabled(enabled: boolean): void {
+  localStorage.setItem('umarise_hetzner_enabled', String(enabled));
+  // Reset providers to force re-initialization
+  resetProviders();
+  console.log(`[Umarise] Hetzner backend ${enabled ? 'ENABLED' : 'DISABLED'}`);
+}
+
 function getBackendConfig(): BackendConfig {
-  // Read from environment or default to lovable-cloud
-  const provider = (import.meta.env.VITE_BACKEND_PROVIDER || 'lovable-cloud') as BackendProvider;
+  const useHetzner = isHetznerEnabled();
+  const provider: BackendProvider = useHetzner ? 'hetzner' : 'lovable-cloud';
   
   return {
     provider,
     // Lovable Cloud config (auto-configured)
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
     supabaseKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-    // Hetzner config (future - would be set when migrating)
-    hetznerApiUrl: import.meta.env.VITE_HETZNER_API_URL,
-    vaultEndpoint: import.meta.env.VITE_VAULT_ENDPOINT,
-    aiEndpoint: import.meta.env.VITE_AI_ENDPOINT,
-    ipfsGateway: import.meta.env.VITE_IPFS_GATEWAY,
+    // Hetzner config (hardcoded for testing, can be overridden via env)
+    hetznerApiUrl: import.meta.env.VITE_HETZNER_API_URL || HETZNER_ENDPOINTS.baseUrl,
+    vaultEndpoint: import.meta.env.VITE_VAULT_ENDPOINT || `${HETZNER_ENDPOINTS.baseUrl}:${HETZNER_ENDPOINTS.vaultPort}`,
+    aiEndpoint: import.meta.env.VITE_AI_ENDPOINT || HETZNER_ENDPOINTS.baseUrl,
+    ipfsGateway: import.meta.env.VITE_IPFS_GATEWAY || `${HETZNER_ENDPOINTS.baseUrl}:${HETZNER_ENDPOINTS.ipfsPort}`,
   };
 }
 
