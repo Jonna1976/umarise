@@ -1,15 +1,50 @@
 /**
- * Umarise Private Vault - Client-Side Encryption
+ * Umarise Private Vault - Client-Side Encryption (OPT-IN)
  * 
  * AES-256-GCM encryption for images before upload.
  * Keys stay on device - zero-knowledge architecture.
  * 
- * WARNING: If user loses their key, data is unrecoverable.
+ * ⚠️ WARNING: This is OPT-IN. If enabled and user loses their key, 
+ * their encrypted data is PERMANENTLY UNRECOVERABLE.
+ * 
+ * Default: DISABLED (images stored normally on Supabase)
+ * Enabled: Only when user explicitly activates Private Vault
  */
 
 const VAULT_KEY_STORAGE = 'umarise_vault_key';
+const VAULT_ENABLED_STORAGE = 'umarise_vault_enabled';
 const ALGORITHM = 'AES-GCM';
 const KEY_LENGTH = 256;
+
+// ============= Vault Mode Control =============
+
+/**
+ * Check if Private Vault mode is enabled
+ */
+export function isPrivateVaultEnabled(): boolean {
+  return localStorage.getItem(VAULT_ENABLED_STORAGE) === 'true';
+}
+
+/**
+ * Enable Private Vault mode (requires explicit user consent)
+ * Returns the vault key for backup purposes
+ */
+export async function enablePrivateVault(): Promise<string> {
+  const key = await getVaultKey();
+  const exportedKey = await exportKeyForBackup(key);
+  localStorage.setItem(VAULT_ENABLED_STORAGE, 'true');
+  console.log('[Vault] Private Vault mode ENABLED');
+  return exportedKey;
+}
+
+/**
+ * Disable Private Vault mode
+ * Note: Existing encrypted images will still need the key to decrypt
+ */
+export function disablePrivateVault(): void {
+  localStorage.setItem(VAULT_ENABLED_STORAGE, 'false');
+  console.log('[Vault] Private Vault mode DISABLED');
+}
 
 // ============= Key Management =============
 
@@ -22,6 +57,15 @@ async function generateKey(): Promise<CryptoKey> {
     true, // extractable - needed for export/backup
     ['encrypt', 'decrypt']
   );
+}
+
+/**
+ * Export key for backup (user-facing)
+ */
+async function exportKeyForBackup(key: CryptoKey): Promise<string> {
+  const rawKey = await crypto.subtle.exportKey('raw', key);
+  const bytes = new Uint8Array(rawKey);
+  return btoa(String.fromCharCode(...bytes));
 }
 
 /**
