@@ -1,0 +1,239 @@
+{
+  "_description": "Test data for Hetzner backend integration testing",
+  "_usage": "Use these samples to validate API endpoints return correct format",
+  
+  "samplePages": [
+    {
+      "id": "test-page-001",
+      "deviceUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "writerUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "imageUrl": "ipfs://QmTestHash001",
+      "ocrText": "Meeting with Marco yesterday about the funding timeline. We discussed the next steps for the project and agreed to follow up by Friday.\n\nKey points:\n- Series A target: Q2 2025\n- Lead investor meetings scheduled\n- Due diligence prep needed\n\nAction items:\n1. Prepare pitch deck updates\n2. Financial projections review\n3. Team intro document",
+      "ocrTokens": [
+        { "token": "Meeting", "confidence": 0.95 },
+        { "token": "with", "confidence": 0.98 },
+        { "token": "Marco", "confidence": 0.87 },
+        { "token": "yesterday", "confidence": 0.92 },
+        { "token": "funding", "confidence": 0.94 },
+        { "token": "timeline", "confidence": 0.91 },
+        { "token": "Series", "confidence": 0.89 },
+        { "token": "A", "confidence": 0.96 },
+        { "token": "Q2", "confidence": 0.88 },
+        { "token": "2025", "confidence": 0.93 }
+      ],
+      "namedEntities": [
+        { "type": "person", "value": "Marco", "confidence": 0.88, "span": { "start": 13, "end": 18 } },
+        { "type": "date", "value": "yesterday", "confidence": 0.95, "span": { "start": 19, "end": 28 } },
+        { "type": "date", "value": "Friday", "confidence": 0.92, "span": { "start": 115, "end": 121 } },
+        { "type": "date", "value": "Q2 2025", "confidence": 0.90, "span": { "start": 156, "end": 163 } },
+        { "type": "deliverable", "value": "pitch deck updates", "confidence": 0.85, "span": { "start": 220, "end": 238 } },
+        { "type": "deliverable", "value": "Financial projections review", "confidence": 0.82, "span": { "start": 242, "end": 270 } }
+      ],
+      "summary": "Meeting notes discussing Series A funding timeline with Marco. Key decisions: target Q2 2025 for raise, schedule lead investor meetings, prepare due diligence materials. Follow-up deadline: Friday.",
+      "oneLineHint": "Series A planning with Marco",
+      "tone": ["focused", "optimistic"],
+      "keywords": ["funding", "Series A", "Marco", "investor", "due diligence", "Q2 2025", "pitch deck"],
+      "topicLabels": ["Business", "Fundraising"],
+      "primaryKeyword": "funding",
+      "futureYouCues": ["Marco funding", "Series A timeline", "investor prep"],
+      "futureYouCuesSource": { "ai_prefill_version": "gemini-2.5-flash", "user_edited": false },
+      "highlights": ["Series A target: Q2 2025", "Follow up by Friday", "Due diligence prep needed"],
+      "confidenceScore": 0.91,
+      "createdAt": "2025-12-18T14:30:00Z",
+      "updatedAt": "2025-12-18T14:30:00Z"
+    },
+    {
+      "id": "test-page-002",
+      "deviceUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "writerUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "imageUrl": "ipfs://QmTestHash002",
+      "ocrText": "Thoughts on the creative process today.\n\nWhen I write by hand, something different happens. The friction of pen on paper slows my mind just enough to let deeper thoughts surface.\n\nI've been thinking about Viktor Frankl's idea: you become who you are not by thinking about who you are, but by acting and creating meaning.\n\nMaybe that's why Umarise feels right - it's not about self-reflection paralysis. It's about capturing action, creating meaning, and seeing patterns emerge.",
+      "ocrTokens": [
+        { "token": "Thoughts", "confidence": 0.94 },
+        { "token": "creative", "confidence": 0.91 },
+        { "token": "process", "confidence": 0.93 },
+        { "token": "write", "confidence": 0.96 },
+        { "token": "hand", "confidence": 0.95 },
+        { "token": "friction", "confidence": 0.88 },
+        { "token": "Viktor", "confidence": 0.82 },
+        { "token": "Frankl", "confidence": 0.79 },
+        { "token": "meaning", "confidence": 0.94 },
+        { "token": "Umarise", "confidence": 0.86 }
+      ],
+      "namedEntities": [
+        { "type": "person", "value": "Viktor Frankl", "confidence": 0.81, "span": { "start": 198, "end": 211 } },
+        { "type": "organization", "value": "Umarise", "confidence": 0.75, "span": { "start": 342, "end": 349 } }
+      ],
+      "summary": "Reflections on the creative value of handwriting. The friction of pen on paper enables deeper thought. References Viktor Frankl's philosophy: becoming through action and meaning-creation rather than self-analysis.",
+      "oneLineHint": "Handwriting as meaning-making",
+      "tone": ["contemplative", "inspired"],
+      "keywords": ["creativity", "handwriting", "meaning", "Frankl", "reflection", "process"],
+      "topicLabels": ["Philosophy", "Creativity"],
+      "primaryKeyword": "creativity",
+      "futureYouCues": ["why handwriting", "Frankl meaning", "creative friction"],
+      "futureYouCuesSource": { "ai_prefill_version": "gemini-2.5-flash", "user_edited": false },
+      "highlights": ["you become who you are not by thinking about who you are, but by acting and creating meaning"],
+      "confidenceScore": 0.87,
+      "createdAt": "2025-12-17T10:00:00Z",
+      "updatedAt": "2025-12-17T10:00:00Z"
+    },
+    {
+      "id": "test-page-003",
+      "deviceUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "writerUserId": "550e8400-e29b-41d4-a716-446655440000",
+      "imageUrl": "ipfs://QmTestHash003",
+      "ocrText": "Tiroler broek idee!\n\nWat als kleding meer was dan functie? Lederhosen hebben eeuwen overleefd omdat ze een verhaal vertellen.\n\nMijn opa droeg ze in de Alpen. Nu ik ze zie, voel ik die connectie door tijd heen.\n\nIdee: mode als geheugendrager. Niet fast fashion, maar slow meaning.",
+      "ocrTokens": [
+        { "token": "Tiroler", "confidence": 0.76 },
+        { "token": "broek", "confidence": 0.89 },
+        { "token": "kleding", "confidence": 0.92 },
+        { "token": "Lederhosen", "confidence": 0.71 },
+        { "token": "opa", "confidence": 0.94 },
+        { "token": "Alpen", "confidence": 0.88 },
+        { "token": "connectie", "confidence": 0.85 },
+        { "token": "mode", "confidence": 0.91 },
+        { "token": "geheugendrager", "confidence": 0.79 }
+      ],
+      "namedEntities": [
+        { "type": "person", "value": "opa", "confidence": 0.72, "span": { "start": 135, "end": 138 } },
+        { "type": "location", "value": "Alpen", "confidence": 0.88, "span": { "start": 152, "end": 157 } }
+      ],
+      "summary": "Creative exploration of clothing as memory carrier. Connects personal memory (grandfather's Lederhosen in the Alps) to broader concept of 'slow meaning' in fashion versus fast fashion.",
+      "oneLineHint": "Fashion as memory",
+      "tone": ["nostalgic", "creative"],
+      "keywords": ["tiroler broek", "Lederhosen", "opa", "memory", "fashion", "meaning", "heritage"],
+      "topicLabels": ["Ideas", "Personal"],
+      "primaryKeyword": "tiroler broek",
+      "futureYouCues": ["tiroler broek", "opa Alpen", "slow fashion"],
+      "futureYouCuesSource": { "ai_prefill_version": "gemini-2.5-flash", "user_edited": true },
+      "highlights": ["mode als geheugendrager", "Niet fast fashion, maar slow meaning"],
+      "confidenceScore": 0.82,
+      "createdAt": "2025-12-15T16:45:00Z",
+      "updatedAt": "2025-12-15T17:00:00Z"
+    }
+  ],
+
+  "sampleAnalyzePageResponse": {
+    "ocr_text": "Meeting with Marco yesterday about the funding timeline. We discussed the next steps for the project and agreed to follow up by Friday.\n\nKey points:\n- Series A target: Q2 2025\n- Lead investor meetings scheduled\n- Due diligence prep needed",
+    "ocr_tokens": [
+      { "token": "Meeting", "confidence": 0.95 },
+      { "token": "with", "confidence": 0.98 },
+      { "token": "Marco", "confidence": 0.87 },
+      { "token": "yesterday", "confidence": 0.92 },
+      { "token": "funding", "confidence": 0.94 },
+      { "token": "timeline", "confidence": 0.91 }
+    ],
+    "named_entities": [
+      { "type": "person", "value": "Marco", "confidence": 0.88, "span": { "start": 13, "end": 18 } },
+      { "type": "date", "value": "yesterday", "confidence": 0.95, "span": { "start": 19, "end": 28 } },
+      { "type": "date", "value": "Q2 2025", "confidence": 0.90, "span": { "start": 156, "end": 163 } }
+    ],
+    "summary": "Meeting notes discussing Series A funding timeline with Marco. Key decisions: target Q2 2025 for raise, schedule lead investor meetings, prepare due diligence materials.",
+    "one_line_hint": "Series A planning with Marco",
+    "tone": "focused, optimistic",
+    "keywords": ["funding", "Series A", "Marco", "investor", "due diligence", "Q2 2025"],
+    "topic_labels": ["Business", "Fundraising"],
+    "highlights": ["Series A target: Q2 2025", "Follow up by Friday"],
+    "suggested_cues": ["Marco funding", "Series A timeline", "investor prep"]
+  },
+
+  "sampleSearchResults": {
+    "query": "Marco funding",
+    "results": [
+      {
+        "pageId": "test-page-001",
+        "score": 0.95,
+        "matchTypes": ["cue", "entity", "text"],
+        "matchedTerms": ["Marco", "funding"],
+        "explanation": "Matched Future You Cue 'Marco funding' + named entity 'Marco' + OCR text 'funding'"
+      }
+    ]
+  },
+
+  "samplePatternAnalysis": {
+    "patterns": [
+      {
+        "theme": "Business & Strategy",
+        "keywords": ["funding", "Series A", "investor", "timeline", "Marco"],
+        "frequency": 5,
+        "examplePageIds": ["test-page-001"]
+      },
+      {
+        "theme": "Creative Process & Philosophy",
+        "keywords": ["creativity", "meaning", "handwriting", "Frankl", "reflection"],
+        "frequency": 3,
+        "examplePageIds": ["test-page-002"]
+      },
+      {
+        "theme": "Personal & Heritage",
+        "keywords": ["opa", "memory", "tiroler broek", "family", "heritage"],
+        "frequency": 2,
+        "examplePageIds": ["test-page-003"]
+      }
+    ],
+    "insights": [
+      "Your writing balances strategic business planning with deeper philosophical reflection.",
+      "Personal heritage themes connect to your broader interest in meaning-making.",
+      "Funding-related content tends to be action-oriented, while creative content is more contemplative."
+    ]
+  },
+
+  "samplePersonalityProfile": {
+    "profileType": "voice",
+    "tagline": "The Strategic Dreamer",
+    "core_identity": "You blend analytical thinking with creative vision, approaching challenges with both pragmatism and imagination. Your writing reveals someone who values both action and meaning.",
+    "superpower": "Translating abstract ideas into actionable plans while maintaining the emotional core of your vision. You see patterns others miss.",
+    "growth_edge": "Balancing urgency with patience—learning when to push forward aggressively and when to let ideas mature organically.",
+    "drivers": [
+      { "name": "Impact", "strength": 0.85 },
+      { "name": "Creativity", "strength": 0.78 },
+      { "name": "Connection", "strength": 0.72 },
+      { "name": "Growth", "strength": 0.68 },
+      { "name": "Autonomy", "strength": 0.65 }
+    ],
+    "tension_field": {
+      "pole1": "Structure",
+      "pole2": "Flow",
+      "position": 0.4
+    }
+  },
+
+  "sampleTestImages": {
+    "_note": "Use these URLs for testing with real handwriting samples",
+    "messyHandwriting": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Handwriting_of_Albert_Einstein_1924.jpg",
+    "neatHandwriting": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Handwritten_note_-_geograph.org.uk_-_1016937.jpg",
+    "bulletList": "https://images.unsplash.com/photo-1517842645767-c639042777db?w=400",
+    "journalPage": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400"
+  },
+
+  "testDeviceUserIds": {
+    "primary": "550e8400-e29b-41d4-a716-446655440000",
+    "secondary": "661f9511-f3ac-52e5-b827-557766551111",
+    "demo": "772g0622-g4bd-63f6-c938-668877662222"
+  },
+
+  "validationRules": {
+    "deviceUserId": {
+      "format": "UUID v4",
+      "minLength": 36,
+      "required": true
+    },
+    "futureYouCues": {
+      "count": 3,
+      "maxLengthPerCue": 50
+    },
+    "confidenceScore": {
+      "min": 0.0,
+      "max": 1.0
+    },
+    "tone": {
+      "allowedValues": [
+        "grateful", "happy", "energetic", "peaceful", "excited", "nostalgic",
+        "hopeful", "content", "proud", "loving", "relieved", "amused",
+        "curious", "determined", "focused", "contemplative", "inspired",
+        "frustrated", "anxious", "sad", "overwhelmed", "uncertain"
+      ],
+      "maxCount": 2
+    }
+  }
+}
