@@ -7,62 +7,66 @@ const corsHeaders = {
 };
 
 const DEFAULT_BASE_URL = "http://94.130.180.233";
-const ALLOWED_HOSTS = new Set(["94.130.180.233"]);
+const TIMEOUT_MS = 8000; // 8 second timeout
 
 type HealthStatus = {
   status: "healthy" | "error";
   error?: string;
 };
 
-function getBaseUrl(body: unknown): string {
-  const baseUrl =
-    typeof (body as any)?.baseUrl === "string" ? ((body as any).baseUrl as string).trim() : "";
-
-  if (!baseUrl) return DEFAULT_BASE_URL;
-
-  try {
-    const u = new URL(baseUrl);
-    if ((u.protocol !== "http:" && u.protocol !== "https:") || !ALLOWED_HOSTS.has(u.hostname)) {
-      return DEFAULT_BASE_URL;
-    }
-    // Normalize: protocol + host only
-    return `${u.protocol}//${u.hostname}`;
-  } catch {
-    return DEFAULT_BASE_URL;
-  }
-}
-
 async function checkService(url: string): Promise<HealthStatus> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
   try {
-    const res = await fetch(url, { method: "GET" });
-    if (res.ok) return { status: "healthy" };
+    console.log(`Checking: ${url}`);
+    const res = await fetch(url, { method: "GET", signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (res.ok) {
+      console.log(`✅ ${url} is healthy`);
+      return { status: "healthy" };
+    }
     const text = await res.text().catch(() => "");
+    console.log(`❌ ${url} returned HTTP ${res.status}`);
     return { status: "error", error: `HTTP ${res.status}${text ? `: ${text.slice(0, 120)}` : ""}` };
   } catch (e) {
-    return { status: "error", error: e instanceof Error ? e.message : "Network error" };
+    clearTimeout(timeoutId);
+    const msg = e instanceof Error ? e.message : "Network error";
+    console.log(`❌ ${url} failed: ${msg}`);
+    return { status: "error", error: msg };
   }
 }
 
 serve(async (req) => {
+  console.log(`hetzner-health called: ${req.method}`);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const body = await req.json().catch(() => ({}));
-    const baseUrl = getBaseUrl(body);
+    const baseUrl = (body as any)?.baseUrl || DEFAULT_BASE_URL;
+    
+    console.log(`Base URL: ${baseUrl}`);
+    console.log(`Checking Vision (3341) and Codex (3342)...`);
 
     const [vision, codex] = await Promise.all([
       checkService(`${baseUrl}:3341/health`),
       checkService(`${baseUrl}:3342/health`),
     ]);
 
+    console.log(`Results - Vision: ${vision.status}, Codex: ${codex.status}`);
+
     return new Response(JSON.stringify({ baseUrl, vision, codex }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    console.error(`Error: ${msg}`);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: msg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
