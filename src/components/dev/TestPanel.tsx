@@ -44,6 +44,52 @@ export function TestPanel({
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
   const [isClearing, setIsClearing] = useState(false);
   
+  // Hetzner health check state
+  const [hetznerHealth, setHetznerHealth] = useState<{
+    vision: 'checking' | 'healthy' | 'error';
+    codex: 'checking' | 'healthy' | 'error';
+    visionError?: string;
+    codexError?: string;
+  } | null>(null);
+  
+  const checkHetznerHealth = async () => {
+    setHetznerHealth({ vision: 'checking', codex: 'checking' });
+    
+    const checkService = async (url: string): Promise<{ status: 'healthy' | 'error'; error?: string }> => {
+      try {
+        const response = await fetch(url, { method: 'GET', mode: 'cors' });
+        if (response.ok) {
+          return { status: 'healthy' };
+        }
+        return { status: 'error', error: `HTTP ${response.status}` };
+      } catch (err) {
+        return { status: 'error', error: err instanceof Error ? err.message : 'Network error' };
+      }
+    };
+    
+    const [visionResult, codexResult] = await Promise.all([
+      checkService('http://94.130.180.233:3341/health'),
+      checkService('http://94.130.180.233:3342/health'),
+    ]);
+    
+    setHetznerHealth({
+      vision: visionResult.status,
+      codex: codexResult.status,
+      visionError: visionResult.error,
+      codexError: codexResult.error,
+    });
+    
+    if (visionResult.status === 'healthy' && codexResult.status === 'healthy') {
+      toast({ title: "✅ Hetzner Health Check", description: "All services healthy!" });
+    } else {
+      toast({ 
+        title: "⚠️ Hetzner Health Check", 
+        description: `Vision: ${visionResult.status}, Codex: ${codexResult.status}`,
+        variant: "destructive"
+      });
+    }
+  };
+  
   // Double confirmation safeguard for real data protection
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
@@ -389,15 +435,58 @@ export function TestPanel({
           
           {/* Hetzner status indicator */}
           {isHetznerEnabled() && (
-            <div className="mt-3 p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
-              <div className="flex items-start gap-2">
-                <span className="text-codex-teal text-lg">🔐</span>
-                <div>
-                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Privacy Vault Active</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    All data encrypted. Local AI processing. Zero cloud dependency.
-                  </p>
+            <div className="mt-3 space-y-3">
+              <div className="p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <span className="text-codex-teal text-lg">🔐</span>
+                  <div>
+                    <p className="text-xs font-bold text-foreground uppercase tracking-wide">Privacy Vault Active</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      All data encrypted. Local AI processing. Zero cloud dependency.
+                    </p>
+                  </div>
                 </div>
+              </div>
+              
+              {/* Health Check */}
+              <div className="p-3 bg-secondary/50 border border-border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-foreground">Service Health</span>
+                  <Button 
+                    onClick={checkHetznerHealth} 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-6 text-xs"
+                    disabled={hetznerHealth?.vision === 'checking'}
+                  >
+                    {hetznerHealth?.vision === 'checking' ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      'Check'
+                    )}
+                  </Button>
+                </div>
+                
+                {hetznerHealth && (
+                  <div className="space-y-1 text-xs font-mono">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Vision (3341):</span>
+                      <span className={hetznerHealth.vision === 'healthy' ? 'text-codex-teal' : hetznerHealth.vision === 'checking' ? 'text-muted-foreground' : 'text-primary'}>
+                        {hetznerHealth.vision === 'healthy' ? '✓ Healthy' : hetznerHealth.vision === 'checking' ? '...' : `✗ ${hetznerHealth.visionError || 'Error'}`}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Codex (3342):</span>
+                      <span className={hetznerHealth.codex === 'healthy' ? 'text-codex-teal' : hetznerHealth.codex === 'checking' ? 'text-muted-foreground' : 'text-primary'}>
+                        {hetznerHealth.codex === 'healthy' ? '✓ Healthy' : hetznerHealth.codex === 'checking' ? '...' : `✗ ${hetznerHealth.codexError || 'Error'}`}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                {!hetznerHealth && (
+                  <p className="text-xs text-muted-foreground">Click 'Check' to verify connectivity</p>
+                )}
               </div>
             </div>
           )}
