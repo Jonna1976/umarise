@@ -192,32 +192,33 @@ export class HetznerAIProvider implements IAIProvider {
     ollamaEndpoint: string; // Ollama for LLM / Vision
   }) {}
 
+  /**
+   * Call Hetzner AI via Supabase edge function proxy to avoid CORS issues
+   */
+  private async callHetznerProxy(endpoint: string, payload: Record<string, unknown>): Promise<unknown> {
+    const { data, error } = await supabase.functions.invoke('hetzner-ai-proxy', {
+      body: { endpoint, payload },
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Hetzner proxy call failed');
+    }
+
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+
+    return data;
+  }
+
   async analyzePage(imageBase64: string): Promise<PageAnalysisResult> {
     let lastError: Error | null = null;
     
-    // Vision service is on port 3341 (derived from ollamaEndpoint base)
-    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
-    const visionEndpoint = `${baseUrl}:3341`;
-    
     for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        console.log(`[Hetzner AI] Analysis attempt ${attempt}/${this.maxRetries}...`);
+        console.log(`[Hetzner AI] Analysis attempt ${attempt}/${this.maxRetries} via proxy...`);
         
-        const response = await fetch(`${visionEndpoint}/ai/analyze-page`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64 }),
-        });
-
-        if (!response.ok) {
-          if (response.status === 429) {
-            throw Object.assign(new Error('Rate limit exceeded. Please wait and try again.'), { code: 'RATE_LIMITED' });
-          }
-          const error = await response.json().catch(() => ({}));
-          throw new Error(error.error?.message || 'Analysis failed');
-        }
-
-        const data = await response.json();
+        const data = await this.callHetznerProxy('/ai/analyze-page', { imageBase64 });
         return data as PageAnalysisResult;
       } catch (err) {
         lastError = err instanceof Error ? err : new Error('Unknown error');
@@ -240,106 +241,56 @@ export class HetznerAIProvider implements IAIProvider {
   async analyzePatterns(
     pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>
   ): Promise<PatternAnalysisResult> {
-    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
-    const aiEndpoint = `${baseUrl}:3341`;
-    
-    const response = await fetch(`${aiEndpoint}/ai/analyze-patterns`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pages: pages.map(p => ({
-          summary: p.summary,
-          tone: p.tone,
-          keywords: p.keywords,
-          createdAt: p.createdAt.toISOString(),
-        })),
-      }),
+    const data = await this.callHetznerProxy('/ai/analyze-patterns', {
+      pages: pages.map(p => ({
+        summary: p.summary,
+        tone: p.tone,
+        keywords: p.keywords,
+        createdAt: p.createdAt.toISOString(),
+      })),
     });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || 'Pattern analysis failed');
-    }
-
-    return await response.json() as PatternAnalysisResult;
+    return data as PatternAnalysisResult;
   }
 
   async analyzePersonality(
     pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>,
     profileType: 'voice' | 'influence'
   ): Promise<PersonalityAnalysisResult> {
-    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
-    const aiEndpoint = `${baseUrl}:3341`;
-    
-    const response = await fetch(`${aiEndpoint}/ai/analyze-personality`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pages: pages.map(p => ({
-          summary: p.summary,
-          tone: p.tone,
-          keywords: p.keywords,
-          createdAt: p.createdAt.toISOString(),
-        })),
-        profileType,
-      }),
+    const data = await this.callHetznerProxy('/ai/analyze-personality', {
+      pages: pages.map(p => ({
+        summary: p.summary,
+        tone: p.tone,
+        keywords: p.keywords,
+        createdAt: p.createdAt.toISOString(),
+      })),
+      profileType,
     });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || 'Personality analysis failed');
-    }
-
-    return await response.json() as PersonalityAnalysisResult;
+    return data as PersonalityAnalysisResult;
   }
 
   async generateYearReflection(
     year: number,
     pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>
   ): Promise<YearReflectionResult> {
-    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
-    const aiEndpoint = `${baseUrl}:3341`;
-    
-    const response = await fetch(`${aiEndpoint}/ai/generate-year-reflection`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        year,
-        pages: pages.map(p => ({
-          summary: p.summary,
-          tone: p.tone,
-          keywords: p.keywords,
-          createdAt: p.createdAt.toISOString(),
-        })),
-      }),
+    const data = await this.callHetznerProxy('/ai/generate-year-reflection', {
+      year,
+      pages: pages.map(p => ({
+        summary: p.summary,
+        tone: p.tone,
+        keywords: p.keywords,
+        createdAt: p.createdAt.toISOString(),
+      })),
     });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || 'Year reflection failed');
-    }
-
-    return await response.json() as YearReflectionResult;
+    return data as YearReflectionResult;
   }
 
   async generateRecommendations(
     personality: PersonalityAnalysisResult
   ): Promise<Array<{ type: string; title: string; reason: string }>> {
-    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
-    const aiEndpoint = `${baseUrl}:3341`;
-    
-    const response = await fetch(`${aiEndpoint}/ai/generate-recommendations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ personality }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || 'Recommendations failed');
-    }
-
-    const data = await response.json();
+    const data = await this.callHetznerProxy('/ai/generate-recommendations', { personality }) as { recommendations?: Array<{ type: string; title: string; reason: string }> };
     return data.recommendations || [];
   }
 }
