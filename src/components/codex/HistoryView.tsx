@@ -559,7 +559,6 @@ export function HistoryView({
           )}
           </div>
         </div>
-        </div>
 
         {/* Search button - hidden in minimal mode */}
         {onOpenSearch && !isMinimalMode && (
