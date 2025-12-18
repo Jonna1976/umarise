@@ -31,6 +31,18 @@ const WEIGHTS = {
   keyword: 2,   // Shared keyword = topical overlap
 };
 
+// Minimum score required to show as related (prevents weak matches)
+const MIN_SCORE_THRESHOLD = 5;
+
+// Generic terms to exclude from keyword matching (too common, creates false positives)
+const EXCLUDED_KEYWORDS = new Set([
+  'snapshot', 'page', 'pages', 'note', 'notes', 'idea', 'ideas', 'thought', 'thoughts',
+  'memory', 'memories', 'journal', 'entry', 'document', 'text', 'writing', 'handwriting',
+  'paper', 'pen', 'ink', 'book', 'notebook', 'list', 'todo', 'plan', 'plans',
+  'thing', 'things', 'stuff', 'misc', 'random', 'general', 'various', 'important',
+  'remember', 'date', 'time', 'day', 'week', 'month', 'year', 'today', 'tomorrow'
+]);
+
 /**
  * Find pages related to a given page
  * Returns max 5 related pages with reasons
@@ -90,9 +102,12 @@ export function findRelatedPages(
       }
     }
 
-    // Check shared keywords
+    // Check shared keywords (excluding generic terms)
     const pageKeywords = (page.keywords || []).map(k => k.toLowerCase().trim());
     for (const keyword of pageKeywords) {
+      // Skip excluded generic keywords
+      if (EXCLUDED_KEYWORDS.has(keyword)) continue;
+      
       if (currentKeywords.has(keyword)) {
         // Avoid duplicate reasons
         if (!reasons.some(r => r.type === 'keyword' && r.value === keyword)) {
@@ -102,8 +117,9 @@ export function findRelatedPages(
       }
     }
 
-    // Only include if there's at least one connection
-    if (reasons.length > 0 && score > 0) {
+    // Only include if there's at least one connection AND meets minimum score
+    // This prevents weak/accidental matches from showing up
+    if (reasons.length > 0 && score >= MIN_SCORE_THRESHOLD) {
       // Sort reasons by weight (cue > entity > keyword)
       reasons.sort((a, b) => WEIGHTS[b.type] - WEIGHTS[a.type]);
       
