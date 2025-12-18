@@ -158,10 +158,10 @@ export function BookCoverCard({
         <button
           onClick={handleCheckboxClick}
           className={cn(
-            "absolute -left-2 top-4 z-10 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+            "absolute left-2 top-2 z-10 w-6 h-6 rounded border-2 flex items-center justify-center transition-all",
             isSelected 
               ? "bg-codex-gold border-codex-gold text-codex-ink-deep" 
-              : "bg-background/80 border-border hover:border-codex-gold/50"
+              : "bg-background/90 border-muted-foreground/40 hover:border-codex-gold/70"
           )}
         >
           {isSelected && <Check className="w-4 h-4" />}
