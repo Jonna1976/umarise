@@ -6,7 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-const DEFAULT_BASE_URL = "http://94.130.180.233";
+// Use HTTPS on port 443
+const DEFAULT_BASE_URL = "https://94.130.180.233";
 const TIMEOUT_MS = 8000; // 8 second timeout
 
 type HealthStatus = {
@@ -50,16 +51,16 @@ serve(async (req) => {
     const baseUrl = (body as any)?.baseUrl || DEFAULT_BASE_URL;
     
     console.log(`Base URL: ${baseUrl}`);
-    console.log(`Checking Vision (3341) and Codex (3342)...`);
+    console.log(`Checking Vision and Vault via HTTPS...`);
 
-    const [vision, codex] = await Promise.all([
-      checkService(`${baseUrl}:3341/health`),
-      checkService(`${baseUrl}:3342/health`),
+    const [vision, vault] = await Promise.all([
+      checkService(`${baseUrl}/api/vision/health`),
+      checkService(`${baseUrl}/api/vault/health`),
     ]);
 
-    console.log(`Results - Vision: ${vision.status}, Codex: ${codex.status}`);
+    console.log(`Results - Vision: ${vision.status}, Vault: ${vault.status}`);
 
-    return new Response(JSON.stringify({ baseUrl, vision, codex }), {
+    return new Response(JSON.stringify({ baseUrl, vision, vault }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
