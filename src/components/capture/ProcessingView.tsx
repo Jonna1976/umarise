@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Clock, Images, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, Images, ArrowRight, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -27,7 +27,10 @@ export function ProcessingView({
 }: ProcessingViewProps) {
   const isMultiple = totalImages > 1;
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [cueInput, setCueInput] = useState('');
+  const [cue1, setCue1] = useState('');
+  const [cue2, setCue2] = useState('');
+  const [cue3, setCue3] = useState('');
+  const [showBonusCue, setShowBonusCue] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   
@@ -38,24 +41,23 @@ export function ProcessingView({
     return () => clearInterval(interval);
   }, []);
 
-  // Reset confirmation state when a new image starts processing
+  // Reset state when a new image starts processing
   useEffect(() => {
     setIsConfirmed(false);
     setHasSubmitted(false);
-    setCueInput('');
+    setCue1('');
+    setCue2('');
+    setCue3('');
+    setShowBonusCue(false);
     setElapsedTime(0);
   }, [imageUrl]);
 
   const remainingTime = Math.max(0, ESTIMATED_TIME - elapsedTime);
 
   const extractCues = () => {
-    const normalized = cueInput
-      .split(/[,\s]+/)
-      .map(w => w.trim())
-      .filter(w => w.length > 0)
-      .slice(0, 2);
-
-    return Array.from(new Set(normalized)).slice(0, 2);
+    const cues = [cue1.trim(), cue2.trim(), cue3.trim()]
+      .filter(c => c.length > 0);
+    return Array.from(new Set(cues)).slice(0, 3);
   };
 
   const submit = () => {
@@ -75,7 +77,7 @@ export function ProcessingView({
     submit();
   }, [hasSubmitted, isConfirmed, isProcessingComplete]);
 
-  const hasInput = cueInput.trim().length > 0;
+  const hasInput = cue1.trim().length > 0 || cue2.trim().length > 0;
 
   const handleConfirmAndContinue = () => {
     if (!hasInput || hasSubmitted) return;
@@ -95,6 +97,10 @@ export function ProcessingView({
       e.preventDefault();
       handleConfirmAndContinue();
     }
+  };
+
+  const handleInputChange = () => {
+    if (isConfirmed) setIsConfirmed(false);
   };
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6 pt-12">
@@ -177,19 +183,70 @@ export function ProcessingView({
             These words will appear on the spine of this page in your memory.
           </p>
 
-          {/* Input */}
-          <Input
-            value={cueInput}
-            onChange={(e) => {
-              setCueInput(e.target.value);
-              if (isConfirmed) setIsConfirmed(false);
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g. funding pitch"
-            className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
-            autoComplete="off"
-            disabled={hasSubmitted}
-          />
+          {/* Two cue inputs side by side */}
+          <div className="flex gap-3 mb-3">
+            <Input
+              value={cue1}
+              onChange={(e) => {
+                setCue1(e.target.value);
+                handleInputChange();
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="word 1"
+              className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center flex-1"
+              autoComplete="off"
+              disabled={hasSubmitted}
+            />
+            <Input
+              value={cue2}
+              onChange={(e) => {
+                setCue2(e.target.value);
+                handleInputChange();
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="word 2"
+              className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center flex-1"
+              autoComplete="off"
+              disabled={hasSubmitted}
+            />
+          </div>
+
+          {/* Bonus word option */}
+          <AnimatePresence>
+            {showBonusCue ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3"
+              >
+                <Input
+                  value={cue3}
+                  onChange={(e) => {
+                    setCue3(e.target.value);
+                    handleInputChange();
+                  }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="bonus word (optional)"
+                  className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
+                  autoComplete="off"
+                  disabled={hasSubmitted}
+                  autoFocus
+                />
+              </motion.div>
+            ) : (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => setShowBonusCue(true)}
+                disabled={hasSubmitted}
+                className="flex items-center justify-center gap-1.5 w-full py-2 text-sm text-foreground/50 hover:text-foreground/70 transition-colors disabled:opacity-40"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add bonus word</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
 
           <p className="text-foreground/40 text-sm mt-4 text-center">
             Optional — you can refine this after processing
