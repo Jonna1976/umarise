@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Use HTTPS on port 443 with /api/vault path prefix
-const HETZNER_BASE_URL = "https://94.130.180.233";
+// Production URL with valid SSL certificate
+const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 60000; // 1 minute for storage operations
 
 serve(async (req) => {

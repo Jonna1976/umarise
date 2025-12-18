@@ -5,15 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Use HTTPS on port 443 with /api/vision path prefix
-const HETZNER_BASE_URL = "https://94.130.180.233";
+// Production URL with valid SSL certificate
+const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 120000; // 2 minutes for AI processing
-
-// Create HTTP client that accepts self-signed certificates
-const httpClient = Deno.createHttpClient({
-  // @ts-ignore - Deno unstable API for self-signed certs
-  proxy: { url: "" }, // Workaround to create custom client
-});
 
 serve(async (req) => {
   console.log(`hetzner-ai-proxy called: ${req.method}`);
