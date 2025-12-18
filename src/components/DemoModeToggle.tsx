@@ -1,12 +1,20 @@
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { Switch } from '@/components/ui/switch';
-import { Camera, Layers } from 'lucide-react';
+import { Camera, Layers, Cloud, Shield } from 'lucide-react';
+import { getCurrentProvider, isHetznerEnabled, setHetznerEnabled } from '@/lib/abstractions';
 
 export function DemoModeToggle() {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
+  const isHetzner = isHetznerEnabled();
+
+  const toggleBackend = () => {
+    setHetznerEnabled(!isHetzner);
+    // Force page reload to reinitialize providers
+    window.location.reload();
+  };
 
   return (
     <div className="flex items-center gap-2">
+      {/* Demo/Jonna mode toggle */}
       <button
         onClick={toggleDemoMode}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -28,6 +36,31 @@ export function DemoModeToggle() {
           </>
         )}
       </button>
+
+      {/* Backend toggle - only visible in demo mode */}
+      {isDemoMode && (
+        <button
+          onClick={toggleBackend}
+          className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${
+            isHetzner
+              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+              : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+          }`}
+          title={isHetzner ? 'Switch to Lovable Cloud' : 'Switch to Hetzner Vault'}
+        >
+          {isHetzner ? (
+            <>
+              <Shield className="w-3 h-3" />
+              <span>Vault</span>
+            </>
+          ) : (
+            <>
+              <Cloud className="w-3 h-3" />
+              <span>Cloud</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }

@@ -20,11 +20,14 @@ import { LovableAIProvider, HetznerAIProvider, type IAIProvider } from './ai';
 
 // ============= Configuration =============
 
-// Hetzner Privacy Vault endpoints (production-ready as of 2025-12-18)
-const HETZNER_ENDPOINTS = {
-  baseUrl: 'http://94.130.180.233',
-  vaultPort: 3342,      // Codex Storage
-  visionPort: 3341,     // Vision/AI Service
+// Hetzner Privacy Vault - Production endpoint (SSL via vault.umarise.com)
+// All services proxied through Nginx on port 443
+const HETZNER_PRODUCTION_URL = 'https://vault.umarise.com';
+
+// Legacy direct ports (for reference only - blocked in production)
+const HETZNER_LEGACY_PORTS = {
+  vaultPort: 3342,      // Codex Storage -> /api/codex
+  visionPort: 3341,     // Vision/AI Service -> /api/vision
   ipfsPort: 5001,       // IPFS Gateway
   ollamaPort: 11434,    // Ollama LLM
   bertPort: 3337,       // BERT embeddings
@@ -65,11 +68,11 @@ function getBackendConfig(): BackendConfig {
     // Lovable Cloud config (auto-configured)
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
     supabaseKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-    // Hetzner config (hardcoded for testing, can be overridden via env)
-    hetznerApiUrl: import.meta.env.VITE_HETZNER_API_URL || HETZNER_ENDPOINTS.baseUrl,
-    vaultEndpoint: import.meta.env.VITE_VAULT_ENDPOINT || `${HETZNER_ENDPOINTS.baseUrl}:${HETZNER_ENDPOINTS.vaultPort}`,
-    aiEndpoint: import.meta.env.VITE_AI_ENDPOINT || HETZNER_ENDPOINTS.baseUrl,
-    ipfsGateway: import.meta.env.VITE_IPFS_GATEWAY || `${HETZNER_ENDPOINTS.baseUrl}:${HETZNER_ENDPOINTS.ipfsPort}`,
+    // Hetzner config - production URL with SSL
+    hetznerApiUrl: import.meta.env.VITE_HETZNER_API_URL || HETZNER_PRODUCTION_URL,
+    vaultEndpoint: import.meta.env.VITE_VAULT_ENDPOINT || HETZNER_PRODUCTION_URL,
+    aiEndpoint: import.meta.env.VITE_AI_ENDPOINT || HETZNER_PRODUCTION_URL,
+    ipfsGateway: import.meta.env.VITE_IPFS_GATEWAY || HETZNER_PRODUCTION_URL,
   };
 }
 
