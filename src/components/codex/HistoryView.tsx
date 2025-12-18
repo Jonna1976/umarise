@@ -418,18 +418,31 @@ export function HistoryView({
           {/* Right side - flex-1 to balance with left */}
           <div className="flex-1 flex justify-end">
           {isMinimalMode ? (
-            <div className="flex items-center gap-2">
-              {/* Export button - shows at 1+ pages */}
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {/* Export button - shows at 1+ pages (mobile shows label) */}
               {allPages.length >= 1 && (
-                <ExportButton 
-                  variant="ghost" 
-                  size="icon" 
-                  showLabel={false} 
-                  selectedPageIds={selectedPageIds}
-                  onClearSelection={clearSelection}
-                />
+                <div className="shrink-0">
+                  <div className="sm:hidden">
+                    <ExportButton
+                      variant="outline"
+                      size="sm"
+                      showLabel={true}
+                      selectedPageIds={selectedPageIds}
+                      onClearSelection={clearSelection}
+                    />
+                  </div>
+                  <div className="hidden sm:block">
+                    <ExportButton
+                      variant="ghost"
+                      size="icon"
+                      showLabel={false}
+                      selectedPageIds={selectedPageIds}
+                      onClearSelection={clearSelection}
+                    />
+                  </div>
+                </div>
               )}
-              
+
               {/* Share button - shows at 3+ pages */}
               {allPages.length >= 3 && onShareMemory && (
                 <button
@@ -440,7 +453,7 @@ export function HistoryView({
                   <Share2 className="w-4 h-4" />
                 </button>
               )}
-              
+
               {/* Insights button - shows at 5+ pages */}
               {allPages.length >= 5 && onViewPersonality && (
                 <button
@@ -451,22 +464,22 @@ export function HistoryView({
                   <Sparkles className="w-4 h-4" />
                 </button>
               )}
-              
+
               {/* Sort toggle */}
               <button
                 onClick={() => setSortMode(sortMode === 'date' ? 'cue' : 'date')}
                 className={`p-2 rounded-lg transition-colors ${
-                  sortMode === 'cue' 
-                    ? 'bg-codex-gold/20 text-codex-gold' 
+                  sortMode === 'cue'
+                    ? 'bg-codex-gold/20 text-codex-gold'
                     : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
                 title={sortMode === 'date' ? 'Sort by cue' : 'Sort by date'}
               >
                 {sortMode === 'date' ? <Tag className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
               </button>
-              
+
               {/* View toggles */}
-              <div className="flex bg-secondary rounded-lg p-1">
+              <div className="flex bg-secondary rounded-lg p-1 shrink-0">
                 <button
                   onClick={() => setViewMode('vault')}
                   className={`p-1.5 rounded transition-colors ${
@@ -524,9 +537,9 @@ export function HistoryView({
             <div className="flex items-center gap-2">
               {/* Export button */}
               {allPages.length >= 1 && (
-                <ExportButton 
-                  variant="outline" 
-                  size="sm" 
+                <ExportButton
+                  variant="outline"
+                  size="sm"
                   showLabel={true}
                   selectedPageIds={selectedPageIds}
                   onClearSelection={clearSelection}
@@ -545,6 +558,7 @@ export function HistoryView({
             </div>
           )}
           </div>
+        </div>
         </div>
 
         {/* Search button - hidden in minimal mode */}
