@@ -773,62 +773,82 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getProjects(): Promise<Project[]> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await this.proxyRequest('GET', '/vault/projects', undefined, {
-      deviceUserId,
-    });
+    try {
+      const response = await this.proxyRequest('GET', '/vault/projects', undefined, {
+        deviceUserId,
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        // Projects endpoint might not exist on Hetzner - gracefully return empty
+        console.log('[HetznerVaultStorage] Projects endpoint not available, returning empty list');
+        return [];
+      }
+
+      const data = await response.json();
+      return (data.projects || []).map((p: Record<string, unknown>) => ({
+        id: p.id as string,
+        deviceUserId: p.deviceUserId as string,
+        name: p.name as string,
+        createdAt: new Date(p.createdAt as string),
+      }));
+    } catch (error) {
+      // Gracefully handle missing endpoint
+      console.log('[HetznerVaultStorage] Error fetching projects, returning empty list:', error);
       return [];
     }
-
-    const data = await response.json();
-    return (data.projects || []).map((p: Record<string, unknown>) => ({
-      id: p.id as string,
-      deviceUserId: p.deviceUserId as string,
-      name: p.name as string,
-      createdAt: new Date(p.createdAt as string),
-    }));
   }
 
   async createProject(name: string): Promise<Project | null> {
     const deviceUserId = this.getRealDeviceUserId();
     
-    const response = await this.proxyRequest('POST', '/vault/projects', {
-      deviceUserId,
-      name: name.trim(),
-    });
+    try {
+      const response = await this.proxyRequest('POST', '/vault/projects', {
+        deviceUserId,
+        name: name.trim(),
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        console.log('[HetznerVaultStorage] Projects endpoint not available for creation');
+        return null;
+      }
+
+      const data = await response.json();
+      return {
+        id: data.id,
+        deviceUserId: data.deviceUserId,
+        name: data.name,
+        createdAt: new Date(data.createdAt),
+      };
+    } catch (error) {
+      console.log('[HetznerVaultStorage] Error creating project:', error);
       return null;
     }
-
-    const data = await response.json();
-    return {
-      id: data.id,
-      deviceUserId: data.deviceUserId,
-      name: data.name,
-      createdAt: new Date(data.createdAt),
-    };
   }
 
   async checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null> {
     const deviceUserId = this.getDeviceUserId();
     if (!ocrText || ocrText.length < 50) return null;
 
-    const response = await this.proxyRequest('POST', '/vault/pages/check-duplicate', {
-      deviceUserId,
-      ocrText,
-      excludePageId,
-    });
+    try {
+      const response = await this.proxyRequest('POST', '/vault/pages/check-duplicate', {
+        deviceUserId,
+        ocrText,
+        excludePageId,
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        // Duplicate check endpoint might not exist
+        return null;
+      }
+
+      const data = await response.json();
+      if (!data.duplicate) return null;
+      
+      return this.mapApiResponseToPage(data.duplicate);
+    } catch (error) {
+      console.log('[HetznerVaultStorage] Duplicate check not available:', error);
       return null;
     }
-
-    const data = await response.json();
-    if (!data.duplicate) return null;
-    
-    return this.mapApiResponseToPage(data.duplicate);
   }
 
   private mapApiResponseToPage(data: Record<string, unknown>): Page {
