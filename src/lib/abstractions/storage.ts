@@ -667,23 +667,25 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async createPage(pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
+    // Hetzner backend uses SQLite which doesn't support array types
+    // JSON-stringify array/object fields before sending
     const response = await this.proxyRequest('POST', '/vault/pages', {
       deviceUserId: pageData.deviceUserId,
       writerUserId: pageData.writerUserId || pageData.deviceUserId,
       imageUrl: pageData.imageUrl,
       thumbnailUri: pageData.thumbnailUri || null,
       ocrText: pageData.ocrText,
-      ocrTokens: pageData.ocrTokens || [],
-      namedEntities: pageData.namedEntities || [],
+      ocrTokens: JSON.stringify(pageData.ocrTokens || []),
+      namedEntities: JSON.stringify(pageData.namedEntities || []),
       summary: pageData.summary,
       oneLineHint: pageData.oneLineHint || null,
-      tone: pageData.tone,
-      keywords: pageData.keywords,
-      topicLabels: pageData.topicLabels || [],
+      tone: JSON.stringify(pageData.tone ? (Array.isArray(pageData.tone) ? pageData.tone : [pageData.tone]) : []),
+      keywords: JSON.stringify(pageData.keywords || []),
+      topicLabels: JSON.stringify(pageData.topicLabels || []),
       primaryKeyword: pageData.primaryKeyword || null,
-      futureYouCues: pageData.futureYouCues || [],
-      futureYouCuesSource: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
-      highlights: pageData.highlights || [],
+      futureYouCues: JSON.stringify(pageData.futureYouCues || []),
+      futureYouCuesSource: JSON.stringify(pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false }),
+      highlights: JSON.stringify(pageData.highlights || []),
       confidenceScore: pageData.confidenceScore || null,
       capsuleId: pageData.capsuleId || null,
       pageOrder: pageData.pageOrder ?? 0,
@@ -736,16 +738,17 @@ export class HetznerVaultStorage implements IStorageProvider {
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
     const deviceUserId = this.getDeviceUserId();
     
+    // JSON-stringify array/object fields for SQLite compatibility
     const apiUpdates: Record<string, unknown> = {};
     if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
     if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
     if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
-    if (updates.sources !== undefined) apiUpdates.sources = updates.sources;
+    if (updates.sources !== undefined) apiUpdates.sources = JSON.stringify(updates.sources);
     if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
-    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = updates.futureYouCues;
-    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = updates.futureYouCuesSource;
-    if (updates.highlights !== undefined) apiUpdates.highlights = updates.highlights;
-    if (updates.tone !== undefined) apiUpdates.tone = updates.tone;
+    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = JSON.stringify(updates.futureYouCues);
+    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
+    if (updates.highlights !== undefined) apiUpdates.highlights = JSON.stringify(updates.highlights);
+    if (updates.tone !== undefined) apiUpdates.tone = JSON.stringify(Array.isArray(updates.tone) ? updates.tone : [updates.tone]);
     if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
     if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
 
@@ -860,32 +863,46 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   private mapApiResponseToPage(data: Record<string, unknown>): Page {
-    const ocrTokens: OCRToken[] = Array.isArray(data.ocrTokens)
-      ? (data.ocrTokens as unknown[]).map((t: unknown) => {
-          const token = t as Record<string, unknown>;
-          return {
-            token: String(token.token || ''),
-            confidence: Number(token.confidence || 0.8),
-            bbox: token.bbox as OCRToken['bbox'],
-          };
-        })
-      : [];
+    // Helper to parse JSON strings or return arrays directly
+    const parseJsonField = <T>(field: unknown, defaultValue: T): T => {
+      if (typeof field === 'string') {
+        try {
+          return JSON.parse(field) as T;
+        } catch {
+          return defaultValue;
+        }
+      }
+      return (field as T) || defaultValue;
+    };
 
-    const namedEntities: NamedEntity[] = Array.isArray(data.namedEntities)
-      ? (data.namedEntities as unknown[]).map((e: unknown) => {
-          const entity = e as Record<string, unknown>;
-          return {
-            type: entity.type as NamedEntity['type'] || 'other',
-            value: String(entity.value || ''),
-            confidence: Number(entity.confidence || 0.8),
-            span: entity.span as NamedEntity['span'],
-          };
-        })
-      : [];
+    const ocrTokensRaw = parseJsonField<unknown[]>(data.ocrTokens, []);
+    const ocrTokens: OCRToken[] = ocrTokensRaw.map((t: unknown) => {
+      const token = t as Record<string, unknown>;
+      return {
+        token: String(token.token || ''),
+        confidence: Number(token.confidence || 0.8),
+        bbox: token.bbox as OCRToken['bbox'],
+      };
+    });
 
-    const futureYouCuesSource: FutureYouCuesSource = data.futureYouCuesSource
-      ? (data.futureYouCuesSource as FutureYouCuesSource)
-      : { ai_prefill_version: null, user_edited: false };
+    const namedEntitiesRaw = parseJsonField<unknown[]>(data.namedEntities, []);
+    const namedEntities: NamedEntity[] = namedEntitiesRaw.map((e: unknown) => {
+      const entity = e as Record<string, unknown>;
+      return {
+        type: entity.type as NamedEntity['type'] || 'other',
+        value: String(entity.value || ''),
+        confidence: Number(entity.confidence || 0.8),
+        span: entity.span as NamedEntity['span'],
+      };
+    });
+
+    const futureYouCuesSource: FutureYouCuesSource = parseJsonField(
+      data.futureYouCuesSource,
+      { ai_prefill_version: null, user_edited: false }
+    );
+
+    const toneRaw = parseJsonField<string[]>(data.tone, []);
+    const tone = Array.isArray(toneRaw) ? toneRaw : [toneRaw].filter(Boolean);
 
     return {
       id: data.id as string,
@@ -898,21 +915,21 @@ export class HetznerVaultStorage implements IStorageProvider {
       namedEntities,
       summary: (data.summary as string) || '',
       oneLineHint: (data.oneLineHint as string) || undefined,
-      tone: Array.isArray(data.tone) ? data.tone as string[] : [data.tone as string].filter(Boolean),
-      keywords: (data.keywords as string[]) || [],
-      topicLabels: (data.topicLabels as string[]) || [],
+      tone,
+      keywords: parseJsonField<string[]>(data.keywords, []),
+      topicLabels: parseJsonField<string[]>(data.topicLabels, []),
       primaryKeyword: (data.primaryKeyword as string) || undefined,
       userNote: (data.userNote as string) || undefined,
-      sources: (data.sources as string[]) || [],
-      highlights: (data.highlights as string[]) || [],
+      sources: parseJsonField<string[]>(data.sources, []),
+      highlights: parseJsonField<string[]>(data.highlights, []),
       confidenceScore: data.confidenceScore ? Number(data.confidenceScore) : undefined,
       capsuleId: (data.capsuleId as string) || undefined,
       pageOrder: (data.pageOrder as number) ?? 0,
       projectId: (data.projectId as string) || undefined,
       futureYouCue: (data.futureYouCue as string) || undefined,
-      futureYouCues: (data.futureYouCues as string[]) || [],
+      futureYouCues: parseJsonField<string[]>(data.futureYouCues, []),
       futureYouCuesSource,
-      embeddingVector: data.embeddingVector as number[] || undefined,
+      embeddingVector: parseJsonField<number[]>(data.embeddingVector, undefined as unknown as number[]),
       sessionId: (data.sessionId as string) || undefined,
       captureBatchId: (data.captureBatchId as string) || undefined,
       sourceContainerId: (data.sourceContainerId as string) || undefined,
