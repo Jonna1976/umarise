@@ -29,3 +29,7 @@ verify_jwt = false
 
 [functions.generate-memory-summary]
 verify_jwt = false
+
+[functions.hetzner-health]
+verify_jwt = false
+
