@@ -617,7 +617,15 @@ export class HetznerVaultStorage implements IStorageProvider {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || 'Failed to upload image');
+      const errorMessage = error.error || error.details || 'Failed to upload image';
+      
+      // Provide helpful message for missing endpoint
+      if (response.status === 404) {
+        console.error('[HetznerVaultStorage] Image upload endpoint not found. The Hetzner backend may not have /vault/images implemented yet.');
+        throw new Error('Hetzner image upload not available. Please switch to Lovable Cloud for capture, or implement /vault/images endpoint on Hetzner server.');
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
