@@ -89,16 +89,25 @@ export interface PersonalitySnapshot {
 // ============= AI Analysis Types =============
 
 export interface PageAnalysisResult {
-  ocr_text: string;
-  ocr_tokens: OCRToken[];
-  named_entities: NamedEntity[];
+  // Support both camelCase (new Hetzner contract) and snake_case (legacy)
+  ocrText?: string;
+  ocr_text?: string;
+  ocrTokens?: OCRToken[];
+  ocr_tokens?: OCRToken[];
+  namedEntities?: NamedEntity[];
+  named_entities?: NamedEntity[];
   summary: string;
-  one_line_hint: string;
-  tone: string;
+  oneLineHint?: string;
+  one_line_hint?: string;
+  tone: string | string[]; // Can be array (new) or comma-separated string (legacy)
   keywords: string[];
-  topic_labels: string[];
-  highlights: string[];
-  suggested_cues: string[]; // 3 AI-suggested retrieval cues
+  topicLabels?: string[];
+  topic_labels?: string[];
+  highlights?: string[];
+  futureYouCues?: string[]; // New contract: camelCase
+  suggested_cues?: string[]; // Legacy: snake_case
+  confidenceScore?: number;
+  success?: boolean;
 }
 
 export interface PatternAnalysisResult {
