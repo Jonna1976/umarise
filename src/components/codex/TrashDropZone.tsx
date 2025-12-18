@@ -37,7 +37,7 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
 
   return (
     <motion.div
-      className="fixed bottom-6 left-20 z-40"
+      className="fixed bottom-6 left-16 z-40"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ 
         opacity: isDragging || trashedCount > 0 ? 1 : 0.4,
@@ -51,7 +51,7 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-          relative w-12 h-12 rounded-full flex items-center justify-center
+          relative w-10 h-10 rounded-full flex items-center justify-center
           transition-all duration-200
           ${isOver 
             ? 'bg-destructive/30 shadow-lg shadow-destructive/20' 
