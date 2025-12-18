@@ -180,45 +180,166 @@ export class LovableAIProvider implements IAIProvider {
   }
 }
 
-// ============= Future Hetzner Implementation (Placeholder) =============
+// ============= Hetzner AI Implementation =============
 
 export class HetznerAIProvider implements IAIProvider {
+  private maxRetries = 3;
+
   constructor(private config: { 
-    bertEndpoint: string;   // BERT for embeddings/text analysis
+    bertEndpoint: string;   // BERT for embeddings
     whisperEndpoint: string; // Whisper for audio (future)
     spacyEndpoint: string;  // SpaCy for NLP
-    ollamaEndpoint: string; // Ollama for LLM
+    ollamaEndpoint: string; // Ollama for LLM / Vision
   }) {}
 
-  async analyzePage(_imageBase64: string): Promise<PageAnalysisResult> {
-    // Future: Use local BERT for embeddings + Ollama for text generation
-    // Benefits: Zero cloud dependency, data sovereignty, predictable costs
-    throw new Error('Hetzner AI not yet implemented');
+  async analyzePage(imageBase64: string): Promise<PageAnalysisResult> {
+    let lastError: Error | null = null;
+    
+    // Vision service is on port 3341 (derived from ollamaEndpoint base)
+    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
+    const visionEndpoint = `${baseUrl}:3341`;
+    
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        console.log(`[Hetzner AI] Analysis attempt ${attempt}/${this.maxRetries}...`);
+        
+        const response = await fetch(`${visionEndpoint}/ai/analyze-page`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64 }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 429) {
+            throw Object.assign(new Error('Rate limit exceeded. Please wait and try again.'), { code: 'RATE_LIMITED' });
+          }
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error?.message || 'Analysis failed');
+        }
+
+        const data = await response.json();
+        return data as PageAnalysisResult;
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error('Unknown error');
+        console.warn(`[Hetzner AI] Attempt ${attempt} failed:`, lastError.message);
+        
+        if ((err as { code?: string }).code === 'RATE_LIMITED') {
+          throw lastError;
+        }
+        
+        if (attempt < this.maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    throw lastError || new Error('Failed to analyze image after multiple attempts');
   }
 
-  async analyzePatterns(_pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>): Promise<PatternAnalysisResult> {
-    // Future: Use BERT embeddings + Ollama for pattern synthesis
-    throw new Error('Hetzner AI not yet implemented');
+  async analyzePatterns(
+    pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>
+  ): Promise<PatternAnalysisResult> {
+    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
+    const aiEndpoint = `${baseUrl}:3341`;
+    
+    const response = await fetch(`${aiEndpoint}/ai/analyze-patterns`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pages: pages.map(p => ({
+          summary: p.summary,
+          tone: p.tone,
+          keywords: p.keywords,
+          createdAt: p.createdAt.toISOString(),
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Pattern analysis failed');
+    }
+
+    return await response.json() as PatternAnalysisResult;
   }
 
   async analyzePersonality(
-    _pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>,
-    _profileType: 'voice' | 'influence'
+    pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>,
+    profileType: 'voice' | 'influence'
   ): Promise<PersonalityAnalysisResult> {
-    // Future: Use Ollama LLM with custom personality prompts
-    throw new Error('Hetzner AI not yet implemented');
+    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
+    const aiEndpoint = `${baseUrl}:3341`;
+    
+    const response = await fetch(`${aiEndpoint}/ai/analyze-personality`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pages: pages.map(p => ({
+          summary: p.summary,
+          tone: p.tone,
+          keywords: p.keywords,
+          createdAt: p.createdAt.toISOString(),
+        })),
+        profileType,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Personality analysis failed');
+    }
+
+    return await response.json() as PersonalityAnalysisResult;
   }
 
   async generateYearReflection(
-    _year: number,
-    _pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>
+    year: number,
+    pages: Array<{ summary: string; tone: string; keywords: string[]; createdAt: Date }>
   ): Promise<YearReflectionResult> {
-    throw new Error('Hetzner AI not yet implemented');
+    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
+    const aiEndpoint = `${baseUrl}:3341`;
+    
+    const response = await fetch(`${aiEndpoint}/ai/generate-year-reflection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        year,
+        pages: pages.map(p => ({
+          summary: p.summary,
+          tone: p.tone,
+          keywords: p.keywords,
+          createdAt: p.createdAt.toISOString(),
+        })),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Year reflection failed');
+    }
+
+    return await response.json() as YearReflectionResult;
   }
 
   async generateRecommendations(
-    _personality: PersonalityAnalysisResult
+    personality: PersonalityAnalysisResult
   ): Promise<Array<{ type: string; title: string; reason: string }>> {
-    throw new Error('Hetzner AI not yet implemented');
+    const baseUrl = this.config.ollamaEndpoint.replace(':11434', '');
+    const aiEndpoint = `${baseUrl}:3341`;
+    
+    const response = await fetch(`${aiEndpoint}/ai/generate-recommendations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ personality }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Recommendations failed');
+    }
+
+    const data = await response.json();
+    return data.recommendations || [];
   }
 }
