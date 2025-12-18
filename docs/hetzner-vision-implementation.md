@@ -3,6 +3,99 @@
 ## Doel
 Vervang basis OCR met een **vision-capable AI model** voor accurate handschrift-herkenning en intelligente analyse.
 
+---
+
+## 🎯 KRITIEKE REGELS VOOR futureYouCues (Spine Words)
+
+Dit zijn de woorden die op de "rug" van de pagina verschijnen in de memory view. **Deze regels MOETEN exact gevolgd worden:**
+
+### Regel 1: Formaat
+- **EXACT 2-3 woorden** (in UI tonen we max 2)
+- **Max 30 karakters per cue**
+- Lowercase of Title Case
+
+### Regel 2: Inhoud Prioriteit
+Minstens 1 cue MOET een van deze zijn:
+1. **Persoonsnaam** (bijv. "Sarah", "Jan de Vries")
+2. **Organisatienaam** (bijv. "Tesla", "UvA")
+3. **Deliverable woord** (bijv. "pitch", "proposal", "wedding", "visa", "roadmap", "budget")
+
+### Regel 3: VERBODEN Generieke Termen
+Deze woorden mogen NOOIT als cue gebruikt worden:
+```
+idea, ideas, notes, note, thoughts, thought, plan, plans,
+thing, things, stuff, misc, random, general, various,
+important, remember, todo, list, image, camera, photo
+```
+
+### Regel 4: Denkwijze
+Vraag jezelf: **"Wat zou de gebruiker typen om deze specifieke pagina later te vinden?"**
+
+### Voorbeelden
+
+✅ **GOED:**
+```json
+"futureYouCues": ["sarah proposal", "Q4 budget"]
+"futureYouCues": ["wedding venue", "Amsterdam"]
+"futureYouCues": ["startup pitch", "funding"]
+"futureYouCues": ["mom birthday", "cadeau"]
+```
+
+❌ **FOUT:**
+```json
+"futureYouCues": ["important idea", "notes"]
+"futureYouCues": ["Remember this", "Follow up"]
+"futureYouCues": ["image", "photo"]
+"futureYouCues": ["thoughts", "misc"]
+```
+
+### Regel 5: Fallback Logica
+Als de AI geen goede cues kan genereren, gebruik deze volgorde:
+1. Named entities (personen, organisaties)
+2. Keywords (geen generieke)
+3. Eerste unieke woorden uit OCR tekst (> 3 karakters)
+
+---
+
+## Controlled Vocabulary voor Topic Labels
+
+Gebruik alleen labels uit deze lijst:
+```
+business, strategy, pitch, roadmap, pricing, product,
+meeting, brainstorm, research, notes, ideas, project,
+personal, journal, reflection, goals, plans, tasks,
+creative, writing, story, poem, sketch, design,
+learning, study, lecture, book, course, reading,
+travel, trip, adventure, memory, event, celebration,
+health, fitness, wellness, food, recipe, diet,
+finance, budget, investment, savings, expense, income,
+relationship, family, friend, love, gratitude, letter,
+work, career, job, interview, resume, networking
+```
+
+---
+
+## Allowed Tone Values
+
+Kies EXACT 1 tone uit:
+```
+grateful, happy, energetic, peaceful, excited, nostalgic,
+determined, curious, anxious, frustrated, hopeful, tender,
+restless, melancholic, playful, focused, overwhelmed, reflective
+```
+
+---
+
+## Named Entity Types
+
+```
+person, organization, location, date, deliverable, other
+```
+
+**Deliverable** = pitch, proposal, wedding, visa, roadmap, contract, etc.
+
+---
+
 ## Aanbevolen Modellen (in volgorde van voorkeur)
 
 ### 1. Google Gemini Pro Vision (AANBEVOLEN)
@@ -25,36 +118,42 @@ def analyze_page(image_base64: str) -> dict:
     
     image_data = base64.b64decode(image_base64)
     
-    prompt = """Analyze this image of a handwritten/printed page.
+    prompt = """You are an AI that analyzes handwritten notes for a personal codex/memory system.
 
 TASKS:
-1. Extract ALL visible text (OCR) - be very accurate with handwriting
-2. Identify named entities (people, places, organizations, dates)
-3. Generate a concise 1-2 sentence summary of the ACTUAL content
-4. Extract 3-5 specific keywords from the actual content (NOT generic words like "image", "photo")
-5. Determine the emotional/stylistic tone from: reflective, analytical, emotional, practical, creative, questioning, determined, grateful, frustrated, hopeful, nostalgic, curious, urgent, peaceful, ambitious
-6. Suggest 1-2 "future you" memory cues - specific things worth remembering
-7. Create a brief 5-7 word hint for quick identification
+1. **OCR**: Read and transcribe ALL handwritten text accurately as a single string
+2. **Named entities**: Extract people, organizations, locations, dates, and deliverables (pitch, proposal, wedding, visa, etc.)
+3. **Highlights**: Detect underlined, circled, boxed, or starred text (writer's emphasis)
+4. **Summary**: 1-2 sentence summary of the ACTUAL core idea (NOT a template!)
+5. **One-line hint**: A single retrieval hint phrase (5-7 words)
+6. **Tone**: Single emotional tone from: grateful, happy, energetic, peaceful, excited, nostalgic, determined, curious, anxious, frustrated, hopeful, tender, restless, melancholic, playful, focused, overwhelmed, reflective
+7. **Keywords**: 3-5 essential, lowercase tokens from the ACTUAL content
+8. **Topic labels**: 1-3 labels from: business, strategy, pitch, roadmap, pricing, product, meeting, brainstorm, research, notes, ideas, project, personal, journal, reflection, goals, plans, tasks, creative, writing, story, poem, sketch, design, learning, study, lecture, book, course, reading, travel, trip, adventure, memory, event, celebration, health, fitness, wellness, food, recipe, diet, finance, budget, investment, savings, expense, income, relationship, family, friend, love, gratitude, letter, work, career, job, interview, resume, networking
+9. **futureYouCues**: EXACTLY 2 retrieval words/phrases for the page spine
 
-Return JSON:
+**CRITICAL RULES FOR futureYouCues:**
+- Each cue: 1-3 words, max 30 characters
+- At least 1 cue MUST be a person/organization name OR a deliverable word (pitch, proposal, wedding, visa, roadmap, budget)
+- NEVER use generic terms: idea, ideas, notes, note, thoughts, thought, plan, plans, thing, things, stuff, misc, random, general, various, important, remember, todo, list, image, camera, photo
+- Think: "What would I type to find this specific page?"
+- GOOD examples: ["sarah proposal", "Q4 budget"], ["wedding venue", "Amsterdam"], ["startup pitch", "funding"]
+- BAD examples: ["important idea", "notes"], ["Remember this", "Follow up"], ["image", "photo"]
+
+Return this exact JSON format (no markdown, no code blocks):
 {
   "success": true,
   "ocrText": "exact transcribed text...",
   "ocrTokens": [{"token": "word", "confidence": 0.95, "bbox": [x, y, w, h]}],
-  "namedEntities": [{"type": "person|organization|location|date", "value": "Name", "confidence": 0.9}],
-  "summary": "Specific summary of what this page is about...",
+  "namedEntities": [{"type": "person|organization|location|date|deliverable", "value": "Name", "confidence": 0.9}],
+  "highlights": ["underlined or emphasized text"],
+  "summary": "Specific 1-2 sentence summary of the ACTUAL content",
   "oneLineHint": "Brief 5-7 word description",
   "keywords": ["specific", "content", "keywords"],
   "topicLabels": ["category1", "category2"],
-  "tone": ["reflective", "hopeful"],
-  "futureYouCues": ["Remember this insight about X", "Follow up on Y"],
+  "tone": ["reflective"],
+  "futureYouCues": ["person_or_deliverable", "specific_topic"],
   "confidenceScore": 0.87
-}
-
-CRITICAL: 
-- Summary must describe ACTUAL content, not be a template
-- Keywords must be from the ACTUAL text, not generic
-- If you can't read something, estimate with lower confidence"""
+}"""
 
     response = model.generate_content([
         prompt,
