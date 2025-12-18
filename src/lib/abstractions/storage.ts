@@ -701,7 +701,25 @@ export class HetznerVaultStorage implements IStorageProvider {
     }
 
     const data = await response.json();
-    return this.mapApiResponseToPage(data);
+    
+    // Hetzner backend only returns {id, createdAt, success} on create
+    // Reconstruct the full Page object from pageData + response
+    const createdAt = new Date(data.createdAt);
+    return {
+      ...pageData,
+      id: data.id,
+      createdAt,
+      updatedAt: createdAt,
+      // Ensure arrays are properly typed (pageData already has them)
+      ocrTokens: pageData.ocrTokens || [],
+      namedEntities: pageData.namedEntities || [],
+      keywords: pageData.keywords || [],
+      topicLabels: pageData.topicLabels || [],
+      futureYouCues: pageData.futureYouCues || [],
+      highlights: pageData.highlights || [],
+      sources: pageData.sources || [],
+      tone: pageData.tone || [],
+    };
   }
 
   async getPages(): Promise<Page[]> {
