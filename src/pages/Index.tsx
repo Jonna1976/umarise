@@ -49,6 +49,9 @@ const Index = () => {
   // Post-capture state (we keep this for backward compatibility in SnapshotView)
   const [suggestedCues, setSuggestedCues] = useState<string[]>([]);
   
+  // AI-suggested cues from processing (to prefill in ProcessingView)
+  const [aiSuggestedCues, setAiSuggestedCues] = useState<string[]>([]);
+  
   // Processing gate: AI finishes first, then user must enter + confirm cues to proceed
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
   const [pendingPagesToCue, setPendingPagesToCue] = useState<Page[] | null>(null);
@@ -107,6 +110,8 @@ const Index = () => {
       if (result) {
         // Wait for user cues confirmation before going to snapshot
         setPendingPagesToCue([result.page]);
+        // Pass AI-suggested cues to ProcessingView for prefill
+        setAiSuggestedCues(result.suggestedCues || []);
         setIsProcessingComplete(true);
       } else {
         toast.error('Failed to process page. Please try again.');
@@ -415,6 +420,7 @@ const Index = () => {
             currentPageCount={pages.length}
             isProcessingComplete={isProcessingComplete}
             onContinue={handleProcessingContinue}
+            suggestedCues={aiSuggestedCues}
           />
         ) : null;
       

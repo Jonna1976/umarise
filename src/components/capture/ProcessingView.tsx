@@ -12,6 +12,7 @@ interface ProcessingViewProps {
   currentPageCount?: number;
   isProcessingComplete?: boolean;
   onContinue?: (cues: string[]) => void;
+  suggestedCues?: string[];
 }
 
 const ESTIMATED_TIME = 15;
@@ -23,7 +24,8 @@ export function ProcessingView({
   completedCount = 0,
   currentPageCount = 0,
   isProcessingComplete = false,
-  onContinue
+  onContinue,
+  suggestedCues = []
 }: ProcessingViewProps) {
   const isMultiple = totalImages > 1;
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -33,6 +35,7 @@ export function ProcessingView({
   const [showBonusCue, setShowBonusCue] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [hasPrefilledFromAI, setHasPrefilledFromAI] = useState(false);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,7 +53,24 @@ export function ProcessingView({
     setCue3('');
     setShowBonusCue(false);
     setElapsedTime(0);
+    setHasPrefilledFromAI(false);
   }, [imageUrl]);
+
+  // Prefill with AI-suggested cues when processing completes
+  useEffect(() => {
+    if (isProcessingComplete && suggestedCues.length > 0 && !hasPrefilledFromAI) {
+      // Only prefill if user hasn't typed anything yet
+      if (!cue1 && !cue2 && !cue3) {
+        if (suggestedCues[0]) setCue1(suggestedCues[0]);
+        if (suggestedCues[1]) setCue2(suggestedCues[1]);
+        if (suggestedCues[2]) {
+          setCue3(suggestedCues[2]);
+          setShowBonusCue(true);
+        }
+        setHasPrefilledFromAI(true);
+      }
+    }
+  }, [isProcessingComplete, suggestedCues, hasPrefilledFromAI, cue1, cue2, cue3]);
 
   const remainingTime = Math.max(0, ESTIMATED_TIME - elapsedTime);
 
