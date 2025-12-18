@@ -153,15 +153,15 @@ export function BookCoverCard({
       animate={{ opacity: 1, y: 0 }}
       className={cn("group relative", isSelected && "ring-2 ring-codex-gold rounded-2xl")}
     >
-      {/* Selection checkbox */}
+      {/* Selection checkbox - positioned outside card content */}
       {isSelectable && (
         <button
           onClick={handleCheckboxClick}
           className={cn(
-            "absolute left-2 top-2 z-10 w-6 h-6 rounded border-2 flex items-center justify-center transition-all",
+            "absolute -left-1 -top-1 z-20 w-6 h-6 rounded border-2 flex items-center justify-center transition-all shadow-sm",
             isSelected 
               ? "bg-codex-gold border-codex-gold text-codex-ink-deep" 
-              : "bg-background/90 border-muted-foreground/40 hover:border-codex-gold/70"
+              : "bg-background border-muted-foreground/50 hover:border-codex-gold/70"
           )}
         >
           {isSelected && <Check className="w-4 h-4" />}
