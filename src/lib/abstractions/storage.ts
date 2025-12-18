@@ -11,7 +11,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
-import { encryptImage, decryptImage, hasVaultKey } from '../crypto';
+import { encryptImage, decryptImage, isPrivateVaultEnabled } from '../crypto';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
@@ -65,44 +65,67 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   /**
-   * Upload image with client-side AES-256-GCM encryption (Private Vault)
-   * The encrypted blob is stored - only this device can decrypt it.
+   * Upload image - encrypts with AES-256-GCM only if Private Vault is enabled
    */
   async uploadImage(imageDataUrl: string): Promise<string> {
-    // Always use real device ID for uploads (user's own captures)
     const deviceUserId = this.getRealDeviceUserId();
     const timestamp = Date.now();
     
-    // PRIVATE VAULT: Encrypt image before upload
-    console.log('[Vault] Encrypting image before upload...');
-    const encryptedBase64 = await encryptImage(imageDataUrl);
+    // Check if Private Vault mode is enabled
+    if (isPrivateVaultEnabled()) {
+      // PRIVATE VAULT: Encrypt image before upload
+      console.log('[Vault] Private Vault enabled - encrypting image...');
+      const encryptedBase64 = await encryptImage(imageDataUrl);
+      
+      // Convert encrypted base64 to blob
+      const encryptedBytes = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+      const encryptedBlob = new Blob([encryptedBytes], { type: 'application/octet-stream' });
+      
+      // Store in encrypted folder with .enc extension
+      const filename = `encrypted/${deviceUserId}/${timestamp}.enc`;
+      
+      const { data, error } = await supabase.storage
+        .from('page-images')
+        .upload(filename, encryptedBlob, {
+          contentType: 'application/octet-stream',
+          cacheControl: '3600',
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        throw new Error('Failed to upload encrypted image');
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('page-images')
+        .getPublicUrl(data.path);
+
+      console.log('[Vault] Encrypted image uploaded successfully');
+      return urlData.publicUrl;
+    }
     
-    // Convert encrypted base64 to blob
-    const encryptedBytes = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-    const encryptedBlob = new Blob([encryptedBytes], { type: 'application/octet-stream' });
+    // DEFAULT: Upload without encryption (standard Supabase storage)
+    console.log('[Storage] Uploading image (unencrypted)...');
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
+    const filename = `${deviceUserId}/${timestamp}.jpg`;
     
-    // Store in encrypted folder with .enc extension
-    const filename = `encrypted/${deviceUserId}/${timestamp}.enc`;
-    
-    // Upload encrypted blob to storage
     const { data, error } = await supabase.storage
       .from('page-images')
-      .upload(filename, encryptedBlob, {
-        contentType: 'application/octet-stream',
+      .upload(filename, blob, {
+        contentType: 'image/jpeg',
         cacheControl: '3600',
       });
 
     if (error) {
       console.error('Upload error:', error);
-      throw new Error('Failed to upload encrypted image');
+      throw new Error('Failed to upload image');
     }
 
-    // Get public URL (to encrypted blob)
     const { data: urlData } = supabase.storage
       .from('page-images')
       .getPublicUrl(data.path);
 
-    console.log('[Vault] Encrypted image uploaded successfully');
     return urlData.publicUrl;
   }
 
