@@ -165,25 +165,32 @@ export class LovableCloudStorage implements IStorageProvider {
       return (data || []).map(row => this.mapRowToPage(row));
     }
 
-    // Normal mode: use user's real device ID with fallback logic
+    // Normal mode: use user's real device ID with limited adoption logic
     let deviceUserId = getDeviceId();
     if (!deviceUserId) return [];
 
-    // First try to load pages for the current device ID
-    let { data, error } = await supabase
-      .from('pages')
-      .select('*')
-      .eq('device_user_id', deviceUserId)
-      .order('created_at', { ascending: false });
+    const fetchByDeviceId = async (id: string) => {
+      return supabase
+        .from('pages')
+        .select('*')
+        .eq('device_user_id', id)
+        .order('created_at', { ascending: false });
+    };
+
+    // First load pages for the current device ID
+    let { data, error } = await fetchByDeviceId(deviceUserId);
 
     if (error) {
       console.error('Fetch pages error:', error);
       return [];
     }
 
-    // If no pages found, try to adopt the device_user_id with the most pages
-    // (but never adopt DEMO_DEVICE_ID)
-    if (!data || data.length === 0) {
+    const currentCount = data?.length ?? 0;
+
+    // If the current device id is clearly not the "main" one (e.g. older test ID with just a few pages),
+    // adopt the most-populated device_user_id and persist it.
+    // NOTE: never adopt DEMO_DEVICE_ID.
+    if (currentCount < 10) {
       const { data: allRows, error: allError } = await supabase
         .from('pages')
         .select('device_user_id');
@@ -192,33 +199,31 @@ export class LovableCloudStorage implements IStorageProvider {
         const counts = new Map<string, number>();
         for (const row of allRows) {
           const id = row.device_user_id as string | null;
-          // Skip demo device ID - never adopt it as user's ID
           if (!id || id === DEMO_DEVICE_ID) continue;
           counts.set(id, (counts.get(id) ?? 0) + 1);
         }
 
-        let fallbackId: string | null = null;
+        let bestId: string | null = null;
         let maxCount = 0;
         for (const [id, count] of counts.entries()) {
           if (count > maxCount) {
             maxCount = count;
-            fallbackId = id;
+            bestId = id;
           }
         }
 
-        if (fallbackId) {
-          deviceUserId = fallbackId;
-          // Persist this so future sessions keep using the same codex identity
-          setDeviceId(fallbackId);
+        const shouldAdopt =
+          !!bestId &&
+          bestId !== deviceUserId &&
+          maxCount >= Math.max(10, currentCount + 10);
 
-          const { data: fallbackData, error: fallbackError } = await supabase
-            .from('pages')
-            .select('*')
-            .eq('device_user_id', fallbackId)
-            .order('created_at', { ascending: false });
+        if (shouldAdopt) {
+          deviceUserId = bestId!;
+          setDeviceId(bestId!);
 
-          if (!fallbackError && fallbackData) {
-            data = fallbackData;
+          const res = await fetchByDeviceId(bestId!);
+          if (!res.error && res.data) {
+            data = res.data;
           }
         }
       }
