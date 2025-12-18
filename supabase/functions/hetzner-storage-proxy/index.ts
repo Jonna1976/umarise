@@ -54,6 +54,17 @@ serve(async (req) => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        // Some endpoints are optional on the Hetzner backend (e.g. projects).
+        // Returning a 404 from the proxy can surface as a hard runtime error in the web client,
+        // even though the UI can safely operate with an empty list.
+        if ((method || 'GET') === 'GET' && response.status === 404 && path === '/vault/projects') {
+          console.warn('Hetzner Storage: /vault/projects not found. Returning empty list.');
+          return new Response(
+            JSON.stringify({ success: true, count: 0, projects: [] }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
         const errorText = await response.text();
         console.error(`Hetzner Storage error: ${response.status} - ${errorText}`);
         return new Response(
