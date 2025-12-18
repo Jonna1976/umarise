@@ -563,61 +563,320 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 }
 
-// ============= Future Hetzner Implementation (Placeholder) =============
+// ============= Hetzner Vault Implementation =============
 
 export class HetznerVaultStorage implements IStorageProvider {
   constructor(private config: { vaultEndpoint: string; ipfsGateway: string }) {}
 
-  async uploadImage(_imageDataUrl: string): Promise<string> {
-    throw new Error('Hetzner storage not yet implemented');
+  private getDeviceUserId(): string {
+    const id = getActiveDeviceId();
+    if (!id) throw new Error('Device ID not initialized');
+    return id;
   }
 
-  async deleteImage(_imageUrl: string): Promise<void> {
-    throw new Error('Hetzner storage not yet implemented');
+  private getRealDeviceUserId(): string {
+    const id = getDeviceId();
+    if (!id) throw new Error('Device ID not initialized');
+    return id;
   }
 
-  async getDecryptedImageUrl(_encryptedUrl: string): Promise<string> {
-    throw new Error('Hetzner storage not yet implemented');
+  async uploadImage(imageDataUrl: string): Promise<string> {
+    const deviceUserId = this.getRealDeviceUserId();
+    
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/images`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageDataUrl,
+        deviceUserId,
+        encrypt: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.imageUrl;
   }
 
-  isEncryptedUrl(_url: string): boolean {
-    // Hetzner vault stores everything encrypted
-    return true;
+  async deleteImage(imageUrl: string): Promise<void> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/images`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageUrl, deviceUserId }),
+    });
+
+    if (!response.ok) {
+      console.warn('Failed to delete image from Hetzner storage');
+    }
   }
 
-  async createPage(_page: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
-    throw new Error('Hetzner storage not yet implemented');
+  async getDecryptedImageUrl(encryptedUrl: string): Promise<string> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    const response = await fetch(
+      `${this.config.vaultEndpoint}/vault/images/decrypt?url=${encodeURIComponent(encryptedUrl)}&deviceUserId=${deviceUserId}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to decrypt image');
+    }
+
+    const data = await response.json();
+    return data.decryptedDataUrl;
+  }
+
+  isEncryptedUrl(url: string): boolean {
+    // Hetzner vault stores everything encrypted via IPFS
+    return url.startsWith('ipfs://');
+  }
+
+  async createPage(pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        deviceUserId: pageData.deviceUserId,
+        writerUserId: pageData.writerUserId || pageData.deviceUserId,
+        imageUrl: pageData.imageUrl,
+        thumbnailUri: pageData.thumbnailUri || null,
+        ocrText: pageData.ocrText,
+        ocrTokens: pageData.ocrTokens || [],
+        namedEntities: pageData.namedEntities || [],
+        summary: pageData.summary,
+        oneLineHint: pageData.oneLineHint || null,
+        tone: pageData.tone,
+        keywords: pageData.keywords,
+        topicLabels: pageData.topicLabels || [],
+        primaryKeyword: pageData.primaryKeyword || null,
+        futureYouCues: pageData.futureYouCues || [],
+        futureYouCuesSource: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
+        highlights: pageData.highlights || [],
+        confidenceScore: pageData.confidenceScore || null,
+        capsuleId: pageData.capsuleId || null,
+        pageOrder: pageData.pageOrder ?? 0,
+        projectId: pageData.projectId || null,
+        sessionId: pageData.sessionId || null,
+        captureBatchId: pageData.captureBatchId || null,
+        writtenAt: pageData.writtenAt?.toISOString() || null,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error?.message || 'Failed to create page');
+    }
+
+    const data = await response.json();
+    return this.mapApiResponseToPage(data);
   }
 
   async getPages(): Promise<Page[]> {
-    throw new Error('Hetzner storage not yet implemented');
+    const deviceUserId = this.getDeviceUserId();
+    
+    const response = await fetch(
+      `${this.config.vaultEndpoint}/vault/pages?deviceUserId=${deviceUserId}`
+    );
+
+    if (!response.ok) {
+      console.error('Failed to fetch pages from Hetzner');
+      return [];
+    }
+
+    const data = await response.json();
+    return (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
   }
 
-  async getPage(_id: string): Promise<Page | null> {
-    throw new Error('Hetzner storage not yet implemented');
+  async getPage(id: string): Promise<Page | null> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    const response = await fetch(
+      `${this.config.vaultEndpoint}/vault/pages/${id}?deviceUserId=${deviceUserId}`
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return this.mapApiResponseToPage(data);
   }
 
-  async updatePage(_id: string, _updates: Partial<Page>): Promise<boolean> {
-    throw new Error('Hetzner storage not yet implemented');
+  async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    const apiUpdates: Record<string, unknown> = {};
+    if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
+    if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
+    if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
+    if (updates.sources !== undefined) apiUpdates.sources = updates.sources;
+    if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
+    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = updates.futureYouCues;
+    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = updates.futureYouCuesSource;
+    if (updates.highlights !== undefined) apiUpdates.highlights = updates.highlights;
+    if (updates.tone !== undefined) apiUpdates.tone = updates.tone;
+    if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
+    if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
+
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceUserId, updates: apiUpdates }),
+    });
+
+    return response.ok;
   }
 
-  async deletePage(_id: string): Promise<boolean> {
-    throw new Error('Hetzner storage not yet implemented');
+  async deletePage(id: string): Promise<boolean> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    // First get the page to delete the image
+    const page = await this.getPage(id);
+    if (page) {
+      await this.deleteImage(page.imageUrl);
+    }
+
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceUserId }),
+    });
+
+    return response.ok;
   }
 
-  async getCapsulePages(_capsuleId: string): Promise<Page[]> {
-    throw new Error('Hetzner storage not yet implemented');
+  async getCapsulePages(capsuleId: string): Promise<Page[]> {
+    const pages = await this.getPages();
+    return pages.filter(p => p.capsuleId === capsuleId).sort((a, b) => (a.pageOrder || 0) - (b.pageOrder || 0));
   }
 
   async getProjects(): Promise<Project[]> {
-    throw new Error('Hetzner storage not yet implemented');
+    const deviceUserId = this.getDeviceUserId();
+    
+    const response = await fetch(
+      `${this.config.vaultEndpoint}/vault/projects?deviceUserId=${deviceUserId}`
+    );
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return (data.projects || []).map((p: Record<string, unknown>) => ({
+      id: p.id as string,
+      deviceUserId: p.deviceUserId as string,
+      name: p.name as string,
+      createdAt: new Date(p.createdAt as string),
+    }));
   }
 
-  async createProject(_name: string): Promise<Project | null> {
-    throw new Error('Hetzner storage not yet implemented');
+  async createProject(name: string): Promise<Project | null> {
+    const deviceUserId = this.getRealDeviceUserId();
+    
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceUserId, name: name.trim() }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return {
+      id: data.id,
+      deviceUserId: data.deviceUserId,
+      name: data.name,
+      createdAt: new Date(data.createdAt),
+    };
   }
 
-  async checkDuplicate(_ocrText: string, _excludePageId?: string): Promise<Page | null> {
-    throw new Error('Hetzner storage not yet implemented');
+  async checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null> {
+    const deviceUserId = this.getDeviceUserId();
+    if (!ocrText || ocrText.length < 50) return null;
+
+    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/check-duplicate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceUserId, ocrText, excludePageId }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.duplicate) return null;
+    
+    return this.mapApiResponseToPage(data.duplicate);
+  }
+
+  private mapApiResponseToPage(data: Record<string, unknown>): Page {
+    const ocrTokens: OCRToken[] = Array.isArray(data.ocrTokens)
+      ? (data.ocrTokens as unknown[]).map((t: unknown) => {
+          const token = t as Record<string, unknown>;
+          return {
+            token: String(token.token || ''),
+            confidence: Number(token.confidence || 0.8),
+            bbox: token.bbox as OCRToken['bbox'],
+          };
+        })
+      : [];
+
+    const namedEntities: NamedEntity[] = Array.isArray(data.namedEntities)
+      ? (data.namedEntities as unknown[]).map((e: unknown) => {
+          const entity = e as Record<string, unknown>;
+          return {
+            type: entity.type as NamedEntity['type'] || 'other',
+            value: String(entity.value || ''),
+            confidence: Number(entity.confidence || 0.8),
+            span: entity.span as NamedEntity['span'],
+          };
+        })
+      : [];
+
+    const futureYouCuesSource: FutureYouCuesSource = data.futureYouCuesSource
+      ? (data.futureYouCuesSource as FutureYouCuesSource)
+      : { ai_prefill_version: null, user_edited: false };
+
+    return {
+      id: data.id as string,
+      deviceUserId: data.deviceUserId as string,
+      writerUserId: (data.writerUserId as string) || (data.deviceUserId as string),
+      imageUrl: data.imageUrl as string,
+      thumbnailUri: (data.thumbnailUri as string) || undefined,
+      ocrText: (data.ocrText as string) || '',
+      ocrTokens,
+      namedEntities,
+      summary: (data.summary as string) || '',
+      oneLineHint: (data.oneLineHint as string) || undefined,
+      tone: Array.isArray(data.tone) ? data.tone as string[] : [data.tone as string].filter(Boolean),
+      keywords: (data.keywords as string[]) || [],
+      topicLabels: (data.topicLabels as string[]) || [],
+      primaryKeyword: (data.primaryKeyword as string) || undefined,
+      userNote: (data.userNote as string) || undefined,
+      sources: (data.sources as string[]) || [],
+      highlights: (data.highlights as string[]) || [],
+      confidenceScore: data.confidenceScore ? Number(data.confidenceScore) : undefined,
+      capsuleId: (data.capsuleId as string) || undefined,
+      pageOrder: (data.pageOrder as number) ?? 0,
+      projectId: (data.projectId as string) || undefined,
+      futureYouCue: (data.futureYouCue as string) || undefined,
+      futureYouCues: (data.futureYouCues as string[]) || [],
+      futureYouCuesSource,
+      embeddingVector: data.embeddingVector as number[] || undefined,
+      sessionId: (data.sessionId as string) || undefined,
+      captureBatchId: (data.captureBatchId as string) || undefined,
+      sourceContainerId: (data.sourceContainerId as string) || undefined,
+      writtenAt: data.writtenAt ? new Date(data.writtenAt as string) : undefined,
+      createdAt: new Date(data.createdAt as string),
+      updatedAt: data.updatedAt ? new Date(data.updatedAt as string) : undefined,
+    };
   }
 }
