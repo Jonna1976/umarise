@@ -57,25 +57,30 @@ export async function createPage(
   const imageUrl = await storage.uploadImage(imageDataUrl);
   console.log('Image uploaded:', imageUrl);
 
-  // Step 3: Parse tone
-  const toneArray = analysis.tone
-    .split(',')
-    .map(t => t.trim().toLowerCase())
-    .filter(t => t.length > 0);
+  // Step 3: Parse tone - handle both array (new contract) and string (legacy)
+  let toneArray: string[];
+  if (Array.isArray(analysis.tone)) {
+    toneArray = analysis.tone.map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+  } else if (typeof analysis.tone === 'string') {
+    toneArray = analysis.tone.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+  } else {
+    toneArray = ['reflective'];
+  }
 
   // Step 4: Create page in storage
+  // Support both camelCase (new contract) and snake_case (legacy) field names
   const page = await storage.createPage({
     deviceUserId,
     writerUserId: deviceUserId,
     imageUrl,
-    ocrText: analysis.ocr_text,
-    ocrTokens: analysis.ocr_tokens || [],
-    namedEntities: analysis.named_entities || [],
+    ocrText: analysis.ocrText || analysis.ocr_text,
+    ocrTokens: analysis.ocrTokens || analysis.ocr_tokens || [],
+    namedEntities: analysis.namedEntities || analysis.named_entities || [],
     summary: analysis.summary,
-    oneLineHint: analysis.one_line_hint,
+    oneLineHint: analysis.oneLineHint || analysis.one_line_hint,
     tone: toneArray.length > 0 ? toneArray : ['reflective'],
     keywords: analysis.keywords,
-    topicLabels: analysis.topic_labels || [],
+    topicLabels: analysis.topicLabels || analysis.topic_labels || [],
     highlights: analysis.highlights || [],
     capsuleId: capsuleId || undefined,
     pageOrder: pageOrder ?? 0,
@@ -85,7 +90,7 @@ export async function createPage(
 
   return { 
     page, 
-    suggestedCues: analysis.suggested_cues || [] 
+    suggestedCues: analysis.futureYouCues || analysis.suggested_cues || [] 
   };
 }
 
