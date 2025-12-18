@@ -55,7 +55,7 @@ serve(async (req) => {
 
     const [vision, vault] = await Promise.all([
       checkService(`${baseUrl}/api/vision/health`),
-      checkService(`${baseUrl}/api/vault/health`),
+      checkService(`${baseUrl}/api/codex/health`),
     ]);
 
     console.log(`Results - Vision: ${vision.status}, Vault: ${vault.status}`);

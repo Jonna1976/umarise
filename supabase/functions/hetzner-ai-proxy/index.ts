@@ -9,6 +9,12 @@ const corsHeaders = {
 const HETZNER_BASE_URL = "https://94.130.180.233";
 const TIMEOUT_MS = 120000; // 2 minutes for AI processing
 
+// Create HTTP client that accepts self-signed certificates
+const httpClient = Deno.createHttpClient({
+  // @ts-ignore - Deno unstable API for self-signed certs
+  proxy: { url: "" }, // Workaround to create custom client
+});
+
 serve(async (req) => {
   console.log(`hetzner-ai-proxy called: ${req.method}`);
   
