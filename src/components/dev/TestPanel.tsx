@@ -13,7 +13,9 @@ import {
   Palette,
   Play,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Server,
+  Cloud
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
@@ -23,6 +25,7 @@ import OnePager from '@/components/OnePager';
 import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { isHetznerEnabled, setHetznerEnabled, getCurrentProvider } from '@/lib/abstractions';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -331,6 +334,68 @@ export function TestPanel({
                   <p className="text-xs font-bold text-foreground uppercase tracking-wide">Real Data Active</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Jonna's data is protected. No destructive actions possible without Demo Mode.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Hetzner Backend Toggle */}
+        <div className="p-4 border-b border-border bg-background">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Backend Provider
+          </h3>
+          <button
+            onClick={() => {
+              const newState = !isHetznerEnabled();
+              setHetznerEnabled(newState);
+              toast({
+                title: newState ? "🔒 Hetzner Privacy Vault" : "☁️ Lovable Cloud",
+                description: newState 
+                  ? "Now using Hetzner backend (94.130.180.233)" 
+                  : "Now using Lovable Cloud",
+              });
+              // Reload to reinitialize providers
+              setTimeout(() => window.location.reload(), 500);
+            }}
+            className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+              isHetznerEnabled() 
+                ? 'bg-codex-teal/10 border-codex-teal/50 text-codex-teal' 
+                : 'bg-primary/10 border-primary/50 text-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {isHetznerEnabled() ? (
+                <Server className="w-6 h-6" />
+              ) : (
+                <Cloud className="w-6 h-6" />
+              )}
+              <div className="text-left">
+                <div className="font-medium">
+                  {isHetznerEnabled() ? 'Hetzner Privacy Vault' : 'Lovable Cloud'}
+                </div>
+                <div className="text-xs opacity-70">
+                  {isHetznerEnabled() 
+                    ? '94.130.180.233 (encrypted, local AI)' 
+                    : 'Supabase (standard)'}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs px-2 py-1 rounded bg-secondary">
+              Click to switch
+            </span>
+          </button>
+          
+          {/* Hetzner status indicator */}
+          {isHetznerEnabled() && (
+            <div className="mt-3 p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
+              <div className="flex items-start gap-2">
+                <span className="text-codex-teal text-lg">🔐</span>
+                <div>
+                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Privacy Vault Active</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    All data encrypted. Local AI processing. Zero cloud dependency.
                   </p>
                 </div>
               </div>
