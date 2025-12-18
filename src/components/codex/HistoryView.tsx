@@ -854,8 +854,11 @@ export function HistoryView({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4"
+            className="px-4 pt-12 pb-8"
           >
+            {/* Section header */}
+            <h2 className="text-lg font-serif text-foreground mb-6">Pages</h2>
+            
             {historyItems.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -879,7 +882,7 @@ export function HistoryView({
                 </Button>
               </motion.div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {historyItems.map((item, index) => (
                   <motion.div
                     key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
