@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const HETZNER_BASE_URL = "http://94.130.180.233";
-const STORAGE_PORT = 3342;
+// Use HTTPS on port 443 with /api/vault path prefix
+const HETZNER_BASE_URL = "https://94.130.180.233";
 const TIMEOUT_MS = 60000; // 1 minute for storage operations
 
 serve(async (req) => {
@@ -26,8 +26,8 @@ serve(async (req) => {
       );
     }
 
-    // Build target URL with query params
-    let targetUrl = `${HETZNER_BASE_URL}:${STORAGE_PORT}${path}`;
+    // Map path to HTTPS: /vault/pages -> /api/vault/vault/pages
+    let targetUrl = `${HETZNER_BASE_URL}/api/vault${path}`;
     if (queryParams && Object.keys(queryParams).length > 0) {
       const params = new URLSearchParams(queryParams);
       targetUrl += `?${params.toString()}`;

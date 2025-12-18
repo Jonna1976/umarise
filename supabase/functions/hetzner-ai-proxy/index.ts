@@ -5,8 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const HETZNER_BASE_URL = "http://94.130.180.233";
-const VISION_PORT = 3341;
+// Use HTTPS on port 443 with /api/vision path prefix
+const HETZNER_BASE_URL = "https://94.130.180.233";
 const TIMEOUT_MS = 120000; // 2 minutes for AI processing
 
 serve(async (req) => {
@@ -26,7 +26,8 @@ serve(async (req) => {
       );
     }
 
-    const targetUrl = `${HETZNER_BASE_URL}:${VISION_PORT}${endpoint}`;
+    // Map endpoint to HTTPS path: /ai/analyze-page -> /api/vision/ai/analyze-page
+    const targetUrl = `${HETZNER_BASE_URL}/api/vision${endpoint}`;
     console.log(`Proxying to: ${targetUrl}`);
 
     const controller = new AbortController();
