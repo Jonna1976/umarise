@@ -9,11 +9,6 @@ const corsHeaders = {
 const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 60000; // 1 minute for storage operations
 
-function normalizePath(path: string) {
-  // Treat trailing slashes as equivalent ("/vault/projects/" -> "/vault/projects")
-  return path.replace(/\/+$/, "");
-}
-
 serve(async (req) => {
   console.log(`hetzner-storage-proxy called: ${req.method}`);
 
@@ -32,7 +27,6 @@ serve(async (req) => {
     }
 
     const methodUpper = (method || "GET").toUpperCase();
-    const normalizedPath = normalizePath(path);
 
     // Map path to HTTPS: /vault/pages -> /api/codex/vault/pages
     let targetUrl = `${HETZNER_BASE_URL}/api/codex${path}`;
@@ -41,7 +35,7 @@ serve(async (req) => {
       targetUrl += `?${params.toString()}`;
     }
 
-    console.log(`Proxying ${methodUpper} to: ${targetUrl} (path=${normalizedPath})`);
+    console.log(`Proxying ${methodUpper} to: ${targetUrl}`);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -62,17 +56,6 @@ serve(async (req) => {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        // Some endpoints are optional on the Hetzner backend (e.g. projects).
-        // Returning a 404 from the proxy can surface as a hard runtime error in the web client,
-        // even though the UI can safely operate with an empty list.
-        if (methodUpper === "GET" && response.status === 404 && normalizedPath === "/vault/projects") {
-          console.warn("Hetzner Storage: /vault/projects not found. Returning empty list.");
-          return new Response(JSON.stringify({ success: true, count: 0, projects: [] }), {
-            status: 200,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-
         const errorText = await response.text();
         console.error(`Hetzner Storage error: ${response.status} - ${errorText}`);
         return new Response(JSON.stringify({ error: `Hetzner Storage error: ${response.status}`, details: errorText }), {
