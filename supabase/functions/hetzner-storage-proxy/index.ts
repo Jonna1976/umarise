@@ -26,8 +26,8 @@ serve(async (req) => {
       );
     }
 
-    // Map path to HTTPS: /vault/pages -> /api/vault/vault/pages
-    let targetUrl = `${HETZNER_BASE_URL}/api/vault${path}`;
+    // Map path to HTTPS: /vault/pages -> /api/codex/vault/pages
+    let targetUrl = `${HETZNER_BASE_URL}/api/codex${path}`;
     if (queryParams && Object.keys(queryParams).length > 0) {
       const params = new URLSearchParams(queryParams);
       targetUrl += `?${params.toString()}`;
