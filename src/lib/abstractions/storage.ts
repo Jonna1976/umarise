@@ -566,7 +566,13 @@ export class LovableCloudStorage implements IStorageProvider {
 // ============= Hetzner Vault Implementation =============
 
 export class HetznerVaultStorage implements IStorageProvider {
-  constructor(private config: { vaultEndpoint: string; ipfsGateway: string }) {}
+  private proxyUrl: string;
+  
+  constructor(private config: { vaultEndpoint: string; ipfsGateway: string }) {
+    // Use Supabase edge function as proxy to avoid CORS issues
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    this.proxyUrl = `${supabaseUrl}/functions/v1/hetzner-storage-proxy`;
+  }
 
   private getDeviceUserId(): string {
     const id = getActiveDeviceId();
@@ -580,17 +586,33 @@ export class HetznerVaultStorage implements IStorageProvider {
     return id;
   }
 
+  /**
+   * Make a proxied request to Hetzner storage
+   */
+  private async proxyRequest(
+    method: string,
+    path: string,
+    payload?: Record<string, unknown>,
+    queryParams?: Record<string, string>
+  ): Promise<Response> {
+    console.log(`[Hetzner Storage] Proxying ${method} ${path}`);
+    
+    const response = await fetch(this.proxyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ method, path, payload, queryParams }),
+    });
+    
+    return response;
+  }
+
   async uploadImage(imageDataUrl: string): Promise<string> {
     const deviceUserId = this.getRealDeviceUserId();
     
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/images`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        imageDataUrl,
-        deviceUserId,
-        encrypt: true,
-      }),
+    const response = await this.proxyRequest('POST', '/vault/images', {
+      imageDataUrl,
+      deviceUserId,
+      encrypt: true,
     });
 
     if (!response.ok) {
@@ -605,10 +627,9 @@ export class HetznerVaultStorage implements IStorageProvider {
   async deleteImage(imageUrl: string): Promise<void> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/images`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imageUrl, deviceUserId }),
+    const response = await this.proxyRequest('DELETE', '/vault/images', {
+      imageUrl,
+      deviceUserId,
     });
 
     if (!response.ok) {
@@ -619,9 +640,10 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getDecryptedImageUrl(encryptedUrl: string): Promise<string> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await fetch(
-      `${this.config.vaultEndpoint}/vault/images/decrypt?url=${encodeURIComponent(encryptedUrl)}&deviceUserId=${deviceUserId}`
-    );
+    const response = await this.proxyRequest('GET', '/vault/images/decrypt', undefined, {
+      url: encryptedUrl,
+      deviceUserId,
+    });
 
     if (!response.ok) {
       throw new Error('Failed to decrypt image');
@@ -637,34 +659,30 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async createPage(pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        deviceUserId: pageData.deviceUserId,
-        writerUserId: pageData.writerUserId || pageData.deviceUserId,
-        imageUrl: pageData.imageUrl,
-        thumbnailUri: pageData.thumbnailUri || null,
-        ocrText: pageData.ocrText,
-        ocrTokens: pageData.ocrTokens || [],
-        namedEntities: pageData.namedEntities || [],
-        summary: pageData.summary,
-        oneLineHint: pageData.oneLineHint || null,
-        tone: pageData.tone,
-        keywords: pageData.keywords,
-        topicLabels: pageData.topicLabels || [],
-        primaryKeyword: pageData.primaryKeyword || null,
-        futureYouCues: pageData.futureYouCues || [],
-        futureYouCuesSource: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
-        highlights: pageData.highlights || [],
-        confidenceScore: pageData.confidenceScore || null,
-        capsuleId: pageData.capsuleId || null,
-        pageOrder: pageData.pageOrder ?? 0,
-        projectId: pageData.projectId || null,
-        sessionId: pageData.sessionId || null,
-        captureBatchId: pageData.captureBatchId || null,
-        writtenAt: pageData.writtenAt?.toISOString() || null,
-      }),
+    const response = await this.proxyRequest('POST', '/vault/pages', {
+      deviceUserId: pageData.deviceUserId,
+      writerUserId: pageData.writerUserId || pageData.deviceUserId,
+      imageUrl: pageData.imageUrl,
+      thumbnailUri: pageData.thumbnailUri || null,
+      ocrText: pageData.ocrText,
+      ocrTokens: pageData.ocrTokens || [],
+      namedEntities: pageData.namedEntities || [],
+      summary: pageData.summary,
+      oneLineHint: pageData.oneLineHint || null,
+      tone: pageData.tone,
+      keywords: pageData.keywords,
+      topicLabels: pageData.topicLabels || [],
+      primaryKeyword: pageData.primaryKeyword || null,
+      futureYouCues: pageData.futureYouCues || [],
+      futureYouCuesSource: pageData.futureYouCuesSource || { ai_prefill_version: null, user_edited: false },
+      highlights: pageData.highlights || [],
+      confidenceScore: pageData.confidenceScore || null,
+      capsuleId: pageData.capsuleId || null,
+      pageOrder: pageData.pageOrder ?? 0,
+      projectId: pageData.projectId || null,
+      sessionId: pageData.sessionId || null,
+      captureBatchId: pageData.captureBatchId || null,
+      writtenAt: pageData.writtenAt?.toISOString() || null,
     });
 
     if (!response.ok) {
@@ -679,9 +697,9 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await fetch(
-      `${this.config.vaultEndpoint}/vault/pages?deviceUserId=${deviceUserId}`
-    );
+    const response = await this.proxyRequest('GET', '/vault/pages', undefined, {
+      deviceUserId,
+    });
 
     if (!response.ok) {
       console.error('Failed to fetch pages from Hetzner');
@@ -695,9 +713,9 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getPage(id: string): Promise<Page | null> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await fetch(
-      `${this.config.vaultEndpoint}/vault/pages/${id}?deviceUserId=${deviceUserId}`
-    );
+    const response = await this.proxyRequest('GET', `/vault/pages/${id}`, undefined, {
+      deviceUserId,
+    });
 
     if (!response.ok) {
       return null;
@@ -723,10 +741,9 @@ export class HetznerVaultStorage implements IStorageProvider {
     if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
     if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
 
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceUserId, updates: apiUpdates }),
+    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
+      deviceUserId,
+      updates: apiUpdates,
     });
 
     return response.ok;
@@ -741,10 +758,8 @@ export class HetznerVaultStorage implements IStorageProvider {
       await this.deleteImage(page.imageUrl);
     }
 
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceUserId }),
+    const response = await this.proxyRequest('DELETE', `/vault/pages/${id}`, {
+      deviceUserId,
     });
 
     return response.ok;
@@ -758,9 +773,9 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getProjects(): Promise<Project[]> {
     const deviceUserId = this.getDeviceUserId();
     
-    const response = await fetch(
-      `${this.config.vaultEndpoint}/vault/projects?deviceUserId=${deviceUserId}`
-    );
+    const response = await this.proxyRequest('GET', '/vault/projects', undefined, {
+      deviceUserId,
+    });
 
     if (!response.ok) {
       return [];
@@ -778,10 +793,9 @@ export class HetznerVaultStorage implements IStorageProvider {
   async createProject(name: string): Promise<Project | null> {
     const deviceUserId = this.getRealDeviceUserId();
     
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceUserId, name: name.trim() }),
+    const response = await this.proxyRequest('POST', '/vault/projects', {
+      deviceUserId,
+      name: name.trim(),
     });
 
     if (!response.ok) {
@@ -801,10 +815,10 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getDeviceUserId();
     if (!ocrText || ocrText.length < 50) return null;
 
-    const response = await fetch(`${this.config.vaultEndpoint}/vault/pages/check-duplicate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceUserId, ocrText, excludePageId }),
+    const response = await this.proxyRequest('POST', '/vault/pages/check-duplicate', {
+      deviceUserId,
+      ocrText,
+      excludePageId,
     });
 
     if (!response.ok) {
