@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2, Download } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2, Download, Shield } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -18,6 +18,7 @@ import { DemoModeToggle } from '@/components/DemoModeToggle';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useTrash } from '@/hooks/useTrash';
 import { ExportButton } from './ExportButton';
+import { PrivateVaultSettings } from '@/components/settings/PrivateVaultSettings';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -137,8 +138,7 @@ export function HistoryView({
   const [currentVisibleCue, setCurrentVisibleCue] = useState<string | null>(null);
   const cueObserverRef = useRef<IntersectionObserver | null>(null);
   const [selectedPageIds, setSelectedPageIds] = useState<string[]>([]);
-
-  // Toggle page selection for export
+  const [showVaultSettings, setShowVaultSettings] = useState(false);
   const togglePageSelection = (pageId: string) => {
     setSelectedPageIds(prev => 
       prev.includes(pageId) 
@@ -442,6 +442,15 @@ export function HistoryView({
                   </div>
                 </div>
               )}
+
+              {/* Private Vault settings button */}
+              <button
+                onClick={() => setShowVaultSettings(true)}
+                className="p-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+                title="Private Vault Settings"
+              >
+                <Shield className="w-4 h-4" />
+              </button>
 
               {/* Share button - shows at 3+ pages */}
               {allPages.length >= 3 && onShareMemory && (
@@ -1413,6 +1422,12 @@ export function HistoryView({
           />
         )}
       </AnimatePresence>
+
+      {/* Private Vault Settings */}
+      <PrivateVaultSettings
+        open={showVaultSettings}
+        onOpenChange={setShowVaultSettings}
+      />
     </div>
   );
 }
