@@ -54,41 +54,50 @@ export function TestPanel({
   
   const checkHetznerHealth = async () => {
     setHetznerHealth({ vision: 'checking', codex: 'checking' });
-    
-    const checkService = async (url: string): Promise<{ status: 'healthy' | 'error'; error?: string }> => {
-      try {
-        const response = await fetch(url, { method: 'GET', mode: 'cors' });
-        if (response.ok) {
-          return { status: 'healthy' };
-        }
-        return { status: 'error', error: `HTTP ${response.status}` };
-      } catch (err) {
-        return { status: 'error', error: err instanceof Error ? err.message : 'Network error' };
+
+    const baseUrl = import.meta.env.VITE_HETZNER_API_URL || 'http://94.130.180.233';
+
+    try {
+      const { data, error } = await supabase.functions.invoke('hetzner-health', {
+        body: { baseUrl },
+      });
+
+      if (error) {
+        throw new Error(error.message);
       }
-    };
-    
-    const [visionResult, codexResult] = await Promise.all([
-      checkService('http://94.130.180.233:3341/health'),
-      checkService('http://94.130.180.233:3342/health'),
-    ]);
-    
-    setHetznerHealth({
-      vision: visionResult.status,
-      codex: codexResult.status,
-      visionError: visionResult.error,
-      codexError: codexResult.error,
-    });
-    
-    if (visionResult.status === 'healthy' && codexResult.status === 'healthy') {
-      toast({ title: "✅ Hetzner Health Check", description: "All services healthy!" });
-    } else {
-      toast({ 
-        title: "⚠️ Hetzner Health Check", 
-        description: `Vision: ${visionResult.status}, Codex: ${codexResult.status}`,
-        variant: "destructive"
+
+      const visionResult = (data as any)?.vision as { status: 'healthy' | 'error'; error?: string } | undefined;
+      const codexResult = (data as any)?.codex as { status: 'healthy' | 'error'; error?: string } | undefined;
+
+      const next = {
+        vision: visionResult?.status ?? 'error',
+        codex: codexResult?.status ?? 'error',
+        visionError: visionResult?.error,
+        codexError: codexResult?.error,
+      } as const;
+
+      setHetznerHealth(next);
+
+      if (next.vision === 'healthy' && next.codex === 'healthy') {
+        toast({ title: '✅ Hetzner Health Check', description: 'All services healthy!' });
+      } else {
+        toast({
+          title: '⚠️ Hetzner Health Check',
+          description: `Vision: ${next.vision}, Codex: ${next.codex}`,
+          variant: 'destructive',
+        });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network error';
+      setHetznerHealth({ vision: 'error', codex: 'error', visionError: msg, codexError: msg });
+      toast({
+        title: '⚠️ Hetzner Health Check',
+        description: msg,
+        variant: 'destructive',
       });
     }
   };
+
   
   // Double confirmation safeguard for real data protection
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
