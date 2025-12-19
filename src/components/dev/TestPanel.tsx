@@ -342,59 +342,59 @@ export function TestPanel({
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
 
-        {/* Demo Mode Toggle - PROMINENT */}
+        {/* Dev Features Toggle - PROMINENT */}
         <div className="p-4 border-b border-border bg-background">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Data Mode
+            Feature Mode
           </h3>
           <button
             onClick={() => {
               toggleDemoMode();
               onLoadTestData();
               toast({
-                title: isDemoMode ? "Switched to Your Data" : "Switched to Demo Data",
+                title: isDemoMode ? "Dev Features ON" : "Wedge Mode",
                 description: isDemoMode 
-                  ? "Now viewing your real pages" 
-                  : "Now viewing demo pages",
+                  ? "All features visible (Patterns, Personality, etc.)" 
+                  : "Focused on core: Capture → Search → Proof",
               });
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
               isDemoMode 
-                ? 'bg-primary/10 border-primary/50 text-primary' 
-                : 'bg-codex-teal/10 border-codex-teal/50 text-foreground'
+                ? 'bg-codex-teal/10 border-codex-teal/50 text-codex-teal' 
+                : 'bg-primary/10 border-primary/50 text-primary'
             }`}
           >
             <div className="flex items-center gap-3">
               {isDemoMode ? (
-                <ToggleRight className="w-6 h-6" />
-              ) : (
                 <ToggleLeft className="w-6 h-6" />
+              ) : (
+                <ToggleRight className="w-6 h-6" />
               )}
               <div className="text-left">
                 <div className="font-medium">
-                  {isDemoMode ? 'Demo Mode ON' : 'Demo Mode OFF (Jonna)'}
+                  {isDemoMode ? 'Wedge Mode (focused)' : 'Dev Features ON'}
                 </div>
                 <div className="text-xs opacity-70">
                   {isDemoMode 
-                    ? 'Viewing demo data' 
-                    : 'Viewing your real data'}
+                    ? 'Capture → Search → Proof' 
+                    : 'All features visible'}
                 </div>
               </div>
             </div>
             <span className="text-xs px-2 py-1 rounded bg-secondary">
-              Click to switch
+              {isDemoMode ? 'Enable dev' : 'Focus mode'}
             </span>
           </button>
           
-          {/* Warning when Demo Mode is OFF */}
-          {!isDemoMode && (
+          {/* Info when in Wedge Mode */}
+          {isDemoMode && (
             <div className="mt-3 p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
               <div className="flex items-start gap-2">
-                <span className="text-primary text-lg">🔒</span>
+                <span className="text-codex-teal text-lg">🎯</span>
                 <div>
-                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Real Data Active</p>
+                  <p className="text-xs font-bold text-foreground uppercase tracking-wide">Wedge Mode Active</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Jonna's data is protected. No destructive actions possible without Demo Mode.
+                    Only core features: Capture, Search, Proof. No Patterns, Personality, Insights.
                   </p>
                 </div>
               </div>
