@@ -118,29 +118,19 @@ function CarouselResults({
               {/* Main image - prominent but not full screen */}
               <div className="rounded-xl overflow-hidden border border-border shadow-lg bg-card">
                 <div className="aspect-[3/4] w-full bg-muted relative overflow-hidden">
-                  {/* Scrollable/pannable image */}
-                  <motion.img
+                  <img
                     src={activeResult.page.imageUrl}
                     alt=""
-                    className="w-full h-full object-cover cursor-move"
+                    className="w-full h-full object-cover pointer-events-none"
                     draggable={false}
-                    drag
-                    dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-                    dragElastic={0.1}
-                    whileDrag={{ scale: 1.1 }}
-                    onDragStart={(e) => e.stopPropagation()}
                   />
                   {activeIndex === 0 && (
-                    <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium pointer-events-none">
+                    <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
                       Best match
                     </span>
                   )}
-                  <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] pointer-events-none">
+                  <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
                     {formatDistanceToNow(activeResult.page.createdAt, { addSuffix: true })}
-                  </span>
-                  {/* Pan hint */}
-                  <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-black/40 text-white text-[9px] pointer-events-none">
-                    ↔ drag to pan
                   </span>
                 </div>
                 
