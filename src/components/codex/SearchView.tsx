@@ -36,6 +36,151 @@ const matchTypeBadges: Record<string, { label: string; icon: React.ComponentType
   meaning: { label: 'Matched by meaning', icon: Brain, className: 'bg-purple-500/20 text-purple-600 border-purple-500/30' },
 };
 
+// Carousel component for search results
+function CarouselResults({ 
+  results, 
+  onSelectPage, 
+  showFallback, 
+  onCantFind 
+}: { 
+  results: SearchResult[];
+  onSelectPage: (page: Page, index: number, result: SearchResult) => void;
+  showFallback: boolean;
+  onCantFind: () => void;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeResult = results[activeIndex];
+
+  const goNext = () => setActiveIndex(i => Math.min(i + 1, results.length - 1));
+  const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-140px)]">
+      {/* Result counter */}
+      <div className="text-center py-2">
+        <span className="text-xs text-muted-foreground">
+          {activeIndex + 1} / {results.length}
+        </span>
+      </div>
+
+      {/* Main carousel area */}
+      <div className="flex-1 flex items-center justify-center px-4 relative">
+        {/* Prev button */}
+        {activeIndex > 0 && (
+          <button 
+            onClick={goPrev}
+            className="absolute left-2 p-2 rounded-full bg-muted/80 hover:bg-muted z-10"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Active result */}
+        <AnimatePresence mode="wait">
+          <motion.button
+            key={activeResult.page.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => onSelectPage(activeResult.page, activeIndex, activeResult)}
+            className="w-full max-w-sm text-left"
+          >
+            {/* Main image - prominent but not full screen */}
+            <div className="rounded-xl overflow-hidden border border-border shadow-lg bg-card">
+              <div className="aspect-[3/4] w-full bg-muted relative">
+                <img
+                  src={activeResult.page.imageUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                  {formatDistanceToNow(activeResult.page.createdAt, { addSuffix: true })}
+                </span>
+              </div>
+              
+              {/* Tags & match info - subtle */}
+              <div className="p-3 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {activeResult.page.futureYouCues?.slice(0, 2).map((cue, i) => (
+                    <span 
+                      key={`cue-${i}`} 
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary"
+                    >
+                      <Tag className="w-2.5 h-2.5" />
+                      {cue}
+                    </span>
+                  ))}
+                  {activeResult.matchTypes.slice(0, 1).map((type) => {
+                    const badge = matchTypeBadges[type];
+                    if (!badge) return null;
+                    const Icon = badge.icon;
+                    return (
+                      <span
+                        key={type}
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${badge.className}`}
+                      >
+                        <Icon className="w-2.5 h-2.5" />
+                        {badge.label}
+                      </span>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-1">
+                  {activeResult.page.oneLineHint || activeResult.page.summary?.split('.')[0]}
+                </p>
+              </div>
+            </div>
+          </motion.button>
+        </AnimatePresence>
+
+        {/* Next button */}
+        {activeIndex < results.length - 1 && (
+          <button 
+            onClick={goNext}
+            className="absolute right-2 p-2 rounded-full bg-muted/80 hover:bg-muted z-10 rotate-180"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Thumbnail strip at bottom */}
+      <div className="py-3 px-2">
+        <div className="flex gap-1.5 overflow-x-auto justify-center">
+          {results.map((result, index) => (
+            <button
+              key={result.page.id}
+              onClick={() => setActiveIndex(index)}
+              className={`w-12 h-16 rounded overflow-hidden flex-shrink-0 border-2 transition-all ${
+                index === activeIndex 
+                  ? 'border-primary opacity-100 scale-105' 
+                  : 'border-transparent opacity-40 hover:opacity-70'
+              }`}
+            >
+              <img
+                src={result.page.thumbnailUri || result.page.imageUrl}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Not found helper */}
+      {!showFallback && (
+        <div className="text-center pb-2">
+          <Button variant="ghost" size="sm" onClick={onCantFind} className="gap-2 text-muted-foreground text-xs">
+            <HelpCircle className="w-3 h-3" />
+            Not found?
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /**
  * Search view with explainability badges and "Can't find it" fallback
  * Google/ChatGPT style: centered search when no query
@@ -518,62 +663,12 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
             </AnimatePresence>
 
             {!isSearching && results.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-xs text-muted-foreground">{results.length} results</p>
-                
-                {results.map((result, index) => (
-                  <motion.button
-                    key={result.page.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    onClick={() => handleSelectPage(result.page, index, result)}
-                    className="w-full text-left rounded-lg bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
-                  >
-                    {/* Consistent image size */}
-                    <div className="h-96 w-full bg-muted relative">
-                      <img
-                        src={result.page.imageUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                      {/* First result badge */}
-                      {index === 0 && (
-                        <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-medium">
-                          Best match
-                        </span>
-                      )}
-                      <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px]">
-                        {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
-                      </span>
-                    </div>
-                    
-                    {/* Compact info */}
-                    <div className="px-3 py-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        {result.page.futureYouCues?.[0] && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary shrink-0">
-                            <Tag className="w-2.5 h-2.5" />
-                            {result.page.futureYouCues[0]}
-                          </span>
-                        )}
-                        <span className="text-xs text-muted-foreground truncate">
-                          {result.page.oneLineHint || result.page.summary?.split('.')[0]?.slice(0, 40)}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.button>
-                ))}
-                
-                {results.length > 0 && !showFallback && (
-                  <div className="pt-2 text-center">
-                    <Button variant="ghost" size="sm" onClick={handleCantFind} className="gap-2 text-muted-foreground text-xs">
-                      <HelpCircle className="w-3 h-3" />
-                      Not found? Try time filter
-                    </Button>
-                  </div>
-                )}
-              </div>
+              <CarouselResults 
+                results={results} 
+                onSelectPage={handleSelectPage}
+                showFallback={showFallback}
+                onCantFind={handleCantFind}
+              />
             )}
           </div>
         </>
