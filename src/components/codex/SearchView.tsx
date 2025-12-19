@@ -531,7 +531,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                     className="w-full text-left rounded-lg bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
                   >
                     {/* Consistent image size */}
-                    <div className="h-28 w-full bg-muted relative">
+                    <div className="h-32 w-full bg-muted relative">
                       <img
                         src={result.page.imageUrl}
                         alt=""
