@@ -88,8 +88,8 @@ function CarouselResults({
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div className="text-center">
-          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Search Results</p>
-          <span className="text-sm text-muted-foreground font-medium">
+          <p className="text-sm text-muted-foreground font-medium">Search Results</p>
+          <span className="text-lg text-foreground font-semibold">
             {activeIndex + 1} / {results.length}
           </span>
         </div>
@@ -132,7 +132,7 @@ function CarouselResults({
                     draggable={false}
                   />
                   {activeIndex === 0 && (
-                    <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
+                    <span className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-lg">
                       Best match
                     </span>
                   )}
