@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          created_at: string
+          device_user_id: string
+          duration_ms: number | null
+          endpoint: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          method: string
+          rate_limit_remaining: number | null
+          rate_limited: boolean | null
+          request_id: string
+          service: string
+          status_code: number | null
+        }
+        Insert: {
+          created_at?: string
+          device_user_id: string
+          duration_ms?: number | null
+          endpoint: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          method?: string
+          rate_limit_remaining?: number | null
+          rate_limited?: boolean | null
+          request_id: string
+          service: string
+          status_code?: number | null
+        }
+        Update: {
+          created_at?: string
+          device_user_id?: string
+          duration_ms?: number | null
+          endpoint?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          method?: string
+          rate_limit_remaining?: number | null
+          rate_limited?: boolean | null
+          request_id?: string
+          service?: string
+          status_code?: number | null
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           capsule_id: string | null
@@ -237,7 +285,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_audit_logs: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
