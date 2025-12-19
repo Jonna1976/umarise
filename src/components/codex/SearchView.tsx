@@ -78,25 +78,32 @@ function CarouselResults({
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)]">
-      {/* Result counter */}
-      <div className="text-center py-2">
-        <span className="text-xs text-muted-foreground">
-          {activeIndex + 1} / {results.length}
-        </span>
+      {/* Result counter with navigation */}
+      <div className="flex items-center justify-center gap-4 py-2">
+        <button 
+          onClick={goPrev}
+          disabled={activeIndex === 0}
+          className="p-2 rounded-full hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="text-center">
+          <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Search Results</p>
+          <span className="text-sm text-muted-foreground font-medium">
+            {activeIndex + 1} / {results.length}
+          </span>
+        </div>
+        <button 
+          onClick={goNext}
+          disabled={activeIndex === results.length - 1}
+          className="p-2 rounded-full hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed rotate-180"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Main carousel area */}
       <div className="flex-1 flex items-center justify-center px-4 relative overflow-hidden">
-        {/* Prev button */}
-        {activeIndex > 0 && (
-          <button 
-            onClick={goPrev}
-            className="absolute left-2 p-2 rounded-full bg-muted/80 hover:bg-muted z-10"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        )}
-
         {/* Active result with swipe */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -169,16 +176,6 @@ function CarouselResults({
             </button>
           </motion.div>
         </AnimatePresence>
-
-        {/* Next button */}
-        {activeIndex < results.length - 1 && (
-          <button 
-            onClick={goNext}
-            className="absolute right-2 p-2 rounded-full bg-muted/80 hover:bg-muted z-10 rotate-180"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        )}
       </div>
 
       {/* Thumbnail strip at bottom */}
