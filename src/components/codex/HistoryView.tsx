@@ -1047,8 +1047,8 @@ export function HistoryView({
                         
                         {/* Mini shelf per group */}
                         <div className="relative mt-0 mx-4">
-                          <div className="h-2 bg-gradient-to-b from-codex-sepia/30 to-codex-sepia/15 rounded-t-sm" />
-                          <div className="h-1 bg-codex-sepia/20" />
+                          <div className="h-2 bg-secondary/50 rounded-t-sm" />
+                          <div className="h-0.5 bg-border/30" />
                         </div>
                       </div>
                     ))}
@@ -1107,20 +1107,19 @@ export function HistoryView({
                       ))}
                     </div>
                     
-                    {/* Shelf - styled like leather book cover */}
+                    {/* Shelf - clean wooden ledge */}
                     <div className="relative mt-0">
                       <div 
-                        className="h-4 rounded-t-sm"
+                        className="h-3 rounded-t-sm"
                         style={{
-                          background: 'linear-gradient(180deg, hsl(35 30% 22%) 0%, hsl(32 25% 18%) 40%, hsl(30 20% 15%) 100%)',
-                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), inset 0 -1px 0 rgba(255,255,255,0.05)'
+                          background: 'linear-gradient(180deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.8) 100%)',
+                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
                         }}
                       />
                       <div 
                         className="h-1"
                         style={{
-                          background: 'linear-gradient(180deg, hsl(38 45% 45%) 0%, hsl(35 40% 35%) 100%)',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                          background: 'hsl(var(--border))',
                         }}
                       />
                     </div>

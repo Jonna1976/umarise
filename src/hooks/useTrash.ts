@@ -36,10 +36,12 @@ export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) =
 
   // Move page to trash (soft delete)
   const moveToTrash = useCallback((pageId: string) => {
+    console.log('[useTrash] Moving page to trash:', pageId);
     setTrashedIds(prev => {
       const next = new Set(prev);
       next.add(pageId);
       persistTrash(next);
+      console.log('[useTrash] Trashed IDs now:', Array.from(next));
       return next;
     });
   }, [persistTrash]);
