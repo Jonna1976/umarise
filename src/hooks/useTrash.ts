@@ -7,7 +7,7 @@ interface TrashState {
   pageIds: string[];
 }
 
-export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => void) {
+export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => Promise<boolean> | void) {
   const [trashedIds, setTrashedIds] = useState<Set<string>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
 
@@ -57,31 +57,35 @@ export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) =
   }, [persistTrash]);
 
   // Permanently delete a page
-  const permanentlyDelete = useCallback((pageId: string) => {
-    // First remove from trash state
+  const permanentlyDelete = useCallback(async (pageId: string) => {
+    console.log('[useTrash] Permanently deleting page:', pageId);
+    
+    // Remove from trash state immediately for responsive UI
     setTrashedIds(prev => {
       const next = new Set(prev);
       next.delete(pageId);
       persistTrash(next);
+      console.log('[useTrash] Removed from trash, remaining:', Array.from(next));
       return next;
     });
+    
     // Then call the actual delete function
-    onPermanentDelete(pageId);
+    await onPermanentDelete(pageId);
   }, [onPermanentDelete, persistTrash]);
 
   // Empty entire trash
-  const emptyTrash = useCallback(() => {
+  const emptyTrash = useCallback(async () => {
     // Get all trashed page IDs before clearing
     const toDelete = Array.from(trashedIds);
     
-    // Clear trash state first
+    // Clear trash state first for responsive UI
     setTrashedIds(new Set());
     persistTrash(new Set());
     
     // Delete all pages
-    toDelete.forEach(pageId => {
-      onPermanentDelete(pageId);
-    });
+    for (const pageId of toDelete) {
+      await onPermanentDelete(pageId);
+    }
   }, [trashedIds, onPermanentDelete, persistTrash]);
 
   // Get pages that are NOT in trash (for main view)

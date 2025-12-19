@@ -20,8 +20,8 @@ import { useState } from 'react';
 interface TrashViewProps {
   trashedPages: Page[];
   onRestore: (pageId: string) => void;
-  onPermanentDelete: (pageId: string) => void;
-  onEmptyTrash: () => void;
+  onPermanentDelete: (pageId: string) => Promise<void>;
+  onEmptyTrash: () => Promise<void>;
   onClose: () => void;
 }
 
@@ -49,12 +49,14 @@ export function TrashView({
     setDeleteConfirmText('');
   };
 
-  const confirmPermanentDelete = () => {
+  const confirmPermanentDelete = async () => {
     if (pageToDelete && deleteConfirmText.toUpperCase() === 'DELETE') {
-      onPermanentDelete(pageToDelete.id);
+      console.log('[TrashView] Confirming permanent delete for:', pageToDelete.id);
+      const pageIdToDelete = pageToDelete.id;
       setPageToDelete(null);
       setShowFinalConfirm(false);
       setDeleteConfirmText('');
+      await onPermanentDelete(pageIdToDelete);
     }
   };
 
@@ -70,11 +72,11 @@ export function TrashView({
     setEmptyConfirmText('');
   };
 
-  const confirmEmptyTrash = () => {
+  const confirmEmptyTrash = async () => {
     if (emptyConfirmText.toUpperCase() === 'DELETE') {
-      onEmptyTrash();
       setConfirmEmptyFinal(false);
       setEmptyConfirmText('');
+      await onEmptyTrash();
     }
   };
 

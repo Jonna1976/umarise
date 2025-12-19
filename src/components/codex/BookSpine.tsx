@@ -165,7 +165,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       onMouseLeave={handleMouseLeave}
       className="cursor-grab active:cursor-grabbing relative"
     >
-      {/* Hover Preview Panel - positioned above, doesn't block scroll, hidden during drag */}
+      {/* Hover Preview Panel - positioned above, with edge detection */}
       <AnimatePresence>
         {isHovered && !isDragging && (
           <motion.div
@@ -173,10 +173,16 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50"
-            style={{ pointerEvents: 'none' }} // Ensure it doesn't block interactions
+            className="absolute bottom-full mb-3 z-50"
+            style={{ 
+              pointerEvents: 'none',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              // Prevent overflow on right edge
+              maxWidth: 'min(224px, calc(100vw - 32px))',
+            }}
           >
-            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-56">
+            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-56 max-w-full">
               {/* Image preview */}
               <div className="relative w-full h-28 rounded-lg overflow-hidden mb-2">
                 <img 
