@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Images, ArrowRight, Plus } from 'lucide-react';
+import { Clock, Images, ArrowRight, Plus, BookOpen, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { triggerHaptic } from '@/lib/haptics';
 
 interface ProcessingViewProps {
   imageUrl: string;
@@ -12,6 +13,7 @@ interface ProcessingViewProps {
   currentPageCount?: number;
   isProcessingComplete?: boolean;
   onContinue?: (cues: string[]) => void;
+  onSkipToCodex?: (cues: string[]) => void;
   suggestedCues?: string[];
 }
 
@@ -25,6 +27,7 @@ export function ProcessingView({
   currentPageCount = 0,
   isProcessingComplete = false,
   onContinue,
+  onSkipToCodex,
   suggestedCues = []
 }: ProcessingViewProps) {
   const isMultiple = totalImages > 1;
@@ -43,6 +46,13 @@ export function ProcessingView({
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Haptic feedback when processing completes
+  useEffect(() => {
+    if (isProcessingComplete) {
+      triggerHaptic('success');
+    }
+  }, [isProcessingComplete]);
 
   // Reset state when a new image starts processing
   useEffect(() => {
@@ -83,6 +93,7 @@ export function ProcessingView({
   const submit = () => {
     const cues = extractCues();
     if (cues.length > 0 && onContinue) {
+      triggerHaptic('medium');
       onContinue(cues);
     }
   };
@@ -110,6 +121,17 @@ export function ProcessingView({
 
     // Confirm now; we'll continue automatically once analysis is ready
     setIsConfirmed(true);
+    triggerHaptic('light');
+  };
+
+  const handleSkipToCodex = () => {
+    if (!hasInput || hasSubmitted) return;
+    const cues = extractCues();
+    if (cues.length > 0 && onSkipToCodex) {
+      triggerHaptic('success');
+      setHasSubmitted(true);
+      onSkipToCodex(cues);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -136,6 +158,12 @@ export function ProcessingView({
           alt="Processing"
           className="w-full h-full object-cover"
         />
+        {/* Multi-page badge on thumbnail */}
+        {isMultiple && (
+          <div className="absolute top-1 right-1 bg-codex-gold text-codex-ink text-xs font-bold px-1.5 py-0.5 rounded-full">
+            {totalImages}
+          </div>
+        )}
       </motion.div>
 
       {/* Multi-page indicator */}
@@ -165,7 +193,7 @@ export function ProcessingView({
             <span className="text-base">~{remainingTime}s</span>
           </>
         ) : (
-          <span className="text-codex-gold text-base">✓</span>
+          <span className="text-codex-gold text-base">✓ Ready</span>
         )}
       </motion.div>
 
@@ -273,13 +301,14 @@ export function ProcessingView({
           </p>
         </div>
 
-        {/* Confirm / Continue button */}
+        {/* Action buttons */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-6"
+          className="mt-6 space-y-3"
         >
+          {/* Primary: Confirm & continue to snapshot */}
           <Button
             onClick={handleConfirmAndContinue}
             disabled={!hasInput || hasSubmitted}
@@ -301,6 +330,25 @@ export function ProcessingView({
               </>
             )}
           </Button>
+
+          {/* Secondary: Skip to codex (for heavy writers) */}
+          {isProcessingComplete && onSkipToCodex && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Button
+                onClick={handleSkipToCodex}
+                disabled={!hasInput || hasSubmitted}
+                variant="ghost"
+                className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-muted/50 text-sm disabled:opacity-40"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Skip to Memory
+                <BookOpen className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Breathing text - always visible at bottom */}

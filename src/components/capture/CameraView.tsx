@@ -1,9 +1,10 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical, Zap } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { triggerHaptic } from '@/lib/haptics';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
@@ -60,6 +61,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   const takePhoto = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
+    // Haptic feedback on capture
+    triggerHaptic('medium');
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
     
@@ -80,6 +84,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   const processFiles = useCallback(async (files: FileList) => {
     if (files.length === 0) return;
 
+    // Haptic feedback on file drop
+    triggerHaptic('light');
+
     const imageFiles: File[] = [];
     for (let i = 0; i < files.length; i++) {
       if (files[i].type.startsWith('image/')) {
@@ -93,6 +100,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     const compressedImages = await Promise.all(
       imageFiles.map(file => compressImage(file))
     );
+
+    // Success haptic after processing
+    triggerHaptic('success');
 
     setCapturedImages(prev => [...prev, ...compressedImages]);
     stopCamera();
@@ -146,12 +156,14 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   // Thumbnail reordering
   const handleThumbnailDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
+    triggerHaptic('selection');
   }, []);
 
   const handleThumbnailDragOver = useCallback((e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === targetIndex) return;
 
+    triggerHaptic('light');
     setCapturedImages(prev => {
       const newImages = [...prev];
       const draggedImage = newImages[draggedIndex];
@@ -167,12 +179,15 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   }, []);
 
   const retake = useCallback(() => {
+    triggerHaptic('light');
     setCapturedImage(null);
     startCamera();
   }, [startCamera]);
 
+  // Quick add: instantly add to collection and continue capturing
   const addToCollection = useCallback(() => {
     if (capturedImage) {
+      triggerHaptic('success');
       setCapturedImages(prev => [...prev, capturedImage]);
       setCapturedImage(null);
       startCamera();
@@ -180,11 +195,13 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   }, [capturedImage, startCamera]);
 
   const removeFromCollection = useCallback((index: number) => {
+    triggerHaptic('light');
     setCapturedImages(prev => prev.filter((_, i) => i !== index));
   }, []);
 
   const confirmSingleCapture = useCallback(() => {
     if (capturedImage) {
+      triggerHaptic('success');
       onCapture(capturedImage);
       setCapturedImage(null);
       setCapturedImages([]);
@@ -193,6 +210,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
 
   const confirmMultiCapture = useCallback(() => {
     if (capturedImages.length > 0) {
+      triggerHaptic('success');
       const allImages = capturedImage 
         ? [...capturedImages, capturedImage]
         : capturedImages;
@@ -203,16 +221,17 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   }, [capturedImages, capturedImage, onCaptureMultiple]);
 
   const cancelMultiMode = useCallback(() => {
+    triggerHaptic('light');
     setCapturedImages([]);
     setCapturedImage(null);
     startCamera();
   }, [startCamera]);
 
   // Auto-start camera on mount
-  useState(() => {
+  useEffect(() => {
     startCamera();
     return () => stopCamera();
-  });
+  }, [startCamera, stopCamera]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-forest flex flex-col relative overflow-hidden">
@@ -626,6 +645,50 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         )}
       </div>
 
+      {/* Thumbnail strip for multi-page capture */}
+      <AnimatePresence>
+        {capturedImages.length > 0 && !capturedImage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="absolute bottom-32 left-0 right-0 px-4 z-10"
+          >
+            <div className="flex justify-center">
+              <div className="flex gap-2 p-2 bg-codex-ink/80 backdrop-blur-md rounded-xl border border-codex-gold/20 max-w-full overflow-x-auto">
+                {capturedImages.map((img, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative flex-shrink-0 group"
+                    draggable
+                    onDragStart={() => handleThumbnailDragStart(index)}
+                    onDragOver={(e) => handleThumbnailDragOver(e, index)}
+                    onDragEnd={handleThumbnailDragEnd}
+                  >
+                    <img
+                      src={img}
+                      alt={`Page ${index + 1}`}
+                      className="w-12 h-16 object-cover rounded-md border border-codex-gold/30"
+                    />
+                    <button
+                      onClick={() => removeFromCollection(index)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <span className="absolute bottom-0 right-0 bg-codex-ink/80 text-codex-gold text-[10px] px-1 rounded-tl">
+                      {index + 1}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Bottom controls */}
       <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center">
         {capturedImage ? (
@@ -740,6 +803,23 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             : 'Position your page within the frame'}
         </motion.p>
       )}
+
+      {/* Rapid capture mode indicator */}
+      <AnimatePresence>
+        {isMultiMode && isStreaming && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="absolute top-4 right-4 z-20"
+          >
+            <div className="flex items-center gap-2 bg-codex-gold/20 backdrop-blur-sm rounded-full px-3 py-1.5 border border-codex-gold/30">
+              <Zap className="w-4 h-4 text-codex-gold" />
+              <span className="text-codex-gold text-xs font-medium">Rapid Mode</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
