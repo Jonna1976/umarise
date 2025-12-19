@@ -1347,12 +1347,12 @@ export function HistoryView({
         )}
       </AnimatePresence>
 
-      {/* Floating capture button */}
+      {/* Floating capture button - centered at bottom */}
       {historyItems.length > 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="fixed bottom-6 right-6"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"
         >
           <Button
             onClick={handleCapture}
