@@ -98,7 +98,9 @@ function getSpineColor(tones: string[]): {
 
 export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted, onDragStart, onDragEnd }: BookSpineProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const spineRef = useRef<HTMLButtonElement | null>(null);
   
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
@@ -117,10 +119,22 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', representativePage.id);
     e.dataTransfer.effectAllowed = 'move';
+    
+    // Set custom drag image using the spine button only
+    if (spineRef.current) {
+      e.dataTransfer.setDragImage(spineRef.current, spineWidth / 2, 144);
+    }
+    
+    setIsDragging(true);
+    setIsHovered(false); // Hide preview on drag start
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
     onDragStart?.();
   };
   
   const handleDragEnd = () => {
+    setIsDragging(false);
     onDragEnd?.();
   };
 
@@ -151,9 +165,9 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       onMouseLeave={handleMouseLeave}
       className="cursor-grab active:cursor-grabbing relative"
     >
-      {/* Hover Preview Panel - positioned above, doesn't block scroll */}
+      {/* Hover Preview Panel - positioned above, doesn't block scroll, hidden during drag */}
       <AnimatePresence>
-        {isHovered && (
+        {isHovered && !isDragging && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -205,6 +219,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       </AnimatePresence>
 
       <motion.button
+        ref={spineRef}
         initial={isHighlighted ? { opacity: 0, scale: 0.8, y: -40 } : { opacity: 0, x: 20, rotateY: -15 }}
         animate={{ 
           opacity: 1, 

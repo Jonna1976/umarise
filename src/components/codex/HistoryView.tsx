@@ -1045,10 +1045,10 @@ export function HistoryView({
                           ))}
                         </div>
                         
-                        {/* Mini shelf per group */}
+                        {/* Mini shelf per group - golden */}
                         <div className="relative mt-0 mx-4">
-                          <div className="h-2 bg-secondary/50 rounded-t-sm" />
-                          <div className="h-0.5 bg-border/30" />
+                          <div className="h-2 rounded-t-sm" style={{ background: 'hsl(38 40% 50%)' }} />
+                          <div className="h-0.5" style={{ background: 'hsl(35 35% 35%)' }} />
                         </div>
                       </div>
                     ))}
@@ -1107,19 +1107,19 @@ export function HistoryView({
                       ))}
                     </div>
                     
-                    {/* Shelf - clean wooden ledge */}
+                    {/* Shelf - golden wooden ledge */}
                     <div className="relative mt-0">
                       <div 
                         className="h-3 rounded-t-sm"
                         style={{
-                          background: 'linear-gradient(180deg, hsl(var(--secondary)) 0%, hsl(var(--secondary) / 0.8) 100%)',
+                          background: 'linear-gradient(180deg, hsl(38 45% 50%) 0%, hsl(35 40% 40%) 100%)',
                           boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)'
                         }}
                       />
                       <div 
                         className="h-1"
                         style={{
-                          background: 'hsl(var(--border))',
+                          background: 'hsl(35 35% 30%)',
                         }}
                       />
                     </div>
