@@ -27,11 +27,28 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
     e.preventDefault();
     e.stopPropagation();
     setIsOver(false);
-    
+
+    // Prefer rich payload (supports capsules)
+    const payload = e.dataTransfer.getData('application/x-umarise-trash');
+    if (payload) {
+      try {
+        const parsed = JSON.parse(payload) as { kind?: string; pageIds?: string[] };
+        const pageIds = Array.isArray(parsed.pageIds) ? parsed.pageIds.filter(Boolean) : [];
+        console.log('[TrashDropZone] Drop received (payload), pageIds:', pageIds);
+        if (pageIds.length > 0) {
+          triggerHaptic('medium');
+          pageIds.forEach(onDrop);
+          return;
+        }
+      } catch (err) {
+        console.warn('[TrashDropZone] Failed to parse drag payload:', err);
+      }
+    }
+
+    // Fallback: single page id
     const pageId = e.dataTransfer.getData('text/plain');
     console.log('[TrashDropZone] Drop received, pageId:', pageId);
     if (pageId) {
-      // Haptic feedback on successful drop
       triggerHaptic('medium');
       onDrop(pageId);
     }

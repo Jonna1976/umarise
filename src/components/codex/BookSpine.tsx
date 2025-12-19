@@ -117,14 +117,22 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   
   // Drag handlers
   const handleDragStart = (e: React.DragEvent) => {
+    // Always set a plain pageId for compatibility
     e.dataTransfer.setData('text/plain', representativePage.id);
     e.dataTransfer.effectAllowed = 'move';
-    
+
+    // Rich payload so the trash can move whole capsules
+    const pageIds = capsule?.pages?.length ? capsule.pages.map(p => p.id) : [representativePage.id];
+    e.dataTransfer.setData('application/x-umarise-trash', JSON.stringify({
+      kind: capsule?.pages?.length ? 'capsule' : 'page',
+      pageIds,
+    }));
+
     // Set custom drag image using the spine button only
     if (spineRef.current) {
       e.dataTransfer.setDragImage(spineRef.current, spineWidth / 2, 144);
     }
-    
+
     setIsDragging(true);
     setIsHovered(false); // Hide preview on drag start
     if (hoverTimeoutRef.current) {
