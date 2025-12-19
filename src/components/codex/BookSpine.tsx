@@ -181,23 +181,8 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="fixed z-[100] pointer-events-none"
-            style={{ 
-              // Position above the spine, clamped to viewport edges
-              bottom: 'calc(100vh - var(--spine-top, 50%) + 20px)',
-              left: 'clamp(16px, var(--spine-center, 50%), calc(100vw - 240px))',
-              width: '224px',
-            }}
-            ref={(el) => {
-              if (el && spineRef.current) {
-                const rect = spineRef.current.getBoundingClientRect();
-                el.style.setProperty('--spine-top', `${rect.top}px`);
-                el.style.setProperty('--spine-center', `${rect.left + rect.width / 2}px`);
-                // Direct positioning for reliability
-                el.style.bottom = `${window.innerHeight - rect.top + 12}px`;
-                el.style.left = `${Math.max(16, Math.min(rect.left + rect.width / 2 - 112, window.innerWidth - 240))}px`;
-              }
-            }}
+            className="fixed z-[100] pointer-events-none top-4 left-1/2 -translate-x-1/2"
+            style={{ width: '224px' }}
           >
             <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-56">
               {/* Image preview */}
@@ -235,11 +220,8 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
               </p>
             </div>
             
-            {/* Arrow pointing down - positioned relative to panel */}
-            <div 
-              className="absolute -bottom-1.5 w-3 h-3 bg-background/95 border-r border-b border-border/50 transform rotate-45"
-              style={{ left: '50%', marginLeft: '-6px' }}
-            />
+            {/* Arrow pointing down */}
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-3 h-3 bg-background/95 border-r border-b border-border/50 rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>
