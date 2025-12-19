@@ -54,6 +54,16 @@ function CarouselResults({
   const goNext = () => setActiveIndex(i => Math.min(i + 1, results.length - 1));
   const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') goPrev();
+      if (e.key === 'ArrowRight') goNext();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Swipe handler
   const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
     const swipeThreshold = 50;
