@@ -69,8 +69,12 @@ export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) =
       return next;
     });
     
-    // Then call the actual delete function
-    await onPermanentDelete(pageId);
+    // Then call the actual delete function (fire and forget for responsive UI)
+    try {
+      await Promise.resolve(onPermanentDelete(pageId));
+    } catch (e) {
+      console.error('[useTrash] Failed to delete page from database:', e);
+    }
   }, [onPermanentDelete, persistTrash]);
 
   // Empty entire trash
