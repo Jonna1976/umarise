@@ -34,7 +34,7 @@ const SmallWidget = () => (
     
     {/* Tagline */}
     <div className="text-center">
-      <p className="text-[10px] text-muted-foreground">Never lose it.</p>
+      <p className="text-[10px] text-muted-foreground">Snap it. Find it. Always.</p>
     </div>
   </div>
 );
@@ -59,14 +59,14 @@ const MediumWidget = () => (
         <Camera className="w-6 h-6 text-primary-foreground" />
       </motion.div>
       
-      <p className="text-[10px] text-muted-foreground text-center">Capture</p>
+      <p className="text-[10px] text-muted-foreground text-center">Snap now</p>
     </div>
     
     {/* Right: Recent Cues - Find Back */}
     <div className="flex-1 bg-muted/30 rounded-xl p-3 flex flex-col justify-between">
       <div className="flex items-center gap-1.5">
         <Search className="w-3 h-3 text-primary/60" />
-        <span className="text-[10px] text-muted-foreground">2 words → find back</span>
+        <span className="text-[10px] text-muted-foreground">Recent captures</span>
       </div>
       
       <div className="flex-1 flex flex-col justify-center gap-2">
@@ -81,8 +81,8 @@ const MediumWidget = () => (
       </div>
       
       <div className="flex justify-between items-center">
-        <span className="text-[10px] text-muted-foreground">12 pages saved</span>
-        <span className="text-[10px] text-primary/60">Always findable</span>
+        <span className="text-[10px] text-muted-foreground">12 captures</span>
+        <span className="text-[10px] text-primary/60">Find anything →</span>
       </div>
     </div>
   </div>
@@ -111,7 +111,7 @@ const LargeWidget = () => (
       >
         <Camera className="w-9 h-9 text-primary-foreground" />
       </motion.div>
-      <p className="text-sm text-foreground/70">Capture. Never lose it.</p>
+      <p className="text-sm text-foreground/70">Snap anything. Find it with 2 words.</p>
     </div>
     
     {/* 2-Word Cueing Preview */}
@@ -119,7 +119,7 @@ const LargeWidget = () => (
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
           <Search className="w-3 h-3 text-primary/60" />
-          <span className="text-xs text-muted-foreground">2 words → always find back</span>
+          <span className="text-xs text-muted-foreground">Your cues — tap to find</span>
         </div>
       </div>
       
@@ -210,10 +210,10 @@ export const WidgetMockup = () => {
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-foreground">Umarise Widget</h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            "2 words. Always find back."
+            Snap anything. 2 words. Find it forever.
           </p>
           <p className="text-sm text-primary/70">
-            Capture → Cue with 2 words → Never lose it
+            Your second brain, one tap away
           </p>
         </div>
         
@@ -260,19 +260,19 @@ export const WidgetMockup = () => {
           <ul className="space-y-3 text-muted-foreground">
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>2-Word Cueing:</strong> Every capture gets 2 words you'll remember later</span>
+              <span><strong>2-Word Cueing:</strong> AI suggests 2 memorable words for each capture. Your brain knows the rest.</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Never Lose It:</strong> What you capture is always findable, instantly</span>
+              <span><strong>Never Lose Anything:</strong> That recipe, quote, receipt, whiteboard — snap it, find it anytime.</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Zero Friction:</strong> One tap to camera, no login, no menus</span>
+              <span><strong>Instant Retrieval:</strong> Type 2 words you remember. Instantly find what you're looking for.</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Your Memory Extended:</strong> Not a journal, a retrieval system</span>
+              <span><strong>One Tap Away:</strong> Widget on your homescreen. No app opening, no friction.</span>
             </li>
           </ul>
         </div>
