@@ -1,13 +1,13 @@
-import { Camera, BookOpen, Sparkles } from "lucide-react";
+import { Camera, BookOpen, Sparkles, Search } from "lucide-react";
 import { motion } from "framer-motion";
 
 /**
  * Widget Design Mockup for iOS/Android Homescreen
  * 
  * Philosophy: 
- * - "I write, I don't want to lose it, so Umarise it"
- * - One tap to capture after putting pen down
- * - Soft activity indicator (not streak pressure)
+ * - "Never lose anything. 2 words. Always find back."
+ * - One tap to capture, 2 cues to retrieve
+ * - Focus on retrieval, not journaling
  */
 
 // Small Widget (2x2) - One tap capture
@@ -32,14 +32,14 @@ const SmallWidget = () => (
       </motion.div>
     </div>
     
-    {/* Soft indicator - no pressure */}
+    {/* Tagline */}
     <div className="text-center">
-      <p className="text-[10px] text-muted-foreground">Pen neer? Capture.</p>
+      <p className="text-[10px] text-muted-foreground">Never lose it.</p>
     </div>
   </div>
 );
 
-// Medium Widget (4x2) - Capture + last memory preview
+// Medium Widget (4x2) - Capture + 2-word cue preview
 const MediumWidget = () => (
   <div className="w-[364px] h-[170px] rounded-[24px] bg-gradient-to-br from-background via-background to-primary/5 border border-border/30 p-4 flex gap-4 shadow-lg backdrop-blur-sm">
     {/* Left: Capture Action */}
@@ -62,22 +62,27 @@ const MediumWidget = () => (
       <p className="text-[10px] text-muted-foreground text-center">Capture</p>
     </div>
     
-    {/* Right: Last Memory Preview */}
+    {/* Right: Recent Cues - Find Back */}
     <div className="flex-1 bg-muted/30 rounded-xl p-3 flex flex-col justify-between">
       <div className="flex items-center gap-1.5">
-        <Sparkles className="w-3 h-3 text-primary/60" />
-        <span className="text-[10px] text-muted-foreground">Laatste gedachte</span>
+        <Search className="w-3 h-3 text-primary/60" />
+        <span className="text-[10px] text-muted-foreground">2 words → find back</span>
       </div>
       
-      <div className="flex-1 flex items-center">
-        <p className="text-sm text-foreground/80 line-clamp-2 italic">
-          "Focus op wat je wel kunt veranderen, niet op wat je niet kunt..."
-        </p>
+      <div className="flex-1 flex flex-col justify-center gap-2">
+        <div className="flex gap-2">
+          <span className="px-2 py-1 bg-primary/10 rounded-full text-xs text-primary">morning</span>
+          <span className="px-2 py-1 bg-primary/10 rounded-full text-xs text-primary">clarity</span>
+        </div>
+        <div className="flex gap-2">
+          <span className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground">meeting</span>
+          <span className="px-2 py-1 bg-muted rounded-full text-xs text-muted-foreground">ideas</span>
+        </div>
       </div>
       
       <div className="flex justify-between items-center">
-        <span className="text-[10px] text-muted-foreground">2 uur geleden</span>
-        <span className="text-[10px] text-primary/60">12 pagina's</span>
+        <span className="text-[10px] text-muted-foreground">12 pages saved</span>
+        <span className="text-[10px] text-primary/60">Always findable</span>
       </div>
     </div>
   </div>
@@ -94,7 +99,7 @@ const LargeWidget = () => (
         </div>
         <span className="text-sm font-medium text-foreground">Umarise</span>
       </div>
-      <span className="text-xs text-muted-foreground">12 pagina's</span>
+      <span className="text-xs text-muted-foreground">12 pages saved</span>
     </div>
     
     {/* Main Capture Button */}
@@ -106,28 +111,39 @@ const LargeWidget = () => (
       >
         <Camera className="w-9 h-9 text-primary-foreground" />
       </motion.div>
-      <p className="text-sm text-foreground/70">Pen neer? Capture.</p>
+      <p className="text-sm text-foreground/70">Capture. Never lose it.</p>
     </div>
     
-    {/* Recent Insights */}
+    {/* 2-Word Cueing Preview */}
     <div className="bg-muted/30 rounded-xl p-3 space-y-2">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Sparkles className="w-3 h-3 text-primary/60" />
-        <span className="text-xs text-muted-foreground">Recente inzichten</span>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <Search className="w-3 h-3 text-primary/60" />
+          <span className="text-xs text-muted-foreground">2 words → always find back</span>
+        </div>
       </div>
       
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-          <p className="text-xs text-foreground/70 truncate">Focus & productiviteit</p>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <span className="px-2 py-0.5 bg-primary/10 rounded-full text-[11px] text-primary">morning</span>
+            <span className="px-2 py-0.5 bg-primary/10 rounded-full text-[11px] text-primary">clarity</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground">2h ago</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-          <p className="text-xs text-foreground/70 truncate">Persoonlijke groei</p>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <span className="px-2 py-0.5 bg-muted rounded-full text-[11px] text-muted-foreground">project</span>
+            <span className="px-2 py-0.5 bg-muted rounded-full text-[11px] text-muted-foreground">goals</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground">yesterday</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-          <p className="text-xs text-foreground/70 truncate">Creatieve ideeën</p>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <span className="px-2 py-0.5 bg-muted rounded-full text-[11px] text-muted-foreground">book</span>
+            <span className="px-2 py-0.5 bg-muted rounded-full text-[11px] text-muted-foreground">quote</span>
+          </div>
+          <span className="text-[10px] text-muted-foreground">3 days ago</span>
         </div>
       </div>
     </div>
@@ -194,21 +210,21 @@ export const WidgetMockup = () => {
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-foreground">Umarise Widget</h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            "I write, I don't want to lose it, so Umarise it."
+            "2 words. Always find back."
           </p>
           <p className="text-sm text-primary/70">
-            Pen neer → Widget tap → Captured
+            Capture → Cue with 2 words → Never lose it
           </p>
         </div>
         
         {/* Widget Sizes - Standalone */}
         <div className="space-y-8">
-          <h2 className="text-xl font-semibold text-foreground">Widget Formaten</h2>
+          <h2 className="text-xl font-semibold text-foreground">Widget Sizes</h2>
           
           <div className="flex flex-wrap gap-8 justify-center items-start">
             <div className="flex flex-col items-center gap-3">
               <SmallWidget />
-              <span className="text-sm text-muted-foreground">Klein (2×2)</span>
+              <span className="text-sm text-muted-foreground">Small (2×2)</span>
             </div>
             
             <div className="flex flex-col items-center gap-3">
@@ -218,17 +234,17 @@ export const WidgetMockup = () => {
             
             <div className="flex flex-col items-center gap-3">
               <LargeWidget />
-              <span className="text-sm text-muted-foreground">Groot (4×4)</span>
+              <span className="text-sm text-muted-foreground">Large (4×4)</span>
             </div>
           </div>
         </div>
         
         {/* On Phone Mockups */}
         <div className="space-y-8">
-          <h2 className="text-xl font-semibold text-foreground text-center">Op je Homescreen</h2>
+          <h2 className="text-xl font-semibold text-foreground text-center">On Your Homescreen</h2>
           
           <div className="flex flex-wrap gap-8 justify-center">
-            <PhoneMockup label="Klein widget">
+            <PhoneMockup label="Small widget">
               <SmallWidget />
             </PhoneMockup>
             
@@ -240,23 +256,23 @@ export const WidgetMockup = () => {
         
         {/* Philosophy */}
         <div className="bg-muted/30 rounded-2xl p-8 max-w-2xl mx-auto">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Design Filosofie</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Design Philosophy</h3>
           <ul className="space-y-3 text-muted-foreground">
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Stacked Habit:</strong> Schrijven is de trigger, Umarise is de actie</span>
+              <span><strong>2-Word Cueing:</strong> Every capture gets 2 words you'll remember later</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Zero Friction:</strong> Eén tap naar camera, geen login, geen menu's</span>
+              <span><strong>Never Lose It:</strong> What you capture is always findable, instantly</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Geen Druk:</strong> "12 pagina's" ipv "🔥 STREAK: 5 DAGEN!"</span>
+              <span><strong>Zero Friction:</strong> One tap to camera, no login, no menus</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary">→</span>
-              <span><strong>Uitnodigend:</strong> "Pen neer? Capture." - geen commando's</span>
+              <span><strong>Your Memory Extended:</strong> Not a journal, a retrieval system</span>
             </li>
           </ul>
         </div>
