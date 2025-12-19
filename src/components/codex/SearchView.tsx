@@ -518,91 +518,52 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
             </AnimatePresence>
 
             {!isSearching && results.length > 0 && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <p className="text-xs text-muted-foreground">{results.length} results</p>
                 
-                {/* TOP MATCH - Large and prominent */}
-                {results.length > 0 && (
+                {results.map((result, index) => (
                   <motion.button
-                    key={results[0].page.id}
+                    key={result.page.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    onClick={() => handleSelectPage(results[0].page, 0, results[0])}
-                    className="w-full text-left rounded-xl bg-card border-2 border-primary/30 hover:border-primary/60 transition-colors overflow-hidden shadow-sm"
+                    transition={{ delay: index * 0.03 }}
+                    onClick={() => handleSelectPage(result.page, index, result)}
+                    className="w-full text-left rounded-lg bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
                   >
-                    {/* Large image */}
-                    <div className="aspect-[16/10] w-full bg-muted relative">
+                    {/* Consistent image size */}
+                    <div className="h-28 w-full bg-muted relative">
                       <img
-                        src={results[0].page.imageUrl}
+                        src={result.page.imageUrl}
                         alt=""
                         className="w-full h-full object-cover"
                       />
-                      {/* Best match badge */}
-                      <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                        Best match
-                      </span>
-                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
-                        {formatDistanceToNow(results[0].page.createdAt, { addSuffix: true })}
+                      {/* First result badge */}
+                      {index === 0 && (
+                        <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-medium">
+                          Best match
+                        </span>
+                      )}
+                      <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px]">
+                        {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
                       </span>
                     </div>
                     
-                    <div className="p-3 space-y-1.5">
-                      {/* Cues */}
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {results[0].page.futureYouCues?.slice(0, 3).map((cue, i) => (
-                          <span 
-                            key={`cue-${i}`} 
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary"
-                          >
+                    {/* Compact info */}
+                    <div className="px-3 py-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        {result.page.futureYouCues?.[0] && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary shrink-0">
                             <Tag className="w-2.5 h-2.5" />
-                            {cue}
+                            {result.page.futureYouCues[0]}
                           </span>
-                        ))}
+                        )}
+                        <span className="text-xs text-muted-foreground truncate">
+                          {result.page.oneLineHint || result.page.summary?.split('.')[0]?.slice(0, 40)}
+                        </span>
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {results[0].page.oneLineHint || results[0].page.summary?.split('.')[0]}
-                      </p>
                     </div>
                   </motion.button>
-                )}
-
-                {/* REST - Compact 2-column grid */}
-                {results.length > 1 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {results.slice(1).map((result, index) => (
-                      <motion.button
-                        key={result.page.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: (index + 1) * 0.03 }}
-                        onClick={() => handleSelectPage(result.page, index + 1, result)}
-                        className="text-left rounded-lg bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
-                      >
-                        {/* Compact image */}
-                        <div className="aspect-[4/3] w-full bg-muted relative">
-                          <img
-                            src={result.page.imageUrl}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                          <span className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/60 text-white text-[8px]">
-                            {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
-                          </span>
-                        </div>
-                        
-                        {/* Minimal info */}
-                        <div className="p-2">
-                          {result.page.futureYouCues?.[0] && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary">
-                              <Tag className="w-2 h-2" />
-                              {result.page.futureYouCues[0]}
-                            </span>
-                          )}
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                )}
+                ))}
                 
                 {results.length > 0 && !showFallback && (
                   <div className="pt-2 text-center">
