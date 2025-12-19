@@ -86,7 +86,7 @@ serve(async (req) => {
     // Tokenize and normalize query
     const queryTerms = query.toLowerCase().split(/\s+/).filter((t: string) => t.length > 1);
     
-    // Score each page
+    // Score each page - STRICT EXACT MATCHING ONLY
     const scoredResults: SearchResult[] = [];
 
     for (const page of pages) {
@@ -94,138 +94,84 @@ serve(async (req) => {
       const matchTypes: Set<string> = new Set();
       const matchedTerms: string[] = [];
 
-      // 1. Future You Cues (STRONGEST SIGNAL)
+      // Helper: check if term exists exactly (word boundary match)
+      const exactMatch = (text: string, term: string): boolean => {
+        if (!text) return false;
+        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        return regex.test(text);
+      };
+
+      // 1. Future You Cues (STRONGEST SIGNAL) - exact match
       const cues: string[] = page.future_you_cues || [];
       for (const cue of cues) {
-        const cueLower = cue?.toLowerCase() || '';
         for (const term of queryTerms) {
-          if (cueLower.includes(term) || term.includes(cueLower)) {
+          if (exactMatch(cue, term)) {
             score += 100;
             matchTypes.add('cue');
-            matchedTerms.push(cue);
+            if (!matchedTerms.includes(cue)) matchedTerms.push(cue);
           }
         }
       }
 
-      // 2. Named Entities (STRONG SIGNAL)
+      // 2. Named Entities (STRONG SIGNAL) - exact match
       const entities: any[] = page.named_entities || [];
       for (const entity of entities) {
-        const entityValue = entity?.value?.toLowerCase() || '';
+        const entityValue = entity?.value || '';
         for (const term of queryTerms) {
-          if (entityValue.includes(term) || term.includes(entityValue)) {
+          if (exactMatch(entityValue, term)) {
             score += 80;
             matchTypes.add('entity');
-            matchedTerms.push(entity.value);
+            if (!matchedTerms.includes(entityValue)) matchedTerms.push(entityValue);
           }
         }
       }
 
-      // Check if query contains ONLY common terms (apply stronger demotion)
-      const queryIsOnlyCommonTerms = queryTerms.every((t: string) => COMMON_TERMS.has(t));
-
-      // 3. High-confidence OCR tokens (MEDIUM SIGNAL)
-      const ocrTokens: any[] = page.ocr_tokens || [];
-      const highConfTokens = ocrTokens.filter(t => (t?.confidence || 0) >= 0.8);
-      const lowConfTokens = ocrTokens.filter(t => (t?.confidence || 0) < 0.8);
-
-      for (const token of highConfTokens) {
-        const tokenLower = token?.token?.toLowerCase() || '';
-        for (const term of queryTerms) {
-          if (tokenLower === term || (tokenLower.length > 3 && levenshteinDistance(tokenLower, term) <= 2)) {
-            // Apply common term demotion for text matches
-            const baseScore = 30;
-            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-            score += termScore;
-            matchTypes.add('text');
-            if (!matchedTerms.includes(token.token)) matchedTerms.push(token.token);
-          }
+      // 3. OCR text - exact match only
+      const ocrText = page.ocr_text || '';
+      for (const term of queryTerms) {
+        if (exactMatch(ocrText, term)) {
+          score += 30;
+          matchTypes.add('text');
         }
       }
 
-      // 4. Low-confidence OCR tokens (WEAK SIGNAL)
-      for (const token of lowConfTokens) {
-        const tokenLower = token?.token?.toLowerCase() || '';
-        for (const term of queryTerms) {
-          if (tokenLower === term || (tokenLower.length > 3 && levenshteinDistance(tokenLower, term) <= 1)) {
-            const baseScore = 10;
-            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-            score += termScore;
-            matchTypes.add('text');
-          }
-        }
-      }
-
-      // 5. Full text search fallback (for pages without tokens)
-      if (ocrTokens.length === 0) {
-        const ocrText = (page.ocr_text || '').toLowerCase();
-        for (const term of queryTerms) {
-          if (ocrText.includes(term)) {
-            const baseScore = 20;
-            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-            score += termScore;
-            matchTypes.add('text');
-          }
-        }
-      }
-
-      // 6. Keywords match
+      // 4. Keywords - exact match
       const keywords: string[] = page.keywords || [];
       for (const keyword of keywords) {
-        const keywordLower = keyword?.toLowerCase() || '';
         for (const term of queryTerms) {
-          if (keywordLower === term || keywordLower.includes(term)) {
-            const baseScore = 25;
-            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-            score += termScore;
+          if (exactMatch(keyword, term)) {
+            score += 25;
             matchTypes.add('text');
-            matchedTerms.push(keyword);
+            if (!matchedTerms.includes(keyword)) matchedTerms.push(keyword);
           }
         }
       }
 
-      // 7. Primary keyword match (boosted)
+      // 5. Primary keyword - exact match (boosted)
       if (page.primary_keyword) {
-        const primaryLower = page.primary_keyword.toLowerCase();
         for (const term of queryTerms) {
-          if (primaryLower.includes(term) || term.includes(primaryLower)) {
-            const baseScore = 40;
-            const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-            score += termScore;
+          if (exactMatch(page.primary_keyword, term)) {
+            score += 40;
             matchTypes.add('text');
-            matchedTerms.push(page.primary_keyword);
+            if (!matchedTerms.includes(page.primary_keyword)) matchedTerms.push(page.primary_keyword);
           }
         }
       }
 
-      // 8. Summary and user note
-      const summary = (page.summary || '').toLowerCase();
-      const userNote = (page.user_note || '').toLowerCase();
+      // 6. Summary - exact match
+      const summary = page.summary || '';
       for (const term of queryTerms) {
-        const baseScore = 15;
-        const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-        if (summary.includes(term)) score += termScore;
-        if (userNote.includes(term)) score += termScore;
-      }
-
-      // 9. One-line hint
-      const hint = (page.one_line_hint || '').toLowerCase();
-      for (const term of queryTerms) {
-        if (hint.includes(term)) {
-          const baseScore = 20;
-          const termScore = COMMON_TERMS.has(term) ? baseScore * COMMON_TERM_TEXT_MULTIPLIER : baseScore;
-          score += termScore;
+        if (exactMatch(summary, term)) {
+          score += 15;
+          matchTypes.add('text');
         }
       }
 
-      // Apply threshold: if query is ONLY common terms, require minimum score to show
-      if (queryIsOnlyCommonTerms && score < 15) {
-        score = 0; // Filter out low-scoring common-term-only matches
-      }
-
+      // Only include if score > 0 (at least one exact match found)
       if (score > 0) {
         scoredResults.push({
           page_id: page.id,
-          page: page, // Include full page data
+          page: page,
           score,
           match_types: Array.from(matchTypes),
           matched_terms: [...new Set(matchedTerms)].slice(0, 5)
