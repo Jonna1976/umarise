@@ -54,6 +54,18 @@ function CarouselResults({
   const goNext = () => setActiveIndex(i => Math.min(i + 1, results.length - 1));
   const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
 
+  // Swipe handler
+  const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const swipeThreshold = 50;
+    const velocityThreshold = 500;
+    
+    if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
+      goNext();
+    } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
+      goPrev();
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-140px)]">
       {/* Result counter */}
@@ -64,7 +76,7 @@ function CarouselResults({
       </div>
 
       {/* Main carousel area */}
-      <div className="flex-1 flex items-center justify-center px-4 relative">
+      <div className="flex-1 flex items-center justify-center px-4 relative overflow-hidden">
         {/* Prev button */}
         {activeIndex > 0 && (
           <button 
@@ -75,63 +87,72 @@ function CarouselResults({
           </button>
         )}
 
-        {/* Active result */}
+        {/* Active result with swipe */}
         <AnimatePresence mode="wait">
-          <motion.button
+          <motion.div
             key={activeResult.page.id}
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.2 }}
-            onClick={() => onSelectPage(activeResult.page, activeIndex, activeResult)}
-            className="w-full max-w-sm text-left"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
+            className="w-full max-w-sm cursor-grab active:cursor-grabbing"
           >
-            {/* Main image - prominent but not full screen */}
-            <div className="rounded-xl overflow-hidden border border-border shadow-lg bg-card">
-              <div className="aspect-[3/4] w-full bg-muted relative">
-                <img
-                  src={activeResult.page.imageUrl}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
-                  {formatDistanceToNow(activeResult.page.createdAt, { addSuffix: true })}
-                </span>
-              </div>
-              
-              {/* Tags & match info - subtle */}
-              <div className="p-3 space-y-1.5">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {activeResult.page.futureYouCues?.slice(0, 2).map((cue, i) => (
-                    <span 
-                      key={`cue-${i}`} 
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary"
-                    >
-                      <Tag className="w-2.5 h-2.5" />
-                      {cue}
-                    </span>
-                  ))}
-                  {activeResult.matchTypes.slice(0, 1).map((type) => {
-                    const badge = matchTypeBadges[type];
-                    if (!badge) return null;
-                    const Icon = badge.icon;
-                    return (
-                      <span
-                        key={type}
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${badge.className}`}
-                      >
-                        <Icon className="w-2.5 h-2.5" />
-                        {badge.label}
-                      </span>
-                    );
-                  })}
+            <button
+              onClick={() => onSelectPage(activeResult.page, activeIndex, activeResult)}
+              className="w-full text-left"
+            >
+              {/* Main image - prominent but not full screen */}
+              <div className="rounded-xl overflow-hidden border border-border shadow-lg bg-card">
+                <div className="aspect-[3/4] w-full bg-muted relative">
+                  <img
+                    src={activeResult.page.imageUrl}
+                    alt=""
+                    className="w-full h-full object-cover pointer-events-none"
+                    draggable={false}
+                  />
+                  <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                    {formatDistanceToNow(activeResult.page.createdAt, { addSuffix: true })}
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {activeResult.page.oneLineHint || activeResult.page.summary?.split('.')[0]}
-                </p>
+                
+                {/* Tags & match info - subtle */}
+                <div className="p-3 space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {activeResult.page.futureYouCues?.slice(0, 2).map((cue, i) => (
+                      <span 
+                        key={`cue-${i}`} 
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary"
+                      >
+                        <Tag className="w-2.5 h-2.5" />
+                        {cue}
+                      </span>
+                    ))}
+                    {activeResult.matchTypes.slice(0, 1).map((type) => {
+                      const badge = matchTypeBadges[type];
+                      if (!badge) return null;
+                      const Icon = badge.icon;
+                      return (
+                        <span
+                          key={type}
+                          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${badge.className}`}
+                        >
+                          <Icon className="w-2.5 h-2.5" />
+                          {badge.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {activeResult.page.oneLineHint || activeResult.page.summary?.split('.')[0]}
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.button>
+            </button>
+          </motion.div>
         </AnimatePresence>
 
         {/* Next button */}
