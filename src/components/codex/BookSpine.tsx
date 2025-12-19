@@ -1,7 +1,8 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Page, CapsulePages, Project } from '@/lib/pageService';
 import { Images } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState, useRef } from 'react';
 
 interface BookSpineProps {
   page?: Page;
@@ -96,6 +97,9 @@ function getSpineColor(tones: string[]): {
 }
 
 export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted, onDragStart, onDragEnd }: BookSpineProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
   
@@ -120,13 +124,86 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
     onDragEnd?.();
   };
 
+  // Hover handlers with slight delay for better UX
+  const handleMouseEnter = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 200); // 200ms delay before showing preview
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setIsHovered(false);
+  };
+
   return (
     <div
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className="cursor-grab active:cursor-grabbing"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="cursor-grab active:cursor-grabbing relative"
     >
+      {/* Hover Preview Panel */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 pointer-events-none"
+          >
+            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-64 max-w-[280px]">
+              {/* Image preview */}
+              <div className="relative w-full h-32 rounded-lg overflow-hidden mb-3">
+                <img 
+                  src={representativePage.imageUrl} 
+                  alt="Page preview"
+                  className="w-full h-full object-cover"
+                />
+                {pageCount > 1 && (
+                  <div className="absolute top-2 right-2 bg-codex-ink/80 text-codex-cream px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                    <Images className="w-3 h-3" />
+                    {pageCount}
+                  </div>
+                )}
+              </div>
+              
+              {/* Cues */}
+              {representativePage.futureYouCues && representativePage.futureYouCues.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {representativePage.futureYouCues.slice(0, 3).map((cue) => (
+                    <span 
+                      key={cue}
+                      className="text-xs px-2 py-0.5 rounded-full bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
+                    >
+                      {cue}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Summary snippet */}
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                {representativePage.summary || representativePage.oneLineHint || 'No summary available'}
+              </p>
+              
+              {/* Date */}
+              <p className="text-[10px] text-muted-foreground/60 mt-2">
+                {format(representativePage.createdAt, 'EEEE, d MMMM yyyy')}
+              </p>
+            </div>
+            
+            {/* Arrow pointing down */}
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-3 h-3 bg-background/95 border-r border-b border-border/50 transform rotate-45" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.button
         initial={isHighlighted ? { opacity: 0, scale: 0.8, y: -40 } : { opacity: 0, x: 20, rotateY: -15 }}
         animate={{ 
