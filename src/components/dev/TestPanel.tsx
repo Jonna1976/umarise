@@ -15,7 +15,8 @@ import {
   ToggleLeft,
   ToggleRight,
   Server,
-  Cloud
+  Cloud,
+  Smartphone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
@@ -26,6 +27,7 @@ import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { isHetznerEnabled, setHetznerEnabled, getCurrentProvider } from '@/lib/abstractions';
+import { WidgetMockup } from './WidgetMockup';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -39,6 +41,7 @@ export function TestPanel({
 }: TestPanelProps) {
   const { isDemoMode, toggleDemoMode } = useDemoMode();
   const [showOnePager, setShowOnePager] = useState(false);
+  const [showWidgetMockup, setShowWidgetMockup] = useState(false);
   
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
@@ -725,12 +728,42 @@ export function TestPanel({
               <FileText className="w-3.5 h-3.5 mr-1.5 text-primary" />
               One-Pager
             </Button>
+            <Button 
+              onClick={() => setShowWidgetMockup(true)} 
+              variant="outline" 
+              size="sm"
+              className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
+            >
+              <Smartphone className="w-3.5 h-3.5 mr-1.5 text-primary" />
+              Widget Mockup
+            </Button>
           </div>
         </div>
 
         {/* Modals */}
         <AnimatePresence>
           {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
+          {showWidgetMockup && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-background overflow-auto"
+            >
+              <div className="sticky top-4 right-4 z-10 flex justify-end p-4">
+                <Button 
+                  onClick={() => setShowWidgetMockup(false)}
+                  variant="outline"
+                  size="sm"
+                  className="bg-background/80 backdrop-blur-sm"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Sluiten
+                </Button>
+              </div>
+              <WidgetMockup />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Spacer to fill remaining space */}
