@@ -530,15 +530,15 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                     onClick={() => handleSelectPage(result.page, index, result)}
                     className="w-full text-left rounded-xl bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
                   >
-                    {/* LARGE ORIGINAL IMAGE - The proof */}
-                    <div className="aspect-[4/3] w-full bg-muted relative">
+                    {/* Original image - compact but recognizable */}
+                    <div className="h-32 w-full bg-muted relative">
                       <img
                         src={result.page.imageUrl}
                         alt=""
                         className="w-full h-full object-cover"
                       />
                       {/* Timestamp overlay */}
-                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                      <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white text-[9px]">
                         {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
                       </span>
                     </div>
