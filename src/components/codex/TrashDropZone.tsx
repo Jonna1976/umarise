@@ -39,7 +39,7 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
 
   return (
     <motion.div
-      className="fixed bottom-6 left-6 z-50"
+      className="fixed bottom-6 right-6 z-50"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ 
         opacity: isDragging ? 1 : (trashedCount > 0 ? 0.8 : 0.4),
