@@ -633,31 +633,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 : 'Upload or drop your page here. Every page counts. Forever.'
               }
             </p>
-            
-            {/* Brief-modus toggle - positioned below hint text */}
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              onClick={toggleBriefModus}
-              className={`
-                mt-6 flex items-center gap-2 px-4 py-2 rounded-full
-                transition-all duration-300 border
-                ${briefModus 
-                  ? 'bg-codex-gold/20 border-codex-gold/50 text-codex-gold' 
-                  : 'bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground/60 hover:border-primary-foreground/40 hover:text-primary-foreground/80'
-                }
-              `}
-            >
-              {briefModus ? (
-                <FileStack className="w-4 h-4" />
-              ) : (
-                <FileText className="w-4 h-4" />
-              )}
-              <span className="text-sm font-medium">
-                {briefModus ? 'Brief-modus aan' : 'Brief-modus'}
-              </span>
-            </motion.button>
           </motion.div>
         )}
       </div>
@@ -840,6 +815,32 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             : 'Position your page within the frame'}
         </motion.p>
       )}
+
+      {/* Brief-modus toggle - bottom left, always visible when not previewing */}
+      <AnimatePresence>
+        {!capturedImage && (
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            onClick={toggleBriefModus}
+            className={`
+              absolute bottom-8 left-4 z-20
+              flex items-center gap-2 px-3 py-2 rounded-full
+              backdrop-blur-sm transition-all duration-300 border
+              ${briefModus 
+                ? 'bg-codex-gold/20 border-codex-gold/50 text-codex-gold' 
+                : 'bg-codex-ink/60 border-primary-foreground/20 text-primary-foreground/70 hover:border-primary-foreground/40 hover:text-primary-foreground'
+              }
+            `}
+          >
+            <FileStack className="w-4 h-4" />
+            <span className="text-xs font-medium">
+              {briefModus ? 'Brief' : 'Brief-modus'}
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Rapid capture mode indicator */}
       <AnimatePresence>
