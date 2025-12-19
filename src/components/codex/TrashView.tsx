@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, RotateCcw, X, AlertTriangle } from 'lucide-react';
 import { Page } from '@/lib/pageService';
 import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -53,9 +52,11 @@ export function TrashView({
     if (pageToDelete && deleteConfirmText.toUpperCase() === 'DELETE') {
       console.log('[TrashView] Confirming permanent delete for:', pageToDelete.id);
       const pageIdToDelete = pageToDelete.id;
+      // Clear dialog state first
       setPageToDelete(null);
       setShowFinalConfirm(false);
       setDeleteConfirmText('');
+      // Then delete - this will update trashedIds which removes from UI
       await onPermanentDelete(pageIdToDelete);
     }
   };
@@ -107,7 +108,7 @@ export function TrashView({
             <div className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-muted-foreground" />
               <h1 className="font-serif text-xl font-semibold text-foreground">
-                Prullenbak
+                Trash
               </h1>
             </div>
             
@@ -118,7 +119,7 @@ export function TrashView({
                 onClick={() => setConfirmEmpty(true)}
                 className="text-sm"
               >
-                Leegmaken
+                Empty
               </Button>
             )}
             {trashedPages.length === 0 && <div className="w-24" />}
@@ -137,16 +138,16 @@ export function TrashView({
                 <Trash2 className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <h2 className="font-serif text-lg text-muted-foreground mb-1">
-                Prullenbak is leeg
+                Trash is empty
               </h2>
               <p className="text-sm text-muted-foreground/70">
-                Sleep pages hierheen om ze te verwijderen
+                Drag pages here to delete them
               </p>
             </motion.div>
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-4">
-                {trashedPages.length} {trashedPages.length === 1 ? 'item' : 'items'} in prullenbak
+                {trashedPages.length} {trashedPages.length === 1 ? 'item' : 'items'} in trash
               </p>
               
               <AnimatePresence mode="popLayout">
@@ -175,7 +176,7 @@ export function TrashView({
                           {page.futureYouCues?.[0] || page.summary?.slice(0, 50) || 'Untitled page'}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {format(page.createdAt, 'd MMM yyyy', { locale: nl })}
+                          {format(page.createdAt, 'MMM d, yyyy')}
                         </p>
                       </div>
                       
@@ -184,14 +185,14 @@ export function TrashView({
                         <button
                           onClick={() => onRestore(page.id)}
                           className="w-9 h-9 rounded-lg bg-background hover:bg-secondary flex items-center justify-center transition-colors"
-                          title="Terugzetten"
+                          title="Restore"
                         >
                           <RotateCcw className="w-4 h-4 text-foreground" />
                         </button>
                         <button
                           onClick={() => handlePermanentDelete(page)}
                           className="w-9 h-9 rounded-lg bg-destructive/10 hover:bg-destructive/20 flex items-center justify-center transition-colors"
-                          title="Definitief verwijderen"
+                          title="Delete permanently"
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </button>
@@ -211,20 +212,20 @@ export function TrashView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-destructive" />
-              Prullenbak leegmaken?
+              Empty trash?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Dit verwijdert {trashedPages.length} {trashedPages.length === 1 ? 'page' : 'pages'} definitief. 
-              Dit kan niet ongedaan worden gemaakt.
+              This will permanently delete {trashedPages.length} {trashedPages.length === 1 ? 'page' : 'pages'}. 
+              This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelEmptyTrash}>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelEmptyTrash}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={proceedToFinalEmptyConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Doorgaan
+              Continue
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -236,15 +237,15 @@ export function TrashView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="w-5 h-5" />
-              Laatste waarschuwing
+              Final warning
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                Je staat op het punt om <strong>{trashedPages.length} {trashedPages.length === 1 ? 'page' : 'pages'}</strong> permanent te verwijderen. 
-                Deze actie kan <strong>NIET</strong> ongedaan worden gemaakt.
+                You are about to permanently delete <strong>{trashedPages.length} {trashedPages.length === 1 ? 'page' : 'pages'}</strong>. 
+                This action <strong>CANNOT</strong> be undone.
               </p>
               <p className="font-medium">
-                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> om te bevestigen:
+                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> to confirm:
               </p>
               <Input
                 value={emptyConfirmText}
@@ -256,13 +257,13 @@ export function TrashView({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelEmptyTrash}>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelEmptyTrash}>Cancel</AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={confirmEmptyTrash}
               disabled={emptyConfirmText.toUpperCase() !== 'DELETE'}
             >
-              Definitief verwijderen
+              Delete permanently
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -272,18 +273,18 @@ export function TrashView({
       <AlertDialog open={!!pageToDelete && !showFinalConfirm} onOpenChange={() => cancelDelete()}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Page definitief verwijderen?</AlertDialogTitle>
+            <AlertDialogTitle>Delete page permanently?</AlertDialogTitle>
             <AlertDialogDescription>
-              Deze page wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt.
+              This page will be permanently deleted. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDelete}>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={proceedToFinalConfirm}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Doorgaan
+              Continue
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -295,15 +296,15 @@ export function TrashView({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="w-5 h-5" />
-              Laatste waarschuwing
+              Final warning
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                Je staat op het punt om deze page <strong>permanent</strong> te verwijderen. 
-                Deze actie kan <strong>NIET</strong> ongedaan worden gemaakt.
+                You are about to <strong>permanently</strong> delete this page. 
+                This action <strong>CANNOT</strong> be undone.
               </p>
               <p className="font-medium">
-                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> om te bevestigen:
+                Type <span className="font-mono bg-destructive/10 px-2 py-0.5 rounded text-destructive">DELETE</span> to confirm:
               </p>
               <Input
                 value={deleteConfirmText}
@@ -315,13 +316,13 @@ export function TrashView({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDelete}>Annuleren</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={confirmPermanentDelete}
               disabled={deleteConfirmText.toUpperCase() !== 'DELETE'}
             >
-              Definitief verwijderen
+              Delete permanently
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
