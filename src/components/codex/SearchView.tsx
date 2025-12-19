@@ -518,7 +518,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
             </AnimatePresence>
 
             {!isSearching && results.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <p className="text-xs text-muted-foreground">{results.length} results</p>
                 
                 {results.map((result, index) => (
@@ -528,59 +528,56 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => handleSelectPage(result.page, index, result)}
-                    className="w-full text-left p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+                    className="w-full text-left rounded-xl bg-card border border-border hover:border-primary/50 transition-colors overflow-hidden"
                   >
-                    <div className="flex gap-3">
-                      <div className="w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-muted">
-                        <img
-                          src={result.page.thumbnailUri || result.page.imageUrl}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
+                    {/* LARGE ORIGINAL IMAGE - The proof */}
+                    <div className="aspect-[4/3] w-full bg-muted relative">
+                      <img
+                        src={result.page.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Timestamp overlay */}
+                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
+                        {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
+                      </span>
+                    </div>
+                    
+                    {/* Compact info below image */}
+                    <div className="p-3 space-y-2">
+                      {/* Tags row: cues + match badges - subtle */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {/* Future You Cues first */}
+                        {result.page.futureYouCues?.slice(0, 2).map((cue, i) => (
+                          <span 
+                            key={`cue-${i}`} 
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary/15 text-primary"
+                          >
+                            <Tag className="w-2.5 h-2.5" />
+                            {cue}
+                          </span>
+                        ))}
+                        {/* Match badges - more subtle */}
+                        {result.matchTypes.slice(0, 1).map((type) => {
+                          const badge = matchTypeBadges[type];
+                          if (!badge) return null;
+                          const Icon = badge.icon;
+                          return (
+                            <span
+                              key={type}
+                              className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] ${badge.className}`}
+                            >
+                              <Icon className="w-2.5 h-2.5" />
+                              {badge.label}
+                            </span>
+                          );
+                        })}
                       </div>
                       
-                      <div className="flex-1 min-w-0">
-                        {/* Future You Cues - prominent golden chips */}
-                        {result.page.futureYouCues && result.page.futureYouCues.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-2">
-                            {result.page.futureYouCues.slice(0, 3).map((cue, i) => (
-                              <span 
-                                key={i} 
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary border border-primary/30"
-                              >
-                                <Tag className="w-3 h-3" />
-                                {cue}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Match type badges - smaller, secondary */}
-                        <div className="flex flex-wrap gap-1 mb-1">
-                          {result.matchTypes.slice(0, 2).map((type) => {
-                            const badge = matchTypeBadges[type];
-                            if (!badge) return null;
-                            const Icon = badge.icon;
-                            return (
-                              <span
-                                key={type}
-                                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] border ${badge.className}`}
-                              >
-                                <Icon className="w-2.5 h-2.5" />
-                                {badge.label}
-                              </span>
-                            );
-                          })}
-                        </div>
-                        
-                        <p className="text-sm text-foreground line-clamp-2">
-                          {result.page.summary || result.page.ocrText?.slice(0, 100)}
-                        </p>
-                        
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          {formatDistanceToNow(result.page.createdAt, { addSuffix: true })}
-                        </p>
-                      </div>
+                      {/* Compact AI summary - 1 line max */}
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {result.page.oneLineHint || result.page.summary?.split('.')[0] || result.page.ocrText?.slice(0, 60)}
+                      </p>
                     </div>
                   </motion.button>
                 ))}
