@@ -317,10 +317,10 @@ export function TestPanel({
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-2xl overflow-hidden flex flex-col"
+        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-2xl flex flex-col"
       >
-        {/* Header */}
-        <div className="p-4 border-b border-border bg-background">
+        {/* Header - Fixed */}
+        <div className="p-4 border-b border-border bg-background shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FlaskConical className="w-5 h-5 text-primary" />
@@ -338,6 +338,9 @@ export function TestPanel({
             Debug tools for testing the memory loop.
           </p>
         </div>
+        
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
 
         {/* Demo Mode Toggle - PROMINENT */}
         <div className="p-4 border-b border-border bg-background">
@@ -768,6 +771,7 @@ export function TestPanel({
 
         {/* Spacer to fill remaining space */}
         <div className="flex-1" />
+        </div>{/* End Scrollable Content */}
       </motion.div>
     </motion.div>
   );
