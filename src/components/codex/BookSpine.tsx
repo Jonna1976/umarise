@@ -246,7 +246,6 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
         }}
         whileHover={{ 
           y: -8, 
-          scale: 1.02,
           transition: { duration: 0.4, ease: 'easeOut' }
         }}
         whileTap={{ scale: 0.98 }}
