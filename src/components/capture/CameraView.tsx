@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical, Zap } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical, Zap, FileText, FileStack } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
@@ -25,8 +25,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [absorbingFiles, setAbsorbingFiles] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [briefModus, setBriefModus] = useState(false); // Document mode: multiple pages = 1 document
 
-  const isMultiMode = capturedImages.length > 0;
+  const isMultiMode = capturedImages.length > 0 || briefModus;
 
   const startCamera = useCallback(async () => {
     try {
@@ -217,6 +218,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
       onCaptureMultiple(allImages);
       setCapturedImage(null);
       setCapturedImages([]);
+      setBriefModus(false);
     }
   }, [capturedImages, capturedImage, onCaptureMultiple]);
 
@@ -224,8 +226,14 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     triggerHaptic('light');
     setCapturedImages([]);
     setCapturedImage(null);
+    setBriefModus(false);
     startCamera();
   }, [startCamera]);
+  
+  const toggleBriefModus = useCallback(() => {
+    triggerHaptic('light');
+    setBriefModus(prev => !prev);
+  }, []);
 
   // Auto-start camera on mount
   useEffect(() => {
@@ -246,9 +254,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         className="hidden"
       />
 
-      {/* Page count indicator - minimal, positioned above portal */}
+      {/* Brief-modus / Page count indicator */}
       <AnimatePresence>
-        {capturedImages.length > 0 && (
+        {(capturedImages.length > 0 || briefModus) && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -257,14 +265,18 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
           >
             <div className="flex items-center gap-3 bg-codex-ink/60 backdrop-blur-sm rounded-full px-4 py-2 border border-codex-gold/30">
               <div className="flex items-center gap-2">
-                <Images className="w-4 h-4 text-codex-gold" />
+                <FileStack className="w-4 h-4 text-codex-gold" />
                 <span className="text-codex-cream text-sm font-medium">
-                  {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
+                  {capturedImages.length > 0 
+                    ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} • 1 document`
+                    : 'Brief-modus: pages worden 1 document'
+                  }
                 </span>
               </div>
               <button
                 onClick={cancelMultiMode}
                 className="text-codex-cream/50 hover:text-codex-cream text-xs ml-2"
+                title="Annuleren"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -621,6 +633,31 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 : 'Upload or drop your page here. Every page counts. Forever.'
               }
             </p>
+            
+            {/* Brief-modus toggle - positioned below hint text */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              onClick={toggleBriefModus}
+              className={`
+                mt-6 flex items-center gap-2 px-4 py-2 rounded-full
+                transition-all duration-300 border
+                ${briefModus 
+                  ? 'bg-codex-gold/20 border-codex-gold/50 text-codex-gold' 
+                  : 'bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground/60 hover:border-primary-foreground/40 hover:text-primary-foreground/80'
+                }
+              `}
+            >
+              {briefModus ? (
+                <FileStack className="w-4 h-4" />
+              ) : (
+                <FileText className="w-4 h-4" />
+              )}
+              <span className="text-sm font-medium">
+                {briefModus ? 'Brief-modus aan' : 'Brief-modus'}
+              </span>
+            </motion.button>
           </motion.div>
         )}
       </div>
