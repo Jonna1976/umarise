@@ -114,6 +114,11 @@ function CarouselResults({
                     className="w-full h-full object-cover pointer-events-none"
                     draggable={false}
                   />
+                  {activeIndex === 0 && (
+                    <span className="absolute top-2 left-2 px-2 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
+                      Best match
+                    </span>
+                  )}
                   <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/60 text-white text-[10px]">
                     {formatDistanceToNow(activeResult.page.createdAt, { addSuffix: true })}
                   </span>
