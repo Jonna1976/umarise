@@ -11,10 +11,11 @@ const DemoModeContext = createContext<DemoModeContextType | undefined>(undefined
 const DEMO_MODE_KEY = 'umarise_demo_mode';
 
 export function DemoModeProvider({ children }: { children: ReactNode }) {
-  // Default to normal mode (false) - demo mode must be explicitly enabled
+  // Default to wedge mode (true) - dev features hidden by default
   const [isDemoMode, setIsDemoMode] = useState(() => {
     const stored = localStorage.getItem(DEMO_MODE_KEY);
-    return stored === 'true';
+    // Default to true (wedge-only) unless explicitly set to false
+    return stored !== 'false';
   });
 
   // Sync toggle that writes to localStorage BEFORE updating state

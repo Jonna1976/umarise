@@ -14,7 +14,7 @@ import { EarlyInsights } from './EarlyInsights';
 import { MemoryPulse } from './MemoryPulse';
 import { TrashDropZone } from './TrashDropZone';
 import { TrashView } from './TrashView';
-import { DemoModeToggle } from '@/components/DemoModeToggle';
+
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useTrash } from '@/hooks/useTrash';
 import { ExportButton } from './ExportButton';
@@ -412,7 +412,7 @@ export function HistoryView({
             ) : (
               <h1 className="font-serif text-2xl font-semibold text-foreground">Lasting Memory</h1>
             )}
-            {!isMinimalMode && <DemoModeToggle />}
+            
           </div>
           
           {/* Right side - flex-1 to balance with left */}
