@@ -125,10 +125,14 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   };
 
   // Hover handlers with slight delay for better UX
+  // Only show on desktop (no touch devices) to avoid blocking scroll
   const handleMouseEnter = () => {
+    // Don't show preview on touch devices
+    if ('ontouchstart' in window) return;
+    
     hoverTimeoutRef.current = setTimeout(() => {
       setIsHovered(true);
-    }, 200); // 200ms delay before showing preview
+    }, 300); // 300ms delay before showing preview
   };
 
   const handleMouseLeave = () => {
@@ -147,19 +151,20 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       onMouseLeave={handleMouseLeave}
       className="cursor-grab active:cursor-grabbing relative"
     >
-      {/* Hover Preview Panel */}
+      {/* Hover Preview Panel - positioned above, doesn't block scroll */}
       <AnimatePresence>
         {isHovered && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50 pointer-events-none"
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50"
+            style={{ pointerEvents: 'none' }} // Ensure it doesn't block interactions
           >
-            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-64 max-w-[280px]">
+            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-56">
               {/* Image preview */}
-              <div className="relative w-full h-32 rounded-lg overflow-hidden mb-3">
+              <div className="relative w-full h-28 rounded-lg overflow-hidden mb-2">
                 <img 
                   src={representativePage.imageUrl} 
                   alt="Page preview"
@@ -176,7 +181,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
               {/* Cues */}
               {representativePage.futureYouCues && representativePage.futureYouCues.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
-                  {representativePage.futureYouCues.slice(0, 3).map((cue) => (
+                  {representativePage.futureYouCues.slice(0, 2).map((cue) => (
                     <span 
                       key={cue}
                       className="text-xs px-2 py-0.5 rounded-full bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
@@ -189,12 +194,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
               
               {/* Summary snippet */}
               <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {representativePage.summary || representativePage.oneLineHint || 'No summary available'}
-              </p>
-              
-              {/* Date */}
-              <p className="text-[10px] text-muted-foreground/60 mt-2">
-                {format(representativePage.createdAt, 'EEEE, d MMMM yyyy')}
+                {representativePage.oneLineHint || representativePage.summary?.slice(0, 80) || 'No summary'}
               </p>
             </div>
             
