@@ -10,6 +10,7 @@ import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
+import PilotTracker from "./pages/PilotTracker";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/pilot-tracker" element={<PilotTracker />} />
             <Route path="/warm-preview" element={<WarmPaletteMockup />} />
             <Route path="/current-preview" element={<CurrentPaletteMockup />} />
             <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
