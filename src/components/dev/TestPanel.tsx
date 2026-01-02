@@ -16,7 +16,8 @@ import {
   ToggleRight,
   Server,
   Cloud,
-  Smartphone
+  Smartphone,
+  Timer
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
@@ -548,6 +549,30 @@ export function TestPanel({
               </Button>
             )}
           </div>
+        </div>
+
+        {/* Pilot Tracker Link */}
+        <div className="p-4 border-b border-border bg-codex-teal/5">
+          <h3 className="text-xs font-medium text-codex-teal uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Timer className="w-3.5 h-3.5" />
+            MKB Pilot Tools
+          </h3>
+          <Link 
+            to="/pilot-tracker" 
+            onClick={onClose}
+            className="flex items-center justify-between p-3 rounded-lg border-2 border-codex-teal/30 bg-codex-teal/10 hover:bg-codex-teal/20 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <Timer className="w-5 h-5 text-codex-teal" />
+              <div>
+                <div className="font-medium text-foreground">Pilot Tracker</div>
+                <div className="text-xs text-muted-foreground">30 retrieval tests met stopwatch</div>
+              </div>
+            </div>
+            <span className="text-xs px-2 py-1 rounded bg-codex-teal/20 text-codex-teal">
+              Open →
+            </span>
+          </Link>
         </div>
 
         {/* Copy Real Pages to Demo */}
