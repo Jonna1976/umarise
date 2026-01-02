@@ -24,7 +24,7 @@ import { Page } from '@/lib/pageService';
 import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo, copyRealPagesToDemo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
-import { getDeviceId, setDeviceId as persistDeviceId } from '@/lib/deviceId';
+import { getDeviceId, setDeviceId as persistDeviceId, getPilotTeam, joinPilotTeam, leavePilotTeam, PILOT_TEAM_IDS, PilotTeam } from '@/lib/deviceId';
 import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { isHetznerEnabled, setHetznerEnabled, getCurrentProvider } from '@/lib/abstractions';
@@ -557,6 +557,58 @@ export function TestPanel({
             <Timer className="w-3.5 h-3.5" />
             MKB Pilot Tools
           </h3>
+          
+          {/* Join Pilot Team */}
+          <div className="mb-4">
+            <p className="text-xs text-muted-foreground mb-2">
+              Join een pilot team om data te delen met teamleden:
+            </p>
+            <div className="flex gap-2">
+              {(['A', 'B', 'C'] as PilotTeam[]).map((team) => {
+                const isActive = getPilotTeam() === team;
+                return (
+                  <button
+                    key={team}
+                    onClick={() => {
+                      if (isActive) {
+                        leavePilotTeam();
+                        toast({ 
+                          title: `Team ${team} verlaten`, 
+                          description: 'Je hebt nu een persoonlijke device ID' 
+                        });
+                      } else {
+                        joinPilotTeam(team);
+                        toast({ 
+                          title: `Team ${team} gejoined!`, 
+                          description: 'Alle teamleden delen nu dezelfde data' 
+                        });
+                      }
+                      // Reload to apply new device ID
+                      setTimeout(() => window.location.reload(), 500);
+                    }}
+                    className={`flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-codex-teal text-white border-codex-teal'
+                        : 'bg-secondary/50 text-foreground border-border hover:border-codex-teal/50'
+                    }`}
+                  >
+                    Team {team}
+                    {isActive && ' ✓'}
+                  </button>
+                );
+              })}
+            </div>
+            {getPilotTeam() && (
+              <div className="mt-2 p-2 bg-codex-teal/10 rounded text-xs">
+                <span className="text-codex-teal font-medium">Actief: Team {getPilotTeam()}</span>
+                <span className="text-muted-foreground ml-2">
+                  (ID: {PILOT_TEAM_IDS[getPilotTeam()!].slice(0, 12)}...)
+                </span>
+              </div>
+            )}
+          </div>
+          
+          {/* Pilot Tracker Link */}
           <Link 
             to="/pilot-tracker" 
             onClick={onClose}

@@ -2,10 +2,61 @@
 
 const DEVICE_ID_KEY = 'umarise_device_id';
 const DEMO_MODE_KEY = 'umarise_demo_mode';
+const PILOT_TEAM_KEY = 'umarise_pilot_team';
 
 // Fixed demo device ID - must be 36+ chars to pass RLS policy
 // Using a fixed UUID that will never collide with real user IDs
 export const DEMO_DEVICE_ID = 'demo0000-0000-0000-0000-000000000001';
+
+// Fixed pilot team device IDs for MKB pilot (21-day test)
+// Each team shares a device_user_id for collaborative data access
+export const PILOT_TEAM_IDS = {
+  A: 'pilot-team-a-0000-0000-000000000001',
+  B: 'pilot-team-b-0000-0000-000000000002', 
+  C: 'pilot-team-c-0000-0000-000000000003',
+} as const;
+
+export type PilotTeam = keyof typeof PILOT_TEAM_IDS;
+
+/**
+ * Get current pilot team (if joined)
+ */
+export function getPilotTeam(): PilotTeam | null {
+  try {
+    const team = localStorage.getItem(PILOT_TEAM_KEY);
+    if (team && (team === 'A' || team === 'B' || team === 'C')) {
+      return team as PilotTeam;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Join a pilot team - sets device_user_id to team's shared ID
+ */
+export function joinPilotTeam(team: PilotTeam): void {
+  try {
+    localStorage.setItem(PILOT_TEAM_KEY, team);
+    localStorage.setItem(DEVICE_ID_KEY, PILOT_TEAM_IDS[team]);
+  } catch {
+    console.error('Failed to join pilot team');
+  }
+}
+
+/**
+ * Leave pilot team - generates new personal device ID
+ */
+export function leavePilotTeam(): void {
+  try {
+    localStorage.removeItem(PILOT_TEAM_KEY);
+    const newId = generateDeviceId();
+    localStorage.setItem(DEVICE_ID_KEY, newId);
+  } catch {
+    console.error('Failed to leave pilot team');
+  }
+}
 
 export function generateDeviceId(): string {
   // Generate a UUID v4
