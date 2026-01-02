@@ -606,30 +606,75 @@ export class HetznerVaultStorage implements IStorageProvider {
     return response;
   }
 
+  /**
+   * HYBRID MODE: Upload images to Supabase Storage (Lovable Cloud)
+   * while keeping all pages/search/metadata in Hetzner.
+   * 
+   * This is a workaround until POST /vault/images is implemented on Hetzner.
+   * Provides ~95% sovereignty (images in EU Supabase, metadata in Hetzner Germany).
+   */
   async uploadImage(imageDataUrl: string): Promise<string> {
     const deviceUserId = this.getRealDeviceUserId();
+    const timestamp = Date.now();
     
-    const response = await this.proxyRequest('POST', '/vault/images', {
-      imageDataUrl,
-      deviceUserId,
-      encrypt: true,
-    });
+    console.log('[Hetzner Hybrid] Uploading image via Supabase Storage (fallback)...');
+    
+    // Check if Private Vault mode is enabled
+    if (isPrivateVaultEnabled()) {
+      // PRIVATE VAULT: Encrypt image before upload
+      console.log('[Hetzner Hybrid] Private Vault enabled - encrypting image...');
+      const encryptedBase64 = await encryptImage(imageDataUrl);
+      
+      // Convert encrypted base64 to blob
+      const encryptedBytes = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+      const encryptedBlob = new Blob([encryptedBytes], { type: 'application/octet-stream' });
+      
+      // Store in encrypted folder with .enc extension
+      const filename = `encrypted/${deviceUserId}/${timestamp}.enc`;
+      
+      const { data, error } = await supabase.storage
+        .from('page-images')
+        .upload(filename, encryptedBlob, {
+          contentType: 'application/octet-stream',
+          cacheControl: '3600',
+        });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      const errorMessage = error.error || error.details || 'Failed to upload image';
-      
-      // Provide helpful message for missing endpoint
-      if (response.status === 404) {
-        console.error('[HetznerVaultStorage] Image upload endpoint not found. The Hetzner backend may not have /vault/images implemented yet.');
-        throw new Error('Hetzner image upload not available. Please switch to Lovable Cloud for capture, or implement /vault/images endpoint on Hetzner server.');
+      if (error) {
+        console.error('[Hetzner Hybrid] Encrypted upload error:', error);
+        throw new Error('Failed to upload encrypted image');
       }
-      
-      throw new Error(errorMessage);
+
+      const { data: urlData } = supabase.storage
+        .from('page-images')
+        .getPublicUrl(data.path);
+
+      console.log('[Hetzner Hybrid] Encrypted image uploaded successfully');
+      return urlData.publicUrl;
+    }
+    
+    // DEFAULT: Upload without encryption (standard Supabase storage)
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
+    const filename = `hetzner-hybrid/${deviceUserId}/${timestamp}.jpg`;
+    
+    const { data, error } = await supabase.storage
+      .from('page-images')
+      .upload(filename, blob, {
+        contentType: 'image/jpeg',
+        cacheControl: '3600',
+      });
+
+    if (error) {
+      console.error('[Hetzner Hybrid] Upload error:', error);
+      throw new Error('Failed to upload image');
     }
 
-    const data = await response.json();
-    return data.imageUrl;
+    const { data: urlData } = supabase.storage
+      .from('page-images')
+      .getPublicUrl(data.path);
+
+    console.log('[Hetzner Hybrid] Image uploaded successfully via Supabase fallback');
+    return urlData.publicUrl;
   }
 
   async deleteImage(imageUrl: string): Promise<void> {
