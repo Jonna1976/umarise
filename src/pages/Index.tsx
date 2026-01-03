@@ -431,9 +431,9 @@ const Index = () => {
   }, [deletePage]);
 
   // Dev button visibility logic:
-  // - In Demo Mode: Only show on Memory views (history, patterns, personality, kompas, search)
+  // - In Demo Mode: Only show on Memory views (not on camera to prevent accidental resets)
   // - Not in Demo Mode: Show on all views except onboarding
-  const isMemoryView = ['history', 'detail', 'patterns', 'personality', 'kompas', 'year-reflection', 'search', 'capsule-carousel', 'orbit'].includes(view);
+  const isMemoryView = ['history', 'detail', 'patterns', 'personality', 'kompas', 'year-reflection', 'search', 'capsule-carousel', 'orbit', 'snapshot', 'processing', 'add-to-capsule', 'kompas-empty', 'patterns-empty', 'personality-empty', 'share'].includes(view);
   const showDevButton = view !== 'onboarding' && (!isDemoMode || isMemoryView);
   
   const DevButton = showDevButton && (
