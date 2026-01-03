@@ -9,6 +9,12 @@ const corsHeaders = {
 const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 120000;
 
+// Service routing - determines which API path to use
+const SERVICE_ROUTES: Record<string, string> = {
+  '/ai/search': '/api/codex',      // Search is on codex service
+  'default': '/api/vision',         // Everything else on vision service
+};
+
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMITS: Record<string, number> = {
   '/ai/analyze-page': 10,
@@ -113,7 +119,9 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const targetUrl = `${HETZNER_BASE_URL}/api/vision${endpoint}`;
+    // Determine the correct service route
+    const serviceBase = SERVICE_ROUTES[endpoint] || SERVICE_ROUTES['default'];
+    const targetUrl = `${HETZNER_BASE_URL}${serviceBase}${endpoint}`;
     console.log(`[${requestId}] Proxying to: ${targetUrl}`);
 
     const controller = new AbortController();

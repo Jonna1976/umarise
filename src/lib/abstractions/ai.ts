@@ -402,7 +402,8 @@ export class HetznerAIProvider implements IAIProvider {
   }
 
   /**
-   * Semantic search across pages using Hetzner AI embeddings
+   * Semantic search across pages using Hetzner Codex service
+   * Endpoint: POST /api/codex/ai/search
    */
   async searchPages(
     query: string,
@@ -424,16 +425,33 @@ export class HetznerAIProvider implements IAIProvider {
         payload.beforeDate = options.timeFilter.before.toISOString();
       }
       
+      // Call the codex search endpoint (routed via proxy)
       const data = await this.callHetznerProxy('/ai/search', payload) as {
+        success?: boolean;
+        count?: number;
         results?: Array<{
-          pageId: string;
+          id: string;           // pageId in backend format
+          matchType: string;    // single matchType in backend format
+          ocrText?: string;
           score: number;
-          matchTypes: string[];
-          matchedTerms: string[];
+          summary?: string;
         }>;
       };
       
-      return data.results || [];
+      if (!data.success || !data.results) {
+        console.log(`[Hetzner AI] Search returned no results`);
+        return [];
+      }
+      
+      console.log(`[Hetzner AI] Search found ${data.count} results`);
+      
+      // Map backend response format to frontend expected format
+      return data.results.map(r => ({
+        pageId: r.id,
+        score: r.score,
+        matchTypes: [r.matchType],      // Backend returns single matchType, wrap in array
+        matchedTerms: [query],          // Backend doesn't return matched terms, use query
+      }));
     } catch (err) {
       console.error(`[Hetzner AI] Search failed:`, err);
       // Return empty array on failure - local search will be used as fallback
