@@ -17,7 +17,8 @@ import {
   Server,
   Cloud,
   Smartphone,
-  Timer
+  Timer,
+  BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
@@ -29,6 +30,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { isHetznerEnabled, setHetznerEnabled, getCurrentProvider } from '@/lib/abstractions';
 import { WidgetMockup } from './WidgetMockup';
+import { PilotGuide } from './PilotGuide';
 
 interface TestPanelProps {
   onClose: () => void;
@@ -43,6 +45,7 @@ export function TestPanel({
   const { isDemoMode, toggleDemoMode } = useDemoMode();
   const [showOnePager, setShowOnePager] = useState(false);
   const [showWidgetMockup, setShowWidgetMockup] = useState(false);
+  const [showPilotGuide, setShowPilotGuide] = useState(false);
   
   const [isInjecting, setIsInjecting] = useState(false);
   const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
@@ -608,6 +611,23 @@ export function TestPanel({
             )}
           </div>
           
+          {/* Pilot Guide Button */}
+          <button
+            onClick={() => setShowPilotGuide(true)}
+            className="w-full flex items-center justify-between p-3 rounded-lg border-2 border-primary/30 bg-primary/10 hover:bg-primary/20 transition-all mb-3"
+          >
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-5 h-5 text-primary" />
+              <div className="text-left">
+                <div className="font-medium text-foreground">Pilot Handleiding</div>
+                <div className="text-xs text-muted-foreground">Capture, Search & 60s Test instructies</div>
+              </div>
+            </div>
+            <span className="text-xs px-2 py-1 rounded bg-primary/20 text-primary">
+              Lees
+            </span>
+          </button>
+          
           {/* Pilot Tracker Link */}
           <Link 
             to="/pilot-tracker" 
@@ -823,6 +843,7 @@ export function TestPanel({
         {/* Modals */}
         <AnimatePresence>
           {showOnePager && <OnePager onClose={() => setShowOnePager(false)} />}
+          {showPilotGuide && <PilotGuide onClose={() => setShowPilotGuide(false)} />}
           {showWidgetMockup && (
             <motion.div
               initial={{ opacity: 0 }}
