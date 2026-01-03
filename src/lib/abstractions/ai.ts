@@ -33,6 +33,9 @@ export interface IAIProvider {
   
   // Recommendations based on personality
   generateRecommendations(personality: PersonalityAnalysisResult): Promise<Array<{ type: string; title: string; reason: string }>>;
+  
+  // Semantic search across pages (optional - not all providers support this)
+  searchPages?(query: string, options?: { timeFilter?: { after?: Date; before?: Date }; limit?: number }): Promise<Array<{ pageId: string; score: number; matchTypes: string[]; matchedTerms: string[] }>>;
 }
 
 // ============= Lovable AI Implementation =============
@@ -395,6 +398,46 @@ export class HetznerAIProvider implements IAIProvider {
     } catch (err) {
       console.log(`[Hetzner AI] Recommendations failed, falling back to Lovable AI...`);
       return await this.lovableFallback.generateRecommendations(personality);
+    }
+  }
+
+  /**
+   * Semantic search across pages using Hetzner AI embeddings
+   */
+  async searchPages(
+    query: string,
+    options?: { timeFilter?: { after?: Date; before?: Date }; limit?: number }
+  ): Promise<Array<{ pageId: string; score: number; matchTypes: string[]; matchedTerms: string[] }>> {
+    try {
+      console.log(`[Hetzner AI] Searching pages for: "${query}"`);
+      
+      const payload: Record<string, unknown> = {
+        query,
+        deviceUserId: getDeviceId(),
+        limit: options?.limit || 20,
+      };
+      
+      if (options?.timeFilter?.after) {
+        payload.afterDate = options.timeFilter.after.toISOString();
+      }
+      if (options?.timeFilter?.before) {
+        payload.beforeDate = options.timeFilter.before.toISOString();
+      }
+      
+      const data = await this.callHetznerProxy('/ai/search', payload) as {
+        results?: Array<{
+          pageId: string;
+          score: number;
+          matchTypes: string[];
+          matchedTerms: string[];
+        }>;
+      };
+      
+      return data.results || [];
+    } catch (err) {
+      console.error(`[Hetzner AI] Search failed:`, err);
+      // Return empty array on failure - local search will be used as fallback
+      return [];
     }
   }
 }
