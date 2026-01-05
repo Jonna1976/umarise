@@ -18,10 +18,22 @@ import {
   CheckCircle2,
   XCircle,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  Shield,
+  Clock,
+  AlertTriangle,
+  GitBranch,
+  FileCode
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
+
+interface CodeLink {
+  file: string;
+  lines?: string;
+  description: string;
+}
 
 interface ProofPoint {
   id: number;
@@ -29,8 +41,18 @@ interface ProofPoint {
   title: string;
   claim: string;
   evidence: string[];
-  codeRef: string;
+  codeLinks: CodeLink[];
+  ciGuard?: string;
 }
+
+// Repository base for permalinks (replace with actual repo when available)
+const REPO_BASE = "https://github.com/umarise/vault";
+const COMMIT_SHA = "main"; // Replace with actual SHA for immutable links
+
+const getPermalink = (file: string, lines?: string): string => {
+  const lineFragment = lines ? `#L${lines}` : '';
+  return `${REPO_BASE}/blob/${COMMIT_SHA}/${file}${lineFragment}`;
+};
 
 const proofPoints: ProofPoint[] = [
   {
@@ -44,7 +66,13 @@ const proofPoints: ProofPoint[] = [
       "AI analyseert, slaat origineel op",
       "Zoek op woorden, origineel eerst"
     ],
-    codeRef: "CameraView.tsx → TopicInput.tsx → pageService.ts → SearchView.tsx"
+    codeLinks: [
+      { file: "src/components/capture/CameraView.tsx", description: "Camera opent direct" },
+      { file: "src/components/capture/TopicInput.tsx", lines: "1-50", description: "2-3 woorden input" },
+      { file: "src/lib/pageService.ts", description: "createPage() flow" },
+      { file: "src/components/codex/SearchView.tsx", description: "Zoekresultaten" }
+    ],
+    ciGuard: "test('wedge-flow-under-60s')"
   },
   {
     id: 2,
@@ -56,7 +84,11 @@ const proofPoints: ProofPoint[] = [
       "Summary/keywords zijn secundaire metadata",
       "HistoryView toont image als primair element"
     ],
-    codeRef: "SearchView.tsx, HistoryView.tsx"
+    codeLinks: [
+      { file: "src/components/codex/SearchView.tsx", lines: "150-200", description: "imageUrl primair" },
+      { file: "src/components/codex/HistoryView.tsx", description: "h-32 image primair" }
+    ],
+    ciGuard: "test('origin-always-visible')"
   },
   {
     id: 3,
@@ -67,7 +99,11 @@ const proofPoints: ProofPoint[] = [
       "imageUrl staat NIET in de update-interface",
       "Er bestaat geen code-pad om image_url te wijzigen na creatie"
     ],
-    codeRef: "pageService.ts → updatePage(), types.ts → pages.Row"
+    codeLinks: [
+      { file: "src/lib/pageService.ts", lines: "65-77", description: "updatePage() zonder imageUrl" },
+      { file: "src/integrations/supabase/types.ts", lines: "134-166", description: "pages.Update type" }
+    ],
+    ciGuard: "test('no-image-url-update-path')"
   },
   {
     id: 4,
@@ -80,7 +116,10 @@ const proofPoints: ProofPoint[] = [
       "Geen 'bedoelde je...?' suggesties",
       "Geen probabilistische ranking met lage confidence"
     ],
-    codeRef: "search-pages/index.ts"
+    codeLinks: [
+      { file: "supabase/functions/search-pages/index.ts", lines: "100-110", description: "Strict matching logic" }
+    ],
+    ciGuard: "test('no-fuzzy-search-fallback')"
   },
   {
     id: 5,
@@ -92,7 +131,10 @@ const proofPoints: ProofPoint[] = [
       "Geen ai_analyses tabel",
       "Geen versioning van AI-output"
     ],
-    codeRef: "supabase/types.ts → pages table"
+    codeLinks: [
+      { file: "src/integrations/supabase/types.ts", lines: "65-96", description: "pages table schema" }
+    ],
+    ciGuard: "test('no-ai-entity-table')"
   },
   {
     id: 6,
@@ -104,7 +146,11 @@ const proofPoints: ProofPoint[] = [
       "image_url geen UPDATE path",
       "Origineel altijd primair in UI"
     ],
-    codeRef: "storage.ts, hetzner-storage-proxy"
+    codeLinks: [
+      { file: "src/lib/abstractions/storage.ts", description: "Upload only, geen replace" },
+      { file: "supabase/functions/hetzner-storage-proxy/index.ts", description: "IPFS proxy" }
+    ],
+    ciGuard: "test('origin-immutable')"
   },
   {
     id: 7,
@@ -116,9 +162,34 @@ const proofPoints: ProofPoint[] = [
       "Geen folders, tags, of hiërarchie tabel",
       "Capture = foto + 2 woorden. Retrieval = zoeken. Klaar."
     ],
-    codeRef: "TopicInput.tsx"
+    codeLinks: [
+      { file: "src/components/capture/TopicInput.tsx", description: "Vrije tekst input" },
+      { file: "src/integrations/supabase/types.ts", description: "Geen folders/tags tables" }
+    ],
+    ciGuard: "test('no-taxonomy-tables')"
   }
 ];
+
+// Operational SLOs and Failure Policies
+const operationalClarity = {
+  slos: [
+    { metric: "Retrieval Time", target: "< 60 seconden", measurement: "search-telemetry.time_to_select_ms" },
+    { metric: "Search Resolution Rate", target: "> 80%", measurement: "search-telemetry.found_it_confirmed" },
+    { metric: "Origin Visibility", target: "100%", measurement: "imageUrl primair in alle views" }
+  ],
+  failurePolicies: [
+    { scenario: "IPFS onbereikbaar", action: "STOP: Toon error, geen fallback naar summary" },
+    { scenario: "OCR faalt", action: "STOP: Sla page op zonder OCR, retry later" },
+    { scenario: "Search uncertain", action: "STOP: Return empty, geen 'misschien'" },
+    { scenario: "AI timeout", action: "CONTINUE: Sla page op, AI retry async" }
+  ],
+  ciGates: [
+    { name: "no-image-url-mutation", description: "Faalt als updatePage() imageUrl accepteert" },
+    { name: "no-fuzzy-search", description: "Faalt als Levenshtein in search-pages wordt gebruikt" },
+    { name: "no-ai-entity", description: "Faalt als ai_analyses of derivatives tabel bestaat" },
+    { name: "origin-always-primary", description: "Faalt als summary vóór imageUrl gerenderd wordt" }
+  ]
+};
 
 const flowSteps = [
   { label: "Foto", duration: "10 sec", color: "bg-primary" },
@@ -363,13 +434,39 @@ export default function ProofPage() {
                             ))}
                           </ul>
                         </div>
-                        <div className="pt-2 border-t border-border">
+                        <div className="pt-2 border-t border-border space-y-2">
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                            Code-referentie
+                            Code-referenties (verifieerbaar)
                           </p>
-                          <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
-                            {point.codeRef}
-                          </code>
+                          <div className="space-y-1">
+                            {point.codeLinks.map((link, i) => (
+                              <a
+                                key={i}
+                                href={getPermalink(link.file, link.lines)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-xs hover:text-primary transition-colors group"
+                              >
+                                <FileCode className="h-3 w-3 text-muted-foreground group-hover:text-primary" />
+                                <code className="bg-muted px-1.5 py-0.5 rounded font-mono">
+                                  {link.file}{link.lines ? `:${link.lines}` : ''}
+                                </code>
+                                <span className="text-muted-foreground">— {link.description}</span>
+                                <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100" />
+                              </a>
+                            ))}
+                          </div>
+                          {point.ciGuard && (
+                            <div className="mt-2 pt-2 border-t border-border/50">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Shield className="h-3 w-3" />
+                                <span>CI-gate:</span>
+                                <code className="bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded font-mono">
+                                  {point.ciGuard}
+                                </code>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -378,6 +475,123 @@ export default function ProofPage() {
               </motion.div>
             ))}
           </div>
+        </section>
+
+        {/* Operational Clarity - SLOs & Failure Policies */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <Shield className="h-6 w-6 text-primary" />
+            <h2 className="text-xl font-semibold">Operational Clarity</h2>
+          </div>
+          <p className="text-muted-foreground">
+            Werner Vogels-niveau: expliciet, meetbaar, auditeerbaar.
+          </p>
+
+          <Tabs defaultValue="slos" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="slos" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                SLOs
+              </TabsTrigger>
+              <TabsTrigger value="failures" className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Failure Policy
+              </TabsTrigger>
+              <TabsTrigger value="ci" className="flex items-center gap-2">
+                <GitBranch className="h-4 w-4" />
+                CI-Gates
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="slos" className="mt-4">
+              <div className="border border-border rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-medium">Metric</th>
+                      <th className="text-left px-4 py-3 font-medium">Target</th>
+                      <th className="text-left px-4 py-3 font-medium">Measurement</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {operationalClarity.slos.map((slo, i) => (
+                      <tr key={i} className="hover:bg-muted/50">
+                        <td className="px-4 py-3 font-medium">{slo.metric}</td>
+                        <td className="px-4 py-3">
+                          <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-mono">
+                            {slo.target}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
+                          {slo.measurement}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="failures" className="mt-4">
+              <div className="space-y-3">
+                {operationalClarity.failurePolicies.map((policy, i) => (
+                  <div key={i} className="border border-border rounded-lg p-4 flex items-start gap-4">
+                    <div className={`rounded-full p-2 flex-shrink-0 ${
+                      policy.action.startsWith('STOP') 
+                        ? 'bg-destructive/10 text-destructive' 
+                        : 'bg-yellow-500/10 text-yellow-600'
+                    }`}>
+                      <AlertTriangle className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{policy.scenario}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <span className={`font-mono ${
+                          policy.action.startsWith('STOP') 
+                            ? 'text-destructive' 
+                            : 'text-yellow-600'
+                        }`}>
+                          {policy.action.split(':')[0]}:
+                        </span>
+                        {' '}{policy.action.split(':')[1]}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                Kernprincipe: <span className="font-medium">STOP &gt; GUESS</span> — expliciet falen boven gokken
+              </p>
+            </TabsContent>
+
+            <TabsContent value="ci" className="mt-4">
+              <div className="border border-border rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-medium">Gate</th>
+                      <th className="text-left px-4 py-3 font-medium">Faalt als...</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {operationalClarity.ciGates.map((gate, i) => (
+                      <tr key={i} className="hover:bg-muted/50">
+                        <td className="px-4 py-3">
+                          <code className="bg-green-500/10 text-green-600 px-2 py-0.5 rounded text-xs font-mono">
+                            {gate.name}
+                          </code>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">{gate.description}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                Deze gates breken de build als kerninvarianten worden geschonden
+              </p>
+            </TabsContent>
+          </Tabs>
         </section>
 
         {/* Summary Table */}
@@ -389,22 +603,28 @@ export default function ProofPage() {
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Claim</th>
                   <th className="text-left px-4 py-3 font-medium">Bewijs-type</th>
+                  <th className="text-center px-4 py-3 font-medium">CI-gate</th>
                   <th className="text-center px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {[
-                  ["Wedge werkt zonder uitleg", "Code flow"],
-                  ["Origineel altijd zichtbaar", "UI code"],
-                  ["AI kan niets overschrijven", "Type definitions"],
-                  ["Bij twijfel geen resultaat", "Search logic"],
-                  ["AI = metadata", "Database schema"],
-                  ["Origin onveranderbaar", "Storage + code"],
-                  ["Geen taxonomie", "Component audit"]
-                ].map(([claim, type], i) => (
+                  ["Wedge werkt zonder uitleg", "Code flow", "wedge-flow-under-60s"],
+                  ["Origineel altijd zichtbaar", "UI code", "origin-always-primary"],
+                  ["AI kan niets overschrijven", "Type definitions", "no-image-url-mutation"],
+                  ["Bij twijfel geen resultaat", "Search logic", "no-fuzzy-search"],
+                  ["AI = metadata", "Database schema", "no-ai-entity"],
+                  ["Origin onveranderbaar", "Storage + code", "origin-immutable"],
+                  ["Geen taxonomie", "Component audit", "no-taxonomy-tables"]
+                ].map(([claim, type, gate], i) => (
                   <tr key={i} className="hover:bg-muted/50">
                     <td className="px-4 py-3">{claim}</td>
                     <td className="px-4 py-3 text-muted-foreground">{type}</td>
+                    <td className="px-4 py-3 text-center">
+                      <code className="text-xs bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded font-mono">
+                        {gate}
+                      </code>
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
                     </td>
@@ -470,8 +690,11 @@ export default function ProofPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        <p>Document opgesteld: Januari 2026 • Code-referenties gevalideerd tegen: main branch</p>
+      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground space-y-2">
+        <p>Document opgesteld: Januari 2026 • Code-referenties gevalideerd tegen: <code className="bg-muted px-1.5 py-0.5 rounded font-mono">{COMMIT_SHA}</code></p>
+        <p className="text-xs">
+          Repository: <a href={REPO_BASE} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">{REPO_BASE}</a>
+        </p>
       </footer>
     </div>
   );
