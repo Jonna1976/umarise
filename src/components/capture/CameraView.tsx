@@ -337,26 +337,20 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Heading above circle - typewriter effect */}
-            <motion.h2
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="font-playfair text-[1.4rem] md:text-[1.65rem] text-primary-foreground/90 italic tracking-wide whitespace-nowrap mb-8"
+            {/* Heading above circle - mantra */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="mb-8 text-center"
             >
-              {"Handwriting, turned into lasting memory.".split("").map((char, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ 
-                    delay: index * 0.05,
-                    duration: 0.1
-                  }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </motion.h2>
+              <h2 className="font-playfair text-[1.6rem] md:text-[2rem] text-primary-foreground font-medium tracking-wide">
+                This was me.
+              </h2>
+              <p className="font-playfair text-[1.1rem] md:text-[1.3rem] text-primary-foreground/70 italic mt-1">
+                Before it got fixed.
+              </p>
+            </motion.div>
             
             {/* Container for circle + orbiting orbs - large enough for orbit radius */}
             <div className="relative w-80 h-80 mx-auto flex items-center justify-center overflow-visible">
