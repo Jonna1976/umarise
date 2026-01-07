@@ -344,10 +344,10 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className="mb-8 text-center"
             >
-              <h2 className="font-playfair text-[1.6rem] md:text-[2rem] text-primary-foreground font-medium tracking-wide">
+              <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
                 This was me.
               </h2>
-              <p className="font-playfair text-[1.1rem] md:text-[1.3rem] text-primary-foreground/70 italic mt-1">
+              <p className="font-serif text-[1rem] md:text-[1.2rem] text-primary-foreground/60 italic mt-1">
                 Before it got fixed.
               </p>
             </motion.div>
