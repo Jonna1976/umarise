@@ -16,7 +16,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         serif: ["Playfair Display", "Georgia", "serif"],
-        handwritten: ["Kalam", "cursive"],
+        handwritten: ["Reenie Beanie", "cursive"],
       },
       colors: {
         border: "hsl(var(--border))",
