@@ -581,10 +581,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.05 }}
           className="mb-6"
         >
-          <p className="text-sm text-codex-gold mb-1">
+          <p className="text-base text-codex-gold mb-1">
             In 2 words: what is this about?
           </p>
-          <p className="text-xs text-codex-cream/50 mb-2">
+          <p className="text-sm text-codex-cream/50 mb-3">
             These words appear on the spine of this page in your memory.
           </p>
           
@@ -601,7 +601,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                     {allWords.map((word, index) => (
                       <span 
                         key={index}
-                        className="px-3 py-1.5 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
+                        className="px-4 py-2 rounded-full text-base bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
                       >
                         <button
                           onClick={() => onSearchCue?.(word)}
@@ -765,16 +765,16 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.08 }}
           className="mb-4"
         >
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-codex-cream/50 uppercase tracking-wide">Written</span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-codex-cream/50 uppercase tracking-wide">Written</span>
             {isDemoMode ? (
-              <span className="text-sm text-codex-cream/80">
+              <span className="text-base text-codex-cream/80">
                 {format(writtenAt, 'd MMMM yyyy')}
               </span>
             ) : (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
+                  <button className="text-base text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
                     {format(writtenAt, 'd MMMM yyyy')}
                   </button>
                 </PopoverTrigger>
@@ -855,7 +855,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <p className="text-sm text-codex-cream leading-relaxed">
+          <p className="text-base text-codex-cream/90 leading-relaxed">
             {page.summary}
           </p>
         </motion.div>
@@ -1011,7 +1011,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             onClick={() => setShowOcrText(!showOcrText)}
             className="flex items-center justify-between w-full py-3 text-left"
           >
-            <span className="text-xs text-codex-cream/50 uppercase tracking-wide">
+            <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
               Raw text 
               {highlightedSegments.length > 0 && (
                 <span className="ml-2 normal-case text-codex-gold opacity-80">
@@ -1035,7 +1035,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             >
               {/* Show highlighted text when opened from search (Cite-to-Source A) */}
               {highlightedSegments.length > 0 ? (
-                <div className="min-h-[100px] p-3 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
+                <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-base text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
                   {highlightedSegments.map((segment, i) => (
                     segment.isHighlighted ? (
                       <mark
@@ -1076,7 +1076,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                 <Textarea
                   value={ocrText}
                   onChange={(e) => setOcrText(e.target.value)}
-                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono"
+                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-base text-codex-cream leading-relaxed font-mono"
                   placeholder="OCR text..."
                 />
               )}
