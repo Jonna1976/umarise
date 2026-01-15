@@ -433,10 +433,12 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 );
               })}
               
+              {/* Wrapper for hover group */}
+              <div className="group/capture flex flex-col items-center">
               {/* Glowing portal circle - living organism */}
               <motion.button
                 onClick={() => fileInputRef.current?.click()}
-                className="group/capture relative w-44 h-44 rounded-full flex items-center justify-center"
+                className="relative w-44 h-44 rounded-full flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -619,19 +621,20 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                   }}
                 />
               </motion.button>
+              
+              {/* Hover hint - only visible when hovering on capture button */}
+              <p className="hidden md:block text-primary-foreground/30 text-xs mt-4 opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300">
+                {capturedImages.length > 0 
+                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
+                  : 'Capture your handwritten thoughts here.'
+                }
+              </p>
+              </div>
             </div>
             
             {/* Tagline - always visible */}
             <p className="text-primary-foreground/50 text-sm mt-6 font-medium tracking-wide">
               Your beginning. Immutable.
-            </p>
-            
-            {/* Hover hint - only visible when hovering on capture button */}
-            <p className="hidden md:block text-primary-foreground/30 text-xs mt-4 opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300">
-              {capturedImages.length > 0 
-                ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                : 'Capture your handwritten thoughts here.'
-              }
             </p>
           </motion.div>
         )}
