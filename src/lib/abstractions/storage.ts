@@ -285,10 +285,11 @@ export class LovableCloudStorage implements IStorageProvider {
 
     const currentCount = data?.length ?? 0;
 
-    // If the current device id is clearly not the "main" one (e.g. older test ID with just a few pages),
+    // If the current device id has few/no pages and another device has significantly more,
     // adopt the most-populated device_user_id and persist it.
+    // This handles browser cache clears or new device sessions.
     // NOTE: never adopt DEMO_DEVICE_ID.
-    if (currentCount < 10) {
+    if (currentCount < 5) {
       const { data: allRows, error: allError } = await supabase
         .from('pages')
         .select('device_user_id');
@@ -310,12 +311,15 @@ export class LovableCloudStorage implements IStorageProvider {
           }
         }
 
+        // Adopt if there's a device with 5+ more pages than current
         const shouldAdopt =
           !!bestId &&
           bestId !== deviceUserId &&
-          maxCount >= Math.max(10, currentCount + 10);
+          maxCount >= 5 &&
+          maxCount > currentCount;
 
         if (shouldAdopt) {
+          console.log('[Storage] Adopting device ID:', bestId, 'with', maxCount, 'pages');
           deviceUserId = bestId!;
           setDeviceId(bestId!);
 
