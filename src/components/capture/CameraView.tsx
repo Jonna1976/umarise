@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, Plus, Images, Search } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, Plus, Images, Search, Library } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
@@ -9,10 +9,11 @@ import { triggerHaptic } from '@/lib/haptics';
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
   onCaptureMultiple: (imageDataUrls: string[]) => void;
-  onOpenHistory: () => void;
+  onBrowseAll: () => void;  // Library icon - goes to History/browse
+  onOpenSearch: () => void; // Search icon - goes to Search
 }
 
-export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: CameraViewProps) {
+export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSearch }: CameraViewProps) {
   const { isDemoMode } = useDemoMode();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -577,26 +578,31 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         )}
       </div>
 
-      {/* Top bar */}
+      {/* Top bar - Library (browse) left, Search right */}
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+        {/* Left: Browse all beginnings (Library icon) */}
         <button
-          onClick={onOpenHistory}
+          onClick={onBrowseAll}
           className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+          aria-label="Browse all beginnings"
         >
-          <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+          <Library className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
         </button>
         
+        {/* Right: Search or close */}
         {capturedImage ? (
           <button
             onClick={retake}
             className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            aria-label="Retake"
           >
             <X className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
           </button>
         ) : (
           <button
-            onClick={onOpenHistory}
+            onClick={onOpenSearch}
             className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            aria-label="Search"
           >
             <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
           </button>
