@@ -173,62 +173,8 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       className="cursor-grab active:cursor-grabbing relative"
     >
-      {/* Hover Preview Panel - positioned above, clamped to viewport */}
-      <AnimatePresence>
-        {isHovered && !isDragging && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="fixed z-[100] pointer-events-none top-4 left-1/2 -translate-x-1/2"
-            style={{ width: '224px' }}
-          >
-            <div className="bg-background/95 backdrop-blur-md rounded-xl shadow-xl border border-border/50 p-3 w-56">
-              {/* Image preview */}
-              <div className="relative w-full h-28 rounded-lg overflow-hidden mb-2">
-                <img 
-                  src={representativePage.imageUrl} 
-                  alt="Page preview"
-                  className="w-full h-full object-cover"
-                />
-                {pageCount > 1 && (
-                  <div className="absolute top-2 right-2 bg-codex-ink/80 text-codex-cream px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
-                    <Images className="w-3 h-3" />
-                    {pageCount}
-                  </div>
-                )}
-              </div>
-              
-              {/* Cues */}
-              {representativePage.futureYouCues && representativePage.futureYouCues.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {representativePage.futureYouCues.slice(0, 2).map((cue) => (
-                    <span 
-                      key={cue}
-                      className="text-xs px-2 py-0.5 rounded-full bg-codex-gold/20 text-codex-gold border border-codex-gold/30"
-                    >
-                      {cue}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              {/* Summary snippet */}
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                {representativePage.oneLineHint || representativePage.summary?.slice(0, 80) || 'No summary'}
-              </p>
-            </div>
-            
-            {/* Arrow pointing down */}
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-3 h-3 bg-background/95 border-r border-b border-border/50 rotate-45" />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <motion.button
         ref={spineRef}
