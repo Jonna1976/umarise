@@ -8,8 +8,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint, Check, X, Loader2, AlertTriangle } from 'lucide-react';
-import { calculateSHA256FromBlob, HashVerificationResult } from '@/lib/originHash';
+import { calculateSHA256, calculateSHA256FromBlob, decodeDataUrl, HashVerificationResult } from '@/lib/originHash';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
+import { getStorageProvider } from '@/lib/abstractions';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,11 +27,11 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
   const [result, setResult] = useState<HashVerificationResult | null>(null);
 
   const handleVerify = async () => {
-    // No hash stored - this is a pre-migration capture
+    // No hash stored
     if (!originHashSha256) {
       setState('no-hash');
-      toast.info('This capture predates hash verification', {
-        description: 'Origin hashes are only available for new captures.',
+      toast.info('Geen origin hash beschikbaar', {
+        description: 'Deze page heeft (nog) geen opgeslagen fingerprint om tegen te verifiëren.',
       });
       return;
     }

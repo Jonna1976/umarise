@@ -765,6 +765,9 @@ export class HetznerVaultStorage implements IStorageProvider {
       sessionId: pageData.sessionId || null,
       captureBatchId: pageData.captureBatchId || null,
       writtenAt: pageData.writtenAt?.toISOString() || null,
+      // Origin Hash (best-effort): allow Hetzner backend to persist if supported
+      originHashSha256: pageData.originHashSha256 || null,
+      originHashAlgo: pageData.originHashAlgo || 'sha256',
     });
 
     if (!response.ok) {
@@ -1027,8 +1030,13 @@ export class HetznerVaultStorage implements IStorageProvider {
       createdAt: new Date(data.createdAt as string),
       updatedAt: data.updatedAt ? new Date(data.updatedAt as string) : undefined,
       // Origin Hash: SHA-256 fingerprint for forensic verification
-      originHashSha256: (data.originHashSha256 as string) || undefined,
-      originHashAlgo: 'sha256',
+      originHashSha256:
+        (data.originHashSha256 as string) ||
+        (data.origin_hash_sha256 as string) ||
+        (data.origin_hash as string) ||
+        undefined,
+      originHashAlgo:
+        ((data.originHashAlgo as 'sha256') || (data.origin_hash_algo as 'sha256') || 'sha256'),
     };
   }
 }
