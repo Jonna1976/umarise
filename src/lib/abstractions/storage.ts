@@ -347,7 +347,9 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
-    const deviceUserId = getActiveDeviceId();
+    // Always use the real device ID for updates - we're updating OUR pages, not demo pages
+    // This fixes the bug where updates failed in demo mode because the query used DEMO_DEVICE_ID
+    const deviceUserId = getDeviceId();
     if (!deviceUserId) return false;
 
     const updateData: Record<string, unknown> = {
@@ -389,7 +391,8 @@ export class LovableCloudStorage implements IStorageProvider {
   }
 
   async deletePage(id: string): Promise<boolean> {
-    const deviceUserId = getActiveDeviceId();
+    // Always use the real device ID - we're deleting OUR pages, not demo pages
+    const deviceUserId = getDeviceId();
     if (!deviceUserId) return false;
 
     // First get the page to delete the image
