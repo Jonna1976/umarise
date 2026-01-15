@@ -562,23 +562,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                 />
               </div>
 
-              {/* Recent keywords - fast loading chips */}
-              {recentKeywords.length > 0 && (
-                <div className="space-y-3 pt-4">
-                  <p className="text-xs text-muted-foreground/50 uppercase tracking-wider">Recent</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {recentKeywords.map((keyword) => (
-                      <button
-                        key={keyword}
-                        onClick={() => setQuery(keyword)}
-                        className="px-3 py-1.5 rounded-full text-sm bg-muted/50 text-muted-foreground border border-border/50 hover:border-primary/50 hover:bg-primary/10 hover:text-foreground transition-all"
-                      >
-                        {keyword}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Browse all */}
               {onBrowseAll && (
