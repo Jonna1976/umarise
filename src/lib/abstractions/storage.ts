@@ -834,25 +834,40 @@ export class HetznerVaultStorage implements IStorageProvider {
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
     // Always use the real device ID for updates - we're updating OUR pages, not demo pages
     const deviceUserId = this.getRealDeviceUserId();
-    
-    // JSON-stringify array/object fields for SQLite compatibility
+
+    // Prefer sending native arrays/objects (API contract), with a fallback to JSON strings for older Vault builds
     const apiUpdates: Record<string, unknown> = {};
     if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
     if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
     if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
-    if (updates.sources !== undefined) apiUpdates.sources = JSON.stringify(updates.sources);
+    if (updates.sources !== undefined) apiUpdates.sources = updates.sources;
     if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
-    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = JSON.stringify(updates.futureYouCues);
-    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
-    if (updates.highlights !== undefined) apiUpdates.highlights = JSON.stringify(updates.highlights);
-    if (updates.tone !== undefined) apiUpdates.tone = JSON.stringify(Array.isArray(updates.tone) ? updates.tone : [updates.tone]);
+    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = updates.futureYouCues;
+    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = updates.futureYouCuesSource;
+    if (updates.highlights !== undefined) apiUpdates.highlights = updates.highlights;
+    if (updates.tone !== undefined) apiUpdates.tone = Array.isArray(updates.tone) ? updates.tone : [updates.tone].filter(Boolean);
     if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
     if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
 
-    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
+    let response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
       deviceUserId,
       updates: apiUpdates,
     });
+
+    // Fallback: if Vault expects JSON strings (legacy), retry once
+    if (!response.ok) {
+      const legacyUpdates: Record<string, unknown> = { ...apiUpdates };
+      if (legacyUpdates.sources !== undefined) legacyUpdates.sources = JSON.stringify(legacyUpdates.sources);
+      if (legacyUpdates.futureYouCues !== undefined) legacyUpdates.futureYouCues = JSON.stringify(legacyUpdates.futureYouCues);
+      if (legacyUpdates.futureYouCuesSource !== undefined) legacyUpdates.futureYouCuesSource = JSON.stringify(legacyUpdates.futureYouCuesSource);
+      if (legacyUpdates.highlights !== undefined) legacyUpdates.highlights = JSON.stringify(legacyUpdates.highlights);
+      if (legacyUpdates.tone !== undefined) legacyUpdates.tone = JSON.stringify(legacyUpdates.tone);
+
+      response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
+        deviceUserId,
+        updates: legacyUpdates,
+      });
+    }
 
     return response.ok;
   }
