@@ -52,10 +52,11 @@ export async function createPage(
   const analysis = await ai.analyzePage(base64) as PageAnalysisResult;
   console.log('Analysis complete:', analysis);
 
-  // Step 2: Upload image to storage
+  // Step 2: Upload image to storage (also calculates SHA-256 origin hash)
   console.log('Uploading image...');
-  const imageUrl = await storage.uploadImage(imageDataUrl);
+  const { imageUrl, originHash } = await storage.uploadImage(imageDataUrl);
   console.log('Image uploaded:', imageUrl);
+  console.log('Origin hash calculated:', originHash.substring(0, 16) + '...');
 
   // Step 3: Parse tone - handle both array (new contract) and string (legacy)
   let toneArray: string[];
@@ -67,7 +68,7 @@ export async function createPage(
     toneArray = ['reflective'];
   }
 
-  // Step 4: Create page in storage
+  // Step 4: Create page in storage (includes origin hash)
   // Support both camelCase (new contract) and snake_case (legacy) field names
   const page = await storage.createPage({
     deviceUserId,
@@ -86,6 +87,7 @@ export async function createPage(
     pageOrder: pageOrder ?? 0,
     futureYouCues: [], // Will be set after user confirmation
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: false },
+    originHashSha256: originHash, // SHA-256 fingerprint for forensic verification
   });
 
   return { 
