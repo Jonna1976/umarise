@@ -459,7 +459,8 @@ const Index = () => {
           <CameraView 
             onCapture={handleCapture}
             onCaptureMultiple={handleCaptureMultiple}
-            onOpenHistory={handleOpenSearch}  // Boekje gaat naar Search-first
+            onBrowseAll={handleOpenHistory}   // Library icon → History (browse)
+            onOpenSearch={handleOpenSearch}   // Search icon → Search
           />
         );
       
@@ -564,9 +565,13 @@ const Index = () => {
                 handleAddToCapsuleCapture(images[0]);
               }
             }}
-            onOpenHistory={() => {
+            onBrowseAll={() => {
               setTargetCapsuleId(null);
               setView('history');
+            }}
+            onOpenSearch={() => {
+              setTargetCapsuleId(null);
+              setView('search');
             }}
           />
         );
