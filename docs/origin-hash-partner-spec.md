@@ -33,9 +33,11 @@ Makes it verifiable whether a captured artifact has been modified since capture:
 
 ## Definition of "Origin Bytes"
 
-- The bytes that come from the capture (`imageDataUrl` → decoded bytes)
+**Origin bytes** = the decoded bytes from `imageDataUrl` at the moment of capture, before any transformation (encryption, compression, resizing, metadata stripping). This is the sole input for SHA-256 hashing.
+
 - Hashing happens **before** encryption or storage transformations
 - Same bytes are hashed AND uploaded (single source of truth)
+- No post-capture normalization is applied
 
 ---
 
@@ -142,6 +144,12 @@ WHERE page_id = ?
 | Single-source bytes | Same bytes used for hash AND upload |
 | Immutability after first write | Hash may be set once; database trigger blocks all updates/overwrites |
 | No silent failures | Missing hash = explicit `legacy_no_hash` status |
+
+### Verified Semantics
+
+**Verified** means: the currently stored artifact bytes in Umarise are bit-identical to the bytes from which the hash was calculated at capture time.
+
+This is a statement about internal consistency, not about the world outside Umarise. It does not prove authorship, timestamp, or external provenance.
 
 ---
 

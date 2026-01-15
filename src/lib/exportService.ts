@@ -124,6 +124,7 @@ interface ManifestEntry {
   origin_hash_sha256: string | null;
   origin_hash_algo: 'sha256' | null;
   hash_status: 'verified' | 'legacy_no_hash';
+  hash_recorded_at: string | null; // Timestamp when hash was first stored (audit trail)
   captured_at: string;
   image_url: string;
 }
@@ -191,6 +192,7 @@ export async function exportPagesAsZIP(
       origin_hash_sha256: page.originHashSha256 || null,
       origin_hash_algo: hasHash ? 'sha256' : null,
       hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+      hash_recorded_at: hasHash ? page.createdAt.toISOString() : null, // Hash recorded at capture time
       captured_at: page.createdAt.toISOString(),
       image_url: page.imageUrl,
     });
@@ -423,6 +425,7 @@ export async function exportSelectedPagesAsZIP(
       origin_hash_sha256: page.originHashSha256 || null,
       origin_hash_algo: hasHash ? 'sha256' : null,
       hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+      hash_recorded_at: hasHash ? page.createdAt.toISOString() : null, // Hash recorded at capture time
       captured_at: page.createdAt.toISOString(),
       image_url: page.imageUrl,
     });
