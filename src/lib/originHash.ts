@@ -1,14 +1,29 @@
 /**
  * Origin Hash - SHA-256 Cryptographic Fingerprinting
  * 
+ * SPECIFICATION: v1.0 (FROZEN)
+ * See: docs/origin-hash-partner-spec.md
+ * 
  * Generates a forensics-grade hash over the exact bytes of the original artifact.
  * This happens automatically at upload time - zero user friction.
  * 
  * Purpose: Make the human "begin moment" verifiable and audit-ready later,
  * without burdening the user with technical actions at capture.
  * 
+ * ORIGIN BYTES DEFINITION (Canonical):
+ * "Origin bytes = decoded raw bytes of the captured image payload, 
+ *  pre-encryption, pre-storage."
+ * 
  * CRITICAL: Hash must be calculated on EXACTLY the same bytes that are stored.
  * This ensures forensic integrity - the hash matches what's in storage.
+ * 
+ * SCOPE BOUNDARY (v1 Complete):
+ * - No timestamps beyond capture metadata
+ * - No blockchain anchoring  
+ * - No authorship claims
+ * - No identity assertions
+ * - No AI provenance semantics
+ * Additional guarantees are out of scope for v1.
  */
 
 /**
