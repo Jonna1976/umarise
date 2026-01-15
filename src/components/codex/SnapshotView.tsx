@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn, Share2 } from 'lucide-react';
+import { VerifyOriginButton } from './VerifyOriginButton';
 import { Page, updatePage, confirmFutureYouCues, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -702,11 +703,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Image - centered with zoom icon */}
+        {/* Image - centered with zoom icon and verify button */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 flex justify-center"
+          className="mb-6 flex flex-col items-center gap-2"
         >
           <div className="relative group">
             <img
@@ -721,6 +722,15 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               <ZoomIn className="w-4 h-4" />
             </button>
           </div>
+          
+          {/* Verify Origin - forensic fingerprint check */}
+          {!isNewCapture && (
+            <VerifyOriginButton
+              imageUrl={page.imageUrl}
+              originHashSha256={page.originHashSha256 || null}
+              originHashAlgo={page.originHashAlgo}
+            />
+          )}
         </motion.div>
 
         {/* Zoomed image modal */}
