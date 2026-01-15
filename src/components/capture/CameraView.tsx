@@ -621,7 +621,12 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               </motion.button>
             </div>
             
-            <p className="hidden md:block text-primary-foreground/40 text-sm mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {/* Tagline - always visible */}
+            <p className="text-primary-foreground/50 text-sm mt-6 font-medium tracking-wide">
+              Your beginning. Immutable.
+            </p>
+            
+            <p className="hidden md:block text-primary-foreground/30 text-xs mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
                 : 'Capture your handwritten thoughts here.'
