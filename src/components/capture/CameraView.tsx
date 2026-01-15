@@ -624,7 +624,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             <p className="hidden md:block text-primary-foreground/40 text-sm mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               {capturedImages.length > 0 
                 ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                : 'Drop your sketch, note, or napkin idea here.'
+                : 'Capture your handwritten thoughts here.'
               }
             </p>
           </motion.div>
