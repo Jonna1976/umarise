@@ -269,14 +269,14 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                 <span className="text-codex-cream text-sm font-medium">
                   {capturedImages.length > 0 
                     ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} • 1 document`
-                    : 'Brief-modus: pages worden 1 document'
+                    : 'Document mode: pages become 1 document'
                   }
                 </span>
               </div>
               <button
                 onClick={cancelMultiMode}
                 className="text-codex-cream/50 hover:text-codex-cream text-xs ml-2"
-                title="Annuleren"
+                title="Cancel"
               >
                 <X className="w-4 h-4" />
               </button>
