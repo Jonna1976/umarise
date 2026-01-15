@@ -623,7 +623,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               </motion.button>
               
               {/* Hover hint - only visible when hovering on capture button */}
-              <p className="hidden md:block text-primary-foreground/30 text-xs mt-4 opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300">
+              <p className="hidden md:block font-handwritten text-primary-foreground/40 text-lg mt-4 opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300">
                 {capturedImages.length > 0 
                   ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
                   : 'Capture your handwritten thoughts here.'
