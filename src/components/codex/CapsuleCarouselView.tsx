@@ -4,6 +4,7 @@ import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMar
 import { CapsulePages, Page, markCapsuleAsInfluence, deletePage } from '@/lib/pageService';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -244,7 +245,7 @@ export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleU
                       className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
                     >
                       <img
-                        src={page.imageUrl}
+                        src={getDisplayImageUrl(page.imageUrl)}
                         alt={`Page ${index + 1}`}
                         className="w-full h-full object-cover page-thumbnail"
                       />

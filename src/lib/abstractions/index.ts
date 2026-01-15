@@ -164,4 +164,5 @@ export function resetProviders(): void {
 
 export * from './types';
 export type { IStorageProvider } from './storage';
+export { resolveIpfsUrl, isIpfsUrl } from './storage';
 export type { IAIProvider } from './ai';
