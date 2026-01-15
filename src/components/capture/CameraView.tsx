@@ -347,7 +347,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
                 This was me.
               </h2>
-              <p className="text-sm md:text-base text-primary-foreground/50 font-medium tracking-wide mt-2">
+              <p className="text-base md:text-lg text-primary-foreground/50 font-medium tracking-wide mt-2">
                 Before it got fixed.
               </p>
             </motion.div>
@@ -633,7 +633,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             </div>
             
             {/* Tagline - always visible */}
-            <p className="text-primary-foreground/50 text-sm mt-6 font-medium tracking-wide">
+            <p className="text-base md:text-lg text-primary-foreground/50 mt-6 font-medium tracking-wide">
               Your beginning. Immutable.
             </p>
           </motion.div>
