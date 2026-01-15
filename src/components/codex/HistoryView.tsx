@@ -411,7 +411,7 @@ export function HistoryView({
             {isDemoMode ? (
               <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
             ) : (
-              <h1 className="font-serif text-2xl font-semibold text-foreground">Lasting Memory</h1>
+              <h1 className="font-serif text-2xl font-semibold text-foreground">Your Beginnings</h1>
             )}
             
           </div>
@@ -956,21 +956,20 @@ export function HistoryView({
               </motion.div>
             ) : (
               <div className="flex flex-col h-full">
-                {/* Memory Pulse - subtle daily reminder */}
-                <div className="mt-4 mb-8">
+                {/* Memory Pulse - hidden for now */}
+                {/* <div className="mt-4 mb-8">
                   <MemoryPulse pages={allPages} onSelectPage={onSelectPage} />
-                </div>
+                </div> */}
                 
                 <div className="relative min-h-[320px] flex flex-col justify-end flex-1">
                 
-                {/* Handwritten message with page count */}
+                {/* Origin message with page count */}
                 <div className="text-center px-8 mb-10 max-w-xl mx-auto">
                   <p className="text-base text-foreground/70 font-serif leading-relaxed mb-3">
-                    You are creating your own book containing ideas, thoughts and stories you want to keep. 
-                    It gets richer, page by page.
+                    Capturing your beginnings—handwritten thoughts, ideas, and stories—kept immutable.
                   </p>
                   <p className="text-lg text-codex-gold font-serif">
-                    Your book contains {visiblePages.length} {visiblePages.length === 1 ? 'page' : 'pages'} as we speak.
+                    {visiblePages.length} {visiblePages.length === 1 ? 'origin' : 'origins'} protected.
                   </p>
                 </div>
                 
