@@ -140,7 +140,7 @@ WHERE page_id = ?
 |-----------|-------------|
 | Hash calculated pre-encryption | Code path: `hashAndDecodeDataUrl()` before `encryptImage()` |
 | Single-source bytes | Same bytes used for hash AND upload |
-| Immutability | Database trigger: `prevent_origin_hash_update()` |
+| Immutability after first write | Hash may be set once; database trigger blocks all updates/overwrites |
 | No silent failures | Missing hash = explicit `legacy_no_hash` status |
 
 ---
