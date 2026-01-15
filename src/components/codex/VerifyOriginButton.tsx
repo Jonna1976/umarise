@@ -8,9 +8,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint, Check, X, Loader2, AlertTriangle } from 'lucide-react';
-import { calculateSHA256, calculateSHA256FromBlob, decodeDataUrl, HashVerificationResult } from '@/lib/originHash';
+import { calculateSHA256FromBlob, HashVerificationResult } from '@/lib/originHash';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
-import { getStorageProvider } from '@/lib/abstractions';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
