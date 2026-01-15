@@ -727,6 +727,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           {/* Verify Origin - forensic fingerprint check */}
           {!isNewCapture && (
             <VerifyOriginButton
+              pageId={page.id}
               imageUrl={page.imageUrl}
               originHashSha256={page.originHashSha256 || null}
               originHashAlgo={page.originHashAlgo}
