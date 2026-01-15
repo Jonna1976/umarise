@@ -150,9 +150,11 @@ const Index = () => {
         return;
       }
 
-      // Update local cache so the Memory book spines update immediately
+      // Refresh from server to get the authoritative data (ensures cues are persisted)
+      await refresh();
+
+      // Find the updated page from refreshed data
       const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
-      updatedPages.forEach(p => updatePage(p));
 
       // Open snapshot for the first page in this processing batch
       setCurrentPage(updatedPages[0]);
