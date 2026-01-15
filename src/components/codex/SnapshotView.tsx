@@ -861,7 +861,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         </motion.div>
 
 
-        {/* Tone - editable */}
+        {/* Tone - editable (hidden for pilot) */}
+        {false && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -904,6 +905,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             ))}
           </div>
         </motion.div>
+        )}
 
         {/* AI Keywords - tappable to highlight */}
         <motion.div
@@ -1094,7 +1096,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           )}
         </motion.div>
 
-        {/* Your Context - under Raw Text */}
+        {/* Your Context - under Raw Text (hidden for pilot) */}
+        {false && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1109,8 +1112,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             className="min-h-[40px] resize-none bg-codex-ink-deep/50 border-codex-cream/20 text-codex-cream placeholder:text-codex-cream/30"
           />
         </motion.div>
+        )}
 
-        {/* Sources Section - under Raw Text */}
+        {/* Sources Section - under Raw Text (hidden for pilot) */}
+        {false && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1185,9 +1190,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </motion.div>
           )}
         </motion.div>
+        )}
 
-        {/* Related Pages - Connection Layer (B) - only for existing pages, not new captures */}
-        {!isNewCapture && onNavigateToPage && (
+        {/* Related Pages - Connection Layer (B) - hidden for pilot */}
+        {false && !isNewCapture && onNavigateToPage && (
           <RelatedPages
             relatedPages={relatedPages}
             onPageClick={handleRelatedPageClick}
