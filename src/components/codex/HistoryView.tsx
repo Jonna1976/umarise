@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Brain, Search, X, Images, Plus, SlidersHorizontal, Star, Compass, List, Grid3X3, BookOpen, Library, Sparkles, Warehouse, Tag, Clock, Share2, Download, Shield } from 'lucide-react';
+import { Camera, ArrowLeft, Calendar, Trash2, Search, X, Plus, Library, Download, BookOpen, Tag, Clock, Images } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -458,237 +458,52 @@ export function HistoryView({
           {/* Right side - flex-1 to balance with left */}
           <div className="flex-1 flex justify-end">
           {isMinimalMode ? (
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              {/* Export button - shows at 1+ pages (mobile shows label) */}
-              {allPages.length >= 1 && (
-                <div className="shrink-0">
-                  <div className="sm:hidden">
-                    <ExportButton
-                      variant="outline"
-                      size="sm"
-                      showLabel={true}
-                      selectedPageIds={selectedPageIds}
-                      onClearSelection={clearSelection}
-                    />
-                  </div>
-                  <div className="hidden sm:block">
-                    <ExportButton
-                      variant="ghost"
-                      size="icon"
-                      showLabel={false}
-                      selectedPageIds={selectedPageIds}
-                      onClearSelection={clearSelection}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Private Vault settings button */}
-              <button
-                onClick={() => setShowVaultSettings(true)}
-                className="p-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
-                title="Private Vault Settings"
-              >
-                <Shield className="w-4 h-4" />
-              </button>
-
-              {/* Share button - shows at 3+ pages */}
-              {allPages.length >= 3 && onShareMemory && (
-                <button
-                  onClick={onShareMemory}
-                  className="p-2 rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
-                  title="Share Memory"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              )}
-
-              {/* Insights button - shows at 5+ pages */}
-              {allPages.length >= 5 && onViewPersonality && (
-                <button
-                  onClick={onViewPersonality}
-                  className="p-2 rounded-lg bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30 transition-colors"
-                  title="Insights"
-                >
-                  <Sparkles className="w-4 h-4" />
-                </button>
-              )}
-
-              {/* Sort toggle */}
-              <button
-                onClick={() => setSortMode(sortMode === 'date' ? 'cue' : 'date')}
-                className={`p-2 rounded-lg transition-colors ${
-                  sortMode === 'cue'
-                    ? 'bg-codex-gold/20 text-codex-gold'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
-                }`}
-                title={sortMode === 'date' ? 'Sort by cue' : 'Sort by date'}
-              >
-                {sortMode === 'date' ? <Tag className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-              </button>
-
-              {/* View toggles */}
-              <div className="flex bg-secondary rounded-lg p-1 shrink-0">
-                <button
-                  onClick={() => setViewMode('vault')}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Vault"
-                >
-                  <Warehouse className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('shelf')}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === 'shelf' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Bookshelf"
-                >
-                  <Library className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('pages')}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Pages"
-                >
-                  <BookOpen className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded transition-colors ${
-                    viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="List"
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ) : isDemoMode ? (
-            <div className="flex items-center">
-              {onOpenSearch ? (
-                <button
-                  onClick={onOpenSearch}
-                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
-                  title="Search"
-                  aria-label="Search"
-                >
-                  <Search className="w-5 h-5 text-foreground" />
-                </button>
-              ) : (
-                <div className="w-10" />
-              )}
-            </div>
-          ) : (
             <div className="flex items-center gap-2">
-              {/* Export button */}
+              {/* Export button - ownership/portability */}
               {allPages.length >= 1 && (
                 <ExportButton
-                  variant="outline"
-                  size="sm"
-                  showLabel={true}
+                  variant="ghost"
+                  size="icon"
+                  showLabel={false}
                   selectedPageIds={selectedPageIds}
                   onClearSelection={clearSelection}
                 />
               )}
-              {/* Single Insights button - only shows at 5+ pages */}
-              {allPages.length >= 5 && onViewPersonality && (
-                <button
-                  onClick={onViewPersonality}
-                  className="px-3 py-1.5 rounded-full bg-codex-gold/20 text-codex-gold text-sm font-medium hover:bg-codex-gold/30 transition-colors flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Insights
-                </button>
+
+              {/* Single view toggle - Library (shelf) is the only view in Wedge mode */}
+              <button
+                onClick={() => setViewMode('shelf')}
+                className="p-2 rounded-lg bg-codex-gold/20 text-codex-gold"
+                title="Your Beginnings"
+              >
+                <Library className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            /* Unified minimal toolbar for all modes */
+            <div className="flex items-center gap-2">
+              {/* Export button - ownership/portability */}
+              {allPages.length >= 1 && (
+                <ExportButton
+                  variant="ghost"
+                  size="icon"
+                  showLabel={false}
+                  selectedPageIds={selectedPageIds}
+                  onClearSelection={clearSelection}
+                />
               )}
+
+              {/* Library icon - shows current view */}
+              <button
+                className="p-2 rounded-lg bg-codex-gold/20 text-codex-gold"
+                title="Your Beginnings"
+              >
+                <Library className="w-4 h-4" />
+              </button>
             </div>
           )}
           </div>
         </div>
-
-        {/* Search button - hidden in minimal mode */}
-        {onOpenSearch && !isMinimalMode && (
-          <div className="px-4 pb-3">
-            <button
-              onClick={onOpenSearch}
-              className="w-full flex items-center gap-3 pl-4 pr-4 py-3 rounded-2xl bg-codex-gold/10 border-2 border-codex-gold/30 text-muted-foreground hover:bg-codex-gold/20 hover:text-foreground transition-all"
-            >
-              <Search className="w-5 h-5 text-codex-gold" />
-              <span className="font-medium">Search your memory...</span>
-            </button>
-          </div>
-        )}
-
-        {/* View mode toggle + Time filters - hidden in demo mode and minimal mode */}
-        {!isDemoMode && !isMinimalMode && (
-          <div className="flex items-center justify-between px-4 pb-2">
-            <div className="flex gap-2 overflow-x-auto">
-              {(['all', '7days', '30days'] as TimeFilter[]).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-3 py-1.5 rounded-full text-sm transition-colors whitespace-nowrap ${
-                    filter === f
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                  }`}
-                >
-                  {f === 'all' ? 'All' : f === '7days' ? '7 days' : '30 days'}
-                </button>
-              ))}
-            </div>
-            
-            {/* View mode toggle */}
-            <div className="flex bg-secondary rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('vault')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'vault' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Vault (full overview)"
-              >
-                <Warehouse className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('shelf')}
-                className="p-1.5 rounded transition-colors text-muted-foreground hover:text-foreground"
-                title="Bookshelf"
-              >
-                <Library className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('pages')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'pages' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Pages"
-              >
-                <BookOpen className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'list' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="List view"
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === 'calendar' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-                title="Calendar view"
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Filters hidden for cleaner UI */}
       </div>
