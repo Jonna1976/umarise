@@ -969,7 +969,7 @@ export function HistoryView({
                     Capturing your beginnings—handwritten thoughts, ideas, and stories—kept immutable.
                   </p>
                   <p className="text-lg text-codex-gold font-serif">
-                    {visiblePages.length} {visiblePages.length === 1 ? 'origin' : 'origins'} protected.
+                    {visiblePages.length} {visiblePages.length === 1 ? 'origin' : 'origins'} preserved.
                   </p>
                 </div>
                 
