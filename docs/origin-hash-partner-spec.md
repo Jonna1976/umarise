@@ -176,6 +176,23 @@ Additional guarantees require a new specification version.
 
 ---
 
+## Audit Sign-Off
+
+### Verified Audit Criteria
+
+| Criterion | Status |
+|-----------|--------|
+| Origin bytes exclusively defined (decoded `imageDataUrl`, pre-transform) | ✅ |
+| "Verified" semantics bounded (bit-identity only, no authorship/timestamp claims) | ✅ |
+| Legacy handling correct (`hash_recorded_at = null`, no retroactive hashing) | ✅ |
+| Implementation, export, and documentation aligned | ✅ |
+
+### Definition of Done
+
+This specification is complete. No additions, no explanations, no extensions.
+
+---
+
 ## Version
 
 | Field | Value |
@@ -184,6 +201,7 @@ Additional guarantees require a new specification version.
 | Date | 2026-01-15 |
 | Status | FROZEN |
 | Algorithm | SHA-256 (fixed) |
+| Audit status | SIGNED OFF |
 
 ---
 
