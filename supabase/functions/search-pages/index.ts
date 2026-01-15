@@ -15,15 +15,111 @@ interface SearchResult {
 }
 
 // Common terms that should be down-ranked in text matches (demo-safe list)
-// These words appear frequently in boilerplate/templates and cause noisy results
 const COMMON_TERMS = new Set([
   'light', 'idea', 'ideas', 'notes', 'note', 'plan', 'plans', 'page', 'pages', 
   'today', 'want', 'need', 'the', 'and', 'your', 'you', 'this', 'that',
-  'uma', 'umarise', 'rise', 'rising' // App-specific common terms
+  'uma', 'umarise', 'rise', 'rising'
 ]);
 
 // Score multiplier for common terms in text matches (not cue matches)
 const COMMON_TERM_TEXT_MULTIPLIER = 0.15;
+
+// Dutch month names mapping
+const DUTCH_MONTHS: { [key: string]: number } = {
+  'januari': 1, 'jan': 1,
+  'februari': 2, 'feb': 2,
+  'maart': 3, 'mrt': 3,
+  'april': 4, 'apr': 4,
+  'mei': 5,
+  'juni': 6, 'jun': 6,
+  'juli': 7, 'jul': 7,
+  'augustus': 8, 'aug': 8,
+  'september': 9, 'sep': 9, 'sept': 9,
+  'oktober': 10, 'okt': 10,
+  'november': 11, 'nov': 11,
+  'december': 12, 'dec': 12
+};
+
+// English month names mapping
+const ENGLISH_MONTHS: { [key: string]: number } = {
+  'january': 1, 'jan': 1,
+  'february': 2, 'feb': 2,
+  'march': 3, 'mar': 3,
+  'april': 4, 'apr': 4,
+  'may': 5,
+  'june': 6, 'jun': 6,
+  'july': 7, 'jul': 7,
+  'august': 8, 'aug': 8,
+  'september': 9, 'sep': 9, 'sept': 9,
+  'october': 10, 'oct': 10,
+  'november': 11, 'nov': 11,
+  'december': 12, 'dec': 12
+};
+
+// Parse date query into day/month - returns null if not a date query
+function parseDateQuery(query: string): { day: number; month: number } | null {
+  const q = query.toLowerCase().trim();
+  
+  // Pattern: "1 jan", "1 januari", "15 december", etc.
+  const textMonthMatch = q.match(/^(\d{1,2})\s+([a-z]+)$/);
+  if (textMonthMatch) {
+    const day = parseInt(textMonthMatch[1]);
+    const monthName = textMonthMatch[2];
+    const month = DUTCH_MONTHS[monthName] || ENGLISH_MONTHS[monthName];
+    if (month && day >= 1 && day <= 31) {
+      return { day, month };
+    }
+  }
+  
+  // Pattern: "jan 1", "january 15", etc.
+  const textMonthFirstMatch = q.match(/^([a-z]+)\s+(\d{1,2})$/);
+  if (textMonthFirstMatch) {
+    const monthName = textMonthFirstMatch[1];
+    const day = parseInt(textMonthFirstMatch[2]);
+    const month = DUTCH_MONTHS[monthName] || ENGLISH_MONTHS[monthName];
+    if (month && day >= 1 && day <= 31) {
+      return { day, month };
+    }
+  }
+  
+  // Pattern: "01.01", "1.1", "15.12"
+  const dotMatch = q.match(/^(\d{1,2})\.(\d{1,2})$/);
+  if (dotMatch) {
+    const day = parseInt(dotMatch[1]);
+    const month = parseInt(dotMatch[2]);
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+      return { day, month };
+    }
+  }
+  
+  // Pattern: "01-01", "1-1", "15-12"
+  const dashMatch = q.match(/^(\d{1,2})-(\d{1,2})$/);
+  if (dashMatch) {
+    const day = parseInt(dashMatch[1]);
+    const month = parseInt(dashMatch[2]);
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+      return { day, month };
+    }
+  }
+  
+  // Pattern: "01/01", "1/1", "15/12"
+  const slashMatch = q.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if (slashMatch) {
+    const day = parseInt(slashMatch[1]);
+    const month = parseInt(slashMatch[2]);
+    if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+      return { day, month };
+    }
+  }
+  
+  return null;
+}
+
+// Check if page was created on specific day/month
+function pageMatchesDate(page: any, dateQuery: { day: number; month: number }): boolean {
+  const createdAt = new Date(page.created_at);
+  return createdAt.getDate() === dateQuery.day && (createdAt.getMonth() + 1) === dateQuery.month;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -83,7 +179,10 @@ serve(async (req) => {
       );
     }
 
-    // Tokenize and normalize query
+    // Check if this is a date query
+    const dateQuery = parseDateQuery(query);
+    
+    // Tokenize and normalize query for text matching
     const queryTerms = query.toLowerCase().split(/\s+/).filter((t: string) => t.length > 1);
     
     // Score each page - STRICT EXACT MATCHING ONLY
@@ -93,6 +192,15 @@ serve(async (req) => {
       let score = 0;
       const matchTypes: Set<string> = new Set();
       const matchedTerms: string[] = [];
+
+      // If date query, check date match first (HIGHEST PRIORITY)
+      if (dateQuery && pageMatchesDate(page, dateQuery)) {
+        score += 200; // Date matches are very strong
+        matchTypes.add('date');
+        const date = new Date(page.created_at);
+        const formattedDate = `${date.getDate()}-${date.getMonth() + 1}`;
+        if (!matchedTerms.includes(formattedDate)) matchedTerms.push(formattedDate);
+      }
 
       // Helper: check if term exists exactly (word boundary match)
       const exactMatch = (text: string, term: string): boolean => {
@@ -180,7 +288,7 @@ serve(async (req) => {
     }
 
     // If few results and semantic search is enabled, try semantic matching
-    if (include_semantic && scoredResults.length < 5) {
+    if (include_semantic && scoredResults.length < 5 && !dateQuery) {
       const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
       
       if (LOVABLE_API_KEY) {
@@ -231,7 +339,7 @@ serve(async (req) => {
                 if (similarity > 0.5) {
                   scoredResults.push({
                     page_id: page.id,
-                    page: page, // Include full page data
+                    page: page,
                     score: similarity * 50,
                     match_types: ['meaning'],
                     matched_terms: []
@@ -270,34 +378,6 @@ serve(async (req) => {
     );
   }
 });
-
-// Levenshtein distance for fuzzy matching
-function levenshteinDistance(a: string, b: string): number {
-  const matrix: number[][] = [];
-  
-  for (let i = 0; i <= a.length; i++) {
-    matrix[i] = [i];
-  }
-  for (let j = 0; j <= b.length; j++) {
-    matrix[0][j] = j;
-  }
-  
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      if (a[i - 1] === b[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-  
-  return matrix[a.length][b.length];
-}
 
 // Cosine similarity for semantic matching
 function cosineSimilarity(a: number[], b: number[]): number {
