@@ -222,31 +222,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         className="hidden"
       />
 
-      {/* Subtle page count indicator - only shows when pages captured */}
-      <AnimatePresence>
-        {capturedImages.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-20 left-0 right-0 z-20 flex justify-center"
-          >
-            <div className="flex items-center gap-3 bg-codex-ink/60 backdrop-blur-sm rounded-full px-4 py-2 border border-codex-gold/30">
-              <span className="text-codex-cream text-sm font-medium">
-                {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
-              </span>
-              <button
-                onClick={cancelMultiMode}
-                className="text-codex-cream/50 hover:text-codex-cream text-xs ml-2"
-                title="Cancel"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Camera/Preview area */}
       <div className="flex-1 relative flex items-center justify-center">
         {capturedImage ? (
@@ -628,7 +603,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         )}
       </div>
 
-      {/* Thumbnail strip for multi-page capture */}
+      {/* Thumbnail strip for multi-page capture with + button */}
       <AnimatePresence>
         {capturedImages.length > 0 && !capturedImage && (
           <motion.div
@@ -638,7 +613,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             className="absolute bottom-32 left-0 right-0 px-4 z-10"
           >
             <div className="flex justify-center">
-              <div className="flex gap-2 p-2 bg-codex-ink/80 backdrop-blur-md rounded-xl border border-codex-gold/20 max-w-full overflow-x-auto">
+              <div className="flex gap-2 p-2 bg-codex-ink/80 backdrop-blur-md rounded-xl border border-codex-gold/20 max-w-full overflow-x-auto items-center">
                 {capturedImages.map((img, index) => (
                   <motion.div
                     key={index}
@@ -662,6 +637,13 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                     </span>
                   </motion.div>
                 ))}
+                {/* + button to add more */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-12 h-16 flex-shrink-0 rounded-md border-2 border-dashed border-codex-gold/40 flex items-center justify-center hover:border-codex-gold/60 hover:bg-codex-gold/10 transition-colors"
+                >
+                  <Plus className="w-5 h-5 text-codex-gold/60" />
+                </button>
               </div>
             </div>
           </motion.div>
