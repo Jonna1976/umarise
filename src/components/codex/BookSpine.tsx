@@ -101,10 +101,10 @@ function getSpineColor(tones: string[]): {
 }
 
 export function BookSpine({ page, capsule, onClick, index, projects = [], isHighlighted, onDragStart, onDragEnd }: BookSpineProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const spineRef = useRef<HTMLButtonElement | null>(null);
+  const previewTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const representativePage = page || capsule?.pages[0];
   if (!representativePage) return null;
@@ -118,6 +118,27 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
   const baseWidth = 64;
   const extraWidth = Math.min(pageCount * 12, 60);
   const spineWidth = baseWidth + extraWidth;
+
+  // Tap-to-preview: first tap shows preview, second tap opens page
+  const handleTap = () => {
+    if (showPreview) {
+      // Second tap - open the page
+      onClick();
+      setShowPreview(false);
+    } else {
+      // First tap - show preview
+      setShowPreview(true);
+      // Auto-hide preview after 4 seconds
+      if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = setTimeout(() => setShowPreview(false), 4000);
+    }
+  };
+
+  // Close preview when clicking outside
+  const handleClosePreview = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPreview(false);
+  };
   
   // Drag handlers
   const handleDragStart = (e: React.DragEvent) => {
@@ -138,9 +159,9 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
     }
 
     setIsDragging(true);
-    setIsHovered(false); // Hide preview on drag start
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
+    setShowPreview(false); // Hide preview on drag start
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
     }
     onDragStart?.();
   };
@@ -150,24 +171,6 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
     onDragEnd?.();
   };
 
-  // Hover handlers with slight delay for better UX
-  // Only show on desktop (no touch devices) to avoid blocking scroll
-  const handleMouseEnter = () => {
-    // Don't show preview on touch devices
-    if ('ontouchstart' in window) return;
-    
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(true);
-    }, 300); // 300ms delay before showing preview
-  };
-
-  const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    setIsHovered(false);
-  };
-
   return (
     <div
       draggable
@@ -175,6 +178,72 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
       onDragEnd={handleDragEnd}
       className="cursor-grab active:cursor-grabbing relative"
     >
+      {/* Tap-to-preview overlay */}
+      <AnimatePresence>
+        {showPreview && !isDragging && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="fixed z-[100] top-4 left-1/2 -translate-x-1/2"
+            style={{ width: '280px' }}
+          >
+            <div className="bg-background/98 backdrop-blur-md rounded-xl shadow-2xl border border-codex-gold/30 p-4">
+              {/* Image preview */}
+              <div className="relative w-full h-36 rounded-lg overflow-hidden mb-3 bg-muted">
+                <img 
+                  src={representativePage.imageUrl} 
+                  alt="Origin preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                {pageCount > 1 && (
+                  <div className="absolute top-2 right-2 bg-codex-ink/80 text-codex-cream px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                    <Images className="w-3 h-3" />
+                    {pageCount}
+                  </div>
+                )}
+              </div>
+              
+              {/* Cues */}
+              {representativePage.futureYouCues && representativePage.futureYouCues.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {representativePage.futureYouCues.slice(0, 3).map((cue) => (
+                    <span 
+                      key={cue}
+                      className="text-sm px-2.5 py-1 rounded-full bg-codex-gold/20 text-codex-gold border border-codex-gold/30 font-medium"
+                    >
+                      {cue}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              {/* Summary snippet */}
+              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-3">
+                {representativePage.oneLineHint || representativePage.summary?.slice(0, 100) || 'No summary'}
+              </p>
+
+              {/* Action hint */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Tap again to open</span>
+                <button 
+                  onClick={handleClosePreview}
+                  className="text-xs text-codex-gold hover:underline"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            
+            {/* Arrow pointing down */}
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1.5 w-3 h-3 bg-background/98 border-r border-b border-codex-gold/30 rotate-45" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.button
         ref={spineRef}
@@ -201,7 +270,7 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
           transition: { duration: 0.4, ease: 'easeOut' }
         }}
         whileTap={{ scale: 0.98 }}
-        onClick={onClick}
+        onClick={handleTap}
         className={`
           relative flex-shrink-0 h-72 rounded-sm
           ${colors.bg}
