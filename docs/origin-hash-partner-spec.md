@@ -4,6 +4,16 @@
 
 ---
 
+```
+Spec version: 1.0
+Status: FROZEN
+Breaking changes require v2
+```
+
+**This specification is canonical and immutable for v1.**
+
+---
+
 ## What It Is
 
 At every new capture, Umarise calculates a **SHA-256 fingerprint** of the original capture bytes (pre-upload, pre-encryption). This hash is stored immutably and used later for verification.
@@ -143,13 +153,28 @@ WHERE page_id = ?
 
 ---
 
+## Scope Boundary (Explicit Stop Rule)
+
+**Origin Hash v1 is complete. The following are explicitly OUT OF SCOPE:**
+
+- No timestamps beyond capture metadata
+- No blockchain anchoring
+- No authorship claims
+- No identity assertions
+- No AI provenance semantics
+- No retroactive hashing of legacy pages
+
+Additional guarantees require a new specification version.
+
+---
+
 ## Version
 
 | Field | Value |
 |-------|-------|
 | Spec version | 1.0 |
 | Date | 2026-01-15 |
-| Status | Production |
+| Status | FROZEN |
 | Algorithm | SHA-256 (fixed) |
 
 ---
