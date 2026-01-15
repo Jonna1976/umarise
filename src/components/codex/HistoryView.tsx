@@ -1093,80 +1093,97 @@ export function HistoryView({
                     ))}
                   </div>
                 ) : groupedByDate && groupedByDate.length > 0 ? (
-                  /* Timeline view with date period headers */
-                  <div className="space-y-6 pb-4">
-                    {groupedByDate.map((group) => (
-                      <div key={group.period}>
-                        {/* Date period header */}
-                        <div className="flex items-center gap-3 px-4 mb-3">
-                          <Clock className="w-4 h-4 text-codex-gold" />
-                          <span className="text-base font-semibold text-foreground">{group.period}</span>
-                          <span className="text-sm text-muted-foreground">({group.items.length})</span>
-                        </div>
-                        
-                        {/* Books row */}
-                        <div 
-                          className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
-                          style={{ 
-                            scrollSnapType: 'x mandatory',
-                            WebkitOverflowScrolling: 'touch'
-                          }}
-                        >
-                          {group.items.map((item, index) => {
-                            const isNewest = group.period === 'Today' && index === group.items.length - 1;
-                            return (
-                              <div 
-                                key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
-                                style={{ scrollSnapAlign: 'start' }}
-                                className="relative"
-                              >
-                                {/* Golden leather frame for latest (newest) page */}
-                                {isNewest && (
-                                  <div 
-                                    className="absolute -inset-1.5 rounded-md z-0"
-                                    style={{
-                                      background: 'linear-gradient(135deg, hsl(38 50% 45%) 0%, hsl(35 45% 35%) 50%, hsl(38 50% 45%) 100%)',
-                                      boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                                    }}
-                                  />
-                                )}
-                                <div className={isNewest ? 'relative z-10' : ''}>
-                                  <BookSpine
-                                    page={item.type === 'page' ? item.page : undefined}
-                                    capsule={item.type === 'capsule' ? item.capsule : undefined}
-                                    onClick={() => {
-                                      if (item.type === 'page') {
-                                        onSelectPage(item.page);
-                                      } else if (onSelectCapsule) {
-                                        onSelectCapsule(item.capsule);
-                                      } else {
-                                        onSelectPage(item.capsule.pages[0]);
-                                      }
-                                    }}
-                                    index={index}
-                                    projects={projects}
-                                    isHighlighted={
-                                      highlightPageId && (
-                                        (item.type === 'page' && item.page.id === highlightPageId) ||
-                                        (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
-                                      )
-                                    }
-                                    onDragStart={() => setIsDragging(true)}
-                                    onDragEnd={() => setIsDragging(false)}
-                                  />
-                                </div>
+                  /* Timeline view with date period headers and vertical line */
+                  <div className="relative pb-4">
+                    {/* Vertical timeline line */}
+                    <div 
+                      className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-codex-gold/60 via-codex-gold/30 to-transparent"
+                      style={{ zIndex: 0 }}
+                    />
+                    
+                    <div className="space-y-6">
+                      {groupedByDate.map((group, groupIndex) => (
+                        <div key={group.period} className="relative">
+                          {/* Sticky date period header */}
+                          <div className="sticky top-[72px] z-20 bg-background/95 backdrop-blur-sm py-2 -mx-4 px-4">
+                            <div className="flex items-center gap-3 pl-4">
+                              {/* Timeline dot */}
+                              <div className="absolute left-6 w-3 h-3 rounded-full bg-codex-gold border-2 border-background shadow-sm -translate-x-1/2" />
+                              
+                              <div className="flex items-center gap-2 ml-6">
+                                <Clock className="w-4 h-4 text-codex-gold" />
+                                <span className="text-base font-semibold text-foreground">{group.period}</span>
+                                <span className="text-sm text-muted-foreground">({group.items.length})</span>
                               </div>
-                            );
-                          })}
+                            </div>
+                          </div>
+                          
+                          {/* Books row with left margin for timeline */}
+                          <div className="pl-10">
+                            <div 
+                              className="flex gap-2 pr-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                              style={{ 
+                                scrollSnapType: 'x mandatory',
+                                WebkitOverflowScrolling: 'touch'
+                              }}
+                            >
+                              {group.items.map((item, index) => {
+                                const isNewest = group.period === 'Today' && index === group.items.length - 1;
+                                return (
+                                  <div 
+                                    key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                                    style={{ scrollSnapAlign: 'start' }}
+                                    className="relative"
+                                  >
+                                    {/* Golden leather frame for latest (newest) page */}
+                                    {isNewest && (
+                                      <div 
+                                        className="absolute -inset-1.5 rounded-md z-0"
+                                        style={{
+                                          background: 'linear-gradient(135deg, hsl(38 50% 45%) 0%, hsl(35 45% 35%) 50%, hsl(38 50% 45%) 100%)',
+                                          boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                        }}
+                                      />
+                                    )}
+                                    <div className={isNewest ? 'relative z-10' : ''}>
+                                      <BookSpine
+                                        page={item.type === 'page' ? item.page : undefined}
+                                        capsule={item.type === 'capsule' ? item.capsule : undefined}
+                                        onClick={() => {
+                                          if (item.type === 'page') {
+                                            onSelectPage(item.page);
+                                          } else if (onSelectCapsule) {
+                                            onSelectCapsule(item.capsule);
+                                          } else {
+                                            onSelectPage(item.capsule.pages[0]);
+                                          }
+                                        }}
+                                        index={index}
+                                        projects={projects}
+                                        isHighlighted={
+                                          highlightPageId && (
+                                            (item.type === 'page' && item.page.id === highlightPageId) ||
+                                            (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                                          )
+                                        }
+                                        onDragStart={() => setIsDragging(true)}
+                                        onDragEnd={() => setIsDragging(false)}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {/* Mini shelf per group - golden */}
+                            <div className="relative mt-0 mr-4">
+                              <div className="h-2 rounded-t-sm" style={{ background: 'hsl(38 40% 50%)' }} />
+                              <div className="h-0.5" style={{ background: 'hsl(35 35% 35%)' }} />
+                            </div>
+                          </div>
                         </div>
-                        
-                        {/* Mini shelf per group - golden */}
-                        <div className="relative mt-0 mx-4">
-                          <div className="h-2 rounded-t-sm" style={{ background: 'hsl(38 40% 50%)' }} />
-                          <div className="h-0.5" style={{ background: 'hsl(35 35% 35%)' }} />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <>
