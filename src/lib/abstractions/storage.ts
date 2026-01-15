@@ -832,7 +832,8 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
-    const deviceUserId = this.getDeviceUserId();
+    // Always use the real device ID for updates - we're updating OUR pages, not demo pages
+    const deviceUserId = this.getRealDeviceUserId();
     
     // JSON-stringify array/object fields for SQLite compatibility
     const apiUpdates: Record<string, unknown> = {};
@@ -857,7 +858,8 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async deletePage(id: string): Promise<boolean> {
-    const deviceUserId = this.getDeviceUserId();
+    // Always use the real device ID - we're deleting OUR pages, not demo pages
+    const deviceUserId = this.getRealDeviceUserId();
     
     // First get the page to delete the image
     const page = await this.getPage(id);
