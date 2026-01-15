@@ -90,6 +90,39 @@ function getDateLabel(date: Date): string {
   return format(date, 'MMM d, yyyy');
 }
 
+// Group items by date period for timeline headers
+function getDateGroupKey(date: Date): string {
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  if (isThisWeek(date)) return 'This Week';
+  return format(date, 'MMMM yyyy');
+}
+
+// Group history items by date period
+function groupByDatePeriod(items: HistoryItem[]): { period: string; items: HistoryItem[] }[] {
+  const groups: { period: string; items: HistoryItem[] }[] = [];
+  const groupMap = new Map<string, HistoryItem[]>();
+  const periodOrder: string[] = [];
+  
+  for (const item of items) {
+    const date = item.type === 'page' ? item.page.createdAt : item.capsule.pages[0]?.createdAt || new Date(0);
+    const period = getDateGroupKey(date);
+    
+    if (!groupMap.has(period)) {
+      groupMap.set(period, []);
+      periodOrder.push(period);
+    }
+    groupMap.get(period)!.push(item);
+  }
+  
+  // Maintain order (newest first for display, but items are sorted oldest-first internally)
+  for (const period of periodOrder) {
+    groups.push({ period, items: groupMap.get(period)! });
+  }
+  
+  return groups;
+}
+
 export function HistoryView({ 
   pages: allPages, 
   onBack, 
@@ -234,6 +267,12 @@ export function HistoryView({
     
     return items;
   }, [visiblePages, filter, keywordFilter, toneFilter, searchQuery, sortMode]);
+
+  // Group items by date period for timeline display
+  const groupedByDate = useMemo(() => {
+    if (sortMode !== 'date') return null;
+    return groupByDatePeriod(historyItems);
+  }, [historyItems, sortMode]);
 
   // Group items by cue for sectioned display
   const groupedByCue = useMemo(() => {
@@ -965,10 +1004,10 @@ export function HistoryView({
                 
                 {/* Origin message with page count */}
                 <div className="text-center px-8 mb-10 max-w-xl mx-auto">
-                  <p className="text-base text-foreground/70 font-serif leading-relaxed mb-3">
+                  <p className="text-lg text-foreground/70 font-serif leading-relaxed mb-3">
                     Capturing your beginnings—handwritten thoughts, ideas, and stories—kept immutable.
                   </p>
-                  <p className="text-lg text-codex-gold font-serif">
+                  <p className="text-xl text-codex-gold font-serif font-medium">
                     {visiblePages.length} {visiblePages.length === 1 ? 'origin' : 'origins'} preserved.
                   </p>
                 </div>
@@ -1043,6 +1082,82 @@ export function HistoryView({
                               />
                             </div>
                           ))}
+                        </div>
+                        
+                        {/* Mini shelf per group - golden */}
+                        <div className="relative mt-0 mx-4">
+                          <div className="h-2 rounded-t-sm" style={{ background: 'hsl(38 40% 50%)' }} />
+                          <div className="h-0.5" style={{ background: 'hsl(35 35% 35%)' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : groupedByDate && groupedByDate.length > 0 ? (
+                  /* Timeline view with date period headers */
+                  <div className="space-y-6 pb-4">
+                    {groupedByDate.map((group) => (
+                      <div key={group.period}>
+                        {/* Date period header */}
+                        <div className="flex items-center gap-3 px-4 mb-3">
+                          <Clock className="w-4 h-4 text-codex-gold" />
+                          <span className="text-base font-semibold text-foreground">{group.period}</span>
+                          <span className="text-sm text-muted-foreground">({group.items.length})</span>
+                        </div>
+                        
+                        {/* Books row */}
+                        <div 
+                          className="flex gap-2 px-4 items-end overflow-x-auto scrollbar-hide pb-1 overflow-y-visible"
+                          style={{ 
+                            scrollSnapType: 'x mandatory',
+                            WebkitOverflowScrolling: 'touch'
+                          }}
+                        >
+                          {group.items.map((item, index) => {
+                            const isNewest = group.period === 'Today' && index === group.items.length - 1;
+                            return (
+                              <div 
+                                key={item.type === 'page' ? item.page.id : item.capsule.capsuleId}
+                                style={{ scrollSnapAlign: 'start' }}
+                                className="relative"
+                              >
+                                {/* Golden leather frame for latest (newest) page */}
+                                {isNewest && (
+                                  <div 
+                                    className="absolute -inset-1.5 rounded-md z-0"
+                                    style={{
+                                      background: 'linear-gradient(135deg, hsl(38 50% 45%) 0%, hsl(35 45% 35%) 50%, hsl(38 50% 45%) 100%)',
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                    }}
+                                  />
+                                )}
+                                <div className={isNewest ? 'relative z-10' : ''}>
+                                  <BookSpine
+                                    page={item.type === 'page' ? item.page : undefined}
+                                    capsule={item.type === 'capsule' ? item.capsule : undefined}
+                                    onClick={() => {
+                                      if (item.type === 'page') {
+                                        onSelectPage(item.page);
+                                      } else if (onSelectCapsule) {
+                                        onSelectCapsule(item.capsule);
+                                      } else {
+                                        onSelectPage(item.capsule.pages[0]);
+                                      }
+                                    }}
+                                    index={index}
+                                    projects={projects}
+                                    isHighlighted={
+                                      highlightPageId && (
+                                        (item.type === 'page' && item.page.id === highlightPageId) ||
+                                        (item.type === 'capsule' && item.capsule.pages.some(p => p.id === highlightPageId))
+                                      )
+                                    }
+                                    onDragStart={() => setIsDragging(true)}
+                                    onDragEnd={() => setIsDragging(false)}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                         
                         {/* Mini shelf per group - golden */}

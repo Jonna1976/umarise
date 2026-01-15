@@ -37,9 +37,13 @@ function extractPrimaryCue(page: Page): string {
   return 'Untitled';
 }
 
-// Format date compactly
+// Format date compactly but readable
 function formatSpineDate(date: Date): string {
   return format(date, 'd MMM');
+}
+
+function formatSpineDateLong(date: Date): string {
+  return format(date, "d MMM ''yy");
 }
 
 // Get spine color based on tone - natural palette only
@@ -344,9 +348,9 @@ export function BookSpine({ page, capsule, onClick, index, projects = [], isHigh
         </span>
       </div>
       
-      {/* Date - at bottom */}
-      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${colors.text} opacity-60`}>
-        <span className="text-[10px] font-medium tracking-wide">
+      {/* Date - at bottom, larger for readability */}
+      <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 ${colors.text} opacity-80`}>
+        <span className="text-xs font-semibold tracking-wide">
           {dateStr}
         </span>
       </div>
