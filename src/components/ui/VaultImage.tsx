@@ -1,13 +1,15 @@
 /**
- * VaultImage - Decrypts and displays encrypted images from Private Vault
+ * VaultImage - Resolves and displays images from various storage backends
  * 
- * Automatically handles encrypted (.enc) vs unencrypted images.
- * Shows loading state during decryption.
+ * Handles:
+ * - Encrypted (.enc) images from Private Vault - decrypts before display
+ * - IPFS URLs (ipfs://) - resolves via gateway
+ * - Regular HTTP URLs - displays directly
  */
 
 import { useState, useEffect } from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
-import { getStorageProvider } from '@/lib/abstractions';
+import { getStorageProvider, resolveIpfsUrl, isIpfsUrl } from '@/lib/abstractions';
 import { cn } from '@/lib/utils';
 
 interface VaultImageProps {
@@ -33,14 +35,31 @@ export function VaultImage({ src, alt = 'Page image', className, onClick }: Vaul
       try {
         const storage = getStorageProvider();
         
-        if (storage.isEncryptedUrl(src)) {
+        // Check if it's an IPFS URL (not necessarily encrypted)
+        if (isIpfsUrl(src)) {
+          // Check if it's encrypted (has .enc extension)
+          const isEncryptedIpfs = src.includes('.enc');
+          
+          if (isEncryptedIpfs) {
+            setIsEncrypted(true);
+            // Decrypt the image via storage provider
+            const decryptedUrl = await storage.getDecryptedImageUrl(src);
+            objectUrl = decryptedUrl;
+            setDisplayUrl(decryptedUrl);
+          } else {
+            // Just resolve IPFS to HTTP gateway
+            setIsEncrypted(false);
+            const httpUrl = resolveIpfsUrl(src);
+            setDisplayUrl(httpUrl);
+          }
+        } else if (storage.isEncryptedUrl(src)) {
+          // Non-IPFS encrypted URL
           setIsEncrypted(true);
-          // Decrypt the image
           const decryptedUrl = await storage.getDecryptedImageUrl(src);
           objectUrl = decryptedUrl;
           setDisplayUrl(decryptedUrl);
         } else {
-          // Regular image, use directly
+          // Regular image URL, use directly
           setIsEncrypted(false);
           setDisplayUrl(src);
         }

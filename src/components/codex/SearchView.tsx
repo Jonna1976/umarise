@@ -8,6 +8,7 @@ import { Page } from '@/lib/pageService';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
 import { formatDistanceToNow } from 'date-fns';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 export interface SearchMatchInfo {
   matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
@@ -126,7 +127,7 @@ function CarouselResults({
               <div className="rounded-xl overflow-hidden border border-border shadow-lg bg-card">
                 <div className="aspect-[3/4] w-full bg-muted relative overflow-hidden">
                   <img
-                    src={activeResult.page.imageUrl}
+                    src={getDisplayImageUrl(activeResult.page.imageUrl)}
                     alt=""
                     className="w-full h-full object-cover pointer-events-none"
                     draggable={false}
@@ -192,7 +193,7 @@ function CarouselResults({
               }`}
             >
               <img
-                src={result.page.thumbnailUri || result.page.imageUrl}
+                src={getDisplayImageUrl(result.page.thumbnailUri || result.page.imageUrl)}
                 alt=""
                 className="w-full h-full object-cover"
               />

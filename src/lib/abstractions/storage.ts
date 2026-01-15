@@ -593,6 +593,27 @@ export class LovableCloudStorage implements IStorageProvider {
 
 // ============= Hetzner Vault Implementation =============
 
+// Default IPFS gateway for resolving ipfs:// URLs
+const DEFAULT_IPFS_GATEWAY = 'https://ipfs.io/ipfs';
+
+/**
+ * Convert an ipfs:// URL to an HTTP gateway URL
+ */
+export function resolveIpfsUrl(url: string, gateway: string = DEFAULT_IPFS_GATEWAY): string {
+  if (url.startsWith('ipfs://')) {
+    const cid = url.replace('ipfs://', '');
+    return `${gateway}/${cid}`;
+  }
+  return url;
+}
+
+/**
+ * Check if a URL is an IPFS URL (not encrypted, just needs gateway resolution)
+ */
+export function isIpfsUrl(url: string): boolean {
+  return url.startsWith('ipfs://');
+}
+
 export class HetznerVaultStorage implements IStorageProvider {
   private proxyUrl: string;
   
@@ -680,6 +701,12 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async getDecryptedImageUrl(encryptedUrl: string): Promise<string> {
+    // For IPFS URLs that are NOT encrypted, just resolve via gateway
+    if (encryptedUrl.startsWith('ipfs://') && !encryptedUrl.includes('.enc')) {
+      return resolveIpfsUrl(encryptedUrl, this.config.ipfsGateway);
+    }
+    
+    // For truly encrypted images, call the decrypt endpoint
     const deviceUserId = this.getDeviceUserId();
     
     const response = await this.proxyRequest('GET', '/vault/images/decrypt', undefined, {
@@ -696,8 +723,19 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   isEncryptedUrl(url: string): boolean {
-    // Hetzner vault stores everything encrypted via IPFS
+    // Only truly encrypted URLs need decryption, IPFS URLs just need gateway resolution
+    // For now, treat all IPFS URLs as needing resolution (isEncryptedUrl triggers loading)
     return url.startsWith('ipfs://');
+  }
+  
+  /**
+   * Resolve IPFS URL to HTTP gateway URL (for non-encrypted images)
+   */
+  resolveImageUrl(url: string): string {
+    if (url.startsWith('ipfs://')) {
+      return resolveIpfsUrl(url, this.config.ipfsGateway);
+    }
+    return url;
   }
 
   async createPage(pageData: Omit<Page, 'id' | 'createdAt' | 'updatedAt'>): Promise<Page> {

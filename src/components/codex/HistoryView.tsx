@@ -5,6 +5,7 @@ import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 import { BookCoverCard } from './BookCoverCard';
 import { BookSpine } from './BookSpine';
@@ -1197,7 +1198,7 @@ export function HistoryView({
                       {/* Thumbnail with paper filter */}
                       <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
                         <img
-                          src={item.page.imageUrl}
+                          src={getDisplayImageUrl(item.page.imageUrl)}
                           alt=""
                           className={`w-full h-full object-cover ${paperFilter ? 'page-thumbnail' : ''}`}
                         />
@@ -1265,7 +1266,7 @@ export function HistoryView({
                               }}
                             >
                               <img
-                                src={page.imageUrl}
+                                src={getDisplayImageUrl(page.imageUrl)}
                                 alt=""
                                 className={`w-full h-full object-cover ${paperFilter ? 'page-thumbnail' : ''}`}
                               />

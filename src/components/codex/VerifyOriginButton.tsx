@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint, Check, X, Loader2, AlertTriangle } from 'lucide-react';
 import { calculateSHA256FromBlob, HashVerificationResult } from '@/lib/originHash';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -37,8 +38,11 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
     setState('verifying');
 
     try {
+      // Resolve IPFS URLs to HTTP gateway URLs
+      const resolvedUrl = getDisplayImageUrl(imageUrl);
+      
       // Fetch the stored image
-      const response = await fetch(imageUrl);
+      const response = await fetch(resolvedUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.status}`);
       }

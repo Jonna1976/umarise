@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn, Share2 } from 'lucide-react';
 import { VerifyOriginButton } from './VerifyOriginButton';
+import { VaultImage } from '@/components/ui/VaultImage';
 import { Page, updatePage, confirmFutureYouCues, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -710,7 +711,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="mb-6 flex flex-col items-center gap-2"
         >
           <div className="relative group">
-            <img
+            <VaultImage
               src={page.imageUrl}
               alt="Captured page"
               className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
@@ -748,11 +749,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             >
               <X className="w-6 h-6" />
             </button>
-            <img
+            <VaultImage
               src={page.imageUrl}
               alt="Captured page - zoomed"
               className="max-w-full max-h-full object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
         )}

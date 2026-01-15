@@ -13,6 +13,7 @@ import { Tag, User, Hash, ChevronRight, Link2 } from 'lucide-react';
 import { Page } from '@/lib/abstractions/types';
 import { RelatedPage, formatReason, getReasonIcon } from '@/lib/relatedPages';
 import { format } from 'date-fns';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 interface RelatedPagesProps {
   relatedPages: RelatedPage[];
@@ -79,7 +80,7 @@ export function RelatedPages({ relatedPages, onPageClick }: RelatedPagesProps) {
             {/* Thumbnail */}
             <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0 bg-codex-ink-deep">
               <img
-                src={related.page.imageUrl}
+                src={getDisplayImageUrl(related.page.imageUrl)}
                 alt=""
                 className="w-full h-full object-cover"
               />
