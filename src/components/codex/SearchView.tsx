@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, BookOpen, Info } from 'lucide-react';
+import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -520,7 +520,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               <div className="space-y-2">
                 <div className="flex items-center justify-center gap-2">
                   <h1 className="text-2xl font-serif text-foreground">
-                    What are you looking for?
+                    Which beginning are you looking for?
                   </h1>
                   <Popover>
                     <PopoverTrigger className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
@@ -546,7 +546,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                   </Popover>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Search by cue, name, or meaning
+                  Search by cue, name, date or meaning
                 </p>
               </div>
 
@@ -563,13 +563,22 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               </div>
 
 
-              {/* Browse all */}
+              {/* Browse all - book icon with horizontal lines */}
               {onBrowseAll && (
                 <button
                   onClick={onBrowseAll}
                   className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <div className="relative w-5 h-5 flex items-center">
+                    {/* Book spine */}
+                    <div className="w-1 h-4 bg-current rounded-l-sm" />
+                    {/* Book pages with lines */}
+                    <div className="w-3.5 h-4 border border-current rounded-r-sm flex flex-col justify-center gap-0.5 px-0.5">
+                      <div className="w-full h-px bg-current opacity-60" />
+                      <div className="w-full h-px bg-current opacity-60" />
+                      <div className="w-full h-px bg-current opacity-60" />
+                    </div>
+                  </div>
                   <span>Browse all pages</span>
                 </button>
               )}
