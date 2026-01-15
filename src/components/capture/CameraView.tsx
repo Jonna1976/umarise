@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, BookOpen, Plus, Images, GripVertical, Zap, FileText, FileStack, Search } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, Plus, Images, Search } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
@@ -23,11 +23,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [absorbingFiles, setAbsorbingFiles] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [briefModus, setBriefModus] = useState(false); // Document mode: multiple pages = 1 document
 
-  const isMultiMode = capturedImages.length > 0 || briefModus;
+  const isMultiMode = capturedImages.length > 0;
 
   const startCamera = useCallback(async () => {
     try {
@@ -154,30 +152,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     }
   }, [processFiles]);
 
-  // Thumbnail reordering
-  const handleThumbnailDragStart = useCallback((index: number) => {
-    setDraggedIndex(index);
-    triggerHaptic('selection');
-  }, []);
-
-  const handleThumbnailDragOver = useCallback((e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === targetIndex) return;
-
-    triggerHaptic('light');
-    setCapturedImages(prev => {
-      const newImages = [...prev];
-      const draggedImage = newImages[draggedIndex];
-      newImages.splice(draggedIndex, 1);
-      newImages.splice(targetIndex, 0, draggedImage);
-      return newImages;
-    });
-    setDraggedIndex(targetIndex);
-  }, [draggedIndex]);
-
-  const handleThumbnailDragEnd = useCallback(() => {
-    setDraggedIndex(null);
-  }, []);
+  // Thumbnail removal only (no reordering in Silent Multi mode)
 
   const retake = useCallback(() => {
     triggerHaptic('light');
@@ -218,7 +193,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
       onCaptureMultiple(allImages);
       setCapturedImage(null);
       setCapturedImages([]);
-      setBriefModus(false);
     }
   }, [capturedImages, capturedImage, onCaptureMultiple]);
 
@@ -226,14 +200,8 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
     triggerHaptic('light');
     setCapturedImages([]);
     setCapturedImage(null);
-    setBriefModus(false);
     startCamera();
   }, [startCamera]);
-  
-  const toggleBriefModus = useCallback(() => {
-    triggerHaptic('light');
-    setBriefModus(prev => !prev);
-  }, []);
 
   // Auto-start camera on mount
   useEffect(() => {
@@ -254,9 +222,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
         className="hidden"
       />
 
-      {/* Brief-modus / Page count indicator */}
+      {/* Subtle page count indicator - only shows when pages captured */}
       <AnimatePresence>
-        {(capturedImages.length > 0 || briefModus) && (
+        {capturedImages.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -264,15 +232,9 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
             className="absolute top-20 left-0 right-0 z-20 flex justify-center"
           >
             <div className="flex items-center gap-3 bg-codex-ink/60 backdrop-blur-sm rounded-full px-4 py-2 border border-codex-gold/30">
-              <div className="flex items-center gap-2">
-                <FileStack className="w-4 h-4 text-codex-gold" />
-                <span className="text-codex-cream text-sm font-medium">
-                  {capturedImages.length > 0 
-                    ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} • 1 document`
-                    : 'Document mode: pages become 1 document'
-                  }
-                </span>
-              </div>
+              <span className="text-codex-cream text-sm font-medium">
+                {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
+              </span>
               <button
                 onClick={cancelMultiMode}
                 className="text-codex-cream/50 hover:text-codex-cream text-xs ml-2"
@@ -646,7 +608,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
           onClick={onOpenHistory}
           className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
         >
-          <BookOpen className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+          <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
         </button>
         
         {capturedImage ? (
@@ -683,10 +645,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="relative flex-shrink-0 group"
-                    draggable
-                    onDragStart={() => handleThumbnailDragStart(index)}
-                    onDragOver={(e) => handleThumbnailDragOver(e, index)}
-                    onDragEnd={handleThumbnailDragEnd}
                   >
                     <img
                       src={img}
@@ -827,22 +785,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
 
       {/* Brief-modus toggle - temporarily hidden */}
 
-      {/* Rapid capture mode indicator */}
-      <AnimatePresence>
-        {isMultiMode && isStreaming && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="absolute top-4 right-4 z-20"
-          >
-            <div className="flex items-center gap-2 bg-codex-gold/20 backdrop-blur-sm rounded-full px-3 py-1.5 border border-codex-gold/30">
-              <Zap className="w-4 h-4 text-codex-gold" />
-              <span className="text-codex-gold text-xs font-medium">Rapid Mode</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
