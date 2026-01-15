@@ -3,35 +3,70 @@
  * 
  * Allows users to verify the SHA-256 fingerprint of their captured artifact.
  * Downloads the stored image and compares its hash against the recorded origin hash.
+ * 
+ * Supports lazy lookup from sidecar table if hash is not provided directly.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Fingerprint, Check, X, Loader2, AlertTriangle } from 'lucide-react';
+import { Fingerprint, Check, X, Loader2, Clock } from 'lucide-react';
 import { calculateSHA256FromBlob, HashVerificationResult } from '@/lib/originHash';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
+import { lookupOriginHash } from '@/lib/pageService';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface VerifyOriginButtonProps {
+  pageId: string;
   imageUrl: string;
   originHashSha256: string | null;
   originHashAlgo?: 'sha256' | null;
 }
 
-type VerificationState = 'idle' | 'verifying' | 'verified' | 'mismatch' | 'no-hash';
+type VerificationState = 'idle' | 'loading-hash' | 'verifying' | 'verified' | 'mismatch' | 'legacy';
 
-export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo }: VerifyOriginButtonProps) {
+export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originHashAlgo }: VerifyOriginButtonProps) {
   const [state, setState] = useState<VerificationState>('idle');
   const [result, setResult] = useState<HashVerificationResult | null>(null);
+  const [resolvedHash, setResolvedHash] = useState<string | null>(originHashSha256);
+  const [hashChecked, setHashChecked] = useState(false);
+
+  // Lazy lookup hash from sidecar if not provided
+  useEffect(() => {
+    if (originHashSha256) {
+      setResolvedHash(originHashSha256);
+      setHashChecked(true);
+      return;
+    }
+
+    // Only lookup once
+    if (hashChecked) return;
+
+    const lookupHash = async () => {
+      setState('loading-hash');
+      const sidecarResult = await lookupOriginHash(pageId);
+      if (sidecarResult) {
+        setResolvedHash(sidecarResult.hash);
+        console.log('[VerifyOrigin] Hash resolved from sidecar:', sidecarResult.hash.substring(0, 16) + '...');
+      } else {
+        console.log('[VerifyOrigin] No hash found for page:', pageId);
+      }
+      setHashChecked(true);
+      setState('idle');
+    };
+
+    lookupHash();
+  }, [pageId, originHashSha256, hashChecked]);
 
   const handleVerify = async () => {
-    // No hash stored
-    if (!originHashSha256) {
-      setState('no-hash');
-      toast.info('Geen origin hash beschikbaar', {
-        description: 'Deze page heeft (nog) geen opgeslagen fingerprint om tegen te verifiëren.',
-      });
+    // Check if hash lookup is still pending
+    if (!hashChecked) {
+      return;
+    }
+
+    // No hash available after lookup
+    if (!resolvedHash) {
+      setState('legacy');
       return;
     }
 
@@ -52,8 +87,8 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
       const actualHash = await calculateSHA256FromBlob(blob);
       
       const verificationResult: HashVerificationResult = {
-        match: actualHash.toLowerCase() === originHashSha256.toLowerCase(),
-        expectedHash: originHashSha256.toLowerCase(),
+        match: actualHash.toLowerCase() === resolvedHash.toLowerCase(),
+        expectedHash: resolvedHash.toLowerCase(),
         actualHash: actualHash.toLowerCase(),
         fileName: imageUrl.split('/').pop() || 'image',
         verifiedAt: new Date().toISOString(),
@@ -85,6 +120,13 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
 
   const getButtonContent = () => {
     switch (state) {
+      case 'loading-hash':
+        return (
+          <>
+            <Loader2 className="w-3 h-3 animate-spin" />
+            <span>Loading...</span>
+          </>
+        );
       case 'verifying':
         return (
           <>
@@ -106,14 +148,23 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
             <span className="text-red-400">Mismatch</span>
           </>
         );
-      case 'no-hash':
+      case 'legacy':
         return (
           <>
-            <AlertTriangle className="w-3 h-3 text-amber-400" />
-            <span className="text-amber-400">No hash</span>
+            <Clock className="w-3 h-3 text-codex-cream/40" />
+            <span className="text-codex-cream/40">Legacy capture</span>
           </>
         );
       default:
+        // Show different idle state based on hash availability
+        if (hashChecked && !resolvedHash) {
+          return (
+            <>
+              <Clock className="w-3 h-3 text-codex-cream/40" />
+              <span className="text-codex-cream/40">Legacy capture</span>
+            </>
+          );
+        }
         return (
           <>
             <Fingerprint className="w-3 h-3" />
@@ -123,7 +174,7 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
     }
   };
 
-  const isClickable = state === 'idle' || state === 'no-hash';
+  const isClickable = state === 'idle' && hashChecked && resolvedHash;
 
   return (
     <div className="flex flex-col gap-1">
@@ -131,8 +182,8 @@ export function VerifyOriginButton({ imageUrl, originHashSha256, originHashAlgo 
         variant="ghost"
         size="sm"
         onClick={handleVerify}
-        disabled={state === 'verifying'}
-        className="h-7 px-2 text-xs gap-1.5 text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10"
+        disabled={!isClickable}
+        className="h-7 px-2 text-xs gap-1.5 text-codex-cream/60 hover:text-codex-cream hover:bg-codex-cream/10 disabled:opacity-50"
       >
         {getButtonContent()}
       </Button>

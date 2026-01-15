@@ -12,10 +12,100 @@
 
 import { getStorageProvider, getAIProvider } from './abstractions';
 import { getDeviceId } from './deviceId';
+import { supabase } from '@/integrations/supabase/client';
 import type { Page, Project, CapsulePages, PageAnalysisResult } from './abstractions/types';
 
 // Re-export types for backward compatibility
 export type { Page, Project, CapsulePages };
+
+// ============= Origin Hash Sidecar =============
+
+/**
+ * Persist origin hash in sidecar table (backend-agnostic)
+ * This ensures origin hashes are stored even when the backend doesn't return them
+ */
+async function persistOriginHashSidecar(
+  deviceUserId: string,
+  pageId: string,
+  imageUrl: string,
+  originHash: string
+): Promise<void> {
+  try {
+    const { error } = await supabase.from('page_origin_hashes').insert({
+      device_user_id: deviceUserId,
+      page_id: pageId,
+      image_url: imageUrl,
+      origin_hash_sha256: originHash,
+      origin_hash_algo: 'sha256',
+    });
+    
+    if (error) {
+      // Ignore duplicate key errors (hash already exists)
+      if (error.code === '23505') {
+        console.log('[Origin Hash] Sidecar already exists for page:', pageId);
+        return;
+      }
+      console.warn('[Origin Hash] Sidecar insert failed:', error.message);
+    } else {
+      console.log('[Origin Hash] Sidecar persisted for page:', pageId);
+    }
+  } catch (err) {
+    console.warn('[Origin Hash] Sidecar insert failed (non-critical):', err);
+  }
+}
+
+/**
+ * Lookup origin hash from sidecar table
+ */
+export async function lookupOriginHash(
+  pageId: string
+): Promise<{ hash: string; algo: string } | null> {
+  const deviceUserId = getDeviceId();
+  if (!deviceUserId) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('page_origin_hashes')
+      .select('origin_hash_sha256, origin_hash_algo')
+      .eq('device_user_id', deviceUserId)
+      .eq('page_id', pageId)
+      .maybeSingle();
+    
+    if (error) {
+      console.warn('[Origin Hash] Sidecar lookup failed:', error.message);
+      return null;
+    }
+    
+    if (data) {
+      return {
+        hash: data.origin_hash_sha256,
+        algo: data.origin_hash_algo || 'sha256',
+      };
+    }
+  } catch (err) {
+    console.warn('[Origin Hash] Sidecar lookup error:', err);
+  }
+  
+  return null;
+}
+
+/**
+ * Enrich page with origin hash from sidecar if missing
+ */
+async function enrichPageWithOriginHash(page: Page): Promise<Page> {
+  if (page.originHashSha256) return page; // Already has hash
+  
+  const sidecarHash = await lookupOriginHash(page.id);
+  if (sidecarHash) {
+    return {
+      ...page,
+      originHashSha256: sidecarHash.hash,
+      originHashAlgo: sidecarHash.algo as 'sha256',
+    };
+  }
+  
+  return page;
+}
 
 // ============= Helper Functions =============
 
@@ -89,6 +179,11 @@ export async function createPage(
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: false },
     originHashSha256: originHash, // SHA-256 fingerprint for forensic verification
   });
+
+  // Persist origin hash in sidecar table (backend-agnostic, immutable)
+  if (originHash) {
+    await persistOriginHashSidecar(deviceUserId, page.id, imageUrl, originHash);
+  }
 
   return { 
     page, 
@@ -203,7 +298,11 @@ export function groupPagesByCapsule(pages: Page[]): { standalone: Page[]; capsul
  */
 export async function getPage(id: string): Promise<Page | null> {
   const storage = getStorageProvider();
-  return storage.getPage(id);
+  const page = await storage.getPage(id);
+  if (!page) return null;
+  
+  // Enrich with sidecar hash if missing
+  return enrichPageWithOriginHash(page);
 }
 
 /**

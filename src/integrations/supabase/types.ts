@@ -62,6 +62,36 @@ export type Database = {
         }
         Relationships: []
       }
+      page_origin_hashes: {
+        Row: {
+          created_at: string | null
+          device_user_id: string
+          id: string
+          image_url: string
+          origin_hash_algo: string | null
+          origin_hash_sha256: string
+          page_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_user_id: string
+          id?: string
+          image_url: string
+          origin_hash_algo?: string | null
+          origin_hash_sha256: string
+          page_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_user_id?: string
+          id?: string
+          image_url?: string
+          origin_hash_algo?: string | null
+          origin_hash_sha256?: string
+          page_id?: string
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           capsule_id: string | null
