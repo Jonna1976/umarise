@@ -836,28 +836,40 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     // Hetzner backend stores array/object fields as JSON strings (SQLite).
-    // IMPORTANT: The Vault update endpoint expects a FLAT payload (not nested under "updates").
-    const payload: Record<string, unknown> = { deviceUserId };
+    // The Vault PATCH endpoint expects: { deviceUserId, updates: { ...fields... } }
+    const apiUpdates: Record<string, unknown> = {};
 
-    if (updates.userNote !== undefined) payload.userNote = updates.userNote;
-    if (updates.primaryKeyword !== undefined) payload.primaryKeyword = updates.primaryKeyword;
-    if (updates.ocrText !== undefined) payload.ocrText = updates.ocrText;
-    if (updates.summary !== undefined) payload.summary = updates.summary;
+    if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
+    if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
+    if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
+    if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
 
-    if (updates.sources !== undefined) payload.sources = JSON.stringify(updates.sources);
-    if (updates.futureYouCues !== undefined) payload.futureYouCues = JSON.stringify(updates.futureYouCues);
-    if (updates.futureYouCuesSource !== undefined) payload.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
-    if (updates.highlights !== undefined) payload.highlights = JSON.stringify(updates.highlights);
+    // Array/object fields must be JSON-stringified for SQLite storage
+    if (updates.sources !== undefined) apiUpdates.sources = JSON.stringify(updates.sources);
+    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = JSON.stringify(updates.futureYouCues);
+    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
+    if (updates.highlights !== undefined) apiUpdates.highlights = JSON.stringify(updates.highlights);
 
     if (updates.tone !== undefined) {
       const toneArray = Array.isArray(updates.tone) ? updates.tone : [updates.tone].filter(Boolean);
-      payload.tone = JSON.stringify(toneArray);
+      apiUpdates.tone = JSON.stringify(toneArray);
     }
 
-    if (updates.projectId !== undefined) payload.projectId = updates.projectId || null;
-    if (updates.writtenAt !== undefined) payload.writtenAt = updates.writtenAt?.toISOString() || null;
+    if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
+    if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
 
-    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, payload);
+    console.log('[HetznerVaultStorage] PATCH payload:', { deviceUserId, updates: apiUpdates });
+
+    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
+      deviceUserId,
+      updates: apiUpdates,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      console.error('[HetznerVaultStorage] PATCH failed:', response.status, errorText);
+    }
+
     return response.ok;
   }
 
