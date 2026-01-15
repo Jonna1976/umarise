@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, Info } from 'lucide-react';
+import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, Info, Library } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -563,23 +563,14 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               </div>
 
 
-              {/* Browse all - book icon with horizontal lines */}
+              {/* Browse all beginnings */}
               {onBrowseAll && (
                 <button
                   onClick={onBrowseAll}
                   className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                 >
-                  <div className="relative w-5 h-5 flex items-center">
-                    {/* Book spine */}
-                    <div className="w-1 h-4 bg-current rounded-l-sm" />
-                    {/* Book pages with lines */}
-                    <div className="w-3.5 h-4 border border-current rounded-r-sm flex flex-col justify-center gap-0.5 px-0.5">
-                      <div className="w-full h-px bg-current opacity-60" />
-                      <div className="w-full h-px bg-current opacity-60" />
-                      <div className="w-full h-px bg-current opacity-60" />
-                    </div>
-                  </div>
-                  <span>Browse all pages</span>
+                  <Library className="w-4 h-4" />
+                  <span>Browse all beginnings</span>
                 </button>
               )}
             </motion.div>
