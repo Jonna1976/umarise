@@ -658,8 +658,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             );
           })()}
           
-          {/* Topic input - for additional project classification */}
-          {!isDemoMode && (
+          {/* Topic input - for additional project classification (hidden for pilot) */}
+          {false && !isDemoMode && (
             <div className="mt-3">
               <TopicInput
                 value={topic}
