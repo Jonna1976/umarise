@@ -6,39 +6,69 @@
  * 
  * Purpose: Make the human "begin moment" verifiable and audit-ready later,
  * without burdening the user with technical actions at capture.
+ * 
+ * CRITICAL: Hash must be calculated on EXACTLY the same bytes that are stored.
+ * This ensures forensic integrity - the hash matches what's in storage.
  */
 
 /**
  * Calculate SHA-256 hash of raw bytes (ArrayBuffer or Uint8Array)
  * Returns 64-character lowercase hex string
+ * 
+ * IMPORTANT: Handles Uint8Array with byteOffset correctly to ensure
+ * we only hash the actual view, not the entire underlying buffer.
  */
 export async function calculateSHA256(data: ArrayBuffer | Uint8Array): Promise<string> {
-  // Ensure we have an ArrayBuffer for crypto.subtle.digest
-  const buffer = data instanceof Uint8Array ? new Uint8Array(data).buffer : data;
+  // Handle Uint8Array with potential byteOffset (critical for correctness)
+  // If data is a view into a larger buffer, we must slice to get only our bytes
+  let buffer: ArrayBuffer;
+  if (data instanceof Uint8Array) {
+    // Create a new ArrayBuffer with just our bytes (handles byteOffset correctly)
+    buffer = new Uint8Array(data).buffer;
+  } else {
+    buffer = data;
+  }
+  
   const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**
- * Calculate SHA-256 hash from a data URL (base64 image)
- * Decodes the base64 and hashes the raw bytes
+ * Decode a data URL to raw bytes and detect MIME type
+ * Returns the exact bytes that should be stored AND hashed
  */
-export async function calculateSHA256FromDataUrl(dataUrl: string): Promise<string> {
-  // Extract base64 data from data URL
-  const base64Match = dataUrl.match(/^data:image\/\w+;base64,(.+)$/);
-  if (!base64Match) {
+export function decodeDataUrl(dataUrl: string): { bytes: Uint8Array; mimeType: string } {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) {
     throw new Error('Invalid data URL format');
   }
   
-  const base64 = base64Match[1];
+  const mimeType = match[1];
+  const base64 = match[2];
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
   
-  return calculateSHA256(bytes);
+  return { bytes, mimeType };
+}
+
+/**
+ * Calculate SHA-256 hash from a data URL (base64 image)
+ * Returns both the hash AND the decoded bytes/mimeType for upload
+ * 
+ * This ensures we hash EXACTLY what we upload (single source of truth)
+ */
+export async function hashAndDecodeDataUrl(dataUrl: string): Promise<{
+  hash: string;
+  bytes: Uint8Array;
+  mimeType: string;
+}> {
+  const { bytes, mimeType } = decodeDataUrl(dataUrl);
+  const hash = await calculateSHA256(bytes);
+  return { hash, bytes, mimeType };
 }
 
 /**
@@ -75,6 +105,7 @@ export interface HashVerificationResult {
   actualHash: string;
   fileName: string;
   verifiedAt: string;
+  algorithm: 'sha256';
 }
 
 /**
@@ -91,5 +122,6 @@ export async function verifyFileHashDetailed(
     actualHash: actualHash.toLowerCase(),
     fileName: file.name,
     verifiedAt: new Date().toISOString(),
+    algorithm: 'sha256',
   };
 }
