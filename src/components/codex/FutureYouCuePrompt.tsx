@@ -22,7 +22,8 @@ export function FutureYouCuePrompt({
   isLoading = false,
   isSubmitting = false
 }: FutureYouCuePromptProps) {
-  const [cues, setCues] = useState<string[]>(['', '', '']);
+  // 2 words - not 3!
+  const [cues, setCues] = useState<string[]>(['', '']);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
   const [hasUserEdited, setHasUserEdited] = useState(false);
@@ -31,8 +32,8 @@ export function FutureYouCuePrompt({
   useEffect(() => {
     if (suggestedCues.length > 0) {
       const normalized = [...suggestedCues];
-      while (normalized.length < 3) normalized.push('');
-      setCues(normalized.slice(0, 3));
+      while (normalized.length < 2) normalized.push('');
+      setCues(normalized.slice(0, 2));
     }
   }, [suggestedCues]);
 
@@ -73,7 +74,7 @@ export function FutureYouCuePrompt({
   };
 
   const filledCues = cues.filter(c => c.trim());
-  const canConfirm = filledCues.length === 3;
+  const canConfirm = filledCues.length === 2; // 2 words required
 
   const handleConfirm = () => {
     if (canConfirm) {
@@ -86,7 +87,7 @@ export function FutureYouCuePrompt({
       {/* Header */}
       <div className="text-center">
         <h3 className="font-serif text-lg text-foreground mb-1">
-          Welke 3 woorden typ jij later om dit terug te vinden?
+          In 2 words: what is this about?
         </h3>
         <p className="text-xs text-muted-foreground">
           Tap om te bewerken, of accepteer de suggesties
@@ -194,7 +195,7 @@ export function FutureYouCuePrompt({
       {/* Progress indicator */}
       <div className="text-center">
         <span className="text-xs text-muted-foreground">
-          {filledCues.length}/3 cues
+          {filledCues.length}/2 words
         </span>
       </div>
 
@@ -206,14 +207,14 @@ export function FutureYouCuePrompt({
           className="min-w-32 bg-primary hover:bg-primary/90 text-primary-foreground"
         >
           {isSubmitting ? (
-            'Opslaan...'
+            'Saving...'
           ) : canConfirm ? (
             <>
               <Check className="w-4 h-4 mr-2" />
-              OK
+              Timeline
             </>
           ) : (
-            `Nog ${3 - filledCues.length} cue${3 - filledCues.length !== 1 ? 's' : ''} nodig`
+            `${2 - filledCues.length} more word${2 - filledCues.length !== 1 ? 's' : ''} needed`
           )}
         </Button>
       </div>
