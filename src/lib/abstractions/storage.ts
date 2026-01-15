@@ -7,18 +7,22 @@
  * 
  * PRIVATE VAULT: Images are encrypted client-side with AES-256-GCM
  * before upload. Keys stay on device - zero-knowledge architecture.
+ * 
+ * ORIGIN HASH: SHA-256 fingerprint calculated over exact artifact bytes
+ * at upload time. Stored immutably for later forensic verification.
  */
 
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
 import { encryptImage, decryptImage, isPrivateVaultEnabled } from '../crypto';
+import { calculateSHA256FromDataUrl } from '../originHash';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
 
 export interface IStorageProvider {
-  // Image operations
-  uploadImage(imageDataUrl: string): Promise<string>;
+  // Image operations - returns URL and origin hash
+  uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }>;
   deleteImage(imageUrl: string): Promise<void>;
   
   // Encrypted image operations (Private Vault)
@@ -66,10 +70,16 @@ export class LovableCloudStorage implements IStorageProvider {
 
   /**
    * Upload image - encrypts with AES-256-GCM only if Private Vault is enabled
+   * Also calculates SHA-256 origin hash for forensic verification
    */
-  async uploadImage(imageDataUrl: string): Promise<string> {
+  async uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }> {
     const deviceUserId = this.getRealDeviceUserId();
     const timestamp = Date.now();
+    
+    // Calculate SHA-256 hash BEFORE any processing (on original artifact bytes)
+    console.log('[Origin Hash] Calculating SHA-256 fingerprint...');
+    const originHash = await calculateSHA256FromDataUrl(imageDataUrl);
+    console.log('[Origin Hash] Fingerprint calculated:', originHash.substring(0, 16) + '...');
     
     // Check if Private Vault mode is enabled
     if (isPrivateVaultEnabled()) {
@@ -101,7 +111,7 @@ export class LovableCloudStorage implements IStorageProvider {
         .getPublicUrl(data.path);
 
       console.log('[Vault] Encrypted image uploaded successfully');
-      return urlData.publicUrl;
+      return { imageUrl: urlData.publicUrl, originHash };
     }
     
     // DEFAULT: Upload without encryption (standard Supabase storage)
@@ -126,7 +136,7 @@ export class LovableCloudStorage implements IStorageProvider {
       .from('page-images')
       .getPublicUrl(data.path);
 
-    return urlData.publicUrl;
+    return { imageUrl: urlData.publicUrl, originHash };
   }
 
   /**
@@ -206,6 +216,8 @@ export class LovableCloudStorage implements IStorageProvider {
       capture_batch_id: pageData.captureBatchId || null,
       source_container_id: pageData.sourceContainerId || null,
       written_at: pageData.writtenAt?.toISOString() || null,
+      // Origin Hash: SHA-256 fingerprint for forensic verification
+      origin_hash_sha256: pageData.originHashSha256 || null,
     } as Record<string, unknown>;
 
     const { data, error } = await supabase
@@ -559,6 +571,8 @@ export class LovableCloudStorage implements IStorageProvider {
       writtenAt: row.written_at ? new Date(row.written_at as string) : undefined,
       createdAt: new Date(row.created_at as string),
       updatedAt: row.updated_at ? new Date(row.updated_at as string) : undefined,
+      // Origin Hash: SHA-256 fingerprint for forensic verification
+      originHashSha256: (row.origin_hash_sha256 as string) || undefined,
     };
   }
 }
@@ -608,10 +622,15 @@ export class HetznerVaultStorage implements IStorageProvider {
 
   /**
    * Upload image to Hetzner Vault via IPFS storage.
-   * Returns ipfs:// URL for the uploaded image.
+   * Returns ipfs:// URL for the uploaded image and SHA-256 origin hash.
    */
-  async uploadImage(imageDataUrl: string): Promise<string> {
+  async uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }> {
     const deviceUserId = this.getRealDeviceUserId();
+    
+    // Calculate SHA-256 hash BEFORE upload (on original artifact bytes)
+    console.log('[HetznerVaultStorage] Calculating SHA-256 fingerprint...');
+    const originHash = await calculateSHA256FromDataUrl(imageDataUrl);
+    console.log('[HetznerVaultStorage] Fingerprint calculated:', originHash.substring(0, 16) + '...');
     
     console.log('[HetznerVaultStorage] Uploading image to Hetzner Vault...');
     
@@ -630,7 +649,7 @@ export class HetznerVaultStorage implements IStorageProvider {
 
     const data = await response.json();
     console.log('[HetznerVaultStorage] Image uploaded successfully:', data.imageUrl);
-    return data.imageUrl;
+    return { imageUrl: data.imageUrl, originHash };
   }
 
   async deleteImage(imageUrl: string): Promise<void> {
@@ -955,6 +974,8 @@ export class HetznerVaultStorage implements IStorageProvider {
       writtenAt: data.writtenAt ? new Date(data.writtenAt as string) : undefined,
       createdAt: new Date(data.createdAt as string),
       updatedAt: data.updatedAt ? new Date(data.updatedAt as string) : undefined,
+      // Origin Hash: SHA-256 fingerprint for forensic verification
+      originHashSha256: (data.originHashSha256 as string) || undefined,
     };
   }
 }

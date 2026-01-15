@@ -58,6 +58,8 @@ export interface Page {
   writtenAt?: Date;
   createdAt: Date;
   updatedAt?: Date;
+  // Origin Hash: SHA-256 fingerprint for forensic verification
+  originHashSha256?: string;
 }
 
 export interface Project {
