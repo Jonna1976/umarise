@@ -567,9 +567,9 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               {onBrowseAll && (
                 <button
                   onClick={onBrowseAll}
-                  className="inline-flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                  className="inline-flex items-center gap-2.5 text-base text-muted-foreground/70 hover:text-muted-foreground transition-colors"
                 >
-                  <Library className="w-4 h-4" />
+                  <Library className="w-5 h-5" />
                   <span>Browse all beginnings</span>
                 </button>
               )}
