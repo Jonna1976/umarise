@@ -347,7 +347,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onOpenHistory }: Came
               <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
                 This was me.
               </h2>
-              <p className="font-serif text-[1rem] md:text-[1.2rem] text-primary-foreground/60 italic mt-1">
+              <p className="text-sm md:text-base text-primary-foreground/50 font-medium tracking-wide mt-2">
                 Before it got fixed.
               </p>
             </motion.div>
