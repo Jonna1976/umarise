@@ -835,40 +835,29 @@ export class HetznerVaultStorage implements IStorageProvider {
     // Always use the real device ID for updates - we're updating OUR pages, not demo pages
     const deviceUserId = this.getRealDeviceUserId();
 
-    // Prefer sending native arrays/objects (API contract), with a fallback to JSON strings for older Vault builds
-    const apiUpdates: Record<string, unknown> = {};
-    if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
-    if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
-    if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
-    if (updates.sources !== undefined) apiUpdates.sources = updates.sources;
-    if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
-    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = updates.futureYouCues;
-    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = updates.futureYouCuesSource;
-    if (updates.highlights !== undefined) apiUpdates.highlights = updates.highlights;
-    if (updates.tone !== undefined) apiUpdates.tone = Array.isArray(updates.tone) ? updates.tone : [updates.tone].filter(Boolean);
-    if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
-    if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
+    // Hetzner backend stores array/object fields as JSON strings (SQLite).
+    // IMPORTANT: The Vault update endpoint expects a FLAT payload (not nested under "updates").
+    const payload: Record<string, unknown> = { deviceUserId };
 
-    let response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
-      deviceUserId,
-      updates: apiUpdates,
-    });
+    if (updates.userNote !== undefined) payload.userNote = updates.userNote;
+    if (updates.primaryKeyword !== undefined) payload.primaryKeyword = updates.primaryKeyword;
+    if (updates.ocrText !== undefined) payload.ocrText = updates.ocrText;
+    if (updates.summary !== undefined) payload.summary = updates.summary;
 
-    // Fallback: if Vault expects JSON strings (legacy), retry once
-    if (!response.ok) {
-      const legacyUpdates: Record<string, unknown> = { ...apiUpdates };
-      if (legacyUpdates.sources !== undefined) legacyUpdates.sources = JSON.stringify(legacyUpdates.sources);
-      if (legacyUpdates.futureYouCues !== undefined) legacyUpdates.futureYouCues = JSON.stringify(legacyUpdates.futureYouCues);
-      if (legacyUpdates.futureYouCuesSource !== undefined) legacyUpdates.futureYouCuesSource = JSON.stringify(legacyUpdates.futureYouCuesSource);
-      if (legacyUpdates.highlights !== undefined) legacyUpdates.highlights = JSON.stringify(legacyUpdates.highlights);
-      if (legacyUpdates.tone !== undefined) legacyUpdates.tone = JSON.stringify(legacyUpdates.tone);
+    if (updates.sources !== undefined) payload.sources = JSON.stringify(updates.sources);
+    if (updates.futureYouCues !== undefined) payload.futureYouCues = JSON.stringify(updates.futureYouCues);
+    if (updates.futureYouCuesSource !== undefined) payload.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
+    if (updates.highlights !== undefined) payload.highlights = JSON.stringify(updates.highlights);
 
-      response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
-        deviceUserId,
-        updates: legacyUpdates,
-      });
+    if (updates.tone !== undefined) {
+      const toneArray = Array.isArray(updates.tone) ? updates.tone : [updates.tone].filter(Boolean);
+      payload.tone = JSON.stringify(toneArray);
     }
 
+    if (updates.projectId !== undefined) payload.projectId = updates.projectId || null;
+    if (updates.writtenAt !== undefined) payload.writtenAt = updates.writtenAt?.toISOString() || null;
+
+    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, payload);
     return response.ok;
   }
 
