@@ -17,14 +17,23 @@ export interface ExportData {
   version: string;
   deviceId: string;
   pageCount: number;
+  hashVerificationInfo: {
+    algorithm: string;
+    howToVerify: string;
+  };
   pages: ExportedPage[];
 }
 
 /**
  * Exported page with origin hash for verification
+ * Follows canonical format for forensic verification
  */
 export interface ExportedPage extends Omit<Page, 'embedding' | 'embeddingVector'> {
-  originHashSha256?: string;
+  // Origin hash fields (explicitly typed for clarity)
+  origin_hash_sha256: string | null;
+  origin_hash_algo: 'sha256' | null;
+  hash_status: 'verified' | 'legacy_no_hash';
+  captured_at: string; // ISO timestamp
 }
 
 export interface ExportProgress {
@@ -37,6 +46,25 @@ export interface ExportProgress {
  * Re-export verification types and function for external use
  */
 export { verifyFileHashDetailed, type HashVerificationResult } from './originHash';
+
+/**
+ * Transform page to canonical export format with explicit hash status
+ */
+function toExportedPage(page: Page): ExportedPage {
+  const hasHash = !!page.originHashSha256;
+  
+  return {
+    ...page,
+    // Remove internal fields
+    embedding: undefined,
+    embeddingVector: undefined,
+    // Canonical origin hash fields
+    origin_hash_sha256: page.originHashSha256 || null,
+    origin_hash_algo: hasHash ? 'sha256' : null,
+    hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+    captured_at: page.createdAt.toISOString(),
+  } as ExportedPage;
+}
 
 /**
  * Fetches all pages and creates a downloadable JSON file
@@ -57,22 +85,14 @@ export async function exportPagesAsJSON(): Promise<void> {
   // Create export data structure with origin hashes
   const exportData: ExportData = {
     exportedAt: new Date().toISOString(),
-    version: '1.1', // Upgraded version for origin hash support
+    version: '2.0', // Version 2.0: canonical origin hash format
     deviceId,
     pageCount: pages.length,
-    pages: pages.map(page => {
-      const exported: ExportedPage = {
-        ...page,
-        // Clean up any sensitive or unnecessary fields
-        embedding: undefined,
-        embeddingVector: undefined,
-      } as ExportedPage;
-      // Ensure origin hash is explicitly included
-      if (page.originHashSha256) {
-        exported.originHashSha256 = page.originHashSha256;
-      }
-      return exported;
-    }),
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the original image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
+    },
+    pages: pages.map(toExportedPage),
   };
 
   // Convert to JSON string with nice formatting
@@ -97,7 +117,20 @@ export async function exportPagesAsJSON(): Promise<void> {
 }
 
 /**
- * Fetches all pages and creates a downloadable ZIP file with images
+ * ZIP Manifest entry for forensic verification
+ */
+interface ManifestEntry {
+  page_id: string;
+  filename: string;
+  origin_hash_sha256: string | null;
+  origin_hash_algo: 'sha256' | null;
+  hash_status: 'verified' | 'legacy_no_hash';
+  captured_at: string;
+  image_url: string;
+}
+
+/**
+ * Fetches all pages and creates a downloadable ZIP file with images and manifest
  */
 export async function exportPagesAsZIP(
   onProgress?: (progress: ExportProgress) => void
@@ -117,8 +150,9 @@ export async function exportPagesAsZIP(
   // Get device ID from first page
   const deviceId = pages[0]?.deviceUserId || 'unknown';
 
-  // Download and add images to ZIP
-  const pagesWithLocalImages: Page[] = [];
+  // Build manifest entries while downloading images
+  const manifestEntries: ManifestEntry[] = [];
+  const pagesWithLocalImages: ExportedPage[] = [];
   
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
@@ -129,7 +163,8 @@ export async function exportPagesAsZIP(
       status: `Downloading image ${i + 1}/${pages.length}...`
     });
 
-    let localImagePath = `images/${page.id}.jpg`;
+    let filename = `${page.id}.jpg`;
+    const hasHash = !!page.originHashSha256;
     
     try {
       // Fetch the image
@@ -141,24 +176,31 @@ export async function exportPagesAsZIP(
         const contentType = response.headers.get('content-type') || 'image/jpeg';
         const ext = contentType.includes('png') ? 'png' : 
                    contentType.includes('webp') ? 'webp' : 'jpg';
-        localImagePath = `images/${page.id}.${ext}`;
+        filename = `${page.id}.${ext}`;
         
         // Add to ZIP
-        imagesFolder?.file(`${page.id}.${ext}`, blob);
+        imagesFolder?.file(filename, blob);
       }
     } catch (error) {
       console.warn(`Failed to download image for page ${page.id}:`, error);
-      localImagePath = page.imageUrl; // Keep original URL as fallback
     }
+
+    // Add manifest entry
+    manifestEntries.push({
+      page_id: page.id,
+      filename: `images/${filename}`,
+      origin_hash_sha256: page.originHashSha256 || null,
+      origin_hash_algo: hasHash ? 'sha256' : null,
+      hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+      captured_at: page.createdAt.toISOString(),
+      image_url: page.imageUrl,
+    });
 
     // Store page with local image reference
     pagesWithLocalImages.push({
-      ...page,
-      embedding: undefined,
-      embeddingVector: undefined,
-      // Add local image path reference
-      localImagePath,
-    } as Page & { localImagePath: string });
+      ...toExportedPage(page),
+      localImagePath: `images/${filename}`,
+    } as ExportedPage & { localImagePath: string });
   }
 
   onProgress?.({
@@ -167,50 +209,80 @@ export async function exportPagesAsZIP(
     status: 'Creating ZIP file...'
   });
 
-  // Create metadata JSON
-  const exportData: ExportData & { localImagePaths: boolean } = {
+  // Create manifest.json (canonical verification format)
+  const manifest = {
     exportedAt: new Date().toISOString(),
-    version: '1.0',
+    version: '2.0',
     deviceId,
     pageCount: pages.length,
-    pages: pagesWithLocalImages,
-    localImagePaths: true, // Indicates images are in the ZIP
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
+    },
+    entries: manifestEntries,
   };
+  zip.file('manifest.json', JSON.stringify(manifest, null, 2));
 
-  // Add metadata.json to ZIP
+  // Create full metadata.json (all page data)
+  const exportData: ExportData & { localImagePaths: boolean } = {
+    exportedAt: new Date().toISOString(),
+    version: '2.0',
+    deviceId,
+    pageCount: pages.length,
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
+    },
+    pages: pagesWithLocalImages,
+    localImagePaths: true,
+  };
   zip.file('metadata.json', JSON.stringify(exportData, null, 2));
 
   // Add README with origin hash verification instructions
   const readme = `# Umarise Export
-  
+
 Exported: ${new Date().toISOString()}
 Pages: ${pages.length}
 Device: ${deviceId}
 
 ## Contents
-- metadata.json: All page data including OCR text, summaries, keywords, and origin hashes
+- manifest.json: Minimal verification manifest with origin hashes
+- metadata.json: Complete page data including OCR text, summaries, keywords
 - images/: Original page images
 
 ## Origin Hash Verification
-Each page includes an \`originHashSha256\` field - a SHA-256 fingerprint of the original artifact.
-This allows forensic verification that the image has not been modified since capture.
 
-To verify: Calculate SHA-256 of the image file and compare to the stored hash.
+Each page includes:
+- \`origin_hash_sha256\`: SHA-256 fingerprint (64 hex characters)
+- \`origin_hash_algo\`: Algorithm used (always "sha256")
+- \`hash_status\`: "verified" or "legacy_no_hash"
+- \`captured_at\`: Timestamp of capture (ISO 8601)
 
-## Structure
-Each page in metadata.json contains:
-- id: Unique page identifier
-- imageUrl: Original cloud URL
-- localImagePath: Path to image in this archive
-- originHashSha256: SHA-256 fingerprint (64 hex chars) for verification
-- ocrText: Recognized text from handwriting
-- summary: AI-generated summary
-- keywords: Extracted keywords
-- tone: Detected emotional tone
-- futureYouCues: Retrieval hints
-- createdAt: Capture timestamp (UTC)
-- And more...
+### How to Verify
 
+1. Open manifest.json
+2. For each entry with hash_status: "verified":
+   - Locate the image file at the specified filename
+   - Calculate SHA-256 hash of the file bytes
+   - Compare to origin_hash_sha256
+   - Match = artifact is authentic and unmodified
+
+### Command Line Verification (macOS/Linux)
+
+\`\`\`bash
+# Calculate SHA-256 of an image
+shasum -a 256 images/<page_id>.jpg
+
+# Compare output to origin_hash_sha256 in manifest.json
+\`\`\`
+
+### Legacy Pages
+
+Pages with hash_status: "legacy_no_hash" were captured before origin hash
+verification was implemented. These pages are valid but cannot be
+cryptographically verified.
+
+---
 Generated by Umarise - Your Personal Codex
 `;
   zip.file('README.md', readme);
@@ -245,20 +317,14 @@ export async function exportSelectedPagesAsJSON(pageIds: string[]): Promise<void
 
   const exportData: ExportData & { isSelective: boolean } = {
     exportedAt: new Date().toISOString(),
-    version: '1.1', // Upgraded version for origin hash support
+    version: '2.0',
     deviceId,
     pageCount: pages.length,
-    pages: pages.map(page => {
-      const exported: ExportedPage = {
-        ...page,
-        embedding: undefined,
-        embeddingVector: undefined,
-      } as ExportedPage;
-      if (page.originHashSha256) {
-        exported.originHashSha256 = page.originHashSha256;
-      }
-      return exported;
-    }),
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the original image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
+    },
+    pages: pages.map(toExportedPage),
     isSelective: true,
   };
 
@@ -298,7 +364,8 @@ export async function exportSelectedPagesAsZIP(
   const imagesFolder = zip.folder('images');
   
   const deviceId = pages[0]?.deviceUserId || 'unknown';
-  const pagesWithLocalImages: Page[] = [];
+  const manifestEntries: ManifestEntry[] = [];
+  const pagesWithLocalImages: ExportedPage[] = [];
   
   for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
@@ -309,7 +376,8 @@ export async function exportSelectedPagesAsZIP(
       status: `Downloading image ${i + 1}/${pages.length}...`
     });
 
-    let localImagePath = `images/${page.id}.jpg`;
+    let filename = `${page.id}.jpg`;
+    const hasHash = !!page.originHashSha256;
     
     try {
       const response = await fetch(page.imageUrl);
@@ -318,20 +386,27 @@ export async function exportSelectedPagesAsZIP(
         const contentType = response.headers.get('content-type') || 'image/jpeg';
         const ext = contentType.includes('png') ? 'png' : 
                    contentType.includes('webp') ? 'webp' : 'jpg';
-        localImagePath = `images/${page.id}.${ext}`;
-        imagesFolder?.file(`${page.id}.${ext}`, blob);
+        filename = `${page.id}.${ext}`;
+        imagesFolder?.file(filename, blob);
       }
     } catch (error) {
       console.warn(`Failed to download image for page ${page.id}:`, error);
-      localImagePath = page.imageUrl;
     }
 
+    manifestEntries.push({
+      page_id: page.id,
+      filename: `images/${filename}`,
+      origin_hash_sha256: page.originHashSha256 || null,
+      origin_hash_algo: hasHash ? 'sha256' : null,
+      hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+      captured_at: page.createdAt.toISOString(),
+      image_url: page.imageUrl,
+    });
+
     pagesWithLocalImages.push({
-      ...page,
-      embedding: undefined,
-      embeddingVector: undefined,
-      localImagePath,
-    } as Page & { localImagePath: string });
+      ...toExportedPage(page),
+      localImagePath: `images/${filename}`,
+    } as ExportedPage & { localImagePath: string });
   }
 
   onProgress?.({
@@ -340,16 +415,35 @@ export async function exportSelectedPagesAsZIP(
     status: 'Creating ZIP file...'
   });
 
-  const exportData = {
+  // Create manifest.json
+  const manifest = {
     exportedAt: new Date().toISOString(),
-    version: '1.0',
+    version: '2.0',
     deviceId,
     pageCount: pages.length,
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the image file bytes and compare to origin_hash_sha256.',
+    },
+    entries: manifestEntries,
+    isSelective: true,
+  };
+  zip.file('manifest.json', JSON.stringify(manifest, null, 2));
+
+  // Create metadata.json
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    version: '2.0',
+    deviceId,
+    pageCount: pages.length,
+    hashVerificationInfo: {
+      algorithm: 'SHA-256',
+      howToVerify: 'Calculate SHA-256 of the image file bytes and compare to origin_hash_sha256.',
+    },
     pages: pagesWithLocalImages,
     localImagePaths: true,
     isSelective: true,
   };
-
   zip.file('metadata.json', JSON.stringify(exportData, null, 2));
 
   const zipBlob = await zip.generateAsync({ 
