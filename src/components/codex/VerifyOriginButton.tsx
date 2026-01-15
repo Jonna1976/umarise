@@ -31,8 +31,40 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
   const [resolvedHash, setResolvedHash] = useState<string | null>(originHashSha256);
   const [hashChecked, setHashChecked] = useState(false);
 
+  const STORAGE_KEY = `umarise_verified_${pageId}`;
+
+  // Check localStorage for persisted verification on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.verified && parsed.hash) {
+          setResult({
+            match: true,
+            expectedHash: parsed.hash,
+            actualHash: parsed.hash,
+            fileName: 'image',
+            verifiedAt: parsed.verifiedAt,
+            algorithm: 'sha256',
+          });
+          setResolvedHash(parsed.hash);
+          setState('verified');
+          setHashChecked(true);
+          console.log('[VerifyOrigin] Restored verified state from localStorage');
+          return;
+        }
+      } catch (e) {
+        console.warn('[VerifyOrigin] Failed to parse stored verification:', e);
+      }
+    }
+  }, [STORAGE_KEY]);
+
   // Lazy lookup hash from sidecar if not provided
   useEffect(() => {
+    // Skip if already verified from localStorage
+    if (state === 'verified') return;
+
     if (originHashSha256) {
       setResolvedHash(originHashSha256);
       setHashChecked(true);
@@ -56,7 +88,7 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
     };
 
     lookupHash();
-  }, [pageId, originHashSha256, hashChecked]);
+  }, [pageId, originHashSha256, hashChecked, state]);
 
   const handleVerify = async () => {
     // Check if hash lookup is still pending
@@ -99,6 +131,13 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
       
       if (verificationResult.match) {
         setState('verified');
+        // Persist verification to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          verified: true,
+          hash: verificationResult.actualHash,
+          verifiedAt: verificationResult.verifiedAt,
+        }));
+        console.log('[VerifyOrigin] Persisted verification to localStorage');
         toast.success('Origin verified', {
           description: 'The image matches its recorded fingerprint.',
         });
