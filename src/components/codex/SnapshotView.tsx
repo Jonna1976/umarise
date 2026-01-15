@@ -907,7 +907,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         </motion.div>
         )}
 
-        {/* AI Keywords - tappable to highlight */}
+        {/* AI Keywords - tappable to highlight (hidden for pilot) */}
+        {false && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -947,8 +948,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             })}
           </div>
         </motion.div>
+        )}
 
-        {/* Your Keywords - user can add 2-3 */}
+        {/* Your Keywords - user can add 2-3 (hidden for pilot) */}
+        {false && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -995,6 +998,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </div>
           )}
         </motion.div>
+        )}
 
         {/* OCR Text (collapsible & editable) - with Cite-to-Source highlights */}
         <motion.div
