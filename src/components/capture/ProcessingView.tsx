@@ -296,9 +296,6 @@ export function ProcessingView({
             )}
           </AnimatePresence>
 
-          <p className="text-foreground/40 text-sm mt-4 text-center">
-            Optional — you can refine this after processing
-          </p>
         </div>
 
         {/* Action buttons */}
@@ -331,24 +328,6 @@ export function ProcessingView({
             )}
           </Button>
 
-          {/* Secondary: Skip to codex (for heavy writers) */}
-          {isProcessingComplete && onSkipToCodex && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Button
-                onClick={handleSkipToCodex}
-                disabled={!hasInput || hasSubmitted}
-                variant="ghost"
-                className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-muted/50 text-sm disabled:opacity-40"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Skip to Memory
-                <BookOpen className="w-4 h-4 ml-2" />
-              </Button>
-            </motion.div>
-          )}
         </motion.div>
 
         {/* Breathing text - always visible at bottom */}
