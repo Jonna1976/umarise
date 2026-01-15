@@ -60,6 +60,7 @@ export interface Page {
   updatedAt?: Date;
   // Origin Hash: SHA-256 fingerprint for forensic verification
   originHashSha256?: string;
+  originHashAlgo?: 'sha256'; // For future-proofing
 }
 
 export interface Project {

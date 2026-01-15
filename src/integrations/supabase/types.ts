@@ -82,6 +82,8 @@ export type Database = {
           ocr_text: string | null
           ocr_tokens: Json | null
           one_line_hint: string | null
+          origin_hash_algo: string | null
+          origin_hash_sha256: string | null
           page_order: number | null
           primary_keyword: string | null
           project_id: string | null
@@ -116,6 +118,8 @@ export type Database = {
           ocr_text?: string | null
           ocr_tokens?: Json | null
           one_line_hint?: string | null
+          origin_hash_algo?: string | null
+          origin_hash_sha256?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
@@ -150,6 +154,8 @@ export type Database = {
           ocr_text?: string | null
           ocr_tokens?: Json | null
           one_line_hint?: string | null
+          origin_hash_algo?: string | null
+          origin_hash_sha256?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
