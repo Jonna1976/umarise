@@ -834,37 +834,52 @@ export class HetznerVaultStorage implements IStorageProvider {
   async updatePage(id: string, updates: Partial<Page>): Promise<boolean> {
     // Always use the real device ID for updates - we're updating OUR pages, not demo pages
     const deviceUserId = this.getRealDeviceUserId();
-    if (!deviceUserId) return false;
 
-    // Hetzner Vault expects: { deviceUserId, updates: { ...fields... } }
-    // Array/object fields are stored as JSON strings in SQLite
-    const apiUpdates: Record<string, unknown> = {};
+    // Hetzner Codex Storage has had multiple PATCH payload shapes historically.
+    // To be robust across deployments, we send BOTH:
+    //  - flat fields (what the current production endpoint expects)
+    //  - nested { updates: { ... } } (legacy contract)
+    // Array/object fields are persisted as JSON strings in SQLite.
 
-    if (updates.userNote !== undefined) apiUpdates.userNote = updates.userNote;
-    if (updates.primaryKeyword !== undefined) apiUpdates.primaryKeyword = updates.primaryKeyword;
-    if (updates.ocrText !== undefined) apiUpdates.ocrText = updates.ocrText;
-    if (updates.summary !== undefined) apiUpdates.summary = updates.summary;
-    if (updates.projectId !== undefined) apiUpdates.projectId = updates.projectId || null;
+    const flatPayload: Record<string, unknown> = { deviceUserId };
+    const nestedUpdates: Record<string, unknown> = {};
 
-    // Array/object fields must be JSON-stringified for SQLite storage
-    if (updates.sources !== undefined) apiUpdates.sources = JSON.stringify(updates.sources);
-    if (updates.futureYouCues !== undefined) apiUpdates.futureYouCues = JSON.stringify(updates.futureYouCues);
-    if (updates.futureYouCuesSource !== undefined) apiUpdates.futureYouCuesSource = JSON.stringify(updates.futureYouCuesSource);
-    if (updates.highlights !== undefined) apiUpdates.highlights = JSON.stringify(updates.highlights);
+    const set = (key: string, flatValue: unknown, nestedValue: unknown = flatValue) => {
+      flatPayload[key] = flatValue;
+      nestedUpdates[key] = nestedValue;
+    };
+
+    if (updates.userNote !== undefined) set('userNote', updates.userNote);
+    if (updates.primaryKeyword !== undefined) set('primaryKeyword', updates.primaryKeyword);
+    if (updates.ocrText !== undefined) set('ocrText', updates.ocrText);
+    if (updates.summary !== undefined) set('summary', updates.summary);
+
+    if (updates.sources !== undefined) set('sources', JSON.stringify(updates.sources), updates.sources);
+    if (updates.futureYouCues !== undefined) set('futureYouCues', JSON.stringify(updates.futureYouCues), updates.futureYouCues);
+    if (updates.futureYouCuesSource !== undefined) set(
+      'futureYouCuesSource',
+      JSON.stringify(updates.futureYouCuesSource),
+      updates.futureYouCuesSource
+    );
+    if (updates.highlights !== undefined) set('highlights', JSON.stringify(updates.highlights), updates.highlights);
 
     if (updates.tone !== undefined) {
       const toneArray = Array.isArray(updates.tone) ? updates.tone : [updates.tone].filter(Boolean);
-      apiUpdates.tone = JSON.stringify(toneArray);
+      set('tone', JSON.stringify(toneArray), toneArray);
     }
 
-    if (updates.writtenAt !== undefined) apiUpdates.writtenAt = updates.writtenAt?.toISOString() || null;
+    if (updates.projectId !== undefined) set('projectId', updates.projectId || null);
+    if (updates.writtenAt !== undefined) {
+      const iso = updates.writtenAt?.toISOString() || null;
+      set('writtenAt', iso, iso);
+    }
 
-    console.log('[HetznerVaultStorage] PATCH /vault/pages/' + id, { deviceUserId, updates: apiUpdates });
+    const payload = {
+      ...flatPayload,
+      ...(Object.keys(nestedUpdates).length > 0 ? { updates: nestedUpdates } : {}),
+    };
 
-    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, {
-      deviceUserId,
-      updates: apiUpdates,
-    });
+    const response = await this.proxyRequest('PATCH', `/vault/pages/${id}`, payload);
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');

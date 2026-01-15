@@ -132,17 +132,17 @@ const Index = () => {
   const handleProcessingContinue = useCallback(async (userCues: string[]) => {
     if (!pendingPagesToCue || pendingPagesToCue.length === 0) return;
 
-    // Keep ALL words as-is (no deduplication - "test test" stays "test test")
-    const cues = userCues
+    const normalized = userCues
       .map(c => c.trim())
       .filter(Boolean)
       .slice(0, 5);
+    const uniqueCues = Array.from(new Set(normalized)).slice(0, 5);
 
-    if (cues.length === 0) return;
+    if (uniqueCues.length === 0) return;
 
     try {
       const saves = await Promise.all(
-        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, cues, true))
+        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, uniqueCues, true))
       );
 
       if (!saves.every(Boolean)) {
@@ -154,11 +154,11 @@ const Index = () => {
       await refresh();
 
       // Find the updated page from refreshed data
-      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: cues }));
+      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
 
       // Open snapshot for the first page in this processing batch
       setCurrentPage(updatedPages[0]);
-      setSuggestedCues(cues);
+      setSuggestedCues(uniqueCues);
       setIsNewCapture(true);
       setView('snapshot');
 
@@ -178,17 +178,17 @@ const Index = () => {
   const handleSkipToCodex = useCallback(async (userCues: string[]) => {
     if (!pendingPagesToCue || pendingPagesToCue.length === 0) return;
 
-    // Keep ALL words as-is (no deduplication - "test test" stays "test test")
-    const cues = userCues
+    const normalized = userCues
       .map(c => c.trim())
       .filter(Boolean)
       .slice(0, 5);
+    const uniqueCues = Array.from(new Set(normalized)).slice(0, 5);
 
-    if (cues.length === 0) return;
+    if (uniqueCues.length === 0) return;
 
     try {
       const saves = await Promise.all(
-        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, cues, true))
+        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, uniqueCues, true))
       );
 
       if (!saves.every(Boolean)) {
@@ -197,7 +197,7 @@ const Index = () => {
       }
 
       // Update local cache
-      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: cues }));
+      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
       updatedPages.forEach(p => updatePage(p));
 
       // Highlight the first new page in history
