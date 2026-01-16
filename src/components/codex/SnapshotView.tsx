@@ -1099,36 +1099,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                       "{sentence}"
                     </div>
                   ))}
-                  <Textarea
-                    value={ocrText}
-                    onChange={(e) => setOcrText(e.target.value)}
-                    className="min-h-[100px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono mt-3"
-                    placeholder="Full OCR text..."
-                  />
+                  <p className="text-sm text-codex-cream leading-relaxed font-mono mt-3 whitespace-pre-wrap">
+                    {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
+                  </p>
                 </div>
               ) : (
-                /* No match info - show editable textarea */
-                <Textarea
-                  value={ocrText}
-                  onChange={(e) => setOcrText(e.target.value)}
-                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono"
-                  placeholder="OCR text..."
-                />
-              )}
-              
-              {/* Edit button to switch to editable mode when viewing highlights */}
-              {highlightedSegments.length > 0 && (
-                <button
-                  onClick={() => setHighlightedSegments([])}
-                  className="text-xs text-codex-cream/40 hover:text-codex-cream/60 mt-2 underline"
-                >
-                  Edit raw text
-                </button>
-              )}
-              
-              {!highlightedSegments.length && !citeResult?.likelySentences?.length && (
-                <p className="text-xs text-codex-cream/40 mt-2">
-                  Correct any OCR mistakes here
+                /* No match info - show read-only text */
+                <p className="text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
+                  {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
                 </p>
               )}
             </motion.div>
