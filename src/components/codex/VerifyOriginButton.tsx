@@ -221,7 +221,7 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
     return (
       <span 
         onClick={isClickable ? handleVerify : undefined}
-        className={`inline-flex items-center gap-1.5 text-sm ${isClickable ? 'cursor-pointer hover:text-codex-cream' : ''}`}
+        className={`inline-flex items-center gap-1.5 text-sm text-codex-cream/60 ${isClickable ? 'cursor-pointer hover:text-codex-cream' : ''}`}
       >
         {getButtonContent()}
       </span>
