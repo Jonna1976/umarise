@@ -191,7 +191,7 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
         return (
           <>
             <Clock className="w-3 h-3 text-codex-cream/40" />
-            <span className="text-codex-cream/40">Historische vastlegging</span>
+            <span className="text-codex-cream/40">Legacy capture</span>
           </>
         );
       default:
@@ -200,7 +200,7 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
           return (
             <>
               <Clock className="w-3 h-3 text-codex-cream/40" />
-              <span className="text-codex-cream/40">Historische vastlegging</span>
+              <span className="text-codex-cream/40">Legacy capture</span>
             </>
           );
         }
