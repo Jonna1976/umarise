@@ -860,7 +860,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               Auto-generated preview
             </p>
             <p className="text-xs text-codex-cream/40">
-              for retrieval only
+              For retrieval only
             </p>
           </div>
           <p className="text-base text-codex-cream/90 leading-relaxed">
