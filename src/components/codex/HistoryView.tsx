@@ -33,6 +33,7 @@ import {
 
 interface HistoryViewProps {
   pages: Page[];
+  isLoading?: boolean;
   onBack: () => void;
   onCapture?: () => void; // Separate handler for camera button
   onSelectPage: (page: Page) => void;
@@ -125,6 +126,7 @@ function groupByDatePeriod(items: HistoryItem[]): { period: string; items: Histo
 
 export function HistoryView({ 
   pages: allPages, 
+  isLoading = false,
   onBack, 
   onCapture,
   onSelectPage, 
@@ -791,7 +793,20 @@ export function HistoryView({
             exit={{ opacity: 0, y: -10 }}
             className="py-4"
           >
-            {historyItems.length === 0 ? (
+            {isLoading ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16 px-4"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4 animate-pulse">
+                  <Library className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="text-muted-foreground">
+                  Loading your origins...
+                </p>
+              </motion.div>
+            ) : historyItems.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
