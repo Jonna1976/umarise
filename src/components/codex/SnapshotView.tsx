@@ -535,17 +535,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
 
       <div className="p-6 max-w-lg mx-auto">
 
-        {/* Habit anchor - "Pen down. Snap." - only for new captures */}
-        {isNewCapture && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.25, delay: 0.1 }}
-            className="text-center text-sm text-codex-cream/60 mb-4 font-serif italic"
-          >
-            Pen down. Snap.
-          </motion.p>
-        )}
 
         {/* Future You Cue prompt - inline for new captures, before other content */}
         {isNewCapture && !isDemoMode && !cuesConfirmed && suggestedCues && (
@@ -567,11 +556,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-6"
+            className="text-left mb-6"
           >
-            <h2 className="font-serif text-xl text-codex-gold tracking-wide">
-              Part of your lasting memory
-            </h2>
+            <p className="text-sm text-codex-cream/70">
+              Chronology before interpretation.
+            </p>
           </motion.div>
         )}
 
