@@ -558,9 +558,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             animate={{ opacity: 1, y: 0 }}
             className="text-left mb-6"
           >
-            <p className="text-sm text-codex-cream/70">
+            <h2 className="font-serif text-xl text-codex-gold tracking-wide">
               Chronology before interpretation.
-            </p>
+            </h2>
           </motion.div>
         )}
 
