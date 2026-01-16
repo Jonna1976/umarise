@@ -87,6 +87,7 @@ Photo → 2 words → Find in 60 seconds
 
 ## 🔮 Future Considerations (v2+)
 
+- **iOS/Android Share Extension** ("Save to Umarise" in native share sheet) - requires native app build with Swift/Kotlin
 - Audio capture with Whisper transcription
 - MCP Server integration (Origin Authority)
 - Blockchain timestamp anchoring
