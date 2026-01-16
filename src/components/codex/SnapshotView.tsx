@@ -551,20 +551,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Success badge for new captures - shown after cues confirmed or in demo mode */}
-        {isNewCapture && (cuesConfirmed || isDemoMode) && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-left mb-6"
-          >
-            <h2 className="font-serif text-xl text-codex-gold tracking-wide">
-              Chronology before interpretation.
-            </h2>
-          </motion.div>
-        )}
-
-        {/* 1. IMAGE - Origin, primary */}
+        {/* 1. IMAGE - Origin, primary - ALWAYS show first */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -584,6 +571,19 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             </div>
           </div>
         </motion.div>
+
+        {/* Success badge for new captures - shown after cues confirmed or in demo mode */}
+        {isNewCapture && (cuesConfirmed || isDemoMode) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-left mb-4"
+          >
+            <h2 className="font-serif text-xl text-codex-gold tracking-wide">
+              Chronology before interpretation.
+            </h2>
+          </motion.div>
+        )}
 
         {/* 2. CAPTURED DATE + HASH - Combined fixation moment */}
         <motion.div
