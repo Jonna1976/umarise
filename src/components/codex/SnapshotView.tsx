@@ -734,10 +734,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="mb-6"
         >
           <p className="text-sm text-codex-gold mb-1">
-            In 2 words: what is this about?
+            Your search words
           </p>
           <p className="text-xs text-codex-cream/50 mb-3">
-            Your search words — how you'll find this again.
+            How you'll find this again.
           </p>
           
           {/* Display existing cues as individual words (max 2) */}
