@@ -67,6 +67,7 @@ function getToneClass(tone: string): string {
 }
 
 export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages, onSearchCue }: SnapshotViewProps) {
+  const [showPreview, setShowPreview] = useState(false);
   const [showOcrText, setShowOcrText] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showZoomedImage, setShowZoomedImage] = useState(false);
@@ -848,24 +849,43 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
         </motion.div>
 
-        {/* Summary - left aligned, regular text */}
+        {/* Summary - collapsible like RAW OCR */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6"
+          className="mb-4"
         >
-          <div className="mb-1">
-            <p className="text-xs text-codex-cream/40 uppercase tracking-wide">
-              Auto-generated preview
-            </p>
-            <p className="text-xs text-codex-cream/40">
-              For retrieval only
-            </p>
-          </div>
-          <p className="text-base text-codex-cream/90 leading-relaxed">
-            {page.summary}
-          </p>
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className="flex items-center justify-between w-full py-3 text-left"
+          >
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
+                Auto-generated preview
+              </span>
+              <span className="text-xs text-codex-cream/40 normal-case">
+                For retrieval only
+              </span>
+            </div>
+            {showPreview ? (
+              <ChevronUp className="w-4 h-4 text-codex-cream/50" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-codex-cream/50" />
+            )}
+          </button>
+          
+          {showPreview && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <p className="text-sm text-codex-cream/90 leading-relaxed p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20">
+                {page.summary}
+              </p>
+            </motion.div>
+          )}
         </motion.div>
 
 
@@ -1047,7 +1067,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             >
               {/* Show highlighted text when opened from search (Cite-to-Source A) */}
               {highlightedSegments.length > 0 ? (
-                <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-base text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
+                <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
                   {highlightedSegments.map((segment, i) => (
                     segment.isHighlighted ? (
                       <mark
@@ -1088,7 +1108,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                 <Textarea
                   value={ocrText}
                   onChange={(e) => setOcrText(e.target.value)}
-                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-base text-codex-cream leading-relaxed font-mono"
+                  className="min-h-[150px] resize-y bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono"
                   placeholder="OCR text..."
                 />
               )}
