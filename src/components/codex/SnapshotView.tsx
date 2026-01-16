@@ -855,7 +855,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-1">
+          <p className="text-xs text-codex-cream/40 tracking-wide mb-1">
             Auto-generated preview (for retrieval only)
           </p>
           <p className="text-base text-codex-cream/90 leading-relaxed">
