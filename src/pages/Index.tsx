@@ -38,7 +38,7 @@ const Index = () => {
   const [highlightPageId, setHighlightPageId] = useState<string | null>(null);
   
   // Use real pages from database
-  const { pages, createPage, createCapsule, addToCapsule, updatePage, deletePage, refresh } = usePages();
+  const { pages, isLoading, createPage, createCapsule, addToCapsule, updatePage, deletePage, refresh } = usePages();
   
   // Multi-image processing state
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -502,6 +502,7 @@ const Index = () => {
         return (
           <HistoryView
             pages={pages}
+            isLoading={isLoading}
             onBack={handleBackFromHistory}
             onCapture={() => setView('camera')}
             onSelectPage={handleSelectPage}
