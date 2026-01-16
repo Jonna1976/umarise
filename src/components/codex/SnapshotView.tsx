@@ -733,7 +733,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.06 }}
           className="mb-6"
         >
-          <p className="text-sm text-codex-gold mb-1">
+          <p className="text-sm text-codex-gold mb-1 uppercase tracking-wide">
             Your search words
           </p>
           <p className="text-xs text-codex-cream/50 mb-3">
