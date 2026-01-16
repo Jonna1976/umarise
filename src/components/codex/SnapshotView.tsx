@@ -581,18 +581,18 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           animate={{ opacity: 1, scale: 1 }}
           className="mb-4 flex flex-col items-center gap-2"
         >
-          <div className="relative group w-full">
+          <div 
+            className="relative group w-full cursor-pointer"
+            onClick={() => setShowZoomedImage(true)}
+          >
             <VaultImage
               src={page.imageUrl}
               alt="Captured page"
               className="w-full rounded-xl shadow-lg border border-codex-gold/20"
             />
-            <button
-              onClick={() => setShowZoomedImage(true)}
-              className="absolute bottom-3 right-3 p-2 rounded-full bg-codex-ink-deep/80 text-codex-cream/70 hover:text-codex-cream hover:bg-codex-ink-deep transition-all opacity-70 group-hover:opacity-100"
-            >
-              <ZoomIn className="w-4 h-4" />
-            </button>
+            <div className="absolute top-3 right-3 p-2.5 rounded-full bg-codex-ink-deep/80 text-codex-cream/60 group-hover:text-codex-cream group-hover:bg-codex-ink-deep transition-all">
+              <ZoomIn className="w-5 h-5" />
+            </div>
           </div>
         </motion.div>
 
@@ -737,7 +737,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             In 2 words: what is this about?
           </p>
           <p className="text-xs text-codex-cream/50 mb-3">
-            These words appear on the spine of this page in your memory.
+            Your search words — how you'll find this again.
           </p>
           
           {/* Display existing cues as individual words (max 2) */}
