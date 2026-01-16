@@ -449,12 +449,13 @@ export function HistoryView({
           
           {/* Center - title always centered */}
           <div className="flex flex-col items-center gap-1">
-            {isDemoMode ? (
+            {isLoading ? (
+              <h1 className="font-serif text-2xl font-semibold text-muted-foreground animate-pulse">Loading...</h1>
+            ) : isDemoMode ? (
               <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
             ) : (
               <h1 className="font-serif text-2xl font-semibold text-foreground">Your Beginnings</h1>
             )}
-            
           </div>
           
           {/* Right side - flex-1 to balance with left */}
@@ -816,11 +817,11 @@ export function HistoryView({
                   <Library className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <p className="text-muted-foreground mb-6">
-                  Your bookshelf is empty
+                  No origins captured yet
                 </p>
                 <Button onClick={handleCapture} variant="codex">
                   <Camera className="w-4 h-4 mr-2" />
-                  Start writing
+                  Capture your first origin
                 </Button>
               </motion.div>
             ) : (
