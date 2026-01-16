@@ -564,7 +564,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <VaultImage
               src={page.imageUrl}
               alt="Captured page"
-              className="w-full rounded-xl shadow-lg border border-codex-gold/20"
+              className="w-full rounded-xl shadow-lg border border-codex-gold/20 bg-muted/30"
             />
             <div className="absolute top-3 right-3 p-2.5 rounded-full bg-codex-ink-deep/80 text-codex-cream/60 group-hover:text-codex-cream group-hover:bg-codex-ink-deep transition-all">
               <ZoomIn className="w-5 h-5" />
@@ -702,7 +702,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             <VaultImage
               src={page.imageUrl}
               alt="Captured page - zoomed"
-              className="max-w-full max-h-full object-contain rounded-lg"
+              className="max-w-full max-h-full rounded-lg bg-muted/30"
+              imgClassName="max-w-full max-h-full object-contain"
             />
           </motion.div>
         )}

@@ -15,11 +15,20 @@ import { cn } from '@/lib/utils';
 interface VaultImageProps {
   src: string;
   alt?: string;
+  /** Styles applied to the outer wrapper (recommended: sizing, border, radius). */
   className?: string;
+  /** Styles applied to the underlying <img>. */
+  imgClassName?: string;
   onClick?: () => void;
 }
 
-export function VaultImage({ src, alt = 'Page image', className, onClick }: VaultImageProps) {
+export function VaultImage({
+  src,
+  alt = 'Page image',
+  className,
+  imgClassName,
+  onClick,
+}: VaultImageProps) {
   const [displayUrl, setDisplayUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,12 +43,12 @@ export function VaultImage({ src, alt = 'Page image', className, onClick }: Vaul
 
       try {
         const storage = getStorageProvider();
-        
+
         // Check if it's an IPFS URL (not necessarily encrypted)
         if (isIpfsUrl(src)) {
           // Check if it's encrypted (has .enc extension)
           const isEncryptedIpfs = src.includes('.enc');
-          
+
           if (isEncryptedIpfs) {
             setIsEncrypted(true);
             // Decrypt the image via storage provider
@@ -81,15 +90,17 @@ export function VaultImage({ src, alt = 'Page image', className, onClick }: Vaul
     };
   }, [src]);
 
+  // Keep layout stable even while loading/error to prevent overlay bleed
+  const wrapperClass = cn('relative overflow-hidden', className);
+
   if (isLoading) {
     return (
-      <div className={cn(
-        'flex items-center justify-center bg-muted/50 animate-pulse',
-        className
-      )}>
-        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-          <Lock className="h-5 w-5 animate-pulse" />
-          <span className="text-xs">Decrypting...</span>
+      <div className={wrapperClass} onClick={onClick}>
+        <div className="flex min-h-[220px] w-full items-center justify-center bg-muted/50 animate-pulse">
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <Lock className="h-5 w-5 animate-pulse" />
+            <span className="text-xs">Decrypting...</span>
+          </div>
         </div>
       </div>
     );
@@ -97,28 +108,29 @@ export function VaultImage({ src, alt = 'Page image', className, onClick }: Vaul
 
   if (error) {
     return (
-      <div className={cn(
-        'flex items-center justify-center bg-destructive/10 border border-destructive/20',
-        className
-      )}>
-        <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-          <AlertCircle className="h-5 w-5" />
-          <span className="text-xs">{error}</span>
+      <div className={wrapperClass} onClick={onClick}>
+        <div className="flex min-h-[220px] w-full items-center justify-center bg-destructive/10 border border-destructive/20">
+          <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
+            <AlertCircle className="h-5 w-5" />
+            <span className="text-xs">{error}</span>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative">
+    <div className={wrapperClass} onClick={onClick}>
       <img
         src={displayUrl || ''}
         alt={alt}
-        className={className}
-        onClick={onClick}
+        className={cn('block w-full h-auto', imgClassName)}
       />
       {isEncrypted && (
-        <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1.5" title="Private Vault - Encrypted">
+        <div
+          className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1.5"
+          title="Private Vault - Encrypted"
+        >
           <Lock className="h-3 w-3 text-primary" />
         </div>
       )}
