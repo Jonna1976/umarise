@@ -596,55 +596,15 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
         </motion.div>
 
-        {/* 2. SHA-256 STATUS - Silent confirmation of fixation */}
-        {!isNewCapture && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.02 }}
-            className="mb-4 flex justify-center"
-          >
-            <VerifyOriginButton
-              pageId={page.id}
-              imageUrl={page.imageUrl}
-              originHashSha256={page.originHashSha256 || null}
-              originHashAlgo={page.originHashAlgo}
-            />
-          </motion.div>
-        )}
-
-        {/* Zoomed image modal */}
-        {showZoomedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-codex-ink-deep/95 flex items-center justify-center p-4"
-            onClick={() => setShowZoomedImage(false)}
-          >
-            <button
-              onClick={() => setShowZoomedImage(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-codex-cream/10 text-codex-cream hover:bg-codex-cream/20 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <VaultImage
-              src={page.imageUrl}
-              alt="Captured page - zoomed"
-              className="max-w-full max-h-full object-contain rounded-lg"
-            />
-          </motion.div>
-        )}
-
-        {/* 3. WRITTEN DATE - Chronology */}
+        {/* 2. CAPTURED DATE + HASH - Combined fixation moment */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.04 }}
+          transition={{ delay: 0.02 }}
           className="mb-4"
         >
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-codex-cream/50 uppercase tracking-wide">Written</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-codex-cream/50 uppercase tracking-wide">Captured</span>
             {isDemoMode ? (
               <span className="text-sm text-codex-cream/80">
                 {format(writtenAt, 'd MMMM yyyy')}
@@ -723,8 +683,44 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                 </PopoverContent>
               </Popover>
             )}
+            {/* Inline verification status */}
+            {!isNewCapture && (
+              <>
+                <span className="text-codex-cream/30">·</span>
+                <VerifyOriginButton
+                  pageId={page.id}
+                  imageUrl={page.imageUrl}
+                  originHashSha256={page.originHashSha256 || null}
+                  originHashAlgo={page.originHashAlgo}
+                  inline
+                />
+              </>
+            )}
           </div>
         </motion.div>
+
+        {/* Zoomed image modal */}
+        {showZoomedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-codex-ink-deep/95 flex items-center justify-center p-4"
+            onClick={() => setShowZoomedImage(false)}
+          >
+            <button
+              onClick={() => setShowZoomedImage(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-codex-cream/10 text-codex-cream hover:bg-codex-cream/20 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <VaultImage
+              src={page.imageUrl}
+              alt="Captured page - zoomed"
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          </motion.div>
+        )}
 
         {/* 4. FUTURE YOU CUES - Minimal human interpretation (2 words) */}
         <motion.div
@@ -737,7 +733,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             Your search words
           </p>
           <p className="text-xs text-codex-cream/50 mb-3">
-            How you'll find this again.
+            How you'll find this again when you need it.
           </p>
           
           {/* Display existing cues as individual words (max 2) */}
