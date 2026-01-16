@@ -673,18 +673,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               </Popover>
             )}
             {/* Inline verification status */}
-            {!isNewCapture && (
-              <>
-                <span className="text-codex-cream/30">·</span>
-                <VerifyOriginButton
-                  pageId={page.id}
-                  imageUrl={page.imageUrl}
-                  originHashSha256={page.originHashSha256 || null}
-                  originHashAlgo={page.originHashAlgo}
-                  inline
-                />
-              </>
-            )}
+            <span className="text-codex-cream/30">·</span>
+            <VerifyOriginButton
+              pageId={page.id}
+              imageUrl={page.imageUrl}
+              originHashSha256={page.originHashSha256 || null}
+              originHashAlgo={page.originHashAlgo}
+              inline
+            />
           </div>
         </motion.div>
 
