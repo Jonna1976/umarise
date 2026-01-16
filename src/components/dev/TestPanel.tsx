@@ -113,44 +113,16 @@ export function TestPanel({
 
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
-  const [dbDeviceId, setDbDeviceId] = useState<string | null>(null);
-  const [dbPageCount, setDbPageCount] = useState<number>(0);
+  
+  // Known good device ID from database (53 pages) - hardcoded since RLS blocks cross-device queries
+  const KNOWN_GOOD_DEVICE_ID = '054aba4f-0453-4e6e-80c0-bdd554d19a91';
+  const KNOWN_PAGE_COUNT = 53;
 
   useEffect(() => {
-    const id = getDeviceId();
-    setLocalDeviceId(id);
-
-    const checkDb = async () => {
-      const { data, error } = await supabase
-        .from('pages')
-        .select('device_user_id');
-
-      if (!error && data && data.length > 0) {
-        const counts = new Map<string, number>();
-        for (const row of data) {
-          const rowId = row.device_user_id as string | null;
-          if (!rowId) continue;
-          counts.set(rowId, (counts.get(rowId) ?? 0) + 1);
-        }
-
-        let topId: string | null = null;
-        let topCount = 0;
-        for (const [rowId, count] of counts.entries()) {
-          if (count > topCount) {
-            topId = rowId;
-            topCount = count;
-          }
-        }
-
-        setDbDeviceId(topId);
-        setDbPageCount(topCount);
-      }
-    };
-
-    checkDb();
+    setLocalDeviceId(getDeviceId());
   }, []);
 
-  const deviceIdsMatch = localDeviceId === dbDeviceId;
+  const deviceIdsMatch = localDeviceId === KNOWN_GOOD_DEVICE_ID;
 
   const handleCopyDeviceId = () => {
     if (localDeviceId) {
@@ -160,10 +132,11 @@ export function TestPanel({
   };
 
   const handleAdoptDbDeviceId = () => {
-    if (dbDeviceId && dbDeviceId !== localDeviceId) {
-      persistDeviceId(dbDeviceId);
-      setLocalDeviceId(dbDeviceId);
-      toast({ title: "Device ID adopted", description: "Reload the page to see your memory." });
+    if (!deviceIdsMatch) {
+      persistDeviceId(KNOWN_GOOD_DEVICE_ID);
+      setLocalDeviceId(KNOWN_GOOD_DEVICE_ID);
+      toast({ title: "Device ID adopted", description: "Refreshing..." });
+      setTimeout(() => window.location.reload(), 500);
     }
   };
 
@@ -525,9 +498,9 @@ export function TestPanel({
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">DB Top ID:</span>
+              <span className="text-muted-foreground">Known ID:</span>
               <span className="text-foreground break-all max-w-[200px] text-right">
-                {dbDeviceId ? `${dbDeviceId.slice(0, 8)}...${dbDeviceId.slice(-4)}` : 'none'}
+                {`${KNOWN_GOOD_DEVICE_ID.slice(0, 8)}...${KNOWN_GOOD_DEVICE_ID.slice(-4)}`}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -537,8 +510,8 @@ export function TestPanel({
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Pages in DB:</span>
-              <span className="text-primary">{dbPageCount}</span>
+              <span className="text-muted-foreground">Known pages:</span>
+              <span className="text-primary">{KNOWN_PAGE_COUNT}</span>
             </div>
           </div>
           <div className="flex gap-2 mt-3">
@@ -546,9 +519,9 @@ export function TestPanel({
               <Copy className="w-3 h-3 mr-1" />
               Copy ID
             </Button>
-            {!deviceIdsMatch && dbDeviceId && (
-              <Button onClick={handleAdoptDbDeviceId} variant="default" size="sm" className="text-xs">
-                Adopt DB ID
+            {!deviceIdsMatch && (
+              <Button onClick={handleAdoptDbDeviceId} variant="default" size="sm" className="text-xs bg-amber-600 hover:bg-amber-500">
+                Adopt Known ID ({KNOWN_PAGE_COUNT} pages)
               </Button>
             )}
           </div>
@@ -654,7 +627,7 @@ export function TestPanel({
             Copy Real Pages to Demo
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
-            Copy your {dbPageCount} real pages to demo mode. Originals stay safe under your real device ID.
+            Copy your {KNOWN_PAGE_COUNT} real pages to demo mode. Originals stay safe under your real device ID.
           </p>
           <div className="text-xs text-primary bg-primary/10 p-2 rounded mb-2 border border-primary/20">
             ⚠️ Clears existing demo data first, then copies selected amount.
@@ -665,11 +638,11 @@ export function TestPanel({
               id="copyLimit"
               defaultValue="all"
             >
-              <option value="all">All ({dbPageCount})</option>
-              {dbPageCount > 5 && <option value="5">5 pages</option>}
-              {dbPageCount > 10 && <option value="10">10 pages</option>}
-              {dbPageCount > 25 && <option value="25">25 pages</option>}
-              {dbPageCount > 50 && <option value="50">50 pages</option>}
+              <option value="all">All ({KNOWN_PAGE_COUNT})</option>
+              <option value="5">5 pages</option>
+              <option value="10">10 pages</option>
+              <option value="25">25 pages</option>
+              <option value="50">50 pages</option>
             </select>
             <Button 
               onClick={async () => {
@@ -700,7 +673,7 @@ export function TestPanel({
               }}
               variant="default" 
               size="sm"
-              disabled={isInjecting || dbPageCount === 0}
+              disabled={isInjecting}
             >
               {isInjecting ? (
                 <>

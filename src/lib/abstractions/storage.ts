@@ -263,72 +263,21 @@ export class LovableCloudStorage implements IStorageProvider {
       return (data || []).map(row => this.mapRowToPage(row));
     }
 
-    // Normal mode: use user's real device ID with limited adoption logic
-    let deviceUserId = getDeviceId();
+    // Normal mode: use user's real device ID
+    // NOTE: Adoption logic removed because RLS policies prevent cross-device queries.
+    // If you lose your device ID, use the DeviceDebug panel in TestPanel to adopt manually.
+    const deviceUserId = getDeviceId();
     if (!deviceUserId) return [];
 
-    const fetchByDeviceId = async (id: string) => {
-      return supabase
-        .from('pages')
-        .select('*')
-        .eq('device_user_id', id)
-        .order('created_at', { ascending: false });
-    };
-
-    // First load pages for the current device ID
-    let { data, error } = await fetchByDeviceId(deviceUserId);
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('device_user_id', deviceUserId)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Fetch pages error:', error);
       return [];
-    }
-
-    const currentCount = data?.length ?? 0;
-
-    // If the current device id has few/no pages and another device has significantly more,
-    // adopt the most-populated device_user_id and persist it.
-    // This handles browser cache clears or new device sessions.
-    // NOTE: never adopt DEMO_DEVICE_ID.
-    if (currentCount < 5) {
-      const { data: allRows, error: allError } = await supabase
-        .from('pages')
-        .select('device_user_id');
-
-      if (!allError && allRows && allRows.length > 0) {
-        const counts = new Map<string, number>();
-        for (const row of allRows) {
-          const id = row.device_user_id as string | null;
-          if (!id || id === DEMO_DEVICE_ID) continue;
-          counts.set(id, (counts.get(id) ?? 0) + 1);
-        }
-
-        let bestId: string | null = null;
-        let maxCount = 0;
-        for (const [id, count] of counts.entries()) {
-          if (count > maxCount) {
-            maxCount = count;
-            bestId = id;
-          }
-        }
-
-        // Adopt if there's a device with 5+ more pages than current
-        const shouldAdopt =
-          !!bestId &&
-          bestId !== deviceUserId &&
-          maxCount >= 5 &&
-          maxCount > currentCount;
-
-        if (shouldAdopt) {
-          console.log('[Storage] Adopting device ID:', bestId, 'with', maxCount, 'pages');
-          deviceUserId = bestId!;
-          setDeviceId(bestId!);
-
-          const res = await fetchByDeviceId(bestId!);
-          if (!res.error && res.data) {
-            data = res.data;
-          }
-        }
-      }
     }
 
     if (!data) return [];
