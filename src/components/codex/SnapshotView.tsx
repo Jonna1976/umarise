@@ -710,11 +710,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           animate={{ opacity: 1, scale: 1 }}
           className="mb-6 flex flex-col items-center gap-2"
         >
-          <div className="relative group">
+          <div className="relative group w-full">
             <VaultImage
               src={page.imageUrl}
               alt="Captured page"
-              className="max-w-[360px] w-full rounded-xl shadow-lg border border-codex-gold/20"
+              className="w-full rounded-xl shadow-lg border border-codex-gold/20"
             />
             <button
               onClick={() => setShowZoomedImage(true)}
