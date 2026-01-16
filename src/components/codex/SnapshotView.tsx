@@ -855,6 +855,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
+          <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-1">
+            Auto-generated preview (for retrieval only)
+          </p>
           <p className="text-base text-codex-cream/90 leading-relaxed">
             {page.summary}
           </p>
@@ -1011,15 +1014,19 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             onClick={() => setShowOcrText(!showOcrText)}
             className="flex items-center justify-between w-full py-3 text-left"
           >
-            <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
-              Raw text 
-              {highlightedSegments.length > 0 && (
-                <span className="ml-2 normal-case text-codex-gold opacity-80">
-                  (matched passages highlighted)
-                </span>
-              )}
-              {!matchInfo && <span className="normal-case opacity-60">(editable)</span>}
-            </span>
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
+                Raw OCR
+                {highlightedSegments.length > 0 && (
+                  <span className="ml-2 normal-case text-codex-gold opacity-80">
+                    (matched passages highlighted)
+                  </span>
+                )}
+              </span>
+              <span className="text-xs text-codex-cream/40 normal-case">
+                May contain errors — for search only
+              </span>
+            </div>
             {showOcrText ? (
               <ChevronUp className="w-4 h-4 text-codex-cream/50" />
             ) : (
