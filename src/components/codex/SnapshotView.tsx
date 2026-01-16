@@ -575,141 +575,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Future You Cues - ALWAYS show, TOP POSITION, EDITABLE */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-6"
-        >
-          <p className="text-base text-codex-gold mb-1">
-            In 2 words: what is this about?
-          </p>
-          <p className="text-sm text-codex-cream/50 mb-3">
-            These words appear on the spine of this page in your memory.
-          </p>
-          
-          {/* Display existing cues as individual words (max 2) */}
-          {(() => {
-            // Normalize: split all cues into individual words, take max 2
-            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 2);
-            const wordCount = allWords.length;
-            
-            return (
-              <>
-                {wordCount > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3 mt-2">
-                    {allWords.map((word, index) => (
-                      <span 
-                        key={index}
-                        className="px-4 py-2 rounded-full text-base bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
-                      >
-                        <button
-                          onClick={() => onSearchCue?.(word)}
-                          className="hover:underline cursor-pointer"
-                          title={`Search for "${word}"`}
-                        >
-                          {word}
-                        </button>
-                        {!isDemoMode && (
-                          <button
-                            onClick={() => handleRemoveWord(word)}
-                            className="opacity-50 hover:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Input for adding words - only when not in demo mode and less than 2 words */}
-                {!isDemoMode && wordCount < 2 && (
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      value={newCueInput}
-                      onChange={(e) => setNewCueInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddCue();
-                        }
-                      }}
-                      placeholder={wordCount === 0 ? "e.g. funding" : "Add second word..."}
-                      className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10"
-                      maxLength={30}
-                    />
-                    <Button
-                      onClick={handleAddCue}
-                      disabled={!newCueInput.trim()}
-                      size="sm"
-                      className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-10 px-4"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Show hint when no words in demo mode */}
-                {wordCount === 0 && isDemoMode && (
-                  <p className="text-sm text-codex-cream/40 italic">No search words set</p>
-                )}
-              </>
-            );
-          })()}
-          
-          {/* Topic input - for additional project classification (hidden for pilot) */}
-          {false && !isDemoMode && (
-            <div className="mt-3">
-              <TopicInput
-                value={topic}
-                onChange={(value, projectId) => {
-                  setTopic(value);
-                  setTopicProjectId(projectId);
-                }}
-                autoFocus={isNewCapture}
-              />
-            </div>
-          )}
-        </motion.div>
-
-        {/* Match Reason Banner - shown when opened from search (FIX 1: No black box) */}
-        {matchInfo && matchInfo.matchTypes.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 p-3 rounded-lg bg-codex-gold/10 border border-codex-gold/20"
-          >
-            <div className="flex items-center gap-2 text-codex-gold">
-              {matchInfo.matchTypes[0] === 'cue' && <Tag className="w-4 h-4" />}
-              {matchInfo.matchTypes[0] === 'entity' && <User className="w-4 h-4" />}
-              {matchInfo.matchTypes[0] === 'text' && <FileText className="w-4 h-4" />}
-              {matchInfo.matchTypes[0] === 'meaning' && <Brain className="w-4 h-4" />}
-              <span className="text-sm font-medium">
-                {matchInfo.matchTypes[0] === 'cue' && `Matched on cue: ${matchInfo.matchedTerms[0] || ''}`}
-                {matchInfo.matchTypes[0] === 'entity' && `Matched on name: ${matchInfo.matchedTerms[0] || ''}`}
-                {matchInfo.matchTypes[0] === 'text' && `Matched on text: ${matchInfo.matchedTerms[0] || ''}`}
-                {matchInfo.matchTypes[0] === 'meaning' && 'Matched by meaning'}
-              </span>
-            </div>
-            {matchInfo.matchedTerms.length > 1 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {matchInfo.matchedTerms.slice(1, 4).map((term, i) => (
-                  <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-codex-gold/20 text-codex-gold/80">
-                    {term}
-                  </span>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Image - centered with zoom icon and verify button */}
+        {/* 1. IMAGE - Origin, primary */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 flex flex-col items-center gap-2"
+          className="mb-4 flex flex-col items-center gap-2"
         >
           <div className="relative group w-full">
             <VaultImage
@@ -724,17 +594,24 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               <ZoomIn className="w-4 h-4" />
             </button>
           </div>
-          
-          {/* Verify Origin - forensic fingerprint check */}
-          {!isNewCapture && (
+        </motion.div>
+
+        {/* 2. SHA-256 STATUS - Silent confirmation of fixation */}
+        {!isNewCapture && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.02 }}
+            className="mb-4 flex justify-center"
+          >
             <VerifyOriginButton
               pageId={page.id}
               imageUrl={page.imageUrl}
               originHashSha256={page.originHashSha256 || null}
               originHashAlgo={page.originHashAlgo}
             />
-          )}
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Zoomed image modal */}
         {showZoomedImage && (
@@ -759,23 +636,23 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* Written date - below image, above text */}
+        {/* 3. WRITTEN DATE - Chronology */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
+          transition={{ delay: 0.04 }}
           className="mb-4"
         >
           <div className="flex items-center gap-3">
             <span className="text-sm text-codex-cream/50 uppercase tracking-wide">Written</span>
             {isDemoMode ? (
-              <span className="text-base text-codex-cream/80">
+              <span className="text-sm text-codex-cream/80">
                 {format(writtenAt, 'd MMMM yyyy')}
               </span>
             ) : (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="text-base text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
+                  <button className="text-sm text-codex-cream/80 hover:text-codex-cream underline underline-offset-2 decoration-codex-cream/30 hover:decoration-codex-cream/60 transition-colors">
                     {format(writtenAt, 'd MMMM yyyy')}
                   </button>
                 </PopoverTrigger>
@@ -849,11 +726,141 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
         </motion.div>
 
-        {/* Summary - collapsible like RAW OCR */}
+        {/* 4. FUTURE YOU CUES - Minimal human interpretation (2 words) */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.06 }}
+          className="mb-6"
+        >
+          <p className="text-sm text-codex-gold mb-1">
+            In 2 words: what is this about?
+          </p>
+          <p className="text-xs text-codex-cream/50 mb-3">
+            These words appear on the spine of this page in your memory.
+          </p>
+          
+          {/* Display existing cues as individual words (max 2) */}
+          {(() => {
+            // Normalize: split all cues into individual words, take max 2
+            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 2);
+            const wordCount = allWords.length;
+            
+            return (
+              <>
+                {wordCount > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3 mt-2">
+                    {allWords.map((word, index) => (
+                      <span 
+                        key={index}
+                        className="px-4 py-2 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
+                      >
+                        <button
+                          onClick={() => onSearchCue?.(word)}
+                          className="hover:underline cursor-pointer"
+                          title={`Search for "${word}"`}
+                        >
+                          {word}
+                        </button>
+                        {!isDemoMode && (
+                          <button
+                            onClick={() => handleRemoveWord(word)}
+                            className="opacity-50 hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Input for adding words - only when not in demo mode and less than 2 words */}
+                {!isDemoMode && wordCount < 2 && (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      value={newCueInput}
+                      onChange={(e) => setNewCueInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCue();
+                        }
+                      }}
+                      placeholder={wordCount === 0 ? "e.g. funding" : "Add second word..."}
+                      className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10 text-sm"
+                      maxLength={30}
+                    />
+                    <Button
+                      onClick={handleAddCue}
+                      disabled={!newCueInput.trim()}
+                      size="sm"
+                      className="bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep h-10 px-4"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Show hint when no words in demo mode */}
+                {wordCount === 0 && isDemoMode && (
+                  <p className="text-xs text-codex-cream/40 italic">No search words set</p>
+                )}
+              </>
+            );
+          })()}
+          
+          {/* Topic input - for additional project classification (hidden for pilot) */}
+          {false && !isDemoMode && (
+            <div className="mt-3">
+              <TopicInput
+                value={topic}
+                onChange={(value, projectId) => {
+                  setTopic(value);
+                  setTopicProjectId(projectId);
+                }}
+                autoFocus={isNewCapture}
+              />
+            </div>
+          )}
+        </motion.div>
+
+        {/* Match Reason Banner - shown when opened from search */}
+        {matchInfo && matchInfo.matchTypes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-3 rounded-lg bg-codex-gold/10 border border-codex-gold/20"
+          >
+            <div className="flex items-center gap-2 text-codex-gold">
+              {matchInfo.matchTypes[0] === 'cue' && <Tag className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'entity' && <User className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'text' && <FileText className="w-4 h-4" />}
+              {matchInfo.matchTypes[0] === 'meaning' && <Brain className="w-4 h-4" />}
+              <span className="text-sm font-medium">
+                {matchInfo.matchTypes[0] === 'cue' && `Matched on cue: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'entity' && `Matched on name: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'text' && `Matched on text: ${matchInfo.matchedTerms[0] || ''}`}
+                {matchInfo.matchTypes[0] === 'meaning' && 'Matched by meaning'}
+              </span>
+            </div>
+            {matchInfo.matchedTerms.length > 1 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {matchInfo.matchedTerms.slice(1, 4).map((term, i) => (
+                  <span key={i} className="px-2 py-0.5 text-xs rounded-full bg-codex-gold/20 text-codex-gold/80">
+                    {term}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* 5. SUMMARY - Optional, secondary (collapsible) */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
           className="mb-4"
         >
           <button
