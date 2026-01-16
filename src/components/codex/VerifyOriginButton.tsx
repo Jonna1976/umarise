@@ -21,11 +21,12 @@ interface VerifyOriginButtonProps {
   imageUrl: string;
   originHashSha256: string | null;
   originHashAlgo?: 'sha256' | null;
+  inline?: boolean;
 }
 
 type VerificationState = 'idle' | 'loading-hash' | 'verifying' | 'verified' | 'mismatch' | 'legacy';
 
-export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originHashAlgo }: VerifyOriginButtonProps) {
+export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originHashAlgo, inline = false }: VerifyOriginButtonProps) {
   const [state, setState] = useState<VerificationState>('idle');
   const [result, setResult] = useState<HashVerificationResult | null>(null);
   const [resolvedHash, setResolvedHash] = useState<string | null>(originHashSha256);
@@ -214,6 +215,18 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
   };
 
   const isClickable = state === 'idle' && hashChecked && resolvedHash;
+
+  // Inline mode - just text, no button wrapper
+  if (inline) {
+    return (
+      <span 
+        onClick={isClickable ? handleVerify : undefined}
+        className={`inline-flex items-center gap-1.5 text-sm ${isClickable ? 'cursor-pointer hover:text-codex-cream' : ''}`}
+      >
+        {getButtonContent()}
+      </span>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-1">
