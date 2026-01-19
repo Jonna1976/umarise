@@ -65,6 +65,16 @@ export function TrashDropZone({ trashedCount, onDrop, onOpenTrash, isDragging }:
       }}
       transition={{ duration: 0.2 }}
     >
+      {/* Invisible expanded hit area when dragging - much larger for easier targeting */}
+      {isDragging && (
+        <div
+          className="absolute -inset-10 rounded-full"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        />
+      )}
+      
       <button
         onClick={onOpenTrash}
         onDragOver={handleDragOver}
