@@ -89,9 +89,21 @@ function inferCapsuleGroups(pages: PageData[]): PageData[] {
     return dateStr ? new Date(dateStr).getTime() : 0;
   };
   
-  // Helper to get cues array
+  // Helper to get cues array (handles both array and JSON string formats)
   const getCues = (p: PageData): string[] => {
-    return p.futureYouCues || p.future_you_cues || [];
+    const raw = p.futureYouCues || p.future_you_cues;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    // Parse JSON string if needed
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
   };
   
   // Sort by createdAt ascending
