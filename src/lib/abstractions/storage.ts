@@ -766,7 +766,81 @@ export class HetznerVaultStorage implements IStorageProvider {
     }
 
     const data = await response.json();
-    return (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+    const pages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+    
+    // Hetzner backend doesn't return capsuleId/pageOrder fields in GET response (bug).
+    // Workaround: group pages with identical cues created within 2 minutes as a capsule.
+    return this.inferCapsuleGroups(pages);
+  }
+
+  /**
+   * Infer capsule groups for pages missing capsuleId.
+   * Groups pages with identical futureYouCues created within 2 minutes.
+   */
+  private inferCapsuleGroups(pages: Page[]): Page[] {
+    const TWO_MINUTES_MS = 2 * 60 * 1000;
+    
+    // Sort by createdAt ascending to process oldest first
+    const sorted = [...pages].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    
+    // Group candidates: same cues, within 2 minutes
+    const capsuleMap = new Map<string, { capsuleId: string; pages: Page[] }>();
+    
+    for (const page of sorted) {
+      // Skip if already has a capsuleId from backend
+      if (page.capsuleId) continue;
+      
+      // Skip pages without cues - can't group them
+      if (!page.futureYouCues || page.futureYouCues.length === 0) continue;
+      
+      // Create a fingerprint from sorted cues
+      const cueFingerprint = [...page.futureYouCues].sort().join('|').toLowerCase();
+      
+      // Check if there's an existing group with matching cues and close timestamp
+      let foundGroup = false;
+      for (const [key, group] of capsuleMap) {
+        if (!key.startsWith(cueFingerprint)) continue;
+        
+        // Check if any page in the group is within 2 minutes
+        const lastInGroup = group.pages[group.pages.length - 1];
+        const timeDiff = Math.abs(page.createdAt.getTime() - lastInGroup.createdAt.getTime());
+        
+        if (timeDiff <= TWO_MINUTES_MS) {
+          // Add to this group
+          page.capsuleId = group.capsuleId;
+          page.pageOrder = group.pages.length;
+          group.pages.push(page);
+          foundGroup = true;
+          break;
+        }
+      }
+      
+      if (!foundGroup) {
+        // Start a new potential group (will only become capsule if more pages join)
+        const groupKey = `${cueFingerprint}:${page.createdAt.getTime()}`;
+        capsuleMap.set(groupKey, {
+          capsuleId: `inferred-${page.id.slice(0, 8)}`,
+          pages: [page],
+        });
+      }
+    }
+    
+    // Apply capsule IDs only to groups with 2+ pages
+    for (const group of capsuleMap.values()) {
+      if (group.pages.length >= 2) {
+        group.pages.forEach((p, idx) => {
+          p.capsuleId = group.capsuleId;
+          p.pageOrder = idx;
+        });
+        console.log(`[HetznerVaultStorage] Inferred capsule ${group.capsuleId} with ${group.pages.length} pages`);
+      } else {
+        // Single page - remove the temporary capsuleId
+        group.pages[0].capsuleId = undefined;
+        group.pages[0].pageOrder = 0;
+      }
+    }
+    
+    return pages;
   }
 
   async getPage(id: string): Promise<Page | null> {
