@@ -64,6 +64,102 @@ async function logAudit(supabase: any, log: Record<string, unknown>) {
   }
 }
 
+interface PageData {
+  id?: string;
+  pageId?: string;
+  capsuleId?: string | null;
+  pageOrder?: number;
+  futureYouCues?: string[];
+  future_you_cues?: string[];
+  createdAt?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Infer capsule groups for pages missing capsuleId.
+ * Groups pages with identical futureYouCues created within 2 minutes.
+ */
+function inferCapsuleGroups(pages: PageData[]): PageData[] {
+  const TWO_MINUTES_MS = 2 * 60 * 1000;
+  
+  // Helper to get createdAt as timestamp
+  const getTimestamp = (p: PageData): number => {
+    const dateStr = p.createdAt || p.created_at;
+    return dateStr ? new Date(dateStr).getTime() : 0;
+  };
+  
+  // Helper to get cues array
+  const getCues = (p: PageData): string[] => {
+    return p.futureYouCues || p.future_you_cues || [];
+  };
+  
+  // Sort by createdAt ascending
+  const sorted = [...pages].sort((a, b) => getTimestamp(a) - getTimestamp(b));
+  
+  // Group candidates: same cues, within 2 minutes
+  const capsuleMap = new Map<string, { capsuleId: string; pages: PageData[] }>();
+  
+  for (const page of sorted) {
+    // Skip if already has a capsuleId from backend
+    if (page.capsuleId) continue;
+    
+    const cues = getCues(page);
+    // Skip pages without cues - can't group them
+    if (cues.length === 0) continue;
+    
+    // Create a fingerprint from sorted cues
+    const cueFingerprint = [...cues].sort().join('|').toLowerCase();
+    const pageTime = getTimestamp(page);
+    
+    // Check if there's an existing group with matching cues and close timestamp
+    let foundGroup = false;
+    for (const [key, group] of capsuleMap) {
+      if (!key.startsWith(cueFingerprint + ':')) continue;
+      
+      // Check if last page in group is within 2 minutes
+      const lastInGroup = group.pages[group.pages.length - 1];
+      const timeDiff = Math.abs(pageTime - getTimestamp(lastInGroup));
+      
+      if (timeDiff <= TWO_MINUTES_MS) {
+        // Add to this group
+        page.capsuleId = group.capsuleId;
+        page.pageOrder = group.pages.length;
+        group.pages.push(page);
+        foundGroup = true;
+        break;
+      }
+    }
+    
+    if (!foundGroup) {
+      // Start a new potential group
+      const pageId = page.id || page.pageId || crypto.randomUUID().slice(0, 8);
+      const groupKey = `${cueFingerprint}:${pageTime}`;
+      capsuleMap.set(groupKey, {
+        capsuleId: `inferred-${pageId.toString().slice(0, 8)}`,
+        pages: [page],
+      });
+    }
+  }
+  
+  // Apply capsule IDs only to groups with 2+ pages
+  for (const group of capsuleMap.values()) {
+    if (group.pages.length >= 2) {
+      group.pages.forEach((p, idx) => {
+        p.capsuleId = group.capsuleId;
+        p.pageOrder = idx;
+      });
+      console.log(`[storage-proxy] Inferred capsule ${group.capsuleId} with ${group.pages.length} pages`);
+    } else {
+      // Single page - clear any temporary assignment
+      group.pages[0].capsuleId = null;
+      group.pages[0].pageOrder = 0;
+    }
+  }
+  
+  return pages;
+}
+
 serve(async (req) => {
   const requestId = crypto.randomUUID().slice(0, 8);
   const startTime = Date.now();
@@ -159,7 +255,14 @@ serve(async (req) => {
           { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      const data = await response.json();
+      let data = await response.json();
+      
+      // Apply capsule inference for GET /vault/pages responses
+      if (methodUpper === 'GET' && path === '/vault/pages' && data.pages && Array.isArray(data.pages)) {
+        console.log(`[${requestId}] Applying capsule inference to ${data.pages.length} pages`);
+        data = { ...data, pages: inferCapsuleGroups(data.pages) };
+      }
+      
       console.log(`[${requestId}] Success in ${durationMs}ms`);
 
       await logAudit(supabase, {
