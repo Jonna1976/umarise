@@ -1,38 +1,56 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Page } from '@/lib/pageService';
+import { getDeviceId } from '@/lib/deviceId';
 
-const TRASH_STORAGE_KEY = 'umarise_trash';
+const TRASH_STORAGE_PREFIX = 'umarise_trash_';
 
 interface TrashState {
   pageIds: string[];
+}
+
+/**
+ * Get the storage key for the current device's trash
+ * This ensures trash state is isolated per device ID
+ */
+function getTrashStorageKey(): string {
+  const deviceId = getDeviceId();
+  return `${TRASH_STORAGE_PREFIX}${deviceId || 'anonymous'}`;
 }
 
 export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => Promise<boolean> | void) {
   const [trashedIds, setTrashedIds] = useState<Set<string>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
 
-  // Load trash state from localStorage on mount
+  // Get current storage key (changes if device ID changes)
+  const storageKey = useMemo(() => getTrashStorageKey(), []);
+
+  // Load trash state from localStorage on mount (device-specific)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(TRASH_STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         const state: TrashState = JSON.parse(stored);
         setTrashedIds(new Set(state.pageIds));
+        console.log('[useTrash] Loaded trash for device:', storageKey, 'IDs:', state.pageIds.length);
+      } else {
+        // No trash state for this device - start fresh
+        setTrashedIds(new Set());
+        console.log('[useTrash] No trash state found for device:', storageKey);
       }
     } catch (e) {
       console.error('Failed to load trash state:', e);
     }
-  }, []);
+  }, [storageKey]);
 
-  // Persist trash state to localStorage
+  // Persist trash state to localStorage (device-specific)
   const persistTrash = useCallback((ids: Set<string>) => {
     try {
       const state: TrashState = { pageIds: Array.from(ids) };
-      localStorage.setItem(TRASH_STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(storageKey, JSON.stringify(state));
     } catch (e) {
       console.error('Failed to persist trash state:', e);
     }
-  }, []);
+  }, [storageKey]);
 
   // Move page to trash (soft delete)
   const moveToTrash = useCallback((pageId: string) => {
