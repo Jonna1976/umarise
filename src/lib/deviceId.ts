@@ -1,7 +1,10 @@
 // Device ID management for anonymous privacy-first identity
 
 const DEVICE_ID_KEY = 'umarise_device_id';
+// UI feature-mode toggle ("Demo" = wedge mode). This must NOT control which dataset is used.
 const DEMO_MODE_KEY = 'umarise_demo_mode';
+// Separate flag for switching to an isolated demo dataset (DEMO_DEVICE_ID)
+const DEMO_DATASET_KEY = 'umarise_demo_dataset';
 const PILOT_TEAM_KEY = 'umarise_pilot_team';
 
 // Fixed demo device ID - must be 36+ chars to pass RLS policy
@@ -85,11 +88,14 @@ export function getDeviceId(): string | null {
 }
 
 /**
- * Check if demo mode is active
+ * Check if the isolated demo dataset is active.
+ *
+ * IMPORTANT: This is intentionally NOT tied to the UI "Demo/Jonna" (wedge) mode.
+ * Wedge mode should show your real data; demo dataset is only for test-data flows.
  */
 export function isDemoModeActive(): boolean {
   try {
-    return localStorage.getItem(DEMO_MODE_KEY) === 'true';
+    return localStorage.getItem(DEMO_DATASET_KEY) === 'true';
   } catch {
     return false;
   }

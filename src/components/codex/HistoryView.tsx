@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, ArrowLeft, Calendar, Trash2, Search, X, Plus, Library, Download, BookOpen, Tag, Clock, Images } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
+import { getCurrentProvider, setHetznerEnabled } from '@/lib/abstractions';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -145,6 +146,14 @@ export function HistoryView({
   // Use onCapture for camera buttons, fallback to onBack if not provided
   const handleCapture = onCapture || onBack;
   const { isDemoMode } = useDemoMode();
+
+  const provider = getCurrentProvider();
+  const isVault = provider === 'hetzner';
+
+  const switchToCloud = useCallback(() => {
+    setHetznerEnabled(false);
+    window.location.reload();
+  }, []);
   
   // Trash management
   const {
@@ -819,10 +828,19 @@ export function HistoryView({
                 <p className="text-muted-foreground mb-6">
                   No origins captured yet
                 </p>
-                <Button onClick={handleCapture} variant="codex">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Capture your first origin
-                </Button>
+
+                <div className="flex flex-col items-center gap-3">
+                  <Button onClick={handleCapture} variant="codex">
+                    <Camera className="w-4 h-4 mr-2" />
+                    Capture your first origin
+                  </Button>
+
+                  {isVault && (
+                    <Button onClick={switchToCloud} variant="outline">
+                      Show my real data (Cloud)
+                    </Button>
+                  )}
+                </div>
               </motion.div>
             ) : (
               <div className="flex flex-col h-full">

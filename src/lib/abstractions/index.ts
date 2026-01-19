@@ -37,23 +37,67 @@ const HETZNER_LEGACY_PORTS = {
 
 /**
  * Check if Hetzner backend is enabled
- * Can be toggled via localStorage for testing without env vars
+ *
+ * - Env var (VITE_BACKEND_PROVIDER=hetzner) always wins for deterministic builds.
+ * - Manual toggles are session-scoped so you don't get "stuck" across days.
  */
+const HETZNER_TOGGLE_KEY = 'umarise_hetzner_enabled';
+
+function readToggle(storage: Storage): boolean | null {
+  try {
+    const v = storage.getItem(HETZNER_TOGGLE_KEY);
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function writeToggle(storage: Storage, enabled: boolean): void {
+  try {
+    storage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
+  } catch {
+    // ignore
+  }
+}
+
+function clearToggle(storage: Storage): void {
+  try {
+    storage.removeItem(HETZNER_TOGGLE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function isHetznerEnabled(): boolean {
-  // Check localStorage first (for testing toggle)
-  const localToggle = localStorage.getItem('umarise_hetzner_enabled');
-  if (localToggle === 'true') return true;
-  if (localToggle === 'false') return false;
-  
-  // Fall back to env var
-  return import.meta.env.VITE_BACKEND_PROVIDER === 'hetzner';
+  // Env var wins (production / published configuration)
+  const env = import.meta.env.VITE_BACKEND_PROVIDER;
+  if (env === 'hetzner') return true;
+  if (env === 'lovable' || env === 'lovable-cloud') return false;
+
+  // Session-scoped override (preferred)
+  const session = readToggle(sessionStorage);
+  if (session !== null) return session;
+
+  // Legacy localStorage override: migrate once into sessionStorage, then clear
+  const legacy = readToggle(localStorage);
+  if (legacy !== null) {
+    writeToggle(sessionStorage, legacy);
+    clearToggle(localStorage);
+    return legacy;
+  }
+
+  return false;
 }
 
 /**
- * Toggle Hetzner backend on/off (for testing)
+ * Toggle Hetzner backend on/off (session-only)
  */
 export function setHetznerEnabled(enabled: boolean): void {
-  localStorage.setItem('umarise_hetzner_enabled', String(enabled));
+  writeToggle(sessionStorage, enabled);
+  clearToggle(localStorage); // ensure non-sticky
+
   // Reset providers to force re-initialization
   resetProviders();
   console.log(`[Umarise] Hetzner backend ${enabled ? 'ENABLED' : 'DISABLED'}`);
