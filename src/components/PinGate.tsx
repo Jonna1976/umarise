@@ -92,7 +92,7 @@ export function PinGate({ children }: PinGateProps) {
             savePin(fullPin);
           } else {
             triggerHaptic('error');
-            setError('PIN komt niet overeen');
+            setError('PIN doesn\'t match');
             setIsShaking(true);
             setTimeout(() => setIsShaking(false), 500);
             setConfirmPin(['', '', '', '']);
@@ -139,7 +139,7 @@ export function PinGate({ children }: PinGateProps) {
       triggerUnlock();
     } else {
       triggerHaptic('error');
-      setError('Onjuiste PIN');
+      setError('Incorrect PIN');
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
       setPin(['', '', '', '']);
@@ -270,7 +270,7 @@ export function PinGate({ children }: PinGateProps) {
             transition={{ delay: 0.8 }}
             className="font-serif text-2xl text-foreground mb-2"
           >
-            Welkom terug
+            Welcome back
           </motion.h2>
           <motion.p
             initial={{ opacity: 0 }}
@@ -278,7 +278,7 @@ export function PinGate({ children }: PinGateProps) {
             transition={{ delay: 1 }}
             className="text-muted-foreground text-sm"
           >
-            Je kluis is geopend
+            Your vault is open
           </motion.p>
         </motion.div>
 
@@ -348,12 +348,12 @@ export function PinGate({ children }: PinGateProps) {
 
         {/* Title */}
         <h1 className="font-serif text-2xl text-center mb-2 text-foreground">
-          {isSettingPin ? 'Maak je kluis-PIN' : 'Ontgrendel je kluis'}
+          {isSettingPin ? 'Create your vault PIN' : 'Unlock your vault'}
         </h1>
         <p className="text-muted-foreground text-center text-sm mb-8">
           {isSettingPin 
-            ? 'Kies een 4-cijferige PIN om je herinneringen te beschermen'
-            : 'Voer je PIN in om toegang te krijgen'
+            ? 'Choose a 4-digit PIN to protect your origins'
+            : 'Enter your PIN to access'
           }
         </p>
 
@@ -363,7 +363,7 @@ export function PinGate({ children }: PinGateProps) {
             <>
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground text-center block">
-                  Nieuwe PIN
+                  New PIN
                 </label>
                 <PinInput values={pin} refs={inputRefs} />
               </div>
@@ -377,7 +377,7 @@ export function PinGate({ children }: PinGateProps) {
                     className="space-y-2"
                   >
                     <label className="text-xs text-muted-foreground text-center block">
-                      Bevestig PIN
+                      Confirm PIN
                     </label>
                     <PinInput values={confirmPin} refs={confirmInputRefs} isConfirm />
                   </motion.div>
@@ -410,7 +410,7 @@ export function PinGate({ children }: PinGateProps) {
           className="flex items-center justify-center gap-2 w-full mt-6 text-muted-foreground text-sm hover:text-foreground transition-colors"
         >
           {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          {showPin ? 'Verberg PIN' : 'Toon PIN'}
+          {showPin ? 'Hide PIN' : 'Show PIN'}
         </button>
 
         {/* Reset PIN option (only when verifying) */}
@@ -419,13 +419,13 @@ export function PinGate({ children }: PinGateProps) {
             onClick={resetPin}
             className="block w-full mt-4 text-muted-foreground text-xs hover:text-foreground transition-colors text-center"
           >
-            PIN vergeten? Stel een nieuwe in
+            Forgot PIN? Set a new one
           </button>
         )}
 
         {/* Privacy note */}
         <p className="text-muted-foreground/60 text-xs text-center mt-8">
-          Je PIN blijft lokaal op dit apparaat
+          Your PIN stays local to this device
         </p>
       </motion.div>
     </div>
