@@ -114,15 +114,22 @@ export function TestPanel({
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
   
-  // Known good device ID from database (53 pages) - hardcoded since RLS blocks cross-device queries
-  const KNOWN_GOOD_DEVICE_ID = '054aba4f-0453-4e6e-80c0-bdd554d19a91';
-  const KNOWN_PAGE_COUNT = 53;
+  // Known device IDs with their data
+  const KNOWN_DEVICE_IDS = {
+    // The "9 origins" dataset (January 2026 - SHA-256 Hash, Origin Witness, etc.)
+    ORIGINS_9: 'ae3ff163-0750-45b4-8683-6f95267c7e1a',
+    // The full dataset (53 pages from December 2025)
+    FULL_ARCHIVE: '054aba4f-0453-4e6e-80c0-bdd554d19a91',
+  } as const;
+  
+  // Default to the 9 origins dataset
+  const PREFERRED_DEVICE_ID = KNOWN_DEVICE_IDS.ORIGINS_9;
 
   useEffect(() => {
     setLocalDeviceId(getDeviceId());
   }, []);
 
-  const deviceIdsMatch = localDeviceId === KNOWN_GOOD_DEVICE_ID;
+  const isOnPreferredDevice = localDeviceId === PREFERRED_DEVICE_ID;
 
   const handleCopyDeviceId = () => {
     if (localDeviceId) {
@@ -131,11 +138,15 @@ export function TestPanel({
     }
   };
 
-  const handleAdoptDbDeviceId = () => {
-    if (!deviceIdsMatch) {
-      persistDeviceId(KNOWN_GOOD_DEVICE_ID);
-      setLocalDeviceId(KNOWN_GOOD_DEVICE_ID);
-      toast({ title: "Device ID adopted", description: "Refreshing..." });
+  const handleAdoptDeviceId = (deviceId: string, label: string) => {
+    if (localDeviceId !== deviceId) {
+      // Clear trash state for clean switch
+      const trashKeys = Object.keys(localStorage).filter(k => k.startsWith('umarise_trash_'));
+      trashKeys.forEach(k => localStorage.removeItem(k));
+      
+      persistDeviceId(deviceId);
+      setLocalDeviceId(deviceId);
+      toast({ title: `Switched to ${label}`, description: "Refreshing..." });
       setTimeout(() => window.location.reload(), 500);
     }
   };
@@ -497,33 +508,38 @@ export function TestPanel({
                 {localDeviceId ? `${localDeviceId.slice(0, 8)}...${localDeviceId.slice(-4)}` : 'null'}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Known ID:</span>
-              <span className="text-foreground break-all max-w-[200px] text-right">
-                {`${KNOWN_GOOD_DEVICE_ID.slice(0, 8)}...${KNOWN_GOOD_DEVICE_ID.slice(-4)}`}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Match:</span>
-              <span className={deviceIdsMatch ? 'text-codex-teal' : 'text-primary'}>
-                {deviceIdsMatch ? '✓ Yes' : '✗ No'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Known pages:</span>
-              <span className="text-primary">{KNOWN_PAGE_COUNT}</span>
+          </div>
+          
+          {/* Device ID Switcher */}
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-muted-foreground">Switch to a known dataset:</p>
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={() => handleAdoptDeviceId(KNOWN_DEVICE_IDS.ORIGINS_9, '9 Origins')} 
+                variant={localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9 ? 'default' : 'outline'}
+                size="sm" 
+                className="text-xs justify-start"
+                disabled={localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9}
+              >
+                {localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9 ? '✓ ' : ''}9 Origins (Jan 2026)
+              </Button>
+              <Button 
+                onClick={() => handleAdoptDeviceId(KNOWN_DEVICE_IDS.FULL_ARCHIVE, 'Full Archive')} 
+                variant={localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE ? 'default' : 'outline'}
+                size="sm" 
+                className="text-xs justify-start"
+                disabled={localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE}
+              >
+                {localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE ? '✓ ' : ''}Full Archive (53 pages)
+              </Button>
             </div>
           </div>
+          
           <div className="flex gap-2 mt-3">
             <Button onClick={handleCopyDeviceId} variant="outline" size="sm" className="text-xs">
               <Copy className="w-3 h-3 mr-1" />
               Copy ID
             </Button>
-            {!deviceIdsMatch && (
-              <Button onClick={handleAdoptDbDeviceId} variant="default" size="sm" className="text-xs bg-amber-600 hover:bg-amber-500">
-                Adopt Known ID ({KNOWN_PAGE_COUNT} pages)
-              </Button>
-            )}
           </div>
         </div>
 
@@ -627,7 +643,7 @@ export function TestPanel({
             Copy Real Pages to Demo
           </h3>
           <p className="text-xs text-muted-foreground mb-2">
-            Copy your {KNOWN_PAGE_COUNT} real pages to demo mode. Originals stay safe under your real device ID.
+            Copy your real pages to demo mode. Originals stay safe under your real device ID.
           </p>
           <div className="text-xs text-primary bg-primary/10 p-2 rounded mb-2 border border-primary/20">
             ⚠️ Clears existing demo data first, then copies selected amount.
@@ -638,7 +654,7 @@ export function TestPanel({
               id="copyLimit"
               defaultValue="all"
             >
-              <option value="all">All ({KNOWN_PAGE_COUNT})</option>
+              <option value="all">All pages</option>
               <option value="5">5 pages</option>
               <option value="10">10 pages</option>
               <option value="25">25 pages</option>
