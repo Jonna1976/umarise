@@ -4,31 +4,22 @@ import { Button } from '@/components/ui/button';
 import { 
   X, 
   FlaskConical, 
-  Trash2, 
-  Database,
-  Loader2,
   FileText,
   Bug,
   Copy,
-  Palette,
   Play,
   ToggleLeft,
   ToggleRight,
-  Server,
-  Cloud,
   Smartphone,
   Timer,
   BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
-import { injectTestData, clearTestData, resetAndInjectTestData, getTestDataInfo, copyRealPagesToDemo } from '@/lib/testDataInjector';
 import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
-import { getDeviceId, setDeviceId as persistDeviceId, getPilotTeam, joinPilotTeam, leavePilotTeam, PILOT_TEAM_IDS, PilotTeam } from '@/lib/deviceId';
-import { supabase } from '@/integrations/supabase/client';
+import { getDeviceId, getPilotTeam, joinPilotTeam, leavePilotTeam, PILOT_TEAM_IDS, PilotTeam } from '@/lib/deviceId';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { isHetznerEnabled, setHetznerEnabled, getCurrentProvider } from '@/lib/abstractions';
 import { WidgetMockup } from './WidgetMockup';
 import { PilotGuide } from './PilotGuide';
 
@@ -46,71 +37,6 @@ export function TestPanel({
   const [showOnePager, setShowOnePager] = useState(false);
   const [showWidgetMockup, setShowWidgetMockup] = useState(false);
   const [showPilotGuide, setShowPilotGuide] = useState(false);
-  
-  const [isInjecting, setIsInjecting] = useState(false);
-  const [injectProgress, setInjectProgress] = useState({ current: 0, total: 0 });
-  const [isClearing, setIsClearing] = useState(false);
-  
-  // Hetzner health check state
-  const [hetznerHealth, setHetznerHealth] = useState<{
-    vision: 'checking' | 'healthy' | 'error';
-    codex: 'checking' | 'healthy' | 'error';
-    visionError?: string;
-    codexError?: string;
-  } | null>(null);
-  
-  const checkHetznerHealth = async () => {
-    setHetznerHealth({ vision: 'checking', codex: 'checking' });
-
-    const baseUrl = import.meta.env.VITE_HETZNER_API_URL || 'http://94.130.180.233';
-
-    try {
-      const { data, error } = await supabase.functions.invoke('hetzner-health', {
-        body: { baseUrl },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      const visionResult = (data as any)?.vision as { status: 'healthy' | 'error'; error?: string } | undefined;
-      const codexResult = (data as any)?.codex as { status: 'healthy' | 'error'; error?: string } | undefined;
-
-      const next = {
-        vision: visionResult?.status ?? 'error',
-        codex: codexResult?.status ?? 'error',
-        visionError: visionResult?.error,
-        codexError: codexResult?.error,
-      } as const;
-
-      setHetznerHealth(next);
-
-      if (next.vision === 'healthy' && next.codex === 'healthy') {
-        toast({ title: '✅ Hetzner Health Check', description: 'All services healthy!' });
-      } else {
-        toast({
-          title: '⚠️ Hetzner Health Check',
-          description: `Vision: ${next.vision}, Codex: ${next.codex}`,
-          variant: 'destructive',
-        });
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Network error';
-      setHetznerHealth({ vision: 'error', codex: 'error', visionError: msg, codexError: msg });
-      toast({
-        title: '⚠️ Hetzner Health Check',
-        description: msg,
-        variant: 'destructive',
-      });
-    }
-  };
-
-  
-  // Double confirmation safeguard for real data protection
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
-  const [pendingDeleteAction, setPendingDeleteAction] = useState<(() => Promise<void>) | null>(null);
-
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
 
@@ -125,85 +51,6 @@ export function TestPanel({
     }
   };
 
-  const testDataInfo = getTestDataInfo();
-
-  const handleClearTestData = async () => {
-    setIsClearing(true);
-    try {
-      const deleted = await clearTestData();
-      toast({
-        title: "Test data deleted",
-        description: `${deleted} test pages removed.`,
-      });
-      onLoadTestData();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not delete test data",
-        variant: "destructive"
-      });
-    } finally {
-      setIsClearing(false);
-    }
-  };
-
-  // Idempotent reset + inject for reproducible demo state
-  const handleResetAndInject = async () => {
-    setIsInjecting(true);
-    
-    try {
-      const { cleared, inserted } = await resetAndInjectTestData((current, total) => {
-        setInjectProgress({ current, total });
-      });
-      
-      toast({
-        title: "Demo data reset",
-        description: `${cleared} old removed, ${inserted} fresh pages injected. Deterministic demo state ready.`,
-      });
-      
-      onLoadTestData();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Reset & inject failed",
-        variant: "destructive"
-      });
-    } finally {
-      setIsInjecting(false);
-    }
-  };
-
-  // Safeguard: require double confirmation for any destructive action on real data
-  const requireDoubleConfirmation = (action: () => Promise<void>, description: string) => {
-    // Demo mode operations are always allowed without confirmation
-    if (isDemoMode) {
-      action();
-      return;
-    }
-    
-    // Real data operations require double confirmation
-    toast({
-      title: "⛔ STOP - Real Data Protected",
-      description: `You tried to: ${description}. This would affect your REAL data. Enable Demo Mode first.`,
-      variant: "destructive",
-    });
-  };
-
-  const executeConfirmedDelete = async () => {
-    if (deleteConfirmInput.toUpperCase() !== 'DELETE' || !pendingDeleteAction) return;
-    
-    await pendingDeleteAction();
-    setShowDeleteConfirm(false);
-    setDeleteConfirmInput('');
-    setPendingDeleteAction(null);
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteConfirm(false);
-    setDeleteConfirmInput('');
-    setPendingDeleteAction(null);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -211,69 +58,6 @@ export function TestPanel({
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 bg-codex-ink/80 backdrop-blur-sm"
     >
-      {/* Double Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-codex-ink-deep/90 flex items-center justify-center p-4"
-            onClick={cancelDelete}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-card border-2 border-primary/50 rounded-xl p-6 max-w-sm w-full shadow-2xl"
-            >
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Trash2 className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-lg font-serif font-bold text-foreground">Bevestiging Vereist</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Je staat op het punt om <strong>ECHTE DATA</strong> te verwijderen.
-                  Dit kan NIET ongedaan worden gemaakt.
-                </p>
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2 text-foreground">
-                  Type <span className="text-primary font-bold">DELETE</span> om te bevestigen:
-                </label>
-                <input
-                  type="text"
-                  value={deleteConfirmInput}
-                  onChange={(e) => setDeleteConfirmInput(e.target.value)}
-                  className="w-full px-3 py-2 border-2 border-primary/30 rounded-lg bg-background text-foreground focus:border-primary focus:outline-none"
-                  placeholder="DELETE"
-                  autoFocus
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={cancelDelete}
-                >
-                  Annuleren
-                </Button>
-                <Button 
-                  variant="default" 
-                  className="flex-1"
-                  disabled={deleteConfirmInput.toUpperCase() !== 'DELETE'}
-                  onClick={executeConfirmedDelete}
-                >
-                  Verwijder Data
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
@@ -364,110 +148,12 @@ export function TestPanel({
           )}
         </div>
 
-        {/* Backend Provider Toggle */}
+        {/* Backend Provider - Hidden for stability (Hetzner is now permanent default)
+            Uncomment for developer debugging only:
         <div className="p-4 border-b border-border bg-background">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-            Backend Provider
-          </h3>
-          <button
-            onClick={() => {
-              const newState = !isHetznerEnabled();
-              setHetznerEnabled(newState);
-              toast({
-                title: newState ? "🔒 Hetzner Privacy Vault" : "☁️ Lovable Cloud",
-                description: newState
-                  ? "Now using Vault backend (session-only; auto-resets later)"
-                  : "Now using Cloud backend",
-              });
-              // Reload to reinitialize providers
-              setTimeout(() => window.location.reload(), 500);
-            }}
-            className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
-              isHetznerEnabled()
-                ? 'bg-codex-teal/10 border-codex-teal/50 text-codex-teal'
-                : 'bg-primary/10 border-primary/50 text-foreground'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              {isHetznerEnabled() ? (
-                <Server className="w-6 h-6" />
-              ) : (
-                <Cloud className="w-6 h-6" />
-              )}
-              <div className="text-left">
-                <div className="font-medium">
-                  {isHetznerEnabled() ? 'Hetzner Privacy Vault' : 'Lovable Cloud'}
-                </div>
-                <div className="text-xs opacity-70">
-                  {isHetznerEnabled()
-                    ? 'Encrypted storage + local AI'
-                    : 'Cloud (standard)'}
-                </div>
-              </div>
-            </div>
-            <span className="text-xs px-2 py-1 rounded bg-secondary">
-              Click to switch
-            </span>
-          </button>
-          
-          {/* Hetzner status indicator */}
-          {isHetznerEnabled() && (
-            <div className="mt-3 space-y-3">
-              <div className="p-3 bg-codex-teal/10 border border-codex-teal/30 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <span className="text-codex-teal text-lg">🔐</span>
-                  <div>
-                    <p className="text-xs font-bold text-foreground uppercase tracking-wide">Privacy Vault Active</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      All data encrypted. Local AI processing. Zero cloud dependency.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Health Check */}
-              <div className="p-3 bg-secondary/50 border border-border rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-foreground">Service Health</span>
-                  <Button 
-                    onClick={checkHetznerHealth} 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-6 text-xs"
-                    disabled={hetznerHealth?.vision === 'checking'}
-                  >
-                    {hetznerHealth?.vision === 'checking' ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      'Check'
-                    )}
-                  </Button>
-                </div>
-                
-                {hetznerHealth && (
-                  <div className="space-y-1 text-xs font-mono">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Vision (3341):</span>
-                      <span className={hetznerHealth.vision === 'healthy' ? 'text-codex-teal' : hetznerHealth.vision === 'checking' ? 'text-muted-foreground' : 'text-primary'}>
-                        {hetznerHealth.vision === 'healthy' ? '✓ Healthy' : hetznerHealth.vision === 'checking' ? '...' : `✗ ${hetznerHealth.visionError || 'Error'}`}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Codex (3342):</span>
-                      <span className={hetznerHealth.codex === 'healthy' ? 'text-codex-teal' : hetznerHealth.codex === 'checking' ? 'text-muted-foreground' : 'text-primary'}>
-                        {hetznerHealth.codex === 'healthy' ? '✓ Healthy' : hetznerHealth.codex === 'checking' ? '...' : `✗ ${hetznerHealth.codexError || 'Error'}`}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                
-                {!hetznerHealth && (
-                  <p className="text-xs text-muted-foreground">Click 'Check' to verify connectivity</p>
-                )}
-              </div>
-            </div>
-          )}
+          ... Backend toggle code ...
         </div>
+        */}
 
         {/* Device Debug Section */}
         <div className="p-4 border-b border-border bg-secondary/30">
@@ -585,160 +271,10 @@ export function TestPanel({
           </Link>
         </div>
 
-        {/* Copy Real Pages to Demo */}
-        <div className="p-4 bg-codex-teal/10 border-b border-border">
-          <h3 className="text-xs font-medium text-codex-teal uppercase tracking-wide mb-2 flex items-center gap-2">
-            <Copy className="w-3.5 h-3.5" />
-            Copy Real Pages to Demo
-          </h3>
-          <p className="text-xs text-muted-foreground mb-2">
-            Copy your real pages to demo mode. Originals stay safe under your real device ID.
-          </p>
-          <div className="text-xs text-primary bg-primary/10 p-2 rounded mb-2 border border-primary/20">
-            ⚠️ Clears existing demo data first, then copies selected amount.
-          </div>
-          <div className="flex gap-2 items-center">
-            <select 
-              className="bg-card border border-border rounded px-2 py-1 text-xs text-foreground"
-              id="copyLimit"
-              defaultValue="all"
-            >
-              <option value="all">All pages</option>
-              <option value="5">5 pages</option>
-              <option value="10">10 pages</option>
-              <option value="25">25 pages</option>
-              <option value="50">50 pages</option>
-            </select>
-            <Button 
-              onClick={async () => {
-                const realId = getDeviceId();
-                if (!realId) {
-                  toast({ title: "No device ID", description: "Cannot find real pages", variant: "destructive" });
-                  return;
-                }
-                const selectEl = document.getElementById('copyLimit') as HTMLSelectElement;
-                const limitValue = selectEl?.value;
-                const limit = limitValue === 'all' ? undefined : parseInt(limitValue, 10);
-                
-                setIsInjecting(true);
-                try {
-                  const { copied, skipped } = await copyRealPagesToDemo(realId, (current, total) => {
-                    setInjectProgress({ current, total });
-                  }, limit);
-                  toast({
-                    title: "Pages copied to demo",
-                    description: `${copied} pages copied, ${skipped} skipped. Originals untouched.`,
-                  });
-                  onLoadTestData();
-                } catch (error) {
-                  toast({ title: "Error", description: "Copy failed", variant: "destructive" });
-                } finally {
-                  setIsInjecting(false);
-                }
-              }}
-              variant="default" 
-              size="sm"
-              disabled={isInjecting}
-            >
-              {isInjecting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  {injectProgress.current}/{injectProgress.total}
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-1" />
-                  Copy → Demo
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Database Injection Section - FAKE DATA */}
-        <div className={`p-4 border-b border-border ${!isDemoMode ? 'opacity-50 pointer-events-none' : 'bg-primary/5'}`}>
-          <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-2 flex items-center gap-2">
-            <Database className="w-3.5 h-3.5" />
-            Fake Demo Data (Fallback)
-            {!isDemoMode && <span className="text-xs text-muted-foreground ml-2">🔒 Demo Mode required</span>}
-          </h3>
-          <p className="text-xs text-muted-foreground mb-2">
-            {testDataInfo.totalPages} fake pages as fallback:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              onClick={handleResetAndInject} 
-              variant="outline" 
-              size="sm"
-              disabled={isInjecting || !isDemoMode}
-            >
-              {isInjecting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  {injectProgress.current}/{injectProgress.total}
-                </>
-              ) : (
-                <>
-                  <Database className="w-4 h-4 mr-1" />
-                  Inject Fake Data
-                </>
-              )}
-            </Button>
-            <Button 
-              onClick={handleClearTestData} 
-              variant="ghost" 
-              size="sm"
-              disabled={isClearing || !isDemoMode}
-            >
-              {isClearing ? (
-                <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-              ) : (
-                <Trash2 className="w-4 h-4 mr-1" />
-              )}
-              Clear Demo
-            </Button>
-          </div>
-        </div>
-
-        {/* Color Palette Previews */}
-        <div className="p-4 bg-primary/5 border-b border-border">
-          <h3 className="text-xs font-medium text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Palette className="w-3.5 h-3.5" />
-            Color Palette
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            <Link to="/current-preview">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
-              >
-                <Palette className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Current (Forest)
-              </Button>
-            </Link>
-            <Link to="/warm-preview">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
-              >
-                <Palette className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Warm (Library)
-              </Button>
-            </Link>
-            <Link to="/demo-walkthrough">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
-              >
-                <Palette className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
-                Walkthrough (Calm)
-              </Button>
-            </Link>
-          </div>
-        </div>
+        {/* Hidden sections - not needed for pilot
+            Copy Real Pages, Fake Demo Data, Color Palette are hidden for cleaner pilot experience.
+            Alignment Tools remain visible below.
+        */}
 
         {/* Alignment Tools */}
         <div className="p-4 bg-codex-teal/10 border-b border-border">
