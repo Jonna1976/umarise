@@ -80,55 +80,38 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
       <DrawerTrigger asChild>
         {trigger}
       </DrawerTrigger>
-      <DrawerContent className="pb-24">
-        <DrawerHeader>
+      <DrawerContent className="max-h-[85vh]">
+        <DrawerHeader className="pb-2">
           <DrawerTitle className="flex items-center gap-2">
             <Link2 className="w-5 h-5" />
             Device Sync
           </DrawerTitle>
-          <DrawerDescription>
-            Koppel je Codex aan een ander apparaat
-          </DrawerDescription>
         </DrawerHeader>
         
-        <div className="px-4 pb-6 space-y-6">
-          {/* Current ID */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Jouw Device ID</label>
-            <div className="flex gap-2">
-              <code className="flex-1 px-3 py-3 bg-muted rounded-md text-xs font-mono truncate">
-                {deviceId || '...'}
-              </code>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-11 w-11"
-                onClick={handleCopy}
-                disabled={!deviceId}
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </Button>
-            </div>
-          </div>
-
-          {/* Adopt ID */}
+        <div className="px-4 pb-4 space-y-4">
+          {/* Adopt ID - FIRST so it's visible when keyboard opens */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Plak ID van ander apparaat
             </label>
-            <div className="relative flex gap-2">
+            <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
                   value={adoptInput}
                   onChange={(e) => setAdoptInput(e.target.value)}
                   placeholder="Plak hier..."
                   className="font-mono text-sm h-12 pr-10"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
                 {adoptInput && (
                   <button
                     onClick={() => setAdoptInput('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted"
                     aria-label="Wissen"
+                    type="button"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
@@ -137,20 +120,37 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
               <Button
                 onClick={handleAdopt}
                 disabled={!adoptInput.trim()}
-                className="h-12 px-6"
+                className="h-12 px-5"
               >
                 Koppel
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Kopieer het ID van je andere apparaat en plak het hierboven
-            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-border pt-4">
+            <label className="text-sm text-muted-foreground">Dit apparaat</label>
+            <div className="flex gap-2 mt-2">
+              <code className="flex-1 px-3 py-2 bg-muted rounded-md text-[10px] font-mono truncate leading-relaxed">
+                {deviceId || '...'}
+              </code>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1.5"
+                onClick={handleCopy}
+                disabled={!deviceId}
+              >
+                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span className="text-xs">{copied ? 'Gekopieerd' : 'Kopieer'}</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <DrawerFooter className="pb-8">
+        <DrawerFooter className="pt-2 pb-6">
           <DrawerClose asChild>
-            <Button variant="outline" size="lg">Sluiten</Button>
+            <Button variant="ghost" size="sm">Sluiten</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
