@@ -839,8 +839,12 @@ export class HetznerVaultStorage implements IStorageProvider {
     }
 
     const data = await response.json();
-    // Capsule inference is now handled by the hetzner-storage-proxy edge function
-    return (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+    // Map pages and filter out trashed ones
+    // Trash state is stored in Supabase, so we need to check is_trashed from the response
+    const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+    
+    // Filter out trashed pages (trash state comes from Supabase via the proxy)
+    return allPages.filter((page: Page) => !page.isTrashed);
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -1108,19 +1112,102 @@ export class HetznerVaultStorage implements IStorageProvider {
     };
   }
 
-  // Trash operations - stub implementations for Hetzner
+  // Trash operations - use Supabase for trash state (same as LovableCloudStorage)
+  // Trash is stored in the database, not in Hetzner Vault itself
   async moveToTrash(pageId: string): Promise<boolean> {
-    console.warn('[HetznerVaultStorage] moveToTrash not yet implemented');
-    return false;
+    const deviceUserId = this.getRealDeviceUserId();
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        is_trashed: true, 
+        trashed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('[HetznerVaultStorage] Move to trash error:', error);
+      return false;
+    }
+
+    return true;
   }
 
   async restoreFromTrash(pageId: string): Promise<boolean> {
-    console.warn('[HetznerVaultStorage] restoreFromTrash not yet implemented');
-    return false;
+    const deviceUserId = this.getRealDeviceUserId();
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        is_trashed: false, 
+        trashed_at: null,
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('[HetznerVaultStorage] Restore from trash error:', error);
+      return false;
+    }
+
+    return true;
   }
 
   async getTrashedPages(): Promise<Page[]> {
-    console.warn('[HetznerVaultStorage] getTrashedPages not yet implemented');
-    return [];
+    const deviceUserId = this.getDeviceUserId();
+
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('device_user_id', deviceUserId)
+      .eq('is_trashed', true)
+      .order('trashed_at', { ascending: false });
+
+    if (error) {
+      console.error('[HetznerVaultStorage] Fetch trashed pages error:', error);
+      return [];
+    }
+
+    // Map rows using same logic as LovableCloudStorage
+    return (data || []).map(row => ({
+      id: row.id as string,
+      deviceUserId: row.device_user_id as string,
+      writerUserId: (row.writer_user_id as string) || (row.device_user_id as string),
+      imageUrl: row.image_url as string,
+      thumbnailUri: (row.thumbnail_uri as string) || undefined,
+      ocrText: (row.ocr_text as string) || '',
+      ocrTokens: [],
+      namedEntities: [],
+      summary: (row.summary as string) || '',
+      oneLineHint: (row.one_line_hint as string) || undefined,
+      tone: row.tone ? [row.tone as string] : [],
+      keywords: (row.keywords as string[]) || [],
+      topicLabels: (row.topic_labels as string[]) || [],
+      primaryKeyword: (row.primary_keyword as string) || undefined,
+      userNote: (row.user_note as string) || undefined,
+      sources: (row.sources as string[]) || [],
+      highlights: (row.highlights as string[]) || [],
+      confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
+      capsuleId: (row.capsule_id as string) || undefined,
+      pageOrder: (row.page_order as number) ?? 0,
+      projectId: (row.project_id as string) || undefined,
+      futureYouCue: (row.future_you_cue as string) || undefined,
+      futureYouCues: (row.future_you_cues as string[]) || [],
+      futureYouCuesSource: (row.future_you_cues_source as unknown as FutureYouCuesSource) || { ai_prefill_version: null, user_edited: false },
+      embeddingVector: undefined,
+      sessionId: (row.session_id as string) || undefined,
+      captureBatchId: (row.capture_batch_id as string) || undefined,
+      sourceContainerId: (row.source_container_id as string) || undefined,
+      writtenAt: row.written_at ? new Date(row.written_at as string) : undefined,
+      createdAt: new Date(row.created_at as string),
+      updatedAt: row.updated_at ? new Date(row.updated_at as string) : undefined,
+      originHashSha256: (row.origin_hash_sha256 as string) || undefined,
+      originHashAlgo: 'sha256' as const,
+      isTrashed: true,
+      trashedAt: row.trashed_at ? new Date(row.trashed_at as string) : undefined,
+    }));
   }
 }
