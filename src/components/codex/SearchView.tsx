@@ -382,21 +382,24 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     const matchedTerms = new Set<string>();
     let score = 0;
 
+    // User-assigned handles (all equal weight: +100)
     const primary = page.primaryKeyword || '';
     const cues = page.futureYouCues || [];
+    const keywords = page.keywords || []; // Bonus words from AI analysis
     const ocr = page.ocrText || '';
 
     for (const term of terms) {
       let termMatched = false;
 
+      // Spine (primary cue) — user-assigned (+100)
       if (includesWholeWord(primary, term)) {
-        score += 120;
+        score += 100;
         matchTypes.add('spine');
         matchedTerms.add(term);
         termMatched = true;
       }
 
-      // Even if spine matched, cue can also be a match signal (explainability)
+      // Future You Cues — user-assigned (+100, equal to spine)
       if (cues.some((c) => includesWholeWord(c, term))) {
         score += 100;
         matchTypes.add('cue');
@@ -404,7 +407,15 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
         termMatched = true;
       }
 
-      // OCR is always secondary to user-assigned handles
+      // Keywords / bonus words — AI-suggested retrieval hints (+80)
+      if (keywords.some((k) => includesWholeWord(k, term))) {
+        score += 80;
+        matchTypes.add('cue'); // Show as cue badge for simplicity
+        matchedTerms.add(term);
+        termMatched = true;
+      }
+
+      // OCR text — raw handwritten content (+30)
       if (includesWholeWord(ocr, term)) {
         score += 30;
         matchTypes.add('text');
@@ -412,7 +423,6 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
         termMatched = true;
       }
 
-      // If nothing matched for this term, do nothing (strict exact mode)
       if (!termMatched) continue;
     }
 
