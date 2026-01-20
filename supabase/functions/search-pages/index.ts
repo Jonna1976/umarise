@@ -183,15 +183,33 @@ serve(async (req) => {
     const dateQuery = parseDateQuery(query);
     
     // Tokenize and normalize query for text matching
-    const queryTerms = query.toLowerCase().split(/\s+/).filter((t: string) => t.length > 1);
+    // Also handle hyphenated terms: "future-self" → ["future-self", "future", "self"]
+    const rawTerms = query.toLowerCase().split(/\s+/).filter((t: string) => t.length > 1);
+    const queryTerms: string[] = [];
+    for (const term of rawTerms) {
+      queryTerms.push(term); // Keep original (e.g., "future-self")
+      if (term.includes('-')) {
+        // Also add individual parts
+        const parts: string[] = term.split('-');
+        for (const part of parts) {
+          if (part.length > 1 && !queryTerms.includes(part)) {
+            queryTerms.push(part);
+          }
+        }
+      }
+    }
     
-    // Score each page - STRICT EXACT MATCHING ONLY
+    // Score each page - ANY TERM MATCH SCORES (not all required)
     const scoredResults: SearchResult[] = [];
 
     for (const page of pages) {
+      // Skip trashed pages
+      if (page.is_trashed) continue;
+      
       let score = 0;
       const matchTypes: Set<string> = new Set();
       const matchedTerms: string[] = [];
+      let termsMatchedCount = 0;
 
       // If date query, check date match first (HIGHEST PRIORITY)
       if (dateQuery && pageMatchesDate(page, dateQuery)) {
@@ -205,9 +223,14 @@ serve(async (req) => {
       // Helper: check if term exists exactly (word boundary match)
       const exactMatch = (text: string, term: string): boolean => {
         if (!text) return false;
-        const regex = new RegExp(`\\b${term}\\b`, 'i');
+        // Escape special regex characters in term
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
         return regex.test(text);
       };
+
+      // Track which terms matched
+      const matchedQueryTerms = new Set<string>();
 
       // 1. Future You Cues (STRONGEST SIGNAL) - exact match
       const cues: string[] = page.future_you_cues || [];
@@ -216,6 +239,7 @@ serve(async (req) => {
           if (exactMatch(cue, term)) {
             score += 100;
             matchTypes.add('cue');
+            matchedQueryTerms.add(term);
             if (!matchedTerms.includes(cue)) matchedTerms.push(cue);
           }
         }
@@ -229,6 +253,7 @@ serve(async (req) => {
           if (exactMatch(entityValue, term)) {
             score += 80;
             matchTypes.add('entity');
+            matchedQueryTerms.add(term);
             if (!matchedTerms.includes(entityValue)) matchedTerms.push(entityValue);
           }
         }
@@ -238,8 +263,11 @@ serve(async (req) => {
       const ocrText = page.ocr_text || '';
       for (const term of queryTerms) {
         if (exactMatch(ocrText, term)) {
-          score += 30;
+          // Apply common term penalty for text matches
+          const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
+          score += isCommonTerm ? Math.round(30 * COMMON_TERM_TEXT_MULTIPLIER) : 30;
           matchTypes.add('text');
+          matchedQueryTerms.add(term);
         }
       }
 
@@ -248,8 +276,10 @@ serve(async (req) => {
       for (const keyword of keywords) {
         for (const term of queryTerms) {
           if (exactMatch(keyword, term)) {
-            score += 25;
+            const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
+            score += isCommonTerm ? Math.round(25 * COMMON_TERM_TEXT_MULTIPLIER) : 25;
             matchTypes.add('text');
+            matchedQueryTerms.add(term);
             if (!matchedTerms.includes(keyword)) matchedTerms.push(keyword);
           }
         }
@@ -259,8 +289,10 @@ serve(async (req) => {
       if (page.primary_keyword) {
         for (const term of queryTerms) {
           if (exactMatch(page.primary_keyword, term)) {
-            score += 40;
+            const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
+            score += isCommonTerm ? Math.round(40 * COMMON_TERM_TEXT_MULTIPLIER) : 40;
             matchTypes.add('text');
+            matchedQueryTerms.add(term);
             if (!matchedTerms.includes(page.primary_keyword)) matchedTerms.push(page.primary_keyword);
           }
         }
@@ -270,9 +302,17 @@ serve(async (req) => {
       const summary = page.summary || '';
       for (const term of queryTerms) {
         if (exactMatch(summary, term)) {
-          score += 15;
+          const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
+          score += isCommonTerm ? Math.round(15 * COMMON_TERM_TEXT_MULTIPLIER) : 15;
           matchTypes.add('text');
+          matchedQueryTerms.add(term);
         }
+      }
+
+      // Bonus for multi-term matches: if query has multiple terms and page matches several
+      if (queryTerms.length > 1 && matchedQueryTerms.size > 1) {
+        const matchRatio = matchedQueryTerms.size / queryTerms.length;
+        score = Math.round(score * (1 + matchRatio * 0.5)); // Up to 50% bonus for matching all terms
       }
 
       // Only include if score > 0 (at least one exact match found)
