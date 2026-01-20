@@ -415,9 +415,9 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
         termMatched = true;
       }
 
-      // OCR text — raw handwritten content (+30)
+      // OCR text — raw handwritten content (+50)
       if (includesWholeWord(ocr, term)) {
-        score += 30;
+        score += 50;
         matchTypes.add('text');
         matchedTerms.add(term);
         termMatched = true;
