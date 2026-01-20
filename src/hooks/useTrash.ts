@@ -1,6 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Page } from '@/lib/pageService';
-import { getDeviceId } from '@/lib/deviceId';
+import { getActiveDeviceId } from '@/lib/deviceId';
+import { getCurrentProvider } from '@/lib/abstractions';
 
 const TRASH_STORAGE_PREFIX = 'umarise_trash_';
 
@@ -9,20 +10,22 @@ interface TrashState {
 }
 
 /**
- * Get the storage key for the current device's trash
- * This ensures trash state is isolated per device ID
+ * Get the storage key for the current context.
+ * Trash is isolated per (backend provider + active device id) so switching
+ * between Cloud/Vault or demo datasets won't "resurrect" items unexpectedly.
  */
 function getTrashStorageKey(): string {
-  const deviceId = getDeviceId();
-  return `${TRASH_STORAGE_PREFIX}${deviceId || 'anonymous'}`;
+  const provider = getCurrentProvider();
+  const deviceId = getActiveDeviceId();
+  return `${TRASH_STORAGE_PREFIX}${provider}_${deviceId || 'anonymous'}`;
 }
 
 export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => Promise<boolean> | void) {
   const [trashedIds, setTrashedIds] = useState<Set<string>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
 
-  // Get current storage key (changes if device ID changes)
-  const storageKey = useMemo(() => getTrashStorageKey(), []);
+  // Storage key can change when switching backend provider or device context
+  const storageKey = getTrashStorageKey();
 
   // Load trash state from localStorage on mount (device-specific)
   useEffect(() => {
