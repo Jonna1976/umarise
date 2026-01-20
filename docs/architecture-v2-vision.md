@@ -140,7 +140,7 @@ v2 transforms Umarise from a cloud-first PWA into a **privacy operating system**
 
 | Feature | Description | Priority |
 |---------|-------------|----------|
-| **E2E Encryption** | Zero-knowledge sync between devices | 🔴 Critical |
+| **E2E Encryption** | Cryptographic zero-knowledge sync between devices (upgrade from v1 zero-access) | 🔴 Critical |
 | **Identity Layer** | Optional account for device linking | 🟡 High |
 | **Selective Sync** | Choose what syncs where | 🟢 Medium |
 | **Sharing** | Share specific pages/projects with others | 🟢 Medium |
@@ -200,13 +200,13 @@ v2 transforms Umarise from a cloud-first PWA into a **privacy operating system**
 │  ────────                    ─────                    ────────  │
 │                                                                 │
 │  [Page] ─── Encrypt ───→ [Encrypted Blob] ←── Decrypt ─── [Page]│
-│        (local key)       (zero-knowledge)      (local key)      │
+│        (local key)     (cryptographic zero-knowledge)  (local key)│
 │                                                                 │
 │  Key Exchange:                                                  │
 │  ├─ Device generates keypair on first setup                    │
 │  ├─ Public keys shared via QR code / secure channel            │
 │  ├─ Symmetric session keys derived per sync                    │
-│  └─ Cloud never sees plaintext or keys                         │
+│  └─ Cloud never sees plaintext or keys (true zero-knowledge)   │
 │                                                                 │
 │  Conflict Resolution:                                           │
 │  ├─ Last-write-wins for simple fields                          │
