@@ -45,6 +45,11 @@ export function PinGate({ children }: PinGateProps) {
     if (!storedPin) {
       setIsSettingPin(true);
     }
+    
+    // Auto-focus first input after initial load
+    setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 100);
   }, []);
 
   const handlePinChange = (index: number, value: string, isConfirm = false) => {
