@@ -22,7 +22,7 @@ import { SharePageModal } from './SharePageModal';
 
 // Match info type (passed from SearchView)
 export interface SnapshotMatchInfo {
-  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>;
   matchedTerms: string[];
 }
 

@@ -11,14 +11,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 export interface SearchMatchInfo {
-  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>;
   matchedTerms: string[];
 }
 
 interface SearchResult {
   page: Page;
   score: number;
-  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>;
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>;
   matchedTerms: string[];
 }
 
@@ -32,9 +32,11 @@ interface SearchViewProps {
 // Match type badges with icons
 const matchTypeBadges: Record<string, { label: string; icon: React.ComponentType<any>; className: string }> = {
   cue: { label: 'Matched on cue', icon: Tag, className: 'bg-primary/20 text-primary border-primary/30' },
+  spine: { label: 'Matched on spine', icon: Tag, className: 'bg-primary/20 text-primary border-primary/30' },
   text: { label: 'Matched on text', icon: FileText, className: 'bg-muted text-muted-foreground border-border' },
   entity: { label: 'Matched on name', icon: User, className: 'bg-amber-500/20 text-amber-600 border-amber-500/30' },
   meaning: { label: 'Matched by meaning', icon: Brain, className: 'bg-purple-500/20 text-purple-600 border-purple-500/30' },
+  date: { label: 'Matched on date', icon: Calendar, className: 'bg-emerald-500/20 text-emerald-600 border-emerald-500/30' },
 };
 
 // Carousel component for search results
