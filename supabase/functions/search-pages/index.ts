@@ -259,52 +259,57 @@ serve(async (req) => {
         }
       }
 
-      // 3. OCR text - exact match only
+      // 3. OCR text - ORIGIN (STRONG SIGNAL - this IS the handwritten truth)
+      // OCR matches should rank HIGH because this is the actual written content
       const ocrText = page.ocr_text || '';
       for (const term of queryTerms) {
         if (exactMatch(ocrText, term)) {
           // Apply common term penalty for text matches
           const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-          score += isCommonTerm ? Math.round(30 * COMMON_TERM_TEXT_MULTIPLIER) : 30;
+          // OCR = Origin = 70 points (below cues/entities but above all derivatives)
+          score += isCommonTerm ? Math.round(70 * COMMON_TERM_TEXT_MULTIPLIER) : 70;
           matchTypes.add('text');
           matchedQueryTerms.add(term);
         }
       }
 
-      // 4. Keywords - exact match
+      // 4. Keywords - AI DERIVATIVE (lower priority than OCR origin)
       const keywords: string[] = page.keywords || [];
       for (const keyword of keywords) {
         for (const term of queryTerms) {
           if (exactMatch(keyword, term)) {
             const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-            score += isCommonTerm ? Math.round(25 * COMMON_TERM_TEXT_MULTIPLIER) : 25;
-            matchTypes.add('text');
+            // Keywords = Derivative = 15 points (clearly below origin)
+            score += isCommonTerm ? Math.round(15 * COMMON_TERM_TEXT_MULTIPLIER) : 15;
+            matchTypes.add('derivative');
             matchedQueryTerms.add(term);
             if (!matchedTerms.includes(keyword)) matchedTerms.push(keyword);
           }
         }
       }
 
-      // 5. Primary keyword - exact match (boosted)
+      // 5. Primary keyword - AI DERIVATIVE (spine label, user may have edited)
       if (page.primary_keyword) {
         for (const term of queryTerms) {
           if (exactMatch(page.primary_keyword, term)) {
             const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-            score += isCommonTerm ? Math.round(40 * COMMON_TERM_TEXT_MULTIPLIER) : 40;
-            matchTypes.add('text');
+            // Primary keyword = 20 points (slightly above keywords since user may edit)
+            score += isCommonTerm ? Math.round(20 * COMMON_TERM_TEXT_MULTIPLIER) : 20;
+            matchTypes.add('derivative');
             matchedQueryTerms.add(term);
             if (!matchedTerms.includes(page.primary_keyword)) matchedTerms.push(page.primary_keyword);
           }
         }
       }
 
-      // 6. Summary - exact match
+      // 6. Summary - AI DERIVATIVE (lowest priority)
       const summary = page.summary || '';
       for (const term of queryTerms) {
         if (exactMatch(summary, term)) {
           const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-          score += isCommonTerm ? Math.round(15 * COMMON_TERM_TEXT_MULTIPLIER) : 15;
-          matchTypes.add('text');
+          // Summary = Derivative = 10 points
+          score += isCommonTerm ? Math.round(10 * COMMON_TERM_TEXT_MULTIPLIER) : 10;
+          matchTypes.add('derivative');
           matchedQueryTerms.add(term);
         }
       }
