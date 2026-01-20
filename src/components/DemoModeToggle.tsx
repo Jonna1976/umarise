@@ -31,19 +31,21 @@ export function DemoModeToggle() {
         )}
       </button>
 
-      {/* Backend indicator - always visible, NOT clickable */}
+      {/* Backend & Sovereignty indicator */}
       <div
         className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium ${
           isHetzner
             ? 'bg-emerald-500/10 text-emerald-400/70 border border-emerald-500/20'
             : 'bg-blue-500/10 text-blue-400/70 border border-blue-500/20'
         }`}
-        title={isHetzner ? 'Connected to Hetzner Vault' : 'Connected to Lovable Cloud'}
+        title={isHetzner 
+          ? 'Data stored on Hetzner servers in Germany 🇩🇪 – GDPR compliant, zero-access by design' 
+          : 'Connected to Lovable Cloud'}
       >
         {isHetzner ? (
           <>
             <Shield className="w-3 h-3" />
-            <span>Vault</span>
+            <span>🇪🇺 DE Vault</span>
           </>
         ) : (
           <>
