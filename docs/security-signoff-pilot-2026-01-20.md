@@ -55,15 +55,49 @@
 
 ---
 
+## 🚀 GEPUBLICEERDE CONFIGURATIE
+
+**Published URL:** https://umarise.lovable.app  
+**Publish datum:** 2026-01-20  
+**Backend:** Hetzner Privacy Vault (EXCLUSIEF)
+
+### Voorwaarden & Garanties
+
+| Voorwaarde | Implementatie | Verificatie |
+|------------|---------------|-------------|
+| **Hetzner-only in productie** | `import.meta.env.PROD` → altijd Hetzner | `src/lib/abstractions/index.ts:53` |
+| **Geen backend switching** | `setHetznerEnabled()` no-op in PROD | `src/lib/abstractions/index.ts:80-84` |
+| **Cloud-knop verborgen** | `canSwitchToCloud = import.meta.env.DEV` | `src/components/codex/HistoryView.tsx:184` |
+| **Lovable Cloud niet toegankelijk** | localStorage override genegeerd in PROD | Code-enforced |
+
+### Technische Details
+
+```
+Data Backend:     Hetzner Privacy Vault
+Endpoint:         vault.umarise.com (DE - Falkenstein)
+Authoritative ID: 054aba4f-0453-4e6e-80c0-bdd554d19a91
+Origins in Pilot: 9+ (verified)
+```
+
+### Wat is NIET gepubliceerd
+
+- ❌ Lovable Cloud toegang (geblokkeerd in PROD builds)
+- ❌ Backend toggle functionaliteit
+- ❌ "Show my real data (Cloud)" knop
+
+---
+
 ## 📝 POST-PILOT AANBEVELINGEN
 
 1. **CORS hardening**: Beperk tot `umarise.lovable.app` + `localhost`
 2. **Token rotation**: Implementeer periodieke token refresh
 3. **Penetration test**: Externe security audit voor productie
 4. **Backup verification**: Test restore procedure
+5. **TestPanel verbergen**: Optioneel voor cleaner pilot UX
 
 ---
 
 **Sign-off:** ✅ Approved for pilot publishing  
 **Reviewer:** Lovable AI  
-**Datum:** 2026-01-20
+**Datum:** 2026-01-20  
+**Backend Lock Verified:** 2026-01-20 13:08 CET
