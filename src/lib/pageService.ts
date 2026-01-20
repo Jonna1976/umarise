@@ -342,11 +342,53 @@ export async function getPage(id: string): Promise<Page | null> {
 }
 
 /**
- * Get all pages in a capsule
+ * Get all pages in a capsule, enriched with sidecar origin hashes
  */
 export async function getCapsulePages(capsuleId: string): Promise<Page[]> {
+  const deviceUserId = getDeviceId();
   const storage = getStorageProvider();
-  return storage.getCapsulePages(capsuleId);
+  const pages = await storage.getCapsulePages(capsuleId);
+  
+  if (!deviceUserId || pages.length === 0) {
+    return pages;
+  }
+  
+  // Enrich pages missing origin hashes from sidecar table
+  const pagesNeedingHash = pages.filter(p => !p.originHashSha256);
+  
+  if (pagesNeedingHash.length === 0) {
+    return pages;
+  }
+  
+  try {
+    const pageIds = pagesNeedingHash.map(p => p.id);
+    const { data: sidecarHashes } = await supabase
+      .from('page_origin_hashes')
+      .select('page_id, origin_hash_sha256, origin_hash_algo')
+      .eq('device_user_id', deviceUserId)
+      .in('page_id', pageIds);
+    
+    if (sidecarHashes && sidecarHashes.length > 0) {
+      const hashMap = new Map(sidecarHashes.map(h => [h.page_id, h]));
+      
+      return pages.map(page => {
+        if (page.originHashSha256) return page;
+        const sidecar = hashMap.get(page.id);
+        if (sidecar) {
+          return {
+            ...page,
+            originHashSha256: sidecar.origin_hash_sha256,
+            originHashAlgo: sidecar.origin_hash_algo as 'sha256',
+          };
+        }
+        return page;
+      });
+    }
+  } catch (err) {
+    console.warn('[getCapsulePages] Sidecar hash lookup failed:', err);
+  }
+  
+  return pages;
 }
 
 /**
