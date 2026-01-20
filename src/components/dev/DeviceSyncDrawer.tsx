@@ -104,7 +104,7 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
       <DrawerTrigger asChild>
         {trigger}
       </DrawerTrigger>
-      <DrawerContent className="max-h-[85vh]">
+      <DrawerContent className="max-h-[85vh] pb-[calc(env(safe-area-inset-bottom)+12rem)]">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="flex items-center gap-2">
             <Link2 className="w-5 h-5" />
@@ -112,7 +112,7 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
           </DrawerTitle>
         </DrawerHeader>
         
-        <div className="px-4 pb-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
           {/* Step 1: Paste button OR Step 2: Input field */}
           {!showInput ? (
             <Button
