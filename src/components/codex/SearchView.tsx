@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
 import { formatDistanceToNow } from 'date-fns';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
+import { getAIProvider, getStorageProvider, isHetznerEnabled } from '@/lib/abstractions';
 
 export interface SearchMatchInfo {
   matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>;
@@ -363,41 +364,92 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     setHasSearched(true);
 
     try {
-      let timeFilterObj: { after?: string; before?: string } | undefined;
+      let timeFilterObj: { after?: Date; before?: Date } | undefined;
       if (filter === 'week') {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        timeFilterObj = { after: weekAgo.toISOString() };
+        timeFilterObj = { after: weekAgo };
       } else if (filter === 'month') {
         const monthAgo = new Date();
         monthAgo.setMonth(monthAgo.getMonth() - 1);
-        timeFilterObj = { after: monthAgo.toISOString() };
+        timeFilterObj = { after: monthAgo };
       }
 
-      const { data, error } = await supabase.functions.invoke('search-pages', {
-        body: {
-          device_user_id: deviceUserId,
-          query: searchQuery,
-          time_filter: timeFilterObj,
-          include_semantic: true,
+      // Use the correct backend based on configuration
+      if (isHetznerEnabled()) {
+        // Hetzner: Use AI provider's searchPages + storage for full page data
+        console.log('[Search] Using Hetzner backend');
+        const aiProvider = getAIProvider();
+        const storageProvider = getStorageProvider();
+        
+        // Get search results from Hetzner (returns pageId + score + matchTypes)
+        const searchResults = await aiProvider.searchPages?.(searchQuery, {
+          timeFilter: timeFilterObj,
           limit: 20
+        });
+        
+        if (!searchResults || searchResults.length === 0) {
+          console.log('[Search] No results from Hetzner');
+          setResults([]);
+          return;
         }
-      });
-
-      if (error) {
-        console.error('Search error:', error);
-        setResults([]);
+        
+        console.log(`[Search] Hetzner returned ${searchResults.length} results, fetching page data...`);
+        
+        // Fetch full page data for each result
+        const pagePromises = searchResults.map(async (r) => {
+          try {
+            const page = await storageProvider.getPage(r.pageId);
+            if (!page) return null;
+            return {
+              page,
+              score: r.score,
+              matchTypes: r.matchTypes as Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>,
+              matchedTerms: r.matchedTerms
+            };
+          } catch (err) {
+            console.warn(`[Search] Failed to fetch page ${r.pageId}:`, err);
+            return null;
+          }
+        });
+        
+        const resolvedResults = (await Promise.all(pagePromises)).filter((r): r is SearchResult => r !== null);
+        console.log(`[Search] Resolved ${resolvedResults.length} pages from Hetzner`);
+        
+        setResults(resolvedResults);
+        trackSearch(searchQuery, resolvedResults, filter);
+        
       } else {
-        const mappedResults: SearchResult[] = (data?.results || [])
-          .filter((r: any) => r.page && r.page.id)
-          .map((r: any) => ({
-            page: mapToPage(r.page),
-            score: r.score || 0,
-            matchTypes: r.match_types || [],
-            matchedTerms: r.matched_terms || []
-          }));
-        setResults(mappedResults);
-        trackSearch(searchQuery, mappedResults, filter);
+        // Lovable Cloud: Use Supabase edge function
+        console.log('[Search] Using Lovable Cloud backend');
+        const { data, error } = await supabase.functions.invoke('search-pages', {
+          body: {
+            device_user_id: deviceUserId,
+            query: searchQuery,
+            time_filter: timeFilterObj ? { 
+              after: timeFilterObj.after?.toISOString(), 
+              before: timeFilterObj.before?.toISOString() 
+            } : undefined,
+            include_semantic: true,
+            limit: 20
+          }
+        });
+
+        if (error) {
+          console.error('Search error:', error);
+          setResults([]);
+        } else {
+          const mappedResults: SearchResult[] = (data?.results || [])
+            .filter((r: any) => r.page && r.page.id)
+            .map((r: any) => ({
+              page: mapToPage(r.page),
+              score: r.score || 0,
+              matchTypes: r.match_types || [],
+              matchedTerms: r.matched_terms || []
+            }));
+          setResults(mappedResults);
+          trackSearch(searchQuery, mappedResults, filter);
+        }
       }
     } catch (error) {
       console.error('Search failed:', error);
