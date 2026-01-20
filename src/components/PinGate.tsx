@@ -36,13 +36,15 @@ export function PinGate({ children }: PinGateProps) {
     const sessionUnlocked = sessionStorage.getItem(SESSION_UNLOCKED_KEY);
     if (sessionUnlocked === 'true') {
       setIsUnlocked(true);
+      setHasPin(true); // Also set hasPin to exit loading state
       return;
     }
 
     const storedPin = localStorage.getItem(PIN_STORAGE_KEY);
-    setHasPin(!!storedPin);
+    const pinExists = !!storedPin;
+    setHasPin(pinExists);
     
-    if (!storedPin) {
+    if (!pinExists) {
       setIsSettingPin(true);
     }
     
