@@ -15,7 +15,7 @@ export interface HighlightedPassage {
   text: string;
   startIndex: number;
   endIndex: number;
-  matchType: 'cue' | 'entity' | 'text' | 'meaning';
+  matchType: 'cue' | 'entity' | 'text' | 'meaning' | 'spine' | 'date';
   matchedTerm: string;
 }
 
@@ -32,7 +32,7 @@ export interface CiteResult {
 export function findMatchedPassages(
   ocrText: string,
   matchedTerms: string[],
-  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning'>
+  matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>
 ): CiteResult {
   if (!ocrText || matchedTerms.length === 0) {
     return { passages: [] };
@@ -137,7 +137,7 @@ function splitIntoSentences(text: string): string[] {
 export interface TextSegment {
   text: string;
   isHighlighted: boolean;
-  matchType?: 'cue' | 'entity' | 'text' | 'meaning';
+  matchType?: 'cue' | 'entity' | 'text' | 'meaning' | 'spine' | 'date';
   matchedTerm?: string;
 }
 

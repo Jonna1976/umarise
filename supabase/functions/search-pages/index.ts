@@ -14,16 +14,6 @@ interface SearchResult {
   matched_terms: string[];
 }
 
-// Common terms that should be down-ranked in text matches (demo-safe list)
-const COMMON_TERMS = new Set([
-  'light', 'idea', 'ideas', 'notes', 'note', 'plan', 'plans', 'page', 'pages', 
-  'today', 'want', 'need', 'the', 'and', 'your', 'you', 'this', 'that',
-  'uma', 'umarise', 'rise', 'rising'
-]);
-
-// Score multiplier for common terms in text matches (not cue matches)
-const COMMON_TERM_TEXT_MULTIPLIER = 0.15;
-
 // Dutch month names mapping
 const DUTCH_MONTHS: { [key: string]: number } = {
   'januari': 1, 'jan': 1,
@@ -131,7 +121,6 @@ serve(async (req) => {
       device_user_id, 
       query, 
       time_filter,
-      include_semantic = true,
       limit = 20 
     } = await req.json();
 
@@ -183,13 +172,12 @@ serve(async (req) => {
     const dateQuery = parseDateQuery(query);
     
     // Tokenize and normalize query for text matching
-    // Also handle hyphenated terms: "future-self" → ["future-self", "future", "self"]
+    // Handle hyphenated terms: "future-self" → ["future-self", "future", "self"]
     const rawTerms = query.toLowerCase().split(/\s+/).filter((t: string) => t.length > 1);
     const queryTerms: string[] = [];
     for (const term of rawTerms) {
-      queryTerms.push(term); // Keep original (e.g., "future-self")
+      queryTerms.push(term);
       if (term.includes('-')) {
-        // Also add individual parts
         const parts: string[] = term.split('-');
         for (const part of parts) {
           if (part.length > 1 && !queryTerms.includes(part)) {
@@ -199,7 +187,8 @@ serve(async (req) => {
       }
     }
     
-    // Score each page - ANY TERM MATCH SCORES (not all required)
+    // SIMPLIFIED SEARCH: ONLY user-assigned words (spine) + OCR text
+    // NO AI-generated keywords, NO summary, NO named entities
     const scoredResults: SearchResult[] = [];
 
     for (const page of pages) {
@@ -209,11 +198,10 @@ serve(async (req) => {
       let score = 0;
       const matchTypes: Set<string> = new Set();
       const matchedTerms: string[] = [];
-      let termsMatchedCount = 0;
 
       // If date query, check date match first (HIGHEST PRIORITY)
       if (dateQuery && pageMatchesDate(page, dateQuery)) {
-        score += 200; // Date matches are very strong
+        score += 200;
         matchTypes.add('date');
         const date = new Date(page.created_at);
         const formattedDate = `${date.getDate()}-${date.getMonth() + 1}`;
@@ -223,101 +211,45 @@ serve(async (req) => {
       // Helper: check if term exists exactly (word boundary match)
       const exactMatch = (text: string, term: string): boolean => {
         if (!text) return false;
-        // Escape special regex characters in term
         const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
         return regex.test(text);
       };
 
-      // Track which terms matched
-      const matchedQueryTerms = new Set<string>();
-
-      // 1. Future You Cues (STRONGEST SIGNAL) - exact match
+      // === ORIGIN: User-assigned words (SPINE) ===
+      
+      // 1. Future You Cues - USER ASSIGNED (highest priority after date)
       const cues: string[] = page.future_you_cues || [];
       for (const cue of cues) {
         for (const term of queryTerms) {
           if (exactMatch(cue, term)) {
             score += 100;
             matchTypes.add('cue');
-            matchedQueryTerms.add(term);
             if (!matchedTerms.includes(cue)) matchedTerms.push(cue);
           }
         }
       }
 
-      // 2. Named Entities (STRONG SIGNAL) - exact match
-      const entities: any[] = page.named_entities || [];
-      for (const entity of entities) {
-        const entityValue = entity?.value || '';
-        for (const term of queryTerms) {
-          if (exactMatch(entityValue, term)) {
-            score += 80;
-            matchTypes.add('entity');
-            matchedQueryTerms.add(term);
-            if (!matchedTerms.includes(entityValue)) matchedTerms.push(entityValue);
-          }
-        }
-      }
-
-      // 3. OCR text - ORIGIN (STRONG SIGNAL - this IS the handwritten truth)
-      // OCR matches should rank HIGH because this is the actual written content
-      const ocrText = page.ocr_text || '';
-      for (const term of queryTerms) {
-        if (exactMatch(ocrText, term)) {
-          // Apply common term penalty for text matches
-          const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-          // OCR = Origin = 70 points (below cues/entities but above all derivatives)
-          score += isCommonTerm ? Math.round(70 * COMMON_TERM_TEXT_MULTIPLIER) : 70;
-          matchTypes.add('text');
-          matchedQueryTerms.add(term);
-        }
-      }
-
-      // 4. Keywords - AI DERIVATIVE (lower priority than OCR origin)
-      const keywords: string[] = page.keywords || [];
-      for (const keyword of keywords) {
-        for (const term of queryTerms) {
-          if (exactMatch(keyword, term)) {
-            const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-            // Keywords = Derivative = 15 points (clearly below origin)
-            score += isCommonTerm ? Math.round(15 * COMMON_TERM_TEXT_MULTIPLIER) : 15;
-            matchTypes.add('derivative');
-            matchedQueryTerms.add(term);
-            if (!matchedTerms.includes(keyword)) matchedTerms.push(keyword);
-          }
-        }
-      }
-
-      // 5. Primary keyword - AI DERIVATIVE (spine label, user may have edited)
+      // 2. Primary Keyword - USER ASSIGNED (spine label)
       if (page.primary_keyword) {
         for (const term of queryTerms) {
           if (exactMatch(page.primary_keyword, term)) {
-            const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-            // Primary keyword = 20 points (slightly above keywords since user may edit)
-            score += isCommonTerm ? Math.round(20 * COMMON_TERM_TEXT_MULTIPLIER) : 20;
-            matchTypes.add('derivative');
-            matchedQueryTerms.add(term);
+            score += 80;
+            matchTypes.add('spine');
             if (!matchedTerms.includes(page.primary_keyword)) matchedTerms.push(page.primary_keyword);
           }
         }
       }
 
-      // 6. Summary - AI DERIVATIVE (lowest priority)
-      const summary = page.summary || '';
+      // === ORIGIN: OCR text (the actual handwritten content) ===
+      
+      // 3. OCR text - THE ACTUAL WRITTEN WORDS
+      const ocrText = page.ocr_text || '';
       for (const term of queryTerms) {
-        if (exactMatch(summary, term)) {
-          const isCommonTerm = COMMON_TERMS.has(term.toLowerCase());
-          // Summary = Derivative = 10 points
-          score += isCommonTerm ? Math.round(10 * COMMON_TERM_TEXT_MULTIPLIER) : 10;
-          matchTypes.add('derivative');
-          matchedQueryTerms.add(term);
+        if (exactMatch(ocrText, term)) {
+          score += 70;
+          matchTypes.add('text');
         }
-      }
-
-      // Bonus for multi-term matches: if query has multiple terms and page matches several
-      if (queryTerms.length > 1 && matchedQueryTerms.size > 1) {
-        const matchRatio = matchedQueryTerms.size / queryTerms.length;
-        score = Math.round(score * (1 + matchRatio * 0.5)); // Up to 50% bonus for matching all terms
       }
 
       // Only include if score > 0 (at least one exact match found)
@@ -329,73 +261,6 @@ serve(async (req) => {
           match_types: Array.from(matchTypes),
           matched_terms: [...new Set(matchedTerms)].slice(0, 5)
         });
-      }
-    }
-
-    // If few results and semantic search is enabled, try semantic matching
-    if (include_semantic && scoredResults.length < 5 && !dateQuery) {
-      const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-      
-      if (LOVABLE_API_KEY) {
-        try {
-          // Generate query embedding
-          const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'google/gemini-2.5-flash-lite',
-              messages: [
-                { 
-                  role: 'system', 
-                  content: 'Generate semantic embedding as JSON array of 50 floats between -1 and 1. Just return the array.' 
-                },
-                { role: 'user', content: `Embedding for: "${query}"` }
-              ],
-            }),
-          });
-
-          if (embeddingResponse.ok) {
-            const embData = await embeddingResponse.json();
-            let queryEmbedding: number[] = [];
-            
-            try {
-              let content = embData.choices?.[0]?.message?.content || '';
-              content = content.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-              queryEmbedding = JSON.parse(content);
-            } catch (e) {
-              console.log('Could not parse query embedding');
-            }
-
-            if (queryEmbedding.length > 0) {
-              // Find semantic matches
-              const existingIds = new Set(scoredResults.map(r => r.page_id));
-              
-              for (const page of pages) {
-                if (existingIds.has(page.id)) continue;
-                
-                const pageEmbedding = page.embedding_vector;
-                if (!pageEmbedding || !Array.isArray(pageEmbedding)) continue;
-
-                const similarity = cosineSimilarity(queryEmbedding, pageEmbedding);
-                
-                if (similarity > 0.5) {
-                  scoredResults.push({
-                    page_id: page.id,
-                    page: page,
-                    score: similarity * 50,
-                    match_types: ['meaning'],
-                    matched_terms: []
-                  });
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.log('Semantic search fallback error:', e);
-        }
       }
     }
 
@@ -423,22 +288,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Cosine similarity for semantic matching
-function cosineSimilarity(a: number[], b: number[]): number {
-  if (a.length !== b.length) return 0;
-  
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-  
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
-  
-  if (normA === 0 || normB === 0) return 0;
-  
-  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-}
