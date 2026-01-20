@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Page } from '@/lib/pageService';
 import { getActiveDeviceId } from '@/lib/deviceId';
 import { getCurrentProvider } from '@/lib/abstractions';
@@ -21,27 +21,36 @@ function getTrashStorageKey(): string {
 }
 
 export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => Promise<boolean> | void) {
-  const [trashedIds, setTrashedIds] = useState<Set<string>>(new Set());
+  // Memoize storageKey so it's stable across renders; only recompute on provider/device change
+  const storageKey = useMemo(() => getTrashStorageKey(), []);
+
+  const [trashedIds, setTrashedIds] = useState<Set<string>>(() => {
+    // Lazy initializer: load from localStorage synchronously on first mount
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const state: TrashState = JSON.parse(stored);
+        return new Set(state.pageIds);
+      }
+    } catch {
+      // ignore
+    }
+    return new Set();
+  });
   const [isDragging, setIsDragging] = useState(false);
 
-  // Storage key can change when switching backend provider or device context
-  const storageKey = getTrashStorageKey();
-
-  // Load trash state from localStorage on mount (device-specific)
+  // Re-sync trash state when storageKey changes (e.g. switching backend)
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
         const state: TrashState = JSON.parse(stored);
         setTrashedIds(new Set(state.pageIds));
-        console.log('[useTrash] Loaded trash for device:', storageKey, 'IDs:', state.pageIds.length);
       } else {
-        // No trash state for this device - start fresh
         setTrashedIds(new Set());
-        console.log('[useTrash] No trash state found for device:', storageKey);
       }
-    } catch (e) {
-      console.error('Failed to load trash state:', e);
+    } catch {
+      // ignore
     }
   }, [storageKey]);
 
