@@ -179,11 +179,15 @@ export function HistoryView({
   // Refs
   const cueObserverRef = useRef<IntersectionObserver | null>(null);
 
+  // Only allow switching backends in dev/preview builds (never in published).
+  const canSwitchToCloud = import.meta.env.DEV;
+
   // Callbacks (stable references)
   const switchToCloud = useCallback(() => {
+    if (!canSwitchToCloud) return;
     setHetznerEnabled(false);
     window.location.reload();
-  }, []);
+  }, [canSwitchToCloud]);
 
   const togglePageSelection = useCallback((pageId: string) => {
     setSelectedPageIds(prev => 
@@ -847,7 +851,7 @@ export function HistoryView({
                     Capture your first origin
                   </Button>
 
-                  {isVault && (
+                  {isVault && canSwitchToCloud && (
                     <Button onClick={switchToCloud} variant="outline">
                       Show my real data (Cloud)
                     </Button>

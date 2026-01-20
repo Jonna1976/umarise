@@ -48,7 +48,11 @@ const HETZNER_LEGACY_PORTS = {
 const HETZNER_TOGGLE_KEY = 'umarise_hetzner_enabled';
 
 export function isHetznerEnabled(): boolean {
-  // Env var wins (production / published configuration)
+  // Production safety: the published app must ALWAYS use Hetzner Vault.
+  // This prevents any accidental Cloud usage via localStorage or env overrides.
+  if (import.meta.env.PROD) return true;
+
+  // Env var wins (preview / dev configuration)
   const env = import.meta.env.VITE_BACKEND_PROVIDER;
   if (env === 'hetzner') return true;
   if (env === 'lovable' || env === 'lovable-cloud') return false;
@@ -73,6 +77,12 @@ export function isHetznerEnabled(): boolean {
  * Normal users should always stay on Hetzner Vault (the default).
  */
 export function setHetznerEnabled(enabled: boolean): void {
+  // Published builds: lock backend to Hetzner (no user/developer switching).
+  if (import.meta.env.PROD) {
+    console.warn('[Umarise] Backend switching is disabled in production (Hetzner is enforced).');
+    return;
+  }
+
   try {
     localStorage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
   } catch {
