@@ -20,7 +20,7 @@ interface PilotGuideProps {
 }
 
 export function PilotGuide({ onClose }: PilotGuideProps) {
-  const [activeTab, setActiveTab] = useState<"capture" | "search" | "test">("capture");
+  const [activeTab, setActiveTab] = useState<"capture" | "search" | "test" | "sync">("capture");
 
   return (
     <motion.div
@@ -67,7 +67,7 @@ export function PilotGuide({ onClose }: PilotGuideProps) {
                 : "text-muted-foreground"
             }`}
           >
-            <Camera className="w-4 h-4 inline mr-2" />
+            <Camera className="w-4 h-4 inline mr-1" />
             Capture
           </button>
           <button
@@ -78,7 +78,7 @@ export function PilotGuide({ onClose }: PilotGuideProps) {
                 : "text-muted-foreground"
             }`}
           >
-            <Search className="w-4 h-4 inline mr-2" />
+            <Search className="w-4 h-4 inline mr-1" />
             Search
           </button>
           <button
@@ -89,8 +89,19 @@ export function PilotGuide({ onClose }: PilotGuideProps) {
                 : "text-muted-foreground"
             }`}
           >
-            <Clock className="w-4 h-4 inline mr-2" />
+            <Clock className="w-4 h-4 inline mr-1" />
             60s Test
+          </button>
+          <button
+            onClick={() => setActiveTab("sync")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "sync" 
+                ? "text-primary border-b-2 border-primary" 
+                : "text-muted-foreground"
+            }`}
+          >
+            <Smartphone className="w-4 h-4 inline mr-1" />
+            Sync
           </button>
         </div>
 
@@ -320,7 +331,83 @@ export function PilotGuide({ onClose }: PilotGuideProps) {
                     <span className="text-sm font-medium text-foreground">Team Setup</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Join je team via TestPanel → MKB Pilot Tools om dezelfde data te delen
+                    Sync je apparaat via de Sync tab hierboven
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "sync" && (
+              <motion.div
+                key="sync"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-4"
+              >
+                <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                  <h3 className="font-semibold text-foreground flex items-center gap-2">
+                    <Smartphone className="w-4 h-4" />
+                    Sync je apparaat
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Deel dezelfde data tussen desktop en mobiel, of sync met je team.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-foreground">Device Sync:</h4>
+                  
+                  <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Open Camera scherm</p>
+                      <p className="text-sm text-muted-foreground">Tik op het 🔗 icoon (linksboven naast Library)</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Kopieer je Device ID</p>
+                      <p className="text-sm text-muted-foreground">Op je hoofdapparaat: tik "Kopieer"</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Plak op ander apparaat</p>
+                      <p className="text-sm text-muted-foreground">Open dezelfde drawer, plak ID en tik "Koppel"</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                    <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
+                      4
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Klaar!</p>
+                      <p className="text-sm text-muted-foreground">Beide apparaten delen nu dezelfde origins</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-codex-teal/10 border border-codex-teal/30 rounded-lg p-3">
+                  <p className="text-sm text-foreground">
+                    <strong>💡 Tip:</strong> Deel hetzelfde Device ID met je hele team zodat iedereen dezelfde data ziet.
+                  </p>
+                </div>
+
+                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Let op:</strong> Na koppelen wordt de app herladen. Captures die je op dit apparaat maakte voordat je koppelde, blijven op je oude ID staan.
                   </p>
                 </div>
               </motion.div>
