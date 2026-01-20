@@ -143,19 +143,10 @@ export function HistoryView({
   onShareMemory,
   highlightPageId
 }: HistoryViewProps) {
-  // Use onCapture for camera buttons, fallback to onBack if not provided
-  const handleCapture = onCapture || onBack;
+  // ============= ALL HOOKS FIRST (React rules of hooks) =============
   const { isDemoMode } = useDemoMode();
-
-  const provider = getCurrentProvider();
-  const isVault = provider === 'hetzner';
-
-  const switchToCloud = useCallback(() => {
-    setHetznerEnabled(false);
-    window.location.reload();
-  }, []);
   
-  // Trash management (database-synced)
+  // Trash management (database-synced with realtime)
   const {
     trashedPages,
     trashedCount,
@@ -167,15 +158,9 @@ export function HistoryView({
     emptyTrash,
     refresh: refreshTrash,
   } = useTrash({ onPermanentDelete: onDeletePage });
-  const [showTrash, setShowTrash] = useState(false);
-  
-  // Visible pages = all pages minus anything currently in trash.
-  // This keeps the UI responsive even if the parent doesn't refetch immediately.
-  const visiblePages = useMemo(() => {
-    const trashedIds = new Set(trashedPages.map(p => p.id));
-    return allPages.filter(p => !trashedIds.has(p.id));
-  }, [allPages, trashedPages]);
 
+  // UI state hooks
+  const [showTrash, setShowTrash] = useState(false);
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
@@ -188,18 +173,40 @@ export function HistoryView({
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [projects, setProjects] = useState<Project[]>([]);
   const [currentVisibleCue, setCurrentVisibleCue] = useState<string | null>(null);
-  const cueObserverRef = useRef<IntersectionObserver | null>(null);
   const [selectedPageIds, setSelectedPageIds] = useState<string[]>([]);
   const [showVaultSettings, setShowVaultSettings] = useState(false);
-  const togglePageSelection = (pageId: string) => {
+
+  // Refs
+  const cueObserverRef = useRef<IntersectionObserver | null>(null);
+
+  // Callbacks (stable references)
+  const switchToCloud = useCallback(() => {
+    setHetznerEnabled(false);
+    window.location.reload();
+  }, []);
+
+  const togglePageSelection = useCallback((pageId: string) => {
     setSelectedPageIds(prev => 
       prev.includes(pageId) 
         ? prev.filter(id => id !== pageId)
         : [...prev, pageId]
     );
-  };
+  }, []);
 
-  const clearSelection = () => setSelectedPageIds([]);
+  const clearSelection = useCallback(() => setSelectedPageIds([]), []);
+
+  // ============= DERIVED VALUES (after all hooks) =============
+  // Use onCapture for camera buttons, fallback to onBack if not provided
+  const handleCapture = onCapture || onBack;
+  const provider = getCurrentProvider();
+  const isVault = provider === 'hetzner';
+
+  // Visible pages = all pages minus anything currently in trash.
+  // This keeps the UI responsive even if the parent doesn't refetch immediately.
+  const visiblePages = useMemo(() => {
+    const trashedIds = new Set(trashedPages.map(p => p.id));
+    return allPages.filter(p => !trashedIds.has(p.id));
+  }, [allPages, trashedPages]);
 
   // Load projects on mount
   useEffect(() => {
