@@ -1,5 +1,5 @@
 /**
- * PinGate - Per-device PIN protection
+ * PinGate - Per-device PIN protection with vault unlock animation
  * 
  * Users set their own 4-digit PIN on first visit.
  * The PIN is stored locally and required to unlock the app each session.
@@ -8,8 +8,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Unlock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Lock, Unlock, Eye, EyeOff, AlertCircle, Sparkles } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptics';
 
 const PIN_STORAGE_KEY = 'umarise_vault_pin';
@@ -21,6 +20,7 @@ interface PinGateProps {
 
 export function PinGate({ children }: PinGateProps) {
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showUnlockAnimation, setShowUnlockAnimation] = useState(false);
   const [hasPin, setHasPin] = useState<boolean | null>(null); // null = loading
   const [pin, setPin] = useState(['', '', '', '']);
   const [confirmPin, setConfirmPin] = useState(['', '', '', '']);
@@ -109,20 +109,27 @@ export function PinGate({ children }: PinGateProps) {
     }
   };
 
-  const savePin = (newPin: string) => {
-    localStorage.setItem(PIN_STORAGE_KEY, newPin);
+  const triggerUnlock = () => {
     sessionStorage.setItem(SESSION_UNLOCKED_KEY, 'true');
     triggerHaptic('success');
-    setIsUnlocked(true);
+    setShowUnlockAnimation(true);
+    
+    // Wait for animation to complete before showing app
+    setTimeout(() => {
+      setIsUnlocked(true);
+    }, 1800);
+  };
+
+  const savePin = (newPin: string) => {
+    localStorage.setItem(PIN_STORAGE_KEY, newPin);
+    triggerUnlock();
   };
 
   const verifyPin = (enteredPin: string) => {
     const storedPin = localStorage.getItem(PIN_STORAGE_KEY);
     
     if (enteredPin === storedPin) {
-      sessionStorage.setItem(SESSION_UNLOCKED_KEY, 'true');
-      triggerHaptic('success');
-      setIsUnlocked(true);
+      triggerUnlock();
     } else {
       triggerHaptic('error');
       setError('Onjuiste PIN');
@@ -159,6 +166,124 @@ export function PinGate({ children }: PinGateProps) {
   // Unlocked - show app
   if (isUnlocked) {
     return <>{children}</>;
+  }
+
+  // Unlock animation
+  if (showUnlockAnimation) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center overflow-hidden">
+        {/* Radial glow background */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: [0, 0.6, 0], scale: [0.5, 2, 3] }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        >
+          <div className="w-64 h-64 rounded-full bg-gradient-radial from-codex-gold/40 via-codex-gold/10 to-transparent" />
+        </motion.div>
+
+        {/* Sparkle particles */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ 
+              opacity: 0, 
+              scale: 0,
+              x: 0,
+              y: 0
+            }}
+            animate={{ 
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0.5],
+              x: Math.cos((i / 8) * Math.PI * 2) * 120,
+              y: Math.sin((i / 8) * Math.PI * 2) * 120
+            }}
+            transition={{ 
+              duration: 1,
+              delay: 0.3,
+              ease: "easeOut"
+            }}
+            className="absolute"
+          >
+            <Sparkles className="w-4 h-4 text-codex-gold" />
+          </motion.div>
+        ))}
+
+        {/* Lock to Unlock transition */}
+        <motion.div
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="relative z-10"
+        >
+          {/* Lock icon fading out */}
+          <motion.div
+            initial={{ opacity: 1, scale: 1, rotate: 0 }}
+            animate={{ opacity: 0, scale: 0.8, rotate: -15 }}
+            transition={{ duration: 0.4, ease: "easeIn" }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <div className="w-24 h-24 rounded-full bg-codex-gold/20 flex items-center justify-center">
+              <Lock className="w-12 h-12 text-codex-gold" />
+            </div>
+          </motion.div>
+
+          {/* Unlock icon appearing */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, rotate: 15 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+          >
+            <motion.div
+              animate={{ 
+                boxShadow: [
+                  "0 0 0 0 rgba(180, 150, 80, 0)",
+                  "0 0 0 20px rgba(180, 150, 80, 0.3)",
+                  "0 0 0 40px rgba(180, 150, 80, 0)"
+                ]
+              }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="w-24 h-24 rounded-full bg-codex-gold/20 flex items-center justify-center"
+            >
+              <Unlock className="w-12 h-12 text-codex-gold" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Welcome text */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="mt-8 text-center z-10"
+        >
+          <motion.h2
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="font-serif text-2xl text-foreground mb-2"
+          >
+            Welkom terug
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-muted-foreground text-sm"
+          >
+            Je kluis is geopend
+          </motion.p>
+        </motion.div>
+
+        {/* Fade out overlay */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 0.4 }}
+          className="absolute inset-0 bg-background z-20"
+        />
+      </div>
+    );
   }
 
   // PIN entry/setup UI
