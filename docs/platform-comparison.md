@@ -49,7 +49,7 @@ projects: id, device_user_id, name, created_at
 
 ### Core Features
 - ✅ AES-256 client-side encryption
-- ✅ Zero-knowledge architecture
+- ✅ Zero-access by design (v1) — cryptographic zero-knowledge encryption on v2 roadmap
 - ✅ Full audit logging
 - ✅ Capsule versioning
 - ✅ Granular access control (private/shared/public)
