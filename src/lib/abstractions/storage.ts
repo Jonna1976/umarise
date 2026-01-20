@@ -1112,53 +1112,103 @@ export class HetznerVaultStorage implements IStorageProvider {
     };
   }
 
-  // Trash operations - use Supabase for trash state (same as LovableCloudStorage)
-  // Trash is stored in the database, not in Hetzner Vault itself
+  // Trash operations - update via Hetzner proxy which syncs to Supabase
+  // The proxy updates the pages table in Supabase (where all page metadata lives)
   async moveToTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
-    const { error } = await supabase
-      .from('pages')
-      .update({ 
-        is_trashed: true, 
+    try {
+      // Use PATCH to update via proxy - this will sync to Supabase
+      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+        deviceUserId,
+        is_trashed: true,
         trashed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString() 
-      })
-      .eq('id', pageId)
-      .eq('device_user_id', deviceUserId);
+      });
 
-    if (error) {
-      console.error('[HetznerVaultStorage] Move to trash error:', error);
+      if (!response.ok) {
+        // Fallback: try direct Supabase update if proxy doesn't support trash
+        console.log('[HetznerVaultStorage] Proxy trash update failed, trying direct Supabase');
+        const { error } = await supabase
+          .from('pages')
+          .update({ 
+            is_trashed: true, 
+            trashed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', pageId)
+          .eq('device_user_id', deviceUserId);
+
+        if (error) {
+          console.error('[HetznerVaultStorage] Direct Supabase trash update also failed:', error);
+          return false;
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error('[HetznerVaultStorage] Move to trash error:', err);
       return false;
     }
-
-    return true;
   }
 
   async restoreFromTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
-    const { error } = await supabase
-      .from('pages')
-      .update({ 
-        is_trashed: false, 
+    try {
+      // Use PATCH to update via proxy
+      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+        deviceUserId,
+        is_trashed: false,
         trashed_at: null,
-        updated_at: new Date().toISOString() 
-      })
-      .eq('id', pageId)
-      .eq('device_user_id', deviceUserId);
+      });
 
-    if (error) {
-      console.error('[HetznerVaultStorage] Restore from trash error:', error);
+      if (!response.ok) {
+        // Fallback: try direct Supabase update
+        console.log('[HetznerVaultStorage] Proxy restore failed, trying direct Supabase');
+        const { error } = await supabase
+          .from('pages')
+          .update({ 
+            is_trashed: false, 
+            trashed_at: null,
+            updated_at: new Date().toISOString() 
+          })
+          .eq('id', pageId)
+          .eq('device_user_id', deviceUserId);
+
+        if (error) {
+          console.error('[HetznerVaultStorage] Direct Supabase restore also failed:', error);
+          return false;
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error('[HetznerVaultStorage] Restore from trash error:', err);
       return false;
     }
-
-    return true;
   }
 
   async getTrashedPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
+    try {
+      // Try fetching trashed pages via proxy first
+      const response = await this.proxyRequest('GET', '/vault/pages', undefined, {
+        deviceUserId,
+        is_trashed: 'true',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const pages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+        // Only return pages that are actually trashed
+        return pages.filter((page: Page) => page.isTrashed);
+      }
+    } catch (err) {
+      console.log('[HetznerVaultStorage] Proxy trashed pages fetch failed, trying direct Supabase');
+    }
+
+    // Fallback to direct Supabase query
     const { data, error } = await supabase
       .from('pages')
       .select('*')
