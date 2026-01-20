@@ -92,6 +92,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_trash: {
+        Row: {
+          backend_provider: string
+          created_at: string
+          device_user_id: string
+          id: string
+          page_id: string
+          restored_at: string | null
+          trashed_at: string
+          updated_at: string
+        }
+        Insert: {
+          backend_provider?: string
+          created_at?: string
+          device_user_id: string
+          id?: string
+          page_id: string
+          restored_at?: string | null
+          trashed_at?: string
+          updated_at?: string
+        }
+        Update: {
+          backend_provider?: string
+          created_at?: string
+          device_user_id?: string
+          id?: string
+          page_id?: string
+          restored_at?: string | null
+          trashed_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           capsule_id: string | null

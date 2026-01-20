@@ -169,9 +169,13 @@ export function HistoryView({
   } = useTrash({ onPermanentDelete: onDeletePage });
   const [showTrash, setShowTrash] = useState(false);
   
-  // Since getPages() now filters by is_trashed=false, allPages are the visible pages
-  const visiblePages = allPages;
-  
+  // Visible pages = all pages minus anything currently in trash.
+  // This keeps the UI responsive even if the parent doesn't refetch immediately.
+  const visiblePages = useMemo(() => {
+    const trashedIds = new Set(trashedPages.map(p => p.id));
+    return allPages.filter(p => !trashedIds.has(p.id));
+  }, [allPages, trashedPages]);
+
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
