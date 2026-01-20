@@ -1,386 +1,156 @@
 import { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Star, Images, FileText, Sparkles, BookMarked, Loader2, Trash2 } from 'lucide-react';
-import { CapsulePages, Page, markCapsuleAsInfluence, deletePage } from '@/lib/pageService';
-import { formatDistanceToNow } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CapsulePages, Page, deletePage } from '@/lib/pageService';
 import { toast } from 'sonner';
-import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem,
-  type CarouselApi 
-} from '@/components/ui/carousel';
+import { SnapshotView } from './SnapshotView';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CapsuleCarouselViewProps {
   capsule: CapsulePages;
   onClose: () => void;
-  onSelectPage: (page: Page) => void;
+  onSelectPage?: (page: Page) => void; // Optional - not used in new design
   onCapsuleUpdated?: () => void;
+  allPages?: Page[]; // For related pages
 }
 
-function getToneClass(tone: string): string {
-  const toneMap: Record<string, string> = {
-    focused: 'tone-focused',
-    hopeful: 'tone-hopeful',
-    frustrated: 'tone-frustrated',
-    playful: 'tone-playful',
-    overwhelmed: 'tone-overwhelmed',
-    reflective: 'tone-reflective',
-  };
-  return toneMap[tone.toLowerCase()] || 'bg-muted text-muted-foreground';
-}
+export function CapsuleCarouselView({ capsule, onClose, onCapsuleUpdated, allPages }: CapsuleCarouselViewProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 = prev, 1 = next
 
-// Generate combined summary from all pages
-function generateCapsuleSummary(pages: Page[]): string {
-  const allKeywords = new Set<string>();
-  pages.forEach(p => p.keywords.forEach(k => allKeywords.add(k)));
-  
-  // Take first 2 sentences from first page summary
-  const firstSummary = pages[0]?.summary || '';
-  
-  return `${pages.length} pages covering: ${Array.from(allKeywords).slice(0, 6).join(', ')}. ${firstSummary}`;
-}
+  const currentPage = capsule.pages[currentIndex];
+  const totalPages = capsule.pages.length;
 
-export function CapsuleCarouselView({ capsule, onClose, onSelectPage, onCapsuleUpdated }: CapsuleCarouselViewProps) {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
-  const [showOverview, setShowOverview] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Check if capsule is marked as influence (any page has sources)
-  const isInfluence = capsule.pages.some(p => p.sources && p.sources.length > 0);
-
-  const handleToggleInfluence = async () => {
-    setIsUpdating(true);
-    try {
-      const success = await markCapsuleAsInfluence(capsule.capsuleId, !isInfluence);
-      if (success) {
-        toast.success(isInfluence 
-          ? 'Capsule verwijderd als externe bron' 
-          : 'Capsule gemarkeerd als externe bron'
-        );
-        onCapsuleUpdated?.();
-      } else {
-        toast.error('Kon capsule niet bijwerken');
-      }
-    } catch (error) {
-      toast.error('Er ging iets mis');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDeletePage = async () => {
-    if (!pageToDelete) return;
-    
-    setIsDeleting(true);
-    try {
-      const success = await deletePage(pageToDelete.id);
-      if (success) {
-        toast.success('Page deleted');
-        
-        // If this was the last page in the capsule, close the view
-        if (capsule.pages.length <= 1) {
-          onClose();
-        } else {
-          // Refresh capsule to update the pages list
-          onCapsuleUpdated?.();
-          
-          // If we deleted the last page, go to previous
-          if (current >= capsule.pages.length - 1 && current > 0) {
-            api?.scrollTo(current - 1);
-          }
-        }
-      } else {
-        toast.error('Failed to delete page');
-      }
-    } catch (error) {
-      toast.error('Failed to delete page');
-    } finally {
-      setIsDeleting(false);
-      setPageToDelete(null);
-    }
-  };
-
+  // Handle keyboard navigation
   useEffect(() => {
-    if (!api) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setDirection(-1);
+        setCurrentIndex(prev => prev - 1);
+      } else if (e.key === 'ArrowRight' && currentIndex < totalPages - 1) {
+        setDirection(1);
+        setCurrentIndex(prev => prev + 1);
+      } else if (e.key === 'Escape') {
+        onClose();
+      }
+    };
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap());
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, totalPages, onClose]);
 
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
+  const goToPrev = useCallback(() => {
+    if (currentIndex > 0) {
+      setDirection(-1);
+      setCurrentIndex(prev => prev - 1);
+    }
+  }, [currentIndex]);
 
-  const scrollPrev = useCallback(() => {
-    api?.scrollPrev();
-  }, [api]);
+  const goToNext = useCallback(() => {
+    if (currentIndex < totalPages - 1) {
+      setDirection(1);
+      setCurrentIndex(prev => prev + 1);
+    }
+  }, [currentIndex, totalPages]);
 
-  const scrollNext = useCallback(() => {
-    api?.scrollNext();
-  }, [api]);
+  // Handle swipe gestures
+  const handleDragEnd = useCallback((event: any, info: any) => {
+    const threshold = 50;
+    if (info.offset.x > threshold && currentIndex > 0) {
+      goToPrev();
+    } else if (info.offset.x < -threshold && currentIndex < totalPages - 1) {
+      goToNext();
+    }
+  }, [currentIndex, totalPages, goToPrev, goToNext]);
 
-  const currentPage = capsule.pages[current];
-  const capsuleSummary = generateCapsuleSummary(capsule.pages);
+  // Handle page update from SnapshotView
+  const handlePageUpdate = useCallback((updatedPage: Page) => {
+    // Notify parent to refresh capsule data
+    onCapsuleUpdated?.();
+  }, [onCapsuleUpdated]);
+
+  // Handle close from SnapshotView - go back to history
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Handle "View Memory" - in capsule context, just close
+  const handleViewMemory = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  if (!currentPage) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between p-4">
+    <div className="relative min-h-screen bg-background">
+      {/* Page navigation indicator - floating at top */}
+      {totalPages > 1 && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg">
           <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors"
+            onClick={goToPrev}
+            disabled={currentIndex === 0}
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleToggleInfluence}
-              disabled={isUpdating}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                isInfluence 
-                  ? 'bg-purple-500 text-white' 
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              {isUpdating ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <BookMarked className="w-3.5 h-3.5" />
-              )}
-              {isInfluence ? 'Externe bron' : 'Markeer als bron'}
-            </button>
-            <button
-              onClick={() => setShowOverview(!showOverview)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                showOverview 
-                  ? 'bg-codex-gold text-codex-ink' 
-                  : 'bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Overview
-            </button>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-secondary text-muted-foreground">
-              <Images className="w-3.5 h-3.5" />
-              {current + 1} / {count}
-            </span>
-          </div>
-          
-          <div className="w-10" />
-        </div>
-      </div>
-
-      {/* Capsule Overview */}
-      <AnimatePresence>
-        {showOverview && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="border-b border-border bg-codex-gold/5"
+          <span className="text-sm font-medium text-foreground min-w-[3rem] text-center">
+            {currentIndex + 1} / {totalPages}
+          </span>
+          <button
+            onClick={goToNext}
+            disabled={currentIndex === totalPages - 1}
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-codex-gold" />
-                <h3 className="text-sm font-medium text-foreground">Capsule Summary</h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                {capsuleSummary}
-              </p>
-              
-              {/* All keywords from all pages */}
-              <div className="flex flex-wrap gap-1.5">
-                {Array.from(new Set(capsule.pages.flatMap(p => p.keywords))).slice(0, 12).map((keyword) => (
-                  <span key={keyword} className="px-2 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground">
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
+            <ChevronRight className="w-4 h-4 text-foreground" />
+          </button>
+        </div>
+      )}
+
+      {/* Main content - SnapshotView with swipe support */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={currentPage.id}
+          initial={{ opacity: 0, x: direction * 100 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -direction * 100 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          drag={totalPages > 1 ? 'x' : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.1}
+          onDragEnd={handleDragEnd}
+          className="min-h-screen"
+        >
+          <SnapshotView
+            page={currentPage}
+            onClose={handleClose}
+            onViewHistory={handleViewMemory}
+            isNewCapture={false}
+            onPageUpdate={handlePageUpdate}
+            allPages={allPages}
+          />
+        </motion.div>
       </AnimatePresence>
 
-      {/* Carousel with integrated navigation */}
-      <div className="flex-1 flex flex-col relative">
-        <Carousel 
-          className="flex-1 w-full"
-          setApi={setApi}
-          opts={{
-            align: 'center',
-            loop: false,
-          }}
-        >
-          <CarouselContent className="h-full">
-            {capsule.pages.map((page, index) => (
-              <CarouselItem key={page.id} className="h-full">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="h-full flex flex-col items-center justify-center p-4"
-                >
-                  {/* Image with integrated nav arrows */}
-                  <div className="relative w-full max-w-sm">
-                    <button
-                      onClick={() => onSelectPage(page)}
-                      className="relative w-full aspect-[3/4] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
-                    >
-                      <img
-                        src={getDisplayImageUrl(page.imageUrl)}
-                        alt={`Page ${index + 1}`}
-                        className="w-full h-full object-cover page-thumbnail"
-                      />
-                    </button>
-                    
-                    {/* Navigation arrows - tight to image */}
-                    {current > 0 && (
-                      <button
-                        onClick={scrollPrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors shadow-md"
-                      >
-                        <ChevronLeft className="w-4 h-4 text-foreground" />
-                      </button>
-                    )}
-                    {current < count - 1 && (
-                      <button
-                        onClick={scrollNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors shadow-md"
-                      >
-                        <ChevronRight className="w-4 h-4 text-foreground" />
-                      </button>
-                    )}
-                  </div>
-                  
-                  {/* Page details shown immediately below image */}
-                  <motion.div
-                    key={page.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="w-full max-w-sm mt-4 p-3 bg-secondary/50 rounded-xl"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {page.primaryKeyword && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-codex-sepia text-white uppercase tracking-wide">
-                            <Star className="w-3 h-3" />
-                            {page.primaryKeyword}
-                          </span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground">
-                          Page {index + 1}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setPageToDelete(page)}
-                          className="text-[10px] text-destructive/70 hover:text-destructive flex items-center gap-1"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          Delete
-                        </button>
-                        <button
-                          onClick={() => onSelectPage(page)}
-                          className="text-[10px] text-codex-gold hover:underline flex items-center gap-1"
-                        >
-                          <FileText className="w-3 h-3" />
-                          Details
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <p className="text-xs text-foreground leading-relaxed line-clamp-2 mb-2">
-                      {page.summary}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {page.tone.map((t) => (
-                        <span key={t} className={`px-2 py-0.5 rounded-full text-xs capitalize ${getToneClass(t)}`}>
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    {/* Keywords - clickable, consistent size with SnapshotView */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {page.keywords.map((k) => (
-                        <button
-                          key={k}
-                          onClick={() => onSelectPage(page)}
-                          className={`px-2.5 py-1 rounded-full text-xs transition-all ${
-                            page.primaryKeyword === k
-                              ? 'bg-codex-gold text-codex-ink-deep'
-                              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                          }`}
-                        >
-                          {k}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-
-        {/* Dot indicators */}
-        <div className="flex justify-center gap-1.5 py-3">
+      {/* Dot indicators at bottom */}
+      {totalPages > 1 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-1.5 px-3 py-2 rounded-full bg-background/80 backdrop-blur-md border border-border">
           {capsule.pages.map((_, index) => (
             <button
               key={index}
-              onClick={() => api?.scrollTo(index)}
+              onClick={() => {
+                setDirection(index > currentIndex ? 1 : -1);
+                setCurrentIndex(index);
+              }}
               className={`w-2 h-2 rounded-full transition-all ${
-                index === current 
+                index === currentIndex 
                   ? 'bg-codex-gold w-6' 
                   : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
               }`}
             />
           ))}
         </div>
-      </div>
-      
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!pageToDelete} onOpenChange={() => setPageToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this page?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove page {pageToDelete ? capsule.pages.findIndex(p => p.id === pageToDelete.id) + 1 : ''} from this capsule. 
-              The capsule will have {capsule.pages.length - 1} page{capsule.pages.length - 1 !== 1 ? 's' : ''} remaining.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeletePage}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      )}
     </div>
   );
 }

@@ -536,16 +536,17 @@ const Index = () => {
               setCurrentCapsule(null);
               setView('history');
             }}
-            onSelectPage={(page) => {
-              setCurrentPage(page);
-              setIsNewCapture(false);
-              setView('detail');
-            }}
             onCapsuleUpdated={async () => {
               if (!currentCapsule) return;
               await refresh();
               try {
                 const updatedCapsulePages = await getCapsulePages(currentCapsule.capsuleId);
+                if (updatedCapsulePages.length === 0) {
+                  // All pages deleted, close carousel
+                  setCurrentCapsule(null);
+                  setView('history');
+                  return;
+                }
                 setCurrentCapsule({
                   capsuleId: currentCapsule.capsuleId,
                   pages: [...updatedCapsulePages].sort((a, b) => (a.pageOrder ?? 0) - (b.pageOrder ?? 0)),
@@ -554,6 +555,7 @@ const Index = () => {
                 console.warn('[Index] Failed to refresh capsule pages (onCapsuleUpdated)', e);
               }
             }}
+            allPages={pages}
           />
         ) : null;
       
