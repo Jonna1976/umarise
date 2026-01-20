@@ -1,154 +1,145 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { Page } from '@/lib/pageService';
-import { getActiveDeviceId } from '@/lib/deviceId';
-import { getCurrentProvider } from '@/lib/abstractions';
-
-const TRASH_STORAGE_PREFIX = 'umarise_trash_';
-
-interface TrashState {
-  pageIds: string[];
-}
-
 /**
- * Get the storage key for the current context.
- * Trash is isolated per (backend provider + active device id) so switching
- * between Cloud/Vault or demo datasets won't "resurrect" items unexpectedly.
+ * useTrash Hook - Database-synced trash management
+ * 
+ * Trash state is stored in the database (is_trashed column on pages table),
+ * so it syncs automatically across all devices with the same device_user_id.
+ * 
+ * This replaces the old localStorage-based implementation.
  */
-function getTrashStorageKey(): string {
-  const provider = getCurrentProvider();
-  const deviceId = getActiveDeviceId();
-  return `${TRASH_STORAGE_PREFIX}${provider}_${deviceId || 'anonymous'}`;
+
+import { useState, useCallback, useEffect } from 'react';
+import { Page } from '@/lib/pageService';
+import { 
+  moveToTrash as moveToTrashDb, 
+  restoreFromTrash as restoreFromTrashDb,
+  getTrashedPages,
+  deletePage as deletePageDb
+} from '@/lib/pageService';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+
+interface UseTrashOptions {
+  // Support both void and Promise<boolean> return types for flexibility
+  onPermanentDelete?: (pageId: string) => void | Promise<void> | Promise<boolean>;
 }
 
-export function useTrash(allPages: Page[], onPermanentDelete: (pageId: string) => Promise<boolean> | void) {
-  // Memoize storageKey so it's stable across renders; only recompute on provider/device change
-  const storageKey = useMemo(() => getTrashStorageKey(), []);
-
-  const [trashedIds, setTrashedIds] = useState<Set<string>>(() => {
-    // Lazy initializer: load from localStorage synchronously on first mount
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const state: TrashState = JSON.parse(stored);
-        return new Set(state.pageIds);
-      }
-    } catch {
-      // ignore
-    }
-    return new Set();
-  });
+export function useTrash(options: UseTrashOptions = {}) {
+  const { isDemoMode } = useDemoMode();
+  const [trashedPages, setTrashedPages] = useState<Page[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Re-sync trash state when storageKey changes (e.g. switching backend)
-  useEffect(() => {
+  // Load trashed pages from database
+  const loadTrashedPages = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const state: TrashState = JSON.parse(stored);
-        setTrashedIds(new Set(state.pageIds));
-      } else {
-        setTrashedIds(new Set());
-      }
-    } catch {
-      // ignore
-    }
-  }, [storageKey]);
-
-  // Persist trash state to localStorage (device-specific)
-  const persistTrash = useCallback((ids: Set<string>) => {
-    try {
-      const state: TrashState = { pageIds: Array.from(ids) };
-      localStorage.setItem(storageKey, JSON.stringify(state));
+      const pages = await getTrashedPages();
+      setTrashedPages(pages);
     } catch (e) {
-      console.error('Failed to persist trash state:', e);
+      console.error('[useTrash] Failed to load trashed pages:', e);
+      setTrashedPages([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [storageKey]);
+  }, []);
 
-  // Move page to trash (soft delete)
-  const moveToTrash = useCallback((pageId: string) => {
+  // Re-fetch when demo mode changes
+  useEffect(() => {
+    loadTrashedPages();
+  }, [loadTrashedPages, isDemoMode]);
+
+  // Move page to trash (soft delete - syncs to database)
+  const moveToTrash = useCallback(async (pageId: string): Promise<boolean> => {
     console.log('[useTrash] Moving page to trash:', pageId);
-    setTrashedIds(prev => {
-      const next = new Set(prev);
-      next.add(pageId);
-      persistTrash(next);
-      console.log('[useTrash] Trashed IDs now:', Array.from(next));
-      return next;
-    });
-  }, [persistTrash]);
+    
+    const success = await moveToTrashDb(pageId);
+    if (success) {
+      // Refresh trashed pages list
+      await loadTrashedPages();
+      console.log('[useTrash] Page moved to trash successfully');
+    } else {
+      console.error('[useTrash] Failed to move page to trash');
+    }
+    
+    return success;
+  }, [loadTrashedPages]);
 
   // Restore page from trash
-  const restoreFromTrash = useCallback((pageId: string) => {
-    setTrashedIds(prev => {
-      const next = new Set(prev);
-      next.delete(pageId);
-      persistTrash(next);
-      return next;
-    });
-  }, [persistTrash]);
+  const restoreFromTrash = useCallback(async (pageId: string): Promise<boolean> => {
+    console.log('[useTrash] Restoring page from trash:', pageId);
+    
+    const success = await restoreFromTrashDb(pageId);
+    if (success) {
+      // Update local state immediately for responsive UI
+      setTrashedPages(prev => prev.filter(p => p.id !== pageId));
+      console.log('[useTrash] Page restored from trash successfully');
+    } else {
+      console.error('[useTrash] Failed to restore page from trash');
+    }
+    
+    return success;
+  }, []);
 
   // Permanently delete a page
-  const permanentlyDelete = useCallback(async (pageId: string) => {
+  const permanentlyDelete = useCallback(async (pageId: string): Promise<boolean> => {
     console.log('[useTrash] Permanently deleting page:', pageId);
     
-    // Remove from trash state immediately for responsive UI
-    setTrashedIds(prev => {
-      const next = new Set(prev);
-      next.delete(pageId);
-      persistTrash(next);
-      console.log('[useTrash] Removed from trash, remaining:', Array.from(next));
-      return next;
-    });
+    // Update local state immediately for responsive UI
+    setTrashedPages(prev => prev.filter(p => p.id !== pageId));
     
-    // Then call the actual delete function (fire and forget for responsive UI)
     try {
-      await Promise.resolve(onPermanentDelete(pageId));
+      // Use custom delete handler if provided, otherwise default to pageService
+      if (options.onPermanentDelete) {
+        await Promise.resolve(options.onPermanentDelete(pageId));
+        return true;
+      } else {
+        return await deletePageDb(pageId);
+      }
     } catch (e) {
       console.error('[useTrash] Failed to delete page from database:', e);
+      await loadTrashedPages();
+      return false;
     }
-  }, [onPermanentDelete, persistTrash]);
+  }, [options.onPermanentDelete, loadTrashedPages]);
 
   // Empty entire trash
-  const emptyTrash = useCallback(async () => {
-    // Get all trashed page IDs before clearing
-    const toDelete = Array.from(trashedIds);
+  const emptyTrash = useCallback(async (): Promise<void> => {
+    console.log('[useTrash] Emptying trash, pages:', trashedPages.length);
     
-    // Clear trash state first for responsive UI
-    setTrashedIds(new Set());
-    persistTrash(new Set());
+    // Get all trashed page IDs before clearing local state
+    const toDelete = [...trashedPages];
+    
+    // Clear local state first for responsive UI
+    setTrashedPages([]);
     
     // Delete all pages
-    for (const pageId of toDelete) {
-      await onPermanentDelete(pageId);
+    for (const page of toDelete) {
+      try {
+        if (options.onPermanentDelete) {
+          await Promise.resolve(options.onPermanentDelete(page.id));
+        } else {
+          await deletePageDb(page.id);
+        }
+      } catch (e) {
+        console.error('[useTrash] Failed to delete page:', page.id, e);
+      }
     }
-  }, [trashedIds, onPermanentDelete, persistTrash]);
+  }, [trashedPages, options.onPermanentDelete]);
 
-  // Get pages that are NOT in trash (for main view)
-  const visiblePages = allPages.filter(page => !trashedIds.has(page.id));
-  
-  // Get pages that ARE in trash
-  const trashedPages = allPages.filter(page => trashedIds.has(page.id));
-
-  // Clean up trash state by removing IDs for pages that no longer exist
-  useEffect(() => {
-    const existingIds = new Set(allPages.map(p => p.id));
-    const validTrashedIds = Array.from(trashedIds).filter(id => existingIds.has(id));
-    
-    if (validTrashedIds.length !== trashedIds.size) {
-      const cleaned = new Set(validTrashedIds);
-      setTrashedIds(cleaned);
-      persistTrash(cleaned);
-    }
-  }, [allPages, trashedIds, persistTrash]);
+  // Refresh trash from database
+  const refresh = useCallback(async () => {
+    await loadTrashedPages();
+  }, [loadTrashedPages]);
 
   return {
-    visiblePages,
     trashedPages,
     trashedCount: trashedPages.length,
+    isLoading,
     isDragging,
     setIsDragging,
     moveToTrash,
     restoreFromTrash,
     permanentlyDelete,
     emptyTrash,
+    refresh,
   };
 }

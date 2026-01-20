@@ -45,6 +45,11 @@ export interface IStorageProvider {
   
   // Duplicate detection
   checkDuplicate(ocrText: string, excludePageId?: string): Promise<Page | null>;
+  
+  // Trash operations (cross-device synced)
+  moveToTrash(pageId: string): Promise<boolean>;
+  restoreFromTrash(pageId: string): Promise<boolean>;
+  getTrashedPages(): Promise<Page[]>;
 }
 
 // ============= Lovable Cloud Implementation =============
@@ -254,6 +259,7 @@ export class LovableCloudStorage implements IStorageProvider {
         .from('pages')
         .select('*')
         .eq('device_user_id', DEMO_DEVICE_ID)
+        .eq('is_trashed', false)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -273,6 +279,7 @@ export class LovableCloudStorage implements IStorageProvider {
       .from('pages')
       .select('*')
       .eq('device_user_id', deviceUserId)
+      .eq('is_trashed', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -282,6 +289,69 @@ export class LovableCloudStorage implements IStorageProvider {
 
     if (!data) return [];
     return data.map(row => this.mapRowToPage(row));
+  }
+
+  async getTrashedPages(): Promise<Page[]> {
+    const deviceUserId = getActiveDeviceId();
+    if (!deviceUserId) return [];
+
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('device_user_id', deviceUserId)
+      .eq('is_trashed', true)
+      .order('trashed_at', { ascending: false });
+
+    if (error) {
+      console.error('Fetch trashed pages error:', error);
+      return [];
+    }
+
+    return (data || []).map(row => this.mapRowToPage(row));
+  }
+
+  async moveToTrash(pageId: string): Promise<boolean> {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId) return false;
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        is_trashed: true, 
+        trashed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('Move to trash error:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async restoreFromTrash(pageId: string): Promise<boolean> {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId) return false;
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        is_trashed: false, 
+        trashed_at: null,
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('Restore from trash error:', error);
+      return false;
+    }
+
+    return true;
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -543,6 +613,9 @@ export class LovableCloudStorage implements IStorageProvider {
       // Origin Hash: SHA-256 fingerprint for forensic verification
       originHashSha256: (row.origin_hash_sha256 as string) || undefined,
       originHashAlgo: (row.origin_hash_algo as 'sha256') || 'sha256',
+      // Trash: cross-device synced soft delete
+      isTrashed: row.is_trashed === true,
+      trashedAt: row.trashed_at ? new Date(row.trashed_at as string) : undefined,
     };
   }
 }
@@ -1028,6 +1101,26 @@ export class HetznerVaultStorage implements IStorageProvider {
         undefined,
       originHashAlgo:
         ((data.originHashAlgo as 'sha256') || (data.origin_hash_algo as 'sha256') || 'sha256'),
+      // Trash: cross-device synced soft delete
+      isTrashed: data.isTrashed === true || data.is_trashed === true,
+      trashedAt: data.trashedAt ? new Date(data.trashedAt as string) : 
+                 data.trashed_at ? new Date(data.trashed_at as string) : undefined,
     };
+  }
+
+  // Trash operations - stub implementations for Hetzner
+  async moveToTrash(pageId: string): Promise<boolean> {
+    console.warn('[HetznerVaultStorage] moveToTrash not yet implemented');
+    return false;
+  }
+
+  async restoreFromTrash(pageId: string): Promise<boolean> {
+    console.warn('[HetznerVaultStorage] restoreFromTrash not yet implemented');
+    return false;
+  }
+
+  async getTrashedPages(): Promise<Page[]> {
+    console.warn('[HetznerVaultStorage] getTrashedPages not yet implemented');
+    return [];
   }
 }

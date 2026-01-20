@@ -178,6 +178,7 @@ export async function createPage(
     futureYouCues: [], // Will be set after user confirmation
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: false },
     originHashSha256: originHash, // SHA-256 fingerprint for forensic verification
+    isTrashed: false, // New pages are never trashed
   });
 
   // Persist origin hash in sidecar table (backend-agnostic, immutable)
@@ -421,4 +422,30 @@ export async function getProjects(): Promise<Project[]> {
 export async function createProject(name: string): Promise<Project | null> {
   const storage = getStorageProvider();
   return storage.createProject(name);
+}
+
+// ============= Trash Operations (Cross-Device Synced) =============
+
+/**
+ * Move a page to trash (soft delete - synced across devices)
+ */
+export async function moveToTrash(pageId: string): Promise<boolean> {
+  const storage = getStorageProvider();
+  return storage.moveToTrash(pageId);
+}
+
+/**
+ * Restore a page from trash
+ */
+export async function restoreFromTrash(pageId: string): Promise<boolean> {
+  const storage = getStorageProvider();
+  return storage.restoreFromTrash(pageId);
+}
+
+/**
+ * Get all pages currently in trash
+ */
+export async function getTrashedPages(): Promise<Page[]> {
+  const storage = getStorageProvider();
+  return storage.getTrashedPages();
 }
