@@ -674,14 +674,41 @@ export class HetznerVaultStorage implements IStorageProvider {
     queryParams?: Record<string, string>
   ): Promise<Response> {
     console.log(`[Hetzner Storage] Proxying ${method} ${path}`);
-    
+
     const response = await fetch(this.proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ method, path, payload, queryParams }),
     });
-    
+
     return response;
+  }
+
+  /**
+   * Active trash state for Hetzner-backed pages.
+   * We store this in Lovable Cloud so it can sync across devices even though
+   * the actual pages live in Hetzner Vault.
+   */
+  private async getActiveTrashIdSet(deviceUserId: string): Promise<Set<string>> {
+    try {
+      const { data, error } = await (supabase as any)
+        .from('page_trash')
+        .select('page_id')
+        .eq('device_user_id', deviceUserId)
+        .eq('backend_provider', 'hetzner')
+        .is('restored_at', null);
+
+      if (error) {
+        console.warn('[HetznerVaultStorage] Failed to load trash ids:', error);
+        return new Set();
+      }
+
+      const ids = (data || []).map((r: any) => String(r.page_id));
+      return new Set(ids);
+    } catch (e) {
+      console.warn('[HetznerVaultStorage] Failed to load trash ids:', e);
+      return new Set();
+    }
   }
 
   /**
@@ -828,10 +855,11 @@ export class HetznerVaultStorage implements IStorageProvider {
 
   async getPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
-    
-    const response = await this.proxyRequest('GET', '/vault/pages', undefined, {
-      deviceUserId,
-    });
+
+    const [trashedIds, response] = await Promise.all([
+      this.getActiveTrashIdSet(deviceUserId),
+      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
+    ]);
 
     if (!response.ok) {
       console.error('Failed to fetch pages from Hetzner');
@@ -839,12 +867,10 @@ export class HetznerVaultStorage implements IStorageProvider {
     }
 
     const data = await response.json();
-    // Map pages and filter out trashed ones
-    // Trash state is stored in Supabase, so we need to check is_trashed from the response
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
-    
-    // Filter out trashed pages (trash state comes from Supabase via the proxy)
-    return allPages.filter((page: Page) => !page.isTrashed);
+
+    // Hide trashed pages (synced via Lovable Cloud page_trash)
+    return allPages.filter((page: Page) => !trashedIds.has(page.id));
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -1112,36 +1138,29 @@ export class HetznerVaultStorage implements IStorageProvider {
     };
   }
 
-  // Trash operations - update via Hetzner proxy which syncs to Supabase
-  // The proxy updates the pages table in Supabase (where all page metadata lives)
+  // Trash operations - synced across devices via Lovable Cloud.
+  // IMPORTANT: In Hetzner mode, pages live in Hetzner Vault (not in the Lovable Cloud pages table),
+  // so trash state must be stored separately.
   async moveToTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Use PATCH to update via proxy - this will sync to Supabase
-      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
-        deviceUserId,
-        is_trashed: true,
-        trashed_at: new Date().toISOString(),
-      });
-
-      if (!response.ok) {
-        // Fallback: try direct Supabase update if proxy doesn't support trash
-        console.log('[HetznerVaultStorage] Proxy trash update failed, trying direct Supabase');
-        const { error } = await supabase
-          .from('pages')
-          .update({ 
-            is_trashed: true, 
+      const { error } = await (supabase as any)
+        .from('page_trash')
+        .upsert(
+          {
+            device_user_id: deviceUserId,
+            page_id: pageId,
+            backend_provider: 'hetzner',
             trashed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString() 
-          })
-          .eq('id', pageId)
-          .eq('device_user_id', deviceUserId);
+            restored_at: null,
+          },
+          { onConflict: 'device_user_id,page_id,backend_provider' }
+        );
 
-        if (error) {
-          console.error('[HetznerVaultStorage] Direct Supabase trash update also failed:', error);
-          return false;
-        }
+      if (error) {
+        console.error('[HetznerVaultStorage] Move to trash (page_trash) error:', error);
+        return false;
       }
 
       return true;
@@ -1155,30 +1174,16 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Use PATCH to update via proxy
-      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
-        deviceUserId,
-        is_trashed: false,
-        trashed_at: null,
-      });
+      const { error } = await (supabase as any)
+        .from('page_trash')
+        .update({ restored_at: new Date().toISOString() })
+        .eq('device_user_id', deviceUserId)
+        .eq('page_id', pageId)
+        .eq('backend_provider', 'hetzner');
 
-      if (!response.ok) {
-        // Fallback: try direct Supabase update
-        console.log('[HetznerVaultStorage] Proxy restore failed, trying direct Supabase');
-        const { error } = await supabase
-          .from('pages')
-          .update({ 
-            is_trashed: false, 
-            trashed_at: null,
-            updated_at: new Date().toISOString() 
-          })
-          .eq('id', pageId)
-          .eq('device_user_id', deviceUserId);
-
-        if (error) {
-          console.error('[HetznerVaultStorage] Direct Supabase restore also failed:', error);
-          return false;
-        }
+      if (error) {
+        console.error('[HetznerVaultStorage] Restore from trash (page_trash) error:', error);
+        return false;
       }
 
       return true;
@@ -1191,73 +1196,20 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getTrashedPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    try {
-      // Try fetching trashed pages via proxy first
-      const response = await this.proxyRequest('GET', '/vault/pages', undefined, {
-        deviceUserId,
-        is_trashed: 'true',
-      });
+    const [trashedIds, response] = await Promise.all([
+      this.getActiveTrashIdSet(deviceUserId),
+      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
+    ]);
 
-      if (response.ok) {
-        const data = await response.json();
-        const pages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
-        // Only return pages that are actually trashed
-        return pages.filter((page: Page) => page.isTrashed);
-      }
-    } catch (err) {
-      console.log('[HetznerVaultStorage] Proxy trashed pages fetch failed, trying direct Supabase');
-    }
-
-    // Fallback to direct Supabase query
-    const { data, error } = await supabase
-      .from('pages')
-      .select('*')
-      .eq('device_user_id', deviceUserId)
-      .eq('is_trashed', true)
-      .order('trashed_at', { ascending: false });
-
-    if (error) {
-      console.error('[HetznerVaultStorage] Fetch trashed pages error:', error);
+    if (!response.ok) {
+      console.error('[HetznerVaultStorage] Failed to fetch pages from Hetzner for trash view');
       return [];
     }
 
-    // Map rows using same logic as LovableCloudStorage
-    return (data || []).map(row => ({
-      id: row.id as string,
-      deviceUserId: row.device_user_id as string,
-      writerUserId: (row.writer_user_id as string) || (row.device_user_id as string),
-      imageUrl: row.image_url as string,
-      thumbnailUri: (row.thumbnail_uri as string) || undefined,
-      ocrText: (row.ocr_text as string) || '',
-      ocrTokens: [],
-      namedEntities: [],
-      summary: (row.summary as string) || '',
-      oneLineHint: (row.one_line_hint as string) || undefined,
-      tone: row.tone ? [row.tone as string] : [],
-      keywords: (row.keywords as string[]) || [],
-      topicLabels: (row.topic_labels as string[]) || [],
-      primaryKeyword: (row.primary_keyword as string) || undefined,
-      userNote: (row.user_note as string) || undefined,
-      sources: (row.sources as string[]) || [],
-      highlights: (row.highlights as string[]) || [],
-      confidenceScore: row.confidence_score ? Number(row.confidence_score) : undefined,
-      capsuleId: (row.capsule_id as string) || undefined,
-      pageOrder: (row.page_order as number) ?? 0,
-      projectId: (row.project_id as string) || undefined,
-      futureYouCue: (row.future_you_cue as string) || undefined,
-      futureYouCues: (row.future_you_cues as string[]) || [],
-      futureYouCuesSource: (row.future_you_cues_source as unknown as FutureYouCuesSource) || { ai_prefill_version: null, user_edited: false },
-      embeddingVector: undefined,
-      sessionId: (row.session_id as string) || undefined,
-      captureBatchId: (row.capture_batch_id as string) || undefined,
-      sourceContainerId: (row.source_container_id as string) || undefined,
-      writtenAt: row.written_at ? new Date(row.written_at as string) : undefined,
-      createdAt: new Date(row.created_at as string),
-      updatedAt: row.updated_at ? new Date(row.updated_at as string) : undefined,
-      originHashSha256: (row.origin_hash_sha256 as string) || undefined,
-      originHashAlgo: 'sha256' as const,
-      isTrashed: true,
-      trashedAt: row.trashed_at ? new Date(row.trashed_at as string) : undefined,
-    }));
+    const data = await response.json();
+    const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+
+    return allPages.filter((page: Page) => trashedIds.has(page.id));
   }
 }
+
