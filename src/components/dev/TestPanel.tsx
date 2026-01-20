@@ -379,7 +379,7 @@ export function TestPanel({
           )}
         </div>
 
-        {/* Hetzner Backend Toggle */}
+        {/* Backend Provider Toggle */}
         <div className="p-4 border-b border-border bg-background">
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
             Backend Provider
@@ -390,16 +390,16 @@ export function TestPanel({
               setHetznerEnabled(newState);
               toast({
                 title: newState ? "🔒 Hetzner Privacy Vault" : "☁️ Lovable Cloud",
-                description: newState 
-                  ? "Now using Hetzner backend (94.130.180.233)" 
-                  : "Now using Lovable Cloud",
+                description: newState
+                  ? "Now using Vault backend (session-only; auto-resets later)"
+                  : "Now using Cloud backend",
               });
               // Reload to reinitialize providers
               setTimeout(() => window.location.reload(), 500);
             }}
             className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
-              isHetznerEnabled() 
-                ? 'bg-codex-teal/10 border-codex-teal/50 text-codex-teal' 
+              isHetznerEnabled()
+                ? 'bg-codex-teal/10 border-codex-teal/50 text-codex-teal'
                 : 'bg-primary/10 border-primary/50 text-foreground'
             }`}
           >
@@ -414,9 +414,9 @@ export function TestPanel({
                   {isHetznerEnabled() ? 'Hetzner Privacy Vault' : 'Lovable Cloud'}
                 </div>
                 <div className="text-xs opacity-70">
-                  {isHetznerEnabled() 
-                    ? '94.130.180.233 (encrypted, local AI)' 
-                    : 'Supabase (standard)'}
+                  {isHetznerEnabled()
+                    ? 'Encrypted storage + local AI'
+                    : 'Cloud (standard)'}
                 </div>
               </div>
             </div>
