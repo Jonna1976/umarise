@@ -460,8 +460,6 @@ export function HistoryView({
           <div className="flex flex-col items-center gap-1">
             {isLoading ? (
               <h1 className="font-serif text-2xl font-semibold text-muted-foreground animate-pulse">Loading...</h1>
-            ) : isDemoMode ? (
-              <h1 className="font-serif text-2xl font-semibold text-codex-gold">Photos for handwriting</h1>
             ) : (
               <h1 className="font-serif text-2xl font-semibold text-foreground">Your Beginnings</h1>
             )}

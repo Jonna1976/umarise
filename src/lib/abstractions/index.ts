@@ -40,8 +40,15 @@ const HETZNER_LEGACY_PORTS = {
  *
  * - Env var (VITE_BACKEND_PROVIDER=hetzner) always wins for deterministic builds.
  * - Manual toggles are session-scoped so you don't get "stuck" across days.
+ * - Additionally, the session toggle expires after inactivity to prevent
+ *   accidentally returning to an empty Vault backend.
  */
 const HETZNER_TOGGLE_KEY = 'umarise_hetzner_enabled';
+const HETZNER_TOGGLE_AT_KEY = 'umarise_hetzner_enabled_at';
+
+// If you return after leaving a tab open for a long time, we auto-fallback to Cloud.
+// Keep this long enough for demos, short enough to avoid "where did my data go".
+const HETZNER_TOGGLE_TTL_MS = 1000 * 60 * 60 * 2; // 2 hours
 
 function readToggle(storage: Storage): boolean | null {
   try {
@@ -54,9 +61,28 @@ function readToggle(storage: Storage): boolean | null {
   return null;
 }
 
+function readToggleAt(storage: Storage): number | null {
+  try {
+    const v = storage.getItem(HETZNER_TOGGLE_AT_KEY);
+    if (!v) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
 function writeToggle(storage: Storage, enabled: boolean): void {
   try {
     storage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
+  } catch {
+    // ignore
+  }
+}
+
+function writeToggleAt(storage: Storage, atMs: number): void {
+  try {
+    storage.setItem(HETZNER_TOGGLE_AT_KEY, String(atMs));
   } catch {
     // ignore
   }
@@ -70,6 +96,20 @@ function clearToggle(storage: Storage): void {
   }
 }
 
+function clearToggleAt(storage: Storage): void {
+  try {
+    storage.removeItem(HETZNER_TOGGLE_AT_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+function isExpired(storage: Storage): boolean {
+  const at = readToggleAt(storage);
+  if (!at) return true; // safety-first
+  return Date.now() - at > HETZNER_TOGGLE_TTL_MS;
+}
+
 export function isHetznerEnabled(): boolean {
   // Env var wins (production / published configuration)
   const env = import.meta.env.VITE_BACKEND_PROVIDER;
@@ -78,13 +118,23 @@ export function isHetznerEnabled(): boolean {
 
   // Session-scoped override (preferred)
   const session = readToggle(sessionStorage);
-  if (session !== null) return session;
+  if (session === true) {
+    if (isExpired(sessionStorage)) {
+      clearToggle(sessionStorage);
+      clearToggleAt(sessionStorage);
+      return false;
+    }
+    return true;
+  }
+  if (session === false) return false;
 
   // Legacy localStorage override: migrate once into sessionStorage, then clear
   const legacy = readToggle(localStorage);
   if (legacy !== null) {
     writeToggle(sessionStorage, legacy);
+    if (legacy) writeToggleAt(sessionStorage, Date.now());
     clearToggle(localStorage);
+    clearToggleAt(localStorage);
     return legacy;
   }
 
@@ -97,6 +147,13 @@ export function isHetznerEnabled(): boolean {
 export function setHetznerEnabled(enabled: boolean): void {
   writeToggle(sessionStorage, enabled);
   clearToggle(localStorage); // ensure non-sticky
+
+  if (enabled) {
+    writeToggleAt(sessionStorage, Date.now());
+  } else {
+    clearToggleAt(sessionStorage);
+  }
+  clearToggleAt(localStorage);
 
   // Reset providers to force re-initialization
   resetProviders();
