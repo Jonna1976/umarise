@@ -287,7 +287,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 This was me.
               </h2>
               <p className="text-base md:text-lg text-primary-foreground/50 font-medium tracking-wide mt-2">
-                Before it got fixed.
+                Before optimization.
               </p>
             </motion.div>
             
