@@ -113,41 +113,15 @@ export function TestPanel({
 
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
-  
-  // Known device IDs with their data
-  const KNOWN_DEVICE_IDS = {
-    // The "9 origins" dataset (January 2026 - SHA-256 Hash, Origin Witness, etc.)
-    ORIGINS_9: 'ae3ff163-0750-45b4-8683-6f95267c7e1a',
-    // The full dataset (53 pages from December 2025)
-    FULL_ARCHIVE: '054aba4f-0453-4e6e-80c0-bdd554d19a91',
-  } as const;
-  
-  // Default to the 9 origins dataset
-  const PREFERRED_DEVICE_ID = KNOWN_DEVICE_IDS.ORIGINS_9;
 
   useEffect(() => {
     setLocalDeviceId(getDeviceId());
   }, []);
 
-  const isOnPreferredDevice = localDeviceId === PREFERRED_DEVICE_ID;
-
   const handleCopyDeviceId = () => {
     if (localDeviceId) {
       navigator.clipboard.writeText(localDeviceId);
       toast({ title: "Device ID copied" });
-    }
-  };
-
-  const handleAdoptDeviceId = (deviceId: string, label: string) => {
-    if (localDeviceId !== deviceId) {
-      // Clear trash state for clean switch
-      const trashKeys = Object.keys(localStorage).filter(k => k.startsWith('umarise_trash_'));
-      trashKeys.forEach(k => localStorage.removeItem(k));
-      
-      persistDeviceId(deviceId);
-      setLocalDeviceId(deviceId);
-      toast({ title: `Switched to ${label}`, description: "Refreshing..." });
-      setTimeout(() => window.location.reload(), 500);
     }
   };
 
@@ -507,31 +481,6 @@ export function TestPanel({
               <span className="text-foreground break-all max-w-[200px] text-right">
                 {localDeviceId ? `${localDeviceId.slice(0, 8)}...${localDeviceId.slice(-4)}` : 'null'}
               </span>
-            </div>
-          </div>
-          
-          {/* Device ID Switcher */}
-          <div className="mt-3 space-y-2">
-            <p className="text-xs text-muted-foreground">Switch to a known dataset:</p>
-            <div className="flex flex-col gap-2">
-              <Button 
-                onClick={() => handleAdoptDeviceId(KNOWN_DEVICE_IDS.ORIGINS_9, '9 Origins')} 
-                variant={localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9 ? 'default' : 'outline'}
-                size="sm" 
-                className="text-xs justify-start"
-                disabled={localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9}
-              >
-                {localDeviceId === KNOWN_DEVICE_IDS.ORIGINS_9 ? '✓ ' : ''}9 Origins (Jan 2026)
-              </Button>
-              <Button 
-                onClick={() => handleAdoptDeviceId(KNOWN_DEVICE_IDS.FULL_ARCHIVE, 'Full Archive')} 
-                variant={localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE ? 'default' : 'outline'}
-                size="sm" 
-                className="text-xs justify-start"
-                disabled={localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE}
-              >
-                {localDeviceId === KNOWN_DEVICE_IDS.FULL_ARCHIVE ? '✓ ' : ''}Full Archive (53 pages)
-              </Button>
             </div>
           </div>
           
