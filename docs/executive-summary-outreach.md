@@ -73,7 +73,7 @@ In an AI-driven world, the moment of creation—sketches, whiteboard decisions, 
 
 ## Contact
 
-**Pilot Status:** 3 MKB teams, 21-day proof cycle, 80% retrieval success target  
+**Status:** Product operational, pilots in preparation  
 **Infrastructure:** 100% operational on Hetzner DE  
 **Code:** Architecture documentation available on request
 

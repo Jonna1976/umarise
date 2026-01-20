@@ -25,11 +25,11 @@ Umarise captures handwritten artifacts, makes them searchable in under 60 second
 
 **V2 roadmap:** Zero-knowledge encryption (client-side AES-256), local-on-device processing.
 
-We're currently running an MKB pilot in the Netherlands. 3 teams, 21 days, proving 80%+ retrieval success.
+The product is operational. Infrastructure runs on Hetzner DE. We're preparing pilots with Dutch SME teams.
 
 NextCloud has files. Proton has email. **Umarise has origins.**
 
-Interested in a 15-minute call to explore integration?
+Interested in a 15-minute call to explore where this fits?
 
 —
 
