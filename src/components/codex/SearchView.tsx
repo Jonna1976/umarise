@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
 import { formatDistanceToNow } from 'date-fns';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
-import { getAIProvider, getStorageProvider, isHetznerEnabled } from '@/lib/abstractions';
+import { getStorageProvider, isHetznerEnabled } from '@/lib/abstractions';
 
 export interface SearchMatchInfo {
   matchTypes: Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>;
@@ -356,6 +356,79 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     return () => clearTimeout(timer);
   }, [query, timeFilter]);
 
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const tokenizeQuery = (q: string) => {
+    const raw = q
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    const expanded = raw.flatMap((t) => (t.includes('-') ? [t, ...t.split('-')] : [t]));
+
+    // Deduplicate + ignore 1-char tokens (keeps strict matching useful)
+    return [...new Set(expanded)].filter((t) => t.length > 1);
+  };
+
+  const includesWholeWord = (haystack: string | null | undefined, needle: string) => {
+    if (!haystack || !needle) return false;
+    const re = new RegExp(`\\b${escapeRegExp(needle)}\\b`, 'iu');
+    return re.test(haystack);
+  };
+
+  const scorePageKeywordFirst = (page: Page, terms: string[]): SearchResult | null => {
+    const matchTypes = new Set<SearchResult['matchTypes'][number]>();
+    const matchedTerms = new Set<string>();
+    let score = 0;
+
+    const primary = page.primaryKeyword || '';
+    const cues = page.futureYouCues || [];
+    const ocr = page.ocrText || '';
+
+    for (const term of terms) {
+      let termMatched = false;
+
+      if (includesWholeWord(primary, term)) {
+        score += 120;
+        matchTypes.add('spine');
+        matchedTerms.add(term);
+        termMatched = true;
+      }
+
+      // Even if spine matched, cue can also be a match signal (explainability)
+      if (cues.some((c) => includesWholeWord(c, term))) {
+        score += 100;
+        matchTypes.add('cue');
+        matchedTerms.add(term);
+        termMatched = true;
+      }
+
+      // OCR is always secondary to user-assigned handles
+      if (includesWholeWord(ocr, term)) {
+        score += 30;
+        matchTypes.add('text');
+        matchedTerms.add(term);
+        termMatched = true;
+      }
+
+      // If nothing matched for this term, do nothing (strict exact mode)
+      if (!termMatched) continue;
+    }
+
+    if (score <= 0) return null;
+
+    const order: SearchResult['matchTypes'] = ['spine', 'cue', 'text', 'entity', 'meaning', 'date'];
+    const orderedTypes = order.filter((t) => matchTypes.has(t)) as SearchResult['matchTypes'];
+
+    return {
+      page,
+      score,
+      matchTypes: orderedTypes,
+      matchedTerms: [...matchedTerms],
+    };
+  };
+
   const performSearch = async (searchQuery: string, filter: 'week' | 'month' | 'all' | null) => {
     const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return;
@@ -377,48 +450,34 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
 
       // Use the correct backend based on configuration
       if (isHetznerEnabled()) {
-        // Hetzner: Use AI provider's searchPages + storage for full page data
-        console.log('[Search] Using Hetzner backend');
-        const aiProvider = getAIProvider();
+        // Hetzner: keyword-first local lexical search (spine/cues) then OCR
+        console.log('[Search] Using Hetzner backend (keyword-first local search)');
         const storageProvider = getStorageProvider();
-        
-        // Get search results from Hetzner (returns pageId + score + matchTypes)
-        const searchResults = await aiProvider.searchPages?.(searchQuery, {
-          timeFilter: timeFilterObj,
-          limit: 20
-        });
-        
-        if (!searchResults || searchResults.length === 0) {
-          console.log('[Search] No results from Hetzner');
+
+        const terms = tokenizeQuery(searchQuery);
+        if (terms.length === 0) {
           setResults([]);
           return;
         }
-        
-        console.log(`[Search] Hetzner returned ${searchResults.length} results, fetching page data...`);
-        
-        // Fetch full page data for each result
-        const pagePromises = searchResults.map(async (r) => {
-          try {
-            const page = await storageProvider.getPage(r.pageId);
-            if (!page) return null;
-            return {
-              page,
-              score: r.score,
-              matchTypes: r.matchTypes as Array<'cue' | 'text' | 'entity' | 'meaning' | 'spine' | 'date'>,
-              matchedTerms: r.matchedTerms
-            };
-          } catch (err) {
-            console.warn(`[Search] Failed to fetch page ${r.pageId}:`, err);
-            return null;
-          }
+
+        const pages = await storageProvider.getPages();
+        const filteredPages = pages.filter((p) => {
+          if (timeFilterObj?.after && p.createdAt < timeFilterObj.after) return false;
+          if (timeFilterObj?.before && p.createdAt > timeFilterObj.before) return false;
+          return true;
         });
-        
-        const resolvedResults = (await Promise.all(pagePromises)).filter((r): r is SearchResult => r !== null);
-        console.log(`[Search] Resolved ${resolvedResults.length} pages from Hetzner`);
-        
-        setResults(resolvedResults);
-        trackSearch(searchQuery, resolvedResults, filter);
-        
+
+        const scored = filteredPages
+          .map((p) => scorePageKeywordFirst(p as unknown as Page, terms))
+          .filter((r): r is SearchResult => r !== null)
+          .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return b.page.createdAt.getTime() - a.page.createdAt.getTime();
+          })
+          .slice(0, 20);
+
+        setResults(scored);
+        trackSearch(searchQuery, scored, filter);
       } else {
         // Lovable Cloud: Use Supabase edge function
         console.log('[Search] Using Lovable Cloud backend');
@@ -426,13 +485,15 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
           body: {
             device_user_id: deviceUserId,
             query: searchQuery,
-            time_filter: timeFilterObj ? { 
-              after: timeFilterObj.after?.toISOString(), 
-              before: timeFilterObj.before?.toISOString() 
-            } : undefined,
+            time_filter: timeFilterObj
+              ? {
+                  after: timeFilterObj.after?.toISOString(),
+                  before: timeFilterObj.before?.toISOString(),
+                }
+              : undefined,
             include_semantic: true,
-            limit: 20
-          }
+            limit: 20,
+          },
         });
 
         if (error) {
@@ -445,7 +506,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               page: mapToPage(r.page),
               score: r.score || 0,
               matchTypes: r.match_types || [],
-              matchedTerms: r.matched_terms || []
+              matchedTerms: r.matched_terms || [],
             }));
           setResults(mappedResults);
           trackSearch(searchQuery, mappedResults, filter);
