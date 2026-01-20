@@ -38,77 +38,14 @@ const HETZNER_LEGACY_PORTS = {
 /**
  * Check if Hetzner backend is enabled
  *
- * - Env var (VITE_BACKEND_PROVIDER=hetzner) always wins for deterministic builds.
- * - Manual toggles are session-scoped so you don't get "stuck" across days.
- * - Additionally, the session toggle expires after inactivity to prevent
- *   accidentally returning to an empty Vault backend.
+ * SIMPLIFIED: Hetzner Vault is now the PERMANENT DEFAULT.
+ * The user's primary data lives in Hetzner Vault, so we default to it.
+ * 
+ * - Env var (VITE_BACKEND_PROVIDER) can override if needed
+ * - No more TTL or session-based switching
+ * - Stable, predictable behavior across sessions
  */
 const HETZNER_TOGGLE_KEY = 'umarise_hetzner_enabled';
-const HETZNER_TOGGLE_AT_KEY = 'umarise_hetzner_enabled_at';
-
-// If you return after leaving a tab open for a long time, we auto-fallback to Cloud.
-// Keep this long enough for demos, short enough to avoid "where did my data go".
-const HETZNER_TOGGLE_TTL_MS = 1000 * 60 * 60 * 2; // 2 hours
-
-function readToggle(storage: Storage): boolean | null {
-  try {
-    const v = storage.getItem(HETZNER_TOGGLE_KEY);
-    if (v === 'true') return true;
-    if (v === 'false') return false;
-  } catch {
-    // ignore
-  }
-  return null;
-}
-
-function readToggleAt(storage: Storage): number | null {
-  try {
-    const v = storage.getItem(HETZNER_TOGGLE_AT_KEY);
-    if (!v) return null;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeToggle(storage: Storage, enabled: boolean): void {
-  try {
-    storage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
-  } catch {
-    // ignore
-  }
-}
-
-function writeToggleAt(storage: Storage, atMs: number): void {
-  try {
-    storage.setItem(HETZNER_TOGGLE_AT_KEY, String(atMs));
-  } catch {
-    // ignore
-  }
-}
-
-function clearToggle(storage: Storage): void {
-  try {
-    storage.removeItem(HETZNER_TOGGLE_KEY);
-  } catch {
-    // ignore
-  }
-}
-
-function clearToggleAt(storage: Storage): void {
-  try {
-    storage.removeItem(HETZNER_TOGGLE_AT_KEY);
-  } catch {
-    // ignore
-  }
-}
-
-function isExpired(storage: Storage): boolean {
-  const at = readToggleAt(storage);
-  if (!at) return true; // safety-first
-  return Date.now() - at > HETZNER_TOGGLE_TTL_MS;
-}
 
 export function isHetznerEnabled(): boolean {
   // Env var wins (production / published configuration)
@@ -116,44 +53,31 @@ export function isHetznerEnabled(): boolean {
   if (env === 'hetzner') return true;
   if (env === 'lovable' || env === 'lovable-cloud') return false;
 
-  // Session-scoped override (preferred)
-  const session = readToggle(sessionStorage);
-  if (session === true) {
-    if (isExpired(sessionStorage)) {
-      clearToggle(sessionStorage);
-      clearToggleAt(sessionStorage);
-      return false;
-    }
-    return true;
-  }
-  if (session === false) return false;
-
-  // Legacy localStorage override: migrate once into sessionStorage, then clear
-  const legacy = readToggle(localStorage);
-  if (legacy !== null) {
-    writeToggle(sessionStorage, legacy);
-    if (legacy) writeToggleAt(sessionStorage, Date.now());
-    clearToggle(localStorage);
-    clearToggleAt(localStorage);
-    return legacy;
+  // Check localStorage for explicit override (persistent, not session-based)
+  try {
+    const stored = localStorage.getItem(HETZNER_TOGGLE_KEY);
+    if (stored === 'true') return true;
+    if (stored === 'false') return false;
+  } catch {
+    // ignore
   }
 
-  return false;
+  // DEFAULT: Hetzner Vault is the primary backend
+  // User's data lives there, so we default to it
+  return true;
 }
 
 /**
- * Toggle Hetzner backend on/off (session-only)
+ * Toggle Hetzner backend on/off (persistent in localStorage)
+ * Note: This is primarily for developer use via TestPanel.
+ * Normal users should always stay on Hetzner Vault (the default).
  */
 export function setHetznerEnabled(enabled: boolean): void {
-  writeToggle(sessionStorage, enabled);
-  clearToggle(localStorage); // ensure non-sticky
-
-  if (enabled) {
-    writeToggleAt(sessionStorage, Date.now());
-  } else {
-    clearToggleAt(sessionStorage);
+  try {
+    localStorage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
+  } catch {
+    // ignore
   }
-  clearToggleAt(localStorage);
 
   // Reset providers to force re-initialization
   resetProviders();
