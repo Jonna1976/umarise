@@ -12,7 +12,9 @@ import {
   ToggleRight,
   Smartphone,
   Timer,
-  BookOpen
+  BookOpen,
+  Server,
+  Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Page } from '@/lib/pageService';
@@ -20,6 +22,8 @@ import { toast } from '@/hooks/use-toast';
 import OnePager from '@/components/OnePager';
 import { getDeviceId, getPilotTeam, joinPilotTeam, leavePilotTeam, PILOT_TEAM_IDS, PilotTeam } from '@/lib/deviceId';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { isHetznerEnabled } from '@/lib/abstractions';
+import { supabase } from '@/integrations/supabase/client';
 import { WidgetMockup } from './WidgetMockup';
 import { PilotGuide } from './PilotGuide';
 
@@ -37,8 +41,17 @@ export function TestPanel({
   const [showOnePager, setShowOnePager] = useState(false);
   const [showWidgetMockup, setShowWidgetMockup] = useState(false);
   const [showPilotGuide, setShowPilotGuide] = useState(false);
+  
   // Device debug state
   const [localDeviceId, setLocalDeviceId] = useState<string | null>(null);
+  
+  // Backend status (read-only, for verification)
+  const isVaultActive = isHetznerEnabled();
+  const [healthStatus, setHealthStatus] = useState<{
+    checking: boolean;
+    vision: 'unknown' | 'healthy' | 'error';
+    codex: 'unknown' | 'healthy' | 'error';
+  }>({ checking: false, vision: 'unknown', codex: 'unknown' });
 
   useEffect(() => {
     setLocalDeviceId(getDeviceId());
@@ -48,6 +61,43 @@ export function TestPanel({
     if (localDeviceId) {
       navigator.clipboard.writeText(localDeviceId);
       toast({ title: "Device ID copied" });
+    }
+  };
+
+  const checkHealth = async () => {
+    if (!isVaultActive) return;
+    
+    setHealthStatus({ checking: true, vision: 'unknown', codex: 'unknown' });
+    const baseUrl = import.meta.env.VITE_HETZNER_API_URL || 'https://vault.umarise.com';
+
+    try {
+      const { data, error } = await supabase.functions.invoke('hetzner-health', {
+        body: { baseUrl },
+      });
+
+      if (error) throw new Error(error.message);
+
+      const visionOk = (data as any)?.vision?.status === 'healthy';
+      const codexOk = (data as any)?.codex?.status === 'healthy';
+
+      setHealthStatus({
+        checking: false,
+        vision: visionOk ? 'healthy' : 'error',
+        codex: codexOk ? 'healthy' : 'error',
+      });
+
+      toast({
+        title: visionOk && codexOk ? '✅ Vault OK' : '⚠️ Vault Issue',
+        description: `Vision: ${visionOk ? 'OK' : 'Error'}, Codex: ${codexOk ? 'OK' : 'Error'}`,
+        variant: visionOk && codexOk ? 'default' : 'destructive',
+      });
+    } catch (err) {
+      setHealthStatus({ checking: false, vision: 'error', codex: 'error' });
+      toast({
+        title: '⚠️ Health Check Failed',
+        description: err instanceof Error ? err.message : 'Network error',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -148,12 +198,61 @@ export function TestPanel({
           )}
         </div>
 
-        {/* Backend Provider - Hidden for stability (Hetzner is now permanent default)
-            Uncomment for developer debugging only:
+        {/* Backend Status - Read-only, for internal verification */}
         <div className="p-4 border-b border-border bg-background">
-          ... Backend toggle code ...
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+            Data Backend
+          </h3>
+          
+          {/* Current Status - No toggle, just truth */}
+          <div className={`p-3 rounded-lg border-2 ${
+            isVaultActive 
+              ? 'bg-codex-teal/10 border-codex-teal/50' 
+              : 'bg-primary/10 border-primary/50'
+          }`}>
+            <div className="flex items-center gap-3">
+              <Server className="w-5 h-5 text-codex-teal" />
+              <div>
+                <div className="font-medium text-foreground">
+                  {isVaultActive ? 'Hetzner Privacy Vault' : 'Lovable Cloud'}
+                </div>
+                <div className="text-xs text-muted-foreground font-mono">
+                  {isVaultActive ? 'vault.umarise.com (DE)' : 'Supabase Cloud'}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Health Check - Only for Vault */}
+          {isVaultActive && (
+            <div className="mt-3 p-3 bg-secondary/50 border border-border rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-medium text-foreground">Service Health</span>
+                  {healthStatus.vision !== 'unknown' && (
+                    <div className="text-xs font-mono text-muted-foreground mt-1">
+                      Vision: {healthStatus.vision === 'healthy' ? '✓' : '✗'} · 
+                      Codex: {healthStatus.codex === 'healthy' ? '✓' : '✗'}
+                    </div>
+                  )}
+                </div>
+                <Button 
+                  onClick={checkHealth} 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs"
+                  disabled={healthStatus.checking}
+                >
+                  {healthStatus.checking ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    'Check'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
-        */}
 
         {/* Device Debug Section */}
         <div className="p-4 border-b border-border bg-secondary/30">
