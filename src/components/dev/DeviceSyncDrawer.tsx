@@ -34,10 +34,19 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
   const [adoptInput, setAdoptInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
     setLocalDeviceId(getDeviceId());
   }, []);
+
+  // Reset state when drawer closes
+  useEffect(() => {
+    if (!open) {
+      setShowInput(false);
+      setAdoptInput('');
+    }
+  }, [open]);
 
   const handleCopy = async () => {
     if (!deviceId) return;
@@ -48,6 +57,21 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Kopiëren mislukt');
+    }
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setAdoptInput(text.trim());
+        setShowInput(true);
+      } else {
+        setShowInput(true);
+      }
+    } catch {
+      // Clipboard access denied, just show input
+      setShowInput(true);
     }
   };
 
@@ -89,43 +113,55 @@ export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
         </DrawerHeader>
         
         <div className="px-4 pb-4 space-y-4">
-          {/* Adopt ID - FIRST so it's visible when keyboard opens */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
+          {/* Step 1: Paste button OR Step 2: Input field */}
+          {!showInput ? (
+            <Button
+              onClick={handlePasteFromClipboard}
+              className="w-full h-14 text-base gap-2"
+              variant="outline"
+            >
+              <Copy className="w-5 h-5" />
               Plak ID van ander apparaat
-            </label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Input
-                  value={adoptInput}
-                  onChange={(e) => setAdoptInput(e.target.value)}
-                  placeholder="Plak hier..."
-                  className="font-mono text-sm h-12 pr-10"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                />
-                {adoptInput && (
-                  <button
-                    onClick={() => setAdoptInput('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted"
-                    aria-label="Wissen"
-                    type="button"
-                  >
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                )}
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Bevestig ID
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    value={adoptInput}
+                    onChange={(e) => setAdoptInput(e.target.value)}
+                    placeholder="Plak hier..."
+                    className="font-mono text-sm h-12 pr-10"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    autoFocus
+                  />
+                  {adoptInput && (
+                    <button
+                      onClick={() => setAdoptInput('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted"
+                      aria-label="Wissen"
+                      type="button"
+                    >
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
+                <Button
+                  onClick={handleAdopt}
+                  disabled={!adoptInput.trim()}
+                  className="h-12 px-5"
+                >
+                  Koppel
+                </Button>
               </div>
-              <Button
-                onClick={handleAdopt}
-                disabled={!adoptInput.trim()}
-                className="h-12 px-5"
-              >
-                Koppel
-              </Button>
             </div>
-          </div>
+          )}
 
           {/* Divider */}
           <div className="border-t border-border pt-4">
