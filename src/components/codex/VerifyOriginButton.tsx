@@ -7,7 +7,7 @@
  * Supports lazy lookup from sidecar table if hash is not provided directly.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Fingerprint, Check, X, Loader2, Clock } from 'lucide-react';
 import { calculateSHA256FromBlob, HashVerificationResult } from '@/lib/originHash';
@@ -31,6 +31,9 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
   const [result, setResult] = useState<HashVerificationResult | null>(null);
   const [resolvedHash, setResolvedHash] = useState<string | null>(originHashSha256);
   const [hashChecked, setHashChecked] = useState(false);
+  
+  // Use ref for synchronous tracking of restored state (prevents race condition between effects)
+  const restoredFromStorage = useRef(false);
 
   const STORAGE_KEY = `umarise_verified_${pageId}`;
 
@@ -41,6 +44,7 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
       try {
         const parsed = JSON.parse(stored);
         if (parsed.verified && parsed.hash) {
+          restoredFromStorage.current = true; // Synchronous flag
           setResult({
             match: true,
             expectedHash: parsed.hash,
@@ -63,7 +67,8 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
 
   // Lazy lookup hash from sidecar if not provided
   useEffect(() => {
-    // Skip if already verified from localStorage
+    // Skip if already verified from localStorage (use ref for synchronous check)
+    if (restoredFromStorage.current) return;
     if (state === 'verified') return;
 
     if (originHashSha256) {
