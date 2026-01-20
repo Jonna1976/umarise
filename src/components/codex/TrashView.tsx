@@ -18,8 +18,8 @@ import { useState } from 'react';
 
 interface TrashViewProps {
   trashedPages: Page[];
-  onRestore: (pageId: string) => void;
-  onPermanentDelete: (pageId: string) => Promise<void>;
+  onRestore: (pageId: string) => Promise<boolean>;
+  onPermanentDelete: (pageId: string) => Promise<boolean>;
   onEmptyTrash: () => Promise<void>;
   onClose: () => void;
 }

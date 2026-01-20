@@ -437,6 +437,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     writtenAt: row.written_at ? new Date(row.written_at) : undefined,
     createdAt: new Date(row.created_at),
     updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+    isTrashed: row.is_trashed === true,
+    trashedAt: row.trashed_at ? new Date(row.trashed_at) : undefined,
   });
 
   const handleCantFind = () => {

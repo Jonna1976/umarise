@@ -155,9 +155,8 @@ export function HistoryView({
     window.location.reload();
   }, []);
   
-  // Trash management
+  // Trash management (database-synced)
   const {
-    visiblePages,
     trashedPages,
     trashedCount,
     isDragging,
@@ -166,8 +165,12 @@ export function HistoryView({
     restoreFromTrash,
     permanentlyDelete,
     emptyTrash,
-  } = useTrash(allPages, onDeletePage);
+    refresh: refreshTrash,
+  } = useTrash({ onPermanentDelete: onDeletePage });
   const [showTrash, setShowTrash] = useState(false);
+  
+  // Since getPages() now filters by is_trashed=false, allPages are the visible pages
+  const visiblePages = allPages;
   
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');

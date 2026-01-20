@@ -61,6 +61,9 @@ export interface Page {
   // Origin Hash: SHA-256 fingerprint for forensic verification
   originHashSha256?: string;
   originHashAlgo?: 'sha256'; // For future-proofing
+  // Trash: cross-device synced soft delete
+  isTrashed: boolean;
+  trashedAt?: Date;
 }
 
 export interface Project {

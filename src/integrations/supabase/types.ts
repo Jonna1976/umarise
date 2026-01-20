@@ -107,6 +107,7 @@ export type Database = {
           highlights: string[] | null
           id: string
           image_url: string
+          is_trashed: boolean
           keywords: string[] | null
           named_entities: Json | null
           ocr_text: string | null
@@ -124,6 +125,7 @@ export type Database = {
           thumbnail_uri: string | null
           tone: string | null
           topic_labels: string[] | null
+          trashed_at: string | null
           updated_at: string
           user_note: string | null
           writer_user_id: string
@@ -143,6 +145,7 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           image_url: string
+          is_trashed?: boolean
           keywords?: string[] | null
           named_entities?: Json | null
           ocr_text?: string | null
@@ -160,6 +163,7 @@ export type Database = {
           thumbnail_uri?: string | null
           tone?: string | null
           topic_labels?: string[] | null
+          trashed_at?: string | null
           updated_at?: string
           user_note?: string | null
           writer_user_id?: string
@@ -179,6 +183,7 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           image_url?: string
+          is_trashed?: boolean
           keywords?: string[] | null
           named_entities?: Json | null
           ocr_text?: string | null
@@ -196,6 +201,7 @@ export type Database = {
           thumbnail_uri?: string | null
           tone?: string | null
           topic_labels?: string[] | null
+          trashed_at?: string | null
           updated_at?: string
           user_note?: string | null
           writer_user_id?: string
