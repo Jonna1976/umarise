@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef } from 'react';
 import { Link2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,16 @@ import { toast } from 'sonner';
 interface DeviceSyncDrawerProps {
   trigger: React.ReactNode;
 }
+
+// Wrapper button that forwards ref for drawer trigger
+const TriggerButton = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ children, ...props }, ref) => (
+    <button ref={ref} {...props}>
+      {children}
+    </button>
+  )
+);
+TriggerButton.displayName = 'TriggerButton';
 
 export function DeviceSyncDrawer({ trigger }: DeviceSyncDrawerProps) {
   const [deviceId, setLocalDeviceId] = useState<string | null>(null);
