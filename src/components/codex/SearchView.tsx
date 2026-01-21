@@ -347,27 +347,31 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     fetchAllCues();
   }, []);
 
-  // Track search telemetry
+  // Track search telemetry via Hetzner proxy
   const trackSearch = async (searchQuery: string, searchResults: SearchResult[], filterUsed: string | null) => {
     const deviceUserId = getActiveDeviceId();
     if (!deviceUserId || searchResults.length === 0) return;
 
     try {
       const top5Ids = searchResults.slice(0, 5).map(r => r.page.id);
-      const { data } = await supabase
-        .from('search_telemetry')
-        .insert({
-          device_user_id: deviceUserId,
-          query: searchQuery,
-          result_count: searchResults.length,
-          top_5_page_ids: top5Ids,
-          time_filter_used: filterUsed
-        } as never)
-        .select('id')
-        .single();
       
-      if (data) {
-        setCurrentSearchId((data as any).id);
+      // Call Hetzner storage proxy for telemetry
+      const response = await supabase.functions.invoke('hetzner-storage-proxy', {
+        body: {
+          method: 'POST',
+          path: '/telemetry/search',
+          payload: {
+            deviceUserId,
+            query: searchQuery,
+            resultCount: searchResults.length,
+            top5PageIds: top5Ids,
+            timeFilterUsed: filterUsed
+          }
+        }
+      });
+      
+      if (response.data?.id) {
+        setCurrentSearchId(response.data.id);
         setSearchStartTime(Date.now());
       }
     } catch (error) {
@@ -375,21 +379,26 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     }
   };
 
-  // Track when user selects a result
+  // Track when user selects a result via Hetzner proxy
   const trackSelection = async (selectedPage: Page, rank: number) => {
     const deviceUserId = getActiveDeviceId();
     if (!deviceUserId || !currentSearchId) return;
 
     try {
       const timeToSelect = searchStartTime ? Date.now() - searchStartTime : null;
-      await supabase
-        .from('search_telemetry')
-        .update({
-          selected_page_id: selectedPage.id,
-          selected_rank: rank + 1,
-          time_to_select_ms: timeToSelect
-        } as never)
-        .eq('id', currentSearchId);
+      
+      await supabase.functions.invoke('hetzner-storage-proxy', {
+        body: {
+          method: 'PATCH',
+          path: '/telemetry/search',
+          payload: {
+            telemetryId: currentSearchId,
+            selectedPageId: selectedPage.id,
+            selectedRank: rank + 1,
+            timeToSelectMs: timeToSelect
+          }
+        }
+      });
     } catch (error) {
       console.error('Failed to track selection:', error);
     }

@@ -85,7 +85,7 @@ export default function PilotTracker() {
   const [telemetry, setTelemetry] = useState<SearchTelemetryRow[]>([]);
   const [isLoadingTelemetry, setIsLoadingTelemetry] = useState(false);
 
-  // Load telemetry data from database
+  // Load telemetry data via Hetzner proxy
   useEffect(() => {
     const loadTelemetry = async () => {
       const deviceUserId = getActiveDeviceId();
@@ -93,15 +93,16 @@ export default function PilotTracker() {
 
       setIsLoadingTelemetry(true);
       try {
-        const { data, error } = await supabase
-          .from('search_telemetry')
-          .select('*')
-          .eq('device_user_id', deviceUserId)
-          .order('created_at', { ascending: false })
-          .limit(100);
+        const response = await supabase.functions.invoke('hetzner-storage-proxy', {
+          body: {
+            method: 'GET',
+            path: '/telemetry/search',
+            queryParams: { deviceUserId, limit: '100' }
+          }
+        });
 
-        if (!error && data) {
-          setTelemetry(data as SearchTelemetryRow[]);
+        if (response.data?.telemetry) {
+          setTelemetry(response.data.telemetry as SearchTelemetryRow[]);
         }
       } catch (err) {
         console.error('Failed to load telemetry:', err);

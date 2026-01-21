@@ -172,6 +172,128 @@ function inferCapsuleGroups(pages: PageData[]): PageData[] {
   return pages;
 }
 
+/**
+ * Handle telemetry insert - store in Lovable Cloud for cross-device aggregation
+ * but route through Hetzner proxy to maintain single entry point
+ */
+// deno-lint-ignore no-explicit-any
+async function handleTelemetryInsert(
+  supabase: any,
+  payload: Record<string, unknown>,
+  requestId: string
+): Promise<Response> {
+  try {
+    const { data, error } = await supabase
+      .from('search_telemetry')
+      .insert({
+        device_user_id: payload.deviceUserId,
+        query: payload.query,
+        result_count: payload.resultCount || 0,
+        top_5_page_ids: payload.top5PageIds || [],
+        time_filter_used: payload.timeFilterUsed || null,
+      } as never)
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error(`[${requestId}] Telemetry insert error:`, error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true, id: (data as any)?.id }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+}
+
+/**
+ * Handle telemetry update - update selection data
+ */
+// deno-lint-ignore no-explicit-any
+async function handleTelemetryUpdate(
+  supabase: any,
+  payload: Record<string, unknown>,
+  requestId: string
+): Promise<Response> {
+  try {
+    const { error } = await supabase
+      .from('search_telemetry')
+      .update({
+        selected_page_id: payload.selectedPageId,
+        selected_rank: payload.selectedRank,
+        time_to_select_ms: payload.timeToSelectMs,
+      } as never)
+      .eq('id', payload.telemetryId as string);
+
+    if (error) {
+      console.error(`[${requestId}] Telemetry update error:`, error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+}
+
+/**
+ * Handle telemetry read - get telemetry data for a device
+ */
+// deno-lint-ignore no-explicit-any
+async function handleTelemetryRead(
+  supabase: any,
+  deviceUserId: string,
+  queryParams: Record<string, string>,
+  requestId: string
+): Promise<Response> {
+  try {
+    const limit = parseInt(queryParams.limit || '100', 10);
+    
+    const { data, error } = await supabase
+      .from('search_telemetry')
+      .select('*')
+      .eq('device_user_id', deviceUserId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error(`[${requestId}] Telemetry read error:`, error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(JSON.stringify({ success: true, telemetry: data || [] }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+}
+
 serve(async (req) => {
   const requestId = crypto.randomUUID().slice(0, 8);
   const startTime = Date.now();
@@ -209,6 +331,20 @@ serve(async (req) => {
 
     deviceUserId = payload?.deviceUserId || queryParams?.deviceUserId || req.headers.get('x-device-user-id') || 'anonymous';
     console.log(`[${requestId}] Device: ${deviceUserId.slice(0, 8)}..., ${methodUpper} ${path}`);
+
+    // Handle telemetry routes internally (stored in Lovable Cloud for aggregation)
+    if (path.startsWith('/telemetry/search')) {
+      if (methodUpper === 'POST') {
+        console.log(`[${requestId}] Handling telemetry insert`);
+        return handleTelemetryInsert(supabase, payload || {}, requestId);
+      } else if (methodUpper === 'PATCH') {
+        console.log(`[${requestId}] Handling telemetry update`);
+        return handleTelemetryUpdate(supabase, payload || {}, requestId);
+      } else if (methodUpper === 'GET') {
+        console.log(`[${requestId}] Handling telemetry read`);
+        return handleTelemetryRead(supabase, deviceUserId, queryParams || {}, requestId);
+      }
+    }
 
     const rateCheck = checkRateLimit(deviceUserId, path);
     if (!rateCheck.allowed) {
