@@ -805,8 +805,19 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                 onChange={(e) => {
                   setQuery(e.target.value);
                   setShowSuggestions(e.target.value.length > 0);
+                  // Reset search state when typing (allows suggestions to show again)
+                  if (hasSearched) {
+                    setHasSearched(false);
+                    setResults([]);
+                  }
                 }}
-                onFocus={() => setShowSuggestions(query.length > 0)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && query.trim()) {
+                    setShowSuggestions(false);
+                    performSearch(query, timeFilter);
+                  }
+                }}
+                onFocus={() => setShowSuggestions(query.length > 0 && !hasSearched)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 placeholder="Type 1-3 words..."
                 className="pl-12 pr-10 py-6 text-lg bg-muted/30 border-border rounded-xl"
@@ -823,8 +834,9 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
             </div>
             
             {/* Inline suggestions - appears below search input, NOT as overlay */}
+            {/* Google-stijl: toon suggesties ALLEEN tijdens typen, niet nadat gezocht is */}
             <AnimatePresence>
-              {showSuggestions && query.trim().length > 0 && !hasResults && !isSearching && (
+              {showSuggestions && query.trim().length > 0 && !hasSearched && !isSearching && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -847,12 +859,9 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                         .sort((a, b) => b.score - a.score)
                         .slice(0, 6);
                       
+                      // Google-style: als er geen matches zijn, toon niets (geen "no results" tijdens typen)
                       if (scoredMatches.length === 0) {
-                        return (
-                          <div className="px-4 py-3 text-sm text-muted-foreground">
-                            No matching cues found
-                          </div>
-                        );
+                        return null;
                       }
                       
                       return scoredMatches.map(({ cue, score }) => (
@@ -863,6 +872,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                             e.preventDefault();
                             setQuery(cue);
                             setShowSuggestions(false);
+                            // Trigger search when selecting a suggestion
+                            setTimeout(() => performSearch(cue, timeFilter), 0);
                           }}
                         >
                           <Tag className="w-3.5 h-3.5 text-primary" />
