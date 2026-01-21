@@ -760,65 +760,44 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
           </button>
         </div>
 
-        {/* Centered content - animates up when results appear */}
-        <motion.div 
-          className="flex-1 flex flex-col items-center px-6"
-          animate={{ 
-            justifyContent: hasResults || hasNoResults ? 'flex-start' : 'center',
-            paddingTop: hasResults || hasNoResults ? '2rem' : '0'
-          }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-md text-center space-y-6"
-            layout
-          >
-            {/* Title - shrinks when results appear */}
-            <AnimatePresence mode="wait">
-              {!hasResults && !hasNoResults && (
-                <motion.div 
-                  className="space-y-2"
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <h1 className="text-2xl font-serif text-foreground">
-                      Which beginning are you looking for?
-                    </h1>
-                    <Popover>
-                      <PopoverTrigger className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
-                        <Info className="w-4 h-4 text-muted-foreground" />
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 text-sm" align="center">
-                        <div className="space-y-3">
-                          <p className="font-medium text-foreground">Design rationale</p>
-                          <p className="text-muted-foreground text-xs leading-relaxed">
-                            Wij hebben bewust gekozen om voor een bekende Search gewoonte te kiezen die mensen al gewend zijn. Dus geen nieuwe gewoonte of UX/UI om aan te wennen. Rust is van het grootste belang.
-                          </p>
-                          <ul className="text-xs text-muted-foreground space-y-2">
-                            <li><strong>Bekende interactie</strong> — Google/ChatGPT-stijl zoeken is universeel aangeleerd, geen leercurve</li>
-                            <li><strong>Intent-first</strong> — Gebruiker wordt gedwongen na te denken "wat zoek ik?" voordat ze bladeren</li>
-                            <li><strong>Bewijst de waarde</strong> — Elke succesvolle zoekopdracht bevestigt dat het systeem werkt</li>
-                            <li><strong>Reduceert noise</strong> — Browsen door alles is nu bewuste keuze, niet default</li>
-                          </ul>
-                          <p className="text-xs text-muted-foreground/70 italic">
-                            De flow Camera → Search → Memory dwingt het retrieval-moment af als primaire interactie.
-                          </p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Search by cue, name, date or meaning
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Centered content - always shows title, suggestions inline */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-16">
+          <div className="w-full max-w-md text-center space-y-6">
+            {/* Title - ALWAYS VISIBLE */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-2">
+                <h1 className="text-2xl font-serif text-foreground">
+                  Which beginning are you looking for?
+                </h1>
+                <Popover>
+                  <PopoverTrigger className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
+                    <Info className="w-4 h-4 text-muted-foreground" />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 text-sm" align="center">
+                    <div className="space-y-3">
+                      <p className="font-medium text-foreground">Design rationale</p>
+                      <p className="text-muted-foreground text-xs leading-relaxed">
+                        Wij hebben bewust gekozen om voor een bekende Search gewoonte te kiezen die mensen al gewend zijn. Dus geen nieuwe gewoonte of UX/UI om aan te wennen. Rust is van het grootste belang.
+                      </p>
+                      <ul className="text-xs text-muted-foreground space-y-2">
+                        <li><strong>Bekende interactie</strong> — Google/ChatGPT-stijl zoeken is universeel aangeleerd, geen leercurve</li>
+                        <li><strong>Intent-first</strong> — Gebruiker wordt gedwongen na te denken "wat zoek ik?" voordat ze bladeren</li>
+                        <li><strong>Bewijst de waarde</strong> — Elke succesvolle zoekopdracht bevestigt dat het systeem werkt</li>
+                        <li><strong>Reduceert noise</strong> — Browsen door alles is nu bewuste keuze, niet default</li>
+                      </ul>
+                      <p className="text-xs text-muted-foreground/70 italic">
+                        De flow Camera → Search → Memory dwingt het retrieval-moment af als primaire interactie.
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Search by cue, name, date or meaning
+              </p>
+            </div>
 
-            {/* Search input with suggestions + clear button */}
+            {/* Search input with clear button */}
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
               <Input
@@ -841,16 +820,18 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               )}
-              
-              {/* Autocomplete suggestions dropdown */}
-              <AnimatePresence>
-                {showSuggestions && query.trim().length > 0 && !hasResults && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-20"
-                  >
+            </div>
+            
+            {/* Inline suggestions - appears below search input, NOT as overlay */}
+            <AnimatePresence>
+              {showSuggestions && query.trim().length > 0 && !hasResults && !isSearching && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
                     {/* Fuzzy-matched suggestions with typo tolerance */}
                     {(() => {
                       const term = query.toLowerCase().trim();
@@ -905,10 +886,10 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                         </button>
                       ));
                     })()}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Time filter indicator */}
             {timeFilter && (
@@ -988,7 +969,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                 <span>Browse all beginnings</span>
               </button>
             )}
-          </motion.div>
+          </div>
 
           {/* Inline results carousel - appears below search when results exist */}
           <AnimatePresence>
@@ -1008,7 +989,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
