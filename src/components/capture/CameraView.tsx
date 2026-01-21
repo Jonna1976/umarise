@@ -561,7 +561,15 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 />
               </motion.button>
               
-              {/* Hover hint - appears to the right when hovering on capture button */}
+              {/* Hint - always visible on mobile (below circle), hover on desktop (right side) */}
+              {/* Mobile: visible below circle */}
+              <p className="md:hidden mt-6 text-center font-handwritten text-primary-foreground/60 text-xl">
+                {capturedImages.length > 0 
+                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
+                  : 'Tap to capture'
+                }
+              </p>
+              {/* Desktop: hover hint to the right */}
               <p className="hidden md:block absolute left-full ml-6 top-1/2 -translate-y-1/2 whitespace-nowrap font-handwritten text-primary-foreground/50 text-xl md:text-2xl opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300 bg-transparent">
                 {capturedImages.length > 0 
                   ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
