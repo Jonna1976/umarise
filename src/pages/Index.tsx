@@ -25,7 +25,9 @@ import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit' | 'share';
+import { CueIndex } from '@/components/codex/CueIndex';
+
+type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit' | 'share' | 'cue-index';
 
 const Index = () => {
   const { isDemoMode } = useDemoMode();
@@ -646,8 +648,22 @@ const Index = () => {
               setIsNewCapture(false);
               setView('detail');
             }}
-            onBrowseAll={() => setView('history')}  // "Browse all" goes to Memory
+            onBrowseAll={() => setView('cue-index')}  // "Browse all" goes to Cue Index
             initialQuery={initialSearchQuery || undefined}
+          />
+        );
+      
+      case 'cue-index':
+        return (
+          <CueIndex
+            pages={pages}
+            onClose={() => setView('search')}
+            onSelectPage={(page) => {
+              setCurrentPage(page);
+              setSearchMatchInfo(null);
+              setIsNewCapture(false);
+              setView('detail');
+            }}
           />
         );
       
