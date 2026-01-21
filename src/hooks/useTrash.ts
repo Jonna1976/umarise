@@ -18,6 +18,7 @@ import {
   deletePage as deletePageDb
 } from '@/lib/pageService';
 import { useDemoMode } from '@/contexts/DemoModeContext';
+import { getDeviceId } from '@/lib/deviceId';
 
 interface UseTrashOptions {
   // Support both void and Promise<boolean> return types for flexibility
@@ -28,9 +29,30 @@ export function useTrash(options: UseTrashOptions = {}) {
   const { isDemoMode } = useDemoMode();
   const [trashedPages, setTrashedPages] = useState<Page[]>([]);
   // Pending IDs: hide immediately in History even if backend read-path lags
-  const [pendingTrashedIds, setPendingTrashedIds] = useState<string[]>([]);
+  const [pendingTrashedIds, setPendingTrashedIds] = useState<string[]>(() => {
+    try {
+      const deviceId = getDeviceId();
+      if (!deviceId) return [];
+      const raw = localStorage.getItem(`umarise:trash:pending:${deviceId}`);
+      const parsed = raw ? (JSON.parse(raw) as unknown) : [];
+      return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Persist pending ids locally so trash survives a refresh (device-local, not backend).
+  useEffect(() => {
+    try {
+      const deviceId = getDeviceId();
+      if (!deviceId) return;
+      localStorage.setItem(`umarise:trash:pending:${deviceId}`, JSON.stringify(pendingTrashedIds));
+    } catch {
+      // ignore
+    }
+  }, [pendingTrashedIds]);
 
   // Load trashed pages from Hetzner backend
   const loadTrashedPages = useCallback(async (): Promise<Page[]> => {
