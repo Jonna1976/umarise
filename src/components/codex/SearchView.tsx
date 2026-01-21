@@ -235,39 +235,44 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
   const [hasShownFirstRetrievalMessage, setHasShownFirstRetrievalMessage] = useState(() => {
     return localStorage.getItem('shown_first_retrieval_message') === 'true';
   });
-  const [recentKeywords, setRecentKeywords] = useState<string[]>([]);
+  
+  // All unique cues from user's pages (for autocomplete)
+  const [allCues, setAllCues] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Fetch recent keywords on mount (lightweight query - only keywords field)
+  // Fetch all unique cues on mount (for autocomplete)
   useEffect(() => {
-    const fetchRecentKeywords = async () => {
+    const fetchAllCues = async () => {
       const deviceUserId = getActiveDeviceId();
       if (!deviceUserId) return;
 
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('keywords, future_you_cues')
+          .select('future_you_cues, primary_keyword')
           .eq('device_user_id', deviceUserId)
-          .order('created_at', { ascending: false })
-          .limit(10);
+          .eq('is_trashed', false);
 
         if (!error && data) {
-          // Collect unique keywords and cues from recent pages
-          const allKeywords: string[] = [];
+          // Collect all unique cues
+          const cueSet = new Set<string>();
           data.forEach((row: any) => {
-            if (row.future_you_cues) allKeywords.push(...row.future_you_cues);
-            if (row.keywords) allKeywords.push(...row.keywords);
+            if (row.future_you_cues) {
+              row.future_you_cues.forEach((c: string) => cueSet.add(c.toLowerCase()));
+            }
+            if (row.primary_keyword) {
+              cueSet.add(row.primary_keyword.toLowerCase());
+            }
           });
-          // Deduplicate and take top 6
-          const unique = [...new Set(allKeywords)].slice(0, 6);
-          setRecentKeywords(unique);
+          // Sort alphabetically
+          setAllCues(Array.from(cueSet).sort());
         }
       } catch (error) {
-        console.error('Failed to fetch recent keywords:', error);
+        console.error('Failed to fetch cues:', error);
       }
     };
 
-    fetchRecentKeywords();
+    fetchAllCues();
   }, []);
 
   // Track search telemetry
@@ -680,16 +685,74 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                 </p>
               </div>
 
-              {/* Search input - prominent */}
+              {/* Search input - with autocomplete suggestions */}
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                 <Input
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setShowSuggestions(e.target.value.length > 0);
+                  }}
+                  onFocus={() => setShowSuggestions(query.length > 0)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                   placeholder="Type 1-3 words..."
                   className="pl-12 pr-4 py-6 text-lg bg-muted/30 border-border rounded-xl"
                   autoFocus
                 />
+                
+                {/* Autocomplete suggestions dropdown */}
+                <AnimatePresence>
+                  {showSuggestions && query.trim().length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-20"
+                    >
+                      {/* Prefix-matched suggestions */}
+                      {(() => {
+                        const term = query.toLowerCase().trim();
+                        const matches = allCues.filter(cue => 
+                          cue.startsWith(term) || cue.includes(term)
+                        ).slice(0, 6);
+                        
+                        if (matches.length === 0) {
+                          return (
+                            <div className="px-4 py-3 text-sm text-muted-foreground">
+                              No matching cues found
+                            </div>
+                          );
+                        }
+                        
+                        return matches.map((cue, idx) => (
+                          <button
+                            key={cue}
+                            className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors flex items-center gap-2"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setQuery(cue);
+                              setShowSuggestions(false);
+                            }}
+                          >
+                            <Tag className="w-3.5 h-3.5 text-primary" />
+                            <span className="text-foreground">
+                              {/* Highlight matching part */}
+                              {cue.toLowerCase().indexOf(term) === 0 ? (
+                                <>
+                                  <span className="font-medium">{cue.slice(0, term.length)}</span>
+                                  <span className="text-muted-foreground">{cue.slice(term.length)}</span>
+                                </>
+                              ) : (
+                                cue
+                              )}
+                            </span>
+                          </button>
+                        ));
+                      })()}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
 
