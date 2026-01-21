@@ -146,84 +146,31 @@ export function ProcessingView({
   };
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6 pt-12">
-      {/* Image thumbnail - compact */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="relative w-32 h-24 rounded-lg overflow-hidden shadow-lg mb-4"
-      >
-        <img
-          src={imageUrl}
-          alt="Processing"
-          className="w-full h-full object-cover"
-        />
-        {/* Multi-page badge on thumbnail */}
-        {isMultiple && (
-          <div className="absolute top-1 right-1 bg-codex-gold text-codex-ink text-xs font-bold px-1.5 py-0.5 rounded-full">
-            {totalImages}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Multi-page indicator */}
-      {isMultiple && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center gap-3 mb-4"
-        >
-          <Images className="w-4 h-4 text-codex-gold" />
-          <span className="text-codex-sepia">
-            {completedCount} of {totalImages} complete
-          </span>
-        </motion.div>
-      )}
-
-      {/* Processing status with AI explanation */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col items-center gap-1 text-muted-foreground mb-8"
-      >
-        {!isProcessingComplete ? (
-          <>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span className="text-base">~{remainingTime}s</span>
-            </div>
-            <span className="text-xs text-foreground/40">AI reading for backup search</span>
-          </>
-        ) : (
-          <span className="text-codex-gold text-base">✓ Ready</span>
-        )}
-      </motion.div>
-
-      {/* Main headline */}
+      {/* 1. Main headline */}
       <motion.h1
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.2 }}
         className="text-3xl font-serif text-foreground mb-3 text-center"
       >
         Make it findable.
       </motion.h1>
 
+      {/* 2. Subtitle */}
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.3 }}
         className="text-lg text-foreground/70 mb-8 text-center max-w-xs"
       >
         What 2 words will you type to find this in 30 seconds?
       </motion.p>
 
-      {/* Input card */}
+      {/* 3. Card with inputs */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
         className="w-full max-w-md"
       >
         <div className="bg-secondary/60 rounded-2xl p-6 border border-border/30">
@@ -275,17 +222,74 @@ export function ProcessingView({
             autoComplete="off"
             disabled={hasSubmitted}
           />
-
         </div>
 
-        {/* Action buttons */}
+        {/* 4. Thumbnail preview - smaller, contextual */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 space-y-3"
+          transition={{ delay: 0.5 }}
+          className="flex flex-col items-center mt-6"
         >
-          {/* Primary: Confirm */}
+          <div className="relative w-20 h-16 rounded-lg overflow-hidden shadow-md">
+            <img
+              src={imageUrl}
+              alt="Your origin"
+              className="w-full h-full object-cover"
+            />
+            {/* Multi-page badge on thumbnail */}
+            {isMultiple && (
+              <div className="absolute top-0.5 right-0.5 bg-codex-gold text-codex-ink text-[10px] font-bold px-1 py-0.5 rounded-full">
+                {totalImages}
+              </div>
+            )}
+          </div>
+          {isMultiple && (
+            <div className="flex items-center gap-2 mt-2">
+              <Images className="w-3 h-3 text-codex-gold" />
+              <span className="text-xs text-foreground/50">
+                {completedCount} of {totalImages}
+              </span>
+            </div>
+          )}
+        </motion.div>
+
+        {/* 5. Timer status + AI explanation */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="flex flex-col items-center gap-1 mt-4"
+        >
+          {!isProcessingComplete ? (
+            <>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">~{remainingTime}s</span>
+              </div>
+              <span className="text-xs text-foreground/40">AI reading for backup search</span>
+            </>
+          ) : (
+            <span className="text-codex-gold text-sm">✓ Ready</span>
+          )}
+        </motion.div>
+
+        {/* 6. Breathing text */}
+        <motion.p
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          className="mt-6 text-muted-foreground/50 text-sm text-center"
+        >
+          Breathe. Your thoughts are being preserved.
+        </motion.p>
+
+        {/* 7. Confirm button */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-6"
+        >
           <Button
             onClick={handleConfirmAndContinue}
             disabled={!hasInput || hasSubmitted}
@@ -299,17 +303,7 @@ export function ProcessingView({
               'Confirm'
             )}
           </Button>
-
         </motion.div>
-
-        {/* Breathing text - always visible at bottom */}
-        <motion.p
-          animate={{ opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          className="mt-8 text-muted-foreground/60 text-base text-center"
-        >
-          Breathe. Your thoughts are being preserved.
-        </motion.p>
       </motion.div>
     </div>
   );
