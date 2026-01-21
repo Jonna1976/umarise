@@ -461,20 +461,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     }
   };
 
-  // Debounced search
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setHasSearched(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      performSearch(query, timeFilter);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query, timeFilter]);
+  // NO AUTO-SEARCH: Google-style - only search on Enter or suggestion click
+  // Removed the debounced auto-search to prevent "0 results" while typing
 
   const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -970,8 +958,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
               </motion.div>
             )}
 
-            {/* Browse all beginnings - only show when no search performed */}
-            {!hasSearched && onBrowseAll && (
+            {/* Browse all beginnings - ALWAYS visible */}
+            {onBrowseAll && (
               <button
                 onClick={onBrowseAll}
                 className="inline-flex items-center gap-2.5 text-base text-muted-foreground/70 hover:text-muted-foreground transition-colors"
