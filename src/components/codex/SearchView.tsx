@@ -240,6 +240,78 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
   const [allCues, setAllCues] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Levenshtein distance for fuzzy matching (typo tolerance)
+  const levenshteinDistance = (a: string, b: string): number => {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix: number[][] = [];
+    for (let i = 0; i <= b.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // deletion
+          );
+        }
+      }
+    }
+    return matrix[b.length][a.length];
+  };
+
+  // Fuzzy match: checks prefix, contains, and typo tolerance
+  const fuzzyMatch = (cue: string, query: string): { match: boolean; score: number } => {
+    const cueLower = cue.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Exact prefix match (best)
+    if (cueLower.startsWith(queryLower)) {
+      return { match: true, score: 100 };
+    }
+
+    // Contains anywhere
+    if (cueLower.includes(queryLower)) {
+      return { match: true, score: 80 };
+    }
+
+    // Levenshtein distance for typo tolerance
+    // Allow more distance for longer queries
+    const maxDistance = Math.floor(queryLower.length / 3) + 1;
+    
+    // Check if any word in the cue is close to the query
+    const cueWords = cueLower.split(/\s+/);
+    for (const word of cueWords) {
+      const distance = levenshteinDistance(word, queryLower);
+      if (distance <= maxDistance) {
+        return { match: true, score: 60 - distance * 10 };
+      }
+      // Also check if word starts similarly (for partial typing)
+      if (word.startsWith(queryLower.slice(0, 2)) && distance <= maxDistance + 1) {
+        return { match: true, score: 50 - distance * 10 };
+      }
+    }
+
+    // Check if query is a prefix of any number in the cue (for dates like "20" -> "2026")
+    const numbersInCue = cueLower.match(/\d+/g) || [];
+    for (const num of numbersInCue) {
+      if (num.startsWith(queryLower)) {
+        return { match: true, score: 70 };
+      }
+    }
+
+    return { match: false, score: 0 };
+  };
+
   // Fetch all unique cues on mount (for autocomplete)
   useEffect(() => {
     const fetchAllCues = async () => {
@@ -710,14 +782,22 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                       exit={{ opacity: 0, y: -4 }}
                       className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-20"
                     >
-                      {/* Prefix-matched suggestions */}
+                      {/* Fuzzy-matched suggestions with typo tolerance */}
                       {(() => {
                         const term = query.toLowerCase().trim();
-                        const matches = allCues.filter(cue => 
-                          cue.startsWith(term) || cue.includes(term)
-                        ).slice(0, 6);
+                        if (term.length === 0) return null;
                         
-                        if (matches.length === 0) {
+                        // Score all cues using fuzzy matching
+                        const scoredMatches = allCues
+                          .map(cue => ({
+                            cue,
+                            ...fuzzyMatch(cue, term)
+                          }))
+                          .filter(m => m.match)
+                          .sort((a, b) => b.score - a.score)
+                          .slice(0, 6);
+                        
+                        if (scoredMatches.length === 0) {
                           return (
                             <div className="px-4 py-3 text-sm text-muted-foreground">
                               No matching cues found
@@ -725,7 +805,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                           );
                         }
                         
-                        return matches.map((cue, idx) => (
+                        return scoredMatches.map(({ cue, score }) => (
                           <button
                             key={cue}
                             className="w-full text-left px-4 py-2.5 hover:bg-muted/50 transition-colors flex items-center gap-2"
@@ -747,6 +827,12 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
                                 cue
                               )}
                             </span>
+                            {/* Show fuzzy match indicator for typo corrections */}
+                            {score < 80 && (
+                              <span className="text-xs text-muted-foreground/60 ml-auto">
+                                ~
+                              </span>
+                            )}
                           </button>
                         ));
                       })()}
