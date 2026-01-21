@@ -85,7 +85,7 @@
 | Aspect | Zero-Knowledge (Confer claim) | Zero-Access (Umarise v1) |
 |--------|-------------------------------|--------------------------|
 | Encryptie | Client-side, server kan niet lezen | Server-side AES-256 at rest |
-| AI Processing | Moet op client OF met trusted execution | Gemini 2.5 Flash in perimeter |
+| AI Processing | Moet op client OF met trusted execution | Gemini 2.5 Flash in perimeter (model-agnostic by design) |
 | Verificatie | Vereist crypto-audit | Policy + architecture audit |
 | OCR Kwaliteit | Beperkt door client hardware | Character-perfect (cloud GPU) |
 | **Trade-off** | Maximale crypto garantie | Maximale OCR + uitlegbare privacy |
@@ -96,7 +96,7 @@
 3. Hetzner DE + contractuele garanties = voldoende voor MKB pilot
 4. Upgrade naar zero-knowledge in v2 zonder architectuur-breuk
 
-**Expliciete verduidelijking**: In v1 kan Umarise technisch toegang afdwingen via policy, maar heeft geen operationele of commerciële incentive om dat te doen; toegang vereist expliciete breach van procedure, logging en contract.
+**Expliciete verduidelijking**: In v1 kan Umarise technisch toegang afdwingen via policy, maar heeft geen operationele of commerciële incentive om dat te doen. Any server-side access would require an explicit breach of documented operational procedure, is audit-logged, and is contractually prohibited outside security incident response.
 
 ### 3. Origin Immutability (Cryptografisch Bewezen)
 
@@ -341,6 +341,12 @@ Pilot security sign-off completed: `docs/security-signoff-pilot-2026-01-20.md`
 | Audit logging | ✅ | 90-day retention |
 | Production lock | ✅ | Published app = Hetzner only |
 | Lovable Cloud frozen | ✅ | No writes since Jan 2026 |
+
+---
+
+## Threat Model Scope
+
+**Out of scope:** Compromised end-user devices, malicious browsers, or physical coercion.
 
 ---
 
