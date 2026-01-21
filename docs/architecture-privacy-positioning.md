@@ -19,9 +19,31 @@
 
 ## V1 Pilot: Wat We Nu Al Bieden
 
-### 1. Sovereign Infrastructure (Operationeel)
+### 1. Hybrid Architecture: Lovable Frontend + Hetzner Backend
 
 ```
+┌─────────────────────────────────────────────────────────┐
+│                   LOVABLE FRONTEND                       │
+│                (React + Vite + Tailwind)                │
+│         Hosted on Lovable Cloud (CDN delivery)          │
+└─────────────────────┬───────────────────────────────────┘
+                      │ HTTPS
+                      ▼
+┌─────────────────────────────────────────────────────────┐
+│              LOVABLE CLOUD EDGE FUNCTIONS               │
+│                   (Proxy Layer Only)                    │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │ hetzner-ai  │  │  hetzner-   │  │  hetzner-   │     │
+│  │   -proxy    │  │  storage-   │  │   health    │     │
+│  │             │  │   proxy     │  │             │     │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘     │
+│         │                │                │             │
+│         └────────────────┼────────────────┘             │
+│                          │                              │
+│              (No data stored - pass-through only)       │
+└──────────────────────────┼──────────────────────────────┘
+                           │ HTTPS (Bearer Token)
+                           ▼
 ┌─────────────────────────────────────────────────────────┐
 │                    HETZNER GERMANY                       │
 │                   (EU Data Residency)                    │
@@ -45,11 +67,18 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
-**Wat dit betekent:**
-- Geen data verlaat Europese bodem
+**Waarom deze hybrid architectuur:**
+- **Lovable Frontend**: Snelle iteration, React ecosystem, geen DevOps overhead
+- **Edge Function Proxies**: Browser CORS vereist server-side proxy voor Hetzner calls
+- **Hetzner Backend**: Alle data opslag, alle AI processing, EU sovereignty
+
+**Wat dit betekent voor privacy:**
+- Edge functions zijn **stateless proxies** - geen data caching, geen content logging
+- Alle persoonlijke data gaat direct door naar Hetzner (encrypted in transit)
+- Lovable Cloud ziet alleen traffic volume, niet de inhoud
+- Geen data verlaat Europese bodem (Hetzner DE)
 - Alle services draaien localhost-only (niet extern bereikbaar)
 - Single ingress = één plek voor rate limiting, auth, audit
-- Firewall: alleen 22/80/443 open
 
 ### 2. Zero-Access by Design (Niet Zero-Knowledge, Beter Uitlegbaar)
 
