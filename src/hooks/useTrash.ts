@@ -1,13 +1,15 @@
 /**
- * useTrash Hook - Database-synced trash management with Realtime
+ * useTrash Hook - Hetzner-native trash management
  * 
- * Trash state is stored in the database (page_trash table),
- * so it syncs automatically across all devices with the same device_user_id.
+ * Trash state is fully managed by the Hetzner backend via the abstraction layer.
+ * No Supabase/Lovable Cloud dependencies - this follows the architecture where
+ * only frontend and proxy functions run on Lovable, all data is on Hetzner.
  * 
- * Uses Supabase Realtime to push updates to all connected devices instantly.
+ * Cross-device sync happens automatically because all devices with the same
+ * device_user_id share the same Hetzner data.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Page } from '@/lib/pageService';
 import { 
   moveToTrash as moveToTrashDb, 
@@ -16,9 +18,6 @@ import {
   deletePage as deletePageDb
 } from '@/lib/pageService';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { supabase } from '@/integrations/supabase/client';
-import { getDeviceId } from '@/lib/deviceId';
-import { getCurrentProvider } from '@/lib/abstractions';
 
 interface UseTrashOptions {
   // Support both void and Promise<boolean> return types for flexibility
@@ -30,9 +29,8 @@ export function useTrash(options: UseTrashOptions = {}) {
   const [trashedPages, setTrashedPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  // Load trashed pages from database
+  // Load trashed pages from Hetzner backend
   const loadTrashedPages = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -49,57 +47,6 @@ export function useTrash(options: UseTrashOptions = {}) {
   // Re-fetch when demo mode changes
   useEffect(() => {
     loadTrashedPages();
-  }, [loadTrashedPages, isDemoMode]);
-
-  // Setup Supabase Realtime subscription for page_trash changes
-  useEffect(() => {
-    const deviceId = getDeviceId();
-    const backendProvider = getCurrentProvider();
-
-    // Create a unique channel name for this device
-    const channelName = `trash-sync-${deviceId.slice(0, 8)}`;
-    
-    console.log('[useTrash] Setting up realtime subscription for page_trash');
-
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'page_trash',
-          filter: `device_user_id=eq.${deviceId}`,
-        },
-        (payload) => {
-          console.log('[useTrash] Realtime event received:', payload.eventType, payload);
-          
-          // For any change, reload the trashed pages
-          // This ensures consistency across devices
-          if (payload.eventType === 'INSERT' || 
-              payload.eventType === 'UPDATE' || 
-              payload.eventType === 'DELETE') {
-            // Small delay to ensure database is consistent
-            setTimeout(() => {
-              loadTrashedPages();
-            }, 100);
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('[useTrash] Realtime subscription status:', status);
-      });
-
-    channelRef.current = channel;
-
-    // Cleanup on unmount
-    return () => {
-      console.log('[useTrash] Cleaning up realtime subscription');
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-    };
   }, [loadTrashedPages, isDemoMode]);
 
   // Move page to trash (soft delete - syncs to database)
