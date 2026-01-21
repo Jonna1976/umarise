@@ -1,9 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, Info, Library } from 'lucide-react';
+import { Search, X, ArrowLeft, Calendar, Clock, Tag, User, Brain, FileText, HelpCircle, Library } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Page } from '@/lib/pageService';
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId } from '@/lib/deviceId';
@@ -330,7 +329,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
   };
 
   // Fetch all unique cues on mount (for autocomplete)
-  // Includes: user cues, AI keywords (bonus words), and date-based suggestions
+  // ONLY user cues and AI keywords - NO years (they're not searchable by the search logic)
   useEffect(() => {
     const fetchAllCues = async () => {
       const deviceUserId = getActiveDeviceId();
@@ -339,14 +338,13 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('future_you_cues, primary_keyword, keywords, created_at')
+          .select('future_you_cues, primary_keyword, keywords')
           .eq('device_user_id', deviceUserId)
           .eq('is_trashed', false);
 
         if (!error && data) {
-          // Collect all unique cues including bonus words and dates
+          // Collect only cues that are actually searchable
           const cueSet = new Set<string>();
-          const yearSet = new Set<string>();
           
           data.forEach((row: any) => {
             // User-assigned cues (highest priority)
@@ -360,15 +358,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
             if (row.keywords && Array.isArray(row.keywords)) {
               row.keywords.forEach((k: string) => cueSet.add(k.toLowerCase()));
             }
-            // Extract years from created_at for date suggestions
-            if (row.created_at) {
-              const year = new Date(row.created_at).getFullYear().toString();
-              yearSet.add(year);
-            }
           });
-          
-          // Add years as searchable terms
-          yearSet.forEach(year => cueSet.add(year));
           
           // Sort alphabetically
           setAllCues(Array.from(cueSet).sort());
@@ -751,35 +741,11 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
         {/* Centered content - always shows title, suggestions inline */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 -mt-16">
           <div className="w-full max-w-md text-center space-y-6">
-            {/* Title - ALWAYS VISIBLE */}
+            {/* Title - clean, no info icon */}
             <div className="space-y-2">
-              <div className="flex items-center justify-center gap-2">
-                <h1 className="text-2xl font-serif text-foreground">
-                  Which beginning are you looking for?
-                </h1>
-                <Popover>
-                  <PopoverTrigger className="p-1 rounded-full hover:bg-muted/50 transition-colors opacity-30 hover:opacity-60">
-                    <Info className="w-4 h-4 text-muted-foreground" />
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 text-sm" align="center">
-                    <div className="space-y-3">
-                      <p className="font-medium text-foreground">Design rationale</p>
-                      <p className="text-muted-foreground text-xs leading-relaxed">
-                        Wij hebben bewust gekozen om voor een bekende Search gewoonte te kiezen die mensen al gewend zijn. Dus geen nieuwe gewoonte of UX/UI om aan te wennen. Rust is van het grootste belang.
-                      </p>
-                      <ul className="text-xs text-muted-foreground space-y-2">
-                        <li><strong>Bekende interactie</strong> — Google/ChatGPT-stijl zoeken is universeel aangeleerd, geen leercurve</li>
-                        <li><strong>Intent-first</strong> — Gebruiker wordt gedwongen na te denken "wat zoek ik?" voordat ze bladeren</li>
-                        <li><strong>Bewijst de waarde</strong> — Elke succesvolle zoekopdracht bevestigt dat het systeem werkt</li>
-                        <li><strong>Reduceert noise</strong> — Browsen door alles is nu bewuste keuze, niet default</li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground/70 italic">
-                        De flow Camera → Search → Memory dwingt het retrieval-moment af als primaire interactie.
-                      </p>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <h1 className="text-2xl font-serif text-foreground">
+                Which beginning are you looking for?
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Search by cue, name, date or meaning
               </p>
