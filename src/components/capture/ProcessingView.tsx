@@ -276,9 +276,9 @@ export function ProcessingView({
 
         {/* 6. Breathing text */}
         <motion.p
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          animate={{ opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          className="mt-6 text-muted-foreground/50 text-sm text-center"
+          className="mt-6 text-foreground/50 text-sm text-center"
         >
           Breathe. Your thoughts are being preserved.
         </motion.p>
