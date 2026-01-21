@@ -224,6 +224,12 @@ export function ProcessingView({
         className="w-full max-w-md"
       >
         <div className="bg-secondary/60 rounded-2xl p-6 border border-border/30">
+          <p className="text-codex-gold font-serif text-xl mb-2 text-center">
+            Your search words
+          </p>
+          <p className="text-foreground/60 text-sm mb-5 text-center">
+            These are the words you'll type when you need this back.
+          </p>
 
           {/* Two cue inputs side by side */}
           <div className="flex gap-3 mb-3">
