@@ -131,6 +131,7 @@ pages_fts (ocr_text, summary, future_you_cues, keywords)
 ## Origin Hash
 
 ### Purpose
+
 Verify image hasn't been modified since capture.
 
 ### Implementation
