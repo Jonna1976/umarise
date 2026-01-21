@@ -96,6 +96,8 @@
 3. Hetzner DE + contractuele garanties = voldoende voor MKB pilot
 4. Upgrade naar zero-knowledge in v2 zonder architectuur-breuk
 
+**Expliciete verduidelijking**: In v1 kan Umarise technisch toegang afdwingen via policy, maar heeft geen operationele of commerciële incentive om dat te doen; toegang vereist expliciete breach van procedure, logging en contract.
+
 ### 3. Origin Immutability (Cryptografisch Bewezen)
 
 ```sql
@@ -165,6 +167,11 @@ const RANKING_WEIGHTS = {
 - Geen centrale user database = geen breach target
 - v2: "Claim" flow om device_user_id aan account te koppelen
 
+**Belangrijk onderscheid:**
+- **Ownership ≠ Identity** — Device UUID bewijst bezit van origins, niet wie je bent
+- **Identity is opt-in** — Accounts komen pas in v2, altijd vrijwillig
+- **Authority = Origin Hash + Consent Logs** — Niet afhankelijk van identiteit
+
 ---
 
 ## V2 Vision: Wat Komt
@@ -189,6 +196,8 @@ v2 (gepland): Device → Encrypt → HTTPS → Hetzner → Store (encrypted blob
 | Embeddings | Server-side | Local ONNX model | Performance test |
 
 **Filosofie**: Device wordt system of record. Cloud wordt optional sync.
+
+**Vendor Independence**: Model abstraction layer ensures no architectural dependency on a single vendor; Gemini is a quality benchmark, not a hard dependency.
 
 ### 3. MCP Server: Origin Authority
 
