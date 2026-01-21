@@ -16,7 +16,8 @@ import {
   Search,
   TrendingUp,
   TrendingDown,
-  BarChart3
+  BarChart3,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -86,33 +87,33 @@ export default function PilotTracker() {
   const [isLoadingTelemetry, setIsLoadingTelemetry] = useState(false);
 
   // Load telemetry data via Hetzner proxy
-  useEffect(() => {
-    const loadTelemetry = async () => {
-      const deviceUserId = getActiveDeviceId();
-      if (!deviceUserId) return;
+  const loadTelemetry = useCallback(async () => {
+    const deviceUserId = getActiveDeviceId();
+    if (!deviceUserId) return;
 
-      setIsLoadingTelemetry(true);
-      try {
-        const response = await supabase.functions.invoke('hetzner-storage-proxy', {
-          body: {
-            method: 'GET',
-            path: '/telemetry/search',
-            queryParams: { deviceUserId, limit: '100' }
-          }
-        });
-
-        if (response.data?.telemetry) {
-          setTelemetry(response.data.telemetry as SearchTelemetryRow[]);
+    setIsLoadingTelemetry(true);
+    try {
+      const response = await supabase.functions.invoke('hetzner-storage-proxy', {
+        body: {
+          method: 'GET',
+          path: '/telemetry/search',
+          queryParams: { deviceUserId, limit: '100' }
         }
-      } catch (err) {
-        console.error('Failed to load telemetry:', err);
-      } finally {
-        setIsLoadingTelemetry(false);
-      }
-    };
+      });
 
-    loadTelemetry();
+      if (response.data?.telemetry) {
+        setTelemetry(response.data.telemetry as SearchTelemetryRow[]);
+      }
+    } catch (err) {
+      console.error('Failed to load telemetry:', err);
+    } finally {
+      setIsLoadingTelemetry(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadTelemetry();
+  }, [loadTelemetry]);
 
   // Stopwatch logic
   useEffect(() => {
@@ -299,7 +300,20 @@ export default function PilotTracker() {
 
           {/* TELEMETRY TAB */}
           <TabsContent value="telemetry" className="space-y-6 mt-6">
-            {/* Telemetry Metrics Cards */}
+            {/* Refresh button + Telemetry Metrics Cards */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Live Metrics</h2>
+              <Button 
+                onClick={loadTelemetry} 
+                variant="outline" 
+                size="sm"
+                disabled={isLoadingTelemetry}
+                className="gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoadingTelemetry ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="pt-4">
