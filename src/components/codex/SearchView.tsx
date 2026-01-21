@@ -268,60 +268,52 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     return matrix[b.length][a.length];
   };
 
-  // Fuzzy match: checks prefix, contains, and typo tolerance
+  // Fuzzy match: STRICT prefix-first matching
+  // For short queries, ONLY prefix/contains - no Levenshtein (too loose)
   const fuzzyMatch = (cue: string, query: string): { match: boolean; score: number } => {
     const cueLower = cue.toLowerCase();
-    const queryLower = query.toLowerCase();
+    const queryLower = query.toLowerCase().trim();
+
+    // Minimum 2 chars for autocomplete
+    if (queryLower.length < 2) {
+      return { match: false, score: 0 };
+    }
 
     // Exact match (best)
     if (cueLower === queryLower) {
       return { match: true, score: 110 };
     }
 
-    // Exact prefix match (very good)
+    // Cue starts with query (very good) - "ori" matches "origin story"
     if (cueLower.startsWith(queryLower)) {
       return { match: true, score: 100 };
     }
 
-    // Query is a number prefix (for dates like "20" -> "2026", "202" -> "2026")
-    if (/^\d+$/.test(queryLower) && cueLower.startsWith(queryLower)) {
-      return { match: true, score: 95 };
-    }
-
-    // Contains anywhere
-    if (cueLower.includes(queryLower)) {
-      return { match: true, score: 80 };
-    }
-
-    // Levenshtein distance for typo tolerance
-    // Be more generous: allow 1 error per 3 chars, minimum 2 errors for words 5+ chars
-    const minErrors = queryLower.length >= 5 ? 2 : 1;
-    const maxDistance = Math.max(minErrors, Math.floor(queryLower.length / 3) + 1);
-    
-    // Check the whole cue as one word first (for single-word cues)
-    const directDistance = levenshteinDistance(cueLower, queryLower);
-    if (directDistance <= maxDistance) {
-      return { match: true, score: 70 - directDistance * 5 };
-    }
-    
-    // Check if any word in the cue is close to the query
+    // Any word in the cue starts with query - "ori" matches "the origin"
     const cueWords = cueLower.split(/[\s\-_]+/);
     for (const word of cueWords) {
-      const distance = levenshteinDistance(word, queryLower);
-      if (distance <= maxDistance) {
-        return { match: true, score: 60 - distance * 5 };
-      }
-      // Also check if word starts similarly (for partial typing)
-      if (queryLower.length >= 2 && word.startsWith(queryLower.slice(0, 2)) && distance <= maxDistance + 1) {
-        return { match: true, score: 50 - distance * 5 };
+      if (word.startsWith(queryLower)) {
+        return { match: true, score: 90 };
       }
     }
 
-    // Check if query is a prefix of any number in the cue (for dates like "20" -> "2026")
-    const numbersInCue = cueLower.match(/\d+/g) || [];
-    for (const num of numbersInCue) {
-      if (num.startsWith(queryLower)) {
-        return { match: true, score: 70 };
+    // Query is contained somewhere in cue - "ori" matches "memorial"
+    if (cueLower.includes(queryLower)) {
+      return { match: true, score: 70 };
+    }
+
+    // Levenshtein ONLY for longer queries (5+ chars) to catch typos
+    // For short queries like "or", "ori" - NO fuzzy matching, too many false positives
+    if (queryLower.length >= 5) {
+      const maxDistance = 1; // Only allow 1 typo for 5+ char queries
+      
+      for (const word of cueWords) {
+        if (word.length >= 4) { // Only compare with words of reasonable length
+          const distance = levenshteinDistance(word, queryLower);
+          if (distance <= maxDistance) {
+            return { match: true, score: 50 - distance * 10 };
+          }
+        }
       }
     }
 
