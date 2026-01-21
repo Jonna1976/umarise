@@ -204,19 +204,19 @@ export function ProcessingView({
         transition={{ delay: 0.3 }}
         className="text-3xl font-serif text-foreground mb-3 text-center"
       >
-        A moment for yourself.
+        Make it findable.
       </motion.h1>
 
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="text-lg text-foreground/70 mb-8 text-center"
+        className="text-lg text-foreground/70 mb-8 text-center max-w-xs"
       >
-        While we read your handwriting, think about this:
+        What 2 words will you type to find this in 30 seconds?
       </motion.p>
 
-      {/* Question card */}
+      {/* Input card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -224,12 +224,6 @@ export function ProcessingView({
         className="w-full max-w-md"
       >
         <div className="bg-secondary/60 rounded-2xl p-6 border border-border/30">
-          <p className="text-codex-gold font-serif text-2xl mb-3 text-center">
-            In 2 words: what is this about?
-          </p>
-          <p className="text-foreground/60 text-base mb-6 text-center">
-            These words will appear on the spine of this page in your memory.
-          </p>
 
           {/* Two cue inputs side by side */}
           <div className="flex gap-3 mb-3">
@@ -305,7 +299,7 @@ export function ProcessingView({
           transition={{ delay: 0.6 }}
           className="mt-6 space-y-3"
         >
-          {/* Primary: Confirm & continue to snapshot */}
+          {/* Primary: Confirm */}
           <Button
             onClick={handleConfirmAndContinue}
             disabled={!hasInput || hasSubmitted}
@@ -313,18 +307,10 @@ export function ProcessingView({
           >
             {hasSubmitted ? (
               'Continuing...'
-            ) : isProcessingComplete ? (
-              <>
-                Confirm & continue
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </>
-            ) : isConfirmed ? (
-              'Confirmed — waiting for analysis...'
+            ) : isConfirmed && !isProcessingComplete ? (
+              'Confirmed — saving...'
             ) : (
-              <>
-                Confirm
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </>
+              'Confirm'
             )}
           </Button>
 
