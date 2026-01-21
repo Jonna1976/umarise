@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Images, ArrowRight, Plus, BookOpen, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Clock, Images } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/lib/haptics';
@@ -180,17 +180,20 @@ export function ProcessingView({
         </motion.div>
       )}
 
-      {/* Processing status */}
+      {/* Processing status with AI explanation */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="flex items-center gap-2 text-muted-foreground mb-8"
+        className="flex flex-col items-center gap-1 text-muted-foreground mb-8"
       >
         {!isProcessingComplete ? (
           <>
-            <Clock className="w-4 h-4" />
-            <span className="text-base">~{remainingTime}s</span>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-base">~{remainingTime}s</span>
+            </div>
+            <span className="text-xs text-foreground/40">AI reading for backup search</span>
           </>
         ) : (
           <span className="text-codex-gold text-base">✓ Ready</span>
@@ -259,42 +262,19 @@ export function ProcessingView({
             />
           </div>
 
-          {/* Bonus word option */}
-          <AnimatePresence>
-            {showBonusCue ? (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-3"
-              >
-                <Input
-                  value={cue3}
-                  onChange={(e) => {
-                    setCue3(e.target.value);
-                    handleInputChange();
-                  }}
-                  onKeyDown={handleKeyDown}
-                  placeholder="bonus word (optional)"
-                  className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
-                  autoComplete="off"
-                  disabled={hasSubmitted}
-                  autoFocus
-                />
-              </motion.div>
-            ) : (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setShowBonusCue(true)}
-                disabled={hasSubmitted}
-                className="flex items-center justify-center gap-1.5 w-full py-2 text-sm text-foreground/50 hover:text-foreground/70 transition-colors disabled:opacity-40"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add bonus word</span>
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {/* Bonus word - always visible */}
+          <Input
+            value={cue3}
+            onChange={(e) => {
+              setCue3(e.target.value);
+              handleInputChange();
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="bonus word (optional)"
+            className="bg-background/60 border-border/40 text-base h-12 placeholder:text-foreground/40 text-center"
+            autoComplete="off"
+            disabled={hasSubmitted}
+          />
 
         </div>
 
