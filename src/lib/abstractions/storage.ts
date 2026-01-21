@@ -684,32 +684,8 @@ export class HetznerVaultStorage implements IStorageProvider {
     return response;
   }
 
-  /**
-   * Active trash state for Hetzner-backed pages.
-   * We store this in Lovable Cloud so it can sync across devices even though
-   * the actual pages live in Hetzner Vault.
-   */
-  private async getActiveTrashIdSet(deviceUserId: string): Promise<Set<string>> {
-    try {
-      const { data, error } = await (supabase as any)
-        .from('page_trash')
-        .select('page_id')
-        .eq('device_user_id', deviceUserId)
-        .eq('backend_provider', 'hetzner')
-        .is('restored_at', null);
-
-      if (error) {
-        console.warn('[HetznerVaultStorage] Failed to load trash ids:', error);
-        return new Set();
-      }
-
-      const ids = (data || []).map((r: any) => String(r.page_id));
-      return new Set(ids);
-    } catch (e) {
-      console.warn('[HetznerVaultStorage] Failed to load trash ids:', e);
-      return new Set();
-    }
-  }
+  // NOTE: Trash state is now fully managed by Hetzner backend's native `is_trashed` field.
+  // No Lovable Cloud dependency - all trash operations go through Hetzner proxy.
 
   /**
    * Upload image to Hetzner Vault via IPFS storage.
@@ -856,10 +832,7 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    const [trashedIds, response] = await Promise.all([
-      this.getActiveTrashIdSet(deviceUserId),
-      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
-    ]);
+    const response = await this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId });
 
     if (!response.ok) {
       console.error('Failed to fetch pages from Hetzner');
@@ -869,8 +842,8 @@ export class HetznerVaultStorage implements IStorageProvider {
     const data = await response.json();
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
 
-    // Hide trashed pages (synced via Lovable Cloud page_trash)
-    return allPages.filter((page: Page) => !trashedIds.has(page.id));
+    // Filter out trashed pages using Hetzner's native isTrashed field
+    return allPages.filter((page: Page) => !page.isTrashed);
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -1138,31 +1111,26 @@ export class HetznerVaultStorage implements IStorageProvider {
     };
   }
 
-  // Trash operations - synced across devices via Lovable Cloud.
-  // IMPORTANT: In Hetzner mode, pages live in Hetzner Vault (not in the Lovable Cloud pages table),
-  // so trash state must be stored separately.
+  // Trash operations - fully managed by Hetzner backend's native is_trashed field.
+  // Cross-device sync happens automatically because all devices share the same Hetzner data.
   async moveToTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      const { error } = await (supabase as any)
-        .from('page_trash')
-        .upsert(
-          {
-            device_user_id: deviceUserId,
-            page_id: pageId,
-            backend_provider: 'hetzner',
-            trashed_at: new Date().toISOString(),
-            restored_at: null,
-          },
-          { onConflict: 'device_user_id,page_id,backend_provider' }
-        );
+      // Update the page's is_trashed field in Hetzner
+      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+        deviceUserId,
+        isTrashed: true,
+        trashedAt: new Date().toISOString(),
+      });
 
-      if (error) {
-        console.error('[HetznerVaultStorage] Move to trash (page_trash) error:', error);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        console.error('[HetznerVaultStorage] Move to trash failed:', response.status, errorText);
         return false;
       }
 
+      console.log('[HetznerVaultStorage] Page moved to trash in Hetzner:', pageId);
       return true;
     } catch (err) {
       console.error('[HetznerVaultStorage] Move to trash error:', err);
@@ -1174,18 +1142,20 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      const { error } = await (supabase as any)
-        .from('page_trash')
-        .update({ restored_at: new Date().toISOString() })
-        .eq('device_user_id', deviceUserId)
-        .eq('page_id', pageId)
-        .eq('backend_provider', 'hetzner');
+      // Update the page's is_trashed field in Hetzner
+      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+        deviceUserId,
+        isTrashed: false,
+        trashedAt: null,
+      });
 
-      if (error) {
-        console.error('[HetznerVaultStorage] Restore from trash (page_trash) error:', error);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        console.error('[HetznerVaultStorage] Restore from trash failed:', response.status, errorText);
         return false;
       }
 
+      console.log('[HetznerVaultStorage] Page restored from trash in Hetzner:', pageId);
       return true;
     } catch (err) {
       console.error('[HetznerVaultStorage] Restore from trash error:', err);
@@ -1196,10 +1166,7 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getTrashedPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    const [trashedIds, response] = await Promise.all([
-      this.getActiveTrashIdSet(deviceUserId),
-      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
-    ]);
+    const response = await this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId });
 
     if (!response.ok) {
       console.error('[HetznerVaultStorage] Failed to fetch pages from Hetzner for trash view');
@@ -1209,7 +1176,8 @@ export class HetznerVaultStorage implements IStorageProvider {
     const data = await response.json();
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
 
-    return allPages.filter((page: Page) => trashedIds.has(page.id));
+    // Return only pages with isTrashed === true (native Hetzner field)
+    return allPages.filter((page: Page) => page.isTrashed === true);
   }
 }
 
