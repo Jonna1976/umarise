@@ -224,14 +224,27 @@ export function ProcessingView({
           />
         </div>
 
-        {/* 4. Thumbnail preview - smaller, contextual */}
+        {/* 4. Thumbnail preview - with seal animation */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="flex flex-col items-center mt-6"
         >
-          <div className="relative w-20 h-16 rounded-lg overflow-hidden shadow-md">
+          <motion.div 
+            className="relative w-24 h-20 rounded-lg overflow-hidden shadow-md"
+            animate={isProcessingComplete ? {
+              boxShadow: [
+                '0 0 0 0 rgba(212, 175, 55, 0)',
+                '0 0 0 3px rgba(212, 175, 55, 0.6)',
+                '0 0 0 3px rgba(212, 175, 55, 0.4)',
+              ]
+            } : {}}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            style={isProcessingComplete ? { 
+              border: '2px solid hsl(var(--codex-gold))',
+            } : {}}
+          >
             <img
               src={imageUrl}
               alt="Your origin"
@@ -243,7 +256,21 @@ export function ProcessingView({
                 {totalImages}
               </div>
             )}
-          </div>
+          </motion.div>
+          
+          {/* Origin sealed confirmation */}
+          {isProcessingComplete && (
+            <motion.p
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-codex-gold text-xs mt-2 flex items-center gap-1"
+            >
+              <span>✓</span>
+              <span>Origin sealed</span>
+            </motion.p>
+          )}
+          
           {isMultiple && (
             <div className="flex items-center gap-2 mt-2">
               <Images className="w-3 h-3 text-codex-gold" />
@@ -270,7 +297,7 @@ export function ProcessingView({
               <span className="text-xs text-foreground/40">AI reading for backup search</span>
             </>
           ) : (
-            <span className="text-codex-gold text-sm">✓ Ready</span>
+            <span className="text-foreground/50 text-xs">Backup search ready</span>
           )}
         </motion.div>
 

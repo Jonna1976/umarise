@@ -67,8 +67,7 @@ function getToneClass(tone: string): string {
 }
 
 export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPageUpdate, isDemoMode, suggestedCues, matchInfo, onNavigateToPage, allPages: providedPages, onSearchCue }: SnapshotViewProps) {
-  const [showPreview, setShowPreview] = useState(false);
-  const [showOcrText, setShowOcrText] = useState(false);
+  const [showAiBackupData, setShowAiBackupData] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showZoomedImage, setShowZoomedImage] = useState(false);
   const [userNote, setUserNote] = useState(page.userNote || '');
@@ -108,7 +107,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         setHighlightedSegments(segments);
         
         // Auto-expand Raw Text when there are highlights to show
-        setShowOcrText(true);
+        setShowAiBackupData(true);
         
         console.log('[CiteToSource] Found', result.passages.length, 'passages for terms:', matchInfo.matchedTerms);
       } else if (result.likelySentences && result.likelySentences.length > 0) {
@@ -838,7 +837,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </motion.div>
         )}
 
-        {/* 5. SUMMARY - Optional, secondary (collapsible) */}
+        {/* 5. AI BACKUP SEARCH DATA - Combined auto-generated preview + raw OCR */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -846,33 +845,90 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           className="mb-4"
         >
           <button
-            onClick={() => setShowPreview(!showPreview)}
+            onClick={() => setShowAiBackupData(!showAiBackupData)}
             className="flex items-center justify-between w-full py-3 text-left"
           >
             <div className="flex flex-col items-start gap-0.5">
               <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
-                Auto-generated preview
+                AI backup search data
+                {highlightedSegments.length > 0 && (
+                  <span className="ml-2 normal-case text-codex-gold opacity-80">
+                    (matched)
+                  </span>
+                )}
               </span>
               <span className="text-xs text-codex-cream/40 normal-case">
-                For retrieval only
+                Generated from your handwriting for backup search only
               </span>
             </div>
-            {showPreview ? (
+            {showAiBackupData ? (
               <ChevronUp className="w-4 h-4 text-codex-cream/50" />
             ) : (
               <ChevronDown className="w-4 h-4 text-codex-cream/50" />
             )}
           </button>
           
-          {showPreview && (
+          {showAiBackupData && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
+              className="space-y-4"
             >
-              <p className="text-sm text-codex-cream/90 leading-relaxed p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20">
-                {page.summary}
-              </p>
+              {/* Auto-generated summary */}
+              {page.summary && (
+                <div>
+                  <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-2">Preview</p>
+                  <p className="text-sm text-codex-cream/90 leading-relaxed p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20">
+                    {page.summary}
+                  </p>
+                </div>
+              )}
+              
+              {/* Raw OCR text with highlights */}
+              <div>
+                <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-2">
+                  Raw text (may contain errors)
+                </p>
+                {highlightedSegments.length > 0 ? (
+                  <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
+                    {highlightedSegments.map((segment, i) => (
+                      segment.isHighlighted ? (
+                        <mark
+                          key={i}
+                          className="bg-codex-gold/30 text-codex-gold px-0.5 rounded"
+                          title={`Matched ${segment.matchType}: ${segment.matchedTerm}`}
+                        >
+                          {segment.text}
+                        </mark>
+                      ) : (
+                        <span key={i}>{segment.text}</span>
+                      )
+                    ))}
+                  </div>
+                ) : citeResult?.likelySentences && citeResult.likelySentences.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs text-codex-cream/50 italic mb-2">
+                      Matched by meaning — showing likely passages:
+                    </p>
+                    {citeResult.likelySentences.map((sentence, i) => (
+                      <div
+                        key={i}
+                        className="p-2 rounded bg-codex-gold/10 border border-codex-gold/20 text-sm text-codex-cream/80 font-mono"
+                      >
+                        "{sentence}"
+                      </div>
+                    ))}
+                    <p className="text-sm text-codex-cream leading-relaxed font-mono mt-3 whitespace-pre-wrap">
+                      {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20">
+                    {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
+                  </p>
+                )}
+              </div>
             </motion.div>
           )}
         </motion.div>
@@ -1017,87 +1073,6 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
         </motion.div>
         )}
 
-        {/* OCR Text (collapsible & editable) - with Cite-to-Source highlights */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-4"
-        >
-          <button
-            onClick={() => setShowOcrText(!showOcrText)}
-            className="flex items-center justify-between w-full py-3 text-left"
-          >
-            <div className="flex flex-col items-start gap-0.5">
-              <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
-                Raw OCR
-                {highlightedSegments.length > 0 && (
-                  <span className="ml-2 normal-case text-codex-gold opacity-80">
-                    (matched passages highlighted)
-                  </span>
-                )}
-              </span>
-              <span className="text-xs text-codex-cream/40 normal-case">
-                May contain errors — for search only
-              </span>
-            </div>
-            {showOcrText ? (
-              <ChevronUp className="w-4 h-4 text-codex-cream/50" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-codex-cream/50" />
-            )}
-          </button>
-          
-          {showOcrText && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {/* Show highlighted text when opened from search (Cite-to-Source A) */}
-              {highlightedSegments.length > 0 ? (
-                <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
-                  {highlightedSegments.map((segment, i) => (
-                    segment.isHighlighted ? (
-                      <mark
-                        key={i}
-                        className="bg-codex-gold/30 text-codex-gold px-0.5 rounded"
-                        title={`Matched ${segment.matchType}: ${segment.matchedTerm}`}
-                      >
-                        {segment.text}
-                      </mark>
-                    ) : (
-                      <span key={i}>{segment.text}</span>
-                    )
-                  ))}
-                </div>
-              ) : citeResult?.likelySentences && citeResult.likelySentences.length > 0 ? (
-                /* Meaning match - show likely sentences */
-                <div className="space-y-2">
-                  <p className="text-xs text-codex-cream/50 italic mb-2">
-                    Matched by meaning — showing likely passages:
-                  </p>
-                  {citeResult.likelySentences.map((sentence, i) => (
-                    <div
-                      key={i}
-                      className="p-2 rounded bg-codex-gold/10 border border-codex-gold/20 text-sm text-codex-cream/80 font-mono"
-                    >
-                      "{sentence}"
-                    </div>
-                  ))}
-                  <p className="text-sm text-codex-cream leading-relaxed font-mono mt-3 whitespace-pre-wrap">
-                    {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
-                  </p>
-                </div>
-              ) : (
-                /* No match info - show read-only text */
-                <p className="text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
-                  {ocrText || <span className="text-codex-cream/40 italic">No text recognized</span>}
-                </p>
-              )}
-            </motion.div>
-          )}
-        </motion.div>
 
         {/* Your Context - under Raw Text (hidden for pilot) */}
         {false && (
