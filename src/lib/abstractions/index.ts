@@ -38,60 +38,30 @@ const HETZNER_LEGACY_PORTS = {
 /**
  * Check if Hetzner backend is enabled
  *
- * SIMPLIFIED: Hetzner Vault is now the PERMANENT DEFAULT.
- * The user's primary data lives in Hetzner Vault, so we default to it.
+ * HARDCODED: Hetzner Vault is the ONLY backend for Umarise.
  * 
- * - Env var (VITE_BACKEND_PROVIDER) can override if needed
- * - No more TTL or session-based switching
- * - Stable, predictable behavior across sessions
+ * After the pilot migration (Jan 2026), all data lives exclusively 
+ * on the Hetzner Privacy Vault. Lovable Cloud/Supabase is FROZEN
+ * and no longer used for any page operations.
+ * 
+ * This prevents any accidental data writes to the wrong backend.
  */
-const HETZNER_TOGGLE_KEY = 'umarise_hetzner_enabled';
-
 export function isHetznerEnabled(): boolean {
-  // Production safety: the published app must ALWAYS use Hetzner Vault.
-  // This prevents any accidental Cloud usage via localStorage or env overrides.
-  if (import.meta.env.PROD) return true;
-
-  // Env var wins (preview / dev configuration)
-  const env = import.meta.env.VITE_BACKEND_PROVIDER;
-  if (env === 'hetzner') return true;
-  if (env === 'lovable' || env === 'lovable-cloud') return false;
-
-  // Check localStorage for explicit override (persistent, not session-based)
-  try {
-    const stored = localStorage.getItem(HETZNER_TOGGLE_KEY);
-    if (stored === 'true') return true;
-    if (stored === 'false') return false;
-  } catch {
-    // ignore
-  }
-
-  // DEFAULT: Hetzner Vault is the primary backend
-  // User's data lives there, so we default to it
+  // ALWAYS Hetzner - no exceptions, no overrides, no switching
+  // This is a hard architectural decision, not a configuration option
   return true;
 }
 
 /**
- * Toggle Hetzner backend on/off (persistent in localStorage)
- * Note: This is primarily for developer use via TestPanel.
- * Normal users should always stay on Hetzner Vault (the default).
+ * Toggle Hetzner backend on/off
+ * 
+ * DEPRECATED: This function is now a no-op.
+ * Hetzner is hardcoded as the only backend after pilot migration.
+ * Kept for backwards compatibility with any UI that might call it.
  */
-export function setHetznerEnabled(enabled: boolean): void {
-  // Published builds: lock backend to Hetzner (no user/developer switching).
-  if (import.meta.env.PROD) {
-    console.warn('[Umarise] Backend switching is disabled in production (Hetzner is enforced).');
-    return;
-  }
-
-  try {
-    localStorage.setItem(HETZNER_TOGGLE_KEY, String(enabled));
-  } catch {
-    // ignore
-  }
-
-  // Reset providers to force re-initialization
-  resetProviders();
-  console.log(`[Umarise] Hetzner backend ${enabled ? 'ENABLED' : 'DISABLED'}`);
+export function setHetznerEnabled(_enabled: boolean): void {
+  console.warn('[Umarise] Backend switching is disabled. Hetzner Vault is the only backend.');
+  // No-op: Hetzner is always enabled
 }
 
 function getBackendConfig(): BackendConfig {
