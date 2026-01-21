@@ -227,7 +227,7 @@ export function ProcessingView({
         className="w-full max-w-md"
       >
         <div className="bg-secondary/60 rounded-2xl p-6 border border-border/30">
-          <p className="text-codex-gold font-serif text-xl mb-2 text-center">
+          <p className="text-codex-gold font-serif text-xl font-bold mb-2 text-center">
             Your search words
           </p>
           <p className="text-foreground/60 text-sm mb-5 text-center">
