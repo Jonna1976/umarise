@@ -14,6 +14,8 @@ interface CameraViewProps {
   onOpenSearch: () => void; // Search icon - goes to Search
 }
 
+const CAPTURE_HINT_KEY = 'umarise_capture_hint_shown';
+
 export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSearch }: CameraViewProps) {
   const { isDemoMode } = useDemoMode();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,8 +28,26 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
   const [error, setError] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [absorbingFiles, setAbsorbingFiles] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   const isMultiMode = capturedImages.length > 0;
+  
+  // Check if this is the user's first visit (for showing hint)
+  useEffect(() => {
+    const hasSeenHint = localStorage.getItem(CAPTURE_HINT_KEY);
+    if (!hasSeenHint) {
+      setIsFirstVisit(true);
+    }
+  }, []);
+  
+  // Mark hint as shown after first file interaction
+  const markHintShown = useCallback(() => {
+    if (isFirstVisit) {
+      localStorage.setItem(CAPTURE_HINT_KEY, 'true');
+      setIsFirstVisit(false);
+    }
+  }, [isFirstVisit]);
 
   const startCamera = useCallback(async () => {
     try {
@@ -376,7 +396,12 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               <div className="group/capture relative flex flex-col items-center">
               {/* Glowing portal circle - living organism */}
               <motion.button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  markHintShown();
+                  fileInputRef.current?.click();
+                }}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
                 className="relative w-44 h-44 rounded-full flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -531,6 +556,24 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                       ease: 'easeInOut',
                     }}
                   />
+                  
+                  {/* Camera icon - visible on hover (desktop) or first visit (mobile) */}
+                  <AnimatePresence>
+                    {(isHovering || isFirstVisit || isDraggingOver) && (
+                      <motion.div
+                        className="absolute inset-0 flex items-center justify-center"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Camera 
+                          className="w-10 h-10 text-codex-gold/70" 
+                          strokeWidth={1.5} 
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
                 
                 {/* Sucking ripple effect - always visible, faster when dragging */}
@@ -561,14 +604,16 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 />
               </motion.button>
               
-              {/* Hint - always visible on mobile (below circle), hover on desktop (right side) */}
-              {/* Mobile: visible below circle */}
-              <p className="md:hidden mt-6 text-center font-handwritten text-primary-foreground/60 text-xl">
-                {capturedImages.length > 0 
-                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                  : 'Tap to capture'
-                }
-              </p>
+              {/* Hint - only on first visit (mobile) or when pages captured */}
+              {/* Mobile: visible only on first visit or when pages captured */}
+              {(isFirstVisit || capturedImages.length > 0) && (
+                <p className="md:hidden mt-6 text-center font-handwritten text-primary-foreground/60 text-xl">
+                  {capturedImages.length > 0 
+                    ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
+                    : 'Tap to capture'
+                  }
+                </p>
+              )}
               {/* Desktop: hover hint to the right */}
               <p className="hidden md:block absolute left-full ml-6 top-1/2 -translate-y-1/2 whitespace-nowrap font-handwritten text-primary-foreground/50 text-xl md:text-2xl opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300 bg-transparent">
                 {capturedImages.length > 0 
