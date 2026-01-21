@@ -274,9 +274,19 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     const cueLower = cue.toLowerCase();
     const queryLower = query.toLowerCase();
 
-    // Exact prefix match (best)
+    // Exact match (best)
+    if (cueLower === queryLower) {
+      return { match: true, score: 110 };
+    }
+
+    // Exact prefix match (very good)
     if (cueLower.startsWith(queryLower)) {
       return { match: true, score: 100 };
+    }
+
+    // Query is a number prefix (for dates like "20" -> "2026", "202" -> "2026")
+    if (/^\d+$/.test(queryLower) && cueLower.startsWith(queryLower)) {
+      return { match: true, score: 95 };
     }
 
     // Contains anywhere
@@ -285,19 +295,26 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     }
 
     // Levenshtein distance for typo tolerance
-    // Allow more distance for longer queries
-    const maxDistance = Math.floor(queryLower.length / 3) + 1;
+    // Be more generous: allow 1 error per 3 chars, minimum 2 errors for words 5+ chars
+    const minErrors = queryLower.length >= 5 ? 2 : 1;
+    const maxDistance = Math.max(minErrors, Math.floor(queryLower.length / 3) + 1);
+    
+    // Check the whole cue as one word first (for single-word cues)
+    const directDistance = levenshteinDistance(cueLower, queryLower);
+    if (directDistance <= maxDistance) {
+      return { match: true, score: 70 - directDistance * 5 };
+    }
     
     // Check if any word in the cue is close to the query
-    const cueWords = cueLower.split(/\s+/);
+    const cueWords = cueLower.split(/[\s\-_]+/);
     for (const word of cueWords) {
       const distance = levenshteinDistance(word, queryLower);
       if (distance <= maxDistance) {
-        return { match: true, score: 60 - distance * 10 };
+        return { match: true, score: 60 - distance * 5 };
       }
       // Also check if word starts similarly (for partial typing)
-      if (word.startsWith(queryLower.slice(0, 2)) && distance <= maxDistance + 1) {
-        return { match: true, score: 50 - distance * 10 };
+      if (queryLower.length >= 2 && word.startsWith(queryLower.slice(0, 2)) && distance <= maxDistance + 1) {
+        return { match: true, score: 50 - distance * 5 };
       }
     }
 
@@ -313,6 +330,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
   };
 
   // Fetch all unique cues on mount (for autocomplete)
+  // Includes: user cues, AI keywords (bonus words), and date-based suggestions
   useEffect(() => {
     const fetchAllCues = async () => {
       const deviceUserId = getActiveDeviceId();
@@ -321,21 +339,37 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('future_you_cues, primary_keyword')
+          .select('future_you_cues, primary_keyword, keywords, created_at')
           .eq('device_user_id', deviceUserId)
           .eq('is_trashed', false);
 
         if (!error && data) {
-          // Collect all unique cues
+          // Collect all unique cues including bonus words and dates
           const cueSet = new Set<string>();
+          const yearSet = new Set<string>();
+          
           data.forEach((row: any) => {
+            // User-assigned cues (highest priority)
             if (row.future_you_cues) {
               row.future_you_cues.forEach((c: string) => cueSet.add(c.toLowerCase()));
             }
             if (row.primary_keyword) {
               cueSet.add(row.primary_keyword.toLowerCase());
             }
+            // AI keywords / bonus words (for broader autocomplete)
+            if (row.keywords && Array.isArray(row.keywords)) {
+              row.keywords.forEach((k: string) => cueSet.add(k.toLowerCase()));
+            }
+            // Extract years from created_at for date suggestions
+            if (row.created_at) {
+              const year = new Date(row.created_at).getFullYear().toString();
+              yearSet.add(year);
+            }
           });
+          
+          // Add years as searchable terms
+          yearSet.forEach(year => cueSet.add(year));
+          
           // Sort alphabetically
           setAllCues(Array.from(cueSet).sort());
         }
