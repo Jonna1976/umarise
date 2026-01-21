@@ -306,9 +306,6 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
                 This was me.
               </h2>
-              <p className="text-base md:text-lg text-primary-foreground/50 font-medium tracking-wide mt-2">
-                Before optimization.
-              </p>
             </motion.div>
             
             {/* Container for circle + orbiting orbs - large enough for orbit radius */}
@@ -604,30 +601,21 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 />
               </motion.button>
               
-              {/* Hint - only on first visit (mobile) or when pages captured */}
-              {/* Mobile: visible only on first visit or when pages captured */}
-              {(isFirstVisit || capturedImages.length > 0) && (
+              {/* Mobile: page count only when capturing */}
+              {capturedImages.length > 0 && (
                 <p className="md:hidden mt-6 text-center font-handwritten text-primary-foreground/60 text-xl">
-                  {capturedImages.length > 0 
-                    ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                    : 'Tap to capture'
-                  }
+                  {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
                 </p>
               )}
-              {/* Desktop: hover hint to the right */}
+              {/* Desktop: minimal hover hint */}
               <p className="hidden md:block absolute left-full ml-6 top-1/2 -translate-y-1/2 whitespace-nowrap font-handwritten text-primary-foreground/50 text-xl md:text-2xl opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300 bg-transparent">
                 {capturedImages.length > 0 
-                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'} captured`
-                  : 'Capture your handwritten thoughts here.'
+                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'}`
+                  : 'Capture.'
                 }
               </p>
               </div>
             </div>
-            
-            {/* Tagline - always visible */}
-            <p className="text-base md:text-lg text-primary-foreground/50 mt-6 font-medium tracking-wide">
-              Your beginning. Immutable.
-            </p>
           </motion.div>
         )}
       </div>
