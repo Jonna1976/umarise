@@ -20,6 +20,15 @@ Umarise v1 is a document capture and retrieval system. Users photograph handwrit
 | Image Storage | IPFS | Hetzner Germany |
 | Metadata Storage | SQLite + FTS5 | Hetzner Germany |
 
+### Lovable Cloud Role
+
+Lovable Cloud (Supabase-based) is used exclusively for:
+- **Edge Function hosting** (stateless proxies to Hetzner)
+- **Secrets management** (API tokens)
+- **Audit log storage** (operational telemetry)
+
+No user-generated content (images, OCR text, pages) is stored in Lovable Cloud. All user data resides on Hetzner Germany.
+
 ---
 
 ## Data Flow
@@ -84,8 +93,10 @@ Edge functions are stateless pass-through proxies. No data cached or logged.
 ### API Authentication
 
 - Bearer token in Authorization header
-- Token stored as `HETZNER_API_TOKEN` secret
+- Token stored as `HETZNER_API_TOKEN` secret in Lovable Cloud
 - Single token for all Hetzner services
+
+**Note:** A single shared token is used as a pilot-phase simplification.
 
 ### User Isolation
 
@@ -126,6 +137,8 @@ pages_fts (ocr_text, summary, future_you_cues, keywords)
 - CID (Content Identifier) stored in pages.image_url
 - Format: `ipfs://Qm...` or gateway URL
 
+**Encryption position:** Images are stored plaintext in IPFS. Encryption (AES-256) is applied at the volume level on Hetzner, not to individual IPFS blobs.
+
 ---
 
 ## Origin Hash
@@ -133,6 +146,8 @@ pages_fts (ocr_text, summary, future_you_cues, keywords)
 ### Purpose
 
 Verify image hasn't been modified since capture.
+
+**Trust boundary:** The origin hash trust boundary is the client device at capture time.
 
 ### Implementation
 
@@ -197,6 +212,8 @@ WEIGHTS = {
 | Upload | 10 req/min per device |
 | General | 30 req/min per device |
 
+**Rate limit key:** `device_user_id` only. IP address is not used for rate limiting.
+
 Enforced in Edge Functions. Returns 429 when exceeded.
 
 ---
@@ -211,44 +228,45 @@ Enforced in Edge Functions. Returns 429 when exceeded.
 
 ### Data
 
-- AES-256 encryption at rest
+- AES-256 encryption at rest (volume-level)
 - Device isolation via device_user_id
 - No cross-device data access
 
-### Audit
+### Audit Logging
 
-- All requests logged to `audit_logs` table
-- Includes: endpoint, method, device_user_id, timestamp, status
+All API requests are logged to the `audit_logs` table in Lovable Cloud.
 
----
-
-## Environment Variables
-
-### Frontend (.env)
-
+```sql
+audit_logs (
+  id UUID PRIMARY KEY,
+  request_id TEXT NOT NULL,
+  device_user_id TEXT NOT NULL,
+  service TEXT NOT NULL,
+  endpoint TEXT NOT NULL,
+  method TEXT DEFAULT 'POST',
+  status_code INTEGER,
+  duration_ms INTEGER,
+  rate_limited BOOLEAN DEFAULT FALSE,
+  rate_limit_remaining INTEGER,
+  error_message TEXT,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT now()
+)
 ```
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_PUBLISHABLE_KEY=...
-```
 
-### Edge Functions (Secrets)
-
-```
-HETZNER_API_TOKEN=...
-HETZNER_API_URL=https://vault.umarise.com
-```
+Logs are append-only (no UPDATE/DELETE policies). Retention: 90 days.
 
 ---
 
 ## Health Checks
 
-### Endpoints
+| URL | Routing | Expected Response |
+|-----|---------|-------------------|
+| `https://vault.umarise.com/health` | Direct via Nginx | `{"status": "ok"}` |
+| `https://vault.umarise.com/api/vision/health` | Direct via Nginx → Vision service | `{"status": "ok"}` |
+| `https://vault.umarise.com/api/codex/health` | Direct via Nginx → Codex service | `{"status": "ok"}` |
 
-| URL | Expected Response |
-|-----|-------------------|
-| `https://vault.umarise.com/health` | `{"status": "ok"}` |
-| `https://vault.umarise.com/api/vision/health` | `{"status": "ok"}` |
-| `https://vault.umarise.com/api/codex/health` | `{"status": "ok"}` |
+All health checks bypass Edge Functions and hit Hetzner backend services directly via Nginx routing.
 
 ---
 
