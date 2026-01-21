@@ -119,6 +119,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   }, [matchInfo, page.ocrText]);
 
+  // Sync state when page prop changes
+  useEffect(() => {
+    setOcrText(page.ocrText || '');
+  }, [page.id, page.ocrText]);
+
   // Initialize futureYouCues from suggestedCues if provided (new capture flow)
   useEffect(() => {
     if (isNewCapture && suggestedCues && suggestedCues.length > 0) {
