@@ -329,7 +329,7 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
   };
 
   // Fetch all unique cues on mount (for autocomplete)
-  // ONLY user cues and AI keywords - NO years (they're not searchable by the search logic)
+  // ONLY user-assigned cues - NO AI keywords (they're disabled in search for v1 pilot)
   useEffect(() => {
     const fetchAllCues = async () => {
       const deviceUserId = getActiveDeviceId();
@@ -338,26 +338,23 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       try {
         const { data, error } = await supabase
           .from('pages')
-          .select('future_you_cues, primary_keyword, keywords')
+          .select('future_you_cues, primary_keyword')
           .eq('device_user_id', deviceUserId)
           .eq('is_trashed', false);
 
         if (!error && data) {
-          // Collect only cues that are actually searchable
+          // Collect ONLY user-assigned cues (matches what search actually looks for)
           const cueSet = new Set<string>();
           
           data.forEach((row: any) => {
-            // User-assigned cues (highest priority)
+            // User-assigned cues - these are the ONLY searchable terms in v1
             if (row.future_you_cues) {
               row.future_you_cues.forEach((c: string) => cueSet.add(c.toLowerCase()));
             }
             if (row.primary_keyword) {
               cueSet.add(row.primary_keyword.toLowerCase());
             }
-            // AI keywords / bonus words (for broader autocomplete)
-            if (row.keywords && Array.isArray(row.keywords)) {
-              row.keywords.forEach((k: string) => cueSet.add(k.toLowerCase()));
-            }
+            // NOTE: AI keywords excluded - search doesn't look at them in v1 pilot
           });
           
           // Sort alphabetically
