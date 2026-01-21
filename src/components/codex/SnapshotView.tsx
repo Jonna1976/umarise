@@ -406,8 +406,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
   const handleAddCue = async () => {
     const trimmed = newCueInput.trim().toLowerCase();
     if (!trimmed) return;
-    if (futureYouCues.length >= 2) {
-      toast.error('Maximum 2 words allowed');
+    if (futureYouCues.length >= 3) {
+      toast.error('Maximum 3 words allowed');
       return;
     }
     if (futureYouCues.includes(trimmed)) {
@@ -415,7 +415,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
       return;
     }
 
-    const newCues = [...futureYouCues, trimmed].slice(0, 2);
+    const newCues = [...futureYouCues, trimmed].slice(0, 3);
     setFutureYouCues(newCues);
     setNewCueInput('');
 
@@ -726,10 +726,10 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             How you'll find this again when you need it.
           </p>
           
-          {/* Display existing cues as individual words (max 2) */}
+          {/* Display existing cues as individual words (max 3 including bonus) */}
           {(() => {
-            // Normalize: split all cues into individual words, take max 2
-            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 2);
+            // Normalize: split all cues into individual words, take max 3
+            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 3);
             const wordCount = allWords.length;
             
             return (
@@ -761,8 +761,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                   </div>
                 )}
                 
-                {/* Input for adding words - only when not in demo mode and less than 2 words */}
-                {!isDemoMode && wordCount < 2 && (
+                {/* Input for adding words - only when not in demo mode and less than 3 words */}
+                {!isDemoMode && wordCount < 3 && (
                   <div className="flex gap-2 mt-2">
                     <Input
                       value={newCueInput}
