@@ -149,6 +149,8 @@ export function HistoryView({
   // Trash management (database-synced with realtime)
   const {
     trashedPages,
+    trashedIds,
+    pendingTrashedIds,
     trashedCount,
     isDragging,
     setIsDragging,
@@ -208,9 +210,21 @@ export function HistoryView({
   // Visible pages = all pages minus anything currently in trash.
   // This keeps the UI responsive even if the parent doesn't refetch immediately.
   const visiblePages = useMemo(() => {
-    const trashedIds = new Set(trashedPages.map(p => p.id));
-    return allPages.filter(p => !trashedIds.has(p.id));
-  }, [allPages, trashedPages]);
+    const trashedIdSet = new Set(trashedIds);
+    return allPages.filter(p => !trashedIdSet.has(p.id));
+  }, [allPages, trashedIds]);
+
+  // Ensure Trash modal can show newly-trashed pages immediately (even if backend read-path lags)
+  const displayTrashedPages = useMemo(() => {
+    const map = new Map<string, Page>();
+    for (const p of trashedPages) map.set(p.id, p);
+    for (const p of allPages) {
+      if (pendingTrashedIds.includes(p.id)) {
+        map.set(p.id, p);
+      }
+    }
+    return Array.from(map.values());
+  }, [allPages, pendingTrashedIds, trashedPages]);
 
   // Load projects on mount
   useEffect(() => {
@@ -1410,7 +1424,7 @@ export function HistoryView({
       <AnimatePresence>
         {showTrash && (
           <TrashView
-            trashedPages={trashedPages}
+            trashedPages={displayTrashedPages}
             onRestore={restoreFromTrash}
             onPermanentDelete={permanentlyDelete}
             onEmptyTrash={emptyTrash}

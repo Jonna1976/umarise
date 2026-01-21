@@ -1117,11 +1117,23 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Update the page's is_trashed field in Hetzner
+      // Update trash fields in Hetzner.
+      // NOTE: Different Hetzner deployments have used different field names and payload shapes.
+      // We send BOTH camelCase + snake_case, BOTH top-level + nested `updates`, so the backend
+      // will persist the trash state and return it on subsequent GETs.
+      const trashedAtIso = new Date().toISOString();
       const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
         deviceUserId,
         isTrashed: true,
-        trashedAt: new Date().toISOString(),
+        is_trashed: true,
+        trashedAt: trashedAtIso,
+        trashed_at: trashedAtIso,
+        updates: {
+          isTrashed: true,
+          is_trashed: true,
+          trashedAt: trashedAtIso,
+          trashed_at: trashedAtIso,
+        },
       });
 
       if (!response.ok) {
@@ -1142,11 +1154,19 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Update the page's is_trashed field in Hetzner
+      // Restore trash fields in Hetzner (see moveToTrash() for compatibility rationale)
       const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
         deviceUserId,
         isTrashed: false,
+        is_trashed: false,
         trashedAt: null,
+        trashed_at: null,
+        updates: {
+          isTrashed: false,
+          is_trashed: false,
+          trashedAt: null,
+          trashed_at: null,
+        },
       });
 
       if (!response.ok) {

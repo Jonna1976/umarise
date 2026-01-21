@@ -9,7 +9,7 @@
  * device_user_id share the same Hetzner data.
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Page } from '@/lib/pageService';
 import { 
   moveToTrash as moveToTrashDb, 
@@ -27,21 +27,33 @@ interface UseTrashOptions {
 export function useTrash(options: UseTrashOptions = {}) {
   const { isDemoMode } = useDemoMode();
   const [trashedPages, setTrashedPages] = useState<Page[]>([]);
+  // Pending IDs: hide immediately in History even if backend read-path lags
+  const [pendingTrashedIds, setPendingTrashedIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
 
   // Load trashed pages from Hetzner backend
-  const loadTrashedPages = useCallback(async () => {
+  const loadTrashedPages = useCallback(async (): Promise<Page[]> => {
     setIsLoading(true);
     try {
       const pages = await getTrashedPages();
       setTrashedPages(pages);
+      return pages;
     } catch (e) {
       console.error('[useTrash] Failed to load trashed pages:', e);
       setTrashedPages([]);
+      return [];
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  const addPending = useCallback((pageId: string) => {
+    setPendingTrashedIds(prev => (prev.includes(pageId) ? prev : [...prev, pageId]));
+  }, []);
+
+  const removePending = useCallback((pageId: string) => {
+    setPendingTrashedIds(prev => prev.filter(id => id !== pageId));
   }, []);
 
   // Re-fetch when demo mode changes
@@ -52,18 +64,29 @@ export function useTrash(options: UseTrashOptions = {}) {
   // Move page to trash (soft delete - syncs to database)
   const moveToTrash = useCallback(async (pageId: string): Promise<boolean> => {
     console.log('[useTrash] Moving page to trash:', pageId);
+
+    // Optimistic UI: hide immediately even if backend read-path lags
+    addPending(pageId);
     
     const success = await moveToTrashDb(pageId);
     if (success) {
-      // Refresh trashed pages list (also triggered by realtime, but do it immediately for local UX)
-      await loadTrashedPages();
+      // Refresh trashed pages list immediately for local UX
+      const pages = await loadTrashedPages();
+
+      // If the backend is already returning this page as trashed, we can drop the pending flag.
+      // Otherwise we keep it pending so History stays consistent until the backend catches up.
+      if (pages.some(p => p.id === pageId)) {
+        removePending(pageId);
+      }
       console.log('[useTrash] Page moved to trash successfully');
     } else {
       console.error('[useTrash] Failed to move page to trash');
+      // Roll back optimistic state
+      removePending(pageId);
     }
     
     return success;
-  }, [loadTrashedPages]);
+  }, [addPending, loadTrashedPages, removePending]);
 
   // Restore page from trash
   const restoreFromTrash = useCallback(async (pageId: string): Promise<boolean> => {
@@ -73,13 +96,18 @@ export function useTrash(options: UseTrashOptions = {}) {
     if (success) {
       // Update local state immediately for responsive UI
       setTrashedPages(prev => prev.filter(p => p.id !== pageId));
+      removePending(pageId);
       console.log('[useTrash] Page restored from trash successfully');
     } else {
       console.error('[useTrash] Failed to restore page from trash');
     }
     
     return success;
-  }, []);
+  }, [removePending]);
+
+  const trashedIds = useMemo(() => {
+    return Array.from(new Set([...trashedPages.map(p => p.id), ...pendingTrashedIds]));
+  }, [trashedPages, pendingTrashedIds]);
 
   // Permanently delete a page
   const permanentlyDelete = useCallback(async (pageId: string): Promise<boolean> => {
@@ -134,7 +162,10 @@ export function useTrash(options: UseTrashOptions = {}) {
 
   return {
     trashedPages,
-    trashedCount: trashedPages.length,
+    // Expose ids so History can hide instantly and safely
+    trashedIds,
+    pendingTrashedIds,
+    trashedCount: trashedIds.length,
     isLoading,
     isDragging,
     setIsDragging,
