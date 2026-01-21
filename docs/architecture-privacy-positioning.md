@@ -245,7 +245,51 @@ Account is een optionele laag voor multi-device sync.
 
 ---
 
-## Appendix: Security Sign-Off Status
+## Appendix A: Frozen Lovable Cloud Data (January 2026)
+
+> **⚠️ DATA FROZEN**: As of January 2026, the Lovable Cloud (Supabase) backend is permanently frozen.
+> All active data operations now exclusively use the Hetzner Privacy Vault.
+
+### What Remains in Lovable Cloud
+
+| Table | Records | Last Activity | Status |
+|-------|---------|---------------|--------|
+| `pages` | 65 | 2026-01-03 | 🔒 Frozen (test data) |
+| `audit_logs` | 1,390 | Historical | 🔒 Read-only |
+| `origin_hashes` | 22 | Historical | 🔒 Read-only |
+| `personality_snapshots` | 34 | Historical | 🔒 Read-only |
+| `projects` | 16 | Historical | 🔒 Read-only |
+| `search_telemetry` | 109 | Historical | 🔒 Read-only |
+| `page_trash` | 33 | Historical | 🔒 Read-only |
+
+### Device IDs in Frozen Data
+
+| Device ID | Pages | Description |
+|-----------|-------|-------------|
+| `054aba4f-0453-4e6e-80c0-bdd554d19a91` | 53 | Original pilot testing (pre-Hetzner) |
+| `ae3ff163-0750-45b4-8683-6f95267c7e1a` | 8 | Secondary test device |
+| `demo0000-0000-0000-0000-000000000001` | 4 | Demo mode placeholder |
+
+### Technical Enforcement
+
+```typescript
+// src/lib/abstractions/index.ts
+export function isHetznerEnabled(): boolean {
+  // ALWAYS Hetzner - no exceptions, no overrides, no switching
+  // This is a hard architectural decision, not a configuration option
+  return true;
+}
+```
+
+**Why Frozen (Not Deleted):**
+- Audit trail preservation
+- Historical reference for development
+- No user data at risk (all test data)
+- Deletion would provide no security benefit
+
+---
+
+## Appendix B: Security Sign-Off Status
 
 Pilot security sign-off completed: `docs/security-signoff-pilot-2026-01-20.md`
 
@@ -258,8 +302,9 @@ Pilot security sign-off completed: `docs/security-signoff-pilot-2026-01-20.md`
 | Origin hash immutability | ✅ | Database trigger |
 | Audit logging | ✅ | 90-day retention |
 | Production lock | ✅ | Published app = Hetzner only |
+| Lovable Cloud frozen | ✅ | No writes since Jan 2026 |
 
 ---
 
-*Document version: 2026-01-20*
+*Document version: 2026-01-21*
 *Status: Ready for external sharing*
