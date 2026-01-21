@@ -408,20 +408,23 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       }
 
       // Keywords / bonus words — AI-suggested retrieval hints (+80)
-      if (keywords.some((k) => includesWholeWord(k, term))) {
-        score += 80;
-        matchTypes.add('cue'); // Show as cue badge for simplicity
-        matchedTerms.add(term);
-        termMatched = true;
-      }
+      // NOTE: Disabled for v1 pilot - testing cues-only retrieval
+      // if (keywords.some((k) => includesWholeWord(k, term))) {
+      //   score += 80;
+      //   matchTypes.add('cue');
+      //   matchedTerms.add(term);
+      //   termMatched = true;
+      // }
 
-      // OCR text — raw handwritten content (+50)
-      if (includesWholeWord(ocr, term)) {
-        score += 50;
-        matchTypes.add('text');
-        matchedTerms.add(term);
-        termMatched = true;
-      }
+      // OCR text — raw handwritten content
+      // NOTE: Disabled for v1 pilot - testing cues-only retrieval
+      // OCR still runs at capture, data available for future/fallback
+      // if (includesWholeWord(ocr, term)) {
+      //   score += 50;
+      //   matchTypes.add('text');
+      //   matchedTerms.add(term);
+      //   termMatched = true;
+      // }
 
       if (!termMatched) continue;
     }

@@ -241,16 +241,18 @@ serve(async (req) => {
         }
       }
 
-      // === ORIGIN: OCR text (the actual handwritten content) ===
-      
-      // 3. OCR text - THE ACTUAL WRITTEN WORDS
-      const ocrText = page.ocr_text || '';
-      for (const term of queryTerms) {
-        if (exactMatch(ocrText, term)) {
-          score += 70;
-          matchTypes.add('text');
-        }
-      }
+      // === OCR text matching DISABLED for v1 pilot ===
+      // Testing hypothesis: can users retrieve origins with only their own assigned words?
+      // OCR still runs at capture, data is stored and available for future/fallback
+      // 
+      // Original code (kept for reference):
+      // const ocrText = page.ocr_text || '';
+      // for (const term of queryTerms) {
+      //   if (exactMatch(ocrText, term)) {
+      //     score += 70;
+      //     matchTypes.add('text');
+      //   }
+      // }
 
       // Only include if score > 0 (at least one exact match found)
       if (score > 0) {
