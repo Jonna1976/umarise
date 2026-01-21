@@ -19,6 +19,8 @@ interface VaultImageProps {
   className?: string;
   /** Styles applied to the underlying <img>. */
   imgClassName?: string;
+  /** Styles applied to the loading/error placeholder container (default keeps a tall stable layout). */
+  placeholderClassName?: string;
   onClick?: () => void;
 }
 
@@ -27,6 +29,7 @@ export function VaultImage({
   alt = 'Page image',
   className,
   imgClassName,
+  placeholderClassName,
   onClick,
 }: VaultImageProps) {
   const [displayUrl, setDisplayUrl] = useState<string | null>(null);
@@ -96,7 +99,12 @@ export function VaultImage({
   if (isLoading) {
     return (
       <div className={wrapperClass} onClick={onClick}>
-        <div className="flex min-h-[220px] w-full items-center justify-center bg-muted/50 animate-pulse">
+        <div
+          className={cn(
+            'flex w-full items-center justify-center bg-muted/50 animate-pulse min-h-[220px]',
+            placeholderClassName
+          )}
+        >
           <div className="flex flex-col items-center gap-2 text-muted-foreground">
             <Lock className="h-5 w-5 animate-pulse" />
             <span className="text-xs">Decrypting...</span>
@@ -109,7 +117,12 @@ export function VaultImage({
   if (error) {
     return (
       <div className={wrapperClass} onClick={onClick}>
-        <div className="flex min-h-[220px] w-full items-center justify-center bg-destructive/10 border border-destructive/20">
+        <div
+          className={cn(
+            'flex w-full items-center justify-center bg-destructive/10 border border-destructive/20 min-h-[220px]',
+            placeholderClassName
+          )}
+        >
           <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
             <AlertCircle className="h-5 w-5" />
             <span className="text-xs">{error}</span>

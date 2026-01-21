@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState } from 'react';
+import { VaultImage } from '@/components/ui/VaultImage';
 
 interface TrashViewProps {
   trashedPages: Page[];
@@ -162,13 +163,13 @@ export function TrashView({
                   >
                     <div className="flex gap-4">
                       {/* Thumbnail */}
-                      <div className="w-16 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                        <img
-                          src={page.imageUrl}
-                          alt="Page thumbnail"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      <VaultImage
+                        src={page.imageUrl}
+                        alt={`Thumbnail: ${page.futureYouCues?.[0] || page.summary?.slice(0, 40) || 'page'}`}
+                        className="w-16 h-20 rounded-lg bg-muted flex-shrink-0"
+                        imgClassName="w-full h-full object-cover"
+                        placeholderClassName="min-h-0 h-full"
+                      />
                       
                       {/* Info */}
                       <div className="flex-1 min-w-0">
