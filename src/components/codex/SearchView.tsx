@@ -268,8 +268,8 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
     return matrix[b.length][a.length];
   };
 
-  // Fuzzy match: STRICT prefix-first matching
-  // For short queries, ONLY prefix/contains - no Levenshtein (too loose)
+  // Fuzzy match: STRICT prefix-only matching (Google-style)
+  // NO "contains" matching - only things that START with the query
   const fuzzyMatch = (cue: string, query: string): { match: boolean; score: number } => {
     const cueLower = cue.toLowerCase();
     const queryLower = query.toLowerCase().trim();
@@ -284,12 +284,13 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       return { match: true, score: 110 };
     }
 
-    // Cue starts with query (very good) - "ori" matches "origin story"
+    // Cue starts with query - "or" matches "organizing chaos"
     if (cueLower.startsWith(queryLower)) {
       return { match: true, score: 100 };
     }
 
-    // Any word in the cue starts with query - "ori" matches "the origin"
+    // Any word in the cue STARTS with query - "or" matches "the origin"
+    // But NOT "force" or "memory" which only CONTAIN "or"
     const cueWords = cueLower.split(/[\s\-_]+/);
     for (const word of cueWords) {
       if (word.startsWith(queryLower)) {
@@ -297,18 +298,11 @@ export function SearchView({ onClose, onSelectPage, onBrowseAll, initialQuery }:
       }
     }
 
-    // Query is contained somewhere in cue - "ori" matches "memorial"
-    if (cueLower.includes(queryLower)) {
-      return { match: true, score: 70 };
-    }
-
-    // Levenshtein ONLY for longer queries (5+ chars) to catch typos
-    // For short queries like "or", "ori" - NO fuzzy matching, too many false positives
+    // Levenshtein ONLY for longer queries (5+ chars) to catch typos like "origni" -> "origin"
     if (queryLower.length >= 5) {
-      const maxDistance = 1; // Only allow 1 typo for 5+ char queries
-      
+      const maxDistance = 1;
       for (const word of cueWords) {
-        if (word.length >= 4) { // Only compare with words of reasonable length
+        if (word.length >= 4) {
           const distance = levenshteinDistance(word, queryLower);
           if (distance <= maxDistance) {
             return { match: true, score: 50 - distance * 10 };
