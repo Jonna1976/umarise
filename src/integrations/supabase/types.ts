@@ -62,6 +62,30 @@ export type Database = {
         }
         Relationships: []
       }
+      hetzner_trash_index: {
+        Row: {
+          created_at: string
+          device_user_id: string
+          id: string
+          page_id: string
+          trashed_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_user_id: string
+          id?: string
+          page_id: string
+          trashed_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_user_id?: string
+          id?: string
+          page_id?: string
+          trashed_at?: string
+        }
+        Relationships: []
+      }
       page_origin_hashes: {
         Row: {
           created_at: string | null
