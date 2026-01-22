@@ -40,7 +40,7 @@ Only interpretations remain.
 | **Anti-Black-Box Search** | User cues rank +100, AI inference ranks +50 | Human intent always outranks algorithm |
 | **Cite-to-Source** | Every AI insight links to highlighted OCR passage | No "AI says so" without evidence |
 | **EU Sovereignty** | 100% Hetzner Germany, zero US cloud dependency | GDPR-native, not GDPR-compliant |
-| **Zero-Access by Design** | No accounts, device-based UUID, RLS isolation | We cannot read your data — by architecture |
+| **Zero Human Access** | No accounts, device-based UUID, RLS isolation | No human access by design; data processed only to preserve origin — no training, no secondary use |
 
 ---
 
