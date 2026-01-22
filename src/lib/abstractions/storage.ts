@@ -684,8 +684,32 @@ export class HetznerVaultStorage implements IStorageProvider {
     return response;
   }
 
-  // NOTE: Trash state is now fully managed by Hetzner backend's native `is_trashed` field.
-  // No Lovable Cloud dependency - all trash operations go through Hetzner proxy.
+  // NOTE: Trash state uses a hybrid model:
+  // - Pages remain on Hetzner (data sovereignty)
+  // - Trash index stored on Lovable Cloud (hetzner_trash_index table) for cross-device sync
+  // This is because Hetzner SQLite doesn't persist the is_trashed field properly.
+
+  /**
+   * Get trashed page IDs from the Cloud trash index
+   * Using 'as any' cast because the type definitions may not be updated yet
+   */
+  private async getTrashedPageIds(): Promise<Set<string>> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('hetzner_trash_index')
+      .select('page_id')
+      .eq('device_user_id', deviceUserId);
+    
+    if (error) {
+      console.error('[HetznerVaultStorage] Failed to fetch trash index:', error);
+      return new Set();
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new Set((data || []).map((row: any) => row.page_id as string));
+  }
 
   /**
    * Upload image to Hetzner Vault via IPFS storage.
@@ -832,7 +856,11 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    const response = await this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId });
+    // Fetch pages from Hetzner and trash index from Cloud in parallel
+    const [response, trashedIds] = await Promise.all([
+      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
+      this.getTrashedPageIds(),
+    ]);
 
     if (!response.ok) {
       console.error('Failed to fetch pages from Hetzner');
@@ -842,8 +870,9 @@ export class HetznerVaultStorage implements IStorageProvider {
     const data = await response.json();
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
 
-    // Filter out trashed pages using Hetzner's native isTrashed field
-    return allPages.filter((page: Page) => !page.isTrashed);
+    // Filter out trashed pages using the Cloud trash index (Hetzner doesn't persist is_trashed)
+    console.log(`[HetznerVaultStorage] Total pages: ${allPages.length}, Trashed IDs in index: ${trashedIds.size}`);
+    return allPages.filter((page: Page) => !trashedIds.has(page.id));
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -1111,18 +1140,32 @@ export class HetznerVaultStorage implements IStorageProvider {
     };
   }
 
-  // Trash operations - fully managed by Hetzner backend's native is_trashed field.
-  // Cross-device sync happens automatically because all devices share the same Hetzner data.
+  // Trash operations - hybrid model:
+  // - Still send updates to Hetzner (in case future deployments support it)
+  // - Primary source of truth: hetzner_trash_index table in Lovable Cloud
+  // Cross-device sync happens via the Cloud table.
   async moveToTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Update trash fields in Hetzner.
-      // NOTE: Different Hetzner deployments have used different field names and payload shapes.
-      // We send BOTH camelCase + snake_case, BOTH top-level + nested `updates`, so the backend
-      // will persist the trash state and return it on subsequent GETs.
+      // 1. Insert into Cloud trash index (primary source of truth for cross-device sync)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: insertError } = await (supabase as any)
+        .from('hetzner_trash_index')
+        .upsert({
+          device_user_id: deviceUserId,
+          page_id: pageId,
+          trashed_at: new Date().toISOString(),
+        }, { onConflict: 'device_user_id,page_id' });
+
+      if (insertError) {
+        console.error('[HetznerVaultStorage] Failed to insert trash index:', insertError);
+        return false;
+      }
+
+      // 2. Also update Hetzner (best-effort, for future compatibility)
       const trashedAtIso = new Date().toISOString();
-      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+      await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
         deviceUserId,
         isTrashed: true,
         is_trashed: true,
@@ -1136,13 +1179,7 @@ export class HetznerVaultStorage implements IStorageProvider {
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        console.error('[HetznerVaultStorage] Move to trash failed:', response.status, errorText);
-        return false;
-      }
-
-      console.log('[HetznerVaultStorage] Page moved to trash in Hetzner:', pageId);
+      console.log('[HetznerVaultStorage] Page moved to trash:', pageId);
       return true;
     } catch (err) {
       console.error('[HetznerVaultStorage] Move to trash error:', err);
@@ -1154,8 +1191,21 @@ export class HetznerVaultStorage implements IStorageProvider {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      // Restore trash fields in Hetzner (see moveToTrash() for compatibility rationale)
-      const response = await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
+      // 1. Remove from Cloud trash index
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: deleteError } = await (supabase as any)
+        .from('hetzner_trash_index')
+        .delete()
+        .eq('device_user_id', deviceUserId)
+        .eq('page_id', pageId);
+
+      if (deleteError) {
+        console.error('[HetznerVaultStorage] Failed to delete trash index:', deleteError);
+        return false;
+      }
+
+      // 2. Also update Hetzner (best-effort, for future compatibility)
+      await this.proxyRequest('PATCH', `/vault/pages/${pageId}`, {
         deviceUserId,
         isTrashed: false,
         is_trashed: false,
@@ -1169,13 +1219,7 @@ export class HetznerVaultStorage implements IStorageProvider {
         },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        console.error('[HetznerVaultStorage] Restore from trash failed:', response.status, errorText);
-        return false;
-      }
-
-      console.log('[HetznerVaultStorage] Page restored from trash in Hetzner:', pageId);
+      console.log('[HetznerVaultStorage] Page restored from trash:', pageId);
       return true;
     } catch (err) {
       console.error('[HetznerVaultStorage] Restore from trash error:', err);
@@ -1186,7 +1230,11 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getTrashedPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    const response = await this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId });
+    // Fetch pages from Hetzner and trash index from Cloud in parallel
+    const [response, trashedIds] = await Promise.all([
+      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
+      this.getTrashedPageIds(),
+    ]);
 
     if (!response.ok) {
       console.error('[HetznerVaultStorage] Failed to fetch pages from Hetzner for trash view');
@@ -1196,8 +1244,9 @@ export class HetznerVaultStorage implements IStorageProvider {
     const data = await response.json();
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
 
-    // Return only pages with isTrashed === true (native Hetzner field)
-    return allPages.filter((page: Page) => page.isTrashed === true);
+    // Return only pages that are in the Cloud trash index
+    console.log(`[HetznerVaultStorage] Total pages: ${allPages.length}, Trashed in index: ${trashedIds.size}`);
+    return allPages.filter((page: Page) => trashedIds.has(page.id));
   }
 }
 
