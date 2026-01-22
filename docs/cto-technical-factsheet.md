@@ -1,0 +1,337 @@
+# UMARISE TECHNICAL FACTSHEET — CTO BRIEFING
+
+**Date:** 2026-01-22  
+**Scope:** What is currently built and operational  
+**Audience:** Technical due diligence  
+
+---
+
+## 1. CAPTURE
+
+### How is an artifact captured?
+
+1. User opens PWA (React/Vite) on mobile or desktop browser
+2. Browser camera API captures single photo of handwritten artifact
+3. Photo is converted to base64 data URL in browser
+
+### Interface / Endpoint
+
+```
+Frontend: src/components/capture/CameraView.tsx
+    ↓ base64 image
+Edge Proxy: POST /functions/v1/hetzner-storage-proxy
+    ↓ { method: "POST", path: "/vault/images/upload", payload: { image, deviceUserId } }
+Backend: https://vault.umarise.com/api/codex/vault/images/upload
+    ↓
+Storage: IPFS (returns ipfs:// CID URL)
+```
+
+### Data Flow
+
+- Image uploaded to Hetzner Germany server
+- Stored in IPFS with content-addressed CID
+- Metadata stored in SQLite on Hetzner volume
+- No image data touches Lovable Cloud infrastructure
+
+---
+
+## 2. IMMUTABILITY
+
+### How is the original protected from modification?
+
+**SHA-256 Origin Hash:**
+
+```typescript
+// Calculated in browser BEFORE upload (src/lib/originHash.ts)
+const arrayBuffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+// Returns hex string: "a1b2c3d4..."
+```
+
+**Storage:**
+
+| What | Where | Mutable? |
+|------|-------|----------|
+| Origin Hash (SHA-256) | Lovable Cloud `page_origin_hashes` table | ❌ No (DB trigger prevents UPDATE) |
+| Origin Hash (SHA-256) | Hetzner SQLite `originHashSha256` field | ❌ No |
+| Original Image | Hetzner IPFS | ❌ No (content-addressed) |
+
+**Technical Enforcement:**
+
+```sql
+-- Trigger on page_origin_hashes table
+CREATE TRIGGER prevent_origin_hash_change
+BEFORE UPDATE ON page_origin_hashes
+EXECUTE FUNCTION prevent_origin_hash_change();
+-- Raises exception if hash is modified
+```
+
+**What is NOT implemented:**
+
+- ❌ Blockchain anchoring
+- ❌ External timestamping authority (RFC 3161)
+- ❌ Digital signatures / PKI
+- ❌ Third-party notarization
+
+**Timestamp:**
+
+- `created_at` field stored at insert time
+- Server-side timestamp (Hetzner server clock)
+- No cryptographic binding to external time source
+
+---
+
+## 3. RETRIEVAL
+
+### How does a user find their artifact?
+
+**Search Endpoint:**
+
+```
+Frontend: src/components/codex/SearchView.tsx
+    ↓ query string
+Edge Proxy: POST /functions/v1/hetzner-ai-proxy
+    ↓ { path: "/ai/search", payload: { query, deviceUserId, limit } }
+Backend: https://vault.umarise.com/api/codex/ai/search
+    ↓
+Response: { results: [{ id, score, matchType, ... }] }
+```
+
+**Ranking Hierarchy (explicit, not ML-based):**
+
+| Priority | Source | Weight |
+|----------|--------|--------|
+| 1 | Date match (parsed from query) | +200 |
+| 2 | Future You Cues (user-assigned labels) | +100 |
+| 3 | Primary Keyword (spine label) | +100 |
+| 4 | AI Bonus Words (LLM-suggested) | +80 |
+| 5 | Raw OCR text | +50 |
+
+**Current Flow / Time:**
+
+1. User types query → autocomplete suggestions appear (~50ms local)
+2. User submits → backend search (~200-400ms network)
+3. Results displayed with match reason badges
+4. User taps result → full artifact shown
+
+**Retrieval Constraints:**
+
+- Exact word matching only (no synonyms, no translations)
+- FTS5 full-text search on SQLite
+- Optional: vector similarity search (embeddings stored but not primary)
+
+---
+
+## 4. VERIFICATION
+
+### Can a user verify "this already existed"?
+
+**Yes, implemented.**
+
+**UI Location:** SnapshotView → "Verify Origin" button
+
+**Verification Flow:**
+
+```typescript
+// src/components/codex/VerifyOriginButton.tsx
+
+1. Fetch original image from IPFS via Hetzner
+2. Calculate SHA-256 hash of fetched bytes
+3. Compare with stored originHashSha256
+4. Display result:
+   - ✓ "Verified" (hashes match)
+   - ⚠ "Legacy capture" (no hash stored - pre-hashing captures)
+```
+
+**What Verification Proves:**
+
+- The bytes currently stored are identical to the bytes at capture time
+- Bit-identity only
+
+**What Verification Does NOT Prove:**
+
+- ❌ Who captured it
+- ❌ When exactly (no external timestamp authority)
+- ❌ That content wasn't staged before capture
+- ❌ Authorship or ownership
+
+**Persistence:**
+
+- Verification status cached in localStorage per page
+- Hash lookup also stored in `page_origin_hashes` table (Lovable Cloud)
+
+---
+
+## 5. HUMAN SURFACE
+
+### What does the user see after capture?
+
+**Processing View (during upload/analysis):**
+
+```
+┌────────────────────────────────┐
+│                                │
+│     [Animated thumbnail]       │
+│                                │
+│   "Analyzing your artifact..." │
+│                                │
+│     Progress indicator         │
+│                                │
+└────────────────────────────────┘
+```
+
+**Completion (after ~3-5 seconds):**
+
+```
+┌────────────────────────────────┐
+│                                │
+│   [Thumbnail with gold border] │
+│                                │
+│      ✓ Origin sealed           │
+│                                │
+│   [Continue to review]         │
+│                                │
+└────────────────────────────────┘
+```
+
+**Snapshot Review View:**
+
+- Full image display
+- AI-generated summary (labeled as "AI interpretation")
+- Editable "Future You Cues" (user labels)
+- Date picker (user can correct)
+- "Verify Origin" button with status badge
+
+**UI Text Examples:**
+
+- "Origin sealed" — after capture
+- "Verified ✓" — after hash verification
+- "Legacy capture" — for items without stored hash
+
+---
+
+## 6. WHAT IS EXPLICITLY NOT BUILT
+
+| Feature | Status | Reason |
+|---------|--------|--------|
+| User accounts / authentication | ❌ Not built | Privacy-first design; device_user_id only |
+| Email or password | ❌ Not built | No PII collected |
+| Cross-device sync via accounts | ❌ Not built | Manual UUID transfer only |
+| Blockchain timestamping | ❌ Not built | Complexity vs. pilot scope |
+| Third-party notarization | ❌ Not built | External dependency |
+| Client-side encryption (E2EE) | ❌ Not built | Would prevent cloud OCR |
+| Local-on-device AI | ❌ Not built | Quality tradeoff (Gemini > local models) |
+| Multi-user collaboration | ❌ Not built | Single-owner model |
+| Public sharing / publishing | ❌ Not built | Private by default |
+| Version history / editing | ❌ Not built | Immutable original only |
+| Audit logging (user-facing) | ❌ Not built | Backend logs exist, no UI |
+
+---
+
+## 7. ARCHITECTURE DIAGRAM
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      USER DEVICE                            │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  PWA (React/Vite/TypeScript)                        │   │
+│  │  - Camera capture                                   │   │
+│  │  - SHA-256 hash calculation (WebCrypto)             │   │
+│  │  - Local PIN gate (localStorage)                    │   │
+│  │  - device_user_id (localStorage)                    │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ HTTPS
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               LOVABLE CLOUD (Supabase EU)                   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Edge Functions (Deno) — STATELESS PROXIES          │   │
+│  │  - hetzner-storage-proxy                            │   │
+│  │  - hetzner-ai-proxy                                 │   │
+│  │  - No image data stored                             │   │
+│  │  - Rate limiting (per device_user_id)               │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Postgres (Supabase) — METADATA ONLY                │   │
+│  │  - page_origin_hashes (SHA-256 records)             │   │
+│  │  - hetzner_trash_index (soft delete tracking)       │   │
+│  │  - audit_logs (proxy request logs)                  │   │
+│  │  - search_telemetry (retrieval metrics)             │   │
+│  │  - RLS: device_user_id required for all access      │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              │ HTTPS (proxied)
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 HETZNER GERMANY (vault.umarise.com)         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Codex Service (Python)                             │   │
+│  │  - REST API for pages CRUD                          │   │
+│  │  - SQLite metadata storage                          │   │
+│  │  - FTS5 full-text search                            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Vision Service (Python)                            │   │
+│  │  - Gemini 2.5 Flash (OCR + analysis)                │   │
+│  │  - Structured JSON output                           │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  IPFS Node                                          │   │
+│  │  - Image storage (content-addressed)                │   │
+│  │  - AES-256 volume encryption (Hetzner-managed)      │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 8. PRIVACY ASSESSMENT — FACTUAL
+
+| Claim | Status | Evidence |
+|-------|--------|----------|
+| "Private by design" | ✓ Accurate | No accounts, no email, device_user_id only |
+| "Zero-knowledge" | ❌ Not accurate | Server can read images (needed for OCR) |
+| "Zero-access" | ✓ Partial | No human access by policy, not cryptographically enforced |
+| "End-to-end encrypted" | ❌ Not accurate | No client-side encryption |
+| "GDPR compliant" | ✓ Likely | Data in EU, no PII, deletion possible |
+| "Data residency Germany" | ✓ Accurate | Hetzner DE, images never leave |
+
+**Honest Assessment:**
+
+The current architecture provides **operational privacy** (policy-based access control) but not **cryptographic privacy** (zero-knowledge). The server must be trusted to not misuse data. This is acceptable for pilot phase but should be disclosed.
+
+---
+
+## 9. SECURITY CONTROLS — CURRENT
+
+| Control | Implemented |
+|---------|-------------|
+| HTTPS everywhere | ✓ Yes |
+| Rate limiting (per device) | ✓ Yes (edge function) |
+| RLS on all tables | ✓ Yes |
+| Input validation | ✓ Basic |
+| Audit logging | ✓ Yes (90-day retention) |
+| Origin hash immutability trigger | ✓ Yes |
+| API token auth (backend) | ✓ Yes (HETZNER_API_TOKEN) |
+| User authentication | ❌ No (device-based) |
+| IP-based rate limiting | ❌ No |
+| Intrusion detection | ❌ No |
+| Penetration tested | ❌ No |
+
+---
+
+## 10. KNOWN LIMITATIONS
+
+1. **Hetzner SQLite doesn't persist `is_trashed` field** — trash sync uses hybrid Cloud index
+2. **No offline support** — requires network for all operations
+3. **Single device ownership** — manual UUID transfer for multi-device
+4. **OCR quality dependent on Gemini** — handwriting recognition varies
+5. **No conflict resolution** — last write wins
+6. **No backup/restore UI** — backend-only
+
+---
+
+*Document generated from codebase analysis. No marketing claims, no roadmap, only current state.*
