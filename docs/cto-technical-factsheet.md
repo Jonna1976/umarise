@@ -169,29 +169,29 @@ Response: { results: [{ id, score, matchType, ... }] }
 **Processing View (during upload/analysis):**
 
 ```
-┌────────────────────────────────┐
-│                                │
-│     [Animated thumbnail]       │
-│                                │
-│   "Analyzing your artifact..." │
-│                                │
-│     Progress indicator         │
-│                                │
-└────────────────────────────────┘
+┌────────────────────────────────────┐
+│                                    │
+│     [Animated thumbnail]           │
+│                                    │
+│   "Analyzing your artifact..."     │
+│                                    │
+│     Progress indicator             │
+│                                    │
+└────────────────────────────────────┘
 ```
 
 **Completion (after ~3-5 seconds):**
 
 ```
-┌────────────────────────────────┐
-│                                │
-│   [Thumbnail with gold border] │
-│                                │
-│      ✓ Origin sealed           │
-│                                │
-│   [Continue to review]         │
-│                                │
-└────────────────────────────────┘
+┌────────────────────────────────────┐
+│                                    │
+│   [Thumbnail with gold border]     │
+│                                    │
+│      ✓ Origin sealed               │
+│                                    │
+│   [Continue to review]             │
+│                                    │
+└────────────────────────────────────┘
 ```
 
 **Snapshot Review View:**
@@ -228,94 +228,304 @@ Response: { results: [{ id, score, matchType, ... }] }
 
 ---
 
-## 7. ARCHITECTURE DIAGRAM
+## 7. TRASH ARCHITECTURE — HYBRID MODEL
+
+### Problem
+
+Hetzner SQLite does not reliably persist the `is_trashed` field across restarts. This caused deleted items to reappear after server maintenance.
+
+### Solution: Hybrid Trash Sync
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TRASH OPERATION (e.g., user deletes a page)                │
+│                                                             │
+│  1. Frontend calls storage.moveToTrash(pageId)              │
+│  2. Storage provider performs DUAL WRITE:                   │
+│     a) INSERT into Lovable Cloud hetzner_trash_index        │
+│     b) PATCH to Hetzner /vault/pages/{id} (best-effort)     │
+│  3. On getPages(), filter out IDs in hetzner_trash_index    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Data Residency:**
+
+| Data | Location | Purpose |
+|------|----------|---------|
+| Page content & metadata | Hetzner SQLite | Sovereignty |
+| Original image | Hetzner IPFS | Immutable storage |
+| Trash index (page_id list) | Lovable Cloud | Cross-device sync |
+
+**Implementation:**
+
+```typescript
+// src/lib/abstractions/storage.ts (HetznerVaultStorage)
+
+private async getTrashedPageIds(): Promise<Set<string>> {
+  const { data } = await supabase
+    .from('hetzner_trash_index')
+    .select('page_id')
+    .eq('device_user_id', deviceUserId);
+  return new Set(data.map(row => row.page_id));
+}
+
+async getPages(): Promise<Page[]> {
+  const trashedIds = await this.getTrashedPageIds();
+  const allPages = await this.proxyRequest('GET', '/vault/pages', ...);
+  return allPages.filter(p => !trashedIds.has(p.id));
+}
+```
+
+**Why This Works:**
+
+- ✓ Page content never leaves Hetzner (sovereignty maintained)
+- ✓ Trash state syncs across devices instantly
+- ✓ No dependency on unreliable SQLite field
+- ✓ Restore operation removes from Cloud index
+
+---
+
+## 8. AI PROXY ROUTING — DETAILED FLOW
+
+### Problem
+
+Browser CORS prevents direct calls to Hetzner backend. Also, API tokens must not be exposed client-side.
+
+### Solution: Edge Function Proxies
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AI REQUEST FLOW                          │
+│                                                             │
+│  Frontend (HetznerAIProvider)                               │
+│      │                                                      │
+│      ▼                                                      │
+│  Supabase Edge Function: hetzner-ai-proxy                   │
+│      │ (adds HETZNER_API_TOKEN header)                      │
+│      ▼                                                      │
+│  ┌─────────────────────────────────────────────────┐        │
+│  │ ROUTING LOGIC:                                  │        │
+│  │                                                 │        │
+│  │ /ai/search     → vault.umarise.com/api/codex/   │        │
+│  │ /ai/analyze-*  → vault.umarise.com/api/vision/  │        │
+│  │ /ai/generate-* → vault.umarise.com/api/vision/  │        │
+│  └─────────────────────────────────────────────────┘        │
+│      │                                                      │
+│      ▼                                                      │
+│  Hetzner Backend                                            │
+│  ├── Vision Service: Gemini 2.5 Flash (OCR, analysis)       │
+│  └── Codex Service: SQLite FTS5 (search)                    │
+│      │                                                      │
+│      ▼                                                      │
+│  Response flows back through proxy to frontend              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Proxy Implementation:**
+
+```typescript
+// supabase/functions/hetzner-ai-proxy/index.ts
+
+const SERVICE_ROUTES = {
+  '/ai/search': '/api/codex/ai/search',
+  '/ai/analyze-page': '/api/vision/analyze-page',
+  '/ai/analyze-patterns': '/api/vision/analyze-patterns',
+  // ... other routes
+};
+
+// All requests proxied to HETZNER_BASE_URL with auth header
+const response = await fetch(`${HETZNER_BASE_URL}${route}`, {
+  headers: { 'Authorization': `Bearer ${HETZNER_API_TOKEN}` },
+  body: JSON.stringify(payload),
+});
+```
+
+**Security Properties:**
+
+| Property | Implementation |
+|----------|----------------|
+| Token hidden from client | ✓ HETZNER_API_TOKEN only in Edge Function |
+| CORS bypassed | ✓ Proxy adds permissive headers |
+| Rate limited | ✓ Per device_user_id, per endpoint category |
+| Audit logged | ✓ All requests logged to audit_logs table |
+| Request timeout | ✓ 60 second timeout |
+
+**What Flows Through Proxy:**
+
+| Data Type | Proxied? | Notes |
+|-----------|----------|-------|
+| Image base64 (for OCR) | ✓ Yes | Required for Gemini analysis |
+| Search queries | ✓ Yes | Text only, no images |
+| Page metadata | ✓ Yes | On create/update |
+| device_user_id | ✓ Yes | For RLS filtering |
+
+**What Does NOT Flow Through Proxy:**
+
+| Data Type | Reason |
+|-----------|--------|
+| Encryption keys | Stored in localStorage, never transmitted |
+| PIN codes | Local gate only |
+| Verification results | Calculated client-side |
+
+---
+
+## 9. ARCHITECTURE DIAGRAM
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      USER DEVICE                            │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  PWA (React/Vite/TypeScript)                        │   │
-│  │  - Camera capture                                   │   │
-│  │  - SHA-256 hash calculation (WebCrypto)             │   │
-│  │  - Local PIN gate (localStorage)                    │   │
-│  │  - device_user_id (localStorage)                    │   │
-│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  PWA (React/Vite/TypeScript)                            ││
+│  │  - Camera capture                                       ││
+│  │  - SHA-256 hash calculation (WebCrypto)                 ││
+│  │  - Local PIN gate (localStorage)                        ││
+│  │  - device_user_id (localStorage)                        ││
+│  │  - Verification logic (client-side)                     ││
+│  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
                               │
                               │ HTTPS
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │               LOVABLE CLOUD (Supabase EU)                   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Edge Functions (Deno) — STATELESS PROXIES          │   │
-│  │  - hetzner-storage-proxy                            │   │
-│  │  - hetzner-ai-proxy                                 │   │
-│  │  - No image data stored                             │   │
-│  │  - Rate limiting (per device_user_id)               │   │
-│  └─────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Postgres (Supabase) — METADATA ONLY                │   │
-│  │  - page_origin_hashes (SHA-256 records)             │   │
-│  │  - hetzner_trash_index (soft delete tracking)       │   │
-│  │  - audit_logs (proxy request logs)                  │   │
-│  │  - search_telemetry (retrieval metrics)             │   │
-│  │  - RLS: device_user_id required for all access      │   │
-│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  Edge Functions (Deno) — STATELESS PROXIES              ││
+│  │  ┌─────────────────────────────────────────────────────┐││
+│  │  │ hetzner-storage-proxy                               │││
+│  │  │ - Routes /vault/* to Codex Service                  │││
+│  │  │ - Image upload, page CRUD                           │││
+│  │  └─────────────────────────────────────────────────────┘││
+│  │  ┌─────────────────────────────────────────────────────┐││
+│  │  │ hetzner-ai-proxy                                    │││
+│  │  │ - Routes /ai/search to Codex                        │││
+│  │  │ - Routes /ai/analyze-* to Vision                    │││
+│  │  │ - Adds HETZNER_API_TOKEN                            │││
+│  │  └─────────────────────────────────────────────────────┘││
+│  │  - Rate limiting (per device_user_id, per category)     ││
+│  │  - Request timeout (60s)                                ││
+│  │  - No image data stored                                 ││
+│  └─────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  Postgres (Supabase) — SYNC METADATA ONLY               ││
+│  │  - page_origin_hashes (SHA-256 sidecar for verification)││
+│  │  - hetzner_trash_index (cross-device trash sync)        ││
+│  │  - audit_logs (proxy request logs, 90-day retention)    ││
+│  │  - search_telemetry (proxied to Hetzner)                ││
+│  │  - RLS: device_user_id required for all access          ││
+│  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
                               │
-                              │ HTTPS (proxied)
+                              │ HTTPS (proxied, authenticated)
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                 HETZNER GERMANY (vault.umarise.com)         │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Codex Service (Python)                             │   │
-│  │  - REST API for pages CRUD                          │   │
-│  │  - SQLite metadata storage                          │   │
-│  │  - FTS5 full-text search                            │   │
-│  └─────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Vision Service (Python)                            │   │
-│  │  - Gemini 2.5 Flash (OCR + analysis)                │   │
-│  │  - Structured JSON output                           │   │
-│  └─────────────────────────────────────────────────────┘   │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  IPFS Node                                          │   │
-│  │  - Image storage (content-addressed)                │   │
-│  │  - AES-256 volume encryption (Hetzner-managed)      │   │
-│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  Nginx Gateway (port 443)                               ││
+│  │  - SSL termination                                      ││
+│  │  - Route /api/codex/* → Codex (localhost:3342)          ││
+│  │  - Route /api/vision/* → Vision (localhost:3341)        ││
+│  └─────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  Codex Service (Python, port 3342)                      ││
+│  │  - REST API for pages CRUD                              ││
+│  │  - SQLite metadata + FTS5 search index                  ││
+│  │  - Primary storage for all page data                    ││
+│  │  - origin_hash_sha256 stored per page                   ││
+│  └─────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  Vision Service (Python, port 3341)                     ││
+│  │  - Gemini 2.5 Flash API integration                     ││
+│  │  - OCR (handwriting recognition)                        ││
+│  │  - Structured JSON output (summary, tone, keywords)     ││
+│  └─────────────────────────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │  IPFS Node                                              ││
+│  │  - Image storage (content-addressed CID)                ││
+│  │  - AES-256 volume encryption (Hetzner-managed)          ││
+│  │  - Images never leave German jurisdiction               ││
+│  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 8. PRIVACY ASSESSMENT — FACTUAL
+## 10. ORIGIN HASH STORAGE — DUAL WRITE
+
+### Clarification on Hash Locations
+
+The SHA-256 origin hash is stored in TWO locations for different purposes:
+
+| Location | Table/Field | Purpose | Authority |
+|----------|-------------|---------|-----------|
+| Hetzner SQLite | `pages.origin_hash_sha256` | Primary storage with page data | ✓ Primary |
+| Lovable Cloud | `page_origin_hashes` | Sidecar for verification lookup | Backup |
+
+**Why Dual Storage?**
+
+1. **Hetzner = Primary:** All page data lives on Hetzner (sovereignty)
+2. **Cloud Sidecar = Lookup:** Enables fast hash retrieval for verification without full page fetch
+3. **Immutability Trigger:** Cloud table has DB trigger preventing modification
+
+**Verification Flow Uses Both:**
+
+```typescript
+// src/components/codex/VerifyOriginButton.tsx
+
+// 1. First try: get hash from page object (Hetzner data)
+const hash = page.originHashSha256;
+
+// 2. Fallback: lookup from sidecar table (Lovable Cloud)
+if (!hash) {
+  const { data } = await supabase
+    .from('page_origin_hashes')
+    .select('origin_hash_sha256')
+    .eq('page_id', pageId)
+    .single();
+  hash = data?.origin_hash_sha256;
+}
+```
+
+---
+
+## 11. PRIVACY ASSESSMENT — FACTUAL
 
 | Claim | Status | Evidence |
 |-------|--------|----------|
 | "Private by design" | ✓ Accurate | No accounts, no email, device_user_id only |
 | "Zero-knowledge" | ❌ Not accurate | Server can read images (needed for OCR) |
 | "Zero-access" | ✓ Partial | No human access by policy, not cryptographically enforced |
-| "End-to-end encrypted" | ❌ Not accurate | No client-side encryption |
+| "End-to-end encrypted" | ❌ Not accurate | No client-side encryption in v1 |
 | "GDPR compliant" | ✓ Likely | Data in EU, no PII, deletion possible |
 | "Data residency Germany" | ✓ Accurate | Hetzner DE, images never leave |
 
+**Data Flow Through Lovable Cloud:**
+
+| Data Type | Stored in Cloud? | Notes |
+|-----------|------------------|-------|
+| Images | ❌ No | Proxied only, not stored |
+| OCR text | ❌ No | Proxied only, not stored |
+| Origin hashes | ✓ Yes (sidecar) | For verification lookup |
+| Trash index | ✓ Yes | For cross-device sync |
+| Audit logs | ✓ Yes | Request metadata only |
+
 **Honest Assessment:**
 
-The current architecture provides **operational privacy** (policy-based access control) but not **cryptographic privacy** (zero-knowledge). The server must be trusted to not misuse data. This is acceptable for pilot phase but should be disclosed.
+The current architecture provides **operational privacy** (policy-based access control) but not **cryptographic privacy** (zero-knowledge). The server must be trusted. Images flow through Lovable Cloud Edge Functions as a passthrough proxy but are not stored there.
 
 ---
 
-## 9. SECURITY CONTROLS — CURRENT
+## 12. SECURITY CONTROLS — CURRENT
 
 | Control | Implemented |
 |---------|-------------|
 | HTTPS everywhere | ✓ Yes |
-| Rate limiting (per device) | ✓ Yes (edge function) |
+| Rate limiting (per device, per category) | ✓ Yes (edge function) |
 | RLS on all tables | ✓ Yes |
 | Input validation | ✓ Basic |
 | Audit logging | ✓ Yes (90-day retention) |
 | Origin hash immutability trigger | ✓ Yes |
 | API token auth (backend) | ✓ Yes (HETZNER_API_TOKEN) |
+| Request timeout | ✓ Yes (60 seconds) |
 | User authentication | ❌ No (device-based) |
 | IP-based rate limiting | ❌ No |
 | Intrusion detection | ❌ No |
@@ -323,15 +533,35 @@ The current architecture provides **operational privacy** (policy-based access c
 
 ---
 
-## 10. KNOWN LIMITATIONS
+## 13. KNOWN LIMITATIONS
 
-1. **Hetzner SQLite doesn't persist `is_trashed` field** — trash sync uses hybrid Cloud index
+1. **Trash sync is hybrid** — Cloud index + Hetzner data (intentional design)
 2. **No offline support** — requires network for all operations
 3. **Single device ownership** — manual UUID transfer for multi-device
 4. **OCR quality dependent on Gemini** — handwriting recognition varies
 5. **No conflict resolution** — last write wins
 6. **No backup/restore UI** — backend-only
+7. **Image base64 flows through proxy** — required for OCR, not stored
 
 ---
 
-*Document generated from codebase analysis. No marketing claims, no roadmap, only current state.*
+## 14. WHAT RUNS WHERE — SUMMARY
+
+| Component | Location | Notes |
+|-----------|----------|-------|
+| device_user_id | localStorage | By design, ownership anchor |
+| PIN code | localStorage | Local gate, not transmitted |
+| Encryption keys (Private Vault) | localStorage | v1: local only, v2: key derivation |
+| Verification status cache | localStorage | UI optimization only |
+| Demo mode flag | localStorage | Testing feature |
+| Page content | Hetzner SQLite | Sovereign storage |
+| Images | Hetzner IPFS | Content-addressed |
+| Trash index | Lovable Cloud | Cross-device sync |
+| Origin hashes (primary) | Hetzner SQLite | With page data |
+| Origin hashes (sidecar) | Lovable Cloud | Verification lookup |
+| Audit logs | Lovable Cloud | 90-day retention |
+
+---
+
+*Document generated from codebase analysis. No marketing claims, no roadmap, only current state.*  
+*Last updated: 2026-01-22*
