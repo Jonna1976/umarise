@@ -1,7 +1,7 @@
 # HETZNER-NATIVE TRASH ARCHITECTURE
 
 **Status:** ✅ Production (January 2026)  
-**Last Verified:** 2026-01-21
+**Last Verified:** 2026-01-22
 
 ---
 
@@ -79,8 +79,8 @@ CREATE TABLE public.page_trash (
 
 ### Legacy Data Count
 
-As of 2026-01-21:
-- Lovable Cloud `page_trash`: **2 rows** (frozen legacy)
+As of 2026-01-22:
+- Lovable Cloud `page_trash`: **0 rows** (cleaned up)
 - Hetzner trash: **Active** (all new operations)
 
 ---
@@ -136,16 +136,11 @@ Authorization: Bearer vault_lovable_...
 
 ---
 
-## 🧹 CLEANUP RECOMMENDATION
+## 🧹 CLEANUP STATUS
 
-The 2 legacy rows in Lovable Cloud `page_trash` can be deleted for a clean audit:
+✅ **Completed 2026-01-22**: All legacy rows deleted from Lovable Cloud `page_trash`.
 
-```sql
--- Only run after confirming Hetzner trash is operational
-DELETE FROM page_trash WHERE backend_provider = 'lovable';
-```
-
-**Note:** This is optional. Legacy data does not interfere with current operations.
+The table is now empty, confirming 100% Hetzner-native trash architecture.
 
 ---
 
@@ -187,3 +182,4 @@ curl -X POST https://vault.umarise.com/api/codex/pages \
 |------|--------|
 | 2026-01-21 | Initial documentation of Hetzner-native trash guarantee |
 | 2026-01-21 | Verified Lovable Cloud page_trash frozen (2 legacy rows) |
+| 2026-01-22 | Deleted legacy rows — Lovable Cloud page_trash now 0 rows |
