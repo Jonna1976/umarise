@@ -505,7 +505,7 @@ if (!hash) {
 | Data Type | Stored in Cloud? | Notes |
 |-----------|------------------|-------|
 | Images | ❌ No | In-flight transit only, not stored |
-| OCR text | ❌ No | Proxied only, not stored |
+| OCR text | ❌ No | Not stored in Lovable Cloud; persisted on Hetzner as part of page metadata/search index |
 | Origin hashes | ✓ Yes (sidecar) | For verification lookup |
 | Trash index | ✓ Yes | For cross-device sync |
 | Audit logs | ✓ Yes | Request metadata only |
@@ -553,7 +553,7 @@ The current architecture provides **operational privacy** (policy-based access c
 |-----------|----------|-------|
 | device_user_id | localStorage | By design, ownership anchor |
 | PIN code | localStorage | Local gate, not transmitted |
-| Encryption keys (Private Vault) | localStorage | Local only (not implemented in v1) |
+| Encryption keys (Private Vault) | localStorage | Reserved / not active in v1 |
 | Verification status cache | localStorage | UI optimization only |
 | Demo mode flag | localStorage | Testing feature |
 | Page content | Hetzner SQLite | Sovereign storage |
