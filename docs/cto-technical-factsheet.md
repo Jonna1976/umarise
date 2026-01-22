@@ -31,7 +31,7 @@ Storage: IPFS (returns ipfs:// CID URL)
 - Image uploaded to Hetzner Germany server
 - Stored in IPFS with content-addressed CID
 - Metadata stored in SQLite on Hetzner volume
-- No image data touches Lovable Cloud infrastructure
+- No image data is stored or persisted in Lovable Cloud; images only transit Edge Functions as an in-flight proxy
 
 ---
 
@@ -345,7 +345,7 @@ const response = await fetch(`${HETZNER_BASE_URL}${route}`, {
 | Property | Implementation |
 |----------|----------------|
 | Token hidden from client | ✓ HETZNER_API_TOKEN only in Edge Function |
-| CORS bypassed | ✓ Proxy adds permissive headers |
+| CORS handled at Edge layer | ✓ Client never calls Hetzner directly |
 | Rate limited | ✓ Per device_user_id, per endpoint category |
 | Audit logged | ✓ All requests logged to audit_logs table |
 | Request timeout | ✓ 60 second timeout |
@@ -411,7 +411,8 @@ const response = await fetch(`${HETZNER_BASE_URL}${route}`, {
 │  │  - hetzner_trash_index (cross-device trash sync)        ││
 │  │  - audit_logs (proxy request logs, 90-day retention)    ││
 │  │  - search_telemetry (proxied to Hetzner)                ││
-│  │  - RLS: device_user_id required for all access          ││
+│  │  - RLS on user-scoped tables; Edge Functions use        ││
+│  │    service role but enforce device_user_id scoping      ││
 │  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -439,10 +440,11 @@ const response = await fetch(`${HETZNER_BASE_URL}${route}`, {
 │  │  - Structured JSON output (summary, tone, keywords)     ││
 │  └─────────────────────────────────────────────────────────┘│
 │  ┌─────────────────────────────────────────────────────────┐│
-│  │  IPFS Node                                              ││
+│  │  IPFS Node (Private, Hetzner-hosted)                    ││
 │  │  - Image storage (content-addressed CID)                ││
-│  │  - AES-256 volume encryption (Hetzner-managed)          ││
-│  │  - Images never leave German jurisdiction               ││
+│  │  - Provider-managed at-rest encryption on volume        ││
+│  │  - Content pinned only within controlled infrastructure ││
+│  │  - No public IPFS swarm; data remains on DE servers     ││
 │  └─────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -455,10 +457,10 @@ const response = await fetch(`${HETZNER_BASE_URL}${route}`, {
 
 The SHA-256 origin hash is stored in TWO locations for different purposes:
 
-| Location | Table/Field | Purpose | Authority |
-|----------|-------------|---------|-----------|
-| Hetzner SQLite | `pages.origin_hash_sha256` | Primary storage with page data | ✓ Primary |
-| Lovable Cloud | `page_origin_hashes` | Sidecar for verification lookup | Backup |
+| Location | Table/Field | Frontend Model | Purpose | Authority |
+|----------|-------------|----------------|---------|-----------|
+| Hetzner SQLite | `origin_hash_sha256` | `originHashSha256` | Primary storage with page data | ✓ Primary |
+| Lovable Cloud | `page_origin_hashes.origin_hash_sha256` | — | Sidecar for verification lookup | Backup |
 
 **Why Dual Storage?**
 
@@ -502,7 +504,7 @@ if (!hash) {
 
 | Data Type | Stored in Cloud? | Notes |
 |-----------|------------------|-------|
-| Images | ❌ No | Proxied only, not stored |
+| Images | ❌ No | In-flight transit only, not stored |
 | OCR text | ❌ No | Proxied only, not stored |
 | Origin hashes | ✓ Yes (sidecar) | For verification lookup |
 | Trash index | ✓ Yes | For cross-device sync |
@@ -551,7 +553,7 @@ The current architecture provides **operational privacy** (policy-based access c
 |-----------|----------|-------|
 | device_user_id | localStorage | By design, ownership anchor |
 | PIN code | localStorage | Local gate, not transmitted |
-| Encryption keys (Private Vault) | localStorage | v1: local only, v2: key derivation |
+| Encryption keys (Private Vault) | localStorage | Local only (not implemented in v1) |
 | Verification status cache | localStorage | UI optimization only |
 | Demo mode flag | localStorage | Testing feature |
 | Page content | Hetzner SQLite | Sovereign storage |
