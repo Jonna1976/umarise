@@ -140,7 +140,7 @@ Deno.serve(async (req: Request) => {
     if (resolvedImageUrl?.startsWith('ipfs://')) {
       const cid = resolvedImageUrl.replace('ipfs://', '');
       // Use Hetzner IPFS gateway for public access
-      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://umarise-vault.hetzner.app';
+      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://vault.umarise.com';
       resolvedImageUrl = `${hetznerApiUrl}/ipfs/${cid}`;
     }
     
