@@ -31,8 +31,25 @@ export function PinGate({ children }: PinGateProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const confirmInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Public routes that bypass PinGate (e.g., Origin Links for external verification)
+  const isPublicRoute = () => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      // /origin/:id routes are public for external systems to verify origins
+      if (path.startsWith('/origin/')) return true;
+    }
+    return false;
+  };
+
   // Check if already unlocked this session or if PIN exists
   useEffect(() => {
+    // Skip PIN gate for public routes
+    if (isPublicRoute()) {
+      setIsUnlocked(true);
+      setHasPin(true);
+      return;
+    }
+
     const sessionUnlocked = sessionStorage.getItem(SESSION_UNLOCKED_KEY);
     if (sessionUnlocked === 'true') {
       setIsUnlocked(true);

@@ -7,6 +7,7 @@ import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { PinGate } from "@/components/PinGate";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import OriginView from "./pages/OriginView";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
@@ -26,6 +27,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/origin/:originId" element={<OriginView />} />
               <Route path="/proof" element={<ProofPage />} />
               <Route path="/pilot-tracker" element={<PilotTracker />} />
               <Route path="/warm-preview" element={<WarmPaletteMockup />} />
