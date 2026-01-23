@@ -61,53 +61,16 @@ Deno.serve(async (req) => {
 
     const imageUrl = originData.image_url;
 
-    // Check if it's an IPFS URL that needs to be resolved via Hetzner
+    // Check if it's an IPFS URL - redirect to public gateway
     if (imageUrl.startsWith('ipfs://')) {
-      const hetznerBaseUrl = 'https://vault.umarise.com';
-      const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
-
-      if (!hetznerToken) {
-        console.error('HETZNER_API_TOKEN not configured');
-        return new Response(JSON.stringify({ error: 'Storage not configured' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Convert ipfs://CID to gateway URL
       const cid = imageUrl.replace('ipfs://', '');
-      const gatewayUrl = `${hetznerBaseUrl}/ipfs/${cid}`;
-
-      console.log(`Proxying image from: ${gatewayUrl}`);
-
-      // Fetch the image from Hetzner with authentication
-      const imageResponse = await fetch(gatewayUrl, {
-        headers: {
-          'Authorization': `Bearer ${hetznerToken}`,
-        },
-      });
-
-      if (!imageResponse.ok) {
-        console.error(`Hetzner fetch failed: ${imageResponse.status} ${imageResponse.statusText}`);
-        return new Response(JSON.stringify({ error: 'Failed to fetch image from vault' }), {
-          status: 502,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // Get the image data
-      const imageData = await imageResponse.arrayBuffer();
-      const contentType = imageResponse.headers.get('Content-Type') || 'image/jpeg';
-
-      // Return the image with caching headers
-      return new Response(imageData, {
-        status: 200,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable', // Cache for 1 year (immutable content)
-        },
-      });
+      // Use public IPFS gateway (same as VaultImage component)
+      const gatewayUrl = `https://ipfs.io/ipfs/${cid}`;
+      
+      console.log(`Redirecting to public IPFS gateway: ${gatewayUrl}`);
+      
+      // 302 redirect to the public gateway - more efficient than proxying
+      return Response.redirect(gatewayUrl, 302);
     }
 
     // For non-IPFS URLs, redirect directly
