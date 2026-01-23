@@ -13,7 +13,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, ShieldCheck, ShieldX, Download, ExternalLink, Copy, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Shield, ShieldCheck, ShieldX, Download, ExternalLink, Copy, Check, AlertCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -212,23 +212,31 @@ export default function OriginView() {
           </motion.div>
         )}
 
-        {/* Origin Image Thumbnail */}
-        {metadata.image_url && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
-            <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/50">
-              <img
-                src={metadata.image_url}
-                alt="Origin artifact"
-                className="w-full max-h-64 object-contain"
-              />
+        {/* Origin Artifact - Private Vault Fallback */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
+          <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/30 p-6">
+            <div className="flex flex-col items-center justify-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-codex-gold/10 flex items-center justify-center">
+                <Lock className="w-6 h-6 text-codex-gold" />
+              </div>
+              <div>
+                <p className="text-codex-cream font-medium">Stored in Private Vault</p>
+                <p className="text-codex-cream/50 text-sm mt-1">
+                  Original artifact is protected in the Umarise Privacy Vault (Germany)
+                </p>
+              </div>
+              <div className="text-xs text-codex-cream/40 mt-2 flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Hash-verified • Zero human access • EU jurisdiction</span>
+              </div>
             </div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
 
         {/* Origin ID */}
         <motion.div
