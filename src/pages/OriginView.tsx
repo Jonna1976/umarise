@@ -24,6 +24,7 @@ interface OriginMetadata {
   origin_hash_algo: 'sha256' | null;
   hash_status: 'verified' | 'legacy_no_hash' | 'not_found';
   captured_at: string | null;
+  image_url: string | null;
   labels: {
     future_you_cues: string[];
     keywords: string[];
@@ -207,6 +208,24 @@ export default function OriginView() {
                   </p>
                 )}
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Origin Image Thumbnail */}
+        {metadata.image_url && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
+            <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/50">
+              <img
+                src={metadata.image_url}
+                alt="Origin artifact"
+                className="w-full max-h-64 object-contain"
+              />
             </div>
           </motion.div>
         )}
