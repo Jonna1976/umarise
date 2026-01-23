@@ -63,11 +63,11 @@ Deno.serve(async (req) => {
 
     // Check if it's an IPFS URL that needs to be resolved via Hetzner
     if (imageUrl.startsWith('ipfs://')) {
-      const hetznerBaseUrl = Deno.env.get('HETZNER_API_URL');
+      const hetznerBaseUrl = 'https://vault.umarise.com';
       const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
 
-      if (!hetznerBaseUrl || !hetznerToken) {
-        console.error('Hetzner credentials not configured');
+      if (!hetznerToken) {
+        console.error('HETZNER_API_TOKEN not configured');
         return new Response(JSON.stringify({ error: 'Storage not configured' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
