@@ -431,7 +431,7 @@ const Index = () => {
 
   // Handle page deletion from history
   const handleDeletePage = useCallback(async (pageId: string) => {
-    await deletePage(pageId);
+    return await deletePage(pageId);
   }, [deletePage]);
 
   // Dev button visibility logic:

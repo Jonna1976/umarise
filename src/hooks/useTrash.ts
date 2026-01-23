@@ -137,6 +137,8 @@ export function useTrash(options: UseTrashOptions = {}) {
     
     // Update local state immediately for responsive UI
     setTrashedPages(prev => prev.filter(p => p.id !== pageId));
+    // Also remove from pending list so Trash modal/History can't keep it around visually
+    removePending(pageId);
     
     try {
       // Use custom delete handler if provided, otherwise default to pageService
@@ -159,32 +161,31 @@ export function useTrash(options: UseTrashOptions = {}) {
       await loadTrashedPages();
       return false;
     }
-  }, [options.onPermanentDelete, loadTrashedPages]);
+  }, [options.onPermanentDelete, loadTrashedPages, removePending]);
 
   // Empty entire trash
   const emptyTrash = useCallback(async (): Promise<void> => {
-    console.log('[useTrash] Emptying trash, pages:', trashedPages.length);
-    
-    // Get all trashed page IDs before clearing local state
-    const toDelete = [...trashedPages];
+    const idsToDelete = Array.from(new Set([...trashedPages.map(p => p.id), ...pendingTrashedIds]));
+    console.log('[useTrash] Emptying trash, pages:', idsToDelete.length);
     
     // Clear local state first for responsive UI
     setTrashedPages([]);
+    setPendingTrashedIds([]);
     
     // Delete all pages
     let hadFailure = false;
-    for (const page of toDelete) {
+    for (const pageId of idsToDelete) {
       try {
         if (options.onPermanentDelete) {
-          const result = await Promise.resolve(options.onPermanentDelete(page.id));
+          const result = await Promise.resolve(options.onPermanentDelete(pageId));
           if (result === false) hadFailure = true;
         } else {
-          const ok = await deletePageDb(page.id);
+          const ok = await deletePageDb(pageId);
           if (!ok) hadFailure = true;
         }
       } catch (e) {
         hadFailure = true;
-        console.error('[useTrash] Failed to delete page:', page.id, e);
+        console.error('[useTrash] Failed to delete page:', pageId, e);
       }
     }
 
@@ -192,7 +193,7 @@ export function useTrash(options: UseTrashOptions = {}) {
     if (hadFailure) {
       await loadTrashedPages();
     }
-  }, [trashedPages, options.onPermanentDelete, loadTrashedPages]);
+  }, [trashedPages, pendingTrashedIds, options.onPermanentDelete, loadTrashedPages]);
 
   // Refresh trash from database
   const refresh = useCallback(async () => {
