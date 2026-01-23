@@ -141,10 +141,18 @@ export function useTrash(options: UseTrashOptions = {}) {
     try {
       // Use custom delete handler if provided, otherwise default to pageService
       if (options.onPermanentDelete) {
-        await Promise.resolve(options.onPermanentDelete(pageId));
-        return true;
+        const result = await Promise.resolve(options.onPermanentDelete(pageId));
+        const ok = result !== false;
+        if (!ok) {
+          await loadTrashedPages();
+        }
+        return ok;
       } else {
-        return await deletePageDb(pageId);
+        const ok = await deletePageDb(pageId);
+        if (!ok) {
+          await loadTrashedPages();
+        }
+        return ok;
       }
     } catch (e) {
       console.error('[useTrash] Failed to delete page from database:', e);
@@ -164,18 +172,27 @@ export function useTrash(options: UseTrashOptions = {}) {
     setTrashedPages([]);
     
     // Delete all pages
+    let hadFailure = false;
     for (const page of toDelete) {
       try {
         if (options.onPermanentDelete) {
-          await Promise.resolve(options.onPermanentDelete(page.id));
+          const result = await Promise.resolve(options.onPermanentDelete(page.id));
+          if (result === false) hadFailure = true;
         } else {
-          await deletePageDb(page.id);
+          const ok = await deletePageDb(page.id);
+          if (!ok) hadFailure = true;
         }
       } catch (e) {
+        hadFailure = true;
         console.error('[useTrash] Failed to delete page:', page.id, e);
       }
     }
-  }, [trashedPages, options.onPermanentDelete]);
+
+    // Re-sync trash list so the UI matches reality (esp. if any delete failed)
+    if (hadFailure) {
+      await loadTrashedPages();
+    }
+  }, [trashedPages, options.onPermanentDelete, loadTrashedPages]);
 
   // Refresh trash from database
   const refresh = useCallback(async () => {
