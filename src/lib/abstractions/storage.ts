@@ -958,9 +958,25 @@ export class HetznerVaultStorage implements IStorageProvider {
       await this.deleteImage(page.imageUrl);
     }
 
+    // Delete from Hetzner backend
     const response = await this.proxyRequest('DELETE', `/vault/pages/${id}`, {
       deviceUserId,
     });
+
+    // CRITICAL: Also remove from Cloud trash index
+    // Pages being permanently deleted should be removed from the hybrid trash sync table
+    // This ensures the page doesn't keep appearing in trash after deletion
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any)
+        .from('hetzner_trash_index')
+        .delete()
+        .eq('device_user_id', deviceUserId)
+        .eq('page_id', id);
+      console.log('[HetznerVaultStorage] Removed page from trash index:', id);
+    } catch (err) {
+      console.warn('[HetznerVaultStorage] Failed to remove from trash index (non-critical):', err);
+    }
 
     return response.ok;
   }
