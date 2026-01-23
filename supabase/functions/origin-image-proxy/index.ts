@@ -61,16 +61,51 @@ Deno.serve(async (req) => {
 
     const imageUrl = originData.image_url;
 
-    // Check if it's an IPFS URL - redirect to public gateway
-    if (imageUrl.startsWith('ipfs://')) {
-      const cid = imageUrl.replace('ipfs://', '');
-      // Use public IPFS gateway (same as VaultImage component)
-      const gatewayUrl = `https://ipfs.io/ipfs/${cid}`;
-      
-      console.log(`Redirecting to public IPFS gateway: ${gatewayUrl}`);
-      
-      // 302 redirect to the public gateway - more efficient than proxying
-      return Response.redirect(gatewayUrl, 302);
+    // If it's IPFS, proxy the bytes via the Hetzner gateway with server-side auth
+    // so public browsers can view the origin image without exposing the token.
+    if (imageUrl.startsWith('ipfs://') || imageUrl.includes('/ipfs/')) {
+      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://umarise-vault.hetzner.app';
+      const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
+
+      if (!hetznerToken) {
+        console.error('HETZNER_API_TOKEN not configured');
+        return new Response(JSON.stringify({ error: 'Storage not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const gatewayUrl = imageUrl.startsWith('ipfs://')
+        ? `${hetznerApiUrl}/ipfs/${imageUrl.replace('ipfs://', '')}`
+        : imageUrl;
+
+      console.log(`Proxying image from: ${gatewayUrl}`);
+
+      const imageResponse = await fetch(gatewayUrl, {
+        headers: {
+          'Authorization': `Bearer ${hetznerToken}`,
+        },
+      });
+
+      if (!imageResponse.ok) {
+        console.error(`Hetzner fetch failed: ${imageResponse.status} ${imageResponse.statusText}`);
+        return new Response(JSON.stringify({ error: 'Failed to fetch image from vault' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const imageData = await imageResponse.arrayBuffer();
+      const contentType = imageResponse.headers.get('Content-Type') || 'image/jpeg';
+
+      return new Response(imageData, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      });
     }
 
     // For non-IPFS URLs, redirect directly
