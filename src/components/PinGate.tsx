@@ -19,19 +19,25 @@ interface PinGateProps {
 }
 
 export function PinGate({ children }: PinGateProps) {
-  // Public routes that bypass PinGate (e.g., Origin Links for external verification)
+  // Check if PIN gate should be bypassed (public routes or demo mode)
   // Check synchronously before any state to avoid flicker
-  const isPublicRoute = (): boolean => {
+  const shouldBypassPinGate = (): boolean => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      
       // /origin/:id routes are public for external systems to verify origins
       if (path.startsWith('/origin/')) return true;
+      
+      // Demo mode: ?demo=true or #demo bypasses PIN gate
+      if (params.get('demo') === 'true' || hash === '#demo') return true;
     }
     return false;
   };
 
-  // Skip PIN gate entirely for public routes - return children immediately
-  if (isPublicRoute()) {
+  // Skip PIN gate entirely for public routes or demo mode
+  if (shouldBypassPinGate()) {
     return <>{children}</>;
   }
 
