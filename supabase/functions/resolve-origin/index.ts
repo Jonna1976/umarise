@@ -86,7 +86,7 @@ Deno.serve(async (req: Request) => {
     // Query the page_origin_hashes table (sidecar)
     let query = supabase
       .from('page_origin_hashes')
-      .select('page_id, origin_hash_sha256, origin_hash_algo, created_at');
+      .select('page_id, origin_hash_sha256, origin_hash_algo, created_at, image_url');
 
     if (originId) {
       query = query.eq('page_id', originId);
@@ -134,6 +134,16 @@ Deno.serve(async (req: Request) => {
     const hasHash = !!hashData.origin_hash_sha256;
     const baseUrl = 'https://umarise.lovable.app';
     
+    // Resolve image URL - prefer pages table, fall back to sidecar
+    // Convert IPFS URLs to gateway URLs for public access
+    let resolvedImageUrl: string | null = pageData?.image_url || hashData.image_url || null;
+    if (resolvedImageUrl?.startsWith('ipfs://')) {
+      const cid = resolvedImageUrl.replace('ipfs://', '');
+      // Use Hetzner IPFS gateway for public access
+      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://umarise-vault.hetzner.app';
+      resolvedImageUrl = `${hetznerApiUrl}/ipfs/${cid}`;
+    }
+    
     const response: OriginMetadata = {
       found: true,
       origin_id: hashData.page_id,
@@ -141,7 +151,7 @@ Deno.serve(async (req: Request) => {
       origin_hash_algo: hasHash ? 'sha256' : null,
       hash_status: hasHash ? 'verified' : 'legacy_no_hash',
       captured_at: pageData?.created_at || hashData.created_at,
-      image_url: pageData?.image_url || null,
+      image_url: resolvedImageUrl,
       labels: pageData ? {
         future_you_cues: pageData.future_you_cues || [],
         keywords: pageData.keywords || [],
