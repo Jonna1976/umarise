@@ -45,6 +45,9 @@ export default function OriginView() {
   const [copied, setCopied] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [imageRetryKey, setImageRetryKey] = useState(0);
+  const [imageObjectUrl, setImageObjectUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageErrorStatus, setImageErrorStatus] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchOrigin() {
@@ -96,6 +99,75 @@ export default function OriginView() {
 
     fetchOrigin();
   }, [originId]);
+
+  useEffect(() => {
+    if (!originId) return;
+
+    let revokedUrl: string | null = null;
+    const controller = new AbortController();
+
+    async function fetchOriginImage() {
+      setImageLoading(true);
+      setImageErrorStatus(null);
+
+      // cleanup previous object URL
+      setImageObjectUrl((prev) => {
+        if (prev) {
+          revokedUrl = prev;
+          try {
+            URL.revokeObjectURL(prev);
+          } catch {
+            // ignore
+          }
+        }
+        return null;
+      });
+
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}&_r=${imageRetryKey}`,
+          {
+            method: 'GET',
+            signal: controller.signal,
+            headers: {
+              // Public key is safe on the client; needed because <img> can't send headers.
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+          }
+        );
+
+        if (!res.ok) {
+          setImageErrorStatus(res.status);
+          setImageFailed(true);
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        setImageObjectUrl(url);
+        setImageFailed(false);
+      } catch (e) {
+        if ((e as { name?: string })?.name === 'AbortError') return;
+        setImageFailed(true);
+      } finally {
+        setImageLoading(false);
+      }
+    }
+
+    fetchOriginImage();
+
+    return () => {
+      controller.abort();
+      if (revokedUrl) {
+        try {
+          URL.revokeObjectURL(revokedUrl);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [originId, imageRetryKey]);
 
   const handleCopyHash = async () => {
     if (metadata?.origin_hash_sha256) {
@@ -222,15 +294,8 @@ export default function OriginView() {
         >
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
           <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/30">
-            {!imageFailed ? (
-              <img
-                key={imageRetryKey}
-                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}&_r=${imageRetryKey}`}
-                alt="Origin artifact"
-                className="w-full max-h-96 object-contain"
-                onLoad={() => setImageFailed(false)}
-                onError={() => setImageFailed(true)}
-              />
+            {imageObjectUrl && !imageFailed ? (
+              <img src={imageObjectUrl} alt="Origin artifact" className="w-full max-h-96 object-contain" />
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-3 p-6">
                 <div className="w-12 h-12 rounded-full bg-codex-gold/10 flex items-center justify-center">
@@ -241,6 +306,9 @@ export default function OriginView() {
                   <p className="text-codex-cream/50 text-sm mt-1">
                     Original artifact is protected in the Umarise Privacy Vault (Germany)
                   </p>
+                  {imageErrorStatus && (
+                    <p className="text-codex-cream/40 text-xs mt-2 font-mono">Image endpoint status: {imageErrorStatus}</p>
+                  )}
                 </div>
                 <Button
                   variant="outline"
@@ -250,8 +318,9 @@ export default function OriginView() {
                     setImageFailed(false);
                     setImageRetryKey((k) => k + 1);
                   }}
+                  disabled={imageLoading}
                 >
-                  Try load image
+                  {imageLoading ? 'Loading…' : 'Try load image'}
                 </Button>
                 <div className="text-xs text-codex-cream/40 mt-2 flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5" />
