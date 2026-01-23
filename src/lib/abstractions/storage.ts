@@ -952,7 +952,7 @@ export class HetznerVaultStorage implements IStorageProvider {
     // Always use the real device ID - we're deleting OUR pages, not demo pages
     const deviceUserId = this.getRealDeviceUserId();
     
-    // First get the page to delete the image
+    // First get the page to delete the image (may fail if orphan record)
     const page = await this.getPage(id);
     if (page) {
       await this.deleteImage(page.imageUrl);
@@ -964,9 +964,14 @@ export class HetznerVaultStorage implements IStorageProvider {
       deviceUserId,
     });
 
-    // CRITICAL: Only remove from Cloud trash index if the backend delete succeeded.
-    // Otherwise we'd risk resurrecting the page back into History.
-    if (response.ok) {
+    // Determine if we should clean up the trash index:
+    // - 200/204: page successfully deleted
+    // - 404: page already gone (orphan record) - still clean up index
+    const isSuccess = response.ok;
+    const isNotFound = response.status === 404;
+    const shouldCleanupIndex = isSuccess || isNotFound;
+
+    if (shouldCleanupIndex) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (supabase as any)
@@ -980,7 +985,8 @@ export class HetznerVaultStorage implements IStorageProvider {
       }
     }
 
-    return response.ok;
+    // Return true for both success and 404 (page is gone either way)
+    return isSuccess || isNotFound;
   }
 
   async getCapsulePages(capsuleId: string): Promise<Page[]> {
