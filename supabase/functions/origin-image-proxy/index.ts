@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     // If it's IPFS, proxy the bytes via the Hetzner gateway with server-side auth
     // so public browsers can view the origin image without exposing the token.
     if (imageUrl.startsWith('ipfs://') || imageUrl.includes('/ipfs/')) {
-      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://umarise-vault.hetzner.app';
+      const hetznerApiUrl = Deno.env.get('HETZNER_API_URL') || 'https://vault.umarise.com';
       const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
 
       if (!hetznerToken) {
