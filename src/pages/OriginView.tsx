@@ -225,7 +225,7 @@ export default function OriginView() {
             {!imageFailed ? (
               <img
                 key={imageRetryKey}
-                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}`}
+                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}&_r=${imageRetryKey}`}
                 alt="Origin artifact"
                 className="w-full max-h-96 object-contain"
                 onLoad={() => setImageFailed(false)}
