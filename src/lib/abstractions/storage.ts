@@ -959,23 +959,25 @@ export class HetznerVaultStorage implements IStorageProvider {
     }
 
     // Delete from Hetzner backend
-    const response = await this.proxyRequest('DELETE', `/vault/pages/${id}`, {
+    // IMPORTANT: pass deviceUserId as query param (DELETE bodies are not reliably supported)
+    const response = await this.proxyRequest('DELETE', `/vault/pages/${id}`, undefined, {
       deviceUserId,
     });
 
-    // CRITICAL: Also remove from Cloud trash index
-    // Pages being permanently deleted should be removed from the hybrid trash sync table
-    // This ensures the page doesn't keep appearing in trash after deletion
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
-        .from('hetzner_trash_index')
-        .delete()
-        .eq('device_user_id', deviceUserId)
-        .eq('page_id', id);
-      console.log('[HetznerVaultStorage] Removed page from trash index:', id);
-    } catch (err) {
-      console.warn('[HetznerVaultStorage] Failed to remove from trash index (non-critical):', err);
+    // CRITICAL: Only remove from Cloud trash index if the backend delete succeeded.
+    // Otherwise we'd risk resurrecting the page back into History.
+    if (response.ok) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any)
+          .from('hetzner_trash_index')
+          .delete()
+          .eq('device_user_id', deviceUserId)
+          .eq('page_id', id);
+        console.log('[HetznerVaultStorage] Removed page from trash index:', id);
+      } catch (err) {
+        console.warn('[HetznerVaultStorage] Failed to remove from trash index (non-critical):', err);
+      }
     }
 
     return response.ok;
