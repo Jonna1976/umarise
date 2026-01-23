@@ -19,6 +19,22 @@ interface PinGateProps {
 }
 
 export function PinGate({ children }: PinGateProps) {
+  // Public routes that bypass PinGate (e.g., Origin Links for external verification)
+  // Check synchronously before any state to avoid flicker
+  const isPublicRoute = (): boolean => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      // /origin/:id routes are public for external systems to verify origins
+      if (path.startsWith('/origin/')) return true;
+    }
+    return false;
+  };
+
+  // Skip PIN gate entirely for public routes - return children immediately
+  if (isPublicRoute()) {
+    return <>{children}</>;
+  }
+
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showUnlockAnimation, setShowUnlockAnimation] = useState(false);
   const [hasPin, setHasPin] = useState<boolean | null>(null); // null = loading
@@ -31,25 +47,8 @@ export function PinGate({ children }: PinGateProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const confirmInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Public routes that bypass PinGate (e.g., Origin Links for external verification)
-  const isPublicRoute = () => {
-    if (typeof window !== 'undefined') {
-      const path = window.location.pathname;
-      // /origin/:id routes are public for external systems to verify origins
-      if (path.startsWith('/origin/')) return true;
-    }
-    return false;
-  };
-
   // Check if already unlocked this session or if PIN exists
   useEffect(() => {
-    // Skip PIN gate for public routes
-    if (isPublicRoute()) {
-      setIsUnlocked(true);
-      setHasPin(true);
-      return;
-    }
-
     const sessionUnlocked = sessionStorage.getItem(SESSION_UNLOCKED_KEY);
     if (sessionUnlocked === 'true') {
       setIsUnlocked(true);
