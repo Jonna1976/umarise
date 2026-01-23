@@ -860,15 +860,18 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             className="flex items-center justify-between w-full py-3 text-left"
           >
             <div className="flex flex-col items-start gap-0.5">
-              <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
-                AI backup search data
+              <div className="flex items-center gap-2">
+                <Brain className="w-3.5 h-3.5 text-codex-cream/40" />
+                <span className="text-sm text-codex-cream/50 uppercase tracking-wide">
+                  AI backup search data
+                </span>
                 {highlightedSegments.length > 0 && (
-                  <span className="ml-2 normal-case text-codex-gold opacity-80">
+                  <span className="text-xs normal-case text-codex-gold opacity-80">
                     (matched)
                   </span>
                 )}
-              </span>
-              <span className="text-xs text-codex-cream/40 normal-case">
+              </div>
+              <span className="text-xs text-codex-cream/40 normal-case ml-5.5">
                 Generated from your handwriting for backup search only
               </span>
             </div>
@@ -889,7 +892,12 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               {/* Auto-generated summary */}
               {page.summary && (
                 <div>
-                  <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-2">Preview</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-xs text-codex-cream/40 uppercase tracking-wide">Preview</p>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded border border-codex-cream/20 text-codex-cream/40 font-medium tracking-wide">
+                      AI-interpreted
+                    </span>
+                  </div>
                   <p className="text-sm text-codex-cream/90 leading-relaxed p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20">
                     {page.summary}
                   </p>
@@ -898,9 +906,14 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
               
               {/* Raw OCR text with highlights */}
               <div>
-                <p className="text-xs text-codex-cream/40 uppercase tracking-wide mb-2">
-                  Raw text (may contain errors)
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-xs text-codex-cream/40 uppercase tracking-wide">
+                    Raw text (may contain errors)
+                  </p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded border border-codex-cream/20 text-codex-cream/40 font-medium tracking-wide">
+                    AI-transcribed
+                  </span>
+                </div>
                 {highlightedSegments.length > 0 ? (
                   <div className="min-h-[100px] p-4 rounded-md bg-codex-cream/10 border border-codex-cream/20 text-sm text-codex-cream leading-relaxed font-mono whitespace-pre-wrap">
                     {highlightedSegments.map((segment, i) => (
