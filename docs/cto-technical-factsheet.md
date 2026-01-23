@@ -1,8 +1,47 @@
 # UMARISE TECHNICAL FACTSHEET — CTO BRIEFING
 
-**Date:** 2026-01-22  
+**Date:** 2026-01-24  
+**Status:** Phase 1 Complete — Reference Implementation  
 **Scope:** What is currently built and operational  
 **Audience:** Technical due diligence  
+
+---
+
+## 0. EXECUTIVE SUMMARY — PHASE 1 COMPLETE
+
+### What This Demo Is
+
+> **A working reference implementation of an origin record layer.**  
+> Captures, preserves, resolves, and verifies original state before transformation.
+
+### What This Demo Is NOT
+
+- Not a governance system
+- Not an identity provider
+- Not a compliance engine
+
+### Positioning Statement
+
+> "Umarise doesn't govern. It makes governance unavoidable."
+
+### Companion Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/integration-contract.md`](./integration-contract.md) | API primitives for external integration |
+| [`docs/layer-boundaries.md`](./layer-boundaries.md) | Origin layer vs governance layer boundary |
+| [`docs/demo-narrative.md`](./demo-narrative.md) | 5-minute demo script for infrastructure conversations |
+
+### Phase 1 Alignment Check
+
+| Layer | Status |
+|-------|--------|
+| Capture | ✅ Implemented & demonstrable |
+| Seal (SHA-256 + IPFS) | ✅ Implemented & demonstrable |
+| Resolve (public API) | ✅ Implemented & demonstrable |
+| Verify (bit-identity) | ✅ Implemented & demonstrable |
+| Integration primitives | ✅ Documented, partially implemented |
+| Governance | 🔮 Explicitly out of scope |
 
 ---
 
@@ -565,5 +604,83 @@ The current architecture provides **operational privacy** (policy-based access c
 
 ---
 
+## 15. INTEGRATION PRIMITIVES — CURRENT STATUS
+
+Based on [`docs/integration-contract.md`](./integration-contract.md):
+
+| Primitive | Status | Endpoint |
+|-----------|--------|----------|
+| **Create Origin** (write-once) | ✅ Implemented | `POST /api/codex/pages` via proxy |
+| **Resolve Origin** (by ID or hash) | ✅ Implemented | `GET /resolve-origin?origin_id=...` |
+| **Verify Origin** (bit-identity) | ✅ Implemented | Client-side + `VerifyOriginButton` |
+| **Link External** (cross-system ref) | 🔮 Conceptual | Not yet implemented |
+
+### Public Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /resolve-origin?origin_id={id}` | Resolve origin metadata by ID |
+| `GET /resolve-origin?hash={sha256}` | Resolve origin metadata by hash |
+| `GET /origin-image-proxy?origin_id={id}` | Fetch origin artifact via authenticated proxy |
+
+### Origin View (Public Evidence Page)
+
+URL: `https://umarise.lovable.app/origin/{origin_id}`
+
+Displays:
+- Verification status badge
+- Original image (immutable)
+- SHA-256 hash with copy functionality
+- Capture timestamp
+- Download Proof Bundle option
+
+---
+
+## 16. LAYER BOUNDARY — EXPLICIT
+
+Based on [`docs/layer-boundaries.md`](./layer-boundaries.md):
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   GOVERNANCE LAYER                       │
+│  (Identity, Policy, Compliance, Enforcement, Dispute)   │
+│                    ❌ NOT UMARISE                        │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            │ reads from / references
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                 ORIGIN RECORD LAYER                      │
+│         (Capture, Preserve, Resolve, Verify)            │
+│                    ✅ UMARISE                            │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            │ stores in
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                   STORAGE LAYER                          │
+│              (IPFS, Hetzner, SQLite)                    │
+│                    ✅ UMARISE                            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### What Umarise Enables (Without Enforcing)
+
+- Every transformation can show explicit origin
+- Every modification is detectable
+- Every claim can be verified
+- Every system can provide accountability
+
+### What Requires Governance Layer (Not Umarise)
+
+- Identity & signing
+- Policy enforcement
+- Audit & compliance
+- Dispute resolution
+- Legal attestation
+
+---
+
 *Document generated from codebase analysis. No marketing claims, no roadmap, only current state.*  
-*Last updated: 2026-01-22*
+*Phase 1 complete. Reference implementation validated.*  
+*Last updated: 2026-01-24*
