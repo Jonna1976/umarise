@@ -43,6 +43,8 @@ export default function OriginView() {
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<OriginMetadata | null>(null);
   const [copied, setCopied] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const [imageRetryKey, setImageRetryKey] = useState(0);
 
   useEffect(() => {
     async function fetchOrigin() {
@@ -220,34 +222,43 @@ export default function OriginView() {
         >
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
           <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/30">
-            <img
-              src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}`}
-              alt="Origin artifact"
-              className="w-full max-h-96 object-contain"
-              onError={(e) => {
-                // Fallback to private vault message if proxy fails
-                const parent = e.currentTarget.parentElement;
-                if (parent) {
-                  parent.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center gap-3 p-6">
-                      <div class="w-12 h-12 rounded-full bg-codex-gold/10 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-codex-gold"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      </div>
-                      <div>
-                        <p class="text-codex-cream font-medium">Stored in Private Vault</p>
-                        <p class="text-codex-cream/50 text-sm mt-1">
-                          Original artifact is protected in the Umarise Privacy Vault (Germany)
-                        </p>
-                      </div>
-                      <div class="text-xs text-codex-cream/40 mt-2 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                        <span>Hash-verified • Zero human access • EU jurisdiction</span>
-                      </div>
-                    </div>
-                  `;
-                }
-              }}
-            />
+            {!imageFailed ? (
+              <img
+                key={imageRetryKey}
+                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/origin-image-proxy?origin_id=${originId}`}
+                alt="Origin artifact"
+                className="w-full max-h-96 object-contain"
+                onLoad={() => setImageFailed(false)}
+                onError={() => setImageFailed(true)}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center gap-3 p-6">
+                <div className="w-12 h-12 rounded-full bg-codex-gold/10 flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-codex-gold" />
+                </div>
+                <div>
+                  <p className="text-codex-cream font-medium">Stored in Private Vault</p>
+                  <p className="text-codex-cream/50 text-sm mt-1">
+                    Original artifact is protected in the Umarise Privacy Vault (Germany)
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-codex-cream/20 text-codex-cream hover:bg-codex-cream/10"
+                  onClick={() => {
+                    setImageFailed(false);
+                    setImageRetryKey((k) => k + 1);
+                  }}
+                >
+                  Try load image
+                </Button>
+                <div className="text-xs text-codex-cream/40 mt-2 flex items-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Hash-verified • Zero human access • EU jurisdiction</span>
+                </div>
+              </div>
+            )}
           </div>
           <p className="text-xs text-codex-cream/40 mt-2 flex items-center gap-1.5">
             <ShieldCheck className="w-3 h-3" />
