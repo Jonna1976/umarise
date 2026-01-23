@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Clock, ChevronDown, ChevronUp, Check, Plus, Trash2, BookOpen, Camera, X, Calendar, Tag, User, FileText, Brain, ZoomIn, Share2 } from 'lucide-react';
 import { VerifyOriginButton } from './VerifyOriginButton';
 import { VaultImage } from '@/components/ui/VaultImage';
+import { OriginProofActions } from './OriginProofActions';
 import { Page, updatePage, confirmFutureYouCues, getPages } from '@/lib/pageService';
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -509,6 +510,11 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
           
           <div className="flex items-center gap-2">
+            {/* Origin Proof Actions - Copy Link & Download Bundle */}
+            {!isNewCapture && (
+              <OriginProofActions page={page} variant="compact" />
+            )}
+            
             {/* Share button - always visible when not a new capture */}
             {!isNewCapture && (
               <Button
