@@ -45,14 +45,34 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Look up the image URL from page_origin_hashes
-    const { data: originData, error: originError } = await supabase
+    // Look up the image URL from page_origin_hashes.
+    // IMPORTANT: the public /origin/:id route currently uses a page_id.
+    // So we support both:
+    // - origin_id = page_origin_hashes.id
+    // - origin_id = page_origin_hashes.page_id (fallback)
+    let originData: { image_url: string; page_id: string } | null = null;
+
+    const byOriginId = await supabase
       .from('page_origin_hashes')
       .select('image_url, page_id')
       .eq('id', originId)
-      .single();
+      .maybeSingle();
 
-    if (originError || !originData) {
+    if (byOriginId.data) {
+      originData = byOriginId.data;
+    } else {
+      const byPageId = await supabase
+        .from('page_origin_hashes')
+        .select('image_url, page_id')
+        .eq('page_id', originId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      originData = byPageId.data;
+    }
+
+    if (!originData) {
       return new Response(JSON.stringify({ error: 'Origin not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
