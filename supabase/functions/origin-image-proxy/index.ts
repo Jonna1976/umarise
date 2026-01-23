@@ -45,14 +45,15 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Look up the image URL from page_origin_hashes
+    // Origin IDs in public links are the *page_id*.
+    // page_origin_hashes is a sidecar keyed by page_id.
     const { data: originData, error: originError } = await supabase
       .from('page_origin_hashes')
       .select('image_url, page_id')
-      .eq('id', originId)
-      .single();
+      .eq('page_id', originId)
+      .maybeSingle();
 
-    if (originError || !originData) {
+    if (originError || !originData || !originData.image_url) {
       return new Response(JSON.stringify({ error: 'Origin not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
