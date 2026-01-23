@@ -15,7 +15,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, ShieldCheck, ShieldX, Download, ExternalLink, Copy, Check, AlertCircle, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+
 
 interface OriginMetadata {
   found: boolean;
@@ -58,37 +58,25 @@ export default function OriginView() {
       }
 
       try {
-        const { data, error: fnError } = await supabase.functions.invoke('resolve-origin', {
-          body: null,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        // The edge function is GET-based, so we need to call it differently
+        // Single fetch call to resolve-origin API (origin_id = page_id)
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/resolve-origin?origin_id=${originId}`,
           {
             method: 'GET',
             headers: {
-              'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             },
           }
         );
 
         if (!response.ok) {
-          if (response.status === 404) {
-            setError('Origin not found');
-          } else {
-            setError('Failed to fetch origin metadata');
-          }
+          setError(response.status === 404 ? 'Origin not found' : 'Failed to fetch origin metadata');
           setLoading(false);
           return;
         }
 
-        const data2: OriginMetadata = await response.json();
-        setMetadata(data2);
+        const data: OriginMetadata = await response.json();
+        setMetadata(data);
         setLoading(false);
       } catch (err) {
         console.error('[OriginView] Fetch error:', err);
@@ -130,9 +118,7 @@ export default function OriginView() {
             method: 'GET',
             signal: controller.signal,
             headers: {
-              // Public key is safe on the client; needed because <img> can't send headers.
               apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-              authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             },
           }
         );
@@ -295,7 +281,14 @@ export default function OriginView() {
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin Artifact</h2>
           <div className="rounded-lg overflow-hidden border border-codex-cream/20 bg-codex-ink/30">
             {imageObjectUrl && !imageFailed ? (
-              <img src={imageObjectUrl} alt="Origin artifact" className="w-full max-h-96 object-contain" />
+              <div className="relative">
+                <img src={imageObjectUrl} alt="Origin artifact" className="w-full max-h-96 object-contain" />
+                <div className="absolute bottom-2 left-2 right-2 flex justify-center">
+                  <span className="bg-codex-ink/80 text-codex-cream/70 text-xs px-3 py-1 rounded-full backdrop-blur-sm border border-codex-cream/10">
+                    Original capture (immutable)
+                  </span>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center gap-3 p-6">
                 <div className="w-12 h-12 rounded-full bg-codex-gold/10 flex items-center justify-center">
