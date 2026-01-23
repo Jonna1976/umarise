@@ -28,6 +28,7 @@ interface OriginMetadata {
   origin_hash_algo: 'sha256' | null;
   hash_status: 'verified' | 'legacy_no_hash' | 'not_found';
   captured_at: string | null;
+  image_url: string | null;
   labels: {
     future_you_cues: string[];
     keywords: string[];
@@ -112,6 +113,7 @@ Deno.serve(async (req: Request) => {
         origin_hash_algo: null,
         hash_status: 'not_found',
         captured_at: null,
+        image_url: null,
         labels: null,
         origin_link_url: null,
       };
@@ -125,7 +127,7 @@ Deno.serve(async (req: Request) => {
     // Found in sidecar - now try to get additional metadata from pages table
     const { data: pageData, error: pageError } = await supabase
       .from('pages')
-      .select('id, future_you_cues, keywords, created_at')
+      .select('id, image_url, future_you_cues, keywords, created_at')
       .eq('id', hashData.page_id)
       .maybeSingle();
 
@@ -139,6 +141,7 @@ Deno.serve(async (req: Request) => {
       origin_hash_algo: hasHash ? 'sha256' : null,
       hash_status: hasHash ? 'verified' : 'legacy_no_hash',
       captured_at: pageData?.created_at || hashData.created_at,
+      image_url: pageData?.image_url || null,
       labels: pageData ? {
         future_you_cues: pageData.future_you_cues || [],
         keywords: pageData.keywords || [],
