@@ -60,6 +60,22 @@ export function useTrash(options: UseTrashOptions = {}) {
     try {
       const pages = await getTrashedPages();
       setTrashedPages(pages);
+      
+      // Sync pending IDs with reality: remove any pending IDs that are now confirmed
+      // in the backend OR that no longer exist (were permanently deleted)
+      const backendTrashedIds = new Set(pages.map(p => p.id));
+      setPendingTrashedIds(prev => {
+        // Only keep pending IDs that are NOT yet in backend trash
+        // (they're still "in flight" to the backend)
+        const stillPending = prev.filter(id => !backendTrashedIds.has(id));
+        // If trash is empty from backend, also clear all pending (they were deleted)
+        if (pages.length === 0 && prev.length > 0) {
+          console.log('[useTrash] Trash is empty, clearing all pending IDs');
+          return [];
+        }
+        return stillPending;
+      });
+      
       return pages;
     } catch (e) {
       console.error('[useTrash] Failed to load trashed pages:', e);
