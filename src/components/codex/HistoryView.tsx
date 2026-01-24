@@ -226,6 +226,9 @@ export function HistoryView({
     return Array.from(map.values());
   }, [allPages, pendingTrashedIds, trashedPages]);
 
+  // Badge count should reflect what we can actually show (prevents stale/orphan IDs from inflating the badge)
+  const displayTrashedCount = displayTrashedPages.length;
+
   // Load projects on mount
   useEffect(() => {
     getProjects().then(setProjects);
@@ -1414,7 +1417,7 @@ export function HistoryView({
 
       {/* Trash drop zone - always visible */}
       <TrashDropZone
-        trashedCount={trashedCount}
+        trashedCount={displayTrashedCount}
         onDrop={moveToTrash}
         onOpenTrash={() => setShowTrash(true)}
         isDragging={isDragging}
