@@ -176,7 +176,7 @@ What partners get:
 
 ```
 Production: https://vault.umarise.com
-Edge Proxy: https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1/
+Edge Proxy: Available on request
 ```
 
 ---
