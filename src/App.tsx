@@ -11,6 +11,7 @@ import OriginView from "./pages/OriginView";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
+import { DemoWalkthrough2 } from "./components/dev/DemoWalkthrough2";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
 import PilotTracker from "./pages/PilotTracker";
 import ProofPage from "./pages/ProofPage";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/warm-preview" element={<WarmPaletteMockup />} />
               <Route path="/current-preview" element={<CurrentPaletteMockup />} />
               <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
+              <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
               <Route path="/widget-design" element={<WidgetMockup />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
