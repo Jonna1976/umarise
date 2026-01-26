@@ -104,8 +104,7 @@ export function DemoWalkthrough2() {
       {/* Header */}
       <div className="p-5 pb-0 flex items-start justify-between">
         <div>
-          <h1 className="font-playfair text-xl text-cream">Origin Protocol</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">7-step notary flow</p>
+          <h1 className="font-playfair text-xl text-cream">The Origin Path</h1>
         </div>
         <Link to="/">
           <Button
