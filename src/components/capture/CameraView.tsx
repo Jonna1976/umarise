@@ -620,52 +620,50 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         )}
       </div>
 
-      {/* Top bar - only visible when NOT showing the zen lens view */}
-      {(capturedImage || isStreaming || capturedImages.length > 0) && (
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-          {/* Left: Library + Device Sync */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onBrowseAll}
-              className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-              aria-label="Browse all beginnings"
-            >
-              <Library className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
-            </button>
-            
-            {/* Device Sync drawer trigger */}
-            <DeviceSyncDrawer
-              trigger={
-                <button
-                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-                  aria-label="Device Sync"
-                >
-                  <Link2 className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
-                </button>
-              }
-            />
-          </div>
+      {/* Top bar - always visible for navigation */}
+      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+        {/* Left: Library + Device Sync */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBrowseAll}
+            className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            aria-label="Browse all beginnings"
+          >
+            <Library className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+          </button>
           
-          {/* Right: Search or close */}
-          {capturedImage ? (
-            <button
-              onClick={retake}
-              className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-              aria-label="Retake"
-            >
-              <X className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
-            </button>
-          ) : (
-            <button
-              onClick={onOpenSearch}
-              className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
-            </button>
-          )}
+          {/* Device Sync drawer trigger */}
+          <DeviceSyncDrawer
+            trigger={
+              <button
+                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+                aria-label="Device Sync"
+              >
+                <Link2 className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+              </button>
+            }
+          />
         </div>
-      )}
+        
+        {/* Right: Search or close */}
+        {capturedImage ? (
+          <button
+            onClick={retake}
+            className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            aria-label="Retake"
+          >
+            <X className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+          </button>
+        ) : (
+          <button
+            onClick={onOpenSearch}
+            className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            aria-label="Search"
+          >
+            <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+          </button>
+        )}
+      </div>
 
       {/* Thumbnail strip for multi-page capture with + button */}
       <AnimatePresence>
