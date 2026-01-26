@@ -389,7 +389,7 @@ export function TestPanel({
                 className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
               >
                 <Play className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
-                Walkthrough 1.0
+                Walkthrough 0.0
               </Button>
             </Link>
             <Link to="/demo-walkthrough-2">
@@ -399,7 +399,7 @@ export function TestPanel({
                 className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
               >
                 <Play className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                Walkthrough 2.0
+                Walkthrough 1.0
               </Button>
             </Link>
             <Button 
