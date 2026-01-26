@@ -620,50 +620,52 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         )}
       </div>
 
-      {/* Top bar - Library (browse) left, Search right */}
-      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-        {/* Left: Library + Device Sync */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onBrowseAll}
-            className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-            aria-label="Browse all beginnings"
-          >
-            <Library className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
-          </button>
+      {/* Top bar - only visible when NOT showing the zen lens view */}
+      {(capturedImage || isStreaming || capturedImages.length > 0) && (
+        <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+          {/* Left: Library + Device Sync */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onBrowseAll}
+              className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              aria-label="Browse all beginnings"
+            >
+              <Library className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+            </button>
+            
+            {/* Device Sync drawer trigger */}
+            <DeviceSyncDrawer
+              trigger={
+                <button
+                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+                  aria-label="Device Sync"
+                >
+                  <Link2 className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+                </button>
+              }
+            />
+          </div>
           
-          {/* Device Sync drawer trigger */}
-          <DeviceSyncDrawer
-            trigger={
-              <button
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-                aria-label="Device Sync"
-              >
-                <Link2 className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
-              </button>
-            }
-          />
+          {/* Right: Search or close */}
+          {capturedImage ? (
+            <button
+              onClick={retake}
+              className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              aria-label="Retake"
+            >
+              <X className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+            </button>
+          ) : (
+            <button
+              onClick={onOpenSearch}
+              className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              aria-label="Search"
+            >
+              <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+            </button>
+          )}
         </div>
-        
-        {/* Right: Search or close */}
-        {capturedImage ? (
-          <button
-            onClick={retake}
-            className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-            aria-label="Retake"
-          >
-            <X className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
-          </button>
-        ) : (
-          <button
-            onClick={onOpenSearch}
-            className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-            aria-label="Search"
-          >
-            <Search className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Thumbnail strip for multi-page capture with + button */}
       <AnimatePresence>
@@ -712,106 +714,108 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         )}
       </AnimatePresence>
 
-      {/* Bottom controls */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center">
-        {capturedImage ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3 items-center"
-          >
-            <Button
-              onClick={retake}
-              variant="ghost"
-              size="lg"
-              className="text-primary-foreground hover:bg-primary-foreground/10"
+      {/* Bottom controls - only visible when NOT showing the zen lens view */}
+      {(capturedImage || isStreaming || capturedImages.length > 0) && (
+        <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center">
+          {capturedImage ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3 items-center"
             >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Retake
-            </Button>
-            
-            <Button
-              onClick={addToCollection}
-              variant="ghost"
-              size="lg"
-              className="text-codex-gold hover:bg-codex-gold/10"
+              <Button
+                onClick={retake}
+                variant="ghost"
+                size="lg"
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Retake
+              </Button>
+              
+              <Button
+                onClick={addToCollection}
+                variant="ghost"
+                size="lg"
+                className="text-codex-gold hover:bg-codex-gold/10"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add more
+              </Button>
+              
+              <Button
+                onClick={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
+                variant="capture"
+                size="capture"
+                className="bg-codex-gold hover:bg-codex-gold/90 relative"
+              >
+                <Check className="w-7 h-7" strokeWidth={2} />
+                {isMultiMode && (
+                  <span className="absolute -top-1 -right-1 bg-primary-foreground text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {capturedImages.length + 1}
+                  </span>
+                )}
+              </Button>
+            </motion.div>
+          ) : isStreaming ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-4"
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Add more
-            </Button>
-            
-            <Button
-              onClick={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
-              variant="capture"
-              size="capture"
-              className="bg-codex-gold hover:bg-codex-gold/90 relative"
-            >
-              <Check className="w-7 h-7" strokeWidth={2} />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              >
+                <Images className="w-5 h-5 text-primary-foreground" />
+              </button>
+              
+              <Button
+                onClick={takePhoto}
+                variant="capture"
+                size="capture"
+                className="bg-primary-foreground text-codex-ink hover:bg-primary-foreground/90 relative"
+              >
+                <Camera className="w-7 h-7" strokeWidth={2} />
+                {isMultiMode && (
+                  <span className="absolute -top-1 -right-1 bg-codex-gold text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {capturedImages.length}
+                  </span>
+                )}
+              </Button>
+              
               {isMultiMode && (
-                <span className="absolute -top-1 -right-1 bg-primary-foreground text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {capturedImages.length + 1}
-                </span>
+                <Button
+                  onClick={confirmMultiCapture}
+                  variant="soft"
+                  size="lg"
+                  className="bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30"
+                >
+                  <Check className="w-5 h-5 mr-2" />
+                  Done ({capturedImages.length})
+                </Button>
               )}
-            </Button>
-          </motion.div>
-        ) : isStreaming ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-4"
-          >
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+            </motion.div>
+          ) : isMultiMode ? (
+            // When in multi-mode but no camera, show confirm button
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-4"
             >
-              <Images className="w-5 h-5 text-primary-foreground" />
-            </button>
-            
-            <Button
-              onClick={takePhoto}
-              variant="capture"
-              size="capture"
-              className="bg-primary-foreground text-codex-ink hover:bg-primary-foreground/90 relative"
-            >
-              <Camera className="w-7 h-7" strokeWidth={2} />
-              {isMultiMode && (
-                <span className="absolute -top-1 -right-1 bg-codex-gold text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {capturedImages.length}
-                </span>
-              )}
-            </Button>
-            
-            {isMultiMode && (
               <Button
                 onClick={confirmMultiCapture}
-                variant="soft"
-                size="lg"
-                className="bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30"
+                variant="capture"
+                size="capture"
+                className="bg-codex-gold hover:bg-codex-gold/90"
               >
-                <Check className="w-5 h-5 mr-2" />
-                Done ({capturedImages.length})
+                <Check className="w-7 h-7" strokeWidth={2} />
+                <span className="ml-2">{capturedImages.length}</span>
               </Button>
-            )}
-          </motion.div>
-        ) : isMultiMode ? (
-          // When in multi-mode but no camera, show confirm button
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-4"
-          >
-            <Button
-              onClick={confirmMultiCapture}
-              variant="capture"
-              size="capture"
-              className="bg-codex-gold hover:bg-codex-gold/90"
-            >
-              <Check className="w-7 h-7" strokeWidth={2} />
-              <span className="ml-2">{capturedImages.length}</span>
-            </Button>
-          </motion.div>
-        ) : null}
-      </div>
+            </motion.div>
+          ) : null}
+        </div>
+      )}
 
       {/* Hint text */}
       {isStreaming && !capturedImage && (
