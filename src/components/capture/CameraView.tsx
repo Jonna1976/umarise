@@ -304,7 +304,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               className="mb-8 text-center"
             >
               <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
-                This was me.
+                This exists.
               </h2>
             </motion.div>
             
