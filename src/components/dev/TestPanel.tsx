@@ -389,7 +389,17 @@ export function TestPanel({
                 className="text-xs border-codex-teal/30 text-foreground hover:bg-codex-teal/10"
               >
                 <Play className="w-3.5 h-3.5 mr-1.5 text-codex-teal" />
-                Demo Walkthrough
+                Walkthrough 1.0
+              </Button>
+            </Link>
+            <Link to="/demo-walkthrough-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
+              >
+                <Play className="w-3.5 h-3.5 mr-1.5 text-primary" />
+                Walkthrough 2.0
               </Button>
             </Link>
             <Button 
