@@ -22,8 +22,12 @@ export default function DocsExport() {
   }, []);
 
   const handleBack = () => {
-    // If there's history, go back. Otherwise navigate to /review
-    if (window.history.length > 1) {
+    // Use referrer to determine if we came from within the app
+    // window.history.length is unreliable (browsers always have length >= 1)
+    const referrer = document.referrer;
+    const isInternalReferrer = referrer && referrer.includes(window.location.host);
+    
+    if (isInternalReferrer) {
       window.history.back();
     } else {
       navigate('/review');
