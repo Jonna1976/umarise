@@ -419,7 +419,7 @@ export default function ReviewKit() {
 
   // Origin ID for demo - use an older, less private entry
   // Options: 1bfd790e (Jan 23), 9f08732c (Jan 21), 0cc1e6d2 (Jan 21)
-  const exampleOriginId = "1bfd790e-717a-418f-a36b-03f73d7441cc";
+  const exampleOriginId = "fb025c0e-0dc8-4b4f-b795-43177ea2a045";
   const originViewUrl = `${window.location.origin}/origin/${exampleOriginId}`;
 
   return (
