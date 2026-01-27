@@ -8,8 +8,11 @@
  */
 
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function DocsExport() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Auto-trigger print dialog after a short delay
     const timer = setTimeout(() => {
@@ -17,6 +20,15 @@ export default function DocsExport() {
     }, 500);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleBack = () => {
+    // If there's history, go back. Otherwise navigate to /review
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigate('/review');
+    }
+  };
 
   return (
     <div className="bg-white text-black min-h-screen print:bg-white">
@@ -52,7 +64,7 @@ export default function DocsExport() {
               📥 Open Print Dialoog
             </button>
             <button
-              onClick={() => window.history.back()}
+              onClick={handleBack}
               className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
             >
               ← Terug
