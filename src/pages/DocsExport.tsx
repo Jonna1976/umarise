@@ -32,21 +32,33 @@ export default function DocsExport() {
         @page { margin: 2cm; }
       `}</style>
 
-      {/* Print button (hidden when printing) */}
-      <div className="no-print fixed top-4 right-4 flex gap-2 z-50">
-        <button
-          onClick={() => window.print()}
-          className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800"
-        >
-          Save as PDF
-        </button>
-        <button
-          onClick={() => window.history.back()}
-          className="bg-gray-200 text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
-        >
-          Back
-        </button>
+      {/* Instructions and buttons (hidden when printing) */}
+      <div className="no-print fixed top-0 left-0 right-0 bg-blue-50 border-b border-blue-200 z-50">
+        <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-blue-800 text-sm">
+              <strong>Tip:</strong> Kies in het print-dialoog "Save as PDF" als bestemming
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.print()}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+            >
+              Open Print Dialoog
+            </button>
+            <button
+              onClick={() => window.history.back()}
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
+            >
+              Terug
+            </button>
+          </div>
+        </div>
       </div>
+      
+      {/* Spacer for fixed header */}
+      <div className="no-print h-16" />
 
       {/* Document 1: Integration Contract */}
       <article className="max-w-4xl mx-auto px-8 py-12">
