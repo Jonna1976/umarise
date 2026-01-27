@@ -151,6 +151,7 @@ export type Database = {
       }
       pages: {
         Row: {
+          association_revoked_at: string | null
           capsule_id: string | null
           capture_batch_id: string | null
           confidence_score: number | null
@@ -189,6 +190,7 @@ export type Database = {
           written_at: string | null
         }
         Insert: {
+          association_revoked_at?: string | null
           capsule_id?: string | null
           capture_batch_id?: string | null
           confidence_score?: number | null
@@ -227,6 +229,7 @@ export type Database = {
           written_at?: string | null
         }
         Update: {
+          association_revoked_at?: string | null
           capsule_id?: string | null
           capture_batch_id?: string | null
           confidence_score?: number | null

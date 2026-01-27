@@ -50,6 +50,9 @@ export interface IStorageProvider {
   moveToTrash(pageId: string): Promise<boolean>;
   restoreFromTrash(pageId: string): Promise<boolean>;
   getTrashedPages(): Promise<Page[]>;
+  
+  // Herroepbaarheid: revoke association (origin remains, user disconnects)
+  revokeAssociation(pageId: string): Promise<boolean>;
 }
 
 // ============= Lovable Cloud Implementation =============
@@ -260,6 +263,7 @@ export class LovableCloudStorage implements IStorageProvider {
         .select('*')
         .eq('device_user_id', DEMO_DEVICE_ID)
         .eq('is_trashed', false)
+        .is('association_revoked_at', null) // Herroepbaarheid: exclude revoked
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -280,6 +284,7 @@ export class LovableCloudStorage implements IStorageProvider {
       .select('*')
       .eq('device_user_id', deviceUserId)
       .eq('is_trashed', false)
+      .is('association_revoked_at', null) // Herroepbaarheid: exclude revoked
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -616,7 +621,37 @@ export class LovableCloudStorage implements IStorageProvider {
       // Trash: cross-device synced soft delete
       isTrashed: row.is_trashed === true,
       trashedAt: row.trashed_at ? new Date(row.trashed_at as string) : undefined,
+      // Herroepbaarheid: user revoked association
+      associationRevokedAt: row.association_revoked_at ? new Date(row.association_revoked_at as string) : undefined,
     };
+  }
+
+  /**
+   * Herroepbaarheid: Revoke association with an origin
+   * The origin remains intact for forensic verification, but the user's
+   * connection to it is severed. This follows the principle:
+   * "An origin cannot be deleted. Association with an origin can be revoked."
+   */
+  async revokeAssociation(pageId: string): Promise<boolean> {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId) return false;
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        association_revoked_at: new Date().toISOString(),
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('[Herroepbaarheid] Revoke association error:', error);
+      return false;
+    }
+
+    console.log('[Herroepbaarheid] Association revoked for page:', pageId);
+    return true;
   }
 }
 
@@ -1271,6 +1306,36 @@ export class HetznerVaultStorage implements IStorageProvider {
     // Return only pages that are in the Cloud trash index
     console.log(`[HetznerVaultStorage] Total pages: ${allPages.length}, Trashed in index: ${trashedIds.size}`);
     return allPages.filter((page: Page) => trashedIds.has(page.id));
+  }
+
+  /**
+   * Herroepbaarheid: Revoke association with an origin
+   * For Hetzner backend, we update the page metadata via the proxy
+   * The origin remains intact, only the association is revoked
+   */
+  async revokeAssociation(pageId: string): Promise<boolean> {
+    const deviceUserId = this.getRealDeviceUserId();
+
+    try {
+      const response = await this.proxyRequest('PUT', `/vault/pages/${pageId}`, {
+        deviceUserId,
+        updates: {
+          associationRevokedAt: new Date().toISOString(),
+          association_revoked_at: new Date().toISOString(),
+        },
+      });
+
+      if (!response.ok) {
+        console.error('[HetznerVaultStorage] Revoke association failed:', await response.text());
+        return false;
+      }
+
+      console.log('[HetznerVaultStorage] Association revoked for page:', pageId);
+      return true;
+    } catch (err) {
+      console.error('[HetznerVaultStorage] Revoke association error:', err);
+      return false;
+    }
   }
 }
 

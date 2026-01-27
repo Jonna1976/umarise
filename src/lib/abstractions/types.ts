@@ -64,6 +64,8 @@ export interface Page {
   // Trash: cross-device synced soft delete
   isTrashed: boolean;
   trashedAt?: Date;
+  // Herroepbaarheid: user revoked association (origin remains, visibility ends)
+  associationRevokedAt?: Date;
 }
 
 export interface Project {
