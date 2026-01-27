@@ -589,8 +589,8 @@ export default function ReviewKit() {
             <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto">
               <div className="text-codex-cream/50 mb-2"># 2. Resolve Origin (by ID or hash)</div>
               <div className="text-codex-cream space-y-1">
-                <div><span className="text-codex-gold">GET</span> /resolve-origin?origin_id=&#123;uuid&#125;</div>
-                <div><span className="text-codex-gold">GET</span> /resolve-origin?hash=&#123;sha256&#125;</div>
+                <div><span className="text-codex-gold">GET</span> /resolve?origin_id=&#123;uuid&#125;</div>
+                <div><span className="text-codex-gold">GET</span> /resolve?hash=&#123;sha256&#125;</div>
               </div>
               <pre className="text-codex-cream/60 text-xs mt-2">
 {`{
