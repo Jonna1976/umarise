@@ -891,10 +891,11 @@ export class HetznerVaultStorage implements IStorageProvider {
   async getPages(): Promise<Page[]> {
     const deviceUserId = this.getDeviceUserId();
 
-    // Fetch pages from Hetzner and trash index from Cloud in parallel
-    const [response, trashedIds] = await Promise.all([
+    // Fetch pages from Hetzner and both trash + revocation indexes from Cloud in parallel
+    const [response, trashedIds, revokedIds] = await Promise.all([
       this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
       this.getTrashedPageIds(),
+      this.getRevokedPageIds(),
     ]);
 
     if (!response.ok) {
@@ -905,9 +906,9 @@ export class HetznerVaultStorage implements IStorageProvider {
     const data = await response.json();
     const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
 
-    // Filter out trashed pages using the Cloud trash index (Hetzner doesn't persist is_trashed)
-    console.log(`[HetznerVaultStorage] Total pages: ${allPages.length}, Trashed IDs in index: ${trashedIds.size}`);
-    return allPages.filter((page: Page) => !trashedIds.has(page.id));
+    // Filter out trashed AND revoked pages using Cloud indexes
+    console.log(`[HetznerVaultStorage] Total pages: ${allPages.length}, Trashed: ${trashedIds.size}, Revoked: ${revokedIds.size}`);
+    return allPages.filter((page: Page) => !trashedIds.has(page.id) && !revokedIds.has(page.id));
   }
 
   async getPage(id: string): Promise<Page | null> {
@@ -1309,31 +1310,59 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   /**
+   * Get page IDs that have their association revoked (from Cloud index)
+   */
+  private async getRevokedPageIds(): Promise<Set<string>> {
+    const deviceUserId = this.getDeviceUserId();
+    
+    try {
+      const { data, error } = await supabase
+        .from('page_association_revocations')
+        .select('page_id')
+        .eq('device_user_id', deviceUserId);
+      
+      if (error) {
+        console.warn('[HetznerVaultStorage] Failed to fetch revocation index:', error.message);
+        return new Set();
+      }
+      
+      return new Set((data || []).map(row => row.page_id));
+    } catch (err) {
+      console.warn('[HetznerVaultStorage] Revocation index error:', err);
+      return new Set();
+    }
+  }
+
+  /**
    * Herroepbaarheid: Revoke association with an origin
-   * For Hetzner backend, we update the page metadata via the proxy
-   * The origin remains intact, only the association is revoked
+   * Uses Cloud-side index (like trash) since Hetzner doesn't support page metadata updates
+   * The origin remains intact on Hetzner, only the association is severed via Cloud index
    */
   async revokeAssociation(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
 
     try {
-      const response = await this.proxyRequest('PUT', `/vault/pages/${pageId}`, {
-        deviceUserId,
-        updates: {
-          associationRevokedAt: new Date().toISOString(),
-          association_revoked_at: new Date().toISOString(),
-        },
-      });
+      const { error } = await supabase
+        .from('page_association_revocations')
+        .insert({
+          device_user_id: deviceUserId,
+          page_id: pageId,
+        });
 
-      if (!response.ok) {
-        console.error('[HetznerVaultStorage] Revoke association failed:', await response.text());
+      if (error) {
+        // Ignore duplicate key errors (already revoked)
+        if (error.code === '23505') {
+          console.log('[Herroepbaarheid] Already revoked:', pageId);
+          return true;
+        }
+        console.error('[Herroepbaarheid] Revoke association failed:', error.message);
         return false;
       }
 
-      console.log('[HetznerVaultStorage] Association revoked for page:', pageId);
+      console.log('[Herroepbaarheid] Association revoked for page:', pageId);
       return true;
     } catch (err) {
-      console.error('[HetznerVaultStorage] Revoke association error:', err);
+      console.error('[Herroepbaarheid] Revoke association error:', err);
       return false;
     }
   }

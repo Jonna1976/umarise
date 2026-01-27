@@ -86,6 +86,30 @@ export type Database = {
         }
         Relationships: []
       }
+      page_association_revocations: {
+        Row: {
+          created_at: string
+          device_user_id: string
+          id: string
+          page_id: string
+          revoked_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_user_id: string
+          id?: string
+          page_id: string
+          revoked_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_user_id?: string
+          id?: string
+          page_id?: string
+          revoked_at?: string
+        }
+        Relationships: []
+      }
       page_origin_hashes: {
         Row: {
           created_at: string | null
