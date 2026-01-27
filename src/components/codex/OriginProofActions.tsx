@@ -132,7 +132,7 @@ export function OriginProofActions({ page, variant = 'default', onRevoked }: Ori
               className="text-codex-cream/60 hover:bg-codex-cream/5 hover:text-codex-cream cursor-pointer"
             >
               <UserMinus className="w-4 h-4 mr-2" />
-              Laat dit begin los
+              Release this origin
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -196,7 +196,7 @@ export function OriginProofActions({ page, variant = 'default', onRevoked }: Ori
           className="text-codex-cream/40 hover:text-codex-cream/70 hover:bg-codex-cream/5 h-8"
         >
           <UserMinus className="w-4 h-4 mr-1" />
-          Laat los
+          Release
         </Button>
       </div>
       
