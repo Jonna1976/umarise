@@ -51,8 +51,10 @@ export interface IStorageProvider {
   restoreFromTrash(pageId: string): Promise<boolean>;
   getTrashedPages(): Promise<Page[]>;
   
-  // Herroepbaarheid: revoke association (origin remains, user disconnects)
+  // Herroepbaarheid: revoke/restore association (origin remains, user disconnects/reconnects)
   revokeAssociation(pageId: string): Promise<boolean>;
+  restoreAssociation(pageId: string): Promise<boolean>;
+  getRevokedPages(): Promise<Page[]>;
 }
 
 // ============= Lovable Cloud Implementation =============
@@ -652,6 +654,55 @@ export class LovableCloudStorage implements IStorageProvider {
 
     console.log('[Herroepbaarheid] Association revoked for page:', pageId);
     return true;
+  }
+
+  /**
+   * Herroepbaarheid: Restore association with a previously released origin
+   * This allows users to reconnect with an origin they previously released.
+   */
+  async restoreAssociation(pageId: string): Promise<boolean> {
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId) return false;
+
+    const { error } = await supabase
+      .from('pages')
+      .update({ 
+        association_revoked_at: null,
+        updated_at: new Date().toISOString() 
+      })
+      .eq('id', pageId)
+      .eq('device_user_id', deviceUserId);
+
+    if (error) {
+      console.error('[Herroepbaarheid] Restore association error:', error);
+      return false;
+    }
+
+    console.log('[Herroepbaarheid] Association restored for page:', pageId);
+    return true;
+  }
+
+  /**
+   * Get all pages with revoked associations for current device
+   */
+  async getRevokedPages(): Promise<Page[]> {
+    const deviceUserId = getActiveDeviceId();
+    if (!deviceUserId) return [];
+
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('device_user_id', deviceUserId)
+      .eq('is_trashed', false)
+      .not('association_revoked_at', 'is', null)
+      .order('association_revoked_at', { ascending: false });
+
+    if (error) {
+      console.error('Fetch revoked pages error:', error);
+      return [];
+    }
+
+    return (data || []).map(row => this.mapRowToPage(row));
   }
 }
 
@@ -1366,5 +1417,55 @@ export class HetznerVaultStorage implements IStorageProvider {
       return false;
     }
   }
-}
 
+  /**
+   * Herroepbaarheid: Restore association with a previously released origin
+   * Removes the revocation record from Cloud index
+   */
+  async restoreAssociation(pageId: string): Promise<boolean> {
+    const deviceUserId = this.getRealDeviceUserId();
+
+    try {
+      const { error } = await supabase
+        .from('page_association_revocations')
+        .delete()
+        .eq('device_user_id', deviceUserId)
+        .eq('page_id', pageId);
+
+      if (error) {
+        console.error('[Herroepbaarheid] Restore association failed:', error.message);
+        return false;
+      }
+
+      console.log('[Herroepbaarheid] Association restored for page:', pageId);
+      return true;
+    } catch (err) {
+      console.error('[Herroepbaarheid] Restore association error:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Get all pages with revoked associations for current device
+   */
+  async getRevokedPages(): Promise<Page[]> {
+    const deviceUserId = this.getDeviceUserId();
+
+    // Fetch pages from Hetzner and revoked IDs from Cloud in parallel
+    const [response, revokedIds] = await Promise.all([
+      this.proxyRequest('GET', '/vault/pages', undefined, { deviceUserId }),
+      this.getRevokedPageIds(),
+    ]);
+
+    if (!response.ok) {
+      console.error('[HetznerVaultStorage] Failed to fetch pages for revoked view');
+      return [];
+    }
+
+    const data = await response.json();
+    const allPages = (data.pages || []).map((p: Record<string, unknown>) => this.mapApiResponseToPage(p));
+
+    // Return only pages that are in the revoked index
+    return allPages.filter((page: Page) => revokedIds.has(page.id));
+  }
+}

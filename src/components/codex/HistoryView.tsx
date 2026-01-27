@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, ArrowLeft, Calendar, Trash2, Search, X, Plus, Library, Download, BookOpen, Tag, Clock, Images } from 'lucide-react';
-import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects } from '@/lib/pageService';
+import { Camera, ArrowLeft, Calendar, Trash2, Search, X, Plus, Library, Download, BookOpen, Tag, Clock, Images, Unlink } from 'lucide-react';
+import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects, getRevokedPages, restoreAssociation } from '@/lib/pageService';
 import { getCurrentProvider, setHetznerEnabled } from '@/lib/abstractions';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -16,6 +16,7 @@ import { EarlyInsights } from './EarlyInsights';
 import { MemoryPulse } from './MemoryPulse';
 import { TrashDropZone } from './TrashDropZone';
 import { TrashView } from './TrashView';
+import { RevokedOriginsView } from './RevokedOriginsView';
 
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useTrash } from '@/hooks/useTrash';
@@ -163,6 +164,8 @@ export function HistoryView({
 
   // UI state hooks
   const [showTrash, setShowTrash] = useState(false);
+  const [showRevokedOrigins, setShowRevokedOrigins] = useState(false);
+  const [revokedPages, setRevokedPages] = useState<Page[]>([]);
   const [filter, setFilter] = useState<TimeFilter>('all');
   const [keywordFilter, setKeywordFilter] = useState<KeywordFilter>('all');
   const [toneFilter, setToneFilter] = useState<ToneFilter>('all');
@@ -232,6 +235,23 @@ export function HistoryView({
   // Load projects on mount
   useEffect(() => {
     getProjects().then(setProjects);
+  }, []);
+
+  // Load revoked pages when view opens
+  useEffect(() => {
+    if (showRevokedOrigins) {
+      getRevokedPages().then(setRevokedPages);
+    }
+  }, [showRevokedOrigins]);
+
+  // Handle restore association
+  const handleRestoreAssociation = useCallback(async (pageId: string): Promise<boolean> => {
+    const success = await restoreAssociation(pageId);
+    if (success) {
+      // Remove from local state immediately
+      setRevokedPages(prev => prev.filter(p => p.id !== pageId));
+    }
+    return success;
   }, []);
 
   // Get unique primary keywords for filter dropdown
@@ -504,6 +524,15 @@ export function HistoryView({
           <div className="flex-1 flex justify-end">
           {isMinimalMode ? (
             <div className="flex items-center gap-2">
+              {/* Released Origins button */}
+              <button
+                onClick={() => setShowRevokedOrigins(true)}
+                className="p-2 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"
+                title="Released Origins"
+              >
+                <Unlink className="w-4 h-4" />
+              </button>
+
               {/* Export button - ownership/portability */}
               {allPages.length >= 1 && (
                 <ExportButton
@@ -1432,6 +1461,17 @@ export function HistoryView({
             onPermanentDelete={permanentlyDelete}
             onEmptyTrash={emptyTrash}
             onClose={() => setShowTrash(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Revoked Origins view modal */}
+      <AnimatePresence>
+        {showRevokedOrigins && (
+          <RevokedOriginsView
+            revokedPages={revokedPages}
+            onRestore={handleRestoreAssociation}
+            onClose={() => setShowRevokedOrigins(false)}
           />
         )}
       </AnimatePresence>
