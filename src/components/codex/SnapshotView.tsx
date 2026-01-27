@@ -510,9 +510,9 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Origin Proof Actions - Copy Link & Download Bundle */}
+            {/* Origin Proof Actions - Copy Link, Download Bundle & Revoke Association */}
             {!isNewCapture && (
-              <OriginProofActions page={page} variant="compact" />
+              <OriginProofActions page={page} variant="compact" onRevoked={onClose} />
             )}
             
             {/* Share button - always visible when not a new capture */}

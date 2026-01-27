@@ -491,3 +491,20 @@ export async function getTrashedPages(): Promise<Page[]> {
   const storage = getStorageProvider();
   return storage.getTrashedPages();
 }
+
+// ============= Herroepbaarheid (Revoke Association) =============
+
+/**
+ * Revoke association with an origin
+ * 
+ * This follows the Herroepbaarheid principle:
+ * "An origin cannot be deleted. Association with an origin can be revoked."
+ * 
+ * The origin remains intact for forensic verification, but the user's
+ * connection to it is severed. The page will no longer appear in the
+ * user's codex, but the record exists for verification purposes.
+ */
+export async function revokeAssociation(pageId: string): Promise<boolean> {
+  const storage = getStorageProvider();
+  return storage.revokeAssociation(pageId);
+}
