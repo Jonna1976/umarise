@@ -27,8 +27,9 @@ export function PinGate({ children }: PinGateProps) {
       const params = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
       
-      // /origin/:id routes are public for external systems to verify origins
-      if (path.startsWith('/origin/')) return true;
+      // Public routes that don't require PIN
+      const publicRoutes = ['/origin/', '/review', '/docs-export'];
+      if (publicRoutes.some(route => path.startsWith(route))) return true;
       
       // Demo mode: ?demo=true or #demo bypasses PIN gate
       if (params.get('demo') === 'true' || hash === '#demo') return true;
