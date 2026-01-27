@@ -417,7 +417,8 @@ export default function ReviewKit() {
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
-  const exampleOriginId = "00000000-0000-0000-0000-000000000000";
+  // Real origin ID from production database for demo
+  const exampleOriginId = "3c392b98-25e0-4cc4-8796-4eaaee9efb9a";
   const originViewUrl = `${window.location.origin}/origin/${exampleOriginId}`;
 
   return (
