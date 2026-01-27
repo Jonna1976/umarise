@@ -5,8 +5,9 @@
  * backend switch. It:
  * 1. Fetches pages from Supabase that have supabase.co image URLs
  * 2. Downloads each image
- * 3. Uploads to Hetzner IPFS vault
- * 4. Creates page record in Hetzner with all metadata preserved
+ * 3. Uploads image to Hetzner IPFS via /vault/images/upload
+ * 4. Creates page record in Hetzner via /vault/pages with IPFS URL
+ * 5. Preserves all metadata
  * 
  * Usage: POST /functions/v1/migrate-legacy-pages
  * Body: { "deviceUserId": "xxx", "dryRun": true }
@@ -19,7 +20,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Hetzner vault API
+// Hetzner vault API - correct endpoint structure for /vault/* routes
 const HETZNER_API_URL = 'https://vault.umarise.com/api/codex';
 
 interface LegacyPage {
@@ -48,8 +49,24 @@ interface LegacyPage {
 interface MigrationResult {
   pageId: string;
   status: 'migrated' | 'skipped' | 'error';
+  newPageId?: string;
   newImageUrl?: string;
   error?: string;
+}
+
+// Parse arrays that might be stored as JSON strings
+function parseArray(val: unknown): string[] {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
 }
 
 Deno.serve(async (req) => {
@@ -138,77 +155,70 @@ Deno.serve(async (req) => {
         const arrayBuffer = await imageBlob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
         
-        // Convert to base64
-        const base64 = btoa(String.fromCharCode(...bytes));
+        // Convert to base64 using chunks to avoid call stack issues
+        const chunkSize = 8192;
+        let binaryString = '';
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+        }
+        const base64 = btoa(binaryString);
         const mimeType = imageBlob.type || 'image/jpeg';
         const dataUrl = `data:${mimeType};base64,${base64}`;
 
-        // Step 2: Upload to Hetzner IPFS vault
-        console.log(`Uploading to Hetzner vault...`);
-        const uploadResponse = await fetch(`${HETZNER_API_URL}/vault/images/upload`, {
+        // Step 2: Upload image to Hetzner IPFS via /vault/images
+        console.log(`Uploading image to Hetzner IPFS...`);
+        const uploadResponse = await fetch(`${HETZNER_API_URL}/vault/images`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${hetznerToken}`,
           },
           body: JSON.stringify({
-            image: dataUrl,
+            imageDataUrl: dataUrl,
             deviceUserId: page.device_user_id,
+            encrypt: false,
           }),
         });
 
         if (!uploadResponse.ok) {
           const errorText = await uploadResponse.text();
-          throw new Error(`Hetzner upload failed: ${uploadResponse.status} - ${errorText}`);
+          throw new Error(`Image upload failed: ${uploadResponse.status} - ${errorText}`);
         }
 
         const uploadResult = await uploadResponse.json();
-        const newImageUrl = uploadResult.imageUrl || uploadResult.url;
-        const newOriginHash = uploadResult.originHash;
+        const imageUrl = uploadResult.imageUrl || uploadResult.url;
+        const originHash = uploadResult.originHash;
+        console.log(`Image uploaded: ${imageUrl}`);
 
-        console.log(`Image uploaded: ${newImageUrl}`);
-
-        // Step 3: Create page in Hetzner with all metadata
-        // Parse arrays that might be stored as JSON strings
-        const parseArray = (val: unknown): string[] => {
-          if (!val) return [];
-          if (Array.isArray(val)) return val;
-          if (typeof val === 'string') {
-            try {
-              const parsed = JSON.parse(val);
-              return Array.isArray(parsed) ? parsed : [];
-            } catch {
-              return [];
-            }
-          }
-          return [];
-        };
-
+        // Step 3: Create page in Hetzner with the IPFS image URL
+        console.log(`Creating page in Hetzner...`);
+        
         const pagePayload = {
           deviceUserId: page.device_user_id,
           writerUserId: page.writer_user_id || page.device_user_id,
-          imageUrl: newImageUrl,
+          imageUrl: imageUrl,
           ocrText: page.ocr_text || '',
           summary: page.summary || '',
-          tone: page.tone || 'reflective',
-          keywords: parseArray(page.keywords),
-          futureYouCues: parseArray(page.future_you_cues),
+          tone: JSON.stringify(page.tone ? [page.tone] : ['reflective']),
+          keywords: JSON.stringify(parseArray(page.keywords)),
+          futureYouCues: JSON.stringify(parseArray(page.future_you_cues)),
           oneLineHint: page.one_line_hint || '',
-          topicLabels: parseArray(page.topic_labels),
-          highlights: parseArray(page.highlights),
-          originHashSha256: newOriginHash || page.origin_hash_sha256 || null,
+          topicLabels: JSON.stringify(parseArray(page.topic_labels)),
+          highlights: JSON.stringify(parseArray(page.highlights)),
+          originHashSha256: originHash || page.origin_hash_sha256 || null,
+          originHashAlgo: 'sha256',
           capsuleId: page.capsule_id || null,
           pageOrder: page.page_order ?? 0,
           userNote: page.user_note || null,
           primaryKeyword: page.primary_keyword || null,
-          sources: parseArray(page.sources),
-          // Preserve original creation time
-          createdAt: page.created_at,
-          writtenAt: page.written_at,
+          sources: JSON.stringify(parseArray(page.sources)),
+          ocrTokens: JSON.stringify([]),
+          namedEntities: JSON.stringify([]),
+          futureYouCuesSource: JSON.stringify({ ai_prefill_version: null, user_edited: false }),
         };
 
-        console.log(`Creating page in Hetzner...`);
-        const createResponse = await fetch(`${HETZNER_API_URL}/pages`, {
+        const createResponse = await fetch(`${HETZNER_API_URL}/vault/pages`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -219,7 +229,7 @@ Deno.serve(async (req) => {
 
         if (!createResponse.ok) {
           const errorText = await createResponse.text();
-          throw new Error(`Hetzner page creation failed: ${createResponse.status} - ${errorText}`);
+          throw new Error(`Page creation failed: ${createResponse.status} - ${errorText}`);
         }
 
         const newPage = await createResponse.json();
@@ -228,7 +238,8 @@ Deno.serve(async (req) => {
         results.push({
           pageId: page.id,
           status: 'migrated',
-          newImageUrl: newImageUrl,
+          newPageId: newPage.id,
+          newImageUrl: imageUrl,
         });
 
       } catch (error) {
