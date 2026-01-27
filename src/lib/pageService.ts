@@ -508,3 +508,25 @@ export async function revokeAssociation(pageId: string): Promise<boolean> {
   const storage = getStorageProvider();
   return storage.revokeAssociation(pageId);
 }
+
+/**
+ * Restore association with a previously released origin
+ * 
+ * This allows users to reconnect with an origin they previously released.
+ * The origin record was never modified—only the user's association is restored.
+ */
+export async function restoreAssociation(pageId: string): Promise<boolean> {
+  const storage = getStorageProvider();
+  return storage.restoreAssociation(pageId);
+}
+
+/**
+ * Get all pages with revoked associations for current device
+ * 
+ * These are origins the user has released but which still exist
+ * as verifiable records. Users can view them read-only or restore association.
+ */
+export async function getRevokedPages(): Promise<Page[]> {
+  const storage = getStorageProvider();
+  return storage.getRevokedPages();
+}
