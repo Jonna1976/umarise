@@ -14,6 +14,14 @@
 
 ---
 
+## Technical Due Diligence
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [cto-technical-factsheet.md](./cto-technical-factsheet.md) | Current state technical baseline | CTO / Investors |
+
+---
+
 ## Internal Reference
 
 | Document | Purpose | Status |
