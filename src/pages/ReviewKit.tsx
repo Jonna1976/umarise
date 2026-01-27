@@ -417,8 +417,9 @@ export default function ReviewKit() {
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
-  // Real origin ID from production database for demo
-  const exampleOriginId = "3c392b98-25e0-4cc4-8796-4eaaee9efb9a";
+  // Origin ID for demo - use an older, less private entry
+  // Options: 1bfd790e (Jan 23), 9f08732c (Jan 21), 0cc1e6d2 (Jan 21)
+  const exampleOriginId = "1bfd790e-717a-418f-a36b-03f73d7441cc";
   const originViewUrl = `${window.location.origin}/origin/${exampleOriginId}`;
 
   return (
@@ -559,28 +560,84 @@ export default function ReviewKit() {
           </p>
         </motion.section>
 
-        {/* API Example */}
+        {/* API Examples */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <h2 className="text-codex-cream text-xl font-medium mb-4">API Example</h2>
-          <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto">
-            <div className="text-codex-cream/50 mb-2"># Resolve an origin by ID</div>
-            <div className="text-codex-cream">
-              <span className="text-codex-gold">GET</span> /resolve-origin?origin_id=&#123;uuid&#125;
+          <h2 className="text-codex-cream text-xl font-medium mb-4">API Primitives</h2>
+          <div className="space-y-4">
+            {/* Create Origin */}
+            <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto">
+              <div className="text-codex-cream/50 mb-2"># 1. Create Origin (write-once)</div>
+              <div className="text-codex-cream">
+                <span className="text-codex-gold">POST</span> /origins
+              </div>
+              <pre className="text-codex-cream/60 text-xs mt-2">
+{`{
+  "content": "<binary>",
+  "source_system": "scanner"
+}`}
+              </pre>
+              <div className="text-codex-cream/40 text-xs mt-2 italic">
+                → Returns immutable origin_id + hash. No UPDATE endpoint exists.
+              </div>
             </div>
-            <div className="mt-4 text-codex-cream/50 mb-2"># Response</div>
-            <pre className="text-codex-cream/80 text-xs">
+
+            {/* Resolve Origin */}
+            <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto">
+              <div className="text-codex-cream/50 mb-2"># 2. Resolve Origin (by ID or hash)</div>
+              <div className="text-codex-cream space-y-1">
+                <div><span className="text-codex-gold">GET</span> /resolve-origin?origin_id=&#123;uuid&#125;</div>
+                <div><span className="text-codex-gold">GET</span> /resolve-origin?hash=&#123;sha256&#125;</div>
+              </div>
+              <pre className="text-codex-cream/60 text-xs mt-2">
 {`{
   "found": true,
-  "origin_id": "...",
-  "origin_hash_sha256": "e3b0c44...",
+  "origin_id": "1bfd790e-...",
+  "origin_hash_sha256": "44e20310c95c42d1...",
   "hash_status": "verified",
-  "captured_at": "2026-01-15T10:30:00Z"
+  "captured_at": "2026-01-23T12:27:14Z"
 }`}
-            </pre>
+              </pre>
+            </div>
+
+            {/* Verify Origin */}
+            <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto">
+              <div className="text-codex-cream/50 mb-2"># 3. Verify Origin (bit-identity check)</div>
+              <div className="text-codex-cream">
+                <span className="text-codex-gold">POST</span> /verify
+              </div>
+              <pre className="text-codex-cream/60 text-xs mt-2">
+{`{
+  "origin_id": "...",
+  "content": "<binary>"
+}`}
+              </pre>
+              <div className="text-codex-cream/40 text-xs mt-2">
+                → Response: <code className="text-codex-gold">{"{ \"match\": true }"}</code>
+              </div>
+            </div>
+
+            {/* Link External */}
+            <div className="p-4 bg-codex-ink/50 rounded-lg border border-codex-cream/10 font-mono text-sm overflow-x-auto opacity-60">
+              <div className="text-codex-cream/50 mb-2"># 4. Link External (cross-system reference) — conceptual</div>
+              <div className="text-codex-cream">
+                <span className="text-codex-gold">POST</span> /links
+              </div>
+              <pre className="text-codex-cream/60 text-xs mt-2">
+{`{
+  "origin_id": "...",
+  "external_system": "notion",
+  "external_reference": "page://abc123",
+  "link_type": "derived"
+}`}
+              </pre>
+              <div className="text-codex-cream/40 text-xs mt-2 italic">
+                → Append-only. No sync. No overwrite.
+              </div>
+            </div>
           </div>
         </motion.section>
 
