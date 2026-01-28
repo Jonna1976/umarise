@@ -135,13 +135,35 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
       
       if (verificationResult.match) {
         setState('verified');
-        // Persist verification to localStorage
+        // Persist verification to localStorage AND sidecar table
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           verified: true,
           hash: verificationResult.actualHash,
           verifiedAt: verificationResult.verifiedAt,
         }));
         console.log('[VerifyOrigin] Persisted verification to localStorage');
+        
+        // Also persist to sidecar table so it's available for future loads
+        try {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { getDeviceId } = await import('@/lib/deviceId');
+          const deviceUserId = getDeviceId();
+          if (deviceUserId) {
+            await supabase.from('page_origin_hashes').upsert({
+              device_user_id: deviceUserId,
+              page_id: pageId,
+              image_url: imageUrl,
+              origin_hash_sha256: verificationResult.actualHash,
+              origin_hash_algo: 'sha256',
+            }, {
+              onConflict: 'page_id',
+            });
+            console.log('[VerifyOrigin] Persisted hash to sidecar table');
+          }
+        } catch (e) {
+          console.warn('[VerifyOrigin] Failed to persist to sidecar:', e);
+        }
+        
         toast.success('Origin verified', {
           description: 'The image matches its recorded fingerprint.',
         });
