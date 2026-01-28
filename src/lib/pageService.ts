@@ -117,6 +117,149 @@ function extractBase64(dataUrl: string): string {
   return dataUrl;
 }
 
+// ============= AI Suggested Cues Normalization =============
+
+const STOPWORDS_SINGLE = new Set([
+  'i', 'a', 'an', 'the', 'and', 'or', 'of', 'to', 'in', 'on', 'at', 'for', 'with',
+  'is', 'are', 'was', 'were', 'be', 'been', 'am', 'it', 'this', 'that', 'these', 'those',
+  'you', 'we', 'me', 'my', 'our', 'your', 'their', 'they', 'he', 'she', 'him', 'her',
+]);
+
+const GENERIC_CUE_TERMS = new Set([
+  'note', 'notes', 'idea', 'ideas', 'thought', 'thoughts', 'random', 'misc', 'important',
+  'todo', 'list', 'plan', 'plans', 'meeting', 'stuff',
+]);
+
+function splitCueString(raw: string): string[] {
+  // Handles: "a, b, c" or "a\n b" or "a | b" returned by some backends.
+  return raw
+    .split(/[\n,|]+/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function dedupeCaseInsensitive(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of values) {
+    const key = v.trim().toLowerCase();
+    if (!key) continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v.trim());
+  }
+  return out;
+}
+
+function isBadCue(cue: string): boolean {
+  const trimmed = cue.trim();
+  if (!trimmed) return true;
+
+  // Single-character cues ("I") are useless because search ignores 1-char tokens.
+  if (trimmed.length <= 1) return true;
+
+  const words = trimmed.toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length === 1) {
+    const w = words[0];
+    if (STOPWORDS_SINGLE.has(w)) return true;
+    if (GENERIC_CUE_TERMS.has(w)) return true;
+  }
+
+  return false;
+}
+
+function tokenizeOcr(ocrText: string): string[] {
+  // Keep simple + robust across languages; keeps apostrophes inside words.
+  const matches = ocrText.match(/[A-Za-zÀ-ÖØ-öø-ÿ0-9']+/g);
+  return matches ? matches : [];
+}
+
+function capPhraseTo30Chars(words: string[]): string {
+  let end = words.length;
+  while (end > 1) {
+    const phrase = words.slice(0, end).join(' ');
+    if (phrase.length <= 30) return phrase;
+    end -= 1;
+  }
+  return words[0]?.slice(0, 30) || '';
+}
+
+function derivePhrasesFromOcr(ocrText: string, seedTerms: string[]): string[] {
+  const tokens = tokenizeOcr(ocrText);
+  if (tokens.length < 2) return [];
+
+  const tokensLower = tokens.map((t) => t.toLowerCase());
+
+  // Seeds: only keep meaningful single terms ("got", "umarise", etc.)
+  const seeds = dedupeCaseInsensitive(
+    seedTerms
+      .flatMap((s) => s.toLowerCase().split(/\s+/))
+      .map((s) => s.trim())
+      .filter((s) => s.length > 1 && !STOPWORDS_SINGLE.has(s) && !GENERIC_CUE_TERMS.has(s))
+  );
+
+  const phrases: string[] = [];
+
+  // Try to build a short phrase around the first occurrence of each seed.
+  for (const seed of seeds) {
+    const idx = tokensLower.indexOf(seed);
+    if (idx === -1) continue;
+
+    // Include 1 token BEFORE the seed when possible (helps reconstruct "I got you there")
+    const start = Math.max(0, idx - 1);
+    const window = tokens.slice(start, start + 6); // up to 6 words
+    const phrase = capPhraseTo30Chars(window);
+    if (phrase && !isBadCue(phrase)) phrases.push(phrase);
+  }
+
+  // Fallback: first 4-6 words of OCR as a compact phrase.
+  if (phrases.length === 0) {
+    const window = tokens.slice(0, 6);
+    const phrase = capPhraseTo30Chars(window);
+    if (phrase && !isBadCue(phrase)) phrases.push(phrase);
+  }
+
+  return dedupeCaseInsensitive(phrases);
+}
+
+function extractSuggestedCuesFromAnalysis(analysis: PageAnalysisResult): string[] {
+  const candidates: string[] = [];
+
+  // 1) Known contracts
+  if (Array.isArray(analysis.futureYouCues)) candidates.push(...analysis.futureYouCues);
+  if (Array.isArray(analysis.suggested_cues)) candidates.push(...analysis.suggested_cues);
+
+  // 2) Common alternates (Hetzner/legacy variants)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyA = analysis as any;
+  if (Array.isArray(anyA.suggestedCues)) candidates.push(...anyA.suggestedCues);
+  if (Array.isArray(anyA.future_you_cues)) candidates.push(...anyA.future_you_cues);
+
+  // 3) Sometimes returned as a single string
+  if (typeof anyA.futureYouCues === 'string') candidates.push(...splitCueString(anyA.futureYouCues));
+  if (typeof anyA.suggested_cues === 'string') candidates.push(...splitCueString(anyA.suggested_cues));
+  if (typeof anyA.suggestedCues === 'string') candidates.push(...splitCueString(anyA.suggestedCues));
+
+  // Normalize strings that contain delimiters
+  const normalized = candidates.flatMap((c) => (typeof c === 'string' ? splitCueString(c) : [])).map((c) => c.trim());
+  const unique = dedupeCaseInsensitive(normalized);
+
+  // Filter out obviously-bad cues
+  const good = unique.filter((c) => !isBadCue(c));
+
+  // If cues are low-quality (e.g., single letters like "I"), derive a better phrase from OCR.
+  const ocr = analysis.ocrText || analysis.ocr_text || '';
+  if (ocr && good.length < 3) {
+    const derived = derivePhrasesFromOcr(ocr, unique);
+    for (const d of derived) {
+      if (good.length >= 3) break;
+      if (!good.some((x) => x.toLowerCase() === d.toLowerCase())) good.push(d);
+    }
+  }
+
+  return good.slice(0, 3);
+}
+
 // ============= Page Operations =============
 
 /**
@@ -186,9 +329,9 @@ export async function createPage(
     await persistOriginHashSidecar(deviceUserId, page.id, imageUrl, originHash);
   }
 
-  return { 
-    page, 
-    suggestedCues: analysis.futureYouCues || analysis.suggested_cues || [] 
+  return {
+    page,
+    suggestedCues: extractSuggestedCuesFromAnalysis(analysis),
   };
 }
 
