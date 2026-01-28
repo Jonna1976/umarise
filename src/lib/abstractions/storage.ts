@@ -1300,15 +1300,18 @@ export class HetznerVaultStorage implements IStorageProvider {
 
   async restoreFromTrash(pageId: string): Promise<boolean> {
     const deviceUserId = this.getRealDeviceUserId();
+    console.log('[HetznerVaultStorage] Restoring from trash:', pageId, 'deviceUserId:', deviceUserId);
 
     try {
       // 1. Remove from Cloud trash index
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: deleteError } = await (supabase as any)
+      const { error: deleteError, count } = await (supabase as any)
         .from('hetzner_trash_index')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('device_user_id', deviceUserId)
         .eq('page_id', pageId);
+
+      console.log('[HetznerVaultStorage] Trash index delete result:', { deleteError, count });
 
       if (deleteError) {
         console.error('[HetznerVaultStorage] Failed to delete trash index:', deleteError);
