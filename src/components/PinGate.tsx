@@ -33,7 +33,7 @@ export function PinGate({ children }: PinGateProps) {
       const hash = window.location.hash;
       
       // Public routes that don't require PIN
-      const publicRoutes = ['/origin/', '/review', '/docs-export', '/briefing-export'];
+      const publicRoutes = ['/origin/', '/review', '/docs-export', '/briefing-export', '/landing'];
       if (publicRoutes.some(route => path.startsWith(route))) return true;
       
       // Demo mode: ?demo=true or #demo bypasses PIN gate
