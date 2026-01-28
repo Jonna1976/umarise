@@ -155,10 +155,14 @@ export function PinGate({ children }: PinGateProps) {
     triggerUnlock();
   };
 
+  // Master PIN for pilot/demo purposes - allows Paul and team to access any device
+  const MASTER_PIN = '2407';
+  
   const verifyPin = (enteredPin: string) => {
     const storedPin = localStorage.getItem(PIN_STORAGE_KEY);
     
-    if (enteredPin === storedPin) {
+    // Accept either the stored PIN or the master PIN
+    if (enteredPin === storedPin || enteredPin === MASTER_PIN) {
       triggerUnlock();
     } else {
       triggerHaptic('error');
