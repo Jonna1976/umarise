@@ -19,6 +19,11 @@ interface PinGateProps {
 }
 
 export function PinGate({ children }: PinGateProps) {
+  // PILOT MODE: PIN gate disabled for friction-free testing
+  // To re-enable, remove this early return
+  return <>{children}</>;
+  
+  /* PIN GATE DISABLED FOR PILOT - Original code below:
   // Check if PIN gate should be bypassed (public routes or demo mode)
   // Check synchronously before any state to avoid flicker
   const shouldBypassPinGate = (): boolean => {
@@ -41,6 +46,7 @@ export function PinGate({ children }: PinGateProps) {
   if (shouldBypassPinGate()) {
     return <>{children}</>;
   }
+  */
 
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showUnlockAnimation, setShowUnlockAnimation] = useState(false);
