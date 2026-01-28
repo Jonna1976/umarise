@@ -49,13 +49,13 @@ export default function DocsExport() {
       `}</style>
 
       {/* Instructions and buttons (hidden when printing) */}
-      <div className="no-print fixed top-0 left-0 right-0 bg-amber-50 border-b border-amber-200 z-50">
+      <div className="no-print fixed top-0 left-0 right-0 bg-[hsl(43,35%,95%)] border-b border-[hsl(43,30%,80%)] z-50">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-start gap-3 mb-3">
             <span className="text-2xl">📄</span>
             <div>
-              <p className="text-amber-900 font-medium text-sm">PDF opslaan via print-dialoog</p>
-              <p className="text-amber-800 text-xs mt-1">
+              <p className="text-[hsl(43,40%,25%)] font-medium text-sm">PDF opslaan via print-dialoog</p>
+              <p className="text-[hsl(43,30%,35%)] text-xs mt-1">
                 Wijzig in het print-dialoog de <strong>"Bestemming"</strong> van je printer naar <strong>"Opslaan als PDF"</strong> (of "Save as PDF")
               </p>
             </div>
@@ -63,13 +63,13 @@ export default function DocsExport() {
           <div className="flex gap-2">
             <button
               onClick={() => window.print()}
-              className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700"
+              className="bg-[hsl(43,45%,42%)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[hsl(43,45%,35%)]"
             >
               📥 Open Print Dialoog
             </button>
             <button
               onClick={handleBack}
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
+              className="bg-[hsl(43,20%,90%)] text-[hsl(43,30%,30%)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[hsl(43,25%,85%)]"
             >
               ← Terug
             </button>
