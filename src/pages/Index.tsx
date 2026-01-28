@@ -525,7 +525,7 @@ const Index = () => {
             onViewYearReflection={isDemoMode ? undefined : handleViewYearReflection}
             onViewOrbit={handleViewOrbit}
             onOpenSearch={handleOpenSearch}
-            onShareMemory={() => setView('share')}
+            // ShareMemoryCard hidden for current phase - see memory: features/share-memory-card-visibility
             highlightPageId={highlightPageId || undefined}
           />
         );
@@ -678,10 +678,11 @@ const Index = () => {
           />
         );
       
-      case 'share':
-        return (
-          <ShareMemoryCard onBack={() => setView('history')} />
-        );
+      // ShareMemoryCard hidden for current phase - see memory: features/share-memory-card-visibility
+      // case 'share':
+      //   return (
+      //     <ShareMemoryCard onBack={() => setView('history')} />
+      //   );
       
       default:
         return null;
