@@ -26,29 +26,36 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <DemoModeProvider>
       <TooltipProvider>
-        <PinGate>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/origin/:originId" element={<OriginView />} />
-              <Route path="/review" element={<ReviewKit />} />
-              <Route path="/docs-export" element={<DocsExport />} />
-              <Route path="/briefing-export" element={<BriefingExport />} />
-              <Route path="/proof" element={<ProofPage />} />
-              <Route path="/pilot-tracker" element={<PilotTracker />} />
-              <Route path="/landing" element={<Landing />} />
-              <Route path="/warm-preview" element={<WarmPaletteMockup />} />
-              <Route path="/current-preview" element={<CurrentPaletteMockup />} />
-              <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
-              <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
-              <Route path="/widget-design" element={<WidgetMockup />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </PinGate>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* PUBLIC ROUTES - No PinGate */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/origin/:originId" element={<OriginView />} />
+            <Route path="/review" element={<ReviewKit />} />
+            <Route path="/docs-export" element={<DocsExport />} />
+            <Route path="/briefing-export" element={<BriefingExport />} />
+            <Route path="/proof" element={<ProofPage />} />
+            
+            {/* PROTECTED ROUTES - Behind PinGate */}
+            <Route path="/app" element={<PinGate><Index /></PinGate>} />
+            <Route path="/pilot-tracker" element={<PinGate><PilotTracker /></PinGate>} />
+            
+            {/* DEV/PREVIEW ROUTES */}
+            <Route path="/warm-preview" element={<WarmPaletteMockup />} />
+            <Route path="/current-preview" element={<CurrentPaletteMockup />} />
+            <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
+            <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
+            <Route path="/widget-design" element={<WidgetMockup />} />
+            
+            {/* Redirect old landing route */}
+            <Route path="/landing" element={<Landing />} />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
       </TooltipProvider>
     </DemoModeProvider>
   </QueryClientProvider>
