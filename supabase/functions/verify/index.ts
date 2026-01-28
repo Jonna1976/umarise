@@ -36,6 +36,9 @@ interface VerifyResponse {
   origin_hash: string | null;
   computed_hash: string;
   origin_id: string;
+  // U-mark: infrastructure signal indicating origin is captured and verifiable
+  origin_mark: 'ᵁ' | null;
+  origin_mark_meaning: string | null;
 }
 
 async function calculateSHA256(data: Uint8Array): Promise<string> {
@@ -140,6 +143,9 @@ Deno.serve(async (req: Request) => {
       origin_hash: storedHash,
       computed_hash: computedHash,
       origin_id: body.origin_id,
+      // U-mark: present when origin is verified (hash exists and matches)
+      origin_mark: match ? 'ᵁ' : null,
+      origin_mark_meaning: match ? 'ᵁ indicates that an origin was captured and is verifiable.' : null,
     };
 
     console.log('[verify] Verification result:', {

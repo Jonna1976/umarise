@@ -27,6 +27,9 @@ interface OriginMetadata {
   origin_hash_sha256: string | null;
   origin_hash_algo: 'sha256' | null;
   hash_status: 'verified' | 'legacy_no_hash' | 'not_found';
+  // U-mark: infrastructure signal indicating origin is captured and verifiable
+  origin_mark: 'ᵁ' | null;
+  origin_mark_meaning: string | null;
   captured_at: string | null;
   image_url: string | null;
   labels: {
@@ -112,6 +115,8 @@ Deno.serve(async (req: Request) => {
         origin_hash_sha256: null,
         origin_hash_algo: null,
         hash_status: 'not_found',
+        origin_mark: null,
+        origin_mark_meaning: null,
         captured_at: null,
         image_url: null,
         labels: null,
@@ -150,6 +155,9 @@ Deno.serve(async (req: Request) => {
       origin_hash_sha256: hashData.origin_hash_sha256,
       origin_hash_algo: hasHash ? 'sha256' : null,
       hash_status: hasHash ? 'verified' : 'legacy_no_hash',
+      // U-mark: infrastructure signal indicating origin is captured and verifiable
+      origin_mark: hasHash ? 'ᵁ' : null,
+      origin_mark_meaning: hasHash ? 'ᵁ indicates that an origin was captured and is verifiable.' : null,
       captured_at: pageData?.created_at || hashData.created_at,
       image_url: resolvedImageUrl,
       labels: pageData ? {
