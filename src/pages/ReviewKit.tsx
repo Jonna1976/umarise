@@ -21,8 +21,10 @@ import {
   Layers,
   ArrowRight,
   Copy,
-  Check
+  Check,
+  Terminal
 } from 'lucide-react';
+import { ApiTester } from '@/components/codex/ApiTester';
 import { Button } from '@/components/ui/button';
 
 // Embedded documentation content
@@ -560,11 +562,28 @@ export default function ReviewKit() {
           </p>
         </motion.section>
 
-        {/* API Examples */}
+        {/* Live API Tester */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-codex-gold/10 flex items-center justify-center">
+              <Terminal className="w-4 h-4 text-codex-gold" />
+            </div>
+            <h2 className="text-codex-cream text-xl font-medium">Live API Tester</h2>
+          </div>
+          <div className="p-5 bg-codex-ink/30 rounded-lg border border-codex-gold/20">
+            <ApiTester />
+          </div>
+        </motion.section>
+
+        {/* API Examples */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
         >
           <h2 className="text-codex-cream text-xl font-medium mb-4">API Primitives</h2>
           <div className="space-y-4">
