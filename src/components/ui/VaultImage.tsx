@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import { Lock, AlertCircle } from 'lucide-react';
-import { getStorageProvider, resolveIpfsUrl, isIpfsUrl } from '@/lib/abstractions';
+import { getStorageProvider, isIpfsUrl } from '@/lib/abstractions';
 import { cn } from '@/lib/utils';
 
 interface VaultImageProps {
@@ -59,9 +59,10 @@ export function VaultImage({
             objectUrl = decryptedUrl;
             setDisplayUrl(decryptedUrl);
           } else {
-            // Just resolve IPFS to HTTP gateway
+            // Use storage provider's getDecryptedImageUrl for IPFS resolution
+            // This routes through Hetzner proxy with auth, not public ipfs.io gateway
             setIsEncrypted(false);
-            const httpUrl = resolveIpfsUrl(src);
+            const httpUrl = await storage.getDecryptedImageUrl(src);
             setDisplayUrl(httpUrl);
           }
         } else if (storage.isEncryptedUrl(src)) {
