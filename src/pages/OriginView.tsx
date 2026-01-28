@@ -246,13 +246,13 @@ export default function OriginView() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             Umarise
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <span className="text-codex-cream/40 text-sm font-mono">
               Origin Record
             </span>
             {metadata?.origin_hash_sha256 && (
               <span 
-                className="text-codex-gold text-xl font-bold bg-codex-gold/15 px-2 py-0.5 rounded-md border border-codex-gold/40" 
+                className="text-codex-gold text-sm font-semibold" 
                 title="Origin captured (Umarise)"
               >
                 U
@@ -347,18 +347,18 @@ export default function OriginView() {
           className="mb-6"
         >
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin ID</h2>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <p className="font-mono text-codex-cream text-sm break-all bg-codex-ink/50 p-3 rounded-lg border border-codex-cream/10 flex-1">
               {metadata.origin_id}
             </p>
             {/* U-mark: infrastructure signal indicating origin is captured and verifiable */}
             {metadata.origin_hash_sha256 && (
-              <div 
-                className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-codex-gold/20 to-codex-gold/10 rounded-xl border-2 border-codex-gold/50 shadow-lg shadow-codex-gold/20" 
+              <span 
+                className="text-codex-gold text-sm font-semibold select-none" 
                 title="Origin captured (Umarise)"
               >
-                <span className="text-codex-gold text-3xl font-black select-none">U</span>
-              </div>
+                U
+              </span>
             )}
           </div>
         </motion.div>
