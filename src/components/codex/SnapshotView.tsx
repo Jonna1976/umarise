@@ -433,21 +433,20 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
     }
   };
 
-  // Handle removing a specific word from cues
-  const handleRemoveWord = async (wordToRemove: string) => {
-    // Rebuild cues: flatten all words, remove the target, then save as individual words
-    const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0));
-    const newWords = allWords.filter(w => w.toLowerCase() !== wordToRemove.toLowerCase());
+  // Handle removing a specific cue (phrase or word) from cues
+  const handleRemoveCueByValue = async (cueToRemove: string) => {
+    // Remove the exact cue (can be a phrase or single word)
+    const newCues = futureYouCues.filter(cue => cue.toLowerCase() !== cueToRemove.toLowerCase());
     
-    setFutureYouCues(newWords);
+    setFutureYouCues(newCues);
 
     // Save immediately
-    const success = await updatePage(page.id, { futureYouCues: newWords.length > 0 ? newWords : undefined });
+    const success = await updatePage(page.id, { futureYouCues: newCues.length > 0 ? newCues : undefined });
     if (success) {
       toast.success('Removed');
       onPageUpdate?.({
         ...page,
-        futureYouCues: newWords,
+        futureYouCues: newCues,
       });
     } else {
       toast.error('Failed to save');
@@ -732,31 +731,31 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
             How you'll find this again when you need it.
           </p>
           
-          {/* Display existing cues as individual words (max 3 including bonus) */}
+          {/* Display existing cues as phrases (max 3 cues) */}
           {(() => {
-            // Normalize: split all cues into individual words, take max 3
-            const allWords = futureYouCues.flatMap(cue => cue.split(/\s+/).filter(w => w.length > 0)).slice(0, 3);
-            const wordCount = allWords.length;
+            // Keep cues as complete phrases, take max 3
+            const displayCues = futureYouCues.slice(0, 3);
+            const cueCount = displayCues.length;
             
             return (
               <>
-                {wordCount > 0 && (
+                {cueCount > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3 mt-2">
-                    {allWords.map((word, index) => (
+                    {displayCues.map((cue, index) => (
                       <span 
                         key={index}
                         className="px-4 py-2 rounded-full text-sm bg-codex-gold/20 text-codex-gold border border-codex-gold/30 flex items-center gap-2 group"
                       >
                         <button
-                          onClick={() => onSearchCue?.(word)}
+                          onClick={() => onSearchCue?.(cue)}
                           className="hover:underline cursor-pointer"
-                          title={`Search for "${word}"`}
+                          title={`Search for "${cue}"`}
                         >
-                          {word}
+                          {cue}
                         </button>
                         {!isDemoMode && (
                           <button
-                            onClick={() => handleRemoveWord(word)}
+                            onClick={() => handleRemoveCueByValue(cue)}
                             className="opacity-50 hover:opacity-100 transition-opacity"
                           >
                             <X className="w-3 h-3" />
@@ -767,8 +766,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                   </div>
                 )}
                 
-                {/* Input for adding words - only when not in demo mode and less than 3 words */}
-                {!isDemoMode && wordCount < 3 && (
+                {/* Input for adding cues - only when not in demo mode and less than 3 cues */}
+                {!isDemoMode && cueCount < 3 && (
                   <div className="flex gap-2 mt-2">
                     <Input
                       value={newCueInput}
@@ -779,7 +778,7 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                           handleAddCue();
                         }
                       }}
-                      placeholder={wordCount === 0 ? "e.g. funding" : "Add second word..."}
+                      placeholder={cueCount === 0 ? "e.g. funding" : "Add another cue..."}
                       className="flex-1 bg-codex-ink-deep/50 border-codex-gold/30 text-codex-cream placeholder:text-codex-cream/40 h-10 text-sm"
                       maxLength={30}
                     />
@@ -794,8 +793,8 @@ export function SnapshotView({ page, onClose, onViewHistory, isNewCapture, onPag
                   </div>
                 )}
                 
-                {/* Show hint when no words in demo mode */}
-                {wordCount === 0 && isDemoMode && (
+                {/* Show hint when no cues in demo mode */}
+                {cueCount === 0 && isDemoMode && (
                   <p className="text-xs text-codex-cream/40 italic">No search words set</p>
                 )}
               </>
