@@ -246,13 +246,19 @@ export default function OriginView() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             Umarise
           </Button>
-          <span className="text-codex-cream/40 text-sm font-mono">
-            Origin Record
-            {/* U-mark in header when verified */}
-            {metadata.origin_hash_sha256 && (
-              <span className="ml-1.5 text-codex-gold/60" title="Origin captured (Umarise)">ᵁ</span>
+          <div className="flex items-center gap-2">
+            <span className="text-codex-cream/40 text-sm font-mono">
+              Origin Record
+            </span>
+            {metadata?.origin_hash_sha256 && (
+              <span 
+                className="text-codex-gold text-xl font-bold bg-codex-gold/15 px-2 py-0.5 rounded-md border border-codex-gold/40" 
+                title="Origin captured (Umarise)"
+              >
+                U
+              </span>
             )}
-          </span>
+          </div>
         </div>
       </div>
 
