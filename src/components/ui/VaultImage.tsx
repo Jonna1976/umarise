@@ -38,7 +38,9 @@ export function VaultImage({
   const [isEncrypted, setIsEncrypted] = useState(false);
 
   useEffect(() => {
-    let objectUrl: string | null = null;
+    // Note: We no longer track objectUrl locally for cleanup.
+    // The IPFS cache in storage.ts manages blob URL lifecycle with TTL-based eviction.
+    // This prevents the bug where revoking on unmount invalidates cached URLs.
 
     async function loadImage() {
       setIsLoading(true);
@@ -56,11 +58,11 @@ export function VaultImage({
             setIsEncrypted(true);
             // Decrypt the image via storage provider
             const decryptedUrl = await storage.getDecryptedImageUrl(src);
-            objectUrl = decryptedUrl;
             setDisplayUrl(decryptedUrl);
           } else {
             // Use storage provider's getDecryptedImageUrl for IPFS resolution
             // This routes through Hetzner proxy with auth, not public ipfs.io gateway
+            // The storage provider caches resolved URLs for fast repeat access
             setIsEncrypted(false);
             const httpUrl = await storage.getDecryptedImageUrl(src);
             setDisplayUrl(httpUrl);
@@ -69,7 +71,6 @@ export function VaultImage({
           // Non-IPFS encrypted URL
           setIsEncrypted(true);
           const decryptedUrl = await storage.getDecryptedImageUrl(src);
-          objectUrl = decryptedUrl;
           setDisplayUrl(decryptedUrl);
         } else {
           // Regular image URL, use directly
@@ -86,12 +87,7 @@ export function VaultImage({
 
     loadImage();
 
-    // Cleanup object URL on unmount
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
+    // No cleanup needed - cache handles URL lifecycle
   }, [src]);
 
   // Keep layout stable even while loading/error to prevent overlay bleed

@@ -15,7 +15,7 @@
  */
 
 import type { BackendConfig, BackendProvider } from './types';
-import { LovableCloudStorage, HetznerVaultStorage, type IStorageProvider } from './storage';
+import { LovableCloudStorage, HetznerVaultStorage, type IStorageProvider, initPreloadStorage } from './storage';
 import { LovableAIProvider, HetznerAIProvider, type IAIProvider } from './ai';
 
 // ============= Configuration =============
@@ -114,6 +114,9 @@ export function getStorageProvider(): IStorageProvider {
       break;
   }
   
+  // Initialize preload with this provider
+  initPreloadStorage(() => storageInstance!);
+  
   console.log(`[Umarise] Storage provider initialized: ${config.provider}`);
   return storageInstance;
 }
@@ -169,5 +172,5 @@ export function resetProviders(): void {
 
 export * from './types';
 export type { IStorageProvider } from './storage';
-export { resolveIpfsUrl, isIpfsUrl } from './storage';
+export { resolveIpfsUrl, isIpfsUrl, preloadIpfsImages, initPreloadStorage } from './storage';
 export type { IAIProvider } from './ai';

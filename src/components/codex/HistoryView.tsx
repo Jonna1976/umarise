@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Camera, ArrowLeft, Calendar, Trash2, Search, X, Plus, Library, Download, BookOpen, Tag, Clock, Images, Unlink } from 'lucide-react';
 import { Page, groupPagesByCapsule, CapsulePages, Project, getProjects, getRevokedPages, restoreAssociation } from '@/lib/pageService';
-import { getCurrentProvider, setHetznerEnabled } from '@/lib/abstractions';
+import { getCurrentProvider, setHetznerEnabled, preloadIpfsImages } from '@/lib/abstractions';
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, subMonths, addMonths } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -236,6 +236,15 @@ export function HistoryView({
   useEffect(() => {
     getProjects().then(setProjects);
   }, []);
+
+  // Preload IPFS images when pages change (warms cache for fast display)
+  useEffect(() => {
+    if (visiblePages.length > 0) {
+      // Preload first 20 images to speed up initial render
+      const imageUrls = visiblePages.slice(0, 20).map(p => p.imageUrl);
+      preloadIpfsImages(imageUrls);
+    }
+  }, [visiblePages]);
 
   // Load revoked pages when view opens
   useEffect(() => {
