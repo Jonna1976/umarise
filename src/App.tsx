@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import OriginView from "./pages/OriginView";
 import ReviewKit from "./pages/ReviewKit";
 import DocsExport from "./pages/DocsExport";
+import BriefingExport from "./pages/BriefingExport";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/origin/:originId" element={<OriginView />} />
               <Route path="/review" element={<ReviewKit />} />
               <Route path="/docs-export" element={<DocsExport />} />
+              <Route path="/briefing-export" element={<BriefingExport />} />
               <Route path="/proof" element={<ProofPage />} />
               <Route path="/pilot-tracker" element={<PilotTracker />} />
               <Route path="/warm-preview" element={<WarmPaletteMockup />} />
