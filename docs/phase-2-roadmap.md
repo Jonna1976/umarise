@@ -232,35 +232,19 @@
 
 ---
 
-## Architecture Invariants
+## Phase 2A — Architecture Validation: Control Plane vs Data Plane
 
-### Core Principle (Non-Negotiable)
-
-> **Compromise of Supabase/Lovable Cloud must never yield origin content.**
-
-All security decisions derive from this single invariant.
-
----
-
-### The 9 Critical Focus Areas
-
-| # | Area | Why It Matters | Phase 1 Action | Phase 2 Action |
-|---|------|----------------|----------------|----------------|
-| 1 | **Trust Boundary: Origin Bits** | If origin-content leaks via Supabase/edge, "private-by-design" fails | Verify & document | Enforce policies + tests |
-| 2 | **Edge Function Exfiltration** | Logs, retries, errors are #1 data leak vector | Check & lock basic config | Security hardening + audits |
-| 3 | **Metadata ≠ Innocent** | Indices, timestamps, device-IDs = personal data | Establish minimum | Privacy optimization |
-| 4 | **Jurisdiction (EU vs US)** | Partners check compliance on weakest link | Position Supabase as control plane | Compliance-proof (DPA/SCCs) |
-| 5 | **Two-Hop Availability** | If one hop fails, Umarise appears "broken" | Observation | Build resiliency |
-| 6 | **Index ↔ Vault Drift** | Unfindable origins = lost evidence | Monitoring | Automatic correction |
-| 7 | **RLS Limitations** | RLS protects rows, not flows | Document | Strengthen |
-| 8 | **Vendor Lock-in** | Infra partners want replaceability | Architecture check | Abstract where needed |
-| 9 | **Real Privacy Test** | Claims must be testable | — | Execute red-team scenario |
+**Scope:** Positioning & validation  
+**Doel:** Aantonen dat control-plane compromise geen origin-compromise veroorzaakt  
+**Kernzin:**  
+> *"Phase 1: Hetzner stores truth. Phase 2: Supabase leak ≠ truth leak."*
 
 ---
 
-### Phase 1 Stack — "Origin Can Exist"
+### Phase 1 — "Origin can exist"
 
-*(Supabase/Lovable Cloud = control plane + proxy; Hetzner = data plane)*
+*(Huidige realiteit — bewezen in Phase 1)*  
+*(Supabase / Lovable Cloud = control plane + proxy; Hetzner = data plane)*
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -274,37 +258,41 @@ All security decisions derive from this single invariant.
 │              LOVABLE CLOUD / SUPABASE EDGE FUNCTIONS                 │
 │   - origin-image-proxy (fetch/serve)                                 │
 │   - resolve-origin (lookup by origin_id/hash/cid)                    │
-│   - auth/session handling (as implemented)                           │
+│   - auth/session handling                                            │
 │   - rate limiting / routing                                          │
 └─────────────────────────────────────────────────────────────────────┘
           │                                  │
           │ metadata / indices (RLS)          │ origin fetch / store
           ▼                                  ▼
-┌────────────────────────────────────────────────────────────────────┐
-│            SUPABASE DATABASE           │   HETZNER VAULT (EU)       │
-│ (control-plane data)                   │   (data-plane)             │
-│ - indices (resolve pointers)           │   - origin storage (IPFS)  │
-│ - audit logs / revocation index        │   - OCR / AI services      │
-│ - cross-device sync metadata           │   - resolve & verify       │
-│ - device_user_id access (RLS)          │   - nginx → /ipfs/{cid}    │
-└────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────┐   ┌───────────────────────────────┐
+│            SUPABASE DATABASE           │   │          HETZNER VAULT          │
+│ (control-plane data)                  │   │ (data-plane, EU)                │
+│ - indices (resolve pointers)          │   │ - origin storage (IPFS/kubo)     │
+│ - audit-ish logs / revocation index   │   │ - OCR / services                │
+│ - cross-device sync metadata          │   │ - resolve & verify primitives    │
+│ - device_user_id access (RLS)         │   │ - nginx routes /ipfs/{cid}       │
+└────────────────────────────────────────┘   └───────────────────────────────┘
                                                 │
+                                                │ local gateway
                                                 ▼
                                            ┌──────────┐
                                            │ IPFS Kubo │
-                                           │ :8082 gw  │
+                                           │ 8082 gw   │
                                            └──────────┘
-
-Phase 1 Invariant:
-├─ Origin content lives on Hetzner
-└─ Supabase/Lovable Cloud primarily routes + indexes
 ```
+
+**Phase 1 invariant (bewezen):**
+
+- Origin content leeft uitsluitend op Hetzner.
+- Supabase / Lovable Cloud routeert en indexeert, maar bezit geen waarheid.
+- Dit bewijst: origin kan bestaan als aparte infrastructuurlaag.
 
 ---
 
-### Phase 2 Stack — "Control-Plane Breach ≠ Origin Breach"
+### Phase 2 — "No control-plane compromise can undermine it"
 
-*(Assume Supabase/Edge is hostile/leaked; origin still safe & verifiable)*
+*(Doelbeeld Phase 2A — validatie door blootstelling aan externe stacks)*  
+*(Aanname: Supabase/Edge is hostile of gelekt)*
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -322,53 +310,74 @@ Phase 1 Invariant:
 │  - Strict auth + allowlists + rate limits                             │
 └─────────────────────────────────────────────────────────────────────┘
                           ▲
+                          │
                           │ resolve pointers (optional convenience only)
                           │
 ┌─────────────────────────────────────────────────────────────────────┐
 │               CONTROL PLANE (SUPABASE / LOVABLE CLOUD)                │
 │  - Can be compromised WITHOUT yielding origin bits                    │
-│  - Stores only: minimal indices / routing hints / revocation markers  │
+│  - Stores only: minimal indices / routing hints                       │
+│  - Revocation markers (no payload authority)                          │
 │  - Logs: redacted, no payloads, no secrets                            │
 │  - Egress allowlist: only Hetzner                                     │
 └─────────────────────────────────────────────────────────────────────┘
-
-Phase 2 Invariants:
-├─ Control plane stores NO origin payloads, NO encryption keys, NO secrets
-├─ Vault is source-of-truth; verifiability never depends on Supabase
-├─ Control plane compromise degrades convenience, not truth
-├─ Egress allowlisted to Hetzner only
-├─ Logs contain NO payloads, NO tokens, NO PII
-└─ Partners can operate Vault-only (control plane optional)
-
-Failure Posture:
-If Control Plane fails/leaks, partners can still:
-  1. Fetch origin from Hetzner (by CID)
-  2. Verify integrity independently (hash/cid)
-  3. Detect missing/revoked pointers (explicit failure)
-  4. Control-plane failure degrades convenience, not truth
 ```
 
 ---
 
-### Red-Team Validation Test
+### Phase 2 Invariants (MUST — non-negotiable)
+
+- Control plane stores **NO origin payloads**
+- Control plane stores **NO encryption keys**
+- Control plane stores **NO secrets**
+- Vault (Hetzner) is the sole source-of-truth for origin bits
+- Verifiability never depends on Supabase
+- Control-plane compromise degrades convenience, not truth
+- Control-plane egress is allowlisted to Hetzner only
+- Logs contain NO payloads, NO tokens, NO PII
+- Partners can operate Vault-only using:
+  - fetch by CID
+  - verify via hash/CID  
+  *(Negative Dependency Test)*
+
+---
+
+### Failure Posture (Phase 2 Target)
+
+If the control plane fails or leaks, partners can still:
+
+1. Fetch origin from Hetzner (by CID)
+2. Verify integrity independently (hash / CID)
+3. Detect missing or revoked pointers (explicit failure)
+4. Continue operation with loss of convenience, not loss of truth
+
+---
+
+### Red-Team Validation (Phase 2A)
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  RED-TEAM SCENARIO                                                   │
-│                                                                      │
-│  Assumption: Full Supabase dump + all edge function logs obtained    │
-│                                                                      │
-│  Question: What origin content can be reconstructed?                 │
-│                                                                      │
-│  Expected Answer: NONE                                               │
-│  ├─ Only routing hints (origin_id → CID mappings)                    │
-│  ├─ Only hashed/salted identifiers                                   │
-│  ├─ No image bytes, no OCR text, no AI summaries                     │
-│  └─ No encryption keys (keys never transit control plane)            │
-│                                                                      │
-│  If this test fails → architecture requires hardening before Phase 2 │
-└─────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  RED-TEAM VALIDATION                                │
+│  Q: Given a full Supabase database dump + edge logs │
+│     — what origin content can be reconstructed?    │
+│                                                     │
+│  A: NONE. Only routing hints and hashed identifiers │
+└─────────────────────────────────────────────────────┘
 ```
+
+**Acceptance criterion:**  
+A compromised control plane yields zero recoverable origin content.
+
+---
+
+### Positioning Consequence
+
+- **Phase 1** proved origin can exist
+- **Phase 2** proves systems cannot afford to lose it
+- Supabase / Lovable Cloud remains:
+  - useful
+  - replaceable
+  - **never authoritative**
 
 ---
 
