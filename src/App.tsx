@@ -18,7 +18,6 @@ import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
 import { DemoWalkthrough2 } from "./components/dev/DemoWalkthrough2";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
 import PilotTracker from "./pages/PilotTracker";
-import ColorCompare from "./pages/ColorCompare";
 import ProofPage from "./pages/ProofPage";
 
 const queryClient = new QueryClient();
@@ -49,7 +48,6 @@ const App = () => (
             <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
             <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
-            <Route path="/color-compare" element={<ColorCompare />} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
