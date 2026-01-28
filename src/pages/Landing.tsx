@@ -34,18 +34,6 @@ export default function Landing() {
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-6 md:p-8">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="text-landing-gold font-serif text-xl tracking-wide">
-              Umarise
-            </span>
-          </motion.div>
-        </header>
 
         {/* Main content */}
         <main className="flex-1 flex items-center justify-center px-6 md:px-8">
