@@ -333,4 +333,31 @@ The current architecture provides **operational privacy** (policy-based access c
 
 ---
 
+## 11. PHASE 2 SECURITY GOALS
+
+Phase 2 focuses on hardening the control plane so that **compromise of Supabase/Lovable Cloud cannot yield origin content**.
+
+### Core Invariant
+
+> Control-plane breach ≠ origin breach
+
+### Key Hardening Areas
+
+| Area | Goal |
+|------|------|
+| Trust boundary | No origin payloads via control plane |
+| Edge function security | Body logging disabled, egress allowlisted |
+| Metadata minimization | Hash/salt identifiers, explicit retention |
+| Jurisdiction clarity | Control plane positioned as routing only |
+| RLS strengthening | Short-lived tokens, stricter access separation |
+
+### Validation Test
+
+Red-team scenario: Given full Supabase dump + edge logs, what origin content can be reconstructed?  
+**Expected answer: NONE.**
+
+→ Full architecture briefing with stack diagrams: see [Phase 2 Roadmap — Architecture Invariants](./phase-2-roadmap.md#architecture-invariants)
+
+---
+
 *Document generated from codebase analysis. No marketing claims, no roadmap, only current state.*
