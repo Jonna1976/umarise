@@ -49,29 +49,34 @@ export default function DocsExport() {
       `}</style>
 
       {/* Instructions and buttons (hidden when printing) */}
-      <div className="no-print fixed top-0 left-0 right-0 bg-[hsl(43,35%,95%)] border-b border-[hsl(43,30%,80%)] z-50">
+      <div className="no-print fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-start gap-3 mb-3">
             <span className="text-2xl">📄</span>
             <div>
-              <p className="text-[hsl(43,40%,25%)] font-medium text-sm">PDF opslaan via print-dialoog</p>
-              <p className="text-[hsl(43,30%,35%)] text-xs mt-1">
-                Wijzig in het print-dialoog de <strong>"Bestemming"</strong> van je printer naar <strong>"Opslaan als PDF"</strong> (of "Save as PDF")
+              <p className="text-foreground font-medium text-sm">Save as PDF via print dialog</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                In the print dialog, change <strong>"Destination"</strong> from your printer to <strong>"Save as PDF"</strong>
               </p>
             </div>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => window.print()}
-              className="bg-[hsl(43,45%,42%)] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[hsl(43,45%,35%)]"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 inline-flex items-center gap-2 shadow-sm"
             >
-              📥 Open Print Dialoog
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+              </svg>
+              Open Print Dialog
             </button>
             <button
               onClick={handleBack}
-              className="bg-[hsl(43,20%,90%)] text-[hsl(43,30%,30%)] px-4 py-2 rounded-lg text-sm font-medium hover:bg-[hsl(43,25%,85%)]"
+              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-secondary/80"
             >
-              ← Terug
+              ← Back
             </button>
           </div>
         </div>
