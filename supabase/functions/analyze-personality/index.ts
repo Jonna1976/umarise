@@ -3,8 +3,37 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
 };
+
+const DEVICE_HEADER = 'x-device-id';
+
+function isValidDeviceId(deviceId: string): boolean {
+  return deviceId.length >= 36 && /^[a-f0-9-]+$/i.test(deviceId);
+}
+
+function validateDeviceHeader(req: Request, payloadDeviceId?: string): { valid: boolean; deviceId: string | null; error?: string } {
+  const headerDeviceId = req.headers.get(DEVICE_HEADER);
+  
+  if (!headerDeviceId) {
+    if (payloadDeviceId && isValidDeviceId(payloadDeviceId)) {
+      console.warn('[device-validation] Missing x-device-id header, using payload');
+      return { valid: true, deviceId: payloadDeviceId };
+    }
+    return { valid: false, deviceId: null, error: 'Missing x-device-id header' };
+  }
+  
+  if (!isValidDeviceId(headerDeviceId)) {
+    return { valid: false, deviceId: null, error: 'Invalid x-device-id format' };
+  }
+  
+  if (payloadDeviceId && payloadDeviceId !== headerDeviceId) {
+    console.error('[device-validation] Header/payload mismatch');
+    return { valid: false, deviceId: null, error: 'Device ID mismatch' };
+  }
+  
+  return { valid: true, deviceId: headerDeviceId };
+}
 
 const VOICE_SYSTEM_PROMPT = `You are a personality analyst who reads between the lines of personal notes to reveal someone's unique character traits and driving forces.
 
@@ -83,9 +112,22 @@ serve(async (req) => {
   }
 
   try {
-    const { device_user_id, profile_type = 'voice' } = await req.json();
+    const body = await req.json();
+    const { device_user_id, profile_type = 'voice' } = body;
 
-    if (!device_user_id) {
+    // Device validation - header must match payload
+    const validation = validateDeviceHeader(req, device_user_id);
+    if (!validation.valid) {
+      console.error('[analyze-personality] Device validation failed:', validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error, code: 'DEVICE_VALIDATION_FAILED' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const validatedDeviceId = validation.deviceId;
+
+    if (!validatedDeviceId) {
       return new Response(
         JSON.stringify({ error: 'device_user_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -113,11 +155,11 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all pages for this device user
+    // Fetch all pages for this device user using validated ID
     const { data: allPages, error: dbError } = await supabase
       .from('pages')
       .select('summary, tone, keywords, created_at, primary_keyword, user_note, sources')
-      .eq('device_user_id', device_user_id)
+      .eq('device_user_id', validatedDeviceId)
       .order('created_at', { ascending: true });
 
     if (dbError) {
@@ -274,7 +316,7 @@ ${JSON.stringify(analysisData, null, 2)}`;
     const { error: snapshotError } = await supabase
       .from('personality_snapshots')
       .insert({
-        device_user_id: device_user_id,
+        device_user_id: validatedDeviceId,
         profile_type: profile_type,
         core_identity: profileResult.core_identity,
         tagline: profileResult.tagline,
