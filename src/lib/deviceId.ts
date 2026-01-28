@@ -13,11 +13,11 @@ export const DEMO_DEVICE_ID = 'demo0000-0000-0000-0000-000000000001';
 
 // Fixed pilot team device IDs for MKB pilot (21-day test)
 // Each team shares a device_user_id for collaborative data access
-// Must be exactly 36 characters to match UUID format validation
+// Must be exactly 36 characters to match UUID format validation (8-4-4-4-12)
 export const PILOT_TEAM_IDS = {
-  A: 'pilot-team-aa-000-0000-000000000001',
-  B: 'pilot-team-bb-000-0000-000000000002', 
-  C: 'pilot-team-cc-000-0000-000000000003',
+  A: 'pilotaaa-0000-0000-0000-000000000001',  // 36 chars (UUID format)
+  B: 'pilotbbb-0000-0000-0000-000000000002',  // 36 chars (UUID format)
+  C: 'pilotccc-0000-0000-0000-000000000003',  // 36 chars (UUID format)
 } as const;
 
 export type PilotTeam = keyof typeof PILOT_TEAM_IDS;
