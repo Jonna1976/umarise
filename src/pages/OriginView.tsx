@@ -246,7 +246,13 @@ export default function OriginView() {
             <ArrowLeft className="w-4 h-4 mr-1" />
             Umarise
           </Button>
-          <span className="text-codex-cream/40 text-sm font-mono">Origin Record</span>
+          <span className="text-codex-cream/40 text-sm font-mono">
+            Origin Record
+            {/* U-mark in header when verified */}
+            {metadata.origin_hash_sha256 && (
+              <span className="ml-1.5 text-codex-gold/60" title="Origin captured (Umarise)">ᵁ</span>
+            )}
+          </span>
         </div>
       </div>
 
@@ -328,7 +334,7 @@ export default function OriginView() {
           </p>
         </motion.div>
 
-        {/* Origin ID */}
+        {/* Origin ID with U-mark */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -337,6 +343,10 @@ export default function OriginView() {
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin ID</h2>
           <p className="font-mono text-codex-cream text-sm break-all bg-codex-ink/50 p-3 rounded-lg border border-codex-cream/10">
             {metadata.origin_id}
+            {/* U-mark: infrastructure signal indicating origin is captured and verifiable */}
+            {metadata.origin_hash_sha256 && (
+              <span className="ml-2 text-codex-gold/70 select-none" title="Origin captured (Umarise)">ᵁ</span>
+            )}
           </p>
         </motion.div>
 
