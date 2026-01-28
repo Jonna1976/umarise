@@ -729,6 +729,121 @@ export function isIpfsUrl(url: string): boolean {
   return url.startsWith('ipfs://');
 }
 
+// ============= IPFS Image Cache =============
+// Cache resolved IPFS blob URLs to avoid repeated proxy calls
+// This dramatically speeds up image loading (from ~10s to instant on repeat views)
+
+interface CachedImage {
+  blobUrl: string;
+  timestamp: number;
+}
+
+const ipfsImageCache = new Map<string, CachedImage>();
+const CACHE_MAX_SIZE = 100; // Max cached images
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+/**
+ * Get cached blob URL for an IPFS URL, if available
+ */
+function getCachedIpfsUrl(ipfsUrl: string): string | null {
+  const cached = ipfsImageCache.get(ipfsUrl);
+  if (!cached) return null;
+  
+  // Check if expired
+  if (Date.now() - cached.timestamp > CACHE_TTL_MS) {
+    // Revoke expired blob URL to prevent memory leaks
+    URL.revokeObjectURL(cached.blobUrl);
+    ipfsImageCache.delete(ipfsUrl);
+    return null;
+  }
+  
+  return cached.blobUrl;
+}
+
+/**
+ * Cache a blob URL for an IPFS URL
+ */
+function cacheIpfsUrl(ipfsUrl: string, blobUrl: string): void {
+  // Enforce max size - remove oldest entries
+  if (ipfsImageCache.size >= CACHE_MAX_SIZE) {
+    const oldestKey = ipfsImageCache.keys().next().value;
+    if (oldestKey) {
+      const oldest = ipfsImageCache.get(oldestKey);
+      if (oldest) URL.revokeObjectURL(oldest.blobUrl);
+      ipfsImageCache.delete(oldestKey);
+    }
+  }
+  
+  ipfsImageCache.set(ipfsUrl, {
+    blobUrl,
+    timestamp: Date.now(),
+  });
+}
+
+/**
+ * Preload multiple IPFS images in parallel.
+ * Call this when entering a view with many images to warm the cache.
+ * Non-blocking - fires and forgets, logs on completion.
+ */
+export function preloadIpfsImages(urls: string[], concurrency: number = 4): void {
+  const ipfsUrls = urls.filter(url => url.startsWith('ipfs://') && !getCachedIpfsUrl(url));
+  
+  if (ipfsUrls.length === 0) {
+    console.log('[IPFS Preload] All images already cached');
+    return;
+  }
+  
+  console.log(`[IPFS Preload] Starting preload of ${ipfsUrls.length} images...`);
+  
+  // Use a simple queue with concurrency limit
+  let completed = 0;
+  let index = 0;
+  
+  const preloadNext = async () => {
+    if (index >= ipfsUrls.length) return;
+    
+    const url = ipfsUrls[index++];
+    try {
+      // This will fetch and cache the image
+      const storage = getStorageProvider();
+      await storage.getDecryptedImageUrl(url);
+      completed++;
+    } catch (e) {
+      console.warn('[IPFS Preload] Failed:', url.substring(0, 30));
+    }
+    
+    // Continue with next
+    await preloadNext();
+  };
+  
+  // Start concurrent workers
+  const workers = Array(Math.min(concurrency, ipfsUrls.length))
+    .fill(null)
+    .map(() => preloadNext());
+  
+  Promise.all(workers).then(() => {
+    console.log(`[IPFS Preload] Completed: ${completed}/${ipfsUrls.length}`);
+  });
+}
+
+// Forward declaration for preload - actual storage provider accessed lazily
+let _storageProviderGetter: (() => IStorageProvider) | null = null;
+
+function getStorageProvider(): IStorageProvider {
+  if (!_storageProviderGetter) {
+    // Lazy import to avoid circular dependency
+    throw new Error('Storage provider not initialized for preload');
+  }
+  return _storageProviderGetter();
+}
+
+/**
+ * Initialize preload with storage provider getter (called from index.ts)
+ */
+export function initPreloadStorage(getter: () => IStorageProvider): void {
+  _storageProviderGetter = getter;
+}
+
 export class HetznerVaultStorage implements IStorageProvider {
   private proxyUrl: string;
   
@@ -846,8 +961,16 @@ export class HetznerVaultStorage implements IStorageProvider {
     // For IPFS URLs that are NOT encrypted, proxy through Edge Function
     // This provides auth to the Hetzner IPFS gateway without exposing token to client
     if (encryptedUrl.startsWith('ipfs://') && !encryptedUrl.includes('.enc')) {
+      // Check cache first - avoids repeated slow proxy calls
+      const cached = getCachedIpfsUrl(encryptedUrl);
+      if (cached) {
+        console.log('[HetznerVaultStorage] IPFS cache hit:', encryptedUrl.substring(0, 30) + '...');
+        return cached;
+      }
+      
       // Use the storage proxy's IPFS route which has the auth token
       const proxyUrl = `${this.proxyUrl}`;
+      console.log('[HetznerVaultStorage] IPFS cache miss, fetching:', encryptedUrl.substring(0, 30) + '...');
       
       const response = await fetch(proxyUrl, {
         method: 'POST',
@@ -864,9 +987,11 @@ export class HetznerVaultStorage implements IStorageProvider {
         throw new Error('Failed to load image from vault');
       }
       
-      // Return blob URL for the image
+      // Return blob URL for the image and cache it
       const blob = await response.blob();
-      return URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectURL(blob);
+      cacheIpfsUrl(encryptedUrl, blobUrl);
+      return blobUrl;
     }
     
     // For truly encrypted images, call the decrypt endpoint
