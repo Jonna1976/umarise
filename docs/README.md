@@ -27,7 +27,7 @@
 | Document | Purpose | Status |
 |----------|---------|--------|
 | [phase-1-completion.md](./phase-1-completion.md) | Phase 1 completion index | Complete |
-| [phase-2-roadmap.md](./phase-2-roadmap.md) | Phase 2 roadmap & checklists | In Progress |
+| [phase-2-roadmap.md](./phase-2-roadmap.md) | Phase 2 roadmap & Architecture Validation | In Progress |
 
 ---
 
