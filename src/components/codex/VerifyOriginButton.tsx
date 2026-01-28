@@ -27,43 +27,41 @@ interface VerifyOriginButtonProps {
 type VerificationState = 'idle' | 'loading-hash' | 'verifying' | 'verified' | 'mismatch' | 'legacy';
 
 export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originHashAlgo, inline = false }: VerifyOriginButtonProps) {
-  const [state, setState] = useState<VerificationState>('idle');
-  const [result, setResult] = useState<HashVerificationResult | null>(null);
-  const [resolvedHash, setResolvedHash] = useState<string | null>(originHashSha256);
-  const [hashChecked, setHashChecked] = useState(false);
+  // Check localStorage synchronously on first render to prevent flash
+  const STORAGE_KEY = `umarise_verified_${pageId}`;
+  const storedVerification = (() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.verified && parsed.hash) return parsed;
+      }
+    } catch {}
+    return null;
+  })();
+  
+  const [state, setState] = useState<VerificationState>(storedVerification ? 'verified' : 'idle');
+  const [result, setResult] = useState<HashVerificationResult | null>(storedVerification ? {
+    match: true,
+    expectedHash: storedVerification.hash,
+    actualHash: storedVerification.hash,
+    fileName: 'image',
+    verifiedAt: storedVerification.verifiedAt,
+    algorithm: 'sha256',
+  } : null);
+  const [resolvedHash, setResolvedHash] = useState<string | null>(storedVerification?.hash || originHashSha256);
+  const [hashChecked, setHashChecked] = useState(!!storedVerification || !!originHashSha256);
   
   // Use ref for synchronous tracking of restored state (prevents race condition between effects)
-  const restoredFromStorage = useRef(false);
+  const restoredFromStorage = useRef(!!storedVerification);
 
-  const STORAGE_KEY = `umarise_verified_${pageId}`;
-
-  // Check localStorage for persisted verification on mount
+  // Note: localStorage is checked synchronously on mount (in useState initializers above)
+  // This effect is only for debugging/logging purposes
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.verified && parsed.hash) {
-          restoredFromStorage.current = true; // Synchronous flag
-          setResult({
-            match: true,
-            expectedHash: parsed.hash,
-            actualHash: parsed.hash,
-            fileName: 'image',
-            verifiedAt: parsed.verifiedAt,
-            algorithm: 'sha256',
-          });
-          setResolvedHash(parsed.hash);
-          setState('verified');
-          setHashChecked(true);
-          console.log('[VerifyOrigin] Restored verified state from localStorage');
-          return;
-        }
-      } catch (e) {
-        console.warn('[VerifyOrigin] Failed to parse stored verification:', e);
-      }
+    if (restoredFromStorage.current) {
+      console.log('[VerifyOrigin] Initialized with verified state from localStorage');
     }
-  }, [STORAGE_KEY]);
+  }, []);
 
   // Lazy lookup hash from sidecar if not provided
   useEffect(() => {
