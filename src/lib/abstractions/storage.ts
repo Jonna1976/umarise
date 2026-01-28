@@ -843,9 +843,30 @@ export class HetznerVaultStorage implements IStorageProvider {
   }
 
   async getDecryptedImageUrl(encryptedUrl: string): Promise<string> {
-    // For IPFS URLs that are NOT encrypted, just resolve via gateway
+    // For IPFS URLs that are NOT encrypted, proxy through Edge Function
+    // This provides auth to the Hetzner IPFS gateway without exposing token to client
     if (encryptedUrl.startsWith('ipfs://') && !encryptedUrl.includes('.enc')) {
-      return resolveIpfsUrl(encryptedUrl, this.config.ipfsGateway);
+      // Use the storage proxy's IPFS route which has the auth token
+      const proxyUrl = `${this.proxyUrl}`;
+      
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'GET',
+          path: '/vault/ipfs/proxy',
+          queryParams: { url: encryptedUrl },
+        }),
+      });
+      
+      if (!response.ok) {
+        console.error('[HetznerVaultStorage] IPFS proxy failed:', response.status);
+        throw new Error('Failed to load image from vault');
+      }
+      
+      // Return blob URL for the image
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
     }
     
     // For truly encrypted images, call the decrypt endpoint

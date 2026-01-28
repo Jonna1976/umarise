@@ -346,6 +346,65 @@ serve(async (req) => {
       }
     }
 
+    // Handle IPFS proxy - fetch images from Hetzner IPFS gateway with auth
+    if (path === '/vault/ipfs/proxy' && methodUpper === 'GET') {
+      const ipfsUrl = queryParams?.url;
+      if (!ipfsUrl) {
+        return new Response(JSON.stringify({ error: 'Missing url parameter' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
+      if (!hetznerToken) {
+        return new Response(JSON.stringify({ error: 'Storage not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Convert ipfs:// URL to gateway URL
+      const gatewayUrl = ipfsUrl.startsWith('ipfs://')
+        ? `${HETZNER_BASE_URL}/ipfs/${ipfsUrl.replace('ipfs://', '')}`
+        : ipfsUrl;
+
+      console.log(`[${requestId}] Proxying IPFS image from: ${gatewayUrl}`);
+
+      try {
+        const imageResponse = await fetch(gatewayUrl, {
+          headers: { 'Authorization': `Bearer ${hetznerToken}` },
+        });
+
+        if (!imageResponse.ok) {
+          console.error(`[${requestId}] IPFS fetch failed: ${imageResponse.status}`);
+          return new Response(JSON.stringify({ error: 'Failed to fetch image' }), {
+            status: 502,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const imageData = await imageResponse.arrayBuffer();
+        const contentType = imageResponse.headers.get('Content-Type') || 'image/jpeg';
+
+        return new Response(imageData, {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': contentType,
+            'Cache-Control': 'public, max-age=31536000, immutable',
+          },
+        });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'IPFS proxy error';
+        console.error(`[${requestId}] IPFS proxy error:`, msg);
+        return new Response(JSON.stringify({ error: msg }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const rateCheck = checkRateLimit(deviceUserId, path);
     if (!rateCheck.allowed) {
       const retryAfter = Math.ceil((rateCheck.resetAt - Date.now()) / 1000);
