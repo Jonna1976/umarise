@@ -341,11 +341,16 @@ export default function OriginView() {
           className="mb-6"
         >
           <h2 className="text-codex-cream/50 text-sm uppercase tracking-wide mb-2">Origin ID</h2>
-          <p className="font-mono text-codex-cream text-sm break-all bg-codex-ink/50 p-3 rounded-lg border border-codex-cream/10">
-            {metadata.origin_id}
+          <p className="font-mono text-codex-cream text-sm break-all bg-codex-ink/50 p-3 rounded-lg border border-codex-cream/10 flex items-center gap-2">
+            <span className="flex-1">{metadata.origin_id}</span>
             {/* U-mark: infrastructure signal indicating origin is captured and verifiable */}
             {metadata.origin_hash_sha256 && (
-              <span className="ml-2 text-codex-gold/70 select-none" title="Origin captured (Umarise)">ᵁ</span>
+              <span 
+                className="text-codex-gold text-lg font-semibold select-none shrink-0" 
+                title="Origin captured (Umarise)"
+              >
+                ᵁ
+              </span>
             )}
           </p>
         </motion.div>
