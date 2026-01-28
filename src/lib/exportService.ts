@@ -81,18 +81,25 @@ export async function exportPagesAsJSON(): Promise<void> {
   // Get device ID from first page
   const deviceId = pages[0]?.deviceUserId || 'unknown';
 
+  // Count pages with verified origin hashes
+  const verifiedCount = pages.filter(p => !!p.originHashSha256).length;
+
   // Create export data structure with origin hashes
   const exportData: ExportData = {
     exportedAt: new Date().toISOString(),
     version: '2.0', // Version 2.0: canonical origin hash format
     deviceId,
     pageCount: pages.length,
+    // U-mark: infrastructure signal indicating origins are captured and verifiable
+    origin_mark: verifiedCount > 0 ? 'ᵁ' : null,
+    origin_mark_count: verifiedCount,
+    origin_mark_meaning: 'ᵁ indicates that an origin was captured and is verifiable.',
     hashVerificationInfo: {
       algorithm: 'SHA-256',
       howToVerify: 'Calculate SHA-256 of the original image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
     },
     pages: pages.map(toExportedPage),
-  };
+  } as ExportData;
 
   // Convert to JSON string with nice formatting
   const jsonString = JSON.stringify(exportData, null, 2);
@@ -210,12 +217,19 @@ export async function exportPagesAsZIP(
     status: 'Creating ZIP file...'
   });
 
+  // Count verified entries
+  const verifiedEntryCount = manifestEntries.filter(e => e.hash_status === 'verified').length;
+
   // Create manifest.json (canonical verification format)
   const manifest = {
     exportedAt: new Date().toISOString(),
     version: '2.0',
     deviceId,
     pageCount: pages.length,
+    // U-mark: infrastructure signal indicating origins are captured and verifiable
+    origin_mark: verifiedEntryCount > 0 ? 'ᵁ' : null,
+    origin_mark_count: verifiedEntryCount,
+    origin_mark_meaning: 'ᵁ indicates that an origin was captured and is verifiable.',
     hashVerificationInfo: {
       algorithm: 'SHA-256',
       howToVerify: 'Calculate SHA-256 of the image file bytes and compare to origin_hash_sha256. Match confirms artifact authenticity.',
@@ -308,6 +322,14 @@ verified. No retroactive hashing is possible.
 The hash is calculated on the exact bytes before any transformation.
 
 ---
+
+## U-mark (ᵁ)
+
+The U-mark indicates that an origin was captured and is verifiable:
+- \`ᵁ\` = Origin captured (Umarise)
+- Present only when \`hash_status: "verified"\`
+- Not a quality, correctness, or ownership claim
+- Infrastructure signal, not marketing
 
 **No Umarise account or application access required for verification.**
 
