@@ -11,6 +11,7 @@ import OriginView from "./pages/OriginView";
 import ReviewKit from "./pages/ReviewKit";
 import DocsExport from "./pages/DocsExport";
 import BriefingExport from "./pages/BriefingExport";
+import Landing from "./pages/Landing";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/briefing-export" element={<BriefingExport />} />
               <Route path="/proof" element={<ProofPage />} />
               <Route path="/pilot-tracker" element={<PilotTracker />} />
+              <Route path="/landing" element={<Landing />} />
               <Route path="/warm-preview" element={<WarmPaletteMockup />} />
               <Route path="/current-preview" element={<CurrentPaletteMockup />} />
               <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />

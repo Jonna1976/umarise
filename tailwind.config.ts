@@ -79,7 +79,14 @@ export default {
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        ring: "hsl(var(--sidebar-ring))",
+        },
+        // Landing page (B2B) colors
+        landing: {
+          deep: "hsl(var(--landing-deep))",
+          gold: "hsl(var(--landing-gold))",
+          cream: "hsl(var(--landing-cream))",
+          muted: "hsl(var(--landing-muted))",
         },
       },
       borderRadius: {
