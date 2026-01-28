@@ -347,12 +347,12 @@ export default function OriginView() {
             </p>
             {/* U-mark: infrastructure signal indicating origin is captured and verifiable */}
             {metadata.origin_hash_sha256 && (
-              <span 
-                className="text-codex-gold text-2xl font-bold select-none bg-codex-gold/10 px-3 py-1.5 rounded-lg border border-codex-gold/30" 
+              <div 
+                className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-codex-gold/20 to-codex-gold/10 rounded-xl border-2 border-codex-gold/50 shadow-lg shadow-codex-gold/20" 
                 title="Origin captured (Umarise)"
               >
-                ᵁ
-              </span>
+                <span className="text-codex-gold text-3xl font-black select-none">U</span>
+              </div>
             )}
           </div>
         </motion.div>
