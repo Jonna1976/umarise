@@ -36,15 +36,18 @@ const SYSTEM_PROMPT = `You are an AI that analyzes handwritten notes for a perso
 6. **Tone**: Single emotional tone (grateful, happy, energetic, peaceful, excited, nostalgic, determined, curious, anxious, frustrated, hopeful, tender, restless, melancholic, playful, focused, overwhelmed, reflective)
 7. **Keywords**: 3-5 essential, lowercase tokens
 8. **Topic labels**: 1-3 labels from controlled vocabulary: ${TOPIC_LABELS.slice(0, 30).join(', ')}, etc.
-9. **Suggested cues**: EXACTLY 3 retrieval words/phrases that the user would type to find this page later
+9. **Suggested cues**: EXACTLY 3 retrieval phrases that the user would type to find this page later
 
-**CRITICAL for suggested_cues:**
-- Each cue should be 1-3 words, max 30 characters
+**CRITICAL for suggested_cues - FOLLOW THESE RULES EXACTLY:**
+- Return an array of EXACTLY 3 strings
+- Each cue should be a meaningful PHRASE of 1-3 words (NOT single disconnected words)
+- Max 30 characters per cue
 - At least 1 cue MUST be a person/organization name OR a deliverable word (pitch, proposal, wedding, visa, roadmap)
+- If the page is about a song or lyrics, use the song title as one cue (e.g., "I got you there" NOT just "I")
 - AVOID generic terms: ${GENERIC_TERMS.join(', ')}
-- Think: "What would I type to find this specific page?"
-- Examples of GOOD cues: ["sarah proposal", "Q4 budget", "wedding venue"]
-- Examples of BAD cues: ["important idea", "notes", "thoughts"]
+- Think: "What complete phrase would I type to find this specific page?"
+- Examples of GOOD cues: ["sarah proposal", "Q4 budget", "wedding venue", "I got you there", "Uma's lyrics"]
+- Examples of BAD cues: ["important", "notes", "I", "the", "song"] (single generic words)
 
 **IMPORTANT**: Keep response concise. Do NOT include bounding boxes or token-level confidence. Just provide the full text.
 
