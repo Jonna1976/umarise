@@ -9,7 +9,8 @@ const corsHeaders = {
 const DEVICE_HEADER = 'x-device-id';
 
 function isValidDeviceId(deviceId: string): boolean {
-  return deviceId.length >= 36 && /^[a-f0-9-]+$/i.test(deviceId);
+  // UUID format (36 chars) or pilot team format (36+ chars with letters)
+  return deviceId.length >= 36 && /^[a-z0-9-]+$/i.test(deviceId);
 }
 
 function validateDeviceHeader(req: Request, payloadDeviceId?: string): { valid: boolean; deviceId: string | null; error?: string } {

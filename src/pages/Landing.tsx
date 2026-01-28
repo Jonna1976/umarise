@@ -88,9 +88,18 @@ export default function Landing() {
             <p className="opacity-50">
               © {new Date().getFullYear()} Umarise
             </p>
-            <p className="opacity-50">
-              Verifiable origins for the programmatic age
-            </p>
+            <div className="flex items-center gap-6">
+              <a 
+                href="/app" 
+                className="opacity-30 hover:opacity-60 transition-opacity text-xs"
+                title="Pilot Demo"
+              >
+                pilot
+              </a>
+              <p className="opacity-50">
+                Verifiable origins for the programmatic age
+              </p>
+            </div>
           </motion.div>
         </footer>
       </div>

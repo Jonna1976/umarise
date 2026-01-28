@@ -71,10 +71,11 @@ export function validateDeviceHeader(
 }
 
 /**
- * Check if device ID has valid UUID format (36+ chars)
+ * Check if device ID has valid format (36+ chars, alphanumeric with hyphens)
  */
 export function isValidDeviceId(deviceId: string): boolean {
-  return deviceId.length >= 36 && /^[a-f0-9-]+$/i.test(deviceId);
+  // UUID format (36 chars) or pilot team format (36+ chars with letters)
+  return deviceId.length >= 36 && /^[a-z0-9-]+$/i.test(deviceId);
 }
 
 /**
