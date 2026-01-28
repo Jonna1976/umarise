@@ -356,7 +356,7 @@ Phase 2 focuses on hardening the control plane so that **compromise of Supabase/
 Red-team scenario: Given full Supabase dump + edge logs, what origin content can be reconstructed?  
 **Expected answer: NONE.**
 
-→ Full architecture briefing with stack diagrams: see [Phase 2 Roadmap — Architecture Invariants](./phase-2-roadmap.md#architecture-invariants)
+→ Full architecture briefing with stack diagrams: see [Phase 2 Roadmap — Architecture Validation](./phase-2-roadmap.md#phase-2a--architecture-validation-control-plane-vs-data-plane)
 
 ---
 
