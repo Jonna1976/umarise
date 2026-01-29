@@ -23,21 +23,22 @@
 ```
 Hoi Paul,
 
-Hopelijk alles goed met je. Sinds ons laatste gesprek over de private-by-design 
-stack ben ik verder gaan denken over de onderliggende infrastructuurvraag en 
-heb daar ook concreet op doorgebouwd.
+Hopelijk alles goed met je / jullie. Sinds ons laatste gesprek over de 
+private-by-design stack ben ik verder gaan denken over de onderliggende 
+infrastructuurvraag en heb daar ook concreet op doorgebouwd.
 
 Ik werk momenteel aan een infrastructuurlaag en wil dit expliciet niet laten 
 reviewen als product, codebase of security setup.
 
 Wat ik zoek is jouw CTO-analyse op stack-niveau.
 
+
 Umarise
 
 Het gaat om een system-of-record dat vastlegt wat er bestond vóórdat AI of 
 workflows het transformeren.
 
-Kun je 30 minuten tijd vrij maken om onderstaande te bekijken? Ik leg het aan 
+Kun je 30 minuten tijd vrijmaken om onderstaande te bekijken? Ik leg het aan 
 nog twee andere sterke denkers voor maar zoek nu validatie op infrastructuurniveau.
 
 1. Review Kit (alles in één URL)
@@ -52,18 +53,20 @@ nog twee andere sterke denkers voor maar zoek nu validatie op infrastructuurnive
 2. PDF bijlagen
    https://umarise.com/docs-export
 
-Geen admin UI. Geen database. Geen servertoegang.
+   Geen admin UI. Geen database. Geen server-toegang.
 
-Kun je 3 onderstaande vragen kritisch beantwoorden:
+3. Technical Preview (voor na evaluatie)
+   Indien je na review een pilot wilt verkennen:
+   https://umarise.com/pilot
 
-1. Als je dit leest: waar zou dit in jouw stack moeten zitten?
-2. Wat gebeurt er in jouw systemen als deze laag er níet is, maar AI en workflows wel?
-3. Is dit voor jou: irrelevant, vanzelfsprekend, of fundamenteel?
+4. Feedback (3 vragen)
+
+   1. Als je dit leest: waar zou dit in jouw stack moeten zitten?
+   2. Wat gebeurt er in jouw systemen als deze laag er níet is, maar AI en workflows wel?
+   3. Is dit voor jou: irrelevant, vanzelfsprekend, of fundamenteel?
 
 Ik ga niets verdedigen of uitleggen. Ik wil horen waar het schuurt of juist 
 onmiddellijk klopt.
-
-Indien je een pilot wilt draaien, stuur ik je de technische onboarding.
 
 Jouw feedback zou enorm helpen.
 
