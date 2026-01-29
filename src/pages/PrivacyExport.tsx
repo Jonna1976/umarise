@@ -174,9 +174,23 @@ const PrivacyExport = () => {
             </thead>
             <tbody>
               <tr className="border-b border-stone-200">
-                <td className="py-3">Origins not E2E encrypted</td>
+                <td className="py-3">
+                  Origins not E2E encrypted
+                  <a 
+                    href="https://github.com/user/umarise/blob/main/docs/phase-2b-e2e-encryption-spec.md" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="ml-2 text-stone-400 hover:text-stone-600 print:hidden"
+                    title="View specification"
+                  >
+                    →
+                  </a>
+                </td>
                 <td className="py-3 text-stone-600">Medium</td>
-                <td className="py-3 text-stone-600">Client-side encryption</td>
+                <td className="py-3 text-stone-600">
+                  Client-side encryption
+                  <span className="block text-xs text-stone-400 mt-0.5">See: phase-2b-e2e-encryption-spec.md</span>
+                </td>
                 <td className="py-3 text-stone-600">2B</td>
               </tr>
               <tr className="border-b border-stone-200">
