@@ -203,6 +203,144 @@ Week 4  │ Alle exit interviews af
 
 ---
 
+## 🔌 API-First Onboarding (Tech-Leads)
+
+### Quick Start (15 minuten)
+
+**Stap 1: Eerste origin resolven**
+
+```bash
+# Resolve een bestaande origin
+curl "https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1/resolve-origin?origin_id=YOUR_ORIGIN_ID"
+```
+
+**Response:**
+```json
+{
+  "found": true,
+  "origin_id": "fb025c0e-0dc8-4b4f-b795-43177ea2a045",
+  "origin_hash_sha256": "1f205f1eb69abefd...",
+  "hash_status": "verified",
+  "origin_mark": "ᵁ",
+  "captured_at": "2026-01-28T14:32:00Z",
+  "origin_link_url": "https://umarise.lovable.app/origin/..."
+}
+```
+
+**Stap 2: Origin verifiëren**
+
+```bash
+# Verify bit-identity van origin content
+curl -X POST "https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1/verify" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "origin_id": "YOUR_ORIGIN_ID",
+    "content": "BASE64_ENCODED_IMAGE"
+  }'
+```
+
+**Response:**
+```json
+{
+  "verified": true,
+  "origin_id": "fb025c0e-...",
+  "submitted_hash": "1f205f1eb69abefd...",
+  "stored_hash": "1f205f1eb69abefd...",
+  "match": true
+}
+```
+
+### API Endpoints Overzicht
+
+| Endpoint | Method | Auth | Doel |
+|----------|--------|------|------|
+| `/resolve-origin` | GET | Public | Origin metadata opvragen |
+| `/verify` | POST | Public | Bit-identity verificatie |
+| `/origins` | POST | API Key | Nieuwe origin registreren |
+
+### Integratie Scenario's
+
+**Scenario A: Verificatie in eigen systeem**
+
+```typescript
+// TypeScript voorbeeld
+async function verifyOrigin(originId: string, imageBlob: Blob): Promise<boolean> {
+  const base64 = await blobToBase64(imageBlob);
+  
+  const response = await fetch(
+    `https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1/verify`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        origin_id: originId,
+        content: base64
+      })
+    }
+  );
+  
+  const result = await response.json();
+  return result.verified && result.match;
+}
+```
+
+**Scenario B: Origin metadata embedden**
+
+```typescript
+// Resolve origin en toon in eigen UI
+async function getOriginMetadata(originId: string) {
+  const response = await fetch(
+    `https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1/resolve-origin?origin_id=${originId}`
+  );
+  
+  const data = await response.json();
+  
+  if (data.found) {
+    return {
+      capturedAt: data.captured_at,
+      hash: data.origin_hash_sha256,
+      verifyUrl: data.origin_link_url,
+      isVerified: data.hash_status === 'verified'
+    };
+  }
+  
+  return null;
+}
+```
+
+**Scenario C: Origin link in documenten**
+
+```markdown
+Dit document is gebaseerd op origin: [ᵁ Verify](https://umarise.lovable.app/origin/fb025c0e-...?verify=1f205f1eb69abefd...)
+```
+
+### Tech-Lead Checklist
+
+**Week 1: Exploratie**
+- [ ] Resolve 3 origins via API
+- [ ] Bekijk response structuur
+- [ ] Identificeer integratie-punt in eigen stack
+
+**Week 2: Prototype**
+- [ ] Bouw eenvoudige verify-call
+- [ ] Test met echte origin uit pilot
+- [ ] Documenteer use-case
+
+**Week 3: Evaluatie**
+- [ ] Demo aan team
+- [ ] Feedback op API design
+- [ ] Bespreek productie-requirements
+
+### Technische Vragen voor Exit Interview
+
+1. "Was de API documentatie voldoende?"
+2. "Welke endpoints miste je?"
+3. "Hoe zou je dit in productie deployen?"
+4. "Welke SLA zou je verwachten?"
+5. "Zijn er security-concerns?"
+
+---
+
 ## 📎 Resources
 
 - [Integration Contract](./integration-contract.md) — API docs voor partners
