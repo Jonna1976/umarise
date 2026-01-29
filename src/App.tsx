@@ -20,6 +20,7 @@ import { WidgetMockup } from "./components/dev/WidgetMockup";
 import PilotTracker from "./pages/PilotTracker";
 import ProofPage from "./pages/ProofPage";
 import PilotDocs from "./pages/PilotDocs";
+import PrivacyExport from "./pages/PrivacyExport";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/review" element={<ReviewKit />} />
             <Route path="/docs-export" element={<DocsExport />} />
             <Route path="/briefing-export" element={<BriefingExport />} />
+            <Route path="/privacy-export" element={<PrivacyExport />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
             
