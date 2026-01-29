@@ -1,4 +1,4 @@
-import { ArrowLeft, Copy, Check, ExternalLink } from "lucide-react";
+import { ArrowLeft, Copy, Check, ExternalLink, Target, BarChart3, Plug, Radio, Code, CheckCircle2, Mic, Calendar, Paperclip } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,12 @@ export default function PilotDocs() {
     </Button>
   );
 
+  const SectionIcon = ({ icon: Icon }: { icon: React.ComponentType<{ className?: string }> }) => (
+    <div className="h-5 w-5 rounded bg-codex-gold/20 flex items-center justify-center mr-2">
+      <Icon className="h-3 w-3 text-codex-gold" />
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -38,24 +44,24 @@ export default function PilotDocs() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm">Terug</span>
+            <span className="text-sm">Back</span>
           </Link>
-          <span className="text-xs text-muted-foreground font-mono">PILOT PARTNERS ONLY</span>
+          <span className="text-xs text-muted-foreground font-mono tracking-wide">PILOT PARTNERS</span>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Phase 2 Pilot Plan</h1>
+          <h1 className="text-3xl font-bold mb-2">Phase 2 Pilot</h1>
           <p className="text-muted-foreground">
-            Commerciële validatie — 3 MKB teams, 21 dagen
+            Commercial validation — 3 SMB teams, 21 days
           </p>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overzicht</TabsTrigger>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="api">API Guide</TabsTrigger>
             <TabsTrigger value="checklist">Checklist</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
@@ -65,21 +71,24 @@ export default function PilotDocs() {
           <TabsContent value="overview" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>🎯 Validatie-doelen</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Target} />
+                  Validation Goals
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <span>Eerste betalende klant</span>
-                    <span className="text-xs bg-yellow-500/20 text-yellow-600 px-2 py-1 rounded">€1+ betaald</span>
+                    <span>First paying customer</span>
+                    <span className="text-xs bg-codex-gold/20 text-codex-gold px-2 py-1 rounded font-mono">€1+ paid</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <span>Partner API-integratie</span>
-                    <span className="text-xs bg-yellow-500/20 text-yellow-600 px-2 py-1 rounded">/resolve of /verify call</span>
+                    <span>Partner API integration</span>
+                    <span className="text-xs bg-codex-gold/20 text-codex-gold px-2 py-1 rounded font-mono">/resolve or /verify call</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span>Due diligence sign-off</span>
-                    <span className="text-xs bg-yellow-500/20 text-yellow-600 px-2 py-1 rounded">CTO bevestiging</span>
+                    <span className="text-xs bg-codex-gold/20 text-codex-gold px-2 py-1 rounded font-mono">CTO confirmation</span>
                   </div>
                 </div>
               </CardContent>
@@ -87,7 +96,10 @@ export default function PilotDocs() {
 
             <Card>
               <CardHeader>
-                <CardTitle>📊 Meetbare Uitkomsten</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={BarChart3} />
+                  Measurable Outcomes
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
@@ -116,13 +128,16 @@ export default function PilotDocs() {
           <TabsContent value="api" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>🔌 Quick Start (15 min)</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Plug} />
+                  Quick Start (15 min)
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Resolve Origin */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">Stap 1: Origin Resolven</h3>
+                    <h3 className="font-semibold">Step 1: Resolve Origin</h3>
                     <CopyButton 
                       text={`curl "${SUPABASE_URL}/resolve-origin?origin_id=YOUR_ORIGIN_ID"`}
                       id="resolve"
@@ -132,7 +147,7 @@ export default function PilotDocs() {
 {`curl "${SUPABASE_URL}/resolve-origin?origin_id=YOUR_ORIGIN_ID"`}
                   </pre>
                   <details className="mt-2">
-                    <summary className="text-sm text-muted-foreground cursor-pointer">Response voorbeeld</summary>
+                    <summary className="text-sm text-muted-foreground cursor-pointer">Response example</summary>
                     <pre className="bg-muted/50 p-3 rounded-lg mt-2 text-xs overflow-x-auto">
 {`{
   "found": true,
@@ -150,7 +165,7 @@ export default function PilotDocs() {
                 {/* Verify Origin */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">Stap 2: Origin Verifiëren</h3>
+                    <h3 className="font-semibold">Step 2: Verify Origin</h3>
                     <CopyButton 
                       text={`curl -X POST "${SUPABASE_URL}/verify" -H "Content-Type: application/json" -d '{"origin_id": "YOUR_ORIGIN_ID", "content": "BASE64_IMAGE"}'`}
                       id="verify"
@@ -162,7 +177,7 @@ export default function PilotDocs() {
   -d '{"origin_id": "...", "content": "BASE64..."}'`}
                   </pre>
                   <details className="mt-2">
-                    <summary className="text-sm text-muted-foreground cursor-pointer">Response voorbeeld</summary>
+                    <summary className="text-sm text-muted-foreground cursor-pointer">Response example</summary>
                     <pre className="bg-muted/50 p-3 rounded-lg mt-2 text-xs overflow-x-auto">
 {`{
   "verified": true,
@@ -179,30 +194,33 @@ export default function PilotDocs() {
 
             <Card>
               <CardHeader>
-                <CardTitle>📡 API Endpoints</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Radio} />
+                  API Endpoints
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div>
                       <code className="text-sm font-mono">/resolve-origin</code>
-                      <span className="ml-2 text-xs text-muted-foreground">GET • Public</span>
+                      <span className="ml-2 text-xs text-muted-foreground">GET · Public</span>
                     </div>
-                    <span className="text-xs">Origin metadata</span>
+                    <span className="text-xs text-muted-foreground">Origin metadata</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div>
                       <code className="text-sm font-mono">/verify</code>
-                      <span className="ml-2 text-xs text-muted-foreground">POST • Public</span>
+                      <span className="ml-2 text-xs text-muted-foreground">POST · Public</span>
                     </div>
-                    <span className="text-xs">Bit-identity check</span>
+                    <span className="text-xs text-muted-foreground">Bit-identity check</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div>
                       <code className="text-sm font-mono">/origins</code>
-                      <span className="ml-2 text-xs text-muted-foreground">POST • API Key</span>
+                      <span className="ml-2 text-xs text-muted-foreground">POST · API Key</span>
                     </div>
-                    <span className="text-xs">Create origin</span>
+                    <span className="text-xs text-muted-foreground">Create origin</span>
                   </div>
                 </div>
               </CardContent>
@@ -210,7 +228,10 @@ export default function PilotDocs() {
 
             <Card>
               <CardHeader>
-                <CardTitle>💻 TypeScript Voorbeeld</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Code} />
+                  TypeScript Example
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
@@ -241,11 +262,14 @@ export default function PilotDocs() {
           <TabsContent value="checklist" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>✅ Tech-Lead Checklist</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={CheckCircle2} />
+                  Tech Lead Checklist
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Week 1: Exploratie</h3>
+                  <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Week 1: Exploration</h3>
                   <div className="space-y-2">
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
@@ -253,11 +277,11 @@ export default function PilotDocs() {
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Bekijk response structuur</span>
+                      <span>Review response structure</span>
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Identificeer integratie-punt in eigen stack</span>
+                      <span>Identify integration point in own stack</span>
                     </label>
                   </div>
                 </div>
@@ -267,33 +291,33 @@ export default function PilotDocs() {
                   <div className="space-y-2">
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Bouw eenvoudige verify-call</span>
+                      <span>Build simple verify call</span>
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Test met echte origin uit pilot</span>
+                      <span>Test with real origin from pilot</span>
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Documenteer use-case</span>
+                      <span>Document use case</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Week 3: Evaluatie</h3>
+                  <h3 className="font-semibold mb-3 text-sm text-muted-foreground">Week 3: Evaluation</h3>
                   <div className="space-y-2">
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Demo aan team</span>
+                      <span>Demo to team</span>
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Feedback op API design</span>
+                      <span>Feedback on API design</span>
                     </label>
                     <label className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded cursor-pointer">
                       <input type="checkbox" className="rounded" />
-                      <span>Bespreek productie-requirements</span>
+                      <span>Discuss production requirements</span>
                     </label>
                   </div>
                 </div>
@@ -302,15 +326,18 @@ export default function PilotDocs() {
 
             <Card>
               <CardHeader>
-                <CardTitle>🎤 Exit Interview Vragen</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Mic} />
+                  Exit Interview Questions
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ol className="space-y-3 list-decimal list-inside">
-                  <li className="text-sm">"Was de API documentatie voldoende?"</li>
-                  <li className="text-sm">"Welke endpoints miste je?"</li>
-                  <li className="text-sm">"Hoe zou je dit in productie deployen?"</li>
-                  <li className="text-sm">"Welke SLA zou je verwachten?"</li>
-                  <li className="text-sm">"Zijn er security-concerns?"</li>
+                  <li className="text-sm">"Was the API documentation sufficient?"</li>
+                  <li className="text-sm">"Which endpoints were missing?"</li>
+                  <li className="text-sm">"How would you deploy this in production?"</li>
+                  <li className="text-sm">"What SLA would you expect?"</li>
+                  <li className="text-sm">"Any security concerns?"</li>
                 </ol>
               </CardContent>
             </Card>
@@ -320,35 +347,38 @@ export default function PilotDocs() {
           <TabsContent value="timeline" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>📅 21-Dagen Timeline</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Calendar} />
+                  21-Day Timeline
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex gap-4">
                     <div className="w-20 text-sm font-mono text-muted-foreground">Week 0</div>
                     <div className="flex-1 p-3 bg-muted/50 rounded-lg">
-                      <div className="font-medium">Uitnodiging</div>
-                      <div className="text-sm text-muted-foreground">3 kandidaat-teams benaderen</div>
+                      <div className="font-medium">Invitation</div>
+                      <div className="text-sm text-muted-foreground">Reach out to 3 candidate teams</div>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     <div className="w-20 text-sm font-mono text-muted-foreground">Week 1</div>
                     <div className="flex-1 p-3 bg-muted/50 rounded-lg">
                       <div className="font-medium">Onboarding</div>
-                      <div className="text-sm text-muted-foreground">Account setup + eerste captures</div>
+                      <div className="text-sm text-muted-foreground">Account setup + first captures</div>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     <div className="w-20 text-sm font-mono text-muted-foreground">Week 2</div>
                     <div className="flex-1 p-3 bg-muted/50 rounded-lg">
-                      <div className="font-medium">Dagelijks gebruik</div>
-                      <div className="text-sm text-muted-foreground">Check-in: "Wat zou je missen?"</div>
+                      <div className="font-medium">Daily usage</div>
+                      <div className="text-sm text-muted-foreground">Check-in: "What would you miss?"</div>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     <div className="w-20 text-sm font-mono text-muted-foreground">Week 3</div>
                     <div className="flex-1 p-3 bg-muted/50 rounded-lg">
-                      <div className="font-medium">Integratie + Evaluatie</div>
+                      <div className="font-medium">Integration + Evaluation</div>
                       <div className="text-sm text-muted-foreground">API tests + exit interviews</div>
                     </div>
                   </div>
@@ -358,21 +388,30 @@ export default function PilotDocs() {
 
             <Card>
               <CardHeader>
-                <CardTitle>🎯 Succes-definitie</CardTitle>
+                <CardTitle className="flex items-center">
+                  <SectionIcon icon={Target} />
+                  Success Definition
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg">
-                    <span className="text-green-500">✓</span>
-                    <span className="text-sm">≥1 team zegt: "Ik zou betalen voor dit"</span>
+                  <div className="flex items-start gap-3 p-3 bg-codex-gold/10 rounded-lg">
+                    <span className="text-codex-gold mt-0.5">
+                      <Check className="h-4 w-4" />
+                    </span>
+                    <span className="text-sm">≥1 team says: "I would pay for this"</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg">
-                    <span className="text-green-500">✓</span>
-                    <span className="text-sm">≥1 team roept de API aan vanuit eigen systeem</span>
+                  <div className="flex items-start gap-3 p-3 bg-codex-gold/10 rounded-lg">
+                    <span className="text-codex-gold mt-0.5">
+                      <Check className="h-4 w-4" />
+                    </span>
+                    <span className="text-sm">≥1 team calls the API from their own system</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-green-500/10 rounded-lg">
-                    <span className="text-green-500">✓</span>
-                    <span className="text-sm">≥1 tech-lead bevestigt: "Dit is solide gebouwd"</span>
+                  <div className="flex items-start gap-3 p-3 bg-codex-gold/10 rounded-lg">
+                    <span className="text-codex-gold mt-0.5">
+                      <Check className="h-4 w-4" />
+                    </span>
+                    <span className="text-sm">≥1 tech lead confirms: "This is solidly built"</span>
                   </div>
                 </div>
               </CardContent>
@@ -382,7 +421,10 @@ export default function PilotDocs() {
 
         {/* Resources */}
         <div className="mt-8 pt-8 border-t border-border/40">
-          <h2 className="text-lg font-semibold mb-4">📎 Resources</h2>
+          <h2 className="text-lg font-semibold mb-4 flex items-center">
+            <SectionIcon icon={Paperclip} />
+            Resources
+          </h2>
           <div className="grid gap-3">
             <a 
               href="https://umarise.lovable.app/app" 
@@ -397,7 +439,7 @@ export default function PilotDocs() {
               target="_blank"
               className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
             >
-              <span>Voorbeeld Origin View</span>
+              <span>Example Origin View</span>
               <ExternalLink className="h-4 w-4 text-muted-foreground" />
             </a>
           </div>
@@ -407,7 +449,7 @@ export default function PilotDocs() {
       {/* Footer */}
       <footer className="border-t border-border/40 mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-xs text-muted-foreground">
-          Phase 2 Pilot Plan — Februari 2026 — Alleen voor pilot partners
+          Phase 2 Pilot — February 2026 — Pilot partners only
         </div>
       </footer>
     </div>
