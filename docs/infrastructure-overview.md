@@ -240,19 +240,97 @@ Proton Calendar is suitable for Umarise's privacy-by-design philosophy if:
 
 ---
 
-## Privacy Architecture
+## Privacy-by-Design Assessment
+
+### Technology Stack Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    UMARISE PRIVACY STACK                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────┐│
+│  │   LOVABLE   │  │  SUPABASE   │  │   HETZNER   │  │ PROTON  ││
+│  │  Frontend   │  │Control Plane│  │ Data Plane  │  │Comms    ││
+│  │     EU      │  │     EU      │  │  🇩🇪 Germany │  │🇨🇭 Swiss ││
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────┘│
+│        │                │                │               │      │
+│        ▼                ▼                ▼               ▼      │
+│   Static SPA      Stateless        Source of        Zero-      │
+│   No user data    Indices only     Truth            Knowledge  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Provider Assessment Matrix
+
+| Provider | Role | Location | GDPR | Zero-Knowledge | Data Stored | Privacy Score |
+|----------|------|----------|------|----------------|-------------|---------------|
+| **Lovable** | Frontend hosting | EU | ✅ | N/A (static) | None | ⭐⭐⭐⭐⭐ |
+| **Supabase** | Control plane | EU | ✅ | ❌ Operational | Indices, metadata | ⭐⭐⭐⭐ |
+| **Hetzner** | Data plane | 🇩🇪 Germany | ✅ | ❌ Encrypted-at-rest | Origin content | ⭐⭐⭐⭐⭐ |
+| **Proton** | Communications | 🇨🇭 Switzerland | ✅ | ✅ E2E encrypted | Email, calendar | ⭐⭐⭐⭐⭐ |
 
 ### Core Invariant
 
 > **"Compromise of Lovable/Supabase (control plane) must never yield origin content."**
+
+### Layer Analysis
+
+#### 1. Lovable (Frontend Layer)
+
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Data storage | ✅ None | Static SPA only |
+| User tracking | ✅ None | No analytics, no cookies |
+| CDN location | ✅ EU | IP: 185.158.133.1 |
+| SSL/TLS | ✅ Enforced | Let's Encrypt |
+
+**Privacy Impact**: Zero — serves static assets only.
+
+#### 2. Supabase via Lovable Cloud (Control Plane)
+
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Origin content | ✅ Never stored | Stateless proxy |
+| User accounts | ✅ None | Device-based isolation |
+| Indices | ⚠️ Metadata only | Search indices, no content |
+| Logs | ✅ Sanitized | No PII, no payloads |
+| Egress | ✅ Allowlisted | Hetzner only |
+
+**Privacy Impact**: Minimal — indices and metadata, no reconstruction capability.
+
+#### 3. Hetzner (Data Plane)
+
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Location | ✅ Germany | Strictest GDPR interpretation |
+| Origin storage | ✅ Immutable | Write-once semantics |
+| Encryption | ✅ At-rest | AES-256 |
+| IPFS | ✅ Content-addressed | SHA-256 integrity |
+| Access control | ✅ API-only | No dashboard access |
+
+**Privacy Impact**: Primary data custodian — privacy enforced at source.
+
+#### 4. Proton (Communications)
+
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Email encryption | ✅ E2E | Zero-knowledge |
+| Calendar encryption | ✅ E2E | Zero-knowledge |
+| Server location | ✅ Switzerland | Privacy-friendly jurisdiction |
+| Provider access | ✅ None | Cannot decrypt content |
+
+**Privacy Impact**: Zero provider visibility — aligns with privacy-first philosophy.
 
 ### Intentional Separation
 
 | Layer | Privacy Role | Compromise Impact |
 |-------|--------------|-------------------|
 | **Hetzner (Data)** | Truth storage | Would expose origins |
-| **Lovable Cloud (Control)** | Stateless proxy | Degrades convenience, not truth |
-| **ProtonMail (Email)** | Zero-knowledge | Provider cannot read content |
+| **Supabase (Control)** | Stateless proxy | Degrades convenience, not truth |
+| **Proton (Comms)** | Zero-knowledge | Provider cannot read content |
+| **Lovable (Frontend)** | Static hosting | No data to expose |
 
 ### Design Principles
 
@@ -260,6 +338,36 @@ Proton Calendar is suitable for Umarise's privacy-by-design philosophy if:
 2. **Operational flexibility where it CAN** — at the control plane
 3. **Zero reconstruction capability** — control plane cannot rebuild origin content
 4. **Egress allowlist** — Edge Functions only communicate with Hetzner
+5. **Zero-knowledge communications** — Proton for all external comms
+
+### Overall Privacy-by-Design Score
+
+| Category | Score | Justification |
+|----------|-------|---------------|
+| Data Minimization | ⭐⭐⭐⭐⭐ | No user accounts, device-based isolation |
+| Purpose Limitation | ⭐⭐⭐⭐⭐ | Origin verification only |
+| Storage Limitation | ⭐⭐⭐⭐⭐ | Immutable, no retention beyond purpose |
+| Integrity | ⭐⭐⭐⭐⭐ | SHA-256, write-once, triggers |
+| Confidentiality | ⭐⭐⭐⭐ | Encrypted-at-rest, not E2E for origins |
+| Jurisdiction | ⭐⭐⭐⭐⭐ | EU + Switzerland only |
+
+**Overall: ⭐⭐⭐⭐⭐ (4.8/5)**
+
+### Gap Analysis
+
+| Gap | Severity | Mitigation | Phase |
+|-----|----------|------------|-------|
+| Origins not E2E encrypted | Medium | Client-side encryption | 2B |
+| Supabase metadata visible | Low | Hash-based identifiers | 2A ✅ |
+| No TSA timestamps | Low | Blockchain anchoring | 3 |
+
+### Certification Readiness
+
+| Standard | Status | Notes |
+|----------|--------|-------|
+| GDPR Article 25 | ✅ Ready | Privacy-by-design documented |
+| ISO 27701 | ⚠️ Partial | Needs formal audit |
+| SOC 2 Type II | ❌ Not started | Phase 3 |
 
 ---
 
