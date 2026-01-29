@@ -471,6 +471,7 @@ All database tables enforce `device_user_id` matching.
 - [`integration-contract.md`](./integration-contract.md) — API primitives
 - [`layer-boundaries.md`](./layer-boundaries.md) — System boundaries
 - [`cto-technical-factsheet.md`](./cto-technical-factsheet.md) — Due diligence baseline
+- [`phase-2b-e2e-encryption-spec.md`](./phase-2b-e2e-encryption-spec.md) — End-to-End encryption specification (Phase 2B)
 
 ---
 
