@@ -20,6 +20,84 @@
 
 ## Three-Layer Architecture
 
+### Visual Diagram
+
+```mermaid
+flowchart TB
+    subgraph FRONTEND["🌐 FRONTEND LAYER — Lovable (EU)"]
+        F1[React SPA]
+        F2[Static Assets CDN]
+        F3["IP: 185.158.133.1"]
+    end
+
+    subgraph CONTROL["⚙️ CONTROL PLANE — Lovable Cloud (EU)"]
+        C1[Edge Functions]
+        C2[Auth Indices]
+        C3[Metadata Proxies]
+        C4[Search Indices]
+        WARN1["⚠️ STATELESS"]
+        WARN2["⚠️ No origin content"]
+    end
+
+    subgraph DATA["🔒 DATA PLANE — Hetzner (Germany 🇩🇪)"]
+        D1[Origin Scans]
+        D2[SHA-256 Hashes]
+        D3[IPFS Storage]
+        D4[Immutable Records]
+        OK1["✓ SOURCE OF TRUTH"]
+        OK2["✓ Privacy-by-design"]
+    end
+
+    FRONTEND --> CONTROL
+    CONTROL --> DATA
+
+    style FRONTEND fill:#f9f9f9,stroke:#333
+    style CONTROL fill:#fff3cd,stroke:#856404
+    style DATA fill:#d4edda,stroke:#155724
+```
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend as Frontend<br/>(Lovable)
+    participant Control as Control Plane<br/>(Edge Functions)
+    participant Vault as Data Vault<br/>(Hetzner 🇩🇪)
+
+    User->>Frontend: Capture origin
+    Frontend->>Frontend: Compute SHA-256
+    Frontend->>Control: POST /origins
+    Control->>Vault: Store image + hash
+    Vault-->>Control: origin_id
+    Control-->>Frontend: Success + origin_id
+    
+    Note over Control: No origin bytes stored
+    Note over Vault: Immutable record created
+```
+
+### Verification Flow
+
+```mermaid
+sequenceDiagram
+    participant Partner as External Partner
+    participant API as Public API
+    participant Vault as Hetzner Vault
+
+    Partner->>API: GET /resolve-origin?id=xxx
+    API->>Vault: Fetch metadata
+    Vault-->>API: hash, timestamp, status
+    API-->>Partner: Origin metadata
+
+    Partner->>API: POST /verify (content)
+    API->>API: Compute SHA-256
+    API->>Vault: Compare with stored hash
+    Vault-->>API: match: true/false
+    API-->>Partner: Verification result
+```
+
+### ASCII Fallback
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      FRONTEND LAYER                         │
