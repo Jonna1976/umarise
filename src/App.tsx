@@ -19,6 +19,7 @@ import { DemoWalkthrough2 } from "./components/dev/DemoWalkthrough2";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
 import PilotTracker from "./pages/PilotTracker";
 import ProofPage from "./pages/ProofPage";
+import PilotDocs from "./pages/PilotDocs";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/docs-export" element={<DocsExport />} />
             <Route path="/briefing-export" element={<BriefingExport />} />
             <Route path="/proof" element={<ProofPage />} />
+            <Route path="/pilot" element={<PilotDocs />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
