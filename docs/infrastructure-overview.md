@@ -5,6 +5,17 @@
 
 ---
 
+## Table of Contents
+
+1. [DNS Configuration](#dns-configuration)
+2. [Three-Layer Architecture](#three-layer-architecture)
+3. [Email Infrastructure](#email-infrastructure)
+4. [Privacy Architecture](#privacy-architecture)
+5. [Security Layers](#security-layers)
+6. [API Endpoints](#api-endpoints)
+
+---
+
 ## DNS Configuration
 
 | Domain | Record Type | Value | Provider |
@@ -139,6 +150,55 @@ sequenceDiagram
 
 ---
 
+## Email Infrastructure
+
+### Overview
+
+| Component | Provider | Location |
+|-----------|----------|----------|
+| Email Hosting | ProtonMail | 🇨🇭 Switzerland |
+| DNS Management | GoDaddy | Domain registrar |
+
+**Why ProtonMail?** Zero-knowledge encryption aligns with privacy-by-design philosophy.
+
+### Active Addresses
+
+| Address | Purpose |
+|---------|---------|
+| `j.fassbender@umarise.com` | Primary contact |
+| `partners@umarise.com` | Partner communications |
+
+### DNS Records
+
+#### MX Records
+
+| Priority | Value |
+|----------|-------|
+| 10 | `mail.protonmail.ch` |
+| 20 | `mailsec.protonmail.ch` |
+
+#### Authentication Records
+
+| Type | Host | Value |
+|------|------|-------|
+| TXT | @ | `v=spf1 include:_spf.protonmail.ch ~all` |
+| CNAME | `protonmail._domainkey` | `protonmail._domainkey.dxclj4p5cfpqtcxkuhsjd3jpmhqnhz3l.domains.proton.ch` |
+| CNAME | `protonmail2._domainkey` | `protonmail2._domainkey.dxclj4p5cfpqtcxkuhsjd3jpmhqnhz3l.domains.proton.ch` |
+| CNAME | `protonmail3._domainkey` | `protonmail3._domainkey.dxclj4p5cfpqtcxkuhsjd3jpmhqnhz3l.domains.proton.ch` |
+| TXT | `_dmarc` | `v=DMARC1; p=quarantine` |
+
+### Verification Status
+
+| Check | Status |
+|-------|--------|
+| Domain Verification | ✅ |
+| MX Records | ✅ |
+| SPF | ✅ |
+| DKIM | ✅ |
+| DMARC | ✅ |
+
+---
+
 ## Privacy Architecture
 
 ### Core Invariant
@@ -151,6 +211,7 @@ sequenceDiagram
 |-------|--------------|-------------------|
 | **Hetzner (Data)** | Truth storage | Would expose origins |
 | **Lovable Cloud (Control)** | Stateless proxy | Degrades convenience, not truth |
+| **ProtonMail (Email)** | Zero-knowledge | Provider cannot read content |
 
 ### Design Principles
 
@@ -165,48 +226,37 @@ sequenceDiagram
 
 ### 1. Device-Based Isolation
 
-- **Identifier**: 128-bit UUID (`device_user_id`)
-- **Storage**: Browser localStorage
-- **Entropy**: 2^122 (cryptographically secure)
-- **Philosophy**: Zero-account, privacy-first
+| Property | Value |
+|----------|-------|
+| Identifier | 128-bit UUID (`device_user_id`) |
+| Storage | Browser localStorage |
+| Entropy | 2^122 (cryptographically secure) |
 
 ### 2. Header Validation
 
 All Edge Function requests require:
-
 ```
 x-device-id: [36-character UUID]
 ```
 
-Validation rules:
-- Exactly 36 characters
-- Alphanumeric with hyphens
-- Regex: `/^[a-z0-9-]+$/`
-
 ### 3. Row-Level Security (RLS)
 
-All database tables enforce:
-- `device_user_id` column matching request header
-- No cross-device data access
+All database tables enforce `device_user_id` matching.
 
 ### 4. Immutability Enforcement
 
-- Database triggers prevent modification of origin records
-- SHA-256 hashes computed client-side before upload
-- Write-once semantics on Hetzner storage
+- Database triggers prevent modification
+- SHA-256 computed client-side
+- Write-once semantics on Hetzner
 
----
+### 5. Email Security
 
-## Performance Optimizations
-
-### IPFS Image Retrieval
-
-| Optimization | Implementation |
-|--------------|----------------|
-| Authenticated proxy | `GET /vault/ipfs/proxy` via HETZNER_API_TOKEN |
-| Client-side cache | In-memory blob URLs (30-min TTL, 100-image limit) |
-| Parallel preloading | Views prefetch visible images |
-| Persistent blob URLs | Not revoked on unmount for instant re-render |
+| Feature | Implementation |
+|---------|----------------|
+| End-to-end encryption | ProtonMail |
+| SPF | Authorized senders only |
+| DKIM | Cryptographic signing |
+| DMARC | Policy: quarantine |
 
 ---
 
@@ -234,6 +284,7 @@ All database tables enforce:
 | Frontend | EU | Lovable | None (static) |
 | Control Plane | EU | Lovable Cloud | Indices, metadata |
 | Data Plane | 🇩🇪 Germany | Hetzner | Origin content |
+| Email | 🇨🇭 Switzerland | ProtonMail | Communications |
 
 ---
 
@@ -249,9 +300,29 @@ All database tables enforce:
 
 ---
 
+## Troubleshooting
+
+### DNS Propagation
+- Use [DNSChecker.org](https://dnschecker.org) to verify
+- Full propagation: up to 48-72 hours
+
+### GoDaddy 2FA Issues
+**Known Issue**: SMS delivery unreliable due to carrier filtering.  
+**Solution**: Configure Authenticator App as backup.
+
+### Email Not Receiving
+1. Verify MX records propagated
+2. Check ProtonMail spam folder
+3. Confirm sender isn't blocked
+
+---
+
 ## Related Documentation
 
 - [`integration-contract.md`](./integration-contract.md) — API primitives
 - [`layer-boundaries.md`](./layer-boundaries.md) — System boundaries
 - [`cto-technical-factsheet.md`](./cto-technical-factsheet.md) — Due diligence baseline
-- [`phase-2-roadmap.md`](./phase-2-roadmap.md) — Architecture evolution
+
+---
+
+*Configuration completed: January 29, 2026*
