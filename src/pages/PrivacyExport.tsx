@@ -120,6 +120,92 @@ const PrivacyExport = () => {
         </div>
       </section>
 
+      {/* ISO/IEC 27701 Alignment */}
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">ISO/IEC 27701 Alignment — Summary</h2>
+        <p className="text-stone-600 text-sm mb-4 leading-relaxed">
+          This section demonstrates how Umarise aligns with ISO/IEC 27701 privacy principles by architectural design.
+          It is informative and non-certifying.
+        </p>
+
+        {/* Context */}
+        <div className="mb-6 text-sm space-y-1">
+          <p className="text-stone-600"><span className="text-stone-800 font-medium">System:</span> Umarise Origin Record Layer (infrastructure-first, B2B2C)</p>
+          <p className="text-stone-600"><span className="text-stone-800 font-medium">Role:</span> Umarise acts as a system-of-record and PIMS processor</p>
+          <p className="text-stone-600"><span className="text-stone-800 font-medium">Architecture:</span> Strict separation of control plane (Supabase/Lovable Cloud) and data plane (Hetzner, EU)</p>
+        </div>
+
+        {/* ISO Principle Alignment Table */}
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full text-sm border-collapse font-sans">
+            <thead>
+              <tr className="border-b border-stone-300">
+                <th className="py-2 text-left font-normal text-stone-500">ISO Principle</th>
+                <th className="py-2 text-center font-normal text-stone-500">Status</th>
+                <th className="py-2 text-left font-normal text-stone-500">Umarise Implementation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Privacy by Design</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Enforced by architecture (no update path, immutable origins)</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Data Minimisation</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Control plane stores no origin payloads</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Purpose Limitation</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Recording ≠ interpretation ≠ processing</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Transparency</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Origin View + Proof Bundle</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Accountability</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Verifiable origin + explicit absence detection</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Third-party Risk</td>
+                <td className="py-2 text-center text-green-700">✓</td>
+                <td className="py-2 text-stone-600">Clear provider separation (control vs data plane)</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Security of Processing</td>
+                <td className="py-2 text-center text-amber-600">⚠</td>
+                <td className="py-2 text-stone-600">Strong baseline; E2E encryption planned</td>
+              </tr>
+              <tr className="border-b border-stone-200">
+                <td className="py-2 text-stone-800">Cryptographic Controls</td>
+                <td className="py-2 text-center text-amber-600">⚠</td>
+                <td className="py-2 text-stone-600">Hash-based integrity; no TSA by design</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Audit Conclusion */}
+        <div className="mb-4">
+          <h3 className="text-xs font-sans uppercase tracking-widest text-stone-500 mb-2">Audit Conclusion</h3>
+          <p className="text-stone-600 text-sm leading-relaxed">
+            Umarise demonstrably aligns with ISO/IEC 27701 principles for privacy-by-design, data minimisation and accountability.
+            Remaining cryptographic extensions are explicitly positioned as roadmap items and do not constitute non-conformity.
+          </p>
+        </div>
+
+        {/* Clarifying Scope */}
+        <div className="bg-stone-50 p-3 rounded text-sm text-stone-600 border-l-2 border-stone-300">
+          <span className="font-medium text-stone-700">Clarifying Scope:</span> Umarise does not implement governance, compliance enforcement or access policy.
+          It provides the precondition: verifiable origin. Governance operates above this layer.
+        </div>
+      </section>
+
       {/* Core Invariant */}
       <section className="mb-10">
         <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Invariant</h2>
