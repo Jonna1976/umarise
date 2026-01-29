@@ -29,6 +29,9 @@ const PrivacyExport = () => {
       <header className="mb-10 border-b border-stone-300 pb-6">
         <h1 className="text-2xl font-light tracking-wide text-stone-800 mb-1">Privacy-by-Design Assessment</h1>
         <p className="text-sm text-stone-500 font-sans">Umarise · January 2026 · v1.0</p>
+        <p className="text-xs text-stone-400 font-sans mt-2 italic">
+          Internal architecture assessment against GDPR and ISO/IEC 27701 criteria. Not an external audit or certification.
+        </p>
       </header>
 
       {/* Score Summary */}
