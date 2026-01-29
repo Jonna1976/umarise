@@ -18,8 +18,7 @@
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
-| [infrastructure-overview.md](./infrastructure-overview.md) | Three-layer architecture diagrams | Technical stakeholders |
-| [email-infrastructure.md](./email-infrastructure.md) | ProtonMail + GoDaddy DNS setup | Operations |
+| [infrastructure-overview.md](./infrastructure-overview.md) | Architecture, DNS, email & security | Technical stakeholders |
 
 ---
 
