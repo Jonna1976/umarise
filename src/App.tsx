@@ -21,6 +21,7 @@ import PilotTracker from "./pages/PilotTracker";
 import ProofPage from "./pages/ProofPage";
 import PilotDocs from "./pages/PilotDocs";
 import PrivacyExport from "./pages/PrivacyExport";
+import IsoExport from "./pages/IsoExport";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/docs-export" element={<DocsExport />} />
             <Route path="/briefing-export" element={<BriefingExport />} />
             <Route path="/privacy-export" element={<PrivacyExport />} />
+            <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
             
