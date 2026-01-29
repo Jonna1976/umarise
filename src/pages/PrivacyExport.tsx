@@ -2,15 +2,15 @@ import { useEffect } from "react";
 
 const PrivacyExport = () => {
   useEffect(() => {
-    document.title = "Umarise Privacy-by-Design Assessment";
+    document.title = "Umarise – Privacy-by-Design Assessment";
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 p-8 print:p-4 max-w-4xl mx-auto">
-      {/* Print instruction bar - hidden when printing */}
+    <div className="min-h-screen bg-white text-stone-900 p-8 print:p-4 max-w-4xl mx-auto font-serif">
+      {/* Print instruction bar */}
       <div className="print:hidden mb-6 p-4 bg-background border border-border rounded-lg flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Use <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Ctrl/Cmd + P</kbd> to print or save as PDF
+          <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Ctrl/Cmd + P</kbd> to save as PDF
         </p>
         <button
           onClick={() => window.print()}
@@ -21,123 +21,76 @@ const PrivacyExport = () => {
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          Download PDF
+          Export
         </button>
       </div>
 
       {/* Document Header */}
-      <header className="mb-8 border-b-2 border-gray-200 pb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Privacy-by-Design Assessment</h1>
-          <span className="text-sm text-gray-500">Confidential</span>
-        </div>
-        <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span><strong>Organization:</strong> Umarise</span>
-          <span>|</span>
-          <span><strong>Date:</strong> January 29, 2026</span>
-          <span>|</span>
-          <span><strong>Version:</strong> 1.0</span>
-        </div>
+      <header className="mb-10 border-b border-stone-300 pb-6">
+        <h1 className="text-2xl font-light tracking-wide text-stone-800 mb-1">Privacy-by-Design Assessment</h1>
+        <p className="text-sm text-stone-500 font-sans">Umarise · January 2026 · v1.0</p>
       </header>
 
-      {/* Executive Summary */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Executive Summary</h2>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">⭐</span>
-            <div>
-              <p className="font-semibold text-green-800">Overall Privacy Score: 4.8/5</p>
-              <p className="text-sm text-green-700">GDPR Article 25 Ready • EU/Swiss Jurisdiction Only</p>
-            </div>
-          </div>
+      {/* Score Summary */}
+      <section className="mb-10">
+        <div className="flex items-baseline gap-4 mb-4">
+          <span className="text-4xl font-light text-stone-800">4.8</span>
+          <span className="text-stone-500">/5</span>
+          <span className="text-sm text-stone-600 ml-4">GDPR Article 25 compliant</span>
         </div>
-        <p className="text-gray-700 leading-relaxed">
-          Umarise implements a privacy-first architecture using intentional separation of concerns across four layers. 
-          The core invariant ensures that compromise of the control plane (Lovable/Supabase) cannot yield origin content, 
-          as privacy enforcement sits at the data layer where it matters most.
+        <p className="text-stone-600 leading-relaxed text-sm">
+          Four-layer architecture with intentional separation. Control plane compromise cannot yield origin content. 
+          Privacy enforcement at data layer. EU/Swiss jurisdiction only.
         </p>
       </section>
 
-      {/* Technology Stack */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Technology Stack Overview</h2>
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <p className="font-semibold text-gray-900">LOVABLE</p>
-            <p className="text-xs text-gray-600">Frontend</p>
-            <p className="text-xs text-gray-500 mt-1">EU</p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <p className="font-semibold text-gray-900">SUPABASE</p>
-            <p className="text-xs text-gray-600">Control Plane</p>
-            <p className="text-xs text-gray-500 mt-1">EU</p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4 text-center bg-green-50 border-green-200">
-            <p className="font-semibold text-gray-900">HETZNER</p>
-            <p className="text-xs text-gray-600">Data Plane</p>
-            <p className="text-xs text-gray-500 mt-1">🇩🇪 Germany</p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4 text-center bg-green-50 border-green-200">
-            <p className="font-semibold text-gray-900">PROTON</p>
-            <p className="text-xs text-gray-600">Communications</p>
-            <p className="text-xs text-gray-500 mt-1">🇨🇭 Switzerland</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Provider Assessment Matrix */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Provider Assessment Matrix</h2>
+      {/* Provider Matrix */}
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Provider Matrix</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-3 py-2 text-left">Provider</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Role</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Location</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">GDPR</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Zero-Knowledge</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Data Stored</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Score</th>
+              <tr className="border-b border-stone-300">
+                <th className="py-2 text-left font-normal text-stone-500">Provider</th>
+                <th className="py-2 text-left font-normal text-stone-500">Role</th>
+                <th className="py-2 text-left font-normal text-stone-500">Location</th>
+                <th className="py-2 text-center font-normal text-stone-500">GDPR</th>
+                <th className="py-2 text-center font-normal text-stone-500">Zero-Knowledge</th>
+                <th className="py-2 text-left font-normal text-stone-500">Data</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">Lovable</td>
-                <td className="border border-gray-200 px-3 py-2">Frontend hosting</td>
-                <td className="border border-gray-200 px-3 py-2">EU</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-gray-400">N/A (static)</td>
-                <td className="border border-gray-200 px-3 py-2">None</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
+            <tbody className="font-sans">
+              <tr className="border-b border-stone-200">
+                <td className="py-3 font-medium">Lovable</td>
+                <td className="py-3 text-stone-600">Frontend</td>
+                <td className="py-3 text-stone-600">EU</td>
+                <td className="py-3 text-center">✓</td>
+                <td className="py-3 text-center text-stone-400">n/a</td>
+                <td className="py-3 text-stone-600">None (static)</td>
               </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2 font-medium">Supabase</td>
-                <td className="border border-gray-200 px-3 py-2">Control plane</td>
-                <td className="border border-gray-200 px-3 py-2">EU</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-gray-400">❌ Operational</td>
-                <td className="border border-gray-200 px-3 py-2">Indices, metadata</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3 font-medium">Supabase</td>
+                <td className="py-3 text-stone-600">Control plane</td>
+                <td className="py-3 text-stone-600">EU</td>
+                <td className="py-3 text-center">✓</td>
+                <td className="py-3 text-center text-stone-400">—</td>
+                <td className="py-3 text-stone-600">Indices only</td>
               </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">Hetzner</td>
-                <td className="border border-gray-200 px-3 py-2">Data plane</td>
-                <td className="border border-gray-200 px-3 py-2">🇩🇪 Germany</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-gray-400">❌ Encrypted-at-rest</td>
-                <td className="border border-gray-200 px-3 py-2">Origin content</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3 font-medium">Hetzner</td>
+                <td className="py-3 text-stone-600">Data plane</td>
+                <td className="py-3 text-stone-600">DE</td>
+                <td className="py-3 text-center">✓</td>
+                <td className="py-3 text-center text-stone-400">AES-256</td>
+                <td className="py-3 text-stone-600">Origin content</td>
               </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2 font-medium">Proton</td>
-                <td className="border border-gray-200 px-3 py-2">Communications</td>
-                <td className="border border-gray-200 px-3 py-2">🇨🇭 Switzerland</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓ E2E encrypted</td>
-                <td className="border border-gray-200 px-3 py-2">Email, calendar</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3 font-medium">Proton</td>
+                <td className="py-3 text-stone-600">Communications</td>
+                <td className="py-3 text-stone-600">CH</td>
+                <td className="py-3 text-center">✓</td>
+                <td className="py-3 text-center">✓</td>
+                <td className="py-3 text-stone-600">E2E encrypted</td>
               </tr>
             </tbody>
           </table>
@@ -145,235 +98,126 @@ const PrivacyExport = () => {
       </section>
 
       {/* Layer Analysis */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Layer Analysis</h2>
-        
-        <div className="space-y-4">
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">1. Lovable (Frontend Layer)</h3>
-            <p className="text-sm text-gray-700 mb-2"><strong>Privacy Impact:</strong> Zero — serves static assets only.</p>
-            <ul className="text-sm text-gray-600 list-disc list-inside">
-              <li>Data storage: None (static SPA only)</li>
-              <li>User tracking: None (no analytics, no cookies)</li>
-              <li>CDN location: EU (IP: 185.158.133.1)</li>
-              <li>SSL/TLS: Enforced via Let's Encrypt</li>
-            </ul>
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Layer Analysis</h2>
+        <div className="space-y-6 text-sm">
+          <div>
+            <h3 className="font-medium text-stone-800 mb-1">Frontend (Lovable)</h3>
+            <p className="text-stone-600">Static SPA. No data storage, no analytics, no cookies. CDN-served from EU.</p>
           </div>
-
-          <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">2. Supabase (Control Plane)</h3>
-            <p className="text-sm text-gray-700 mb-2"><strong>Privacy Impact:</strong> Minimal — indices and metadata, no reconstruction capability.</p>
-            <ul className="text-sm text-gray-600 list-disc list-inside">
-              <li>Origin content: Never stored (stateless proxy)</li>
-              <li>User accounts: None (device-based isolation)</li>
-              <li>Indices: Metadata only (search indices, no content)</li>
-              <li>Egress: Allowlisted to Hetzner only</li>
-            </ul>
-            <p className="text-xs text-yellow-700 mt-2 font-medium">⚠️ STATELESS — Cannot reconstruct origin data</p>
+          <div>
+            <h3 className="font-medium text-stone-800 mb-1">Control Plane (Supabase)</h3>
+            <p className="text-stone-600">Stateless proxy. Stores search indices and metadata. Cannot reconstruct origin content. Egress allowlisted to Hetzner.</p>
           </div>
-
-          <div className="border border-green-200 bg-green-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">3. Hetzner (Data Plane)</h3>
-            <p className="text-sm text-gray-700 mb-2"><strong>Privacy Impact:</strong> Primary data custodian — privacy enforced at source.</p>
-            <ul className="text-sm text-gray-600 list-disc list-inside">
-              <li>Location: Germany (strictest GDPR interpretation)</li>
-              <li>Origin storage: Immutable (write-once semantics)</li>
-              <li>Encryption: At-rest (AES-256)</li>
-              <li>IPFS: Content-addressed (SHA-256 integrity)</li>
-            </ul>
-            <p className="text-xs text-green-700 mt-2 font-medium">✓ SOURCE OF TRUTH</p>
+          <div>
+            <h3 className="font-medium text-stone-800 mb-1">Data Plane (Hetzner DE)</h3>
+            <p className="text-stone-600">Primary custodian. Immutable storage with write-once semantics. IPFS content-addressed. SHA-256 integrity.</p>
           </div>
-
-          <div className="border border-green-200 bg-green-50 rounded-lg p-4">
-            <h3 className="font-semibold text-gray-900 mb-2">4. Proton (Communications)</h3>
-            <p className="text-sm text-gray-700 mb-2"><strong>Privacy Impact:</strong> Zero provider visibility — aligns with privacy-first philosophy.</p>
-            <ul className="text-sm text-gray-600 list-disc list-inside">
-              <li>Email encryption: E2E (zero-knowledge)</li>
-              <li>Calendar encryption: E2E (zero-knowledge)</li>
-              <li>Server location: Switzerland (privacy-friendly jurisdiction)</li>
-              <li>Provider access: None (cannot decrypt content)</li>
-            </ul>
+          <div>
+            <h3 className="font-medium text-stone-800 mb-1">Communications (Proton CH)</h3>
+            <p className="text-stone-600">Zero-knowledge encryption for email and calendar. Provider cannot decrypt content.</p>
           </div>
         </div>
       </section>
 
       {/* Core Invariant */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Core Invariant</h2>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-blue-900 font-medium text-center italic">
-            "Compromise of Lovable/Supabase (control plane) must never yield origin content."
-          </p>
-        </div>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-3 py-2 text-left">Layer</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Privacy Role</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Compromise Impact</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">Hetzner (Data)</td>
-                <td className="border border-gray-200 px-3 py-2">Truth storage</td>
-                <td className="border border-gray-200 px-3 py-2 text-red-600">Would expose origins</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2 font-medium">Supabase (Control)</td>
-                <td className="border border-gray-200 px-3 py-2">Stateless proxy</td>
-                <td className="border border-gray-200 px-3 py-2 text-yellow-600">Degrades convenience, not truth</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">Proton (Comms)</td>
-                <td className="border border-gray-200 px-3 py-2">Zero-knowledge</td>
-                <td className="border border-gray-200 px-3 py-2 text-green-600">Provider cannot read content</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2 font-medium">Lovable (Frontend)</td>
-                <td className="border border-gray-200 px-3 py-2">Static hosting</td>
-                <td className="border border-gray-200 px-3 py-2 text-green-600">No data to expose</td>
-              </tr>
-            </tbody>
-          </table>
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Invariant</h2>
+        <p className="text-stone-800 italic border-l-2 border-stone-300 pl-4">
+          Control plane compromise degrades convenience, not truth.
+        </p>
+      </section>
+
+      {/* Score Breakdown */}
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Score Breakdown</h2>
+        <div className="grid grid-cols-2 gap-4 text-sm font-sans">
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Data Minimization</span>
+            <span className="text-stone-800">5/5</span>
+          </div>
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Purpose Limitation</span>
+            <span className="text-stone-800">5/5</span>
+          </div>
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Storage Limitation</span>
+            <span className="text-stone-800">5/5</span>
+          </div>
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Integrity</span>
+            <span className="text-stone-800">5/5</span>
+          </div>
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Confidentiality</span>
+            <span className="text-stone-800">4/5</span>
+          </div>
+          <div className="flex justify-between border-b border-stone-200 py-2">
+            <span className="text-stone-600">Jurisdiction</span>
+            <span className="text-stone-800">5/5</span>
+          </div>
         </div>
       </section>
 
-      {/* Privacy Score Breakdown */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Privacy Score Breakdown</h2>
+      {/* Gaps */}
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Known Gaps</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full text-sm border-collapse font-sans">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-3 py-2 text-left">Category</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Score</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Justification</th>
+              <tr className="border-b border-stone-300">
+                <th className="py-2 text-left font-normal text-stone-500">Gap</th>
+                <th className="py-2 text-left font-normal text-stone-500">Severity</th>
+                <th className="py-2 text-left font-normal text-stone-500">Mitigation</th>
+                <th className="py-2 text-left font-normal text-stone-500">Phase</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2">Data Minimization</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">No user accounts, device-based isolation</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3">Origins not E2E encrypted</td>
+                <td className="py-3 text-stone-600">Medium</td>
+                <td className="py-3 text-stone-600">Client-side encryption</td>
+                <td className="py-3 text-stone-600">2B</td>
               </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2">Purpose Limitation</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">Origin verification only</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3">Metadata visible in control plane</td>
+                <td className="py-3 text-stone-600">Low</td>
+                <td className="py-3 text-stone-600">Hash-based identifiers</td>
+                <td className="py-3 text-stone-600">2A ✓</td>
               </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2">Storage Limitation</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">Immutable, no retention beyond purpose</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2">Integrity</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">SHA-256, write-once, triggers</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2">Confidentiality</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">Encrypted-at-rest, not E2E for origins</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2">Jurisdiction</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">⭐⭐⭐⭐⭐</td>
-                <td className="border border-gray-200 px-3 py-2">EU + Switzerland only</td>
+              <tr className="border-b border-stone-200">
+                <td className="py-3">No external TSA</td>
+                <td className="py-3 text-stone-600">Low</td>
+                <td className="py-3 text-stone-600">Blockchain anchoring</td>
+                <td className="py-3 text-stone-600">3</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* Gap Analysis */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Gap Analysis & Roadmap</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-3 py-2 text-left">Gap</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Severity</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Mitigation</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Phase</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2">Origins not E2E encrypted</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-yellow-600">Medium</td>
-                <td className="border border-gray-200 px-3 py-2">Client-side encryption</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">2B</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2">Supabase metadata visible</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">Low</td>
-                <td className="border border-gray-200 px-3 py-2">Hash-based identifiers</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">2A ✓</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2">No TSA timestamps</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">Low</td>
-                <td className="border border-gray-200 px-3 py-2">Blockchain anchoring</td>
-                <td className="border border-gray-200 px-3 py-2 text-center">3</td>
-              </tr>
-            </tbody>
-          </table>
+      {/* Certification */}
+      <section className="mb-10">
+        <h2 className="text-sm font-sans uppercase tracking-widest text-stone-500 mb-4">Certification Status</h2>
+        <div className="space-y-2 text-sm font-sans">
+          <div className="flex justify-between py-2 border-b border-stone-200">
+            <span>GDPR Article 25</span>
+            <span className="text-stone-800">Ready</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-stone-200">
+            <span>ISO 27701</span>
+            <span className="text-stone-500">Pending audit</span>
+          </div>
+          <div className="flex justify-between py-2 border-b border-stone-200">
+            <span>SOC 2 Type II</span>
+            <span className="text-stone-400">Phase 3</span>
+          </div>
         </div>
-      </section>
-
-      {/* Certification Readiness */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Certification Readiness</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-3 py-2 text-left">Standard</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Status</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">GDPR Article 25</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-green-600">✓ Ready</td>
-                <td className="border border-gray-200 px-3 py-2">Privacy-by-design documented</td>
-              </tr>
-              <tr className="bg-gray-50">
-                <td className="border border-gray-200 px-3 py-2 font-medium">ISO 27701</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-yellow-600">⚠️ Partial</td>
-                <td className="border border-gray-200 px-3 py-2">Needs formal audit</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium">SOC 2 Type II</td>
-                <td className="border border-gray-200 px-3 py-2 text-center text-gray-400">❌ Not started</td>
-                <td className="border border-gray-200 px-3 py-2">Phase 3</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Design Principles */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Design Principles</h2>
-        <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-          <li><strong>Privacy sits where it MUST</strong> — at the data layer (Hetzner)</li>
-          <li><strong>Operational flexibility where it CAN</strong> — at the control plane</li>
-          <li><strong>Zero reconstruction capability</strong> — control plane cannot rebuild origin content</li>
-          <li><strong>Egress allowlist</strong> — Edge Functions only communicate with Hetzner</li>
-          <li><strong>Zero-knowledge communications</strong> — Proton for all external comms</li>
-        </ol>
       </section>
 
       {/* Footer */}
-      <footer className="mt-12 pt-6 border-t-2 border-gray-200 text-center text-sm text-gray-500">
-        <p>© 2026 Umarise. This document is confidential and intended for investors and partners.</p>
-        <p className="mt-1">Contact: partners@umarise.com</p>
+      <footer className="mt-12 pt-6 border-t border-stone-300 text-center text-xs text-stone-500 font-sans">
+        <p>partners@umarise.com</p>
       </footer>
     </div>
   );
