@@ -53,9 +53,9 @@ export default function PilotDocs() {
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Phase 2 Pilot</h1>
+          <h1 className="text-3xl font-bold mb-2">Technical Preview</h1>
           <p className="text-muted-foreground">
-            Commercial validation — 3 SMB teams, 21 days
+            Origin infrastructure for early partners
           </p>
         </div>
 
@@ -449,7 +449,7 @@ export default function PilotDocs() {
       {/* Footer */}
       <footer className="border-t border-border/40 mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-xs text-muted-foreground">
-          Phase 2 Pilot — February 2026 — Pilot partners only
+          Technical Preview — Early partners only
         </div>
       </footer>
     </div>
