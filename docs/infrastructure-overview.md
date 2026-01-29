@@ -150,34 +150,39 @@ sequenceDiagram
 
 ---
 
-## Email Infrastructure
+## Proton Suite Infrastructure
 
 ### Overview
 
-| Component | Provider | Location |
-|-----------|----------|----------|
-| Email Hosting | ProtonMail | 🇨🇭 Switzerland |
-| DNS Management | GoDaddy | Domain registrar |
+| Component | Provider | Location | Status |
+|-----------|----------|----------|--------|
+| Email Hosting | Proton Mail | 🇨🇭 Switzerland | ✅ Active |
+| Calendar | Proton Calendar | 🇨🇭 Switzerland | 🔄 Evaluation |
+| DNS Management | GoDaddy | Domain registrar | ✅ Active |
 
-**Why ProtonMail?** Zero-knowledge encryption aligns with privacy-by-design philosophy.
+**Why Proton?** Zero-knowledge encryption aligns with privacy-by-design philosophy. All data is end-to-end encrypted before leaving the device.
 
-### Active Addresses
+---
+
+### Proton Mail
+
+#### Active Addresses
 
 | Address | Purpose |
 |---------|---------|
 | `j.fassbender@umarise.com` | Primary contact |
 | `partners@umarise.com` | Partner communications |
 
-### DNS Records
+#### DNS Records
 
-#### MX Records
+##### MX Records
 
 | Priority | Value |
 |----------|-------|
 | 10 | `mail.protonmail.ch` |
 | 20 | `mailsec.protonmail.ch` |
 
-#### Authentication Records
+##### Authentication Records
 
 | Type | Host | Value |
 |------|------|-------|
@@ -187,7 +192,7 @@ sequenceDiagram
 | CNAME | `protonmail3._domainkey` | `protonmail3._domainkey.dxclj4p5cfpqtcxkuhsjd3jpmhqnhz3l.domains.proton.ch` |
 | TXT | `_dmarc` | `v=DMARC1; p=quarantine` |
 
-### Verification Status
+#### Verification Status
 
 | Check | Status |
 |-------|--------|
@@ -196,6 +201,42 @@ sequenceDiagram
 | SPF | ✅ |
 | DKIM | ✅ |
 | DMARC | ✅ |
+
+---
+
+### Proton Calendar
+
+#### Capabilities
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| End-to-end encryption | ✅ | All events encrypted before leaving device |
+| CalDAV sync | ✅ | Standard protocol support |
+| Event invitations | ✅ | Compatible with Google/Outlook |
+| Import from Google | ✅ | Via ICS export/import |
+| Web access | ✅ | calendar.proton.me |
+| Mobile apps | ✅ | iOS & Android |
+| Desktop app | ✅ | Windows, macOS, Linux |
+| Proton Mail integration | ✅ | Native event detection in emails |
+
+#### Limitations vs Google Calendar
+
+| Feature | Proton Calendar | Google Calendar |
+|---------|-----------------|-----------------|
+| Third-party integrations | ⚠️ Limited | Extensive ecosystem |
+| Shared calendars | ⚠️ Basic (link sharing) | Full-featured |
+| Video conferencing | ❌ No native integration | Native Google Meet |
+| Offline access | ⚠️ Limited | Good |
+| API access | ⚠️ Limited | Full REST API |
+
+#### Recommendation
+
+Proton Calendar is suitable for Umarise's privacy-by-design philosophy if:
+- Extensive team calendar sharing is not critical
+- Google Meet integration is not required
+- Privacy outweighs convenience trade-offs
+
+**Current Status**: Under evaluation for adoption
 
 ---
 
