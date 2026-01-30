@@ -112,7 +112,7 @@ export default function UMarkMockup() {
             </div>
           </motion.div>
 
-          {/* Serif O - exact replica of Origins wordmark O */}
+          {/* Just a Dot - pure origin point */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,20 +122,12 @@ export default function UMarkMockup() {
             <div className="text-center space-y-3">
               <div className="inline-flex items-center justify-center w-16 h-16">
                 <svg viewBox="0 0 40 40" className="w-full h-full">
-                  {/* Serif O: ellipse with variable stroke width using a path */}
-                  <ellipse 
-                    cx="18" cy="18" rx="11" ry="15" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2"
-                    className="text-stone-700" 
-                  />
-                  <circle cx="34" cy="34" r="3" fill="currentColor" className="text-stone-700" />
+                  <circle cx="20" cy="20" r="6" fill="currentColor" className="text-stone-700" />
                 </svg>
               </div>
               <div>
-                <h2 className="font-serif text-base text-stone-700">Serif O</h2>
-                <p className="text-xs text-stone-400 mt-1">De O uit Origins + punt</p>
+                <h2 className="font-serif text-base text-stone-700">Origin Point</h2>
+                <p className="text-xs text-stone-400 mt-1">Alleen een stip</p>
               </div>
             </div>
 
@@ -145,8 +137,7 @@ export default function UMarkMockup() {
                 <div className="flex items-center gap-2">
                   <span className="text-stone-600 text-sm">contract.pdf</span>
                   <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
-                    <ellipse cx="6.5" cy="7" rx="4.5" ry="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="8" r="3" fill="currentColor" />
                   </svg>
                 </div>
               </div>
@@ -155,8 +146,7 @@ export default function UMarkMockup() {
                 <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Badge</p>
                 <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
                   <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
-                    <ellipse cx="6.5" cy="7" rx="4.5" ry="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="8" r="3" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-stone-600 font-medium">Origin</span>
                 </div>
@@ -200,17 +190,16 @@ export default function UMarkMockup() {
 
             <div className="w-px h-12 bg-stone-200" />
 
-            {/* Serif O at different sizes */}
+            {/* Origin Point at different sizes */}
             <div className="text-center space-y-3">
               <div className="flex items-end justify-center gap-3">
                 {[12, 16, 24, 32, 48].map((size) => (
                   <svg key={size} viewBox="0 0 16 16" style={{ width: size, height: size }} className="text-stone-600">
-                    <ellipse cx="6.5" cy="7" rx="4.5" ry="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+                    <circle cx="8" cy="8" r="3" fill="currentColor" />
                   </svg>
                 ))}
               </div>
-              <p className="text-xs text-stone-400">Serif O</p>
+              <p className="text-xs text-stone-400">Origin Point</p>
             </div>
           </div>
         </section>
