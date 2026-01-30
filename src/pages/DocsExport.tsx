@@ -182,8 +182,72 @@ GET /resolve?hash={sha256}`}</pre>
           </ul>
         </section>
 
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">6. Explicit Non-Features</h2>
+          <p className="text-sm text-gray-700 mb-4">
+            Umarise is <strong>resolved and verified — never searched</strong>. The following capabilities are explicitly excluded from the API:
+          </p>
+          <table className="w-full border-collapse text-sm mb-4">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Not Provided</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Rationale</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">Full-text search</td><td className="border border-gray-300 px-3 py-2">Search requires interpretation; Umarise records, it does not interpret</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">Semantic/fuzzy matching</td><td className="border border-gray-300 px-3 py-2">Identity is deterministic, not probabilistic</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">Content indexing</td><td className="border border-gray-300 px-3 py-2">Partners own their retrieval layer</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">OCR / text extraction</td><td className="border border-gray-300 px-3 py-2">Content analysis belongs to upstream systems</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">AI-generated metadata</td><td className="border border-gray-300 px-3 py-2">Umarise stores origin, not derived intelligence</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-medium">Browsing / timeline views</td><td className="border border-gray-300 px-3 py-2">Presentation layer is partner responsibility</td></tr>
+            </tbody>
+          </table>
+          <p className="text-sm text-gray-600 italic">Partners call Umarise with known identifiers (origin_id, hash, CID). Discovery happens in their systems.</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">7. Retrieval Architecture</h2>
+          <p className="text-sm text-gray-700 mb-4">
+            Retrieval happens at the identity layer, not the content layer. Umarise is invoked by reference, not by query.
+          </p>
+          <pre className="bg-gray-100 p-4 rounded text-xs font-mono mb-4">{`┌─────────────────────────────────────────────┐
+│  Partner Systems (Search / AI / Workflow)   │
+│  ─────────────────────────────────────────  │
+│  • Full-text search                         │
+│  • Semantic matching                        │
+│  • Content indexing                         │
+│  • User selects result → has reference      │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│        Umarise API: /resolve                │
+│  ─────────────────────────────────────────  │
+│  Input: origin_id | hash | CID              │
+│  Output: Origin metadata + artifact URL     │
+└──────────────────────┬──────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────┐
+│        Umarise API: /verify (optional)      │
+│  ─────────────────────────────────────────  │
+│  Input: origin_id + content bytes           │
+│  Output: { match: true | false }            │
+└─────────────────────────────────────────────┘`}</pre>
+          <div className="bg-gray-50 p-4 rounded">
+            <p className="text-sm font-semibold mb-2">Integration pattern:</p>
+            <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+              <li>Partner system performs search/selection in their domain</li>
+              <li>Partner calls <code className="bg-gray-200 px-1 rounded">/resolve</code> with known identifier</li>
+              <li>Partner optionally calls <code className="bg-gray-200 px-1 rounded">/verify</code> to confirm integrity</li>
+            </ol>
+            <p className="text-sm text-gray-600 mt-3 italic">You search in your systems. You verify at Umarise.</p>
+          </div>
+        </section>
+
         <section>
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">6. Implementation Status</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">8. Implementation Status</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -201,7 +265,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <footer className="mt-12 pt-4 border-t border-gray-200 text-xs text-gray-500">
-          <p>Contract version: 1.0 • Umarise Origin Record Layer</p>
+          <p>Contract version: 1.1 • Umarise Origin Record Layer</p>
         </footer>
       </article>
 
