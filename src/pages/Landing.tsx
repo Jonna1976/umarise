@@ -59,10 +59,9 @@ export default function Landing() {
             >
               <a
                 href="mailto:partners@umarise.com?subject=Partner%20Inquiry"
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-landing-copper/70 hover:text-landing-copper transition-colors duration-300 group"
+                className="text-sm tracking-wide text-landing-copper/70 hover:text-landing-copper transition-colors duration-300"
               >
-                <span className="text-sm tracking-wide">Partner Inquiry</span>
-                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                Partner Inquiry
               </a>
             </motion.div>
           </div>
