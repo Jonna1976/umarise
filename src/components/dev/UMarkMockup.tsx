@@ -19,8 +19,8 @@ export default function UMarkMockup() {
           </p>
         </header>
 
-        {/* Three Candidates */}
-        <section className="grid md:grid-cols-3 gap-8">
+        {/* Two Finalists */}
+        <section className="grid md:grid-cols-2 gap-12 max-w-3xl mx-auto">
           
           {/* Circumpunct */}
           <motion.div
@@ -98,70 +98,6 @@ export default function UMarkMockup() {
                       <circle cx="12" cy="12" r="2" fill="currentColor" />
                     </svg>
                   </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Anchor - Improved */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-8"
-          >
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20">
-                <svg viewBox="0 0 40 40" className="w-full h-full">
-                  {/* Improved anchor - ring at top + hook, more recognizable */}
-                  <circle cx="20" cy="10" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
-                  <line x1="20" y1="14" x2="20" y2="30" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
-                  <path d="M14 26 Q14 34 20 34 Q26 34 26 26" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-stone-700" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="font-serif text-lg text-stone-700">Anchor</h2>
-                <p className="text-xs text-stone-400 mt-1">Verankerd, onveranderlijk</p>
-              </div>
-            </div>
-
-            {/* Anchor variations */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Inline</p>
-                <div className="flex items-center gap-3">
-                  <span className="text-stone-600 text-sm">contract.pdf</span>
-                  <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
-                    <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="1" />
-                    <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Badge</p>
-                <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
-                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
-                    <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="1" />
-                    <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                  </svg>
-                  <span className="text-xs text-stone-600 font-medium">Origin</span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Seal</p>
-                <div className="flex justify-center">
-                  <svg viewBox="0 0 80 80" className="w-16 h-16">
-                    <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="1" className="text-stone-300" />
-                    <g className="text-stone-600">
-                      <circle cx="40" cy="26" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="40" y1="32" x2="40" y2="52" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M30 46 Q30 58 40 58 Q50 58 50 46" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </g>
-                  </svg>
                 </div>
               </div>
             </div>
@@ -266,40 +202,6 @@ export default function UMarkMockup() {
                 </svg>
               </div>
               <p className="text-xs text-stone-400">Circumpunct</p>
-            </div>
-
-            <div className="w-px h-16 bg-stone-200" />
-
-            {/* Anchor at different sizes - improved */}
-            <div className="text-center space-y-3">
-              <div className="flex items-end justify-center gap-4">
-                <svg viewBox="0 0 16 16" className="w-3 h-3 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="1.2" />
-                  <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-6 h-6 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="1" />
-                  <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-8 h-8 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                  <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="0.8" />
-                  <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-12 h-12 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="0.6" />
-                  <line x1="8" y1="6" x2="8" y2="12" stroke="currentColor" strokeWidth="0.6" />
-                  <path d="M5 10 Q5 14 8 14 Q11 14 11 10" fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
-                </svg>
-              </div>
-              <p className="text-xs text-stone-400">Anchor</p>
             </div>
 
             <div className="w-px h-16 bg-stone-200" />
