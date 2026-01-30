@@ -11,6 +11,7 @@ import OriginView from "./pages/OriginView";
 import ReviewKit from "./pages/ReviewKit";
 import DocsExport from "./pages/DocsExport";
 import BriefingExport from "./pages/BriefingExport";
+import CTOExport from "./pages/CTOExport";
 import Landing from "./pages/Landing";
 import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/briefing-export" element={<BriefingExport />} />
             <Route path="/privacy-export" element={<PrivacyExport />} />
             <Route path="/iso-export" element={<IsoExport />} />
+            <Route path="/cto" element={<CTOExport />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
             
