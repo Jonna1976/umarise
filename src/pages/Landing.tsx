@@ -58,7 +58,7 @@ export default function Landing() {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <a
-                href="mailto:hello@umarise.com?subject=Partner%20Inquiry"
+                href="mailto:partners@umarise.com?subject=Partner%20Inquiry"
                 className="inline-flex items-center gap-3 px-6 py-3 bg-landing-copper/8 border border-landing-copper/25 rounded-full text-landing-copper hover:bg-landing-copper/12 hover:border-landing-copper/40 transition-all duration-300 group"
               >
                 <span className="text-sm tracking-wide uppercase">Partner Inquiry</span>
