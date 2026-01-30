@@ -421,6 +421,131 @@ GET /resolve?hash={sha256}`}</pre>
           <p>Document version: 1.1 • Umarise Origin Record Layer</p>
         </footer>
       </article>
+
+      {/* Page Break */}
+      <div className="page-break" />
+
+      {/* Document 3: AI Defensibility Positioning */}
+      <article className="max-w-4xl mx-auto px-8 py-12">
+        <header className="mb-8 pb-6 border-b-2 border-black">
+          <p className="text-sm text-gray-500 uppercase tracking-widest mb-2">Umarise Strategic Positioning</p>
+          <h1 className="text-3xl font-bold">AI Defensibility</h1>
+          <p className="text-gray-600 mt-2">Infrastructure for defensible AI</p>
+        </header>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Primary Statement</h2>
+          <div className="bg-gray-50 p-6 rounded">
+            <p className="text-lg font-semibold mb-4">Umarise makes AI defensible.</p>
+            <p className="text-gray-700 mb-2">Without Umarise, AI can operate.</p>
+            <p className="text-gray-700">With Umarise, AI can withstand scrutiny.</p>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Clarification</h2>
+          <p className="text-gray-700">
+            Umarise does not defend AI outputs.<br />
+            It preserves the verifiable origin those outputs depend on.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Value Proposition</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="bg-gray-100 p-4 rounded">
+              <p className="font-semibold text-gray-600 text-xs uppercase mb-2">Without origin</p>
+              <p className="text-gray-700">No proof, no recourse, no accountability.</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded border-l-4 border-black">
+              <p className="font-semibold text-gray-600 text-xs uppercase mb-2">With origin</p>
+              <p className="text-gray-800 font-medium">Responsibility becomes possible.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Compact Variants</h2>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Variant</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2 italic">"AI can run without Umarise. It can't stand without it."</td><td className="border border-gray-300 px-3 py-2">Keynote / deck opener</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 italic">"Umarise is the precondition for defensible AI."</td><td className="border border-gray-300 px-3 py-2">Technical positioning</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 italic">"We don't govern AI. We make it defensible."</td><td className="border border-gray-300 px-3 py-2">Partner communication</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">The Asymmetry</h2>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Without Umarise</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">With Umarise</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">AI can operate</td><td className="border border-gray-300 px-3 py-2">AI can withstand scrutiny</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Claims are assertions</td><td className="border border-gray-300 px-3 py-2">Claims are verifiable</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Disputes require litigation</td><td className="border border-gray-300 px-3 py-2">Disputes are trivially resolvable</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Accountability is theoretical</td><td className="border border-gray-300 px-3 py-2">Accountability is possible</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Strategic Context</h2>
+          <p className="text-gray-700 mb-4">
+            As AI systems proliferate, the question shifts from "can AI do this?" to "can AI prove it did this correctly?"
+          </p>
+          <p className="text-gray-700 mb-3">Umarise answers the second question by ensuring:</p>
+          <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+            <li><strong>Origin exists</strong> — the source material is recorded</li>
+            <li><strong>Origin is immutable</strong> — SHA-256 hash, write-once storage</li>
+            <li><strong>Origin is verifiable</strong> — bit-identity proof via API</li>
+          </ol>
+          <p className="text-sm font-semibold text-gray-800 mt-4">
+            This makes Umarise the precondition for any downstream governance, compliance, or accountability framework.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Platform Relationship</h2>
+          <div className="bg-gray-50 p-4 rounded mb-4">
+            <p className="font-medium">Umarise doesn't compete with platforms. It anchors them by making origin undeniable.</p>
+          </div>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Variant</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Use Case</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2 italic">"Umarise provides a stable origin anchor that platforms can build on without owning it."</td><td className="border border-gray-300 px-3 py-2">CTO / Architect</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Alignment with Infrastructure Positioning</h2>
+          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+            <li><strong>Infrastructure, not product</strong> — we enable, not enforce</li>
+            <li><strong>Technical precision</strong> — "defensible" has specific meaning (withstand scrutiny)</li>
+            <li><strong>No marketing fluff</strong> — every word is load-bearing</li>
+          </ul>
+        </section>
+
+        <footer className="mt-12 pt-4 border-t border-gray-200 text-xs text-gray-500">
+          <p>Document version: 1.0 • Umarise Strategic Positioning</p>
+        </footer>
+      </article>
     </div>
   );
 }
