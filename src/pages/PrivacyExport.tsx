@@ -7,23 +7,6 @@ const PrivacyExport = () => {
 
   return (
     <div className="min-h-screen bg-white text-stone-900 p-8 print:p-4 max-w-4xl mx-auto font-serif">
-      {/* Print instruction bar */}
-      <div className="print:hidden mb-6 p-4 bg-background border border-border rounded-lg flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          <kbd className="px-2 py-1 bg-muted rounded text-xs font-mono">Ctrl/Cmd + P</kbd> to save as PDF
-        </p>
-        <button
-          onClick={() => window.print()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          Export
-        </button>
-      </div>
 
       {/* Document Header */}
       <header className="mb-10 border-b border-stone-300 pb-6">
