@@ -11,7 +11,7 @@ import OriginView from "./pages/OriginView";
 import ReviewKit from "./pages/ReviewKit";
 import DocsExport from "./pages/DocsExport";
 import BriefingExport from "./pages/BriefingExport";
-import CTOExport from "./pages/CTOExport";
+import CTOOverview from "./pages/CTOOverview";
 import Landing from "./pages/Landing";
 import { B2BWalkthrough } from "./components/dev/B2BWalkthrough";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
@@ -42,7 +42,7 @@ const App = () => (
             <Route path="/briefing-export" element={<BriefingExport />} />
             <Route path="/privacy-export" element={<PrivacyExport />} />
             <Route path="/iso-export" element={<IsoExport />} />
-            <Route path="/cto" element={<CTOExport />} />
+            <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
