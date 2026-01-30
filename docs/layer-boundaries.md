@@ -53,7 +53,46 @@ Umarise works with any storage or communication system:
 
 ---
 
-## 2. What Umarise is NOT
+## 2. Why Origin Matters
+
+### The Asymmetry
+
+Without origin, AI and data systems can **operate**.  
+With origin, they can **withstand scrutiny**.
+
+This is not philosophical — it is architectural. Origin is the reference point that makes verification possible.
+
+### Concrete Scenarios
+
+| Scenario | Without Origin | With Origin |
+|----------|----------------|-------------|
+| **AI output is disputed** | "The AI made it up" — no way to check | Compare output against recorded input → bit-identity proof |
+| **Document has been modified** | "He said, she said" — discovery process begins | Hash comparison reveals exact change → dispute resolved in seconds |
+| **Contract terms are contested** | Expensive arbitration, uncertain outcome | Original version is cryptographically verifiable |
+| **Employee claims unfair treatment** | HR has no defensible record | Origin of communication is immutable |
+| **Partner claims data was altered** | Relationship damage, legal exposure | Third-party verification via Umarise API |
+
+### Business Consequences
+
+| Aspect | Cost Without Origin | Benefit With Origin |
+|--------|---------------------|---------------------|
+| **Legal exposure** | €10K–€500K+ per dispute (discovery, arbitration) | Disputes are trivially resolvable |
+| **Time to resolution** | Weeks to months | Seconds (API call) |
+| **Burden of proof** | On the defender | Shared — evidence exists |
+| **Reputation risk** | "They can't prove anything" | "We have the original" |
+| **Negotiation dynamics** | Favors party with more resources | Levels the playing field |
+
+### The Core Maxim
+
+> **Origin is the precondition for accountability.**
+
+Data systems can process, transform, and derive without origin.  
+But they cannot prove what they started with.  
+And without proof, responsibility is impossible.
+
+---
+
+## 3. What Umarise is NOT
 
 Umarise is explicitly **not**:
 
@@ -72,7 +111,7 @@ Umarise is explicitly **not**:
 
 ---
 
-## 3. Where Governance Begins
+## 4. Where Governance Begins
 
 Governance emerges **above** Umarise when other systems:
 
@@ -95,7 +134,7 @@ Governance emerges **above** Umarise when other systems:
 
 ---
 
-## 4. What Umarise Enables (Without Enforcing)
+## 5. What Umarise Enables (Without Enforcing)
 
 With Umarise in place, governance systems can:
 
@@ -113,7 +152,7 @@ With Umarise in place, governance systems can:
 
 ---
 
-## 5. Essential Design Choice
+## 6. Essential Design Choice
 
 > **Umarise exists within the system, but does not control the system.**
 
@@ -128,7 +167,7 @@ Umarise is like a **notary stamp**:
 
 ---
 
-## 6. Positioning Statements
+## 7. Positioning Statements
 
 ### For partners
 
@@ -147,7 +186,7 @@ Umarise is like a **notary stamp**:
 
 ---
 
-## 7. Boundary Diagram
+## 8. Boundary Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -175,7 +214,7 @@ Umarise is like a **notary stamp**:
 
 ---
 
-## 8. Summary
+## 9. Summary
 
 | Aspect | Origin Layer (Umarise) | Governance Layer (Others) |
 |--------|------------------------|---------------------------|
@@ -189,7 +228,7 @@ Umarise is like a **notary stamp**:
 
 ---
 
-## 9. Strategic Clarifications
+## 10. Architectural Decisions
 
 ### 9.1 Technical Proof vs. Legal Claim
 

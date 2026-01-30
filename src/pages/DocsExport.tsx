@@ -310,7 +310,88 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">2. What Umarise is NOT</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">2. Why Origin Matters</h2>
+          
+          <div className="bg-gray-50 p-4 rounded mb-4">
+            <p className="text-sm text-gray-700">
+              <strong>The Asymmetry:</strong> Without origin, data systems can <em>operate</em>. 
+              With origin, they can <em>withstand scrutiny</em>.
+            </p>
+          </div>
+
+          <h3 className="text-lg font-semibold mt-4 mb-3">Concrete Scenarios</h3>
+          <table className="w-full border-collapse text-sm mb-4">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Scenario</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Without Origin</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">With Origin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">AI output is disputed</td>
+                <td className="border border-gray-300 px-3 py-2">"The AI made it up" — no way to check</td>
+                <td className="border border-gray-300 px-3 py-2">Compare against recorded input → bit-identity proof</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Document modified</td>
+                <td className="border border-gray-300 px-3 py-2">"He said, she said" — discovery begins</td>
+                <td className="border border-gray-300 px-3 py-2">Hash comparison → dispute resolved in seconds</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Contract terms contested</td>
+                <td className="border border-gray-300 px-3 py-2">Expensive arbitration, uncertain outcome</td>
+                <td className="border border-gray-300 px-3 py-2">Original version is cryptographically verifiable</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Partner claims data altered</td>
+                <td className="border border-gray-300 px-3 py-2">Relationship damage, legal exposure</td>
+                <td className="border border-gray-300 px-3 py-2">Third-party verification via API</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 className="text-lg font-semibold mt-4 mb-3">Business Consequences</h3>
+          <table className="w-full border-collapse text-sm mb-4">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Aspect</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Cost Without Origin</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Benefit With Origin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Legal exposure</td>
+                <td className="border border-gray-300 px-3 py-2">€10K–€500K+ per dispute</td>
+                <td className="border border-gray-300 px-3 py-2">Disputes trivially resolvable</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Time to resolution</td>
+                <td className="border border-gray-300 px-3 py-2">Weeks to months</td>
+                <td className="border border-gray-300 px-3 py-2">Seconds (API call)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Burden of proof</td>
+                <td className="border border-gray-300 px-3 py-2">On the defender</td>
+                <td className="border border-gray-300 px-3 py-2">Shared — evidence exists</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-3 py-2 font-medium">Negotiation dynamics</td>
+                <td className="border border-gray-300 px-3 py-2">Favors well-funded parties</td>
+                <td className="border border-gray-300 px-3 py-2">Levels the playing field</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="bg-gray-100 p-4 rounded">
+            <p className="text-sm font-semibold text-gray-800">Core Maxim: Origin is the precondition for accountability.</p>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">3. What Umarise is NOT</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -331,7 +412,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">3. Where Governance Begins</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">4. Where Governance Begins</h2>
           <p className="text-sm text-gray-700 mb-3">Governance emerges <strong>above</strong> Umarise when other systems:</p>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 mb-4">
             <li>Make origin <strong>mandatory</strong></li>
@@ -358,7 +439,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">4. What Umarise Enables (Without Enforcing)</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">5. What Umarise Enables (Without Enforcing)</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -380,7 +461,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">5. Positioning Statements</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">6. Positioning Statements</h2>
           <div className="space-y-4 text-sm">
             <div className="bg-gray-50 p-3 rounded">
               <p className="font-semibold text-gray-600 text-xs uppercase">For partners</p>
@@ -398,7 +479,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">6. Summary</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">7. Summary</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-100">
@@ -423,30 +504,30 @@ GET /resolve?hash={sha256}`}</pre>
         <div className="page-break" />
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">7. Architectural Decisions</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">8. Architectural Decisions</h2>
           
           {/* 7.1 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.1 Scope: Bit-Identity, Not Legal Standing</h3>
+            <h3 className="text-lg font-semibold mb-2">8.1 Scope: Bit-Identity, Not Legal Standing</h3>
             <p className="text-sm text-gray-700">Umarise proves byte-equivalence. Legal interpretation is governance layer. The hash shifts burden of proof — claimant must explain mismatch.</p>
           </div>
 
           {/* 7.2 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.2 Hash/Encryption Sequence</h3>
+            <h3 className="text-lg font-semibold mb-2">8.2 Hash/Encryption Sequence</h3>
             <pre className="bg-gray-100 p-2 rounded text-xs font-mono">bytes → SHA-256 → record → encrypt → store</pre>
             <p className="text-sm text-gray-700 mt-2">Hash computed on plaintext. Verification without decryption. E2E (Phase 2B) adds confidentiality, not integrity — integrity exists from day one.</p>
           </div>
 
           {/* 7.3 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.3 Dispute Economics</h3>
+            <h3 className="text-lg font-semibold mb-2">8.3 Dispute Economics</h3>
             <p className="text-sm text-gray-700">Discovery and litigation favor well-funded parties. Instant cryptographic verification changes negotiation dynamics before legal process begins.</p>
           </div>
 
           {/* 7.4 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.4 Vault Independence</h3>
+            <h3 className="text-lg font-semibold mb-2">8.4 Vault Independence</h3>
             <p className="text-sm text-gray-700 mb-2">Umarise is a notary, not a vault. The hash is stored independently of the artifact.</p>
             <table className="w-full border-collapse text-xs">
               <tbody>
@@ -461,14 +542,14 @@ GET /resolve?hash={sha256}`}</pre>
 
           {/* 7.5 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.5 Integration Position</h3>
+            <h3 className="text-lg font-semibold mb-2">8.5 Integration Position</h3>
             <pre className="bg-gray-100 p-2 rounded text-xs font-mono">{`[Notion/CRM/AI Agents/Workflows] → reads from → [Umarise API: /origins, /resolve, /verify]`}</pre>
             <p className="text-sm text-gray-700 mt-2">Origin layer sits before processing systems, not inside. Exposable via MCP for agent workflows.</p>
           </div>
 
           {/* 7.6 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.6 Storage Model</h3>
+            <h3 className="text-lg font-semibold mb-2">8.6 Storage Model</h3>
             <table className="w-full border-collapse text-xs mb-2">
               <tbody>
                 <tr><td className="border border-gray-300 px-2 py-1 font-medium">Hash</td><td className="border border-gray-300 px-2 py-1">Supabase (control plane)</td><td className="border border-gray-300 px-2 py-1">Verification</td></tr>
@@ -480,13 +561,13 @@ GET /resolve?hash={sha256}`}</pre>
 
           {/* 7.7 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.7 Complementary to Existing Vaults</h3>
+            <h3 className="text-lg font-semibold mb-2">8.7 Complementary to Existing Vaults</h3>
             <p className="text-sm text-gray-700">Proton/Nextcloud = storage with access control. Umarise = immutable verification layer. Additive, not competitive. Works with any vault that accepts pre-hashed content.</p>
           </div>
 
           {/* 7.8 */}
           <div className="mb-5">
-            <h3 className="text-lg font-semibold mb-2">7.8 Infrastructure, Not Platform</h3>
+            <h3 className="text-lg font-semibold mb-2">8.8 Infrastructure, Not Platform</h3>
             <p className="text-sm text-gray-700">No network effects. No user-facing product. Systems call the API. Works with centralized (Salesforce) and decentralized (Solid, IPFS) equally. The origin layer is agnostic about what runs above it.</p>
           </div>
         </section>
