@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, RotateCcw, CheckCircle, X, Upload, Database, Cpu, Search, Hash, ShieldCheck, Building2, Circle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, RotateCcw, CheckCircle, X, Upload, Database, Cpu, Search, Hash, ShieldCheck, Building2, Circle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -9,10 +9,17 @@ interface WalkthroughStep {
   title: string;
   subtitle: string;
   description: string;
-  owner: 'partner' | 'umarise';
+  owner: 'partner' | 'umarise' | 'intro';
 }
 
 const steps: WalkthroughStep[] = [
+  {
+    icon: <HelpCircle className="w-4 h-4" />,
+    title: "Provenance required?",
+    subtitle: "",
+    description: "",
+    owner: 'intro',
+  },
   {
     icon: <Upload className="w-4 h-4" />,
     title: "Capture",
@@ -107,6 +114,53 @@ function PartnerIllustration({ step }: { step: WalkthroughStep }) {
       >
         Your infrastructure
       </motion.p>
+    </motion.div>
+  );
+}
+
+// Intro slide illustration
+function IntroIllustration() {
+  return (
+    <motion.div 
+      className="w-56 h-64 rounded-2xl bg-gradient-to-b from-landing-deep via-[hsl(25,25%,12%)] to-landing-deep border border-landing-copper/20 flex flex-col items-center justify-center p-6 relative overflow-hidden"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Question mark with glow */}
+      <motion.div 
+        className="w-20 h-20 rounded-full border-2 border-landing-copper/30 flex items-center justify-center mb-6"
+        animate={{ 
+          borderColor: [
+            'hsla(25, 35%, 42%, 0.3)',
+            'hsla(25, 35%, 42%, 0.6)',
+            'hsla(25, 35%, 42%, 0.3)',
+          ]
+        }}
+        transition={{ duration: 3, repeat: Infinity }}
+      >
+        <span className="text-3xl text-landing-copper font-serif">?</span>
+      </motion.div>
+      
+      {/* Decision: POST /origins */}
+      <motion.div
+        className="px-4 py-3 bg-landing-copper/10 rounded-lg border border-landing-copper/30"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <p className="text-xs text-landing-copper font-mono text-center">POST /origins</p>
+      </motion.div>
+      
+      {/* Arrow indicator */}
+      <motion.div
+        className="mt-4 text-landing-copper/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        <ArrowRight className="w-4 h-4" />
+      </motion.div>
     </motion.div>
   );
 }
@@ -281,27 +335,37 @@ export function B2BWalkthrough() {
           >
             {/* Illustration */}
             <div className="mb-8">
-              {step.owner === 'partner' ? (
+              {step.owner === 'intro' ? (
+                <IntroIllustration />
+              ) : step.owner === 'partner' ? (
                 <PartnerIllustration step={step} />
               ) : (
                 <UmariseIllustration step={step} />
               )}
             </div>
 
-            {/* Step indicator */}
-            <div className={`flex items-center gap-2 text-xs mb-3 ${
-              step.owner === 'umarise' ? 'text-landing-copper' : 'text-landing-muted'
-            }`}>
-              {step.icon}
-              <span className="uppercase tracking-wider font-mono">Step {currentStep + 1} of {steps.length}</span>
-            </div>
+            {/* Step indicator - hide for intro */}
+            {step.owner !== 'intro' && (
+              <div className={`flex items-center gap-2 text-xs mb-3 ${
+                step.owner === 'umarise' ? 'text-landing-copper' : 'text-landing-muted'
+              }`}>
+                {step.icon}
+                <span className="uppercase tracking-wider font-mono">Step {currentStep} of {steps.length - 1}</span>
+              </div>
+            )}
 
             {/* Title */}
-            <h2 className="font-serif text-3xl text-landing-cream mb-2">{step.title}</h2>
-            <p className={`text-sm font-medium mb-4 font-mono ${
-              step.owner === 'umarise' ? 'text-landing-copper' : 'text-landing-muted'
-            }`}>{step.subtitle}</p>
-            <p className="text-landing-muted text-sm max-w-xs leading-relaxed">{step.description}</p>
+            <h2 className={`font-serif mb-2 ${step.owner === 'intro' ? 'text-4xl text-landing-copper' : 'text-3xl text-landing-cream'}`}>
+              {step.title}
+            </h2>
+            {step.subtitle && (
+              <p className={`text-sm font-medium mb-4 font-mono ${
+                step.owner === 'umarise' ? 'text-landing-copper' : 'text-landing-muted'
+              }`}>{step.subtitle}</p>
+            )}
+            {step.description && (
+              <p className="text-landing-muted text-sm max-w-xs leading-relaxed">{step.description}</p>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -314,8 +378,8 @@ export function B2BWalkthrough() {
             onClick={() => setCurrentStep(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentStep
-                ? `w-8 h-2 ${s.owner === 'umarise' ? 'bg-landing-copper' : 'bg-stone-400'}`
-                : `w-2 h-2 ${s.owner === 'umarise' ? 'bg-landing-copper/30' : 'bg-stone-600'} hover:opacity-80`
+                ? `w-8 h-2 ${s.owner === 'intro' ? 'bg-landing-copper/50' : s.owner === 'umarise' ? 'bg-landing-copper' : 'bg-stone-400'}`
+                : `w-2 h-2 ${s.owner === 'intro' ? 'bg-landing-copper/20' : s.owner === 'umarise' ? 'bg-landing-copper/30' : 'bg-stone-600'} hover:opacity-80`
             }`}
             title={s.title}
           />
