@@ -15,7 +15,7 @@ interface WalkthroughStep {
 const steps: WalkthroughStep[] = [
   {
     icon: <HelpCircle className="w-4 h-4" />,
-    title: "Provenance required?",
+    title: "Need verifiable origin?",
     subtitle: "",
     description: "",
     owner: 'intro',
