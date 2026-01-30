@@ -138,20 +138,19 @@ GET /resolve?hash={sha256}`}</pre>
           <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-2">POST /verify</pre>
           <p className="text-sm text-gray-700">Request: origin_id + content binary → Response: {"{ match: true }"}</p>
 
-          <h3 className="text-lg font-semibold mt-6 mb-3">3.4 Error Responses</h3>
-          <pre className="bg-gray-100 p-4 rounded text-xs font-mono overflow-x-auto">{`// All error responses follow this schema:
-{
-  "error": true,
-  "code": "ORIGIN_NOT_FOUND" | "HASH_MISMATCH" | "INVALID_REQUEST" | "RATE_LIMITED",
-  "message": "Human-readable description",
-  "details": { /* optional context */ }
-}
+          <h3 className="text-lg font-semibold mt-6 mb-3">3.4 Response Format</h3>
+          <pre className="bg-gray-100 p-4 rounded text-xs font-mono overflow-x-auto">{`// Success responses include the requested data
+// Error responses use simple format:
+{ "error": "Human-readable description" }
 
 // HTTP Status Codes:
-// 400 - Invalid request (malformed input)
+// 200 - Success (verify returns match: true/false)
+// 201 - Created (new origin)
+// 400 - Invalid request (malformed input, missing fields)
 // 404 - Origin not found
-// 409 - Hash mismatch (verification failed)
-// 429 - Rate limited (60 req/min per device)`}</pre>
+// 405 - Method not allowed
+// 500 - Server error`}</pre>
+          <p className="text-sm text-gray-600 mt-3">Note: Rate limiting and structured error codes are under evaluation for Phase 2.</p>
         </section>
 
         <section className="mb-8">
