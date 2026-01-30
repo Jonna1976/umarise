@@ -129,38 +129,41 @@ Week 4  │ Alle exit interviews af
 
 ---
 
-## 📝 Outreach Template (Geen Sales)
+## 📝 Outreach Template (Problem-First)
 
-### LinkedIn/Email
+### Cold Outreach (LinkedIn/Email)
 
-**Onderwerp:** Zoek 3 pilot-testers voor origin-infrastructuur
+**Onderwerp:** Kun je bewijzen wat de input was?
 
 **Body:**
 
 > Hoi [naam],
 >
-> Ik bouw infrastructuur die vastlegt wat wanneer bestond — 
-> zodat je later kunt bewijzen dat iets origineel was.
+> Korte vraag: als een klant morgen zegt dat jouw AI-output fout was — 
+> kun je dan bewijzen wat de originele input was?
 >
-> Geen AI-hype, geen blockchain-buzzwords. 
-> Gewoon: capture, hash, verify.
+> Ik bouw een infrastructuurlaag die precies dat mogelijk maakt.
+> Geen product, geen platform — alleen: capture, hash, verify.
 >
-> Ik zoek 3 MKB-teams die dit 3 weken willen testen.
-> Geen kosten, geen verplichtingen — alleen feedback.
+> Ik zoek 3 technische leads die dit willen evalueren.
+> Geen sales, alleen feedback.
 >
-> Past dit bij jullie workflow?
+> Eén URL: umarise.com/review
+>
+> Als dit irrelevant is: negeer gerust.
+> Als dit resoneert: 15 minuten?
 >
 > [naam]
 
 ### Follow-up (na interesse)
 
-> Super. Dit is wat je krijgt:
+> Dit is wat je krijgt:
 >
-> - App toegang (web + mobiel)
-> - API documentatie voor integratie
-> - Direct contact voor vragen
+> - Review Kit (read-only demo + proof bundle)
+> - API docs voor integratie-evaluatie
+> - Direct contact voor technische vragen
 >
-> Enige vraag: wanneer kun je 15 min voor een intro-call?
+> Wanneer past een korte call?
 
 ---
 
