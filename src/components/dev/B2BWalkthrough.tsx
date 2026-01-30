@@ -31,7 +31,7 @@ const steps: WalkthroughStep[] = [
     icon: <Hash className="w-4 h-4" />,
     title: "Seal",
     subtitle: "Umarise records origin",
-    description: "POST /origins — SHA-256 computed at creation. Origin anchored.",
+    description: "Any artifact. Any format. One API call. Origin anchored.",
     owner: 'umarise',
   },
   {
