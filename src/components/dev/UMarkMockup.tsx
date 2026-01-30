@@ -146,21 +146,6 @@ export default function UMarkMockup() {
               </div>
               <p className="text-xs text-stone-400">External Bottom</p>
             </div>
-
-            <div className="w-px h-12 bg-stone-200" />
-
-            {/* External Bottom at different sizes */}
-            <div className="text-center space-y-3">
-              <div className="flex items-end justify-center gap-3">
-                {[12, 16, 24, 32, 48].map((size) => (
-                  <svg key={size} viewBox="0 0 16 16" style={{ width: size, height: size }} className="text-stone-600">
-                    <circle cx="7" cy="6.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <circle cx="14" cy="13" r="1.5" fill="currentColor" />
-                  </svg>
-                ))}
-              </div>
-              <p className="text-xs text-stone-400">External Bottom</p>
-            </div>
           </div>
         </section>
 
