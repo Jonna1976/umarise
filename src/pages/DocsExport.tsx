@@ -349,171 +349,71 @@ GET /resolve?hash={sha256}`}</pre>
         <div className="page-break" />
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">7. Strategic Clarifications</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">7. Architectural Decisions</h2>
           
           {/* 7.1 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.1 Technical Proof vs. Legal Claim</h3>
-            <p className="text-sm text-gray-700 mb-3">Umarise provides <strong>technical bit-identity proof</strong>, not legal proof.</p>
-            <table className="w-full border-collapse text-sm mb-3">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Aspect</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Technical Proof (Umarise)</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Legal Proof (Governance)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">What it proves</td><td className="border border-gray-300 px-3 py-2">Bytes are identical to origin</td><td className="border border-gray-300 px-3 py-2">Intent, ownership, liability</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Burden of proof</td><td className="border border-gray-300 px-3 py-2">Claimant must explain mismatch</td><td className="border border-gray-300 px-3 py-2">Depends on jurisdiction</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Dispute prevention</td><td className="border border-gray-300 px-3 py-2">High — trivial to verify</td><td className="border border-gray-300 px-3 py-2">Requires legal process</td></tr>
-              </tbody>
-            </table>
-            <p className="text-sm text-gray-600"><strong>Value:</strong> Technical proof prevents disputes <em>before</em> they escalate. When parties see the hash matches, there's no argument.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.1 Scope: Bit-Identity, Not Legal Standing</h3>
+            <p className="text-sm text-gray-700">Umarise proves byte-equivalence. Legal interpretation is governance layer. The hash shifts burden of proof — claimant must explain mismatch.</p>
           </div>
 
           {/* 7.2 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.2 Hash Sequence: E2E Does Not Overwrite</h3>
-            <p className="text-sm text-gray-700 mb-2">End-to-End encryption (Phase 2B) encrypts <em>after</em> hashing:</p>
-            <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-3">Original bytes → SHA-256 hash → Record hash → Encrypt bytes → Store encrypted</pre>
-            <p className="text-sm text-gray-600"><strong>Key insight:</strong> The hash represents the unencrypted origin. Verification can occur without decryption.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.2 Hash/Encryption Sequence</h3>
+            <pre className="bg-gray-100 p-2 rounded text-xs font-mono">bytes → SHA-256 → record → encrypt → store</pre>
+            <p className="text-sm text-gray-700 mt-2">Hash computed on plaintext. Verification without decryption. E2E (Phase 2B) adds confidentiality, not integrity — integrity exists from day one.</p>
           </div>
 
           {/* 7.3 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.3 Dispute Prevention vs. Litigation Budgets</h3>
-            <table className="w-full border-collapse text-sm mb-3">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Without Origin Proof</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">With Origin Proof</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">"He said, she said"</td><td className="border border-gray-300 px-3 py-2">Cryptographic evidence</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Discovery process required</td><td className="border border-gray-300 px-3 py-2">Instant verification</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Favors party with more resources</td><td className="border border-gray-300 px-3 py-2">Levels the playing field</td></tr>
-              </tbody>
-            </table>
-            <p className="text-sm text-gray-600"><strong>The shift:</strong> When verification is trivial, disputes become irrational.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.3 Dispute Economics</h3>
+            <p className="text-sm text-gray-700">Discovery and litigation favor well-funded parties. Instant cryptographic verification changes negotiation dynamics before legal process begins.</p>
           </div>
 
           {/* 7.4 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.4 Notary ≠ Vault: Compromise Detection</h3>
-            <table className="w-full border-collapse text-sm mb-3">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Notary (Umarise)</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Vault (Proton/Nextcloud)</th>
-                </tr>
-              </thead>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.4 Vault Independence</h3>
+            <p className="text-sm text-gray-700 mb-2">Umarise is a notary, not a vault. The hash is stored independently of the artifact.</p>
+            <table className="w-full border-collapse text-xs">
               <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">Records that something existed</td><td className="border border-gray-300 px-3 py-2">Stores the thing itself</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Cannot be "un-recorded"</td><td className="border border-gray-300 px-3 py-2">Can be modified, deleted</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Detects if vault is compromised</td><td className="border border-gray-300 px-3 py-2">Has no external verification</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">External vault compromised</td><td className="border border-gray-300 px-2 py-1">Hash comparison → mismatch detected</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">Hetzner compromised</td><td className="border border-gray-300 px-2 py-1">Hash in Supabase → mismatch detected</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">Supabase compromised</td><td className="border border-gray-300 px-2 py-1">Artifact on Hetzner → mismatch detected</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">Both compromised</td><td className="border border-gray-300 px-2 py-1">Write-once triggers + audit logs → blocked/logged</td></tr>
               </tbody>
             </table>
-            <div className="bg-gray-50 p-3 rounded text-sm mb-3">
-              <p className="font-semibold mb-2">Vault-Independent Verification Flow:</p>
-              <ol className="list-decimal list-inside space-y-1 text-gray-700">
-                <li>Proton gets hacked</li>
-                <li>Attacker modifies file in Proton</li>
-                <li>User downloads file from Proton</li>
-                <li>User verifies against Umarise origin hash</li>
-                <li>Result: MISMATCH → "This is not the original"</li>
-              </ol>
-            </div>
-            <div className="bg-gray-50 p-3 rounded text-sm">
-              <p className="font-semibold mb-2">Can Umarise/Hetzner Be Hacked?</p>
-              <p className="text-gray-700 mb-2">Yes — no system is absolutely unhackable. But the architecture provides defense-in-depth:</p>
-              <table className="w-full border-collapse text-xs">
-                <tbody>
-                  <tr><td className="border border-gray-300 px-2 py-1">Hetzner compromised</td><td className="border border-gray-300 px-2 py-1">Hash in Supabase → mismatch detected</td></tr>
-                  <tr><td className="border border-gray-300 px-2 py-1">Supabase compromised</td><td className="border border-gray-300 px-2 py-1">Artifact on Hetzner → mismatch detected</td></tr>
-                  <tr><td className="border border-gray-300 px-2 py-1">Both compromised</td><td className="border border-gray-300 px-2 py-1">Audit logs + write-once triggers → blocked/logged</td></tr>
-                </tbody>
-              </table>
-              <p className="text-gray-600 mt-2 text-xs"><strong>Core defense:</strong> Attacker must compromise TWO independent systems + bypass write-once triggers + remove audit trail → practically infeasible.</p>
-            </div>
+            <p className="text-sm text-gray-600 mt-2">Defense-in-depth: two independent systems, write-once constraints, audit trail. Not unhackable — detectable.</p>
           </div>
 
           {/* 7.5 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.5 API Independence: Before, Not Inside</h3>
-            <p className="text-sm text-gray-700 mb-2">Umarise sits <em>before</em> every data processing system, not inside:</p>
-            <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-3">{`┌─────────────────────────────────────────────────────┐
-│              DATA PROCESSING SYSTEMS                 │
-│  (Notion, Nextcloud, CRM, AI Agents, Workflows)     │
-└─────────────────────────────────────────────────────┘
-                         │ reads from
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│               UMARISE ORIGIN LAYER                   │
-│           (API: /origins, /resolve, /verify)        │
-└─────────────────────────────────────────────────────┘`}</pre>
-            <p className="text-sm text-gray-600"><strong>MCP Positioning:</strong> Umarise is infrastructure that can be exposed via an MCP server. AI agents can verify origins before processing data.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.5 Integration Position</h3>
+            <pre className="bg-gray-100 p-2 rounded text-xs font-mono">{`[Notion/CRM/AI Agents/Workflows] → reads from → [Umarise API: /origins, /resolve, /verify]`}</pre>
+            <p className="text-sm text-gray-700 mt-2">Origin layer sits before processing systems, not inside. Exposable via MCP for agent workflows.</p>
           </div>
 
           {/* 7.6 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.6 Storage Nuance: Recording vs. Storing</h3>
-            <p className="text-sm text-gray-700 mb-2"><strong>Valid question:</strong> "You say you don't store, but origins are on Hetzner?"</p>
-            <p className="text-sm text-gray-700 mb-3"><strong>Nuance:</strong> Umarise stores origin artifacts (the bytes), but the core value is recording (the hash).</p>
-            <table className="w-full border-collapse text-sm mb-3">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Function</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Location</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Purpose</th>
-                </tr>
-              </thead>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.6 Storage Model</h3>
+            <table className="w-full border-collapse text-xs mb-2">
               <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">Hash (origin record)</td><td className="border border-gray-300 px-3 py-2">Supabase</td><td className="border border-gray-300 px-3 py-2">Verification</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Artifact (bytes)</td><td className="border border-gray-300 px-3 py-2">Hetzner</td><td className="border border-gray-300 px-3 py-2">Optional retrieval</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">Hash</td><td className="border border-gray-300 px-2 py-1">Supabase (control plane)</td><td className="border border-gray-300 px-2 py-1">Verification</td></tr>
+                <tr><td className="border border-gray-300 px-2 py-1 font-medium">Artifact</td><td className="border border-gray-300 px-2 py-1">Hetzner DE (data plane)</td><td className="border border-gray-300 px-2 py-1">Retrieval</td></tr>
               </tbody>
             </table>
-            <p className="text-sm text-gray-600"><strong>Partner Vault Mode:</strong> Partners can use their own vault (Proton, Nextcloud, S3). Umarise only records the hash. If their vault is compromised, verification detects the mismatch.</p>
+            <p className="text-sm text-gray-700">Partner Vault Mode: external systems store artifacts, Umarise records hash only. Verification detects tampering regardless of storage location.</p>
           </div>
 
           {/* 7.7 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.7 Proton vs. Umarise: Complementary</h3>
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Proton</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Umarise</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">Vault (storage)</td><td className="border border-gray-300 px-3 py-2">Notary (recording)</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Preserves bytes</td><td className="border border-gray-300 px-3 py-2">Proves bytes existed</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Security = access control</td><td className="border border-gray-300 px-3 py-2">Security = immutable verification</td></tr>
-              </tbody>
-            </table>
-            <p className="text-sm text-gray-600 mt-2"><strong>Key differentiator:</strong> Proton is a vault. Umarise is a notary with an API. They are complementary.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.7 Complementary to Existing Vaults</h3>
+            <p className="text-sm text-gray-700">Proton/Nextcloud = storage with access control. Umarise = immutable verification layer. Additive, not competitive. Works with any vault that accepts pre-hashed content.</p>
           </div>
 
           {/* 7.8 */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">7.8 Infrastructure, Not Platform</h3>
-            <p className="text-sm text-gray-700 mb-3">Umarise is explicitly <strong>not</strong> a social platform, not a Mastodon alternative, not decentralized-by-ideology.</p>
-            <table className="w-full border-collapse text-sm mb-3">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Platform (Mastodon, Bluesky)</th>
-                  <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Infrastructure (Umarise)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td className="border border-gray-300 px-3 py-2">Users interact on the platform</td><td className="border border-gray-300 px-3 py-2">Systems call the API</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Network effects matter</td><td className="border border-gray-300 px-3 py-2">Integration depth matters</td></tr>
-                <tr><td className="border border-gray-300 px-3 py-2">Decentralization is the product</td><td className="border border-gray-300 px-3 py-2">Agnosticism is the product</td></tr>
-              </tbody>
-            </table>
-            <p className="text-sm text-gray-600"><strong>Design principle:</strong> Enable both centralization and decentralization. Exclude nothing. Let users and organizations choose their tools — Umarise provides the verification layer beneath.</p>
+          <div className="mb-5">
+            <h3 className="text-lg font-semibold mb-2">7.8 Infrastructure, Not Platform</h3>
+            <p className="text-sm text-gray-700">No network effects. No user-facing product. Systems call the API. Works with centralized (Salesforce) and decentralized (Solid, IPFS) equally. The origin layer is agnostic about what runs above it.</p>
           </div>
         </section>
 
