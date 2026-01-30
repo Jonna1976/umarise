@@ -16,29 +16,29 @@ const steps: WalkthroughStep[] = [
   {
     icon: <Upload className="w-4 h-4" />,
     title: "Capture",
-    subtitle: "Partner ingests data",
-    description: "Your system captures artifacts. Documents, images, records.",
+    subtitle: "Partner creates artifact",
+    description: "Your system captures an artifact that needs provable origin.",
     owner: 'partner',
   },
   {
     icon: <Hash className="w-4 h-4" />,
     title: "Seal",
-    subtitle: "Umarise computes hash",
-    description: "POST /origins — SHA-256 hash computed. Origin ID returned.",
+    subtitle: "Umarise records origin",
+    description: "POST /origins — SHA-256 computed at creation. Origin anchored.",
     owner: 'umarise',
   },
   {
     icon: <Database className="w-4 h-4" />,
     title: "Store",
     subtitle: "Partner retains artifact",
-    description: "Your vault, your storage. Umarise holds only the hash.",
+    description: "Your vault, your storage. Umarise holds only the origin hash.",
     owner: 'partner',
   },
   {
     icon: <Cpu className="w-4 h-4" />,
     title: "Process",
     subtitle: "Partner applies AI/workflows",
-    description: "Your AI indexes, transforms, enriches. Origin unchanged.",
+    description: "Your AI transforms, enriches. The recorded origin stays unchanged.",
     owner: 'partner',
   },
   {
@@ -51,8 +51,8 @@ const steps: WalkthroughStep[] = [
   {
     icon: <ShieldCheck className="w-4 h-4" />,
     title: "Verify",
-    subtitle: "Umarise confirms bit-identity",
-    description: "POST /verify — Cryptographic proof. Hash matches origin.",
+    subtitle: "Umarise confirms origin",
+    description: "POST /verify — Prove the artifact matches its recorded origin.",
     owner: 'umarise',
   },
 ];
@@ -231,7 +231,7 @@ export function B2BWalkthrough() {
       <div className="p-5 pb-0 flex items-start justify-between">
         <div>
           <h1 className="font-serif text-xl text-landing-cream">Partner Integration</h1>
-          <p className="text-xs text-landing-muted mt-1">Walkthrough 2.0</p>
+          <p className="text-xs text-landing-muted mt-1">Origin Recording Flow</p>
         </div>
         <Link to="/">
           <Button
@@ -373,7 +373,7 @@ export function B2BWalkthrough() {
           </Button>
         </div>
         <p className="text-center text-landing-muted/40 text-xs mt-4 italic font-mono tracking-wide">
-          Partner stores. Umarise seals.
+          Partner stores. Umarise records origin.
         </p>
       </div>
     </div>
