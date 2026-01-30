@@ -25,50 +25,30 @@ Hoi Paul,
 
 Hopelijk alles goed met je / jullie. Sinds ons laatste gesprek over de 
 private-by-design stack ben ik verder gaan denken over de onderliggende 
-infrastructuurvraag en heb daar ook concreet op doorgebouwd.
+infrastructuurvraag.
 
-Ik werk momenteel aan een infrastructuurlaag en wil dit expliciet niet laten 
-reviewen als product, codebase of security setup.
+Korte vraag: als een klant zegt dat een AI-output fout was — kun je dan 
+bewijzen wat de originele input was?
 
-Wat ik zoek is jouw CTO-analyse op stack-niveau.
+Ik bouw een infrastructuurlaag die precies dat mogelijk maakt. 
+Een system-of-record dat vastlegt wat er bestond vóórdat AI of workflows 
+het transformeren.
 
-
-Umarise
-
-Het gaat om een system-of-record dat vastlegt wat er bestond vóórdat AI of 
-workflows het transformeren.
-
-Kun je 30 minuten tijd vrijmaken om onderstaande te bekijken? Ik leg het aan 
-nog twee andere sterke denkers voor maar zoek nu validatie op infrastructuurniveau.
+Ik zoek jouw CTO-analyse op stack-niveau. Geen product-review, geen 
+security-audit — alleen: klopt dit architectureel?
 
 1. Review Kit (alles in één URL)
    https://umarise.com/review
 
-   Bevat:
-   - Origin View demo (read-only)
-   - Proof Bundle (downloadbaar)
-   - integration-contract.md — API primitives
-   - layer-boundaries.md — wat het systeem wel en niet is
-
 2. PDF bijlagen
    https://umarise.com/docs-export
 
-   Geen admin UI. Geen database. Geen server-toegang.
+3. Feedback (3 vragen)
+   - Waar zou dit in jouw stack moeten zitten?
+   - Wat gebeurt er als deze laag er níet is, maar AI wel?
+   - Is dit voor jou: irrelevant, vanzelfsprekend, of fundamenteel?
 
-3. Technical Preview (voor na evaluatie)
-   Indien je na review een pilot wilt verkennen:
-   https://umarise.com/pilot
-
-4. Feedback (3 vragen)
-
-   1. Als je dit leest: waar zou dit in jouw stack moeten zitten?
-   2. Wat gebeurt er in jouw systemen als deze laag er níet is, maar AI en workflows wel?
-   3. Is dit voor jou: irrelevant, vanzelfsprekend, of fundamenteel?
-
-Ik ga niets verdedigen of uitleggen. Ik wil horen waar het schuurt of juist 
-onmiddellijk klopt.
-
-Jouw feedback zou enorm helpen.
+Ik ga niets verdedigen. Ik wil horen waar het schuurt of klopt.
 
 Groet,
 Jonna
