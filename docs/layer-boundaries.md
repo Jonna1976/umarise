@@ -7,10 +7,37 @@
 
 ## 1. What Umarise IS
 
+### Core Positioning
+
+> **Umarise is de origin-layer voor elk systeem dat data verwerkt.**  
+> **Umarise zelf verwerkt geen data — het legt alleen vast wat er ontstond.**
+
 ### Definition
 
 > **Umarise is an origin record layer.**  
 > A system-of-record that captures and preserves original state before transformation.
+
+### Vastleggen vs. Opslaan
+
+| | **Vastleggen** (Umarise) | **Opslaan** (Storage systems) |
+|---|---|---|
+| **What** | Proof that something existed | The data itself |
+| **Mutable** | No (hash is immutable) | Yes (file can be modified) |
+| **Purpose** | Verification after the fact | Access and management |
+| **Analogy** | Notary recording a deed | Vault where you store the deed |
+
+> **Key distinction:** Storage = preserving bytes. Recording = proving which bytes existed.
+
+### Storage-Agnostic
+
+Umarise works with any storage or communication system:
+- Any vault (Proton, Nextcloud, Solid, Dropbox, S3...)
+- Any communication system (email, chat, CRM...)
+- Any workflow system (AI agents, automation, ERP...)
+
+> **Vault independence:** Umarise's verification is independent of vault security.  
+> If the vault is compromised → Umarise verification **fails** → you know tampering occurred.  
+> If the vault is secure → Umarise verification **passes** → you have proof it's unchanged.
 
 ### Concrete responsibilities
 
