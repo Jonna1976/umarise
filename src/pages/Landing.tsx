@@ -97,8 +97,8 @@ export default function Landing() {
             
             {/* Legal links */}
             <div className="flex items-center gap-4 text-landing-muted/40">
-              <span className="hover:text-landing-muted/60 transition-colors cursor-pointer">Privacy</span>
-              <span className="hover:text-landing-muted/60 transition-colors cursor-pointer">Terms</span>
+              <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
             </div>
           </motion.div>
         </footer>

@@ -21,6 +21,8 @@ import ProofPage from "./pages/ProofPage";
 import PilotDocs from "./pages/PilotDocs";
 import PrivacyExport from "./pages/PrivacyExport";
 import IsoExport from "./pages/IsoExport";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/cto" element={<CTOExport />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
