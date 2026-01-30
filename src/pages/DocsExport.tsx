@@ -138,9 +138,20 @@ GET /resolve?hash={sha256}`}</pre>
           <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-2">POST /verify</pre>
           <p className="text-sm text-gray-700">Request: origin_id + content binary → Response: {"{ match: true }"}</p>
 
-          <h3 className="text-lg font-semibold mt-6 mb-3">3.4 Link External Systems</h3>
-          <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-2">POST /links</pre>
-          <p className="text-sm text-gray-700">Declare derivation or citation without synchronization. Links are append-only.</p>
+          <h3 className="text-lg font-semibold mt-6 mb-3">3.4 Error Responses</h3>
+          <pre className="bg-gray-100 p-4 rounded text-xs font-mono overflow-x-auto">{`// All error responses follow this schema:
+{
+  "error": true,
+  "code": "ORIGIN_NOT_FOUND" | "HASH_MISMATCH" | "INVALID_REQUEST" | "RATE_LIMITED",
+  "message": "Human-readable description",
+  "details": { /* optional context */ }
+}
+
+// HTTP Status Codes:
+// 400 - Invalid request (malformed input)
+// 404 - Origin not found
+// 409 - Hash mismatch (verification failed)
+// 429 - Rate limited (60 req/min per device)`}</pre>
         </section>
 
         <section className="mb-8">
@@ -185,9 +196,9 @@ GET /resolve?hash={sha256}`}</pre>
               <tr><td className="border border-gray-300 px-3 py-2">Create Origin</td><td className="border border-gray-300 px-3 py-2">✅ Implemented</td></tr>
               <tr><td className="border border-gray-300 px-3 py-2">Resolve Origin</td><td className="border border-gray-300 px-3 py-2">✅ Implemented</td></tr>
               <tr><td className="border border-gray-300 px-3 py-2">Verify Origin</td><td className="border border-gray-300 px-3 py-2">✅ Implemented</td></tr>
-              <tr><td className="border border-gray-300 px-3 py-2">Link External</td><td className="border border-gray-300 px-3 py-2">🔮 Conceptual</td></tr>
             </tbody>
           </table>
+          <p className="text-sm text-gray-600 mt-3">Link External (derivation/citation tracking) is under evaluation for Phase 2.</p>
         </section>
 
         <footer className="mt-12 pt-4 border-t border-gray-200 text-xs text-gray-500">
@@ -697,6 +708,29 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Continuity & Resilience</h2>
+          <p className="text-gray-700 mb-4 italic">"What if Umarise goes offline, gets hacked, or goes out of business?"</p>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Scenario</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Your Position</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">Umarise temporarily offline</td><td className="border border-gray-300 px-3 py-2">Hash is locally computable (SHA-256 is open standard). Verification works offline.</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Umarise permanently unavailable</td><td className="border border-gray-300 px-3 py-2">Your artifact + your hash = self-verifiable. Origin ID export available.</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Umarise control plane compromised</td><td className="border border-gray-300 px-3 py-2">Artifact stays in your vault. Hash mismatch = detectable tampering.</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Vendor lock-in concern</td><td className="border border-gray-300 px-3 py-2">SHA-256 is NIST standard. No proprietary formats. Any system can verify.</td></tr>
+            </tbody>
+          </table>
+          <div className="bg-gray-50 p-4 rounded mt-4">
+            <p className="font-semibold">The fundamental guarantee:</p>
+            <p className="text-sm text-gray-700 mt-1">Your ability to prove origin never depends on Umarise availability. The cryptography is yours.</p>
+          </div>
+        </section>
+
+        <section className="mb-8">
           <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Summary</h2>
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -710,6 +744,7 @@ GET /resolve?hash={sha256}`}</pre>
               <tr><td className="border border-gray-300 px-3 py-2">Can Umarise reconstruct documents from hashes?</td><td className="border border-gray-300 px-3 py-2">No — cryptographically impossible</td></tr>
               <tr><td className="border border-gray-300 px-3 py-2">Why not verify internally?</td><td className="border border-gray-300 px-3 py-2">Self-attestation has no third-party value</td></tr>
               <tr><td className="border border-gray-300 px-3 py-2">Is Umarise a dependency to manage?</td><td className="border border-gray-300 px-3 py-2">No — it's a neutral anchor to reference</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">What if Umarise disappears?</td><td className="border border-gray-300 px-3 py-2">Your hash + your artifact = self-verifiable</td></tr>
             </tbody>
           </table>
         </section>
