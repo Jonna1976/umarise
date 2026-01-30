@@ -78,13 +78,6 @@ export default function Landing() {
             <p className="opacity-50">
               © {new Date().getFullYear()} Umarise
             </p>
-            <a 
-              href="/app" 
-              className="opacity-30 hover:opacity-60 transition-opacity text-xs"
-              title="Pilot Demo"
-            >
-              pilot
-            </a>
           </motion.div>
         </footer>
       </div>
