@@ -83,7 +83,7 @@ export default function Landing() {
             
             {/* Origin Flow link */}
             <Link
-              to="/b2b-walkthrough"
+              to="/origin-flow"
               className="group flex flex-col items-center md:items-end gap-0.5"
             >
               <span className="text-landing-copper/70 hover:text-landing-copper transition-colors flex items-center gap-1.5">

@@ -55,7 +55,7 @@ const App = () => (
             <Route path="/current-preview" element={<CurrentPaletteMockup />} />
             <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
             <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
-            <Route path="/b2b-walkthrough" element={<B2BWalkthrough />} />
+            <Route path="/origin-flow" element={<B2BWalkthrough />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
             <Route path="/origin-mark" element={<UMarkMockup />} />
             <Route path="/origin-mark" element={<UMarkMockup />} />
