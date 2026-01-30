@@ -113,11 +113,9 @@ export default function UMarkMockup() {
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-20 h-20">
                 <svg viewBox="0 0 40 40" className="w-full h-full">
-                  {/* Minimal anchor - just the essential form */}
-                  <circle cx="20" cy="10" r="4" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
-                  <line x1="20" y1="14" x2="20" y2="32" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
-                  <path d="M12 28 Q20 36 28 28" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
-                  <line x1="14" y1="20" x2="26" y2="20" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
+                  {/* Ultra minimal anchor - just dot + hook */}
+                  <circle cx="20" cy="8" r="2.5" fill="currentColor" className="text-stone-700" />
+                  <path d="M20 10 L20 28 Q20 34 14 34" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-stone-700" />
                 </svg>
               </div>
               <div>
@@ -129,53 +127,41 @@ export default function UMarkMockup() {
             {/* Anchor variations */}
             <div className="space-y-6">
               
-              {/* Inline minimal */}
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Inline</p>
                 <div className="flex items-center gap-3">
                   <span className="text-stone-600 text-sm">contract.pdf</span>
                   <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
-                    <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="1" />
-                    <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                    <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
                   </svg>
                 </div>
               </div>
 
-              {/* Badge */}
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Badge</p>
                 <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
                   <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
-                    <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="1" />
-                    <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="1" />
-                    <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                    <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
                   </svg>
                   <span className="text-xs text-stone-600 font-medium">Origin</span>
                 </div>
               </div>
 
-              {/* Seal */}
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Seal</p>
                 <div className="flex justify-center">
-                  <div className="relative">
-                    <svg viewBox="0 0 80 80" className="w-16 h-16">
-                      <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="1" className="text-stone-300" />
-                      <g className="text-stone-600">
-                        <circle cx="40" cy="28" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                        <line x1="40" y1="34" x2="40" y2="56" stroke="currentColor" strokeWidth="1.5" />
-                        <path d="M28 50 Q40 62 52 50" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                        <line x1="30" y1="40" x2="50" y2="40" stroke="currentColor" strokeWidth="1.5" />
-                      </g>
-                    </svg>
-                  </div>
+                  <svg viewBox="0 0 80 80" className="w-16 h-16">
+                    <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="1" className="text-stone-300" />
+                    <g className="text-stone-600">
+                      <circle cx="40" cy="24" r="4" fill="currentColor" />
+                      <path d="M40 28 L40 56 Q40 64 28 64" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </g>
+                  </svg>
                 </div>
               </div>
 
-              {/* Document corner */}
               <div className="bg-white rounded-lg p-5 shadow-sm">
                 <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Document</p>
                 <div className="bg-stone-50 rounded p-4 relative h-24">
@@ -186,10 +172,8 @@ export default function UMarkMockup() {
                   </div>
                   <div className="absolute bottom-3 right-3">
                     <svg viewBox="0 0 24 24" className="w-6 h-6 text-stone-400">
-                      <circle cx="12" cy="7" r="3" fill="none" stroke="currentColor" strokeWidth="1" />
-                      <line x1="12" y1="10" x2="12" y2="20" stroke="currentColor" strokeWidth="1" />
-                      <path d="M7 17 Q12 23 17 17" fill="none" stroke="currentColor" strokeWidth="1" />
-                      <line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" strokeWidth="1" />
+                      <circle cx="12" cy="5" r="2.5" fill="currentColor" />
+                      <path d="M12 7.5 L12 18 Q12 21 7 21" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                     </svg>
                   </div>
                 </div>
@@ -236,34 +220,24 @@ export default function UMarkMockup() {
             <div className="text-center space-y-3">
               <div className="flex items-end justify-center gap-4">
                 <svg viewBox="0 0 16 16" className="w-3 h-3 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                  <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
                 <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="1.2" />
-                  <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                  <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                 </svg>
                 <svg viewBox="0 0 16 16" className="w-6 h-6 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="1" />
-                  <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="1" />
+                  <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                  <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
                 </svg>
                 <svg viewBox="0 0 16 16" className="w-8 h-8 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                  <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="0.8" />
-                  <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                  <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="0.8" />
+                  <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                  <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" />
                 </svg>
                 <svg viewBox="0 0 16 16" className="w-12 h-12 text-stone-600">
-                  <circle cx="8" cy="4" r="2" fill="none" stroke="currentColor" strokeWidth="0.6" />
-                  <line x1="8" y1="6" x2="8" y2="13" stroke="currentColor" strokeWidth="0.6" />
-                  <path d="M5 11 Q8 15 11 11" fill="none" stroke="currentColor" strokeWidth="0.6" />
-                  <line x1="5.5" y1="8" x2="10.5" y2="8" stroke="currentColor" strokeWidth="0.6" />
+                  <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                  <path d="M8 4.5 L8 12 Q8 14 5 14" fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
                 </svg>
               </div>
               <p className="text-xs text-stone-400">Anchor</p>
