@@ -55,7 +55,7 @@ const App = () => (
             <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
             <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
-            <Route path="/u-mark" element={<UMarkMockup />} />
+            <Route path="/origin-mark" element={<UMarkMockup />} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
