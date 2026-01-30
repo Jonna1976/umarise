@@ -72,6 +72,17 @@ This makes Umarise the **precondition** for any downstream governance, complianc
 
 ---
 
+## Platform Relationship
+
+Umarise doesn't compete with platforms. It anchors them by making origin undeniable.
+
+| Variant | Use Case |
+|---------|----------|
+| "Umarise provides a stable origin anchor that platforms can build on without owning it." | CTO / Architect |
+| "Umarise concurreert niet met platforms. Het verankert ze door oorsprong onontkenbaar te maken." | Dutch stakeholders |
+
+---
+
 ## Alignment with Infrastructure Positioning
 
 This messaging reinforces the core brand:
