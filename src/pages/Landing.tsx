@@ -81,19 +81,23 @@ export default function Landing() {
               © {new Date().getFullYear()} Umarise
             </p>
             
-            {/* Origin Flow link */}
-            <Link
-              to="/origin-flow"
-              className="group flex flex-col items-center md:items-end gap-0.5"
-            >
-              <span className="text-landing-copper/70 hover:text-landing-copper transition-colors flex items-center gap-1.5">
+            {/* Technical links */}
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              <Link
+                to="/origin-flow"
+                className="text-landing-copper/70 hover:text-landing-copper transition-colors flex items-center gap-1.5 group"
+              >
                 Origin Flow
                 <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-              </span>
-              <span className="text-[10px] text-landing-muted/40">
-                See how verifiable origin works at the API level.
-              </span>
-            </Link>
+              </Link>
+              <Link
+                to="/cto-overview"
+                className="text-landing-copper/70 hover:text-landing-copper transition-colors flex items-center gap-1.5 group"
+              >
+                CTO Overview
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </Link>
+            </div>
             
             {/* Legal links */}
             <div className="flex items-center gap-4 text-landing-muted/40">
