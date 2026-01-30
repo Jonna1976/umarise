@@ -19,36 +19,33 @@ export default function UMarkMockup() {
           </p>
         </header>
 
-        {/* Two Finalists */}
-        <section className="grid md:grid-cols-2 gap-12 max-w-3xl mx-auto">
+        {/* Three Finalists */}
+        <section className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           
           {/* Circumpunct */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="space-y-8"
+            className="space-y-6"
           >
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20">
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center justify-center w-16 h-16">
                 <svg viewBox="0 0 40 40" className="w-full h-full">
                   <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
                   <circle cx="20" cy="20" r="3" fill="currentColor" className="text-stone-700" />
                 </svg>
               </div>
               <div>
-                <h2 className="font-serif text-lg text-stone-700">Circumpunct</h2>
-                <p className="text-xs text-stone-400 mt-1">Het punt waar alles begint</p>
+                <h2 className="font-serif text-base text-stone-700">Circumpunct</h2>
+                <p className="text-xs text-stone-400 mt-1">Punt in het midden</p>
               </div>
             </div>
 
-            {/* Circumpunct variations */}
-            <div className="space-y-6">
-              
-              {/* Inline minimal */}
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Inline</p>
-                <div className="flex items-center gap-3">
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Inline</p>
+                <div className="flex items-center gap-2">
                   <span className="text-stone-600 text-sm">contract.pdf</span>
                   <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
                     <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
@@ -57,78 +54,43 @@ export default function UMarkMockup() {
                 </div>
               </div>
 
-              {/* Badge */}
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Badge</p>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Badge</p>
                 <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
                   <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
                     <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
                     <circle cx="8" cy="8" r="1.5" fill="currentColor" />
                   </svg>
                   <span className="text-xs text-stone-600 font-medium">Origin</span>
-                </div>
-              </div>
-
-              {/* Seal */}
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Seal</p>
-                <div className="flex justify-center">
-                  <div className="relative">
-                    <svg viewBox="0 0 80 80" className="w-16 h-16">
-                      <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="1" className="text-stone-300" />
-                      <circle cx="40" cy="40" r="28" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-600" />
-                      <circle cx="40" cy="40" r="5" fill="currentColor" className="text-stone-600" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Document corner */}
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Document</p>
-                <div className="bg-stone-50 rounded p-4 relative h-24">
-                  <div className="space-y-1.5">
-                    <div className="h-1.5 bg-stone-200 rounded w-3/4" />
-                    <div className="h-1.5 bg-stone-200 rounded w-full" />
-                    <div className="h-1.5 bg-stone-200 rounded w-2/3" />
-                  </div>
-                  <div className="absolute bottom-3 right-3">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-stone-400">
-                      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1" />
-                      <circle cx="12" cy="12" r="2" fill="currentColor" />
-                    </svg>
-                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* External Point - NEW concept */}
+          {/* External Point */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-8"
+            transition={{ delay: 0.2 }}
+            className="space-y-6"
           >
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20">
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center justify-center w-16 h-16">
                 <svg viewBox="0 0 40 40" className="w-full h-full">
-                  {/* Circle with external dot - represents Umarise alongside systems */}
                   <circle cx="18" cy="20" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
                   <circle cx="34" cy="20" r="3" fill="currentColor" className="text-stone-700" />
                 </svg>
               </div>
               <div>
-                <h2 className="font-serif text-lg text-stone-700">External Point</h2>
-                <p className="text-xs text-stone-400 mt-1">Naast systemen, vóór verwerking</p>
+                <h2 className="font-serif text-base text-stone-700">External Point</h2>
+                <p className="text-xs text-stone-400 mt-1">Naast, niet binnen</p>
               </div>
             </div>
 
-            {/* External Point variations */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Inline</p>
-                <div className="flex items-center gap-3">
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Inline</p>
+                <div className="flex items-center gap-2">
                   <span className="text-stone-600 text-sm">contract.pdf</span>
                   <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
                     <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1" />
@@ -137,8 +99,8 @@ export default function UMarkMockup() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Badge</p>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Badge</p>
                 <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
                   <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
                     <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1" />
@@ -147,25 +109,51 @@ export default function UMarkMockup() {
                   <span className="text-xs text-stone-600 font-medium">Origin</span>
                 </div>
               </div>
+            </div>
+          </motion.div>
 
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Seal</p>
-                <div className="flex justify-center">
-                  <svg viewBox="0 0 80 80" className="w-16 h-16">
-                    <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" strokeWidth="1" className="text-stone-300" />
-                    <g className="text-stone-600">
-                      <circle cx="34" cy="40" r="14" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                      <circle cx="56" cy="40" r="4" fill="currentColor" />
-                    </g>
+          {/* Origins O - NEW: Using the O from wordmark */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-6"
+          >
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center justify-center w-16 h-16">
+                {/* Serif O (like from Origins wordmark) with dot */}
+                <svg viewBox="0 0 40 40" className="w-full h-full">
+                  {/* Serif-style ellipse like the O in Origins */}
+                  <ellipse cx="20" cy="20" rx="14" ry="17" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-stone-700" />
+                  <circle cx="20" cy="20" r="3" fill="currentColor" className="text-stone-700" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="font-serif text-base text-stone-700">Origins O</h2>
+                <p className="text-xs text-stone-400 mt-1">De O uit het woordmerk</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Inline</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-stone-600 text-sm">contract.pdf</span>
+                  <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-500">
+                    <ellipse cx="8" cy="8" rx="5.5" ry="7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
                   </svg>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-5 shadow-sm">
-                <p className="text-xs text-stone-400 mb-4 uppercase tracking-wider">Concept</p>
-                <div className="text-xs text-stone-500 space-y-1">
-                  <p>○ = Bestaande systemen (vault, storage)</p>
-                  <p>● = Umarise origin point (extern, onafhankelijk)</p>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <p className="text-xs text-stone-400 mb-3 uppercase tracking-wider">Badge</p>
+                <div className="inline-flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-full">
+                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-stone-600">
+                    <ellipse cx="8" cy="8" rx="5.5" ry="7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-stone-600 font-medium">Origin</span>
                 </div>
               </div>
             </div>
@@ -176,61 +164,48 @@ export default function UMarkMockup() {
         <section className="bg-white rounded-xl p-8 shadow-sm">
           <h3 className="text-xs text-stone-400 uppercase tracking-wider mb-6 text-center">Schaalvergelijking</h3>
           
-          <div className="flex justify-center items-end gap-8">
+          <div className="flex flex-wrap justify-center items-end gap-8">
             {/* Circumpunct at different sizes */}
             <div className="text-center space-y-3">
-              <div className="flex items-end justify-center gap-4">
-                <svg viewBox="0 0 16 16" className="w-3 h-3 text-stone-600">
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-600">
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-6 h-6 text-stone-600">
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-8 h-8 text-stone-600">
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-12 h-12 text-stone-600">
-                  <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                </svg>
+              <div className="flex items-end justify-center gap-3">
+                {[12, 16, 24, 32, 48].map((size) => (
+                  <svg key={size} viewBox="0 0 16 16" style={{ width: size, height: size }} className="text-stone-600">
+                    <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                  </svg>
+                ))}
               </div>
               <p className="text-xs text-stone-400">Circumpunct</p>
             </div>
 
-            <div className="w-px h-16 bg-stone-200" />
+            <div className="w-px h-12 bg-stone-200" />
 
             {/* External Point at different sizes */}
             <div className="text-center space-y-3">
-              <div className="flex items-end justify-center gap-4">
-                <svg viewBox="0 0 16 16" className="w-3 h-3 text-stone-600">
-                  <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="14" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-4 h-4 text-stone-600">
-                  <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-                  <circle cx="14" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-6 h-6 text-stone-600">
-                  <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1" />
-                  <circle cx="14" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-8 h-8 text-stone-600">
-                  <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="0.8" />
-                  <circle cx="14" cy="8" r="1.5" fill="currentColor" />
-                </svg>
-                <svg viewBox="0 0 16 16" className="w-12 h-12 text-stone-600">
-                  <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="0.6" />
-                  <circle cx="14" cy="8" r="1.5" fill="currentColor" />
-                </svg>
+              <div className="flex items-end justify-center gap-3">
+                {[12, 16, 24, 32, 48].map((size) => (
+                  <svg key={size} viewBox="0 0 16 16" style={{ width: size, height: size }} className="text-stone-600">
+                    <circle cx="6" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="1" />
+                    <circle cx="14" cy="8" r="1.5" fill="currentColor" />
+                  </svg>
+                ))}
               </div>
               <p className="text-xs text-stone-400">External Point</p>
+            </div>
+
+            <div className="w-px h-12 bg-stone-200" />
+
+            {/* Origins O at different sizes */}
+            <div className="text-center space-y-3">
+              <div className="flex items-end justify-center gap-3">
+                {[12, 16, 24, 32, 48].map((size) => (
+                  <svg key={size} viewBox="0 0 16 16" style={{ width: size, height: size }} className="text-stone-600">
+                    <ellipse cx="8" cy="8" rx="5.5" ry="7" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-xs text-stone-400">Origins O</p>
             </div>
           </div>
         </section>
