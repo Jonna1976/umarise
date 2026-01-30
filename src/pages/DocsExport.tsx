@@ -546,6 +546,178 @@ GET /resolve?hash={sha256}`}</pre>
           <p>Document version: 1.0 • Umarise Strategic Positioning</p>
         </footer>
       </article>
+
+      {/* Page Break */}
+      <div className="page-break" />
+
+      {/* Document 4: Partner Vault Mode */}
+      <article className="max-w-4xl mx-auto px-8 py-12">
+        <header className="mb-8 pb-6 border-b-2 border-black">
+          <p className="text-sm text-gray-500 uppercase tracking-widest mb-2">Umarise Technical Documentation</p>
+          <h1 className="text-3xl font-bold">Partner Vault Mode</h1>
+          <p className="text-gray-600 mt-2">Data Custody & Verification</p>
+        </header>
+
+        <section className="mb-8">
+          <p className="text-gray-700 italic border-l-4 border-gray-300 pl-4">
+            How Umarise provides origin verification without taking custody of sensitive data.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">The Core Question</h2>
+          <div className="bg-gray-50 p-4 rounded">
+            <p className="font-semibold">"Don't organizations want to keep their data inside their own systems?"</p>
+            <p className="text-gray-700 mt-2">Yes — and that's exactly what Partner Vault Mode enables.</p>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">What Umarise Stores vs. What Partners Store</h2>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Component</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Location</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Reconstructable?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">SHA-256 hash (fingerprint)</td><td className="border border-gray-300 px-3 py-2">Umarise Control Plane</td><td className="border border-gray-300 px-3 py-2">❌ No — cryptographic one-way</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Timestamp (captured_at)</td><td className="border border-gray-300 px-3 py-2">Umarise Control Plane</td><td className="border border-gray-300 px-3 py-2">N/A</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Origin ID</td><td className="border border-gray-300 px-3 py-2">Umarise Control Plane</td><td className="border border-gray-300 px-3 py-2">N/A</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2 font-semibold">Original artifact (bytes)</td><td className="border border-gray-300 px-3 py-2 font-semibold">Partner's own vault</td><td className="border border-gray-300 px-3 py-2">✅ Yes — under their control</td></tr>
+            </tbody>
+          </table>
+          <p className="text-sm font-semibold text-gray-800 mt-4">Key insight: A SHA-256 hash cannot be reversed into the original document. It's a fingerprint, not a copy.</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">How Partner Vault Mode Works</h2>
+          <ol className="list-decimal list-inside text-sm text-gray-700 space-y-2">
+            <li>Partner captures origin (document, image, file)</li>
+            <li>Partner computes SHA-256 hash locally</li>
+            <li>Partner sends <strong>only the hash</strong> to Umarise API</li>
+            <li>Umarise records: hash + timestamp + origin_id</li>
+            <li>Partner stores artifact in their <strong>own vault</strong> (Proton, Nextcloud, S3, etc.)</li>
+            <li>Later: Partner downloads artifact, computes hash, verifies against Umarise</li>
+          </ol>
+          <div className="bg-gray-50 p-4 rounded mt-4">
+            <p className="font-semibold">Result: Sensitive data never leaves the partner's infrastructure.</p>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">The Notary Analogy</h2>
+          <p className="text-gray-700 mb-4">A notary doesn't read your contract — they only stamp that it existed on a specific date.</p>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Notary (Umarise)</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Vault (Partner's System)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">Records that something existed</td><td className="border border-gray-300 px-3 py-2">Stores the thing itself</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Cannot reconstruct content</td><td className="border border-gray-300 px-3 py-2">Full access to content</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Provides third-party verification</td><td className="border border-gray-300 px-3 py-2">Provides internal access</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Why External Verification Matters</h2>
+          <p className="text-gray-700 mb-4 italic">"Can't organizations just verify their own origins internally?"</p>
+          <p className="text-gray-700 mb-4">No — and here's why:</p>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Internal Origin System</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">External Anchor (Umarise)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">"We say it's original"</td><td className="border border-gray-300 px-3 py-2">"Anyone can verify"</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Self-attestation</td><td className="border border-gray-300 px-3 py-2">Third-party proof</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Liability stays internal</td><td className="border border-gray-300 px-3 py-2">Verification is independent</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">No external validation</td><td className="border border-gray-300 px-3 py-2">Bit-identity proof via API</td></tr>
+            </tbody>
+          </table>
+          <p className="text-sm font-semibold text-gray-800 mt-4">The core principle: A company cannot notarize its own documents. Verification value comes from independence.</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Two Operating Modes</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="bg-gray-100 p-4 rounded">
+              <p className="font-semibold mb-2">Default Mode (Umarise-Hosted)</p>
+              <ul className="list-disc list-inside text-gray-700 space-y-1 text-xs">
+                <li>Hash + metadata → Control Plane</li>
+                <li>Artifact → Hetzner Germany (Data Plane)</li>
+                <li>Full custody by Umarise infrastructure</li>
+              </ul>
+            </div>
+            <div className="bg-gray-50 p-4 rounded border-l-4 border-black">
+              <p className="font-semibold mb-2">Partner Vault Mode</p>
+              <ul className="list-disc list-inside text-gray-700 space-y-1 text-xs">
+                <li>Hash + metadata → Control Plane</li>
+                <li>Artifact → Partner's vault (their choice)</li>
+                <li>Zero artifact custody by Umarise</li>
+              </ul>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mt-4">Partners choose based on their compliance requirements and data sovereignty needs.</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Addressing the "External Dependency" Concern</h2>
+          <p className="text-gray-700 mb-4">Umarise is not an external dependency that organizations must manage.</p>
+          <p className="text-gray-700 mb-3">It's a <strong>neutral anchor point</strong> — similar to:</p>
+          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 mb-4">
+            <li>DNS (domain name resolution)</li>
+            <li>Certificate Authorities (TLS certificates)</li>
+            <li>Public key registries</li>
+          </ul>
+          <p className="text-sm text-gray-700">Organizations don't need to "own" these systems to benefit from them. They reference them.</p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">The Value Proposition</h2>
+          <p className="text-gray-700 mb-4">Big tech doesn't want an origin-anchor <strong>outside</strong> their system.</p>
+          <p className="text-gray-700 mb-4">They need an origin-anchor <strong>alongside</strong> their system — to make claims verifiable by third parties.</p>
+          <div className="bg-gray-50 p-4 rounded">
+            <p className="font-semibold">"Without owning it" means:</p>
+            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 mt-2">
+              <li>No custody responsibility</li>
+              <li>No infrastructure management</li>
+              <li>No vendor lock-in on artifacts</li>
+              <li>Just API calls to record and verify</li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Summary</h2>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Question</th>
+                <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Answer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="border border-gray-300 px-3 py-2">Does sensitive data leave partner systems?</td><td className="border border-gray-300 px-3 py-2">No — only the hash</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Can Umarise reconstruct documents from hashes?</td><td className="border border-gray-300 px-3 py-2">No — cryptographically impossible</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Why not verify internally?</td><td className="border border-gray-300 px-3 py-2">Self-attestation has no third-party value</td></tr>
+              <tr><td className="border border-gray-300 px-3 py-2">Is Umarise a dependency to manage?</td><td className="border border-gray-300 px-3 py-2">No — it's a neutral anchor to reference</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <footer className="mt-12 pt-4 border-t border-gray-200 text-xs text-gray-500">
+          <p>Document version: 1.0 • Umarise Partner Integration</p>
+        </footer>
+      </article>
     </div>
   );
 }
