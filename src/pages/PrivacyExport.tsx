@@ -7,6 +7,20 @@ const PrivacyExport = () => {
 
   return (
     <div className="min-h-screen bg-white text-stone-900 p-8 print:p-4 max-w-4xl mx-auto font-serif">
+      {/* Export button */}
+      <div className="print:hidden mb-6 flex justify-end">
+        <button
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-sm"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Export
+        </button>
+      </div>
 
       {/* Document Header */}
       <header className="mb-10 border-b border-stone-300 pb-6">
@@ -14,16 +28,11 @@ const PrivacyExport = () => {
         <p className="text-sm text-stone-500 font-sans">Umarise · January 2026 · v1.0</p>
       </header>
 
-      {/* Score Summary */}
+      {/* Summary */}
       <section className="mb-10">
-        <div className="flex items-baseline gap-4 mb-4">
-          <span className="text-4xl font-light text-stone-800">4.8</span>
-          <span className="text-stone-500">/5</span>
-          <span className="text-sm text-stone-600 ml-4">GDPR Article 25 compliant</span>
-        </div>
         <p className="text-stone-600 leading-relaxed text-sm">
           Four-layer architecture with intentional separation. Control plane compromise cannot yield origin content. 
-          Privacy enforcement at data layer. EU/Swiss jurisdiction only.
+          Privacy enforcement at data layer. EU/Swiss jurisdiction only. GDPR Article 25 compliant.
         </p>
       </section>
 
