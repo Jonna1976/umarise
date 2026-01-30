@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 
 /**
  * Umarise B2B Landing Page
@@ -59,10 +58,10 @@ export default function Landing() {
             >
               <a
                 href="mailto:partners@umarise.com?subject=Partner%20Inquiry"
-                className="inline-flex items-center gap-3 px-6 py-3 bg-landing-copper/8 border border-landing-copper/25 rounded-full text-landing-copper hover:bg-landing-copper/12 hover:border-landing-copper/40 transition-all duration-300 group"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-landing-copper/70 hover:text-landing-copper transition-colors duration-300 group"
               >
-                <span className="text-sm tracking-wide uppercase">Partner Inquiry</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span className="text-sm tracking-wide">Partner Inquiry</span>
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
               </a>
             </motion.div>
           </div>
@@ -79,18 +78,13 @@ export default function Landing() {
             <p className="opacity-50">
               © {new Date().getFullYear()} Umarise
             </p>
-            <div className="flex items-center gap-6">
-              <a 
-                href="/app" 
-                className="opacity-30 hover:opacity-60 transition-opacity text-xs"
-                title="Pilot Demo"
-              >
-                pilot
-              </a>
-              <p className="opacity-50">
-                Verifiable origins for the programmatic age
-              </p>
-            </div>
+            <a 
+              href="/app" 
+              className="opacity-30 hover:opacity-60 transition-opacity text-xs"
+              title="Pilot Demo"
+            >
+              pilot
+            </a>
           </motion.div>
         </footer>
       </div>
