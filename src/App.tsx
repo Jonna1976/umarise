@@ -16,6 +16,7 @@ import { WarmPaletteMockup } from "./components/dev/WarmPaletteMockup";
 import { CurrentPaletteMockup } from "./components/dev/CurrentPaletteMockup";
 import { DemoWalkthrough } from "./components/dev/DemoWalkthrough";
 import { DemoWalkthrough2 } from "./components/dev/DemoWalkthrough2";
+import { B2BWalkthrough } from "./components/dev/B2BWalkthrough";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
 import UMarkMockup from "./components/dev/UMarkMockup";
 import PilotTracker from "./pages/PilotTracker";
@@ -54,7 +55,9 @@ const App = () => (
             <Route path="/current-preview" element={<CurrentPaletteMockup />} />
             <Route path="/demo-walkthrough" element={<DemoWalkthrough />} />
             <Route path="/demo-walkthrough-2" element={<DemoWalkthrough2 />} />
+            <Route path="/b2b-walkthrough" element={<B2BWalkthrough />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
+            <Route path="/origin-mark" element={<UMarkMockup />} />
             <Route path="/origin-mark" element={<UMarkMockup />} />
             
             {/* Redirect old landing route */}
