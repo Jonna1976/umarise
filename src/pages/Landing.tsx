@@ -50,15 +50,6 @@ export default function Landing() {
               <span className="text-landing-gold">Origins.</span>
             </motion.h1>
 
-            {/* Subline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-landing-muted text-lg md:text-xl tracking-wide mb-12"
-            >
-              Proof of origin. Programmatically.
-            </motion.p>
 
             {/* CTA */}
             <motion.div
