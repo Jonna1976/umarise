@@ -68,7 +68,7 @@ const steps: WalkthroughStep[] = [
 function PartnerIllustration({ step }: { step: WalkthroughStep }) {
   return (
     <motion.div 
-      className="w-48 h-64 rounded-2xl bg-stone-100 border border-stone-200 flex flex-col items-center justify-center p-6 relative overflow-hidden"
+      className="w-56 h-72 rounded-2xl bg-stone-100 border border-stone-200 flex flex-col items-center justify-center p-6 relative overflow-hidden"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
@@ -81,33 +81,33 @@ function PartnerIllustration({ step }: { step: WalkthroughStep }) {
         transition={{ delay: 0.2 }}
       >
         <Building2 className="w-3 h-3" />
-        <span className="text-[9px] font-mono uppercase tracking-wider">Partner</span>
+        <span className="text-[10px] font-mono uppercase tracking-wider">Partner</span>
       </motion.div>
       
       {/* Icon */}
       <motion.div 
-        className="w-20 h-20 rounded-full bg-stone-200 border-2 border-stone-300 flex items-center justify-center mb-4"
+        className="w-24 h-24 rounded-full bg-stone-200 border-2 border-stone-300 flex items-center justify-center mb-4"
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 3, repeat: Infinity }}
       >
         <div className="text-stone-500">
-          {step.icon && <span className="scale-[2] inline-block">{step.icon}</span>}
+          {step.icon && <span className="scale-[2.5] inline-block">{step.icon}</span>}
         </div>
       </motion.div>
       
       {/* Action indicator */}
       <motion.div
-        className="px-4 py-2 bg-stone-200 rounded-lg"
+        className="px-5 py-2.5 bg-stone-200 rounded-lg"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-[10px] text-stone-600 font-mono text-center">{step.subtitle}</p>
+        <p className="text-xs text-stone-600 font-mono text-center">{step.subtitle}</p>
       </motion.div>
       
       {/* Your system label */}
       <motion.p
-        className="mt-4 text-[9px] text-stone-400 italic"
+        className="mt-5 text-[10px] text-stone-400 italic"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
@@ -122,14 +122,24 @@ function PartnerIllustration({ step }: { step: WalkthroughStep }) {
 function IntroIllustration() {
   return (
     <motion.div 
-      className="w-56 h-64 rounded-2xl bg-gradient-to-b from-landing-deep via-[hsl(25,25%,12%)] to-landing-deep border border-landing-copper/20 flex flex-col items-center justify-center p-6 relative overflow-hidden"
+      className="w-64 h-80 rounded-2xl bg-gradient-to-b from-landing-deep via-[hsl(25,25%,12%)] to-landing-deep border border-landing-copper/20 flex flex-col items-center justify-center p-6 relative overflow-hidden"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {/* Integration time badge */}
+      <motion.div 
+        className="absolute top-3 right-3 px-2 py-1 bg-landing-copper/10 rounded border border-landing-copper/20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <span className="text-[9px] font-mono text-landing-copper/70">{'<'} 1 hour</span>
+      </motion.div>
+      
       {/* Question mark with glow */}
       <motion.div 
-        className="w-20 h-20 rounded-full border-2 border-landing-copper/30 flex items-center justify-center mb-6"
+        className="w-24 h-24 rounded-full border-2 border-landing-copper/30 flex items-center justify-center mb-6"
         animate={{ 
           borderColor: [
             'hsla(25, 35%, 42%, 0.3)',
@@ -139,27 +149,27 @@ function IntroIllustration() {
         }}
         transition={{ duration: 3, repeat: Infinity }}
       >
-        <span className="text-3xl text-landing-copper font-serif">?</span>
+        <span className="text-4xl text-landing-copper font-serif">?</span>
       </motion.div>
       
       {/* Decision: POST /origins */}
       <motion.div
-        className="px-4 py-3 bg-landing-copper/10 rounded-lg border border-landing-copper/30"
+        className="px-5 py-3 bg-landing-copper/10 rounded-lg border border-landing-copper/30"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-xs text-landing-copper font-mono text-center">POST /origins</p>
+        <p className="text-sm text-landing-copper font-mono text-center">POST /origins</p>
       </motion.div>
       
       {/* Arrow indicator */}
       <motion.div
-        className="mt-4 text-landing-copper/50"
+        className="mt-5 text-landing-copper/50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
       >
-        <ArrowRight className="w-4 h-4" />
+        <ArrowRight className="w-5 h-5" />
       </motion.div>
     </motion.div>
   );
@@ -171,7 +181,7 @@ function UmariseIllustration({ step }: { step: WalkthroughStep }) {
   
   return (
     <motion.div 
-      className="w-48 h-64 rounded-2xl bg-gradient-to-b from-landing-deep via-[hsl(25,25%,12%)] to-landing-deep border border-landing-copper/30 flex flex-col items-center justify-center p-6 relative overflow-hidden"
+      className="w-56 h-72 rounded-2xl bg-gradient-to-b from-landing-deep via-[hsl(25,25%,12%)] to-landing-deep border border-landing-copper/30 flex flex-col items-center justify-center p-6 relative overflow-hidden"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
@@ -184,12 +194,12 @@ function UmariseIllustration({ step }: { step: WalkthroughStep }) {
         transition={{ delay: 0.2 }}
       >
         <Circle className="w-2.5 h-2.5 fill-landing-copper text-landing-copper" />
-        <span className="text-[9px] font-mono uppercase tracking-wider text-landing-copper">Umarise</span>
+        <span className="text-[10px] font-mono uppercase tracking-wider text-landing-copper">Umarise</span>
       </motion.div>
       
       {/* Icon with glow */}
       <motion.div 
-        className="w-20 h-20 rounded-full bg-landing-copper/20 border-2 border-landing-copper/50 flex items-center justify-center mb-4 relative"
+        className="w-24 h-24 rounded-full bg-landing-copper/20 border-2 border-landing-copper/50 flex items-center justify-center mb-4 relative"
         animate={{ 
           boxShadow: [
             '0 0 0 0 hsla(25, 35%, 42%, 0)',
@@ -200,30 +210,30 @@ function UmariseIllustration({ step }: { step: WalkthroughStep }) {
         transition={{ duration: 2.5, repeat: Infinity }}
       >
         <div className="text-landing-copper">
-          {step.icon && <span className="scale-[2] inline-block">{step.icon}</span>}
+          {step.icon && <span className="scale-[2.5] inline-block">{step.icon}</span>}
         </div>
         
         {/* Seal checkmark */}
         {isSeal && (
           <motion.div
-            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-landing-copper flex items-center justify-center"
+            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-landing-copper flex items-center justify-center"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: "spring" }}
           >
-            <span className="text-[8px] text-landing-deep font-bold">✓</span>
+            <span className="text-[10px] text-landing-deep font-bold">✓</span>
           </motion.div>
         )}
       </motion.div>
       
       {/* API endpoint */}
       <motion.div
-        className="px-3 py-1.5 bg-landing-copper/10 rounded border border-landing-copper/20"
+        className="px-4 py-2 bg-landing-copper/10 rounded border border-landing-copper/20"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-[9px] text-landing-copper/70 font-mono">
+        <p className="text-xs text-landing-copper/70 font-mono">
           {isSeal ? 'POST /origins' : 'POST /verify'}
         </p>
       </motion.div>
@@ -231,25 +241,25 @@ function UmariseIllustration({ step }: { step: WalkthroughStep }) {
       {/* Hash preview for Seal */}
       {isSeal && (
         <motion.div
-          className="mt-3 px-2 py-1 bg-landing-deep/50 rounded"
+          className="mt-4 px-3 py-1.5 bg-landing-deep/50 rounded"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <p className="text-[8px] text-landing-copper/50 font-mono">SHA-256: a7f3c2e1...</p>
+          <p className="text-[10px] text-landing-copper/50 font-mono">SHA-256: a7f3c2e1...</p>
         </motion.div>
       )}
       
       {/* Verified badge for Verify */}
       {!isSeal && (
         <motion.div
-          className="mt-3 flex items-center gap-1.5 text-landing-copper"
+          className="mt-4 flex items-center gap-2 text-landing-copper"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <CheckCircle className="w-3 h-3" />
-          <span className="text-[9px] font-medium">Bit-identity confirmed</span>
+          <CheckCircle className="w-4 h-4" />
+          <span className="text-xs font-medium">Bit-identity confirmed</span>
         </motion.div>
       )}
     </motion.div>
