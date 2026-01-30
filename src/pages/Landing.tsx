@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 /**
  * Umarise B2B Landing Page
@@ -68,16 +69,37 @@ export default function Landing() {
         </main>
 
         {/* Footer */}
-        <footer className="p-6 md:p-8">
+        <footer className="p-6 md:p-8 border-t border-landing-muted/10">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col md:flex-row items-center justify-between gap-4 text-landing-muted text-sm"
+            className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm"
           >
-            <p className="opacity-50">
+            {/* Copyright */}
+            <p className="text-landing-muted/50">
               © {new Date().getFullYear()} Umarise
             </p>
+            
+            {/* Origin Flow link */}
+            <Link
+              to="/b2b-walkthrough"
+              className="group flex flex-col items-center md:items-end gap-0.5"
+            >
+              <span className="text-landing-copper/70 hover:text-landing-copper transition-colors flex items-center gap-1.5">
+                Origin Flow
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </span>
+              <span className="text-[10px] text-landing-muted/40">
+                See how verifiable origin works at the API level.
+              </span>
+            </Link>
+            
+            {/* Legal links */}
+            <div className="flex items-center gap-4 text-landing-muted/40">
+              <span className="hover:text-landing-muted/60 transition-colors cursor-pointer">Privacy</span>
+              <span className="hover:text-landing-muted/60 transition-colors cursor-pointer">Terms</span>
+            </div>
           </motion.div>
         </footer>
       </div>
