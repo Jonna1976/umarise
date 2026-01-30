@@ -151,10 +151,10 @@ export default function Privacy() {
             <p className="text-muted-foreground leading-relaxed">
               For privacy inquiries:{' '}
               <a 
-                href="mailto:privacy@umarise.com" 
+                href="mailto:partners@umarise.com?subject=Privacy%20Inquiry" 
                 className="text-foreground underline hover:no-underline"
               >
-                privacy@umarise.com
+                partners@umarise.com
               </a>
             </p>
           </section>
