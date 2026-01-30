@@ -189,5 +189,173 @@ Umarise is like a **notary stamp**:
 
 ---
 
-*Document version: 1.0*  
+## 9. Strategic Clarifications
+
+### 9.1 Technical Proof vs. Legal Claim
+
+Umarise provides **technical bit-identity proof**, not legal proof.
+
+| Aspect | Technical Proof (Umarise) | Legal Proof (Governance Layer) |
+|--------|---------------------------|-------------------------------|
+| What it proves | Bytes are identical to origin | Intent, ownership, liability |
+| Burden of proof | Claimant must explain mismatch | Depends on jurisdiction |
+| Dispute prevention | High — trivial to verify | Requires legal process |
+
+**Value proposition:** Technical proof prevents disputes *before* they escalate to legal matters. When parties see the hash matches, there's no argument. Legal standing emerges when courts/arbiters accept technical verification — that's governance layer, not Umarise.
+
+**Practical strength:** An individual, employee, or company with cryptographic verification fundamentally changes negotiation dynamics. The other party cannot claim "that's not what was sent" when bit-identity is provable.
+
+---
+
+### 9.2 Hash Sequence: E2E Does Not Overwrite
+
+End-to-End encryption (Phase 2B) encrypts *after* hashing:
+
+```
+Original bytes → SHA-256 hash → Record hash → Encrypt bytes → Store encrypted
+```
+
+| Component | Layer | Mutable |
+|-----------|-------|---------|
+| SHA-256 hash | Origin Layer | No (immutable) |
+| Encrypted artifact | Storage Layer | No (content-addressed) |
+| Decryption key | User-controlled | Yes (rotatable) |
+
+**Key insight:** The hash represents the *unencrypted* origin. Verification can occur without decryption — compare hash only. Encryption and hashing coexist independently.
+
+---
+
+### 9.3 Dispute Prevention vs. Big Tech Litigation Budgets
+
+Big tech companies budget for litigation as cost of doing business. Umarise changes the calculus:
+
+| Without Origin Proof | With Origin Proof |
+|---------------------|-------------------|
+| "He said, she said" | Cryptographic evidence |
+| Discovery process required | Instant verification |
+| Expensive, time-consuming | Trivial to prove |
+| Favors party with more resources | Levels the playing field |
+
+**The shift:** When verification is trivial, disputes become irrational. Why argue about what was sent when anyone can check in seconds? This changes negotiation dynamics fundamentally — even against well-funded opponents.
+
+---
+
+### 9.4 Notary ≠ Vault: Compromise Detection
+
+The notary analogy is the most powerful metaphor for explaining Umarise:
+
+| Notary (Umarise) | Vault (Proton/Nextcloud/etc.) |
+|------------------|-------------------------------|
+| Records that something existed | Stores the thing itself |
+| Cannot be "un-recorded" | Can be modified, deleted |
+| Detects if vault is compromised | Has no external verification |
+
+**Vault-Independent Verification Flow:**
+
+```
+1. Proton gets hacked
+2. Attacker modifies file in Proton
+3. User downloads file from Proton
+4. User verifies against Umarise origin hash
+5. Result: MISMATCH → "This is not the original"
+```
+
+The hash is not stored in Proton. It's stored in Umarise/Hetzner. An attacker can compromise the vault but cannot alter the origin hash.
+
+#### Can Umarise/Hetzner Be Hacked?
+
+Yes — no system is absolutely unhackable. But the architecture provides defense-in-depth:
+
+| Attack Vector | Protection |
+|---------------|------------|
+| Hetzner storage compromised | Hash lives in Supabase → mismatch detected |
+| Supabase hash-database compromised | Artifact on Hetzner remains original → mismatch detected |
+| Both compromised simultaneously | Audit logs + database triggers (write-once) → changes blocked/logged |
+
+**The core defense:**
+- Attacker must compromise TWO independent systems simultaneously
+- AND bypass write-once database triggers
+- AND remove audit trail
+- → Practically infeasible without insider access
+
+**Honest nuance:** Umarise provides *technical* guarantees, not *absolute* guarantees. Defense-in-depth makes manipulation detectable, not impossible. For legal-grade certainty, governance layer additions (TSA, PKI) can be implemented later.
+
+---
+
+### 9.5 API Independence: Before, Not Inside
+
+Umarise sits *before* every data processing system, not inside:
+
+```
+┌─────────────────────────────────────────────────────┐
+│              DATA PROCESSING SYSTEMS                 │
+│  (Notion, Nextcloud, CRM, AI Agents, Workflows)     │
+└─────────────────────────────────────────────────────┘
+                         │
+                         │ reads from
+                         ▼
+┌─────────────────────────────────────────────────────┐
+│               UMARISE ORIGIN LAYER                   │
+│           (API: /origins, /resolve, /verify)        │
+└─────────────────────────────────────────────────────┘
+```
+
+**MCP Positioning:** Umarise is not a protocol — it's infrastructure that can be *exposed via* an MCP (Model Context Protocol) server. AI agents can call the Umarise API to verify origins before processing data. This makes Umarise compatible with the emerging agent ecosystem.
+
+---
+
+### 9.6 Storage Nuance: Recording vs. Storing
+
+**Valid question:** "You say you don't store, but origins are on Hetzner?"
+
+**Nuance:** Umarise stores origin *artifacts* (the bytes), but the core value is *recording* (the hash).
+
+| Function | Location | Purpose |
+|----------|----------|---------|
+| Hash (origin record) | Supabase | Verification |
+| Artifact (bytes) | Hetzner | Optional retrieval |
+
+**Partner Vault Mode:**
+Partners can use their own vault (Proton, Nextcloud, S3). Umarise only needs to record the hash. If their vault is later compromised, Umarise verification will detect the mismatch.
+
+```
+Partner Flow:
+1. Partner captures origin
+2. Umarise records hash (via API)
+3. Partner stores artifact in their own vault
+4. Later: Partner verifies against Umarise hash
+```
+
+---
+
+### 9.7 Proton vs. Umarise: Complementary, Not Competing
+
+| Proton | Umarise |
+|--------|---------|
+| Vault (storage) | Notary (recording) |
+| Preserves bytes | Proves bytes existed |
+| Security = access control | Security = immutable verification |
+| Exists independently | Adds verification layer |
+
+**Key differentiator:** Proton is a vault. Umarise is a notary with an API. They are complementary — Umarise can verify origins stored in Proton, Nextcloud, or any other vault.
+
+---
+
+### 9.8 Infrastructure, Not Platform
+
+Umarise is explicitly **not** a social platform, not a Mastodon alternative, not decentralized-by-ideology.
+
+| Platform (Mastodon, Bluesky) | Infrastructure (Umarise) |
+|------------------------------|--------------------------|
+| Users interact on the platform | Systems call the API |
+| Network effects matter | Integration depth matters |
+| Decentralization is the product | Agnosticism is the product |
+
+**Positioning:** Umarise works with centralized systems (Notion, Salesforce) and decentralized systems (Solid, IPFS) equally. The origin layer is agnostic about what runs above it.
+
+**Design principle:** Enable both centralization and decentralization. Exclude nothing. Let users and organizations choose their tools — Umarise provides the verification layer beneath.
+
+---
+
+*Document version: 1.1*  
 *Last updated: January 2026*
