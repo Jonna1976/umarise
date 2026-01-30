@@ -33,7 +33,7 @@ export default function Landing() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="relative z-10 min-h-[100dvh] flex flex-col">
 
         {/* Main content */}
         <main className="flex-1 flex items-center justify-center px-6 md:px-8">
