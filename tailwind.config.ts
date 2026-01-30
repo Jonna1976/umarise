@@ -81,10 +81,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
         ring: "hsl(var(--sidebar-ring))",
         },
-        // Landing page (B2B) colors
+        // Landing page (Infrastructure Signal) colors
         landing: {
           deep: "hsl(var(--landing-deep))",
-          gold: "hsl(var(--landing-gold))",
+          copper: "hsl(var(--landing-copper))",
           cream: "hsl(var(--landing-cream))",
           muted: "hsl(var(--landing-muted))",
         },

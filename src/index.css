@@ -6,11 +6,13 @@
 
 @layer base {
   :root {
-    /* === LANDING PAGE (B2B) === */
-    --landing-deep: 220 20% 6%;
-    --landing-gold: 42 70% 50%;
-    --landing-cream: 42 20% 92%;
-    --landing-muted: 42 10% 60%;
+    /* === LANDING PAGE (Infrastructure Signal) === */
+    /* Deep graphite/carbon - not pure black, matte authority */
+    --landing-deep: 220 8% 7%;
+    /* Muted copper/ochre/amber - warm mineral, NOT gold */
+    --landing-copper: 25 35% 42%;
+    --landing-cream: 40 15% 88%;
+    --landing-muted: 30 8% 55%;
 
     /* === STYLE MANUAL SYNCHRONIZED === */
     /* Lichte achtergrond (Cream) */
