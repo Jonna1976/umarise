@@ -19,14 +19,14 @@
 
 ### Vastleggen vs. Opslaan
 
-| | **Vastleggen** (Umarise) | **Opslaan** (Storage systems) |
+| | **Vastleggen** (Umarise) | **Opslaan** (Proton/Nextcloud/etc.) |
 |---|---|---|
-| **What** | Proof that something existed | The data itself |
-| **Mutable** | No (hash is immutable) | Yes (file can be modified) |
-| **Purpose** | Verification after the fact | Access and management |
-| **Analogy** | Notary recording a deed | Vault where you store the deed |
+| **Wat** | Bewijs dat iets bestond | De data zelf bewaren |
+| **Wijzigbaar** | Nee (hash is immutable) | Ja (bestand kan worden aangepast) |
+| **Doel** | Verificatie achteraf | Toegang en beheer |
+| **Analogie** | Notaris die akte vastlegt | Kluis waar je akte in legt |
 
-> **Key distinction:** Storage = preserving bytes. Recording = proving which bytes existed.
+> **Kernverschil:** Opslaan = bewaren van bytes. Vastleggen = bewijzen welke bytes er waren.
 
 ### Storage-Agnostic
 
