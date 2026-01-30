@@ -133,10 +133,10 @@ export default function Terms() {
             <p className="text-muted-foreground leading-relaxed">
               For questions about these terms:{' '}
               <a 
-                href="mailto:legal@umarise.com" 
+                href="mailto:partners@umarise.com?subject=Terms%20Inquiry" 
                 className="text-foreground underline hover:no-underline"
               >
-                legal@umarise.com
+                partners@umarise.com
               </a>
             </p>
           </section>
