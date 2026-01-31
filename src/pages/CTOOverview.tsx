@@ -136,6 +136,9 @@ export default function CTOOverview() {
               <span className="text-landing-muted/60">Without origin, systems can operate.</span><br />
               <span className="text-landing-cream">With origin, systems can withstand scrutiny.</span>
             </p>
+            <p className="mb-4 text-sm text-landing-muted/60">
+              Scrutiny includes: audits, disputes, AI accountability reviews, cross-system verification, and regulatory or contractual examination.
+            </p>
             <div className="bg-landing-muted/5 border border-landing-muted/10 rounded-lg overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
@@ -166,6 +169,20 @@ export default function CTOOverview() {
             </div>
             <p className="mt-4 text-sm text-landing-muted/60">
               Origin shifts disputes from interpretive (legal) to deterministic (technical).
+            </p>
+          </section>
+
+          {/* Externality as Requirement */}
+          <section>
+            <h2 className="text-xl font-semibold text-landing-cream mb-4">Externality as Requirement</h2>
+            <p className="mb-4">
+              Once an origin layer is owned or governed by the same party that processes data, proof collapses into self-attestation.
+            </p>
+            <p className="mb-4">
+              A system cannot notarize its own records. Verification value requires independence.
+            </p>
+            <p className="text-landing-cream/90 italic">
+              Externality is not a positioning choice. It is a technical requirement for trust.
             </p>
           </section>
 
