@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ArrowLeft, RotateCcw, CheckCircle, X, Upload, Database, Cpu, Search, Hash, ShieldCheck, Building2, Circle, HelpCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, RotateCcw, CheckCircle, X, Upload, Database, Cpu, Search, Hash, Fingerprint, Building2, Circle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -56,7 +56,7 @@ const steps: WalkthroughStep[] = [
     owner: 'partner',
   },
   {
-    icon: <ShieldCheck className="w-4 h-4" />,
+    icon: <Fingerprint className="w-4 h-4" />,
     title: "Verify",
     subtitle: "Umarise confirms origin",
     description: "POST /verify — Prove the artifact matches its recorded origin.",
