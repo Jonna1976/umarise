@@ -15,6 +15,7 @@ import CTOOverview from "./pages/CTOOverview";
 import Intake from "./pages/Intake";
 import Landing from "./pages/Landing";
 import { B2BWalkthrough } from "./components/dev/B2BWalkthrough";
+import LandingVariants from "./pages/LandingVariants";
 import { WidgetMockup } from "./components/dev/WidgetMockup";
 import UMarkMockup from "./components/dev/UMarkMockup";
 import PilotTracker from "./pages/PilotTracker";
@@ -56,7 +57,9 @@ const App = () => (
             
             {/* DEV/PREVIEW ROUTES */}
             <Route path="/origin-flow" element={<B2BWalkthrough />} />
+            <Route path="/landing-variants" element={<LandingVariants />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
+            <Route path="/origin-mark" element={<UMarkMockup />} />
             <Route path="/origin-mark" element={<UMarkMockup />} />
             
             {/* Redirect old landing route */}
