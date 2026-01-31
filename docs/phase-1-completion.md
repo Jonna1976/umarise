@@ -1,8 +1,28 @@
 # Phase 1 Completion Index — Umarise Origin Record Layer
 
-> **Status:** Phase 1 Complete  
-> **Date:** January 2026  
-> **Next:** Phase 2 — Positioning & External Validation
+> **Status:** ✅ Phase 1 Complete — LIVE on umarise.com  
+> **Production Date:** January 31, 2026  
+> **Next:** Phase 2 — Design Partnership Validation
+
+---
+
+## 🎯 Production Milestone
+
+**First-mover claim established.** Umarise is live as the first dedicated Origin Record Layer in production.
+
+| URL | Purpose | Status |
+|-----|---------|--------|
+| `umarise.com` | Landing — Infrastructure positioning | ✅ Live |
+| `umarise.com/intake` | Qualification filter (anti-funnel) | ✅ Live |
+| `umarise.com/cto-overview` | Technical validation for architects | ✅ Live |
+| `umarise.com/origin-flow` | Visual origin primitive explanation | ✅ Live |
+| `umarise.com/review` | CTO evaluation kit | ✅ Live |
+| `umarise.com/docs-export` | PDF documentation export | ✅ Live |
+| `umarise.com/pilot` | Post-commitment onboarding | ✅ Live |
+| `umarise.com/privacy` | Strategic privacy policy | ✅ Live |
+| `umarise.com/terms` | Terms of service | ✅ Live |
+
+**Contact:** partners@umarise.com
 
 ---
 
@@ -357,14 +377,39 @@ Value creation and strategic leverage sit in the API and positioning as indispen
 
 ---
 
-## ➡️ Phase 2 — Positioning & Validation
+## ➡️ Phase 2 — Design Partnership Validation
 
-- [ ] Start pilot with 3 MKB teams
-- [ ] Partner outreach with integration-contract
-- [ ] Validate 80% retrieval <60s hypothesis
-- [ ] First paying customer
+### Immediate Actions
+- [ ] CTO outreach via partners@umarise.com
+- [ ] First design partnership (no-cost integration)
+- [ ] API primitives validation with real external system
+- [ ] Partner Vault Mode pilot
+
+### Success Criteria
+- External system calling /resolve and /verify
+- Partner can demonstrate loss of verifiable origin without Umarise
+- "Negative dependency" confirmed
+
+### Kill Criteria (Do Not Pursue)
+- Systems requiring revision/erasure of history
+- Platforms where interpretation outweighs fixity
+- Organizations unwilling to accept inconvenient evidence
 
 ---
 
-*Phase 1 Complete — January 2026*  
-*Test Suite Validated — January 29, 2026*
+## 📊 Strategic Position Established
+
+| Claim | Status |
+|-------|--------|
+| First dedicated Origin Record Layer | ✅ Live |
+| SHA-256 + timestamp + origin_id triad | ✅ Operational |
+| External neutrality (not self-attestation) | ✅ Architectural |
+| Partner Vault Mode ready | ✅ Documented |
+| API primitives (/origins, /resolve, /verify) | ✅ Tested |
+| EU data residency (Hetzner Germany) | ✅ Confirmed |
+
+---
+
+*Phase 1 Complete — January 31, 2026*  
+*Production Deployment — umarise.com*  
+*First-mover position established*
