@@ -57,12 +57,12 @@ export default function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <a
-                href="mailto:partners@umarise.com?subject=Partner%20Inquiry"
+              <Link
+                to="/intake"
                 className="text-sm tracking-wide text-landing-copper/70 hover:text-landing-copper transition-colors duration-300"
               >
-                Partner Inquiry
-              </a>
+                Integration Intake →
+              </Link>
             </motion.div>
           </div>
         </main>
