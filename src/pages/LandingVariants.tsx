@@ -101,7 +101,7 @@ export default function LandingVariants() {
               </motion.div>
             )}
 
-            {/* Variant 2: Punt vervangen */}
+            {/* Variant 2: Punt vervangen - fingerprint zo klein als punt */}
             {activeVariant === 2 && (
               <motion.div
                 key="v2"
@@ -115,9 +115,9 @@ export default function LandingVariants() {
                   <span className="text-landing-copper inline-flex items-baseline">
                     Origins
                     <Fingerprint 
-                      className="text-landing-copper/60 ml-1" 
-                      size={20} 
-                      strokeWidth={2}
+                      className="text-landing-copper ml-0.5 translate-y-[0.15em]" 
+                      size={10} 
+                      strokeWidth={2.5}
                     />
                   </span>
                 </h1>
