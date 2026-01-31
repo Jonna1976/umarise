@@ -268,6 +268,7 @@ function UmariseIllustration({ step }: { step: WalkthroughStep }) {
 
 export function B2BWalkthrough() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [dragDirection, setDragDirection] = useState<number>(0);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
@@ -285,8 +286,23 @@ export function B2BWalkthrough() {
     setCurrentStep(0);
   };
 
+  // Swipe handlers
+  const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const swipeThreshold = 50;
+    const velocityThreshold = 500;
+    
+    if (info.offset.x < -swipeThreshold || info.velocity.x < -velocityThreshold) {
+      // Swiped left → next
+      handleNext();
+    } else if (info.offset.x > swipeThreshold || info.velocity.x > velocityThreshold) {
+      // Swiped right → prev
+      handlePrev();
+    }
+  };
+
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+  const isFirstStep = currentStep === 0;
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
@@ -332,19 +348,26 @@ export function B2BWalkthrough() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+      {/* Swipeable Content Area */}
+      <motion.div 
+        className="flex-1 flex flex-col items-center justify-center px-6 py-8 cursor-grab active:cursor-grabbing touch-pan-y"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        key={currentStep}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: dragDirection > 0 ? -50 : 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: dragDirection > 0 ? 50 : -50 }}
+            transition={{ duration: 0.25 }}
             className="flex flex-col items-center text-center"
           >
             {/* Illustration */}
-            <div className="mb-8">
+            <div className="mb-8 pointer-events-none">
               {step.owner === 'intro' ? (
                 <IntroIllustration />
               ) : step.owner === 'partner' ? (
@@ -378,7 +401,21 @@ export function B2BWalkthrough() {
             )}
           </motion.div>
         </AnimatePresence>
-      </div>
+        
+        {/* Swipe hint - show only on first step */}
+        {isFirstStep && (
+          <motion.p 
+            className="text-landing-muted/40 text-xs mt-6 flex items-center gap-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            <ArrowLeft className="w-3 h-3" />
+            <span>Swipe to navigate</span>
+            <ArrowRight className="w-3 h-3" />
+          </motion.p>
+        )}
+      </motion.div>
 
       {/* Step flow visualization */}
       <div className="flex justify-center gap-1.5 mb-6 px-4">
@@ -396,9 +433,9 @@ export function B2BWalkthrough() {
         ))}
       </div>
 
-      {/* Footer */}
+      {/* Simplified Footer */}
       <div className="bg-landing-deep/80 backdrop-blur-sm p-5 border-t border-landing-muted/10">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-4">
           <Button
             variant="ghost"
             size="icon"
@@ -407,20 +444,11 @@ export function B2BWalkthrough() {
           >
             <RotateCcw className="w-4 h-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handlePrev}
-            disabled={currentStep === 0}
-            className="text-landing-muted hover:text-landing-cream hover:bg-landing-deep disabled:opacity-30"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
           
           {isLastStep ? (
             <Link to="/">
               <Button
-                className="bg-landing-copper hover:bg-landing-copper/90 text-landing-deep font-medium px-6"
+                className="bg-landing-copper hover:bg-landing-copper/90 text-landing-deep font-medium px-8"
               >
                 Complete
                 <CheckCircle className="w-4 h-4 ml-2" />
@@ -429,22 +457,12 @@ export function B2BWalkthrough() {
           ) : (
             <Button
               onClick={handleNext}
-              className="bg-landing-copper hover:bg-landing-copper/90 text-landing-deep font-medium px-6"
+              className="bg-landing-copper hover:bg-landing-copper/90 text-landing-deep font-medium px-8"
             >
               Next
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
-          
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleNext}
-            disabled={isLastStep}
-            className="border-landing-copper text-landing-copper hover:bg-landing-copper hover:text-landing-deep disabled:opacity-30"
-          >
-            <ArrowRight className="w-4 h-4" />
-          </Button>
         </div>
         <p className="text-center text-landing-muted/40 text-xs mt-4 italic font-mono tracking-wide">
           Partner stores. Umarise records origin.
