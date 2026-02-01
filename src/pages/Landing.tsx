@@ -81,12 +81,7 @@ export default function Landing() {
             </p>
             
             {/* Technical links */}
-            <Link
-              to="/cto-overview"
-              className="text-landing-copper/70 hover:text-landing-copper transition-colors"
-            >
-              CTO Overview
-            </Link>
+            {/* Legal links */}
             
             {/* Legal links */}
             <div className="flex items-center gap-4 text-landing-muted/40">
