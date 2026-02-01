@@ -43,27 +43,12 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-16 md:mb-20"
+              className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1]"
             >
               <span className="text-landing-cream">Umarise.</span>
               <br />
               <span className="text-landing-copper">Origins.</span>
             </motion.h1>
-
-
-            {/* Link to specification */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              <Link
-                to="/intake"
-                className="text-sm tracking-wide text-landing-muted/50 hover:text-landing-muted/70 transition-colors duration-300"
-              >
-                Origin Specification
-              </Link>
-            </motion.div>
           </div>
         </main>
 
@@ -73,21 +58,27 @@ export default function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm"
+            className="flex flex-col items-center gap-6 text-sm"
           >
             {/* Copyright */}
             <p className="text-landing-muted/50">
               © {new Date().getFullYear()} Umarise
             </p>
             
-            {/* Technical links */}
-            {/* Legal links */}
-            
-            {/* Legal links */}
-            <div className="flex items-center gap-4 text-landing-muted/40">
+            {/* Links */}
+            <div className="flex items-center gap-6 text-landing-muted/40">
+              <Link to="/intake" className="hover:text-landing-muted/60 transition-colors">Origin Specification</Link>
               <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
               <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
             </div>
+
+            {/* Contact */}
+            <a
+              href="mailto:partners@umarise.com"
+              className="text-landing-muted/40 hover:text-landing-muted/60 transition-colors"
+            >
+              partners@umarise.com
+            </a>
           </motion.div>
         </footer>
       </div>
