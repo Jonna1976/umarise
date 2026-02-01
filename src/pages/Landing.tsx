@@ -51,7 +51,7 @@ export default function Landing() {
             </motion.h1>
 
 
-            {/* CTA */}
+            {/* Link to specification */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -59,9 +59,9 @@ export default function Landing() {
             >
               <Link
                 to="/intake"
-                className="text-sm tracking-wide text-landing-copper/70 hover:text-landing-copper transition-colors duration-300"
+                className="text-sm tracking-wide text-landing-muted/50 hover:text-landing-muted/70 transition-colors duration-300"
               >
-                Integration Intake →
+                Origin Specification
               </Link>
             </motion.div>
           </div>
