@@ -81,20 +81,12 @@ export default function Landing() {
             </p>
             
             {/* Technical links */}
-            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-              <Link
-                to="/origin-flow"
-                className="text-landing-copper/70 hover:text-landing-copper transition-colors"
-              >
-                Origin Flow
-              </Link>
-              <Link
-                to="/cto-overview"
-                className="text-landing-copper/70 hover:text-landing-copper transition-colors"
-              >
-                CTO Overview
-              </Link>
-            </div>
+            <Link
+              to="/cto-overview"
+              className="text-landing-copper/70 hover:text-landing-copper transition-colors"
+            >
+              CTO Overview
+            </Link>
             
             {/* Legal links */}
             <div className="flex items-center gap-4 text-landing-muted/40">
