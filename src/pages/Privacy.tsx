@@ -144,18 +144,18 @@ export default function Privacy() {
             <p className="mb-4">
               Because Umarise does not collect personal data, certain GDPR rights apply differently.
             </p>
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               <li>
-                <span className="text-landing-copper">Access</span>
-                <p className="mt-1">Where applicable, origin records can be accessed or exported from the local device context.</p>
+                <span className="block text-landing-copper mb-2">Access</span>
+                <p>Where applicable, origin records can be accessed or exported from the local device context.</p>
               </li>
               <li>
-                <span className="text-landing-copper">Erasure</span>
-                <p className="mt-1">Associations between a local device and origin records can be removed by clearing local browser data. The cryptographic origin record itself remains immutable by design.</p>
+                <span className="block text-landing-copper mb-2">Erasure</span>
+                <p>Associations between a local device and origin records can be removed by clearing local browser data. The cryptographic origin record itself remains immutable by design.</p>
               </li>
               <li>
-                <span className="text-landing-copper">Portability</span>
-                <p className="mt-1">Where applicable, origin records can be exported in machine-readable formats.</p>
+                <span className="block text-landing-copper mb-2">Portability</span>
+                <p>Where applicable, origin records can be exported in machine-readable formats.</p>
               </li>
             </ul>
           </section>
