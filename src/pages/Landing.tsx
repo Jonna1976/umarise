@@ -43,12 +43,24 @@ export default function Landing() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1]"
+              className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-8 md:mb-12"
             >
               <span className="text-landing-cream">Umarise.</span>
               <br />
               <span className="text-landing-copper">Origins.</span>
             </motion.h1>
+
+            {/* Axiom */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-lg md:text-xl text-landing-muted/60 max-w-md leading-relaxed"
+            >
+              Information has a beginning.
+              <br />
+              Umarise makes that beginning provable.
+            </motion.p>
           </div>
         </main>
 
