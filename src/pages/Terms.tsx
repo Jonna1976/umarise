@@ -3,141 +3,180 @@ import { ArrowLeft } from 'lucide-react';
 
 /**
  * Terms of Service for Umarise
- * B2B infrastructure terms - clear, minimal, technically honest
+ * Aligned with canonical briefing - technical, minimal, infrastructure-grade
  */
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-landing-deep text-landing-cream">
       {/* Header */}
-      <header className="border-b border-border">
+      <header className="border-b border-landing-muted/10">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-landing-muted/50 hover:text-landing-cream transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg">Umarise</span>
+          <span className="font-serif text-lg text-landing-cream/80">Umarise</span>
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <h1 className="font-serif text-3xl md:text-4xl mb-2">Terms of Service</h1>
-        <p className="text-muted-foreground text-sm mb-12">Last updated: January 2026</p>
+      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+        <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">Terms of Service</h1>
+        <p className="text-landing-muted/50 text-sm mb-16">Last updated: January 2026</p>
 
-        <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
+        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
           
-          {/* What Umarise is */}
+          {/* Scope */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">What Umarise Is</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Umarise is origin-recording infrastructure. It creates immutable cryptographic records 
-              of when digital content existed. It does not store, process, or interpret your content 
-              beyond computing a SHA-256 hash at the moment of capture.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
+            <p className="mb-4">
+              These Terms of Service govern access to and use of the Umarise origin record service.
+            </p>
+            <p className="mb-4">
+              Umarise provides an external, write-once origin reference for digital artifacts.
+              It does not provide interpretation, governance, or outcome enforcement.
+            </p>
+            <p className="text-landing-cream/70">By using Umarise, you accept these terms.</p>
+          </section>
+
+          {/* Service Description */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Service Description</h2>
+            <p className="mb-4">Umarise establishes and maintains Origin Records.</p>
+            <p className="mb-4">An Origin Record is a write-once, immutable reference to:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• the cryptographic hash of a digital artifact</li>
+              <li>• a timestamp</li>
+              <li>• a stable origin identifier</li>
+            </ul>
+            <p className="mb-4">Verification is binary: match or no match.</p>
+            <p className="text-landing-muted/50 text-sm">Umarise does not store artifact content.</p>
+          </section>
+
+          {/* Invariants */}
+          <section className="border-l-2 border-landing-copper/30 pl-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
+            <p className="mb-4">The following properties are fixed and non-configurable:</p>
+            <ul className="space-y-1 mb-6">
+              <li>• Origin Records are immutable</li>
+              <li>• Origin Records cannot be altered, revoked, or overridden</li>
+              <li>• Verification has no degrees or exceptions</li>
+            </ul>
+            <p className="text-landing-cream text-lg">
+              If the bytes change, the origin no longer matches.
             </p>
           </section>
 
-          {/* What Umarise is not */}
+          {/* User Responsibilities */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">What Umarise Is Not</h2>
-            <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>Not a backup service — we record existence, not content</li>
-              <li>Not legal advice — cryptographic proof is technical, not legal</li>
-              <li>Not a notary replacement — we provide bit-identity, not legal certification</li>
-              <li>Not a content platform — we don't host, search, or display your content</li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">User Responsibilities</h2>
+            <p className="mb-4">You are responsible for:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• determining whether Umarise is appropriate for your system</li>
+              <li>• ensuring that artifacts submitted for origin recording are lawful</li>
+              <li>• maintaining custody of all original content</li>
+            </ul>
+            <p className="text-landing-muted/50 text-sm">
+              Umarise does not validate legality, ownership, or authorization of submitted artifacts.
+            </p>
+          </section>
+
+          {/* Non-Responsibilities */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Non-Responsibilities</h2>
+            <p className="mb-4">Umarise does not:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• interpret meaning or intent</li>
+              <li>• resolve disputes</li>
+              <li>• enforce policy or compliance</li>
+              <li>• arbitrate outcomes</li>
+              <li>• provide governance or exceptions</li>
+            </ul>
+            <p className="text-landing-muted/50 text-sm">
+              All consequences of origin verification remain external to Umarise.
+            </p>
+          </section>
+
+          {/* Correct Usage Boundary */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Correct Usage Boundary</h2>
+            <p className="mb-4">Umarise is only suitable where:</p>
+            <ul className="space-y-1 mb-6">
+              <li>• a moment must not be renegotiated later</li>
+              <li>• external verification outweighs flexibility</li>
+              <li>• immutable evidence is acceptable even when inconvenient</li>
+            </ul>
+            <p className="text-landing-muted/50 text-sm italic">
+              If revision, erasure, exception handling, or discretionary override is required, Umarise is not appropriate.
+            </p>
+          </section>
+
+          {/* Availability and Changes */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Availability and Changes</h2>
+            <p className="mb-4">Umarise is provided on an as-is and as-available basis.</p>
+            <p>
+              The core behavior of the origin record service is invariant.
+              Operational aspects may change without notice, provided invariants are preserved.
+            </p>
+          </section>
+
+          {/* Limitation of Liability */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Limitation of Liability</h2>
+            <p className="mb-4">To the maximum extent permitted by law:</p>
+            <ul className="space-y-1">
+              <li>• Umarise is not liable for decisions, actions, or outcomes based on origin records</li>
+              <li>• Umarise is not liable for loss resulting from reliance on immutable records</li>
+              <li>• Umarise does not guarantee fitness for a particular purpose</li>
             </ul>
           </section>
 
-          {/* Immutability */}
+          {/* Termination */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Immutability</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Origin records are immutable by design. Once created, they cannot be modified or deleted. 
-              This is the fundamental property that makes origin proof valuable.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Termination</h2>
+            <p className="mb-4">
+              Umarise may restrict or terminate access to the service if these terms are violated or if use would expose Umarise to legal or operational risk.
             </p>
-            <p className="text-muted-foreground leading-relaxed">
-              You can revoke the <em>association</em> between your device and an origin, but the 
-              cryptographic record itself persists. This is intentional — proof of existence 
-              must survive the wish to deny it.
+            <p className="text-landing-muted/50 text-sm">
+              Termination does not alter existing Origin Records.
             </p>
           </section>
 
-          {/* No accounts */}
+          {/* Governing Law */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">No User Accounts</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Umarise operates without user accounts. Your device ID (stored in your browser) 
-              is the only link to your origins. If you lose access to your device or clear 
-              browser data, we cannot restore access because we have no way to verify your identity.
-            </p>
-          </section>
-
-          {/* Service availability */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Service Availability</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We aim for high availability but provide no uptime guarantees. Origin records 
-              are stored on infrastructure designed for durability (Hetzner Germany), but 
-              we disclaim liability for temporary unavailability or data loss.
-            </p>
-          </section>
-
-          {/* API usage */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">API Usage</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Partners accessing Umarise via API agree to:
-            </p>
-            <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>Use the service for legitimate origin-recording purposes</li>
-              <li>Not attempt to circumvent rate limits or security measures</li>
-              <li>Not use the service for illegal content or activities</li>
-              <li>Accept that API responses are technical data, not legal opinions</li>
-            </ul>
-          </section>
-
-          {/* Liability */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Limitation of Liability</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Umarise provides technical infrastructure on an "as is" basis. We disclaim 
-              all warranties, express or implied. Our liability is limited to the fees 
-              paid (if any) in the twelve months preceding any claim. We are not liable 
-              for indirect, incidental, or consequential damages.
-            </p>
-          </section>
-
-          {/* Governing law */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Governing Law</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              These terms are governed by the laws of the Netherlands. Any disputes shall 
-              be resolved in the courts of Amsterdam.
-            </p>
-          </section>
-
-          {/* Changes */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Changes to Terms</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We may update these terms. Changes take effect upon posting. Continued use 
-              of the service constitutes acceptance of updated terms.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Governing Law</h2>
+            <p>
+              These terms are governed by the laws of Germany, without regard to conflict-of-law principles.
             </p>
           </section>
 
           {/* Contact */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Contact</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              For questions about these terms:{' '}
-              <a 
-                href="mailto:partners@umarise.com?subject=Terms%20Inquiry" 
-                className="text-foreground underline hover:no-underline"
-              >
-                partners@umarise.com
-              </a>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
+            <p className="mb-2">For matters related to these terms:</p>
+            <a
+              href="mailto:partners@umarise.com"
+              className="text-landing-copper/70 hover:text-landing-copper transition-colors"
+            >
+              partners@umarise.com
+            </a>
+          </section>
+
+          {/* Final Statement */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Final Statement</h2>
+            <p className="text-landing-cream/90 mb-2">
+              Umarise does not optimize systems.
+            </p>
+            <p className="text-landing-cream/90 mb-4">
+              It constrains history.
+            </p>
+            <p className="text-landing-muted/50 text-sm italic">
+              Use of the service implies acceptance of that constraint.
             </p>
           </section>
 
@@ -145,7 +184,7 @@ export default function Terms() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
         <p>© {new Date().getFullYear()} Umarise</p>
       </footer>
     </div>
