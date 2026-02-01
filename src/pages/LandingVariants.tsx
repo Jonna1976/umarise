@@ -32,7 +32,7 @@ export default function LandingVariants() {
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 text-center">
         <p className="text-xs text-landing-muted/50 tracking-wide">
           {activeVariant === 1 && 'Fingerprint als accent rechts'}
-          {activeVariant === 2 && 'Fingerprint vervangt punt na Origins'}
+          {activeVariant === 2 && 'Fingerprint vervangt beide punten'}
           {activeVariant === 3 && 'Fingerprint als watermark achtergrond'}
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function LandingVariants() {
           }}
         />
 
-        {/* Variant 3: Watermark */}
+        {/* Variant 3: Watermark - dikkere stroke voor fingerprint gevoel */}
         {activeVariant === 3 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -64,9 +64,9 @@ export default function LandingVariants() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           >
             <Fingerprint 
-              className="text-landing-copper/[0.04]" 
-              size={600} 
-              strokeWidth={0.5}
+              className="text-landing-copper/[0.06]" 
+              size={500} 
+              strokeWidth={1.2}
             />
           </motion.div>
         )}
@@ -101,7 +101,7 @@ export default function LandingVariants() {
               </motion.div>
             )}
 
-            {/* Variant 2: Punt vervangen - fingerprint zo klein als punt */}
+            {/* Variant 2: Beide punten vervangen door fingerprints */}
             {activeVariant === 2 && (
               <motion.div
                 key="v2"
@@ -110,7 +110,14 @@ export default function LandingVariants() {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-16 md:mb-20">
-                  <span className="text-landing-cream">Umarise.</span>
+                  <span className="text-landing-cream inline-flex items-baseline">
+                    Umarise
+                    <Fingerprint 
+                      className="text-landing-cream ml-0.5 translate-y-[0.15em]" 
+                      size={10} 
+                      strokeWidth={2.5}
+                    />
+                  </span>
                   <br />
                   <span className="text-landing-copper inline-flex items-baseline">
                     Origins
