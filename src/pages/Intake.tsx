@@ -121,10 +121,10 @@ export default function Intake() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
             <a
-              href="mailto:origins@umarise.com"
+              href="mailto:partners@umarise.com"
               className="text-landing-copper/70 hover:text-landing-copper transition-colors"
             >
-              origins@umarise.com
+              partners@umarise.com
             </a>
           </section>
 
