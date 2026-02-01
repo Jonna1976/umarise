@@ -3,159 +3,186 @@ import { ArrowLeft } from 'lucide-react';
 
 /**
  * Privacy Policy for Umarise
- * Technical, honest, aligned with privacy-by-design architecture
+ * Aligned with canonical briefing - technical, minimal, infrastructure-grade
  */
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-landing-deep text-landing-cream">
       {/* Header */}
-      <header className="border-b border-border">
+      <header className="border-b border-landing-muted/10">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-landing-muted/50 hover:text-landing-cream transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg">Umarise</span>
+          <span className="font-serif text-lg text-landing-cream/80">Umarise</span>
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-3xl mx-auto px-6 py-12 md:py-16">
-        <h1 className="font-serif text-3xl md:text-4xl mb-2">Privacy Policy</h1>
-        <p className="text-muted-foreground text-sm mb-12">Last updated: January 2026</p>
+      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+        <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">Privacy Policy</h1>
+        <p className="text-landing-muted/50 text-sm mb-16">Last updated: January 2026</p>
 
-        <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
+        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
           
-          {/* Introduction */}
+          {/* Scope */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Our Approach to Privacy</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Umarise is privacy infrastructure. We don't collect personal data because our architecture 
-              is designed to function without it. This document explains what we store, where, and why.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
+            <p className="mb-4">This Privacy Policy describes:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• what data is processed by Umarise</li>
+              <li>• where that data is processed</li>
+              <li>• what is explicitly not processed</li>
+            </ul>
+            <p className="text-landing-cream/70">
+              Umarise is designed to function without collecting or relying on personal data.
             </p>
           </section>
 
-          {/* What we store */}
+          {/* Data Processed */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">What We Store</h2>
-            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Processed by Umarise</h2>
+            <p className="mb-6">
+              Umarise processes only the minimum data required to establish and verify origin records.
+            </p>
+            
+            <h3 className="text-landing-cream/90 font-medium mb-4">Origin Record Data</h3>
+            <div className="border border-landing-muted/20 rounded-lg overflow-hidden mb-4">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 font-medium">Data Type</th>
-                    <th className="text-left py-2 font-medium">Purpose</th>
-                    <th className="text-left py-2 font-medium">Location</th>
+                  <tr className="border-b border-landing-muted/20 bg-landing-muted/5">
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Data element</th>
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Purpose</th>
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Storage location</th>
                   </tr>
                 </thead>
-                <tbody className="text-muted-foreground">
-                  <tr className="border-b border-border/50">
-                    <td className="py-2">SHA-256 hash</td>
-                    <td className="py-2">Bit-identity verification</td>
-                    <td className="py-2">Hetzner (Germany)</td>
+                <tbody>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-3 px-4">Cryptographic hash (SHA-256)</td>
+                    <td className="py-3 px-4">Bit-identity verification</td>
+                    <td className="py-3 px-4">Germany (Hetzner)</td>
                   </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="py-2">Timestamp</td>
-                    <td className="py-2">Temporal proof</td>
-                    <td className="py-2">Hetzner (Germany)</td>
-                  </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="py-2">Origin ID</td>
-                    <td className="py-2">Reference identifier</td>
-                    <td className="py-2">Hetzner (Germany)</td>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-3 px-4">Timestamp</td>
+                    <td className="py-3 px-4">Temporal proof</td>
+                    <td className="py-3 px-4">Germany (Hetzner)</td>
                   </tr>
                   <tr>
-                    <td className="py-2">Device ID</td>
-                    <td className="py-2">Data isolation (not identification)</td>
-                    <td className="py-2">Your browser only</td>
+                    <td className="py-3 px-4">Origin ID</td>
+                    <td className="py-3 px-4">Stable external reference</td>
+                    <td className="py-3 px-4">Germany (Hetzner)</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="text-landing-muted/50 text-sm">Origin records are write-once and immutable.</p>
           </section>
 
-          {/* What we don't store */}
+          {/* Local Device Data */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">What We Don't Store</h2>
-            <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li>No user accounts or passwords</li>
-              <li>No email addresses</li>
-              <li>No names or personal identifiers</li>
-              <li>No tracking cookies or analytics</li>
-              <li>No IP address logging</li>
-              <li>No behavioral data</li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Local Device Data</h2>
+            <p className="mb-4">Umarise does not use user accounts.</p>
+            <p className="mb-4">
+              A locally stored, random identifier may be used within the browser solely to isolate data on that device.
+            </p>
+            <p className="mb-2">This identifier:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• is not a personal identifier</li>
+              <li>• is not linked to an individual</li>
+              <li>• is not used for tracking</li>
+              <li>• is not recoverable by Umarise</li>
             </ul>
-          </section>
-
-          {/* Device-based isolation */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">Device-Based Isolation</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Instead of user accounts, Umarise uses a 128-bit UUID stored in your browser's localStorage. 
-              This device identifier isolates your data without linking it to your identity. 
-              We cannot connect your origins to you as a person.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              If you clear your browser data, your device ID is gone. We have no recovery mechanism 
-              because we have no way to verify who you are — by design.
+            <p className="text-landing-muted/50 text-sm">
+              If local browser data is cleared, this association is permanently lost.
             </p>
           </section>
 
-          {/* Architecture */}
+          {/* Data Not Processed */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Three-Layer Architecture</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Our infrastructure separates concerns to minimize data exposure:
-            </p>
-            <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li><strong>Frontend Layer (EU):</strong> Static assets only. No data stored.</li>
-              <li><strong>Control Plane (EU):</strong> Stateless functions. No origin content stored.</li>
-              <li><strong>Data Plane (Germany):</strong> Origin records. Immutable. Write-once.</li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Not Processed</h2>
+            <p className="mb-4">Umarise does not process or store:</p>
+            <ul className="space-y-1 mb-4">
+              <li>• names or personal identifiers</li>
+              <li>• email addresses</li>
+              <li>• user accounts or passwords</li>
+              <li>• IP address logs</li>
+              <li>• tracking cookies or analytics</li>
+              <li>• behavioral or profiling data</li>
             </ul>
-            <p className="text-muted-foreground leading-relaxed mt-4">
-              A compromise of the control plane cannot expose origin content because 
-              the control plane never holds origin content.
+            <p className="text-landing-cream/70">
+              Umarise cannot identify users and does not attempt to do so.
+            </p>
+          </section>
+
+          {/* Data Processing Structure */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Processing Structure</h2>
+            <p className="mb-4">
+              Umarise processes data using a segmented infrastructure to minimize exposure.
+            </p>
+            <p>
+              Origin records are stored separately from any interaction layer and are never processed together with personal data.
             </p>
           </section>
 
           {/* Jurisdiction */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Jurisdiction</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              All data processing occurs within the European Union. Origin records are stored 
-              exclusively in Germany (Hetzner), subject to GDPR and German data protection law — 
-              among the strictest privacy regimes globally.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Jurisdiction</h2>
+            <p className="mb-4">All data processing occurs within the European Union.</p>
+            <p>
+              Origin records are stored exclusively in Germany (Hetzner) and are subject to GDPR and German data protection law.
             </p>
           </section>
 
-          {/* Your rights */}
+          {/* Data Subject Rights */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Your Rights</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Because we don't collect personal data, traditional GDPR rights (access, rectification, erasure) 
-              apply differently:
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Subject Rights</h2>
+            <p className="mb-4">
+              Because Umarise does not collect personal data, certain GDPR rights apply differently.
             </p>
-            <ul className="list-disc list-inside text-muted-foreground space-y-2">
-              <li><strong>Access:</strong> You can export your origins anytime from your device.</li>
-              <li><strong>Erasure:</strong> You can revoke the association between your device and any origin. 
-                The cryptographic record remains (immutability by design), but the link to your device is severed.</li>
-              <li><strong>Portability:</strong> Origins are exported as standard formats (JSON, images).</li>
+            <ul className="space-y-4">
+              <li>
+                <span className="text-landing-copper">Access</span>
+                <p className="mt-1">Where applicable, origin records can be accessed or exported from the local device context.</p>
+              </li>
+              <li>
+                <span className="text-landing-copper">Erasure</span>
+                <p className="mt-1">Associations between a local device and origin records can be removed by clearing local browser data. The cryptographic origin record itself remains immutable by design.</p>
+              </li>
+              <li>
+                <span className="text-landing-copper">Portability</span>
+                <p className="mt-1">Where applicable, origin records can be exported in machine-readable formats.</p>
+              </li>
             </ul>
           </section>
 
           {/* Contact */}
           <section>
-            <h2 className="text-xl font-semibold mb-4">Contact</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              For privacy inquiries:{' '}
-              <a 
-                href="mailto:partners@umarise.com?subject=Privacy%20Inquiry" 
-                className="text-foreground underline hover:no-underline"
-              >
-                partners@umarise.com
-              </a>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
+            <p className="mb-2">For privacy-related inquiries:</p>
+            <a
+              href="mailto:partners@umarise.com"
+              className="text-landing-copper/70 hover:text-landing-copper transition-colors"
+            >
+              partners@umarise.com
+            </a>
+          </section>
+
+          {/* Final Note */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Final Note</h2>
+            <p className="text-landing-cream/90 mb-2">
+              Umarise does not optimize systems, interpret meaning, or govern outcomes.
+            </p>
+            <p className="text-landing-cream/90 mb-4">
+              It establishes origin and constrains history.
+            </p>
+            <p className="text-landing-muted/50 text-sm italic">
+              Privacy follows from this constraint.
             </p>
           </section>
 
@@ -163,7 +190,7 @@ export default function Privacy() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
         <p>© {new Date().getFullYear()} Umarise</p>
       </footer>
     </div>
