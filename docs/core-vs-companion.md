@@ -214,6 +214,12 @@ If product requires a "single attestation per hash" shortcut:
 
 If you decide Core uniqueness on hash, document it explicitly as a v1 constraint and accept the semantic cost.
 
+### 5.3 Resolution Semantics (Binding)
+
+> **If multiple Origin Records exist for the same hash, resolution returns the earliest attestation by `captured_at`.**
+
+This is the canonical behavior. The first external attestation is the relevant origin.
+
 ---
 
 ## 6. Security & Access Control
@@ -228,7 +234,16 @@ If you decide Core uniqueness on hash, document it explicitly as a v1 constraint
 
 Core MUST resist abuse via rate limiting and request validation.
 
-### 6.2 Companion Access
+### 6.2 Core is Not User-Scoped (Binding)
+
+> **Core is not user-scoped by design.**
+
+Core knows no user identity. Attestation ≠ ownership.  
+Whoever holds the API key may attest. There is no "who", only "what + when".
+
+This matches TSA semantics (RFC 3161), Certificate Transparency, and DNS zone updates.
+
+### 6.3 Companion Access
 
 Companion can remain as it is (auth + storage), independent of Core.
 
@@ -384,19 +399,39 @@ Public language must not collapse the two.
 | Companion Origins | `POST /companion-origins` | ✅ Deployed |
 | Companion Resolve | `GET /companion-resolve` | ✅ Deployed |
 | Companion Verify | `POST /companion-verify` | ✅ Deployed |
-| **Core Origins** | `POST /core/origins` | 🔨 To be built |
-| **Core Resolve** | `GET /core/resolve` | 🔨 To be built |
-| **Core Verify** | `POST /core/verify` | 🔨 To be built |
-| **Core Table** | `origin_attestations` | 🔨 To be built |
+| **Core Origins** | `POST /core/origins` | ✅ **STABLE v1** |
+| **Core Resolve** | `GET /core/resolve` | ✅ **STABLE v1** |
+| **Core Verify** | `POST /core/verify` | ✅ **STABLE v1** |
+| **Core Table** | `origin_attestations` | ✅ **STABLE v1** |
 
 ---
 
-## 14. Final Binding Statement
+## 14. Core API Stability Declaration
+
+> **Umarise Core API v1 is STABLE and IMMUTABLE.**
+
+The following guarantees apply:
+
+| Guarantee | Meaning |
+|-----------|---------|
+| **No new fields** | Core responses will not gain additional fields |
+| **No semantic drift** | Existing field meanings are frozen |
+| **No convenience additions** | "Helpful" features belong in Companion |
+| **No breaking changes** | v1 interface is permanent |
+
+Additions require a new version (`/core/v2/*`), not modifications to v1.
+
+---
+
+## 15. Final Binding Statement
 
 > **Umarise Core defines the constraint.**  
 > **The Companion delivers convenience without contaminating the Core.**
 
+You can use Umarise Core without our app.
+
 ---
 
-*Document version: 1.0*  
-*Classification: Binding architectural specification*
+*Document version: 1.1*  
+*Classification: Binding architectural specification*  
+*Core API: v1 STABLE — IMMUTABLE INTERFACE*
