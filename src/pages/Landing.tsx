@@ -75,31 +75,33 @@ export default function Landing() {
         </main>
 
         {/* Footer */}
-        <footer className="p-6 md:p-8 border-t border-landing-muted/10">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col items-start gap-4 text-base max-w-3xl mx-auto pl-1"
-          >
-            {/* Primary links */}
-            <div className="flex items-center gap-6 text-landing-muted/40">
-              <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
-              <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
-              <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
-            </div>
+        <footer className="border-t border-landing-muted/10">
+          <div className="flex justify-center px-6 md:px-8 py-6 md:py-8">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-col items-start gap-4 text-base max-w-3xl w-full pl-1"
+            >
+              {/* Primary links */}
+              <div className="flex items-center gap-6 text-landing-muted/40">
+                <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
+                <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
+                <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
+              </div>
 
-            {/* Legal links */}
-            <div className="flex items-center gap-6 text-landing-muted/40">
-              <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
-              <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
-            </div>
+              {/* Legal links */}
+              <div className="flex items-center gap-6 text-landing-muted/40">
+                <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
+              </div>
 
-            {/* Copyright + Contact */}
-            <p className="text-landing-muted/40">
-              © {new Date().getFullYear()} Umarise · <a href="mailto:partners@umarise.com" className="hover:text-landing-muted/60 transition-colors">partners@umarise.com</a>
-            </p>
-          </motion.div>
+              {/* Copyright + Contact */}
+              <p className="text-landing-muted/40">
+                © {new Date().getFullYear()} Umarise · <a href="mailto:partners@umarise.com" className="hover:text-landing-muted/60 transition-colors">partners@umarise.com</a>
+              </p>
+            </motion.div>
+          </div>
         </footer>
       </div>
     </div>
