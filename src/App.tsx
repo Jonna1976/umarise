@@ -27,6 +27,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Origin from "./pages/Origin";
 import CoreSpec from "./pages/CoreSpec";
+import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/briefing-export" element={<BriefingExport />} />
             <Route path="/privacy-export" element={<PrivacyExport />} />
             <Route path="/iso-export" element={<IsoExport />} />
+            <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/intake" element={<Intake />} />
             <Route path="/spec" element={<Intake />} />
