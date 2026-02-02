@@ -64,12 +64,12 @@ verify_jwt = false
 [functions.hetzner-storage-proxy]
 verify_jwt = false
 
-[functions.origins]
+[functions.companion-origins]
 verify_jwt = false
 
-[functions.resolve]
+[functions.companion-resolve]
 verify_jwt = false
 
-[functions.verify]
+[functions.companion-verify]
 verify_jwt = false
 
