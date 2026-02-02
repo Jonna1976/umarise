@@ -36,8 +36,8 @@ export default function Landing() {
       <div className="relative z-10 min-h-[100dvh] flex flex-col">
 
         {/* Main content */}
-        <main className="flex-1 flex items-center justify-center px-6 md:px-8">
-          <div className="max-w-3xl text-center">
+        <main className="flex-1 flex items-center px-6 md:px-8 lg:px-16">
+          <div className="max-w-3xl">
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -55,11 +55,21 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-sm text-landing-muted/40 max-w-sm leading-relaxed tracking-wide"
+              className="text-sm text-landing-muted/40 max-w-sm leading-relaxed tracking-wide mb-6"
             >
               Information has a beginning.
               <br />
               Umarise makes that beginning provable.
+            </motion.p>
+
+            {/* Protocol positioning */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="text-xs text-landing-muted/30 tracking-wide"
+            >
+              Verification is public. Attestation is permissioned.
             </motion.p>
           </div>
         </main>
