@@ -14,21 +14,21 @@ export default function Landing() {
         {/* Inscription area - positioned at ~30-35% from top */}
         <main className="flex-1 flex flex-col justify-center" style={{ paddingBottom: '20vh' }}>
           {/* Title block */}
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.15] mb-10">
+          <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.15] mb-10">
             <span className="text-landing-cream/90">Umarise.</span>
             <br />
             <span className="text-landing-copper">Origins.</span>
           </h1>
 
           {/* Core axiom */}
-          <p className="text-sm text-landing-muted/50 leading-relaxed tracking-wide mb-8">
+          <p className="text-base text-landing-muted/50 leading-relaxed tracking-wide mb-8">
             Information has a beginning.
             <br />
             Umarise makes that beginning provable.
           </p>
 
           {/* Protocol rule - lower contrast, separated */}
-          <p className="text-sm text-landing-muted/35 tracking-wide">
+          <p className="text-base text-landing-muted/35 tracking-wide">
             Verification is public. Attestation is permissioned.
           </p>
         </main>
@@ -39,21 +39,21 @@ export default function Landing() {
         {/* Navigation - documentary, not menu */}
         <nav className="py-6 md:py-8 flex flex-col gap-3">
           {/* Primary documents */}
-          <div className="flex items-center gap-6 text-sm text-landing-muted/40">
+          <div className="flex items-center gap-6 text-base text-landing-muted/40">
             <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
             <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
             <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
           </div>
 
           {/* Legal documents */}
-          <div className="flex items-center gap-6 text-sm text-landing-muted/35">
+          <div className="flex items-center gap-6 text-base text-landing-muted/35">
             <Link to="/privacy" className="hover:text-landing-muted/55 transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-landing-muted/55 transition-colors">Terms</Link>
           </div>
         </nav>
 
         {/* Footer - silent */}
-        <footer className="pb-6 md:pb-8 text-xs text-landing-muted/30 flex flex-col gap-1">
+        <footer className="pb-6 md:pb-8 text-sm text-landing-muted/30 flex flex-col gap-1">
           <span>© {new Date().getFullYear()} Umarise</span>
           <a 
             href="mailto:partners@umarise.com" 
