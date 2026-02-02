@@ -55,7 +55,7 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-sm text-landing-muted/40 max-w-sm leading-relaxed tracking-wide mb-6"
+              className="text-sm text-landing-muted/40 leading-relaxed tracking-wide mb-6"
             >
               Information has a beginning.
               <br />
