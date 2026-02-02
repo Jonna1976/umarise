@@ -5,7 +5,9 @@
  * 
  * Endpoint: POST /core/origins
  * 
- * Authentication: Requires X-API-Key header matching ORIGINS_API_KEY
+ * Authentication: Requires X-API-Key header with partner API key
+ * - Keys are validated via HMAC-SHA256 against partner_api_keys table
+ * - Revoked keys are rejected
  * 
  * Request:
  *   { "hash": "sha256:<hex>" }
@@ -63,6 +65,72 @@ function normalizeHash(input: string): { hash: string; algo: 'sha256' } | null {
   return null;
 }
 
+// Compute HMAC-SHA256 of the API key using CORE_API_SECRET
+async function computeKeyHash(apiKey: string, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(apiKey);
+  
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+  const hashArray = Array.from(new Uint8Array(signature));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Validate partner API key against partner_api_keys table
+async function validatePartnerApiKey(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  apiKey: string,
+  coreApiSecret: string
+): Promise<{ valid: boolean; partnerName?: string; error?: string }> {
+  if (!apiKey || apiKey.length < 32) {
+    return { valid: false, error: 'Invalid API key format' };
+  }
+
+  // Extract prefix (first 8 chars) for lookup
+  const keyPrefix = apiKey.substring(0, 8);
+  
+  // Compute HMAC-SHA256 hash of the full key
+  const keyHash = await computeKeyHash(apiKey, coreApiSecret);
+
+  // Look up by prefix first, then verify hash
+  const { data: keyRecords, error: lookupError } = await supabase
+    .from('partner_api_keys')
+    .select('id, key_hash, partner_name, revoked_at')
+    .eq('key_prefix', keyPrefix);
+
+  if (lookupError) {
+    console.error('[core-origins] Key lookup error:', lookupError);
+    return { valid: false, error: 'Authentication service unavailable' };
+  }
+
+  if (!keyRecords || keyRecords.length === 0) {
+    return { valid: false, error: 'Unknown API key' };
+  }
+
+  // Find matching key hash
+  const matchingKey = keyRecords.find((record: { key_hash: string }) => record.key_hash === keyHash);
+  
+  if (!matchingKey) {
+    return { valid: false, error: 'Invalid API key' };
+  }
+
+  // Check if revoked
+  if (matchingKey.revoked_at) {
+    return { valid: false, error: 'API key has been revoked' };
+  }
+
+  return { valid: true, partnerName: matchingKey.partner_name as string };
+}
+
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -78,24 +146,51 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Validate API key
-    const apiKey = req.headers.get('x-api-key');
-    const expectedApiKey = Deno.env.get('ORIGINS_API_KEY') || Deno.env.get('HETZNER_API_TOKEN');
-    
-    if (!expectedApiKey) {
-      console.error('[core-origins] No API key configured');
+    // Get required secrets
+    const coreApiSecret = Deno.env.get('CORE_API_SECRET');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!coreApiSecret) {
+      console.error('[core-origins] CORE_API_SECRET not configured');
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!apiKey || apiKey !== expectedApiKey) {
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[core-origins] Missing Supabase credentials');
       return new Response(
-        JSON.stringify({ error: 'Unauthorized. Valid X-API-Key required.' }),
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Initialize Supabase client with service role (required for partner_api_keys access)
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Validate partner API key via HMAC-SHA256
+    const apiKey = req.headers.get('x-api-key');
+    
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({ error: 'Missing X-API-Key header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const authResult = await validatePartnerApiKey(supabase, apiKey, coreApiSecret);
+    
+    if (!authResult.valid) {
+      console.log('[core-origins] Auth failed:', authResult.error);
+      return new Response(
+        JSON.stringify({ error: authResult.error || 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[core-origins] Authenticated partner:', authResult.partnerName);
 
     // Parse request body
     const body: CoreOriginRequest = await req.json();
@@ -136,20 +231,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Initialize Supabase client with service role
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('[core-origins] Missing Supabase credentials');
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
     // Create the attestation (no idempotency on content - each call = new attestation)
     const capturedAt = new Date().toISOString();
     
@@ -178,9 +259,10 @@ Deno.serve(async (req: Request) => {
       captured_at: data.captured_at,
     };
 
-    console.log('[core-origins] Created:', {
+    console.log('[core-origins] Created attestation:', {
       origin_id: data.origin_id,
       hash: data.hash.substring(0, 20) + '...',
+      partner: authResult.partnerName,
     });
 
     return new Response(
