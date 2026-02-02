@@ -79,7 +79,8 @@ export default function Landing() {
             
             {/* Links */}
             <div className="flex items-center gap-6 text-landing-muted/40">
-              <Link to="/intake" className="hover:text-landing-muted/60 transition-colors">Origin Specification</Link>
+              <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
+              <Link to="/intake" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
               <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
               <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
             </div>
