@@ -85,3 +85,6 @@ verify_jwt = false
 [functions.internal-generate-partner-key]
 verify_jwt = false
 
+[functions.internal-e2e-test]
+verify_jwt = false
+
