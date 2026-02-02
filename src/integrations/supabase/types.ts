@@ -86,6 +86,30 @@ export type Database = {
         }
         Relationships: []
       }
+      origin_attestations: {
+        Row: {
+          captured_at: string
+          created_at: string
+          hash: string
+          hash_algo: string
+          origin_id: string
+        }
+        Insert: {
+          captured_at?: string
+          created_at?: string
+          hash: string
+          hash_algo?: string
+          origin_id?: string
+        }
+        Update: {
+          captured_at?: string
+          created_at?: string
+          hash?: string
+          hash_algo?: string
+          origin_id?: string
+        }
+        Relationships: []
+      }
       page_association_revocations: {
         Row: {
           created_at: string

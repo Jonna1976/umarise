@@ -73,3 +73,12 @@ verify_jwt = false
 [functions.companion-verify]
 verify_jwt = false
 
+[functions.core-origins]
+verify_jwt = false
+
+[functions.core-resolve]
+verify_jwt = false
+
+[functions.core-verify]
+verify_jwt = false
+
