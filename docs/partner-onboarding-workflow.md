@@ -75,13 +75,13 @@ BLOCKED (reason)
 
 | Vraag | Ja | Nee |
 |-------|:--:|:---:|
-| Berekenen ze al hashes? | ✅ | ❌ |
+| Kan een cryptographic hash worden berekend op het moment van origin? | ✅ | ❌ |
 | Hebben ze extern bewijs nodig? | ✅ | ❌ |
 | Accepteren ze irreversibiliteit? | ✅ | ❌ |
 | Geen feature-/productvragen? | ✅ | ❌ |
 
-**Alles JA** → Door naar key issuance  
-**Eén NEE** → Afwijzen (Template niet nodig, korte e-mail volstaat)
+**Alles JA** → Door naar key issuance
+**Eén NEE** → Afwijzen (korte e-mail, geen uitleg, geen suggesties, geen roadmap)
 
 ---
 
@@ -95,7 +95,7 @@ Subject: Attestation access request — received
 Your request for Umarise Core attestation access has been received.
 
 We will review whether Core is appropriate for your use case 
-and follow up within [X] business days.
+and follow up within 5 business days.
 
 No action required on your side.
 
