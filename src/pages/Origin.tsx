@@ -44,10 +44,10 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes a mechanism for externally attesting the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes a mechanism for external, independent attestation of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
-              The mechanism is intended for use where internal records are insufficient as proof and where external verification is required.
+              The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where verification must be performable independently by third parties.
             </p>
           </section>
 
@@ -61,7 +61,7 @@ export default function Origin() {
             <ul className="space-y-2 pl-4">
               <li>Internally generated evidence constitutes self-attestation</li>
               <li>Self-attestation is insufficient under external scrutiny</li>
-              <li>In disputes, audits, or provenance challenges, the question is not whether a system recorded something, but whether that record can be independently verified</li>
+              <li>In audits, disputes, or provenance challenges, the question is not whether a system recorded something, but whether that record can be independently verified without relying on the system's explanations</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
               This creates a structural gap between operational correctness and evidentiary validity.
@@ -86,7 +86,7 @@ export default function Origin() {
               These practices are correct and sufficient within the originating system.
             </p>
             <p className="mt-2 text-landing-cream/70">
-              They do not, by themselves, establish externally verifiable existence at a point in time.
+              They do not, by themselves, establish externally verifiable existence at a point in time, nor do they provide independent timestamping or third-party anchoring.
             </p>
           </section>
 
@@ -100,7 +100,7 @@ export default function Origin() {
               Specific bytes existed at a specific moment.
             </p>
             <p className="mb-4">
-              The attestation is derived from a cryptographic hash computed at the moment of origin and anchored externally.
+              The attestation is derived from a cryptographic hash computed at the moment of origin and anchored externally so that verification does not depend on the originating system.
             </p>
             <p className="text-landing-copper mb-4">
               Origin attestation asserts existence, not correctness.
@@ -207,8 +207,8 @@ export default function Origin() {
             <p className="mb-4">Use of origin attestation is appropriate only where:</p>
             <ul className="space-y-2 pl-4">
               <li>a moment must not be renegotiated later</li>
-              <li>internal logs or signatures are insufficient as proof</li>
-              <li>external verification outweighs flexibility</li>
+              <li>internal logs, timestamps, or signatures are insufficient as proof</li>
+              <li>external, independent verification outweighs flexibility</li>
             </ul>
             <p className="mt-6 text-landing-muted/50 text-sm italic">
               Where revision, exception handling, discretionary override, or semantic interpretation is required, this mechanism is not appropriate.
@@ -236,10 +236,10 @@ export default function Origin() {
             <ul className="space-y-2 text-landing-muted/60">
               <li><span className="text-landing-copper">DNS</span> externalized naming</li>
               <li><span className="text-landing-copper">Certificate Authorities</span> externalized identity</li>
-              <li><span className="text-landing-copper">Time services</span> externalized ordering</li>
+              <li><span className="text-landing-copper">Time-Stamping Authorities</span> externalized time ordering</li>
             </ul>
             <p className="text-landing-cream/90 mt-6">
-              Origin externalizes existence.
+              Origin attestation externalizes existence at the beginning.
             </p>
           </section>
 
