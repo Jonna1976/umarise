@@ -325,6 +325,36 @@ export type Database = {
           },
         ]
       }
+      partner_api_keys: {
+        Row: {
+          id: string
+          issued_at: string
+          issued_by: string | null
+          key_hash: string
+          key_prefix: string
+          partner_name: string
+          revoked_at: string | null
+        }
+        Insert: {
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          key_hash: string
+          key_prefix: string
+          partner_name: string
+          revoked_at?: string | null
+        }
+        Update: {
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          key_hash?: string
+          key_prefix?: string
+          partner_name?: string
+          revoked_at?: string | null
+        }
+        Relationships: []
+      }
       personality_snapshots: {
         Row: {
           core_identity: string
