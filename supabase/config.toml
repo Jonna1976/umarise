@@ -82,3 +82,6 @@ verify_jwt = false
 [functions.core-verify]
 verify_jwt = false
 
+[functions.internal-generate-partner-key]
+verify_jwt = false
+
