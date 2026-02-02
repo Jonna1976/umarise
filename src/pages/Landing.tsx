@@ -33,55 +33,56 @@ export default function Landing() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-[100dvh] flex flex-col">
+      <div className="relative z-10 min-h-[100dvh] flex flex-col items-center px-6 md:px-8">
+        {/* Shared width container */}
+        <div className="w-full max-w-3xl flex flex-col min-h-[100dvh]">
+          
+          {/* Main content */}
+          <main className="flex-1 flex items-center">
+            <div className="text-left">
+              {/* Headline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-8 md:mb-12"
+              >
+                <span className="text-landing-cream">Umarise.</span>
+                <br />
+                <span className="text-landing-copper">Origins.</span>
+              </motion.h1>
 
-        {/* Main content */}
-        <main className="flex-1 flex items-center justify-center px-6 md:px-8">
-          <div className="max-w-3xl text-left">
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-5xl md:text-7xl lg:text-8xl tracking-tight leading-[1.1] mb-8 md:mb-12"
-            >
-              <span className="text-landing-cream">Umarise.</span>
-              <br />
-              <span className="text-landing-copper">Origins.</span>
-            </motion.h1>
+              {/* Axiom */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="text-base text-landing-muted/40 leading-relaxed tracking-wide mb-6"
+              >
+                Information has a beginning.
+                <br />
+                Umarise makes that beginning provable.
+              </motion.p>
 
-            {/* Axiom */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-base text-landing-muted/40 leading-relaxed tracking-wide mb-6"
-            >
-              Information has a beginning.
-              <br />
-              Umarise makes that beginning provable.
-            </motion.p>
+              {/* Protocol positioning */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="text-base text-landing-muted/40 tracking-wide"
+              >
+                Verification is public. Attestation is permissioned.
+              </motion.p>
+            </div>
+          </main>
 
-            {/* Protocol positioning */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-base text-landing-muted/40 tracking-wide"
-            >
-              Verification is public. Attestation is permissioned.
-            </motion.p>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t border-landing-muted/10">
-          <div className="flex justify-center px-6 md:px-8 py-6 md:py-8">
+          {/* Footer */}
+          <footer className="border-t border-landing-muted/10 py-6 md:py-8">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex flex-col items-start gap-4 text-base max-w-3xl w-full"
+              className="flex flex-col items-start gap-4 text-base"
             >
               {/* Primary links */}
               <div className="flex items-center gap-6 text-landing-muted/40">
@@ -101,8 +102,8 @@ export default function Landing() {
                 © {new Date().getFullYear()} Umarise · <a href="mailto:partners@umarise.com" className="hover:text-landing-muted/60 transition-colors">partners@umarise.com</a>
               </p>
             </motion.div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
     </div>
   );
