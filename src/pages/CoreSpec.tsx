@@ -194,6 +194,22 @@ export default function CoreSpec() {
             </p>
           </section>
 
+          {/* Data Boundary */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Boundary</h2>
+            <p className="text-landing-cream/90 mb-4">
+              Umarise Core stores only Origin Records:
+            </p>
+            <ul className="space-y-1 text-landing-muted/70 mb-6">
+              <li>a cryptographic hash</li>
+              <li>a timestamp</li>
+              <li>an origin identifier</li>
+            </ul>
+            <p className="text-landing-muted/60">
+              Artifacts, bytes, files, and content remain entirely with the originating party.
+            </p>
+          </section>
+
           {/* Note */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Note</h2>
