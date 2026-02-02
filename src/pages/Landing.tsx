@@ -36,8 +36,8 @@ export default function Landing() {
       <div className="relative z-10 min-h-[100dvh] flex flex-col">
 
         {/* Main content */}
-        <main className="flex-1 flex items-center px-6 md:px-8 lg:px-16">
-          <div className="max-w-3xl">
+        <main className="flex-1 flex items-center justify-center px-6 md:px-8">
+          <div className="max-w-3xl text-left">
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
