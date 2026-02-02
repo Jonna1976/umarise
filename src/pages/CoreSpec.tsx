@@ -46,7 +46,8 @@ export default function CoreSpec() {
               Umarise Core provides external attestation that a cryptographic hash existed at a specific moment in time.
             </p>
             <p className="mt-4 text-landing-muted/60">
-              Core accepts only hashes. No bytes, no labels, no metadata, no artifacts.
+              Core accepts hashes only.<br />
+              No bytes. No labels. No metadata. No artifacts.
             </p>
           </section>
 
@@ -58,48 +59,55 @@ export default function CoreSpec() {
                 <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
                   Origin One-Pager
                 </Link>
-                <span className="text-landing-muted/50 ml-2">— why and when origin attestation is correct</span>
+                <span className="text-landing-muted/50 ml-2">— when and why origin attestation is correct</span>
               </li>
               <li>
                 <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
                   Origin Record Specification
                 </Link>
-                <span className="text-landing-muted/50 ml-2">— normative definition of an Origin Record</span>
+                <span className="text-landing-muted/50 ml-2">— the normative definition of an Origin Record</span>
               </li>
             </ul>
+            <p className="mt-4 text-landing-muted/50 text-sm">
+              These documents define correct use and constraints.
+            </p>
           </section>
 
           {/* API Contract */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">API Contract</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">
+              API Contract <span className="normal-case">(Non-Normative Summary)</span>
+            </h2>
             
-            <div className="space-y-8 font-mono text-sm">
+            <div className="space-y-6 font-mono text-sm">
               {/* POST /core/origins */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <div className="text-landing-copper mb-3">POST /core/origins</div>
-                <div className="text-landing-muted/60 mb-2">Input:</div>
-                <pre className="text-landing-cream/80 mb-3">{"{ hash }"}</pre>
-                <div className="text-landing-muted/60 mb-2">Output:</div>
-                <pre className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</pre>
+                <div className="space-y-2 text-landing-muted/70">
+                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Permissioned (API key required)</span></div>
+                </div>
               </div>
 
               {/* GET /core/resolve */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <div className="text-landing-copper mb-3">GET /core/resolve</div>
-                <div className="text-landing-muted/60 mb-2">Input:</div>
-                <pre className="text-landing-cream/80 mb-3">origin_id OR hash</pre>
-                <div className="text-landing-muted/60 mb-2">Output:</div>
-                <pre className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</pre>
-                <pre className="text-landing-muted/50 mt-1">OR not found</pre>
+                <div className="space-y-2 text-landing-muted/70">
+                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id or hash</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or not found</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
+                </div>
               </div>
 
               {/* POST /core/verify */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <div className="text-landing-copper mb-3">POST /core/verify</div>
-                <div className="text-landing-muted/60 mb-2">Input:</div>
-                <pre className="text-landing-cream/80 mb-3">{"{ hash }"}</pre>
-                <div className="text-landing-muted/60 mb-2">Output:</div>
-                <pre className="text-landing-cream/80">{"{ match: true | false, origin_id?, captured_at? }"}</pre>
+                <div className="space-y-2 text-landing-muted/70">
+                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ match: true | false, origin_id?, captured_at? }"}</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
+                </div>
               </div>
             </div>
           </section>
@@ -110,22 +118,46 @@ export default function CoreSpec() {
             <p className="text-landing-cream text-lg mb-4">
               Verification is public. Attestation is permissioned.
             </p>
-            <ul className="space-y-2 text-landing-muted/70">
+            <ul className="space-y-2 text-landing-muted/70 mb-6">
               <li><span className="text-landing-cream/80">GET /core/resolve</span> — public</li>
               <li><span className="text-landing-cream/80">POST /core/verify</span> — public</li>
               <li><span className="text-landing-cream/80">POST /core/origins</span> — requires API key</li>
             </ul>
+            <p className="text-landing-muted/60 mb-2">
+              API key issuance is an infrastructural action, not a product flow.
+            </p>
+            <p className="text-landing-muted/50 text-sm">
+              Comparable to: TSA key issuance, DNS update rights, Certificate Transparency log writers.
+            </p>
           </section>
 
-          {/* Notes */}
+          {/* Invariants */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Notes</h2>
-            <ul className="space-y-2 text-landing-muted/70">
-              <li>Core accepts no bytes, labels, metadata, or artifacts</li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
+            <ul className="space-y-2 text-landing-muted/70 mb-6">
+              <li>Origin Records are write-once</li>
+              <li>Origin Records are externally anchored</li>
               <li>Verification is binary (match / no-match)</li>
+            </ul>
+            <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">
+              <p className="text-landing-copper/80 font-medium mb-2">Law of Origin:</p>
+              <p className="text-landing-cream/90">
+                If the bytes change, the origin no longer matches.<br />
+                There are no exceptions.
+              </p>
+            </div>
+          </section>
+
+          {/* Resolution Semantics */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Resolution Semantics</h2>
+            <ul className="space-y-2 text-landing-muted/70">
               <li>Multiple attestations of the same hash are permitted</li>
               <li>Resolution returns the earliest attestation by <span className="text-landing-copper">captured_at</span></li>
             </ul>
+            <p className="mt-4 text-landing-muted/50 text-sm">
+              This behavior is canonical.
+            </p>
           </section>
 
           {/* Stability */}
@@ -134,32 +166,48 @@ export default function CoreSpec() {
             <p className="text-landing-cream/90 mb-4">
               Core v1 is <span className="text-landing-copper">STABLE — IMMUTABLE INTERFACE</span>.
             </p>
-            <ul className="space-y-1 text-landing-muted/60 text-sm">
+            <ul className="space-y-1 text-landing-muted/60 text-sm mb-4">
               <li>No new fields</li>
               <li>No semantic drift</li>
               <li>No convenience additions</li>
               <li>No breaking changes</li>
             </ul>
-            <p className="text-landing-muted/50 mt-4 text-sm">
-              Additions require a new version (/core/v2/*), not modifications to v1.
+            <p className="text-landing-muted/50 text-sm">
+              Additions require a new version (/core/v2/*).
             </p>
           </section>
 
-          {/* Key Access */}
+          {/* Non-Responsibilities */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Attestation Access</h2>
-            <p className="mb-4">
-              API key issuance is an infrastructural action, not a product action.
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Non-Responsibilities</h2>
+            <p className="text-landing-muted/60 mb-4">Umarise Core does not:</p>
+            <ul className="space-y-1 text-landing-muted/60 text-sm mb-6">
+              <li>store content</li>
+              <li>interpret meaning</li>
+              <li>apply policy</li>
+              <li>enforce governance</li>
+              <li>resolve disputes</li>
+              <li>determine outcomes</li>
+            </ul>
+            <p className="text-landing-muted/50 text-sm">
+              All interpretation and decision-making remain external.
             </p>
-            <p className="text-landing-muted/60 mb-4 text-sm">
-              Comparable to: TSA key issuance, DNS update rights, Certificate Transparency log writers.
+          </section>
+
+          {/* Note */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Note</h2>
+            <p className="text-landing-muted/60">
+              Umarise Core may be used independently of any Umarise application.
             </p>
-            <a
-              href="mailto:partners@umarise.com"
-              className="text-landing-copper/70 hover:text-landing-copper transition-colors"
-            >
-              partners@umarise.com
-            </a>
+            <p className="mt-4">
+              <a
+                href="mailto:partners@umarise.com"
+                className="text-landing-copper/70 hover:text-landing-copper transition-colors"
+              >
+                Contact: partners@umarise.com
+              </a>
+            </p>
           </section>
 
         </div>
