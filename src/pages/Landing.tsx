@@ -80,7 +80,7 @@ export default function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col items-center gap-4 text-sm"
+            className="flex flex-col items-start gap-4 text-base max-w-3xl mx-auto pl-1"
           >
             {/* Primary links */}
             <div className="flex items-center gap-6 text-landing-muted/40">
@@ -90,14 +90,14 @@ export default function Landing() {
             </div>
 
             {/* Legal links */}
-            <div className="flex items-center gap-6 text-landing-muted/30">
-              <Link to="/privacy" className="hover:text-landing-muted/50 transition-colors">Privacy</Link>
-              <Link to="/terms" className="hover:text-landing-muted/50 transition-colors">Terms</Link>
+            <div className="flex items-center gap-6 text-landing-muted/40">
+              <Link to="/privacy" className="hover:text-landing-muted/60 transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-landing-muted/60 transition-colors">Terms</Link>
             </div>
 
             {/* Copyright + Contact */}
-            <p className="text-landing-muted/30 mt-2">
-              © {new Date().getFullYear()} Umarise · <a href="mailto:partners@umarise.com" className="hover:text-landing-muted/50 transition-colors">partners@umarise.com</a>
+            <p className="text-landing-muted/40">
+              © {new Date().getFullYear()} Umarise · <a href="mailto:partners@umarise.com" className="hover:text-landing-muted/60 transition-colors">partners@umarise.com</a>
             </p>
           </motion.div>
         </footer>
