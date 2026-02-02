@@ -55,7 +55,7 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-base text-landing-muted/40 leading-relaxed tracking-wide mb-6 pl-1"
+              className="text-base text-landing-muted/40 leading-relaxed tracking-wide mb-6"
             >
               Information has a beginning.
               <br />
@@ -67,7 +67,7 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-base text-landing-muted/30 tracking-wide pl-1"
+              className="text-base text-landing-muted/40 tracking-wide"
             >
               Verification is public. Attestation is permissioned.
             </motion.p>
@@ -81,7 +81,7 @@ export default function Landing() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex flex-col items-start gap-4 text-base max-w-3xl w-full pl-1"
+              className="flex flex-col items-start gap-4 text-base max-w-3xl w-full"
             >
               {/* Primary links */}
               <div className="flex items-center gap-6 text-landing-muted/40">
