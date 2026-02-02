@@ -49,6 +49,9 @@ export default function Origin() {
             <p className="mt-4">
               The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where verification must be performable independently by third parties.
             </p>
+            <p className="mt-4 text-landing-cream/70">
+              This mechanism serves as an external proof of existence at the moment of origin, without relying on internal records or document custody.
+            </p>
           </section>
 
           {/* Problem Statement */}
