@@ -26,6 +26,7 @@ import IsoExport from "./pages/IsoExport";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Origin from "./pages/Origin";
+import CoreSpec from "./pages/CoreSpec";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +48,9 @@ const App = () => (
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/intake" element={<Intake />} />
+            <Route path="/spec" element={<Intake />} />
             <Route path="/origin" element={<Origin />} />
+            <Route path="/core" element={<CoreSpec />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
