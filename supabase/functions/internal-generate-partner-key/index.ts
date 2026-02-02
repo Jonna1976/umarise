@@ -6,16 +6,19 @@
  * 
  * Authentication: Requires X-Internal-Secret header matching CORE_API_SECRET
  * 
- * Request: POST (no body required)
+ * Request: POST { "partner_name": "PartnerName", "auto_register": true }
  * 
  * Response:
  *   {
  *     "api_key": "full-key-to-give-to-partner",
  *     "key_prefix": "first8ch",
  *     "key_hash": "hmac-sha256-hash-for-database",
- *     "sql": "INSERT statement ready to execute"
+ *     "registered": true/false,
+ *     "sql": "INSERT statement (if not auto_register)"
  *   }
  */
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -68,6 +71,8 @@ Deno.serve(async (req: Request) => {
     // Validate internal access via CORE_API_SECRET
     const internalSecret = req.headers.get('x-internal-secret');
     const coreApiSecret = Deno.env.get('CORE_API_SECRET');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!coreApiSecret) {
       return new Response(
@@ -83,12 +88,16 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Parse optional partner_name from body
+    // Parse request body
     let partnerName = 'NewPartner';
+    let autoRegister = false;
     try {
       const body = await req.json();
       if (body?.partner_name) {
         partnerName = body.partner_name;
+      }
+      if (body?.auto_register === true) {
+        autoRegister = true;
       }
     } catch {
       // No body or invalid JSON is fine
@@ -103,15 +112,48 @@ Deno.serve(async (req: Request) => {
     const sql = `INSERT INTO partner_api_keys (partner_name, key_prefix, key_hash, issued_by)
 VALUES ('${partnerName}', '${keyPrefix}', '${keyHash}', 'partners@umarise.com');`;
 
-    console.log('[internal-generate-partner-key] Generated key for:', partnerName);
+    let registered = false;
+
+    // Auto-register if requested and Supabase credentials are available
+    if (autoRegister && supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { error: insertError } = await supabase
+        .from('partner_api_keys')
+        .insert({
+          partner_name: partnerName,
+          key_prefix: keyPrefix,
+          key_hash: keyHash,
+          issued_by: 'partners@umarise.com',
+        });
+
+      if (insertError) {
+        console.error('[internal-generate-partner-key] DB insert error:', insertError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to register key in database',
+            details: insertError.message 
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      registered = true;
+      console.log('[internal-generate-partner-key] Auto-registered key for:', partnerName);
+    } else {
+      console.log('[internal-generate-partner-key] Generated key for:', partnerName, '(not auto-registered)');
+    }
 
     return new Response(
       JSON.stringify({
         api_key: apiKey,
         key_prefix: keyPrefix,
         key_hash: keyHash,
-        sql: sql,
-        note: 'Give api_key to partner. Execute sql in database. Never log or store api_key.',
+        registered: registered,
+        sql: registered ? null : sql,
+        note: registered 
+          ? 'Key registered in database. Give api_key to partner. Never log or store api_key.'
+          : 'Execute sql in database, then give api_key to partner. Never log or store api_key.',
       }),
       { 
         status: 200, 
