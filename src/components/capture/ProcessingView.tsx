@@ -133,53 +133,86 @@ export function ProcessingView({
               This is where it began.
             </motion.p>
 
-            {/* Breathing indicator - subtle, not demanding */}
+            {/* Breathing indicator - larger, more present */}
             <motion.div
-              className="mt-12 w-2 h-2 rounded-full bg-codex-gold/40"
+              className="mt-12 w-5 h-5 rounded-full bg-codex-gold/50"
               animate={{ 
-                scale: [1, 1.3, 1],
-                opacity: [0.4, 0.7, 0.4],
+                scale: [1, 1.4, 1],
+                opacity: [0.5, 0.9, 0.5],
               }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
             />
           </motion.div>
         )}
 
         {(phase === 'mark' || phase === 'release') && (
           // PHASE 2 & 3: THE CERTIFICATE + RELEASE
-          // Mark shows the certificate, Release lets it settle and disappear
+          // Mark: instant reveal — certificate appears out of nothing
+          // Release: sinks down with gravity, felt not explained
           <motion.div
             key="certificate"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.92 }}
             animate={{ 
               opacity: phase === 'release' ? 0 : 1, 
-              y: phase === 'release' ? 40 : 0, // Sinks down — gravity, being set down
-              scale: phase === 'release' ? 0.97 : 1 
+              y: phase === 'release' ? 60 : 0, // Deeper sink — more gravity, more felt
+              scale: phase === 'release' ? 0.94 : 1 
             }}
             transition={{ 
-              duration: phase === 'release' ? 1.8 : 0.7, 
-              ease: phase === 'release' ? [0.4, 0, 0.2, 1] : [0.34, 1.56, 0.64, 1] 
+              duration: phase === 'release' ? 2.0 : 0.15, // Instant reveal (0.15s), slow release
+              ease: phase === 'release' ? [0.4, 0, 0.2, 1] : 'easeOut'
             }}
             className="flex flex-col items-center w-full max-w-lg px-4"
           >
             {/* The Certificate - oorkonde format with decorative frame */}
             <motion.div 
-              className="w-full bg-gradient-to-b from-codex-cream/10 to-codex-cream/4 rounded-3xl p-10 sm:p-14 border-2 border-codex-gold/40 shadow-2xl relative"
+              className="w-full bg-gradient-to-b from-codex-cream/8 to-codex-cream/3 rounded-3xl p-10 sm:p-14 border border-codex-gold/30 shadow-2xl relative overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.1 }}
               style={{
-                boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.6), 0 0 50px -10px rgba(200, 170, 100, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.7), 0 0 60px -15px rgba(200, 170, 100, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03)',
               }}
             >
-              {/* U stamp mark at top */}
+              {/* U stamp mark — elegant circle with serif U, like the reference */}
               <motion.div 
                 className="flex justify-center mb-10"
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.2, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.12, ease: 'easeOut' }}
               >
-                <div className="w-28 h-28 rounded-full bg-codex-gold/10 border-2 border-codex-gold/50 flex items-center justify-center ring-4 ring-codex-gold/10 ring-offset-4 ring-offset-transparent">
+                {/* Simple elegant circle with U — inspired by reference */}
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                  {/* The circle — thin, elegant stroke */}
+                  <svg 
+                    viewBox="0 0 100 100" 
+                    className="absolute inset-0 w-full h-full"
+                    style={{ filter: 'drop-shadow(0 0 20px rgba(200, 170, 100, 0.3))' }}
+                  >
+                    <circle 
+                      cx="50" 
+                      cy="50" 
+                      r="46" 
+                      fill="none" 
+                      stroke="hsl(var(--codex-gold))" 
+                      strokeWidth="1.5"
+                      opacity="0.7"
+                    />
+                    {/* Small accent dot on the circle */}
+                    <circle 
+                      cx="92" 
+                      cy="35" 
+                      r="2" 
+                      fill="hsl(var(--codex-gold))"
+                      opacity="0.6"
+                    />
+                  </svg>
+                  {/* The U — elegant serif */}
                   <span 
-                    className="font-serif text-7xl font-semibold text-codex-gold select-none"
-                    style={{ letterSpacing: '-0.02em', textShadow: '0 2px 25px rgba(200, 170, 100, 0.4)' }}
+                    className="font-serif text-5xl text-codex-gold select-none relative z-10"
+                    style={{ 
+                      fontWeight: 400,
+                      letterSpacing: '0.02em',
+                    }}
                   >
                     U
                   </span>
