@@ -574,14 +574,22 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               className="w-10 h-10"
               style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
             >
-              <circle 
-                cx="24" 
-                cy="24" 
-                r="20" 
-                fill="none" 
-                stroke="hsl(var(--codex-gold))" 
+              {/* Open circle with gap - like the reference */}
+              <path
+                d="M 44 24 A 20 20 0 1 1 38 8"
+                fill="none"
+                stroke="hsl(var(--codex-gold))"
                 strokeWidth="1.5"
                 opacity="0.6"
+                strokeLinecap="round"
+              />
+              {/* Accent dot at the end of the arc */}
+              <circle
+                cx="38"
+                cy="8"
+                r="2"
+                fill="hsl(var(--codex-gold))"
+                opacity="0.8"
               />
               <text 
                 x="24" 

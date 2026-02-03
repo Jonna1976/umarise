@@ -195,7 +195,31 @@ export function ProcessingView({
                 U
               </motion.span>
             </div>
-            {/* No text — the closing circle speaks for itself */}
+
+            {/* The recognition statement + pulsating dot */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="flex items-center gap-3"
+            >
+              {/* Pulsating dot */}
+              <motion.div
+                className="w-3 h-3 rounded-full bg-codex-gold"
+                animate={{ 
+                  scale: [1, 1.3, 1],
+                  opacity: [0.6, 1, 0.6]
+                }}
+                transition={{ 
+                  duration: 1.2,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
+                }}
+              />
+              <p className="font-serif text-xl sm:text-2xl text-codex-cream/80 leading-relaxed">
+                This is where it began
+              </p>
+            </motion.div>
           </motion.div>
         )}
 
