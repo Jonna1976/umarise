@@ -58,7 +58,7 @@ export function ProcessingView({
     if (phase === 'mark') {
       const releaseTimer = setTimeout(() => {
         setPhase('release');
-      }, 2800); // 2.8 seconds to witness the certificate
+      }, 4500); // 4.5 seconds to fully witness the certificate
       return () => clearTimeout(releaseTimer);
     }
   }, [phase]);
@@ -150,13 +150,13 @@ export function ProcessingView({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
-            className="flex flex-col items-center w-full max-w-md px-4"
+            className="flex flex-col items-center w-full max-w-lg px-4"
           >
-            {/* The Certificate - oorkonde format */}
+            {/* The Certificate - oorkonde format with decorative frame */}
             <motion.div 
-              className="w-full bg-gradient-to-b from-codex-cream/8 to-codex-cream/3 rounded-3xl p-8 sm:p-12 border border-codex-gold/30 shadow-2xl"
+              className="w-full bg-gradient-to-b from-codex-cream/10 to-codex-cream/4 rounded-3xl p-10 sm:p-14 border-2 border-codex-gold/40 shadow-2xl relative"
               style={{
-                boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 40px -10px rgba(200, 170, 100, 0.15)',
+                boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.6), 0 0 50px -10px rgba(200, 170, 100, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
               }}
             >
               {/* U stamp mark at top */}
@@ -166,10 +166,10 @@ export function ProcessingView({
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.2, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
               >
-                <div className="w-24 h-24 rounded-full bg-codex-gold/10 border-2 border-codex-gold/50 flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full bg-codex-gold/10 border-2 border-codex-gold/50 flex items-center justify-center ring-4 ring-codex-gold/10 ring-offset-4 ring-offset-transparent">
                   <span 
-                    className="font-serif text-6xl font-semibold text-codex-gold select-none"
-                    style={{ letterSpacing: '-0.02em', textShadow: '0 2px 20px rgba(200, 170, 100, 0.3)' }}
+                    className="font-serif text-7xl font-semibold text-codex-gold select-none"
+                    style={{ letterSpacing: '-0.02em', textShadow: '0 2px 25px rgba(200, 170, 100, 0.4)' }}
                   >
                     U
                   </span>
@@ -183,12 +183,12 @@ export function ProcessingView({
                 transition={{ delay: 0.4 }}
                 className="text-center"
               >
-                <p className="text-codex-gold font-serif text-4xl sm:text-5xl font-medium tracking-wide">
+                <p className="text-codex-gold font-serif text-5xl sm:text-6xl font-medium tracking-wide">
                   Marked
                 </p>
                 
                 {/* Beginning count - the milestone */}
-                <p className="text-codex-cream/70 font-serif text-xl mt-6">
+                <p className="text-codex-cream/70 font-serif text-2xl mt-8">
                   Beginning #{(currentPageCount || 0) + 1}
                 </p>
                 
