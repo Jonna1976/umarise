@@ -263,8 +263,14 @@ function extractSuggestedCuesFromAnalysis(analysis: PageAnalysisResult): string[
 // ============= Page Operations =============
 
 /**
- * Create a new page with image upload and AI analysis
- * Returns the page and suggested cues for the FutureYouCue prompt
+ * Create a new page with image upload - FAST PATH
+ * 
+ * Per Experience Briefing: the "Seal" must be instant.
+ * - Image upload + hash calculation: synchronous (blocking)
+ * - AI analysis: asynchronous (non-blocking, runs in background)
+ * 
+ * Returns immediately after hash is calculated.
+ * AI-generated cues will be empty initially; they're updated in background.
  */
 export async function createPage(
   imageDataUrl: string, 
@@ -279,59 +285,86 @@ export async function createPage(
   const storage = getStorageProvider();
   const ai = getAIProvider();
 
-  // Step 1: Analyze with AI
-  console.log('Analyzing image with AI...');
+  // Step 1: Upload image to storage FIRST (calculates SHA-256 origin hash)
+  // This is the critical path - must complete for "Seal" to work
+  console.log('[CreatePage] Uploading image (fast path)...');
   const base64 = extractBase64(imageDataUrl);
-  const analysis = await ai.analyzePage(base64) as PageAnalysisResult;
-  console.log('Analysis complete:', analysis);
-
-  // Step 2: Upload image to storage (also calculates SHA-256 origin hash)
-  console.log('Uploading image...');
   const { imageUrl, originHash } = await storage.uploadImage(imageDataUrl);
-  console.log('Image uploaded:', imageUrl);
-  console.log('Origin hash calculated:', originHash.substring(0, 16) + '...');
+  console.log('[CreatePage] Image uploaded:', imageUrl);
+  console.log('[CreatePage] Origin hash:', originHash.substring(0, 16) + '...');
 
-  // Step 3: Parse tone - handle both array (new contract) and string (legacy)
-  let toneArray: string[];
-  if (Array.isArray(analysis.tone)) {
-    toneArray = analysis.tone.map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
-  } else if (typeof analysis.tone === 'string') {
-    toneArray = analysis.tone.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
-  } else {
-    toneArray = ['reflective'];
-  }
-
-  // Step 4: Create page in storage (includes origin hash)
-  // Support both camelCase (new contract) and snake_case (legacy) field names
+  // Step 2: Create page with minimal data (hash + image only)
+  // This allows "Seal" button to work immediately
   const page = await storage.createPage({
     deviceUserId,
     writerUserId: deviceUserId,
     imageUrl,
-    ocrText: analysis.ocrText || analysis.ocr_text,
-    ocrTokens: analysis.ocrTokens || analysis.ocr_tokens || [],
-    namedEntities: analysis.namedEntities || analysis.named_entities || [],
-    summary: analysis.summary,
-    oneLineHint: analysis.oneLineHint || analysis.one_line_hint,
-    tone: toneArray.length > 0 ? toneArray : ['reflective'],
-    keywords: analysis.keywords,
-    topicLabels: analysis.topicLabels || analysis.topic_labels || [],
-    highlights: analysis.highlights || [],
+    ocrText: '', // Will be filled by background AI
+    ocrTokens: [],
+    namedEntities: [],
+    summary: '',
+    oneLineHint: '',
+    tone: ['reflective'],
+    keywords: [],
+    topicLabels: [],
+    highlights: [],
     capsuleId: capsuleId || undefined,
     pageOrder: pageOrder ?? 0,
-    futureYouCues: [], // Will be set after user confirmation
+    futureYouCues: [],
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: false },
-    originHashSha256: originHash, // SHA-256 fingerprint for forensic verification
-    isTrashed: false, // New pages are never trashed
+    originHashSha256: originHash,
+    isTrashed: false,
   });
 
-  // Persist origin hash in sidecar table (backend-agnostic, immutable)
+  // Persist origin hash in sidecar table (immutable)
   if (originHash) {
     await persistOriginHashSidecar(deviceUserId, page.id, imageUrl, originHash);
   }
 
+  console.log('[CreatePage] Page created (fast path complete):', page.id);
+
+  // Step 3: AI analysis in BACKGROUND (non-blocking)
+  // This updates the page with OCR, summary, cues etc. after the user has moved on
+  (async () => {
+    try {
+      console.log('[CreatePage] Starting background AI analysis...');
+      const analysis = await ai.analyzePage(base64) as PageAnalysisResult;
+      console.log('[CreatePage] Background AI analysis complete');
+
+      // Parse tone
+      let toneArray: string[];
+      if (Array.isArray(analysis.tone)) {
+        toneArray = analysis.tone.map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+      } else if (typeof analysis.tone === 'string') {
+        toneArray = analysis.tone.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+      } else {
+        toneArray = ['reflective'];
+      }
+
+      // Update page with AI results
+      await storage.updatePage(page.id, {
+        ocrText: analysis.ocrText || analysis.ocr_text || '',
+        ocrTokens: analysis.ocrTokens || analysis.ocr_tokens || [],
+        namedEntities: analysis.namedEntities || analysis.named_entities || [],
+        summary: analysis.summary || '',
+        oneLineHint: analysis.oneLineHint || analysis.one_line_hint || '',
+        tone: toneArray.length > 0 ? toneArray : ['reflective'],
+        keywords: analysis.keywords || [],
+        topicLabels: analysis.topicLabels || analysis.topic_labels || [],
+        highlights: analysis.highlights || [],
+        futureYouCues: extractSuggestedCuesFromAnalysis(analysis),
+      });
+
+      console.log('[CreatePage] Background AI update saved for page:', page.id);
+    } catch (err) {
+      console.warn('[CreatePage] Background AI analysis failed (non-critical):', err);
+    }
+  })();
+
+  // Return immediately with empty cues (AI runs in background)
   return {
     page,
-    suggestedCues: extractSuggestedCuesFromAnalysis(analysis),
+    suggestedCues: [], // Will be populated by background AI
   };
 }
 
