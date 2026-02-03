@@ -40,16 +40,41 @@ export function ProcessingView({
   // Three ritual phases
   type RitualPhase = 'pause' | 'mark' | 'release';
   const [phase, setPhase] = useState<RitualPhase>('pause');
+  const [sealProgress, setSealProgress] = useState(0); // 0-100 for circle closing animation
 
   // Phase 1 → 2: After pause, show the certificate
-  // PAUSE = Recognition moment — "I am marking this"
+  // PAUSE = Sealing ritual — golden circle closes with building haptics
   useEffect(() => {
     if (phase === 'pause' && isProcessingComplete) {
+      // Building haptics during the sealing process
+      const hapticSequence = [
+        { delay: 400, style: 'light' as const },
+        { delay: 800, style: 'light' as const },
+        { delay: 1200, style: 'medium' as const },
+        { delay: 1600, style: 'medium' as const },
+        { delay: 2000, style: 'heavy' as const }, // Final thud as seal closes
+      ];
+      
+      const hapticTimers = hapticSequence.map(({ delay, style }) => 
+        setTimeout(() => triggerHaptic(style), delay)
+      );
+      
+      // Animate seal progress
+      const progressInterval = setInterval(() => {
+        setSealProgress(prev => Math.min(prev + 4.5, 100));
+      }, 100);
+
       const pauseTimer = setTimeout(() => {
-        triggerHaptic('success');
+        clearInterval(progressInterval);
+        setSealProgress(100);
         setPhase('mark');
-      }, 2400); // 2.4 seconds — recognition before witness
-      return () => clearTimeout(pauseTimer);
+      }, 2400); // 2.4 seconds — sealing complete
+      
+      return () => {
+        clearTimeout(pauseTimer);
+        clearInterval(progressInterval);
+        hapticTimers.forEach(t => clearTimeout(t));
+      };
     }
   }, [phase, isProcessingComplete]);
 
@@ -112,36 +137,74 @@ export function ProcessingView({
     >
       <AnimatePresence mode="wait">
         {phase === 'pause' && (
-          // PHASE 1: THE PAUSE
-          // Conscious recognition before marking — no artifact shown
-          // The ritual is about the ACT, not the content
+          // PHASE 1: THE SEALING RITUAL
+          // Golden circle closes around the U — building haptics create anticipation
+          // The ritual is about the ACT of securing, not the content
           <motion.div
             key="pause"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
             className="flex flex-col items-center text-center"
           >
-            {/* The recognition statement — pure, no artifact */}
+            {/* The sealing circle — closes as progress builds */}
+            <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+              <svg 
+                viewBox="0 0 100 100" 
+                className="absolute inset-0 w-full h-full"
+                style={{ 
+                  filter: 'drop-shadow(0 0 25px rgba(200, 170, 100, 0.4))',
+                  transform: 'rotate(-90deg)' // Start from top
+                }}
+              >
+                {/* Background circle (faint) */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="44" 
+                  fill="none" 
+                  stroke="hsl(var(--codex-gold))" 
+                  strokeWidth="2"
+                  opacity="0.15"
+                />
+                {/* Closing circle — progress-based */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="44" 
+                  fill="none" 
+                  stroke="hsl(var(--codex-gold))" 
+                  strokeWidth="2"
+                  opacity="0.8"
+                  strokeDasharray={`${2 * Math.PI * 44}`}
+                  strokeDashoffset={`${2 * Math.PI * 44 * (1 - sealProgress / 100)}`}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 0.1s ease-out' }}
+                />
+              </svg>
+              {/* The U — grows slightly as seal completes */}
+              <motion.span 
+                className="font-serif text-5xl text-codex-gold select-none relative z-10"
+                animate={{ 
+                  scale: 1 + (sealProgress / 100) * 0.1,
+                  opacity: 0.6 + (sealProgress / 100) * 0.4
+                }}
+                style={{ fontWeight: 400 }}
+              >
+                U
+              </motion.span>
+            </div>
+
+            {/* The recognition statement */}
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="font-serif text-3xl sm:text-4xl text-codex-cream/90 leading-relaxed"
+              className="font-serif text-2xl sm:text-3xl text-codex-cream/80 leading-relaxed"
             >
-              This is where it began.
+              Sealing...
             </motion.p>
-
-            {/* Breathing indicator - larger, more present */}
-            <motion.div
-              className="mt-12 w-5 h-5 rounded-full bg-codex-gold/50"
-              animate={{ 
-                scale: [1, 1.4, 1],
-                opacity: [0.5, 0.9, 0.5],
-              }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            />
           </motion.div>
         )}
 
@@ -180,33 +243,25 @@ export function ProcessingView({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.12, ease: 'easeOut' }}
               >
-                {/* Simple elegant circle with U — inspired by reference */}
-                <div className="relative w-24 h-24 flex items-center justify-center">
-                  {/* The circle — thin, elegant stroke */}
+                {/* Elegant CLOSED circle with U — fully sealed */}
+                <div className="relative w-28 h-28 flex items-center justify-center">
+                  {/* The circle — fully closed, elegant stroke */}
                   <svg 
                     viewBox="0 0 100 100" 
                     className="absolute inset-0 w-full h-full"
-                    style={{ filter: 'drop-shadow(0 0 20px rgba(200, 170, 100, 0.3))' }}
+                    style={{ filter: 'drop-shadow(0 0 25px rgba(200, 170, 100, 0.35))' }}
                   >
                     <circle 
                       cx="50" 
                       cy="50" 
-                      r="46" 
+                      r="44" 
                       fill="none" 
                       stroke="hsl(var(--codex-gold))" 
                       strokeWidth="1.5"
-                      opacity="0.7"
-                    />
-                    {/* Small accent dot on the circle */}
-                    <circle 
-                      cx="92" 
-                      cy="35" 
-                      r="2" 
-                      fill="hsl(var(--codex-gold))"
-                      opacity="0.6"
+                      opacity="0.75"
                     />
                   </svg>
-                  {/* The U — elegant serif */}
+                  {/* The U — elegant serif, centered */}
                   <span 
                     className="font-serif text-5xl text-codex-gold select-none relative z-10"
                     style={{ 
