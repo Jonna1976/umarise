@@ -275,7 +275,7 @@ const Index = () => {
   }, []);
 
   const handleBackFromHistory = useCallback(() => {
-    setView('search');  // Back from History goes to Search-first
+    setView('camera');  // Back from History goes directly to camera
   }, []);
 
   const handleBackFromDetail = useCallback(async () => {
