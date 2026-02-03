@@ -58,18 +58,18 @@ export function ProcessingView({
     if (phase === 'mark') {
       const releaseTimer = setTimeout(() => {
         setPhase('release');
-      }, 4500); // 4.5 seconds to fully witness the certificate
+      }, 3600); // 3.6 seconds = 2× pause (certificate is the main event)
       return () => clearTimeout(releaseTimer);
     }
   }, [phase]);
 
-  // Phase 3: Fade out and complete
+  // Phase 3: Fade out and complete — matches pause duration for symmetry
   useEffect(() => {
     if (phase === 'release' && onContinue) {
       const completeTimer = setTimeout(() => {
         const cues = suggestedCues.slice(0, 3);
         onContinue(cues);
-      }, 800); // 0.8 second fade
+      }, 1800); // 1.8 seconds = matches pause for rhythmic symmetry
       return () => clearTimeout(completeTimer);
     }
   }, [phase, onContinue, suggestedCues]);
