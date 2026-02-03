@@ -142,82 +142,67 @@ export function ProcessingView({
             </motion.p>
           </motion.div>
         ) : (
-          // Sealed certificate - the ritual completion
+          // Sealed certificate - the ritual completion (oorkonde format)
           <motion.div
             key="certificate"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="flex flex-col items-center max-w-sm w-full"
+            className="flex flex-col items-center w-full max-w-md px-4"
           >
-            {/* The Certificate */}
+            {/* The Certificate - larger oorkonde format */}
             <motion.div 
-              className="w-full bg-gradient-to-b from-codex-cream/60 to-secondary/40 rounded-3xl p-8 border border-codex-gold/30 shadow-xl"
+              className="w-full bg-gradient-to-b from-codex-cream/70 to-secondary/50 rounded-3xl p-6 sm:p-10 border border-codex-gold/40 shadow-2xl"
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
             >
-              {/* U stamp mark at top */}
+              {/* U stamp mark at top - larger, more prominent */}
               <motion.div 
-                className="flex justify-center mb-6"
+                className="flex justify-center mb-8"
                 initial={{ scale: 0, rotate: -15 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.4, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
               >
-                <div className="w-14 h-14 rounded-full bg-codex-gold/15 border-2 border-codex-gold/60 flex items-center justify-center shadow-inner">
-                  <span className="font-serif text-3xl font-semibold text-codex-gold select-none" style={{ letterSpacing: '-0.02em' }}>
+                <div className="w-20 h-20 rounded-full bg-codex-gold/15 border-2 border-codex-gold/60 flex items-center justify-center shadow-inner">
+                  <span className="font-serif text-5xl font-semibold text-codex-gold select-none" style={{ letterSpacing: '-0.02em' }}>
                     U
                   </span>
                 </div>
               </motion.div>
 
-              {/* Large, proud artifact */}
-              <motion.div 
-                className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg border-2 border-codex-gold/40 mb-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <img
-                  src={imageUrl}
-                  alt="Your beginning"
-                  className="w-full h-full object-cover"
-                />
-                {totalImages > 1 && (
-                  <div className="absolute top-2 right-2 bg-codex-gold text-codex-ink text-xs font-bold px-2 py-0.5 rounded-full">
-                    {totalImages}
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Certificate text */}
+              {/* Beginning number - prominent */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-center"
+                className="text-center mb-8"
               >
-                <p className="text-codex-gold font-serif text-2xl font-medium mb-2">
+                <p className="text-codex-gold font-serif text-3xl sm:text-4xl font-medium">
                   Marked
                 </p>
-                <p className="text-foreground/60 text-sm mb-4">
+                <p className="text-foreground/50 text-base mt-2">
                   {formatTimestamp(capturedAt)}
                 </p>
-
-                {/* Fingerprint */}
-                {displayHash && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7 }}
-                    className="pt-4 border-t border-border/30"
-                  >
-                    <p className="text-foreground/30 text-xs font-mono tracking-wider">
-                      {displayHash}
-                    </p>
-                  </motion.div>
-                )}
+                {/* Beginning count - prominent milestone */}
+                <p className="text-foreground/70 font-serif text-lg mt-4">
+                  Beginning #{(currentPageCount || 0) + 1}
+                </p>
               </motion.div>
+
+              {/* Fingerprint - subtle but present */}
+              {displayHash && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                  className="pt-6 border-t border-border/30 text-center"
+                >
+                  <p className="text-foreground/25 text-xs font-mono tracking-wider">
+                    {displayHash}
+                  </p>
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Subtle tap hint */}
@@ -225,7 +210,7 @@ export function ProcessingView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.4 }}
               transition={{ delay: 1.5 }}
-              className="mt-6 text-foreground/40 text-xs"
+              className="mt-8 text-foreground/40 text-sm"
             >
               tap to continue
             </motion.p>
