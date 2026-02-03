@@ -10,10 +10,13 @@ interface LivingCircleProps {
 /**
  * LivingCircle — Breathing portal where beginnings arise
  * 
- * Elegant open circle, thin stroke, pulsing accent dot.
- * Inviting, alive, recognition-release feeling.
+ * All elements pulse together in sync - unified breathing.
  */
 export function LivingCircle({ isDraggingOver = false, onClick, className = '' }: LivingCircleProps) {
+  // Unified breathing rhythm - everything pulses together
+  const breathDuration = 3;
+  const breathEase = 'easeInOut';
+
   return (
     <motion.button
       onClick={onClick}
@@ -21,7 +24,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      {/* Breathing ambient glow - the space where beginnings arise */}
+      {/* Breathing ambient glow */}
       <motion.div
         className="absolute inset-0 rounded-full"
         animate={{
@@ -38,9 +41,9 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
               ],
         }}
         transition={{
-          duration: isDraggingOver ? 1.5 : 3.5,
+          duration: breathDuration,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: breathEase,
         }}
       />
 
@@ -49,7 +52,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         viewBox="0 0 100 100"
         className="absolute inset-0 w-full h-full"
       >
-        {/* Glow layer for the arc */}
+        {/* Glow layer for the arc - synced */}
         <motion.path
           d="M 94 50 A 44 44 0 1 1 78 14"
           fill="none"
@@ -62,13 +65,13 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
             opacity: [0.1, 0.25, 0.1],
           }}
           transition={{
-            duration: 3,
+            duration: breathDuration,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: breathEase,
           }}
         />
 
-        {/* Main arc - elegant thin stroke */}
+        {/* Main arc - synced */}
         <motion.path
           d="M 94 50 A 44 44 0 1 1 78 14"
           fill="none"
@@ -79,16 +82,16 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
             opacity: [0.6, 0.85, 0.6],
           }}
           transition={{
-            duration: 3.5,
+            duration: breathDuration,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: breathEase,
           }}
           style={{
             filter: 'drop-shadow(0 0 8px rgba(180, 150, 90, 0.5))',
           }}
         />
         
-        {/* Pulsing accent dot - the origin point */}
+        {/* Pulsing accent dot - synced */}
         <motion.circle
           cx="78"
           cy="14"
@@ -99,16 +102,16 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
             r: [2.5, 3.5, 2.5],
           }}
           transition={{
-            duration: 2,
+            duration: breathDuration,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: breathEase,
           }}
           style={{
             filter: 'drop-shadow(0 0 10px rgba(180, 150, 90, 0.9))',
           }}
         />
 
-        {/* Dot glow halo - breathing */}
+        {/* Dot glow halo - synced */}
         <motion.circle
           cx="78"
           cy="14"
@@ -119,9 +122,9 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
             r: [6, 10, 6],
           }}
           transition={{
-            duration: 2,
+            duration: breathDuration,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: breathEase,
           }}
           style={{
             filter: 'blur(3px)',
@@ -129,7 +132,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         />
       </svg>
 
-      {/* Camera icon - centered, breathing with the circle */}
+      {/* Camera icon - synced breathing */}
       <motion.div
         className="relative z-10"
         animate={{
@@ -137,9 +140,9 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           scale: [0.98, 1.02, 0.98],
         }}
         transition={{
-          duration: 3.5,
+          duration: breathDuration,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: breathEase,
         }}
       >
         <Camera 
@@ -151,7 +154,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         />
       </motion.div>
 
-      {/* Outer breathing pulse ring */}
+      {/* Outer breathing pulse ring - synced */}
       <motion.div
         className="absolute inset-0 rounded-full"
         style={{
@@ -161,20 +164,15 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         animate={{
           scale: [1, 1.1, 1],
           opacity: [0.3, 0, 0.3],
-          borderColor: [
-            'hsl(var(--codex-gold) / 0.2)',
-            'hsl(var(--codex-gold) / 0.4)',
-            'hsl(var(--codex-gold) / 0.2)',
-          ],
         }}
         transition={{
-          duration: 3,
+          duration: breathDuration,
           repeat: Infinity,
           ease: 'easeOut',
         }}
       />
 
-      {/* Inner subtle glow pulse */}
+      {/* Inner subtle glow pulse - synced */}
       <motion.div
         className="absolute rounded-full"
         style={{
@@ -186,9 +184,9 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           scale: [0.9, 1.1, 0.9],
         }}
         transition={{
-          duration: 3.5,
+          duration: breathDuration,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: breathEase,
         }}
       />
     </motion.button>
