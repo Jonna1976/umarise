@@ -42,34 +42,36 @@ export function ProcessingView({
   const [phase, setPhase] = useState<RitualPhase>('pause');
 
   // Phase 1 → 2: After pause, show the certificate
+  // PAUSE = Recognition moment — "I am marking this"
   useEffect(() => {
     if (phase === 'pause' && isProcessingComplete) {
-      // The pause: let the moment breathe
       const pauseTimer = setTimeout(() => {
         triggerHaptic('success');
         setPhase('mark');
-      }, 1800); // 1.8 seconds of stillness
+      }, 2400); // 2.4 seconds — recognition before witness
       return () => clearTimeout(pauseTimer);
     }
   }, [phase, isProcessingComplete]);
 
   // Phase 2 → 3: After certificate shown, begin release
+  // MARK = Witness moment — the certificate appears
   useEffect(() => {
     if (phase === 'mark') {
       const releaseTimer = setTimeout(() => {
         setPhase('release');
-      }, 3600); // 3.6 seconds = 2× pause (certificate is the main event)
+      }, 4600); // 4.6 seconds — full witness of the mark
       return () => clearTimeout(releaseTimer);
     }
   }, [phase]);
 
-  // Phase 3: Fade out and complete — matches pause duration for symmetry
+  // Phase 3: Fade out and complete
+  // RELEASE = Letting go — the ritual completes itself
   useEffect(() => {
     if (phase === 'release' && onContinue) {
       const completeTimer = setTimeout(() => {
         const cues = suggestedCues.slice(0, 3);
         onContinue(cues);
-      }, 1800); // 1.8 seconds = matches pause for rhythmic symmetry
+      }, 2000); // 2.0 seconds — peaceful release
       return () => clearTimeout(completeTimer);
     }
   }, [phase, onContinue, suggestedCues]);
