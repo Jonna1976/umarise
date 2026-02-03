@@ -296,17 +296,8 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Heading above circle - mantra */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="mb-8 text-center"
-            >
-              <h2 className="font-handwritten text-[2.2rem] md:text-[2.8rem] text-primary-foreground font-semibold tracking-wide">
-                This exists.
-              </h2>
-            </motion.div>
+            {/* Phase 0: No copy, no explanation — pure instinct */}
+            {/* Meaning arrives only in Phase 1 (Pause) after the action */}
             
             {/* Container for circle + orbiting orbs - large enough for orbit radius */}
             <div className="relative w-80 h-80 mx-auto flex items-center justify-center overflow-visible">
