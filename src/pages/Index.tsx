@@ -405,6 +405,7 @@ const Index = () => {
             onContinue={handleProcessingContinue}
             onViewBeginnings={handleOpenHistory}
             suggestedCues={aiSuggestedCues}
+            originId={pendingPagesToCue?.[0]?.id || undefined}
             originHash={pendingPagesToCue?.[0]?.originHashSha256 || undefined}
             capturedAt={pendingPagesToCue?.[0]?.createdAt || new Date()}
           />
