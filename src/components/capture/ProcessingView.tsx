@@ -58,6 +58,8 @@ export function ProcessingView({
   useEffect(() => {
     if (phase === 'mark') {
       const releaseTimer = setTimeout(() => {
+        // Heavy haptic — something is being set down, not celebrated
+        triggerHaptic('heavy');
         setPhase('release');
       }, 4600); // 4.6 seconds — full witness of the mark
       return () => clearTimeout(releaseTimer);
@@ -143,15 +145,21 @@ export function ProcessingView({
           </motion.div>
         )}
 
-        {phase === 'mark' && (
-          // PHASE 2: THE CERTIFICATE
-          // The moment is marked
+        {(phase === 'mark' || phase === 'release') && (
+          // PHASE 2 & 3: THE CERTIFICATE + RELEASE
+          // Mark shows the certificate, Release lets it settle and disappear
           <motion.div
             key="certificate"
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
+            animate={{ 
+              opacity: phase === 'release' ? 0 : 1, 
+              y: phase === 'release' ? 40 : 0, // Sinks down — gravity, being set down
+              scale: phase === 'release' ? 0.97 : 1 
+            }}
+            transition={{ 
+              duration: phase === 'release' ? 1.8 : 0.7, 
+              ease: phase === 'release' ? [0.4, 0, 0.2, 1] : [0.34, 1.56, 0.64, 1] 
+            }}
             className="flex flex-col items-center w-full max-w-lg px-4"
           >
             {/* The Certificate - oorkonde format with decorative frame */}
@@ -213,13 +221,30 @@ export function ProcessingView({
                   </p>
                 </motion.div>
               )}
+
+              {/* Seal imprint — appears during release, not readable, just felt */}
+              {phase === 'release' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 0.15, scale: 1 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                  <div 
+                    className="w-32 h-32 rounded-full border-4 border-codex-gold/30"
+                    style={{
+                      background: 'radial-gradient(circle, transparent 40%, rgba(200, 170, 100, 0.1) 100%)',
+                    }}
+                  />
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Multi-page indicator (if applicable) */}
             {totalImages > 1 && (
               <motion.p
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
+                animate={{ opacity: phase === 'release' ? 0 : 0.5 }}
                 transition={{ delay: 0.8 }}
                 className="mt-8 text-codex-cream/40 text-sm"
               >
