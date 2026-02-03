@@ -560,18 +560,58 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         )}
       </div>
 
-      {/* Top bar - only show close when captured image */}
-      {capturedImage && (
-        <div className="absolute top-0 left-0 right-0 p-4 flex justify-end items-center z-10">
+      {/* Top bar - U seal for viewing origins, close when captured */}
+      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+        {/* U seal - view marked beginnings */}
+        {!capturedImage && (
           <button
-            onClick={retake}
-            className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
-            aria-label="Close"
+            onClick={onBrowseAll}
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105"
+            aria-label="View marked beginnings"
           >
-            <X className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+            <svg 
+              viewBox="0 0 48 48" 
+              className="w-10 h-10"
+              style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
+            >
+              <circle 
+                cx="24" 
+                cy="24" 
+                r="20" 
+                fill="none" 
+                stroke="hsl(var(--codex-gold))" 
+                strokeWidth="1.5"
+                opacity="0.6"
+              />
+              <text 
+                x="24" 
+                y="30" 
+                textAnchor="middle" 
+                fill="hsl(var(--codex-gold))"
+                fontFamily="Playfair Display, Georgia, serif"
+                fontSize="18"
+                opacity="0.8"
+              >
+                U
+              </text>
+            </svg>
           </button>
-        </div>
-      )}
+        )}
+        
+        {/* Close/retake button when image captured */}
+        {capturedImage && (
+          <>
+            <div /> {/* Spacer */}
+            <button
+              onClick={retake}
+              className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-7 h-7 text-primary-foreground" strokeWidth={1.5} />
+            </button>
+          </>
+        )}
+      </div>
 
       {/* Thumbnail strip removed: showing multiple artifacts activates archiving psychology */}
       {/* At the moment of marking, only the current beginning exists */}
