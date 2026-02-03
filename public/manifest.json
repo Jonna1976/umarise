@@ -1,11 +1,11 @@
 {
   "name": "Umarise",
   "short_name": "Umarise",
-  "description": "Turn your handwritten notes into a living map of your ideas, patterns, and long-term threads.",
-  "start_url": "/",
+  "description": "Mark beginnings.",
+  "start_url": "/app",
   "display": "standalone",
-  "background_color": "#F5F2EB",
-  "theme_color": "#8B5A2B",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "orientation": "portrait",
   "icons": [
     {
@@ -21,7 +21,20 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "lifestyle"],
+  "categories": ["productivity", "utilities"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "share_target": {
+    "action": "/app",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "media",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
 }

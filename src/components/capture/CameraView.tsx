@@ -553,13 +553,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                   {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
                 </p>
               )}
-              {/* Desktop: minimal hover hint */}
-              <p className="hidden md:block absolute left-full ml-6 top-1/2 -translate-y-1/2 whitespace-nowrap font-handwritten text-primary-foreground/50 text-xl md:text-2xl opacity-0 group-hover/capture:opacity-100 transition-opacity duration-300 bg-transparent">
-                {capturedImages.length > 0 
-                  ? `${capturedImages.length} ${capturedImages.length === 1 ? 'page' : 'pages'}`
-                  : 'Capture.'
-                }
-              </p>
+              {/* Desktop: no explanatory text - the portal speaks for itself */}
               </div>
             </div>
           </motion.div>
@@ -685,19 +679,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         </div>
       )}
 
-      {/* Hint text */}
-      {isStreaming && !capturedImage && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="absolute bottom-28 left-0 right-0 text-center text-primary-foreground/50 text-sm"
-        >
-          {isMultiMode 
-            ? 'Add more, or mark when ready.'
-            : 'Position your page within the frame'}
-        </motion.p>
-      )}
+      {/* No instructional text - the gesture is self-explanatory */}
 
       {/* Brief-modus toggle - temporarily hidden */}
 
