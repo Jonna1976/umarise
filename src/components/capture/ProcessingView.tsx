@@ -195,16 +195,7 @@ export function ProcessingView({
                 U
               </motion.span>
             </div>
-
-            {/* The recognition statement */}
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="font-serif text-2xl sm:text-3xl text-codex-cream/80 leading-relaxed"
-            >
-              Sealing...
-            </motion.p>
+            {/* No text — the closing circle speaks for itself */}
           </motion.div>
         )}
 
