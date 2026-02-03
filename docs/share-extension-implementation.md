@@ -44,7 +44,7 @@ The app appears in the iOS Share Sheet as an **action**, not a destination.
 
 3. **Main App Sync** (Capacitor/Web)
    - On launch, checks App Group for pending items
-   - Syncs to Supabase backend
+   - Syncs to backend
    - Clears processed items
 
 ---
