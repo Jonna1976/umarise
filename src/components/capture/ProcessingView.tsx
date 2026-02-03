@@ -111,37 +111,22 @@ export function ProcessingView({
       <AnimatePresence mode="wait">
         {phase === 'pause' && (
           // PHASE 1: THE PAUSE
-          // Conscious recognition before marking
+          // Conscious recognition before marking — no artifact shown
+          // The ritual is about the ACT, not the content
           <motion.div
             key="pause"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="flex flex-col items-center text-center max-w-sm"
+            className="flex flex-col items-center text-center"
           >
-            {/* The artifact - centered, reverent */}
-            <motion.div 
-              className="relative w-64 h-48 rounded-2xl overflow-hidden shadow-2xl border border-codex-gold/20 mb-12"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-            >
-              <img
-                src={imageUrl}
-                alt="Your beginning"
-                className="w-full h-full object-cover"
-              />
-              {/* Subtle vignette overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-codex-ink-deep/30 to-transparent" />
-            </motion.div>
-
-            {/* The recognition statement */}
+            {/* The recognition statement — pure, no artifact */}
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="font-serif text-2xl text-codex-cream/90 leading-relaxed"
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="font-serif text-3xl sm:text-4xl text-codex-cream/90 leading-relaxed"
             >
               This is where it began.
             </motion.p>
