@@ -11,10 +11,9 @@ interface LivingCircleProps {
  * LivingCircle — The breathing heart of the capture interface
  * 
  * Visual elements per reference:
- * - Outer breathing ring (gold, subtle pulse)  
- * - Accent dot at gap
- * - Inner dark core with golden camera icon (iPhone-style)
- * - Breathing pulse effect
+ * - Open circle with gap on the RIGHT (~3 o'clock)
+ * - Accent dot at the gap position
+ * - Inner dark core with golden camera icon
  */
 export function LivingCircle({ isDraggingOver = false, onClick, className = '' }: LivingCircleProps) {
   return (
@@ -24,7 +23,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      {/* Outer breathing glow - the aura */}
+      {/* Outer breathing glow */}
       <motion.div
         className="absolute inset-0 rounded-full"
         animate={{
@@ -47,25 +46,21 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         }}
       />
 
-      {/* Outer gold ring - clean single line */}
+      {/* Main circle with gap on RIGHT side (~3 o'clock) */}
       <svg
         viewBox="0 0 200 200"
         className="absolute inset-0 w-full h-full"
-        style={{ filter: 'drop-shadow(0 0 15px rgba(200, 170, 100, 0.4))' }}
+        style={{ filter: 'drop-shadow(0 0 12px rgba(200, 170, 100, 0.35))' }}
       >
-        {/* The outer ring - open arc with gap at top-right */}
-        <motion.circle
-          cx="100"
-          cy="100"
-          r="95"
+        {/* Open arc - starts from bottom-right, goes almost full circle, gap at 3 o'clock */}
+        <motion.path
+          d="M 195 100 A 95 95 0 1 1 195 95"
           fill="none"
           stroke="hsl(var(--codex-gold))"
           strokeWidth="1.5"
-          strokeDasharray="580 17" // Creates the gap
-          strokeDashoffset="-40" // Positions the gap at top-right
           strokeLinecap="round"
           animate={{
-            opacity: [0.6, 0.9, 0.6],
+            opacity: [0.6, 0.85, 0.6],
           }}
           transition={{
             duration: 3,
@@ -74,15 +69,14 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           }}
         />
         
-        {/* Accent dot at the gap position */}
+        {/* Accent dot - positioned at the gap (3 o'clock, slightly above center-right) */}
         <motion.circle
-          cx="175"
-          cy="40"
-          r="5"
+          cx="195"
+          cy="97"
+          r="6"
           fill="hsl(var(--codex-gold))"
           animate={{
             opacity: [0.7, 1, 0.7],
-            r: [5, 6, 5],
           }}
           transition={{
             duration: 2,
@@ -90,24 +84,24 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
             ease: 'easeInOut',
           }}
           style={{
-            filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.8))',
+            filter: 'drop-shadow(0 0 10px rgba(200, 170, 100, 0.8))',
           }}
         />
       </svg>
 
-      {/* Inner ring - second boundary */}
+      {/* Inner subtle ring */}
       <motion.div
         className="absolute rounded-full"
         style={{
-          inset: '12px',
+          inset: '14px',
           border: '1px solid',
-          borderColor: 'hsl(var(--codex-gold) / 0.3)',
+          borderColor: 'hsl(var(--codex-gold) / 0.25)',
         }}
         animate={{
           borderColor: [
-            'hsl(var(--codex-gold) / 0.25)',
-            'hsl(var(--codex-gold) / 0.45)',
-            'hsl(var(--codex-gold) / 0.25)',
+            'hsl(var(--codex-gold) / 0.2)',
+            'hsl(var(--codex-gold) / 0.4)',
+            'hsl(var(--codex-gold) / 0.2)',
           ],
         }}
         transition={{
@@ -121,7 +115,7 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
       <motion.div
         className="absolute rounded-full overflow-hidden flex items-center justify-center"
         style={{
-          inset: '16px',
+          inset: '18px',
           background: 'radial-gradient(ellipse at center, hsl(var(--codex-ink)) 0%, hsl(var(--codex-ink-deep)) 100%)',
         }}
         animate={{
@@ -133,15 +127,15 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           ease: 'easeInOut',
         }}
       >
-        {/* Central glow - the heartbeat center */}
+        {/* Central glow */}
         <motion.div
           className="absolute inset-0 rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(200, 170, 100, 0.1) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(200, 170, 100, 0.08) 0%, transparent 60%)',
           }}
           animate={{
-            opacity: [0.3, 0.7, 0.3],
-            scale: [0.85, 1.1, 0.85],
+            opacity: [0.4, 0.8, 0.4],
+            scale: [0.9, 1.1, 0.9],
           }}
           transition={{
             duration: 3,
@@ -150,12 +144,12 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           }}
         />
 
-        {/* Camera icon - golden, iPhone-style */}
+        {/* Camera icon - golden, subtle */}
         <motion.div
           className="relative z-10"
           animate={{
-            opacity: [0.6, 0.9, 0.6],
-            scale: [0.95, 1.02, 0.95],
+            opacity: [0.5, 0.8, 0.5],
+            scale: [0.97, 1.02, 0.97],
           }}
           transition={{
             duration: 3,
@@ -164,21 +158,21 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
           }}
         >
           <Camera 
-            className="w-16 h-16 text-codex-gold" 
-            strokeWidth={1.2}
+            className="w-14 h-14 text-codex-gold" 
+            strokeWidth={1}
             style={{
-              filter: 'drop-shadow(0 0 12px rgba(200, 170, 100, 0.5))',
+              filter: 'drop-shadow(0 0 10px rgba(200, 170, 100, 0.4))',
             }}
           />
         </motion.div>
       </motion.div>
 
-      {/* Pulse rings - the breath - more prominent */}
+      {/* Pulse rings - more prominent breathing effect */}
       <motion.div
-        className="absolute inset-0 rounded-full border-2 border-codex-gold/40"
+        className="absolute inset-0 rounded-full border-2 border-codex-gold/30"
         animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.5, 0, 0.5],
+          scale: [1, 1.12, 1],
+          opacity: [0.4, 0, 0.4],
         }}
         transition={{
           duration: 2.5,
@@ -187,14 +181,14 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
         }}
       />
       <motion.div
-        className="absolute inset-0 rounded-full border border-codex-gold/25"
+        className="absolute inset-0 rounded-full border border-codex-gold/20"
         animate={{
-          scale: [1, 1.25, 1],
-          opacity: [0.4, 0, 0.4],
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0, 0.3],
         }}
         transition={{
           duration: 2.5,
-          delay: 0.8,
+          delay: 0.6,
           repeat: Infinity,
           ease: 'easeOut',
         }}
