@@ -100,7 +100,7 @@ export function ProcessingView({
       const completeTimer = setTimeout(() => {
         const cues = suggestedCues.slice(0, 3);
         onContinue(cues);
-      }, 2000); // 2.0 seconds — peaceful release
+      }, 4000); // 4.0 seconds — longer release to see the icon
       return () => clearTimeout(completeTimer);
     }
   }, [phase, onContinue, suggestedCues]);
@@ -365,37 +365,41 @@ export function ProcessingView({
               </motion.p>
             )}
 
-            {/* Subtle U-icon to view beginnings — appears during release */}
+            {/* History icon to view beginnings — appears during release, more prominent */}
             {phase === 'release' && onViewBeginnings && (
               <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 0.8, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
                 onClick={onViewBeginnings}
-                className="mt-6 p-2 rounded-full hover:opacity-80 transition-opacity"
-                aria-label="View beginnings"
+                className="mt-8 p-3 rounded-full hover:opacity-100 transition-opacity bg-codex-gold/10"
+                aria-label="View all beginnings"
               >
                 <svg 
                   viewBox="0 0 48 48" 
-                  className="w-8 h-8"
-                  style={{ filter: 'drop-shadow(0 0 6px rgba(200, 170, 100, 0.2))' }}
+                  className="w-10 h-10"
+                  style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
                 >
                   {/* Open circle with gap */}
-                  <path
-                    d="M 44 24 A 20 20 0 1 1 38 8"
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="20"
                     fill="none"
                     stroke="hsl(var(--codex-gold))"
                     strokeWidth="1.5"
-                    opacity="0.5"
+                    strokeDasharray="120 8"
+                    strokeDashoffset="-10"
                     strokeLinecap="round"
+                    opacity="0.7"
                   />
                   {/* Accent dot */}
                   <circle
-                    cx="38"
-                    cy="8"
-                    r="2"
+                    cx="40"
+                    cy="12"
+                    r="2.5"
                     fill="hsl(var(--codex-gold))"
-                    opacity="0.6"
+                    opacity="0.9"
                   />
                   <text 
                     x="24" 
@@ -404,11 +408,12 @@ export function ProcessingView({
                     fill="hsl(var(--codex-gold))"
                     fontFamily="Playfair Display, Georgia, serif"
                     fontSize="16"
-                    opacity="0.6"
+                    opacity="0.8"
                   >
                     U
                   </text>
                 </svg>
+                <span className="sr-only">View all beginnings</span>
               </motion.button>
             )}
           </motion.div>

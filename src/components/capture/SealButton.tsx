@@ -9,8 +9,8 @@ interface SealButtonProps {
   disabled?: boolean;
 }
 
-const SEAL_DURATION = 1800; // 1.8 seconds to complete the seal
-const HAPTIC_INTERVALS = [0, 400, 800, 1200, 1600]; // Building haptic feedback
+const SEAL_DURATION = 1200; // 1.2 seconds to complete the seal (faster)
+const HAPTIC_INTERVALS = [0, 300, 600, 900]; // Building haptic feedback (faster)
 
 /**
  * SealButton — A press-and-hold ritual button
