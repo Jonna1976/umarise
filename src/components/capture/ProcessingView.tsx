@@ -76,11 +76,21 @@ export function ProcessingView({
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+      {/* Headline */}
+      <motion.h1
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="text-2xl font-serif text-foreground mb-8 text-center"
+      >
+        Mark this beginning.
+      </motion.h1>
+
       {/* Certificate of Beginning */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
         className="w-full max-w-sm"
       >
         {/* Certificate Card */}
@@ -187,7 +197,7 @@ export function ProcessingView({
             disabled={!isProcessingComplete}
             className="w-full h-12 bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep font-medium text-base disabled:opacity-30"
           >
-            Done
+            Seal
           </Button>
         </motion.div>
 
