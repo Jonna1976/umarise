@@ -341,53 +341,8 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 ))}
               </AnimatePresence>
               
-              {/* Orbiting golden orbs - one per captured page */}
-              {capturedImages.map((_, index) => {
-                const totalOrbs = capturedImages.length;
-                const angle = (index / totalOrbs) * 360;
-                const orbitRadius = 120; // px from center
-                // Slight hue variation within gold range
-                const hue = 38 + (index % 5) * 3;
-                const orbOpacity = 0.7 + (index % 3) * 0.1;
-                
-                return (
-                  <motion.div
-                    key={index}
-                    className="absolute w-5 h-5 rounded-full"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ 
-                      opacity: 1, 
-                      scale: 1,
-                      rotate: [angle, angle + 360],
-                    }}
-                    transition={{
-                      opacity: { duration: 0.3 },
-                      scale: { duration: 0.3, type: 'spring' },
-                      rotate: { duration: 25, repeat: Infinity, ease: 'linear' },
-                    }}
-                    style={{
-                      transformOrigin: 'center center',
-                    }}
-                  >
-                    <motion.div
-                      className="w-5 h-5 rounded-full"
-                      style={{
-                        transform: `translateX(${orbitRadius}px)`,
-                        background: `hsl(${hue}, 75%, 55%)`,
-                        boxShadow: `0 0 12px 3px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
-                      }}
-                      animate={{
-                        boxShadow: [
-                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.6})`,
-                          `0 0 18px 6px hsla(${hue}, 75%, 55%, ${orbOpacity})`,
-                          `0 0 8px 2px hsla(${hue}, 75%, 55%, ${orbOpacity * 0.6})`,
-                        ],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  </motion.div>
-                );
-              })}
+              {/* Single subtle count indicator - no individual artifacts shown */}
+              {/* Orbiting orbs removed: showing multiple artifacts activates archiving psychology */}
               
               {/* Wrapper for hover group */}
               <div className="group/capture relative flex flex-col items-center">
@@ -633,52 +588,8 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         </div>
       )}
 
-      {/* Thumbnail strip for multi-page capture with + button */}
-      <AnimatePresence>
-        {capturedImages.length > 0 && !capturedImage && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-32 left-0 right-0 px-4 z-10"
-          >
-            <div className="flex justify-center">
-              <div className="flex gap-2 p-2 bg-codex-ink/80 backdrop-blur-md rounded-xl border border-codex-gold/20 max-w-full overflow-x-auto items-center">
-                {capturedImages.map((img, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="relative flex-shrink-0 group"
-                  >
-                    <img
-                      src={img}
-                      alt={`Page ${index + 1}`}
-                      className="w-12 h-16 object-cover rounded-md border border-codex-gold/30"
-                    />
-                    <button
-                      onClick={() => removeFromCollection(index)}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                    <span className="absolute bottom-0 right-0 bg-codex-ink/80 text-codex-gold text-[10px] px-1 rounded-tl">
-                      {index + 1}
-                    </span>
-                  </motion.div>
-                ))}
-                {/* + button to add more */}
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-12 h-16 flex-shrink-0 rounded-md border-2 border-dashed border-codex-gold/40 flex items-center justify-center hover:border-codex-gold/60 hover:bg-codex-gold/10 transition-colors"
-                >
-                  <Plus className="w-5 h-5 text-codex-gold/60" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Thumbnail strip removed: showing multiple artifacts activates archiving psychology */}
+      {/* At the moment of marking, only the current beginning exists */}
 
       {/* Bottom controls - only visible when NOT showing the zen lens view */}
       {(capturedImage || isStreaming || capturedImages.length > 0) && (
@@ -792,7 +703,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
           className="absolute bottom-28 left-0 right-0 text-center text-primary-foreground/50 text-sm"
         >
           {isMultiMode 
-            ? `${capturedImages.length} pages captured. Add more or tap Done.`
+            ? 'Add more, or mark when ready.'
             : 'Position your page within the frame'}
         </motion.p>
       )}
