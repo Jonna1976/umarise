@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/lib/haptics';
+import { Check } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
@@ -31,28 +31,34 @@ export function ProcessingView({
   capturedAt = new Date(),
 }: ProcessingViewProps) {
   const [hasCompleted, setHasCompleted] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
-  // Haptic feedback when processing completes
+  // Auto-seal: when processing completes, trigger haptic and show certificate
   useEffect(() => {
     if (isProcessingComplete && !hasCompleted) {
       triggerHaptic('success');
       setHasCompleted(true);
+      // Brief pause before revealing the sealed certificate
+      setTimeout(() => setShowCertificate(true), 300);
     }
   }, [isProcessingComplete, hasCompleted]);
 
   // Reset state when a new image starts processing
   useEffect(() => {
     setHasCompleted(false);
+    setShowCertificate(false);
   }, [imageUrl]);
 
-  const handleDone = () => {
-    triggerHaptic('medium');
-    // Pass AI-suggested cues silently (user never sees them)
-    const cues = suggestedCues.slice(0, 3);
-    if (onContinue) {
-      onContinue(cues);
+  // Auto-dismiss after showing certificate (let it breathe, then move on)
+  useEffect(() => {
+    if (showCertificate && onContinue) {
+      const timer = setTimeout(() => {
+        const cues = suggestedCues.slice(0, 3);
+        onContinue(cues);
+      }, 2500); // 2.5 seconds to appreciate, then auto-continue
+      return () => clearTimeout(timer);
     }
-  };
+  }, [showCertificate, onContinue, suggestedCues]);
 
   // Format timestamp for display
   const formatTimestamp = (date: Date) => {
@@ -74,145 +80,169 @@ export function ProcessingView({
 
   const displayHash = formatHash(originHash);
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-      {/* Headline */}
-      <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="text-2xl font-serif text-foreground mb-8 text-center"
-      >
-        Mark this beginning.
-      </motion.h1>
+  // Tap anywhere to dismiss early (Ording: direct manipulation)
+  const handleTapToDismiss = () => {
+    if (showCertificate && onContinue) {
+      triggerHaptic('light');
+      const cues = suggestedCues.slice(0, 3);
+      onContinue(cues);
+    }
+  };
 
-      {/* Certificate of Beginning */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-        className="w-full max-w-sm"
-      >
-        {/* Certificate Card */}
-        <div className="bg-secondary/40 rounded-2xl p-8 border border-border/20">
-          {/* Thumbnail */}
-          <motion.div 
-            className="flex justify-center mb-6"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
+  return (
+    <motion.div 
+      className="min-h-screen bg-background flex flex-col items-center justify-center p-6 cursor-pointer"
+      onClick={handleTapToDismiss}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <AnimatePresence mode="wait">
+        {!showCertificate ? (
+          // Processing state - focusing on the artifact
+          <motion.div
+            key="processing"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="flex flex-col items-center"
           >
+            {/* Large artifact display - proud, prominent */}
             <motion.div 
-              className="relative w-32 h-24 rounded-lg overflow-hidden shadow-lg"
-              animate={isProcessingComplete ? {
+              className="relative w-72 h-56 rounded-2xl overflow-hidden shadow-2xl border-2 border-border/30"
+              animate={{ 
                 boxShadow: [
-                  '0 0 0 0 rgba(212, 175, 55, 0)',
-                  '0 0 0 4px rgba(212, 175, 55, 0.5)',
-                  '0 0 0 4px rgba(212, 175, 55, 0.3)',
+                  '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                  '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                  '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
                 ]
-              } : {}}
-              transition={{ duration: 1, ease: 'easeOut' }}
-              style={isProcessingComplete ? { 
-                border: '2px solid hsl(var(--codex-gold))',
-              } : {
-                border: '2px solid hsl(var(--border))',
               }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
               <img
                 src={imageUrl}
-                alt="Origin"
+                alt="Your beginning"
                 className="w-full h-full object-cover"
               />
               {/* Multi-page indicator */}
               {totalImages > 1 && (
-                <div className="absolute top-1 right-1 bg-codex-gold text-codex-ink text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                <div className="absolute top-3 right-3 bg-codex-gold text-codex-ink text-xs font-bold px-2 py-1 rounded-full">
                   {totalImages}
                 </div>
               )}
             </motion.div>
+
+            {/* Gentle processing indicator */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="mt-8 text-foreground/50 text-sm tracking-wide"
+            >
+              Marking this moment...
+            </motion.p>
           </motion.div>
-
-          {/* Divider */}
-          <div className="border-t border-border/30 mb-6" />
-
-          {/* Origin Status */}
+        ) : (
+          // Sealed certificate - the ritual completion
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-center"
+            key="certificate"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="flex flex-col items-center max-w-sm w-full"
           >
-            {isProcessingComplete ? (
-              <>
-                <p className="text-codex-gold font-serif text-xl font-medium mb-2">
-                  Origin marked
+            {/* The Certificate */}
+            <motion.div 
+              className="w-full bg-gradient-to-b from-codex-cream/60 to-secondary/40 rounded-3xl p-8 border border-codex-gold/30 shadow-xl"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+            >
+              {/* Seal mark at top */}
+              <motion.div 
+                className="flex justify-center mb-6"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.4, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+              >
+                <div className="w-12 h-12 rounded-full bg-codex-gold/20 border-2 border-codex-gold flex items-center justify-center">
+                  <Check className="w-6 h-6 text-codex-gold" strokeWidth={3} />
+                </div>
+              </motion.div>
+
+              {/* Large, proud artifact */}
+              <motion.div 
+                className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg border-2 border-codex-gold/40 mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <img
+                  src={imageUrl}
+                  alt="Your beginning"
+                  className="w-full h-full object-cover"
+                />
+                {totalImages > 1 && (
+                  <div className="absolute top-2 right-2 bg-codex-gold text-codex-ink text-xs font-bold px-2 py-0.5 rounded-full">
+                    {totalImages}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Certificate text */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-center"
+              >
+                <p className="text-codex-gold font-serif text-2xl font-medium mb-2">
+                  Marked
                 </p>
                 <p className="text-foreground/60 text-sm mb-4">
                   {formatTimestamp(capturedAt)}
                 </p>
-              </>
-            ) : (
-              <>
-                <motion.p
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  className="text-foreground/60 font-serif text-xl mb-2"
-                >
-                  Marking...
-                </motion.p>
-                <p className="text-foreground/40 text-sm mb-4">
-                  This moment is being acknowledged
-                </p>
-              </>
-            )}
 
-            {/* Fingerprint */}
-            {isProcessingComplete && displayHash && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <div className="border-t border-border/30 pt-4 mt-2" />
-                <p className="text-foreground/40 text-xs font-mono tracking-wide">
-                  {displayHash}
-                </p>
-                <p className="text-foreground/30 text-[10px] mt-1">
-                  fingerprint
-                </p>
+                {/* Fingerprint */}
+                {displayHash && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.7 }}
+                    className="pt-4 border-t border-border/30"
+                  >
+                    <p className="text-foreground/30 text-xs font-mono tracking-wider">
+                      {displayHash}
+                    </p>
+                  </motion.div>
+                )}
               </motion.div>
+            </motion.div>
+
+            {/* Subtle tap hint */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              transition={{ delay: 1.5 }}
+              className="mt-6 text-foreground/40 text-xs"
+            >
+              tap to continue
+            </motion.p>
+
+            {/* Multi-page progress */}
+            {totalImages > 1 && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="mt-4 text-foreground/40 text-xs"
+              >
+                {completedCount} of {totalImages} marked
+              </motion.p>
             )}
           </motion.div>
-        </div>
-
-        {/* Done Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isProcessingComplete ? 1 : 0.3 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8"
-        >
-          <Button
-            onClick={handleDone}
-            disabled={!isProcessingComplete}
-            className="w-full h-12 bg-codex-gold hover:bg-codex-gold/90 text-codex-ink-deep font-medium text-base disabled:opacity-30"
-          >
-            Seal
-          </Button>
-        </motion.div>
-
-        {/* Multi-page progress */}
-        {totalImages > 1 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center text-foreground/40 text-xs mt-4"
-          >
-            {completedCount} of {totalImages} marked
-          </motion.p>
         )}
-      </motion.div>
-    </div>
+      </AnimatePresence>
+    </motion.div>
   );
 }
