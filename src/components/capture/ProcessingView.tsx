@@ -12,6 +12,7 @@ interface ProcessingViewProps {
   onContinue?: (cues: string[]) => void;
   onViewBeginnings?: () => void; // Navigate to beginnings/history
   suggestedCues?: string[];
+  originId?: string; // The unique origin identifier (page.id)
   originHash?: string;
   capturedAt?: Date;
 }
@@ -36,6 +37,7 @@ export function ProcessingView({
   onContinue,
   onViewBeginnings,
   suggestedCues = [],
+  originId,
   originHash,
   capturedAt = new Date(),
 }: ProcessingViewProps) {
@@ -109,7 +111,14 @@ export function ProcessingView({
     return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
   };
 
+  // Format origin ID for display (first 8 chars)
+  const formatOriginId = (id: string | undefined) => {
+    if (!id || id.length < 8) return null;
+    return id.slice(0, 8).toUpperCase();
+  };
+
   const displayHash = formatHash(originHash);
+  const displayOriginId = formatOriginId(originId);
 
   return (
     <motion.div 
@@ -255,8 +264,15 @@ export function ProcessingView({
                   Beginning #{(currentPageCount || 0) + 1}
                 </p>
                 
+                {/* Origin ID */}
+                {displayOriginId && (
+                  <p className="text-codex-cream/50 font-mono text-xs mt-4 tracking-widest">
+                    ORIGIN {displayOriginId}
+                  </p>
+                )}
+
                 {/* Timestamp */}
-                <p className="text-codex-cream/40 text-sm mt-3">
+                <p className="text-codex-cream/40 text-sm mt-2">
                   {formatTimestamp(capturedAt)}
                 </p>
               </motion.div>
