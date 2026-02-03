@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/lib/haptics';
-import { Check } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
@@ -158,15 +157,17 @@ export function ProcessingView({
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
             >
-              {/* Seal mark at top */}
+              {/* U stamp mark at top */}
               <motion.div 
                 className="flex justify-center mb-6"
-                initial={{ scale: 0, rotate: -180 }}
+                initial={{ scale: 0, rotate: -15 }}
                 animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.4, duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+                transition={{ delay: 0.4, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
               >
-                <div className="w-12 h-12 rounded-full bg-codex-gold/20 border-2 border-codex-gold flex items-center justify-center">
-                  <Check className="w-6 h-6 text-codex-gold" strokeWidth={3} />
+                <div className="w-14 h-14 rounded-full bg-codex-gold/15 border-2 border-codex-gold/60 flex items-center justify-center shadow-inner">
+                  <span className="font-serif text-3xl font-semibold text-codex-gold select-none" style={{ letterSpacing: '-0.02em' }}>
+                    U
+                  </span>
                 </div>
               </motion.div>
 
