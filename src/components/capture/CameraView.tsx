@@ -1,11 +1,12 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, Plus, Images, Search, Library, Link2 } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, Plus, Images } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
-import { DeviceSyncDrawer } from '@/components/dev/DeviceSyncDrawer';
+import { LivingCircle } from './LivingCircle';
+import { SealButton } from './SealButton';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
@@ -286,276 +287,68 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
             </div>
           </div>
         ) : (
-          // Zero UI: Glowing portal upload circle
+          // Living Circle interface — the breathing portal
           <motion.div
             ref={dropZoneRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center p-8 relative group"
+            className="flex-1 flex flex-col items-center justify-center relative"
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            {/* Phase 0: No copy, no explanation — pure instinct */}
-            {/* Meaning arrives only in Phase 1 (Pause) after the action */}
-            
-            {/* Container for circle + orbiting orbs - large enough for orbit radius */}
-            <div className="relative w-80 h-80 mx-auto flex items-center justify-center overflow-visible">
-              
-              {/* Absorbing file animation */}
-              <AnimatePresence>
-                {absorbingFiles.map((file) => (
-                  <motion.div
-                    key={file.id}
-                    className="absolute w-6 h-6 rounded-full bg-codex-gold/80"
-                    initial={{ 
-                      x: file.x, 
-                      y: file.y, 
-                      scale: 1.5, 
-                      opacity: 1 
-                    }}
-                    animate={{ 
-                      x: 0, 
-                      y: 0, 
-                      scale: 0, 
-                      opacity: 0 
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ 
-                      duration: 0.5, 
-                      ease: [0.32, 0, 0.67, 0] 
-                    }}
-                    style={{
-                      boxShadow: '0 0 20px 8px rgba(255, 180, 50, 0.6)',
-                    }}
-                  />
-                ))}
-              </AnimatePresence>
-              
-              {/* Single subtle count indicator - no individual artifacts shown */}
-              {/* Orbiting orbs removed: showing multiple artifacts activates archiving psychology */}
-              
-              {/* Wrapper for hover group */}
-              <div className="group/capture relative flex flex-col items-center">
-              {/* Glowing portal circle - living organism */}
-              <motion.button
-                onClick={() => {
-                  markHintShown();
-                  fileInputRef.current?.click();
-                }}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
-                className="relative w-44 h-44 rounded-full flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            {/* Absorbing file animation */}
+            <AnimatePresence>
+              {absorbingFiles.map((file) => (
+                <motion.div
+                  key={file.id}
+                  className="absolute w-6 h-6 rounded-full bg-codex-gold/80 z-20"
+                  initial={{ 
+                    x: file.x, 
+                    y: file.y, 
+                    scale: 1.5, 
+                    opacity: 1 
+                  }}
+                  animate={{ 
+                    x: 0, 
+                    y: 0, 
+                    scale: 0, 
+                    opacity: 0 
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    ease: [0.32, 0, 0.67, 0] 
+                  }}
+                  style={{
+                    boxShadow: '0 0 20px 8px rgba(255, 180, 50, 0.6)',
+                  }}
+                />
+              ))}
+            </AnimatePresence>
+
+            {/* The Living Circle — tap to upload */}
+            <LivingCircle
+              isDraggingOver={isDraggingOver}
+              onClick={() => {
+                markHintShown();
+                fileInputRef.current?.click();
+              }}
+            />
+
+            {/* Seal Button — press and hold to confirm */}
+            {capturedImages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-12"
               >
-                {/* Outer breathing glow */}
-                <motion.div 
-                  className="absolute inset-0 rounded-full"
-                  animate={{
-                    boxShadow: isDraggingOver 
-                      ? [
-                          '0 0 60px 30px rgba(255, 180, 50, 0.4)',
-                          '0 0 80px 40px rgba(255, 180, 50, 0.6)',
-                          '0 0 60px 30px rgba(255, 180, 50, 0.4)',
-                        ]
-                      : [
-                          '0 0 40px 20px rgba(255, 180, 50, 0.2)',
-                          '0 0 60px 30px rgba(255, 180, 50, 0.35)',
-                          '0 0 40px 20px rgba(255, 180, 50, 0.2)',
-                        ],
-                  }}
-                  transition={{
-                    duration: isDraggingOver ? 1.5 : 3,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
+                <SealButton
+                  count={capturedImages.length}
+                  onSeal={confirmMultiCapture}
                 />
-                
-                {/* Main glowing ring */}
-                <motion.div
-                  className="absolute inset-4 rounded-full"
-                  style={{
-                    border: '3px solid transparent',
-                    background: `linear-gradient(#0a0a0a, #0a0a0a) padding-box, 
-                               linear-gradient(135deg, rgba(255, 200, 100, 0.95), rgba(255, 150, 50, 0.7), rgba(255, 200, 100, 0.95)) border-box`,
-                  }}
-                  animate={{
-                    boxShadow: isDraggingOver 
-                      ? [
-                          '0 0 30px 10px rgba(255, 180, 50, 0.5), inset 0 0 40px rgba(255, 180, 50, 0.15)',
-                          '0 0 50px 15px rgba(255, 180, 50, 0.7), inset 0 0 60px rgba(255, 180, 50, 0.25)',
-                          '0 0 30px 10px rgba(255, 180, 50, 0.5), inset 0 0 40px rgba(255, 180, 50, 0.15)',
-                        ]
-                      : [
-                          '0 0 20px 8px rgba(255, 180, 50, 0.25), inset 0 0 30px rgba(255, 180, 50, 0.08)',
-                          '0 0 35px 12px rgba(255, 180, 50, 0.4), inset 0 0 50px rgba(255, 180, 50, 0.15)',
-                          '0 0 20px 8px rgba(255, 180, 50, 0.25), inset 0 0 30px rgba(255, 180, 50, 0.08)',
-                        ],
-                  }}
-                  transition={{
-                    duration: isDraggingOver ? 1.2 : 2.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                />
-                
-                {/* Pulsing black core with starfield - the "living organism" */}
-                <motion.div
-                  className="absolute inset-6 rounded-full overflow-hidden"
-                  style={{
-                    background: 'radial-gradient(ellipse at center, #0a0a12 0%, #000005 100%)',
-                  }}
-                  animate={{
-                    scale: isDraggingOver ? [1, 0.92, 1] : [1, 0.96, 1],
-                  }}
-                  transition={{
-                    duration: isDraggingOver ? 0.8 : 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                >
-                  {/* Starfield - tiny dots that slowly drift toward center */}
-                  {Array.from({ length: 30 }).map((_, i) => {
-                    const angle = (i / 30) * 360;
-                    const distance = 35 + (i % 5) * 8;
-                    const size = 1 + (i % 3) * 0.5;
-                    const opacity = 0.3 + (i % 4) * 0.15;
-                    const duration = 3 + (i % 4) * 1.5;
-                    
-                    return (
-                      <motion.div
-                        key={i}
-                        className="absolute rounded-full"
-                        style={{
-                          width: size,
-                          height: size,
-                          background: `rgba(255, ${200 + (i % 3) * 20}, ${150 + (i % 5) * 20}, ${opacity})`,
-                          left: '50%',
-                          top: '50%',
-                          boxShadow: `0 0 ${size * 2}px rgba(255, 200, 100, ${opacity * 0.5})`,
-                        }}
-                        animate={{
-                          x: [
-                            Math.cos((angle * Math.PI) / 180) * distance,
-                            0,
-                          ],
-                          y: [
-                            Math.sin((angle * Math.PI) / 180) * distance,
-                            0,
-                          ],
-                          opacity: [opacity, 0],
-                          scale: [1, 0],
-                        }}
-                        transition={{
-                          duration: isDraggingOver ? duration * 0.4 : duration,
-                          repeat: Infinity,
-                          delay: (i % 8) * 0.3,
-                          ease: 'easeIn',
-                        }}
-                      />
-                    );
-                  })}
-                  
-                  {/* Central glow - the "event horizon" */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      background: 'radial-gradient(circle, rgba(255, 180, 50, 0.12) 0%, transparent 50%)',
-                    }}
-                    animate={{
-                      opacity: isDraggingOver ? [0.5, 1, 0.5] : [0.3, 0.6, 0.3],
-                      scale: isDraggingOver ? [0.8, 1.1, 0.8] : [0.9, 1.05, 0.9],
-                    }}
-                    transition={{
-                      duration: isDraggingOver ? 0.6 : 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                  
-                  {/* Inner glow ring */}
-                  <motion.div
-                    className="absolute inset-2 rounded-full"
-                    style={{
-                      boxShadow: 'inset 0 0 30px 10px rgba(255, 180, 50, 0.08)',
-                    }}
-                    animate={{
-                      boxShadow: isDraggingOver 
-                        ? [
-                            'inset 0 0 30px 10px rgba(255, 180, 50, 0.12)',
-                            'inset 0 0 50px 20px rgba(255, 180, 50, 0.2)',
-                            'inset 0 0 30px 10px rgba(255, 180, 50, 0.12)',
-                          ]
-                        : [
-                            'inset 0 0 20px 8px rgba(255, 180, 50, 0.05)',
-                            'inset 0 0 40px 15px rgba(255, 180, 50, 0.1)',
-                            'inset 0 0 20px 8px rgba(255, 180, 50, 0.05)',
-                          ],
-                    }}
-                    transition={{
-                      duration: isDraggingOver ? 0.8 : 2.5,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
-                  />
-                  
-                  {/* Camera icon - visible on hover (desktop) or first visit (mobile) */}
-                  <AnimatePresence>
-                    {(isHovering || isFirstVisit || isDraggingOver) && (
-                      <motion.div
-                        className="absolute inset-0 flex items-center justify-center"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Camera 
-                          className="w-10 h-10 text-codex-gold/70" 
-                          strokeWidth={1.5} 
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-                
-                {/* Sucking ripple effect - always visible, faster when dragging */}
-                <motion.div
-                  className="absolute inset-1 rounded-full border border-codex-gold/30"
-                  animate={{
-                    scale: [1.3, 1],
-                    opacity: [0, 0.6, 0],
-                  }}
-                  transition={{
-                    duration: isDraggingOver ? 0.8 : 2,
-                    repeat: Infinity,
-                    ease: 'easeOut',
-                  }}
-                />
-                <motion.div
-                  className="absolute inset-0 rounded-full border border-codex-gold/20"
-                  animate={{
-                    scale: [1.5, 1],
-                    opacity: [0, 0.4, 0],
-                  }}
-                  transition={{
-                    duration: isDraggingOver ? 0.8 : 2,
-                    delay: isDraggingOver ? 0.3 : 0.8,
-                    repeat: Infinity,
-                    ease: 'easeOut',
-                  }}
-                />
-              </motion.button>
-              
-              {/* Mobile: page count only when capturing */}
-              {capturedImages.length > 0 && (
-                <p className="md:hidden mt-6 text-center font-handwritten text-primary-foreground/60 text-xl">
-                  {capturedImages.length} {capturedImages.length === 1 ? 'page' : 'pages'}
-                </p>
-              )}
-              {/* Desktop: no explanatory text - the portal speaks for itself */}
-              </div>
-            </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </div>
@@ -624,10 +417,11 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
       {/* Thumbnail strip removed: showing multiple artifacts activates archiving psychology */}
       {/* At the moment of marking, only the current beginning exists */}
 
-      {/* Bottom controls - only visible when NOT showing the zen lens view */}
-      {(capturedImage || isStreaming || capturedImages.length > 0) && (
+      {/* Bottom controls - only visible when camera/preview mode */}
+      {(capturedImage || isStreaming) && (
         <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center">
           {capturedImage ? (
+            // Preview mode: retake, add more, or seal
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -653,21 +447,14 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
                 Add more
               </Button>
               
-              <Button
-                onClick={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
-                variant="capture"
-                size="capture"
-                className="bg-codex-gold hover:bg-codex-gold/90 relative"
-              >
-                <Check className="w-7 h-7" strokeWidth={2} />
-                {isMultiMode && (
-                  <span className="absolute -top-1 -right-1 bg-primary-foreground text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                    {capturedImages.length + 1}
-                  </span>
-                )}
-              </Button>
+              {/* Seal button for single/multi capture */}
+              <SealButton
+                count={isMultiMode ? capturedImages.length + 1 : 1}
+                onSeal={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
+              />
             </motion.div>
           ) : isStreaming ? (
+            // Camera mode: capture button
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -695,33 +482,11 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               </Button>
               
               {isMultiMode && (
-                <Button
-                  onClick={confirmMultiCapture}
-                  variant="soft"
-                  size="lg"
-                  className="bg-codex-gold/20 text-codex-gold hover:bg-codex-gold/30"
-                >
-                  <Check className="w-5 h-5 mr-2" />
-                  Done ({capturedImages.length})
-                </Button>
+                <SealButton
+                  count={capturedImages.length}
+                  onSeal={confirmMultiCapture}
+                />
               )}
-            </motion.div>
-          ) : isMultiMode ? (
-            // When in multi-mode but no camera, show confirm button
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-4"
-            >
-              <Button
-                onClick={confirmMultiCapture}
-                variant="capture"
-                size="capture"
-                className="bg-codex-gold hover:bg-codex-gold/90"
-              >
-                <Check className="w-7 h-7" strokeWidth={2} />
-                <span className="ml-2">{capturedImages.length}</span>
-              </Button>
             </motion.div>
           ) : null}
         </div>
