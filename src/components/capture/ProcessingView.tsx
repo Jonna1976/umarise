@@ -10,6 +10,7 @@ interface ProcessingViewProps {
   currentPageCount?: number;
   isProcessingComplete?: boolean;
   onContinue?: (cues: string[]) => void;
+  onViewBeginnings?: () => void; // Navigate to beginnings/history
   suggestedCues?: string[];
   originHash?: string;
   capturedAt?: Date;
@@ -33,6 +34,7 @@ export function ProcessingView({
   currentPageCount = 0,
   isProcessingComplete = false,
   onContinue,
+  onViewBeginnings,
   suggestedCues = [],
   originHash,
   capturedAt = new Date(),
@@ -258,22 +260,30 @@ export function ProcessingView({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.12, ease: 'easeOut' }}
               >
-                {/* Elegant CLOSED circle with U — fully sealed */}
+                {/* Elegant OPEN circle with U — like the reference with gap + accent dot */}
                 <div className="relative w-28 h-28 flex items-center justify-center">
-                  {/* The circle — fully closed, elegant stroke */}
+                  {/* The circle — open with gap and accent dot */}
                   <svg 
                     viewBox="0 0 100 100" 
                     className="absolute inset-0 w-full h-full"
                     style={{ filter: 'drop-shadow(0 0 25px rgba(200, 170, 100, 0.35))' }}
                   >
-                    <circle 
-                      cx="50" 
-                      cy="50" 
-                      r="44" 
-                      fill="none" 
-                      stroke="hsl(var(--codex-gold))" 
+                    {/* Open arc - starting from right, going almost full circle */}
+                    <path
+                      d="M 94 50 A 44 44 0 1 1 82 18"
+                      fill="none"
+                      stroke="hsl(var(--codex-gold))"
                       strokeWidth="1.5"
                       opacity="0.75"
+                      strokeLinecap="round"
+                    />
+                    {/* Accent dot at the end of the arc */}
+                    <circle
+                      cx="82"
+                      cy="18"
+                      r="3"
+                      fill="hsl(var(--codex-gold))"
+                      opacity="0.9"
                     />
                   </svg>
                   {/* The U — elegant serif, centered */}
@@ -353,6 +363,53 @@ export function ProcessingView({
               >
                 {completedCount} of {totalImages} marked
               </motion.p>
+            )}
+
+            {/* Subtle U-icon to view beginnings — appears during release */}
+            {phase === 'release' && onViewBeginnings && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                onClick={onViewBeginnings}
+                className="mt-6 p-2 rounded-full hover:opacity-80 transition-opacity"
+                aria-label="View beginnings"
+              >
+                <svg 
+                  viewBox="0 0 48 48" 
+                  className="w-8 h-8"
+                  style={{ filter: 'drop-shadow(0 0 6px rgba(200, 170, 100, 0.2))' }}
+                >
+                  {/* Open circle with gap */}
+                  <path
+                    d="M 44 24 A 20 20 0 1 1 38 8"
+                    fill="none"
+                    stroke="hsl(var(--codex-gold))"
+                    strokeWidth="1.5"
+                    opacity="0.5"
+                    strokeLinecap="round"
+                  />
+                  {/* Accent dot */}
+                  <circle
+                    cx="38"
+                    cy="8"
+                    r="2"
+                    fill="hsl(var(--codex-gold))"
+                    opacity="0.6"
+                  />
+                  <text 
+                    x="24" 
+                    y="30" 
+                    textAnchor="middle" 
+                    fill="hsl(var(--codex-gold))"
+                    fontFamily="Playfair Display, Georgia, serif"
+                    fontSize="16"
+                    opacity="0.6"
+                  >
+                    U
+                  </text>
+                </svg>
+              </motion.button>
             )}
           </motion.div>
         )}
