@@ -42,40 +42,21 @@ export function ProcessingView({
   // Three ritual phases
   type RitualPhase = 'pause' | 'mark' | 'release';
   const [phase, setPhase] = useState<RitualPhase>('pause');
-  const [sealProgress, setSealProgress] = useState(0); // 0-100 for circle closing animation
 
   // Phase 1 → 2: After pause, show the certificate
-  // PAUSE = Sealing ritual — golden circle closes with building haptics
+  // PAUSE = Simple recognition moment with text + pulsing dot
   useEffect(() => {
     if (phase === 'pause' && isProcessingComplete) {
-      // Building haptics during the sealing process
-      const hapticSequence = [
-        { delay: 400, style: 'light' as const },
-        { delay: 800, style: 'light' as const },
-        { delay: 1200, style: 'medium' as const },
-        { delay: 1600, style: 'medium' as const },
-        { delay: 2000, style: 'heavy' as const }, // Final thud as seal closes
-      ];
-      
-      const hapticTimers = hapticSequence.map(({ delay, style }) => 
-        setTimeout(() => triggerHaptic(style), delay)
-      );
-      
-      // Animate seal progress
-      const progressInterval = setInterval(() => {
-        setSealProgress(prev => Math.min(prev + 4.5, 100));
-      }, 100);
+      // Simple haptic at the end of pause
+      const hapticTimer = setTimeout(() => triggerHaptic('medium'), 2000);
 
       const pauseTimer = setTimeout(() => {
-        clearInterval(progressInterval);
-        setSealProgress(100);
         setPhase('mark');
-      }, 2400); // 2.4 seconds — sealing complete
+      }, 2400); // 2.4 seconds — pause complete
       
       return () => {
         clearTimeout(pauseTimer);
-        clearInterval(progressInterval);
-        hapticTimers.forEach(t => clearTimeout(t));
+        clearTimeout(hapticTimer);
       };
     }
   }, [phase, isProcessingComplete]);
@@ -100,7 +81,7 @@ export function ProcessingView({
       const completeTimer = setTimeout(() => {
         const cues = suggestedCues.slice(0, 3);
         onContinue(cues);
-      }, 4000); // 4.0 seconds — longer release to see the icon
+      }, 5000); // 5.0 seconds — longer release to see the history icon
       return () => clearTimeout(completeTimer);
     }
   }, [phase, onContinue, suggestedCues]);
@@ -139,9 +120,8 @@ export function ProcessingView({
     >
       <AnimatePresence mode="wait">
         {phase === 'pause' && (
-          // PHASE 1: THE SEALING RITUAL
-          // Golden circle closes around the U — building haptics create anticipation
-          // The ritual is about the ACT of securing, not the content
+          // PHASE 1: PAUSE — Only text + pulsing dot, no U animation
+          // Simple recognition moment before the mark
           <motion.div
             key="pause"
             initial={{ opacity: 0 }}
@@ -150,77 +130,37 @@ export function ProcessingView({
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="flex flex-col items-center text-center"
           >
-            {/* The sealing circle — closes as progress builds */}
-            <div className="relative w-32 h-32 flex items-center justify-center mb-8">
-              <svg 
-                viewBox="0 0 100 100" 
-                className="absolute inset-0 w-full h-full"
-                style={{ 
-                  filter: 'drop-shadow(0 0 25px rgba(200, 170, 100, 0.4))',
-                  transform: 'rotate(-90deg)' // Start from top
-                }}
-              >
-                {/* Background circle (faint) */}
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="44" 
-                  fill="none" 
-                  stroke="hsl(var(--codex-gold))" 
-                  strokeWidth="2"
-                  opacity="0.15"
-                />
-                {/* Closing circle — progress-based */}
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="44" 
-                  fill="none" 
-                  stroke="hsl(var(--codex-gold))" 
-                  strokeWidth="2"
-                  opacity="0.8"
-                  strokeDasharray={`${2 * Math.PI * 44}`}
-                  strokeDashoffset={`${2 * Math.PI * 44 * (1 - sealProgress / 100)}`}
-                  strokeLinecap="round"
-                  style={{ transition: 'stroke-dashoffset 0.1s ease-out' }}
-                />
-              </svg>
-              {/* The U — grows slightly as seal completes */}
-              <motion.span 
-                className="font-serif text-5xl text-codex-gold select-none relative z-10"
-                animate={{ 
-                  scale: 1 + (sealProgress / 100) * 0.1,
-                  opacity: 0.6 + (sealProgress / 100) * 0.4
-                }}
-                style={{ fontWeight: 400 }}
-              >
-                U
-              </motion.span>
-            </div>
-
-            {/* The recognition statement + pulsating dot */}
-            <motion.div
+            {/* The recognition statement */}
+            <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="flex items-center gap-3"
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="font-serif text-2xl sm:text-3xl text-codex-cream/80 leading-relaxed mb-8"
             >
-              {/* Pulsating dot */}
+              This is where it began
+            </motion.p>
+
+            {/* Pulsating dot below text */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+            >
               <motion.div
-                className="w-3 h-3 rounded-full bg-codex-gold"
+                className="w-4 h-4 rounded-full bg-codex-gold"
                 animate={{ 
-                  scale: [1, 1.3, 1],
+                  scale: [1, 1.4, 1],
                   opacity: [0.6, 1, 0.6]
                 }}
                 transition={{ 
-                  duration: 1.2,
+                  duration: 1.5,
                   repeat: Infinity,
                   ease: 'easeInOut'
                 }}
+                style={{
+                  boxShadow: '0 0 20px 8px rgba(200, 170, 100, 0.3)',
+                }}
               />
-              <p className="font-serif text-xl sm:text-2xl text-codex-cream/80 leading-relaxed">
-                This is where it began
-              </p>
             </motion.div>
           </motion.div>
         )}
