@@ -224,10 +224,9 @@ const Index = () => {
     }
   }, [addToCapsule, targetCapsuleId]);
 
-  // Handle opening search
+  // Handle opening search - skip search and go directly to history (search UI hidden per strategy)
   const handleOpenSearch = useCallback(() => {
-    setInitialSearchQuery(null); // Clear any previous query
-    setView('search');
+    setView('history');
   }, []);
 
   // Handle search with a specific cue (clicking on a cue word)
@@ -404,6 +403,7 @@ const Index = () => {
             currentPageCount={pages.length}
             isProcessingComplete={isProcessingComplete}
             onContinue={handleProcessingContinue}
+            onViewBeginnings={handleOpenHistory}
             suggestedCues={aiSuggestedCues}
             originHash={pendingPagesToCue?.[0]?.originHashSha256 || undefined}
             capturedAt={pendingPagesToCue?.[0]?.createdAt || new Date()}
