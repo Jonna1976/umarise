@@ -130,101 +130,29 @@ const Index = () => {
     }
   }, [createPage]);
 
-  // Handle user confirming cues in ProcessingView
+  // Handle ritual completion — the beginning is marked, return to readiness
+  // Per doctrine: "The app should disappear the moment it succeeds."
+  // No snapshot review, no history navigation — just silent return to capture state
   const handleProcessingContinue = useCallback(async (userCues: string[]) => {
-    if (!pendingPagesToCue || pendingPagesToCue.length === 0) return;
+    // Clean up processing state and return to camera
+    // The ritual is complete — the beginning is marked
+    setCapturedImage(null);
+    setCapturedImages([]);
+    setPendingPagesToCue(null);
+    setIsProcessingComplete(false);
+    setTargetCapsuleId(null);
+    setCurrentPage(null);
+    setIsNewCapture(false);
+    
+    // Silent return to capture readiness
+    setView('camera');
+    
+    // Refresh pages in background (latent optionality — data persists, but user doesn't see it)
+    refresh();
+  }, [refresh]);
 
-    const normalized = userCues
-      .map(c => c.trim())
-      .filter(Boolean)
-      .slice(0, 5);
-    const uniqueCues = Array.from(new Set(normalized)).slice(0, 5);
-
-    if (uniqueCues.length === 0) return;
-
-    try {
-      const saves = await Promise.all(
-        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, uniqueCues, true))
-      );
-
-      if (!saves.every(Boolean)) {
-        toast.error('Failed to save your cues. Please try again.');
-        return;
-      }
-
-      // Refresh from server to get the authoritative data (ensures cues are persisted)
-      await refresh();
-
-      // Find the updated page from refreshed data
-      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
-
-      // Open snapshot for the first page in this processing batch
-      setCurrentPage(updatedPages[0]);
-      setSuggestedCues(uniqueCues);
-      setIsNewCapture(true);
-      setView('snapshot');
-
-      // Clean up processing state
-      setCapturedImage(null);
-      setCapturedImages([]);
-      setPendingPagesToCue(null);
-      setIsProcessingComplete(false);
-      setTargetCapsuleId(null);
-    } catch (e) {
-      console.error('[Index] Failed to confirm cues:', e);
-      toast.error('Failed to save your cues. Please try again.');
-    }
-  }, [pendingPagesToCue, updatePage]);
-
-  // Handle skip to codex (for heavy writers - bypass snapshot review)
-  const handleSkipToCodex = useCallback(async (userCues: string[]) => {
-    if (!pendingPagesToCue || pendingPagesToCue.length === 0) return;
-
-    const normalized = userCues
-      .map(c => c.trim())
-      .filter(Boolean)
-      .slice(0, 5);
-    const uniqueCues = Array.from(new Set(normalized)).slice(0, 5);
-
-    if (uniqueCues.length === 0) return;
-
-    try {
-      const saves = await Promise.all(
-        pendingPagesToCue.map(p => confirmFutureYouCues(p.id, uniqueCues, true))
-      );
-
-      if (!saves.every(Boolean)) {
-        toast.error('Failed to save your cues. Please try again.');
-        return;
-      }
-
-      // Update local cache
-      const updatedPages = pendingPagesToCue.map(p => ({ ...p, futureYouCues: uniqueCues }));
-      updatedPages.forEach(p => updatePage(p));
-
-      // Highlight the first new page in history
-      setHighlightPageId(updatedPages[0].id);
-      setTimeout(() => setHighlightPageId(null), 5000);
-
-      // Go directly to history/codex
-      await refresh();
-      setView('history');
-
-      // Clean up processing state
-      setCapturedImage(null);
-      setCapturedImages([]);
-      setPendingPagesToCue(null);
-      setIsProcessingComplete(false);
-      setTargetCapsuleId(null);
-      setCurrentPage(null);
-      setIsNewCapture(false);
-
-      toast.success(`${updatedPages.length} ${updatedPages.length === 1 ? 'page' : 'pages'} added to Memory`);
-    } catch (e) {
-      console.error('[Index] Failed to skip to codex:', e);
-      toast.error('Failed to save. Please try again.');
-    }
-  }, [pendingPagesToCue, updatePage, refresh]);
+  // handleSkipToCodex removed — no longer applicable per doctrine
+  // The ritual completes silently, no "skip to codex" option exists
 
   const handleCaptureMultiple = useCallback(async (imageDataUrls: string[]) => {
     if (imageDataUrls.length === 0) return;
@@ -476,7 +404,6 @@ const Index = () => {
             currentPageCount={pages.length}
             isProcessingComplete={isProcessingComplete}
             onContinue={handleProcessingContinue}
-            onSkipToCodex={handleSkipToCodex}
             suggestedCues={aiSuggestedCues}
             originHash={pendingPagesToCue?.[0]?.originHashSha256 || undefined}
             capturedAt={pendingPagesToCue?.[0]?.createdAt || new Date()}
