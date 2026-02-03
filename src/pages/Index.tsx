@@ -478,6 +478,8 @@ const Index = () => {
             onContinue={handleProcessingContinue}
             onSkipToCodex={handleSkipToCodex}
             suggestedCues={aiSuggestedCues}
+            originHash={pendingPagesToCue?.[0]?.originHashSha256 || undefined}
+            capturedAt={pendingPagesToCue?.[0]?.createdAt || new Date()}
           />
         ) : null;
       
