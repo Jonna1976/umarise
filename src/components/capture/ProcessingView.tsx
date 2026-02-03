@@ -10,7 +10,6 @@ interface ProcessingViewProps {
   currentPageCount?: number;
   isProcessingComplete?: boolean;
   onContinue?: (cues: string[]) => void;
-  onSkipToCodex?: (cues: string[]) => void;
   suggestedCues?: string[];
   originHash?: string;
   capturedAt?: Date;
@@ -34,7 +33,6 @@ export function ProcessingView({
   currentPageCount = 0,
   isProcessingComplete = false,
   onContinue,
-  onSkipToCodex,
   suggestedCues = [],
   originHash,
   capturedAt = new Date(),
