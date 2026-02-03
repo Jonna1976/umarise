@@ -8,11 +8,10 @@ interface LivingCircleProps {
 }
 
 /**
- * LivingCircle — Elegant open circle with accent dot
+ * LivingCircle — Breathing portal where beginnings arise
  * 
- * Exact reference: Open gold circle, gap at top-right, 
- * accent dot at the opening, camera icon centered.
- * Pure, minimal, no complexity.
+ * Elegant open circle, thin stroke, pulsing accent dot.
+ * Inviting, alive, recognition-release feeling.
  */
 export function LivingCircle({ isDraggingOver = false, onClick, className = '' }: LivingCircleProps) {
   return (
@@ -22,105 +21,174 @@ export function LivingCircle({ isDraggingOver = false, onClick, className = '' }
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
     >
-      {/* Subtle ambient glow */}
+      {/* Breathing ambient glow - the space where beginnings arise */}
       <motion.div
         className="absolute inset-0 rounded-full"
         animate={{
           boxShadow: isDraggingOver
             ? [
-                '0 0 60px 30px rgba(180, 150, 90, 0.12)',
-                '0 0 90px 45px rgba(180, 150, 90, 0.2)',
-                '0 0 60px 30px rgba(180, 150, 90, 0.12)',
+                '0 0 80px 40px rgba(180, 150, 90, 0.15)',
+                '0 0 120px 60px rgba(180, 150, 90, 0.25)',
+                '0 0 80px 40px rgba(180, 150, 90, 0.15)',
               ]
             : [
-                '0 0 40px 20px rgba(180, 150, 90, 0.06)',
-                '0 0 60px 30px rgba(180, 150, 90, 0.1)',
-                '0 0 40px 20px rgba(180, 150, 90, 0.06)',
+                '0 0 40px 15px rgba(180, 150, 90, 0.05)',
+                '0 0 80px 35px rgba(180, 150, 90, 0.12)',
+                '0 0 40px 15px rgba(180, 150, 90, 0.05)',
               ],
         }}
         transition={{
-          duration: 4,
+          duration: isDraggingOver ? 1.5 : 3.5,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       />
 
-      {/* The open circle with accent dot - exact reference match */}
+      {/* The open circle with pulsing accent dot */}
       <svg
         viewBox="0 0 100 100"
         className="absolute inset-0 w-full h-full"
-        style={{ filter: 'drop-shadow(0 0 15px rgba(180, 150, 90, 0.25))' }}
       >
-        {/* Open arc - starting from right side, going almost full circle */}
-        {/* Gap is at approximately 1-2 o'clock position */}
+        {/* Glow layer for the arc */}
         <motion.path
           d="M 94 50 A 44 44 0 1 1 78 14"
           fill="none"
           stroke="hsl(var(--codex-gold))"
-          strokeWidth="1.2"
+          strokeWidth="3"
           strokeLinecap="round"
+          opacity="0.15"
+          style={{ filter: 'blur(8px)' }}
           animate={{
-            opacity: [0.7, 0.9, 0.7],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-        
-        {/* Accent dot at the gap opening */}
-        <motion.circle
-          cx="78"
-          cy="14"
-          r="3"
-          fill="hsl(var(--codex-gold))"
-          animate={{
-            opacity: [0.8, 1, 0.8],
+            opacity: [0.1, 0.25, 0.1],
           }}
           transition={{
             duration: 3,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
+        />
+
+        {/* Main arc - elegant thin stroke */}
+        <motion.path
+          d="M 94 50 A 44 44 0 1 1 78 14"
+          fill="none"
+          stroke="hsl(var(--codex-gold))"
+          strokeWidth="0.8"
+          strokeLinecap="round"
+          animate={{
+            opacity: [0.6, 0.85, 0.6],
+          }}
+          transition={{
+            duration: 3.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
           style={{
-            filter: 'drop-shadow(0 0 6px rgba(180, 150, 90, 0.8))',
+            filter: 'drop-shadow(0 0 8px rgba(180, 150, 90, 0.5))',
+          }}
+        />
+        
+        {/* Pulsing accent dot - the origin point */}
+        <motion.circle
+          cx="78"
+          cy="14"
+          r="2.5"
+          fill="hsl(var(--codex-gold))"
+          animate={{
+            opacity: [0.7, 1, 0.7],
+            r: [2.5, 3.5, 2.5],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          style={{
+            filter: 'drop-shadow(0 0 10px rgba(180, 150, 90, 0.9))',
+          }}
+        />
+
+        {/* Dot glow halo - breathing */}
+        <motion.circle
+          cx="78"
+          cy="14"
+          r="6"
+          fill="rgba(180, 150, 90, 0.3)"
+          animate={{
+            opacity: [0.2, 0.5, 0.2],
+            r: [6, 10, 6],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          style={{
+            filter: 'blur(3px)',
           }}
         />
       </svg>
 
-      {/* Camera icon - centered, subtle gold, matching the U reference style */}
+      {/* Camera icon - centered, breathing with the circle */}
       <motion.div
         className="relative z-10"
         animate={{
-          opacity: [0.5, 0.7, 0.5],
+          opacity: [0.4, 0.65, 0.4],
+          scale: [0.98, 1.02, 0.98],
         }}
         transition={{
-          duration: 4,
+          duration: 3.5,
           repeat: Infinity,
           ease: 'easeInOut',
         }}
       >
         <Camera 
-          className="w-16 h-16 text-codex-gold"
+          className="w-14 h-14 text-codex-gold"
           strokeWidth={1}
           style={{
-            filter: 'drop-shadow(0 0 8px rgba(180, 150, 90, 0.4))',
+            filter: 'drop-shadow(0 0 12px rgba(180, 150, 90, 0.4))',
           }}
         />
       </motion.div>
 
-      {/* Breathing pulse - subtle */}
+      {/* Outer breathing pulse ring */}
       <motion.div
-        className="absolute inset-0 rounded-full border border-codex-gold/20"
+        className="absolute inset-0 rounded-full"
+        style={{
+          border: '1px solid',
+          borderColor: 'hsl(var(--codex-gold) / 0.2)',
+        }}
         animate={{
-          scale: [1, 1.08, 1],
+          scale: [1, 1.1, 1],
           opacity: [0.3, 0, 0.3],
+          borderColor: [
+            'hsl(var(--codex-gold) / 0.2)',
+            'hsl(var(--codex-gold) / 0.4)',
+            'hsl(var(--codex-gold) / 0.2)',
+          ],
         }}
         transition={{
           duration: 3,
           repeat: Infinity,
           ease: 'easeOut',
+        }}
+      />
+
+      {/* Inner subtle glow pulse */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          inset: '20%',
+          background: 'radial-gradient(circle, rgba(180, 150, 90, 0.08) 0%, transparent 70%)',
+        }}
+        animate={{
+          opacity: [0.3, 0.7, 0.3],
+          scale: [0.9, 1.1, 0.9],
+        }}
+        transition={{
+          duration: 3.5,
+          repeat: Infinity,
+          ease: 'easeInOut',
         }}
       />
     </motion.button>
