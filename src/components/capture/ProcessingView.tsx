@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/lib/haptics';
+import { Share2 } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
@@ -44,6 +45,62 @@ export function ProcessingView({
   // Three ritual phases
   type RitualPhase = 'pause' | 'mark' | 'release';
   const [phase, setPhase] = useState<RitualPhase>('pause');
+  
+  // First visit detection for install prompt
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallUI, setShowInstallUI] = useState(false);
+
+  // Check if first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('umarise-has-visited');
+    if (!hasVisited) {
+      setIsFirstVisit(true);
+    }
+  }, []);
+
+  // Capture PWA install prompt
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  // Handle install click
+  const handleInstall = useCallback(async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        localStorage.setItem('umarise-has-visited', 'true');
+        setIsFirstVisit(false);
+      }
+      setDeferredPrompt(null);
+    }
+  }, [deferredPrompt]);
+
+  // Handle share
+  const handleShare = useCallback(async () => {
+    const shareText = `Experience Umarise.\nCapture a beginning.\n\nPress and hold.\n👉 ${window.location.origin}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          text: shareText,
+        });
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      // Fallback: copy to clipboard
+      await navigator.clipboard.writeText(shareText);
+      triggerHaptic('light');
+    }
+  }, []);
 
   // Phase 1 → 2: After pause, show the certificate
   // PAUSE = Simple recognition moment with text + pulsing dot
@@ -76,17 +133,28 @@ export function ProcessingView({
     }
   }, [phase]);
 
-  // Phase 3: Fade out and complete
+  // Phase 3: Show install UI for first-timers, then fade out and complete
   // RELEASE = Letting go — the ritual completes itself
   useEffect(() => {
-    if (phase === 'release' && onContinue) {
-      const completeTimer = setTimeout(() => {
-        const cues = suggestedCues.slice(0, 3);
-        onContinue(cues);
-      }, 5000); // 5.0 seconds — longer release to see the history icon
-      return () => clearTimeout(completeTimer);
+    if (phase === 'release') {
+      // Show install UI for first-time visitors
+      if (isFirstVisit) {
+        setShowInstallUI(true);
+        // Mark as visited after showing
+        localStorage.setItem('umarise-has-visited', 'true');
+      }
+      
+      // Auto-continue after delay (longer if showing install UI)
+      if (onContinue) {
+        const delay = isFirstVisit ? 8000 : 5000; // 8s for first visit, 5s normal
+        const completeTimer = setTimeout(() => {
+          const cues = suggestedCues.slice(0, 3);
+          onContinue(cues);
+        }, delay);
+        return () => clearTimeout(completeTimer);
+      }
     }
-  }, [phase, onContinue, suggestedCues]);
+  }, [phase, onContinue, suggestedCues, isFirstVisit]);
 
   // Reset when new image starts
   useEffect(() => {
@@ -321,8 +389,42 @@ export function ProcessingView({
               </motion.p>
             )}
 
-            {/* History icon to view beginnings — appears during release, more prominent */}
-            {phase === 'release' && onViewBeginnings && (
+            {/* First-visit install prompt + share */}
+            {phase === 'release' && showInstallUI && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="mt-12 flex flex-col items-center gap-6"
+              >
+                {/* Primary message */}
+                <p className="font-serif text-xl text-codex-cream/80 text-center">
+                  When it begins, hold on.
+                </p>
+                
+                {/* Install button (if PWA prompt available) */}
+                {deferredPrompt && (
+                  <button
+                    onClick={handleInstall}
+                    className="text-codex-gold/70 text-sm hover:text-codex-gold transition-colors underline underline-offset-4"
+                  >
+                    Add to Home Screen
+                  </button>
+                )}
+                
+                {/* Share button */}
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-2 text-codex-cream/50 text-xs hover:text-codex-cream/70 transition-colors mt-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share Umarise</span>
+                </button>
+              </motion.div>
+            )}
+
+            {/* History icon to view beginnings — appears during release when NOT first visit */}
+            {phase === 'release' && !showInstallUI && onViewBeginnings && (
               <motion.button
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 0.8, y: 0 }}
