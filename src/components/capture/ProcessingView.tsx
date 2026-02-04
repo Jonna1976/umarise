@@ -46,15 +46,16 @@ export function ProcessingView({
   type RitualPhase = 'pause' | 'mark' | 'release';
   const [phase, setPhase] = useState<RitualPhase>('pause');
   
-  // First visit detection for install prompt
+  // One-time A2HS prompt (first successful ritual completion)
+  const A2HS_PROMPT_KEY = 'umarise-a2hs-prompt-shown';
   const [isFirstVisit, setIsFirstVisit] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallUI, setShowInstallUI] = useState(false);
 
-  // Check if first visit
+  // Check if we should show the one-time prompt
   useEffect(() => {
-    const hasVisited = localStorage.getItem('umarise-has-visited');
-    if (!hasVisited) {
+    const hasShownPrompt = localStorage.getItem(A2HS_PROMPT_KEY);
+    if (!hasShownPrompt) {
       setIsFirstVisit(true);
     }
   }, []);
@@ -76,7 +77,6 @@ export function ProcessingView({
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        localStorage.setItem('umarise-has-visited', 'true');
         setIsFirstVisit(false);
       }
       setDeferredPrompt(null);
@@ -85,7 +85,7 @@ export function ProcessingView({
 
   // Handle share
   const handleShare = useCallback(async () => {
-    const shareText = `Experience Umarise.\nCapture a beginning.\n\nPress and hold.\n👉 ${window.location.origin}`;
+    const shareText = `Experience Umarise.\nCapture a beginning.\n\nPress and hold.\n👉 ${window.location.origin}/app`;
     
     if (navigator.share) {
       try {
@@ -140,8 +140,8 @@ export function ProcessingView({
       // Show install UI for first-time visitors
       if (isFirstVisit) {
         setShowInstallUI(true);
-        // Mark as visited after showing
-        localStorage.setItem('umarise-has-visited', 'true');
+        // Mark as shown after displaying (one-time prompt)
+        localStorage.setItem(A2HS_PROMPT_KEY, 'true');
       }
       
       // Auto-continue after delay (longer if showing install UI)
@@ -159,6 +159,7 @@ export function ProcessingView({
   // Reset when new image starts
   useEffect(() => {
     setPhase('pause');
+    setShowInstallUI(false);
   }, [imageUrl]);
 
   // Format timestamp for display
@@ -188,17 +189,14 @@ export function ProcessingView({
   const displayHash = formatHash(originHash);
   const displayOriginId = formatOriginId(originId);
 
-  // Determine if we should keep container visible (for first-visit install UI)
-  const keepVisible = phase === 'release' && isFirstVisit;
-  
   return (
     <motion.div 
       className="min-h-screen bg-codex-ink-deep flex flex-col items-center justify-center p-6"
       initial={{ opacity: 0 }}
-      animate={{ opacity: (phase === 'release' && !keepVisible) ? 0 : 1 }}
-      transition={{ duration: phase === 'release' ? 0.8 : 0.3 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {phase === 'pause' && (
           // PHASE 1: PAUSE — Only text + pulsing dot, no U animation
           // Simple recognition moment before the mark
@@ -409,14 +407,16 @@ export function ProcessingView({
               When it begins, hold on.
             </p>
             
-            {/* Install button (if PWA prompt available) */}
-            {deferredPrompt && (
+            {/* Secondary: always shown; clickable when the browser supports the install prompt */}
+            {deferredPrompt ? (
               <button
                 onClick={handleInstall}
                 className="text-codex-gold text-base hover:text-codex-gold/80 transition-colors underline underline-offset-4"
               >
                 Add to Home Screen
               </button>
+            ) : (
+              <p className="text-codex-cream/60 text-sm">Add to Home Screen</p>
             )}
             
             {/* Share button */}
