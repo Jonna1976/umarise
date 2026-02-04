@@ -92,9 +92,8 @@ export function FirstArrivalScreen({ onComplete }: FirstArrivalScreenProps) {
 
 /**
  * Check if first arrival screen should be shown.
- * Returns true if user has never seen this screen before.
+ * Now always returns true - First Arrival is part of the permanent ritual flow.
  */
 export function shouldShowFirstArrival(): boolean {
-  if (typeof window === 'undefined') return false;
-  return !localStorage.getItem(FIRST_ARRIVAL_KEY);
+  return true;
 }
