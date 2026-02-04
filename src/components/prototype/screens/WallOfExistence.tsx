@@ -146,10 +146,10 @@ export function WallOfExistence({ onClose }: WallOfExistenceProps) {
         ))}
       </div>
 
-      {/* U button to close wall */}
+      {/* U button to close wall - top: 38px, left: 16px per walkthrough spec */}
       <OriginButton 
         onClick={onClose} 
-        className="absolute top-[38px] left-4 z-50 opacity-70 hover:opacity-100 transition-opacity" 
+        className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
       />
 
       {/* Backup hint */}
