@@ -83,6 +83,32 @@
     --sidebar-accent-foreground: 160 25% 12%;
     --sidebar-border: 35 20% 82%;
     --sidebar-ring: 38 45% 40%;
+
+    /* === RITUAL V6 TOKENS === */
+    /* Background: Deep forest green (near-black with green undertone) */
+    --ritual-bg: 140 33% 2%;
+    --ritual-surface: 140 27% 6%;
+    --ritual-surface-elevated: 140 25% 9%;
+    --ritual-border-subtle: 140 15% 13%;
+    
+    /* Gold accent: Warm antique gold */
+    --ritual-gold: 32 55% 55%;
+    --ritual-gold-glow: 32 55% 55% / 0.4;
+    --ritual-gold-muted: 32 24% 44%;
+    
+    /* Text: Warm cream palette */
+    --ritual-cream: 40 33% 95%;
+    --ritual-cream-70: 40 33% 95% / 0.7;
+    --ritual-cream-40: 40 33% 95% / 0.4;
+    --ritual-cream-20: 40 33% 95% / 0.2;
+    
+    /* Accent colors for artifacts */
+    --ritual-red-accent: 14 60% 56%;
+    --ritual-red-soft: 0 70% 67%;
+    --ritual-yellow-accent: 47 80% 59%;
+    --ritual-blue-accent: 210 55% 62%;
+    --ritual-green-accent: 120 23% 45%;
+    --ritual-green-muted: 120 16% 60%;
   }
 
   .dark {

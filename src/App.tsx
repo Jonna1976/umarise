@@ -28,6 +28,7 @@ import Terms from "./pages/Terms";
 import Origin from "./pages/Origin";
 import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
+import Prototype from "./pages/Prototype";
 
 const queryClient = new QueryClient();
 
@@ -63,10 +64,10 @@ const App = () => (
             <Route path="/pilot-tracker" element={<PinGate><PilotTracker /></PinGate>} />
             
             {/* DEV/PREVIEW ROUTES */}
+            <Route path="/prototype" element={<Prototype />} />
             <Route path="/origin-flow" element={<B2BWalkthrough />} />
             <Route path="/landing-variants" element={<LandingVariants />} />
             <Route path="/widget-design" element={<WidgetMockup />} />
-            <Route path="/origin-mark" element={<UMarkMockup />} />
             <Route path="/origin-mark" element={<UMarkMockup />} />
             
             {/* Redirect old landing route */}
