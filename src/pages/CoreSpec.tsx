@@ -136,7 +136,7 @@ export default function CoreSpec() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
               <li>Origin Records are write-once</li>
-              <li>Origin Records are externally anchored</li>
+              <li>Origin Records are immutably recorded</li>
               <li>Verification is binary (match / no-match)</li>
             </ul>
             <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">

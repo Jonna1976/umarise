@@ -89,7 +89,7 @@ export default function Origin() {
               These practices are correct and sufficient within the originating system.
             </p>
             <p className="mt-2 text-landing-cream/70">
-              They do not, by themselves, establish externally verifiable existence at a point in time, nor do they provide independent timestamping or third-party anchoring.
+            They do not, by themselves, establish independently verifiable existence at a point in time.
             </p>
           </section>
 
@@ -103,7 +103,7 @@ export default function Origin() {
               Specific bytes existed at a specific moment.
             </p>
             <p className="mb-4">
-              The attestation is derived from a cryptographic hash computed at the moment of origin and anchored externally so that verification does not depend on the originating system.
+              The attestation is derived from a cryptographic hash computed at the moment of origin and recorded immutably so that the record cannot be altered after creation.
             </p>
             <p className="text-landing-copper mb-4">
               Origin attestation asserts existence, not correctness.
@@ -135,7 +135,7 @@ export default function Origin() {
             <p className="mb-4">The following properties MUST hold:</p>
             <ul className="space-y-2 pl-4">
               <li>Origin Records are write-once</li>
-              <li>Origin Records are externally anchored</li>
+              <li>Origin Records are immutably recorded</li>
               <li>Verification is binary (match / no match)</li>
             </ul>
           </section>
@@ -165,7 +165,7 @@ export default function Origin() {
                 <tbody className="text-landing-muted/70">
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Self-attested</td>
-                    <td className="py-2">Independently anchored</td>
+                    <td className="py-2">Independently recorded</td>
                   </tr>
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Context-bound</td>
@@ -225,10 +225,10 @@ export default function Origin() {
             <ul className="space-y-1 pl-4 text-landing-muted/70">
               <li>the hash</li>
               <li>the timestamp</li>
-              <li>the external anchoring</li>
+              <li>the immutable record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              The evidentiary value of an Origin Record does not depend on continued operation of the originating system.
+              Origin Records are enforced as immutable by database-level constraints. External anchoring (TSA, blockchain) is on the roadmap.
             </p>
           </section>
 
