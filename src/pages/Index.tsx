@@ -92,6 +92,14 @@ const Index = () => {
     }
   }, [isDemoMode, view]);
 
+  // Safety net: never allow a blank render where a view requires state that is missing.
+  // This prevents the "only the test panel icon" symptom.
+  useEffect(() => {
+    if (view === 'processing' && !capturedImage) {
+      setView('camera');
+    }
+  }, [view, capturedImage]);
+
   const handleOnboardingComplete = useCallback(() => {
     completeOnboarding();
     setView('camera');
