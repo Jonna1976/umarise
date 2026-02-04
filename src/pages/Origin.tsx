@@ -44,13 +44,13 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes a mechanism for external, independent attestation of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes a mechanism for immutable attestation of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
-              The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where verification must be performable independently by third parties.
+              The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once record with public verification is required.
             </p>
             <p className="mt-4 text-landing-cream/70">
-              This mechanism serves as an external proof of existence at the moment of origin, without relying on internal records or document custody.
+              Attestations are enforced as immutable through database-level constraints. Content is never stored — only cryptographic hashes.
             </p>
           </section>
 
@@ -97,7 +97,7 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Origin Attestation</h2>
             <p className="text-landing-cream/90 mb-4">
-              An Origin Record provides a minimal, external attestation that:
+              An Origin Record provides a minimal, immutable attestation that:
             </p>
             <p className="text-landing-cream mb-4 pl-4">
               Specific bytes existed at a specific moment.
@@ -235,14 +235,14 @@ export default function Origin() {
           {/* Context */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Context</h2>
-            <p className="mb-4">Mature digital infrastructure externalizes its fundamentals:</p>
+            <p className="mb-4">As systems grow, the ability to prove what existed when becomes a constraint:</p>
             <ul className="space-y-2 text-landing-muted/60">
-              <li><span className="text-landing-copper">DNS</span> externalized naming</li>
-              <li><span className="text-landing-copper">Certificate Authorities</span> externalized identity</li>
-              <li><span className="text-landing-copper">Time-Stamping Authorities</span> externalized time ordering</li>
+              <li>Internal timestamps are self-attested</li>
+              <li>File metadata can be modified</li>
+              <li>Version control requires trust in the repository</li>
             </ul>
             <p className="text-landing-cream/90 mt-6">
-              Origin attestation externalizes existence at the beginning.
+              Origin attestation provides a write-once record with public verification.
             </p>
           </section>
 
