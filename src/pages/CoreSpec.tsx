@@ -80,9 +80,9 @@ export default function CoreSpec() {
             </h2>
             
             <div className="space-y-6 font-mono text-sm">
-              {/* POST /core/origins */}
+              {/* POST /v1-core-origins */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">POST /core/origins</div>
+                <div className="text-landing-copper mb-3">POST /v1-core-origins</div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
                   <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span></div>
@@ -90,22 +90,42 @@ export default function CoreSpec() {
                 </div>
               </div>
 
-              {/* GET /core/resolve */}
+              {/* GET /v1-core-resolve */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">GET /core/resolve</div>
+                <div className="text-landing-copper mb-3">GET /v1-core-resolve</div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id or hash</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or not found</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or 404</span></div>
                   <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
                 </div>
               </div>
 
-              {/* POST /core/verify */}
+              {/* POST /v1-core-verify */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">POST /core/verify</div>
+                <div className="text-landing-copper mb-3">POST /v1-core-verify</div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ match: true | false, origin_id?, captured_at? }"}</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or 404</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
+                </div>
+              </div>
+
+              {/* GET /v1-core-proof */}
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <div className="text-landing-copper mb-3">GET /v1-core-proof</div>
+                <div className="space-y-2 text-landing-muted/70">
+                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">Binary .ots file</span> <span className="text-landing-muted/50">(200), pending status (202), or 404</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
+                  <div><span className="text-landing-muted/50">Note:</span> <span className="text-landing-muted/60">OpenTimestamps proof for trustless verification (Phase 2)</span></div>
+                </div>
+              </div>
+
+              {/* GET /v1-core-health */}
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <div className="text-landing-copper mb-3">GET /v1-core-health</div>
+                <div className="space-y-2 text-landing-muted/70">
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ status, version, timestamp }"}</span></div>
                   <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
                 </div>
               </div>
@@ -119,9 +139,11 @@ export default function CoreSpec() {
               Verification is public. Attestation is permissioned.
             </p>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
-              <li><span className="text-landing-cream/80">GET /core/resolve</span> — public</li>
-              <li><span className="text-landing-cream/80">POST /core/verify</span> — public</li>
-              <li><span className="text-landing-cream/80">POST /core/origins</span> — requires API key</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-resolve</span> — public</li>
+              <li><span className="text-landing-cream/80">POST /v1-core-verify</span> — public</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-proof</span> — public</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-health</span> — public</li>
+              <li><span className="text-landing-cream/80">POST /v1-core-origins</span> — requires API key</li>
             </ul>
             <p className="text-landing-muted/60 mb-2">
               API key issuance is an infrastructural action, not a product flow.
