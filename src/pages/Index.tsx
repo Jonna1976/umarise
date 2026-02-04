@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen';
+import { FirstArrivalScreen, shouldShowFirstArrival } from '@/components/capture/FirstArrivalScreen';
 import { CameraView } from '@/components/capture/CameraView';
 import { ProcessingView } from '@/components/capture/ProcessingView';
 import { SnapshotView, SnapshotMatchInfo } from '@/components/codex/SnapshotView';
@@ -27,7 +28,7 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 
 import { CueIndex } from '@/components/codex/CueIndex';
 
-type AppView = 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit' | 'share' | 'cue-index';
+type AppView = 'first-arrival' | 'onboarding' | 'camera' | 'processing' | 'snapshot' | 'history' | 'detail' | 'patterns' | 'personality' | 'kompas' | 'year-reflection' | 'kompas-empty' | 'patterns-empty' | 'personality-empty' | 'add-to-capsule' | 'capsule-carousel' | 'search' | 'orbit' | 'share' | 'cue-index';
 
 const Index = () => {
   const { isDemoMode } = useDemoMode();
@@ -79,6 +80,12 @@ const Index = () => {
     const id = initializeDeviceId();
     setDeviceId(id);
     
+    // Check if this is truly the first arrival (one-time origin moment)
+    if (shouldShowFirstArrival()) {
+      setView('first-arrival');
+      return;
+    }
+    
     // In Demo Mode, skip onboarding entirely
     if (isDemoMode || hasCompletedOnboarding()) {
       setView('camera');
@@ -99,6 +106,16 @@ const Index = () => {
       setView('camera');
     }
   }, [view, capturedImage]);
+
+  // Handle first arrival completion - proceed to onboarding or camera
+  const handleFirstArrivalComplete = useCallback(() => {
+    // After the origin moment, proceed to normal flow
+    if (isDemoMode || hasCompletedOnboarding()) {
+      setView('camera');
+    } else {
+      setView('onboarding');
+    }
+  }, [isDemoMode]);
 
   const handleOnboardingComplete = useCallback(() => {
     completeOnboarding();
@@ -389,6 +406,9 @@ const Index = () => {
   // Render based on current view
   const renderView = () => {
     switch (view) {
+      case 'first-arrival':
+        return <FirstArrivalScreen onComplete={handleFirstArrivalComplete} />;
+      
       case 'onboarding':
         return <OnboardingScreen onComplete={handleOnboardingComplete} />;
       
