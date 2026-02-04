@@ -1,10 +1,11 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { X, RotateCcw, Plus, BookOpen } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, Plus, Images } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
+import { LivingCircle } from './LivingCircle';
 import { SealButton } from './SealButton';
 
 interface CameraViewProps {
@@ -16,47 +17,22 @@ interface CameraViewProps {
 
 const CAPTURE_HINT_KEY = 'umarise_capture_hint_shown';
 
-/**
- * Origin Seal icon - the U in a circle with opening at 3 o'clock
- * Used as the primary navigation icon to the Wall of Existence (history)
- */
-function OriginSeal({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" className={className} fill="none">
-      {/* Outer circle with gap at 3 o'clock */}
-      <path
-        d="M 44 24 A 20 20 0 1 1 40 12"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* Accent dot at the opening */}
-      <circle cx="42" cy="18" r="2.5" fill="currentColor" />
-      {/* U letter */}
-      <text
-        x="24"
-        y="30"
-        textAnchor="middle"
-        fontSize="18"
-        fontFamily="serif"
-        fill="currentColor"
-      >
-        U
-      </text>
-    </svg>
-  );
-}
-
 export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSearch }: CameraViewProps) {
   const { isDemoMode } = useDemoMode();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [absorbingFiles, setAbsorbingFiles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const isMultiMode = capturedImages.length > 0;
   
   // Check if this is the user's first visit (for showing hint)
   useEffect(() => {
@@ -74,38 +50,93 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
     }
   }, [isFirstVisit]);
 
-  // Process single file only (multi-capture hidden per Ritual V6)
-  const processFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) return;
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+      });
 
-    // Haptic feedback on file selection
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        setIsStreaming(true);
+        setError(null);
+      }
+    } catch (err) {
+      console.error('Camera access error:', err);
+      setError('Camera access denied. You can still upload photos.');
+    }
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    if (videoRef.current?.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      setIsStreaming(false);
+    }
+  }, []);
+
+  const takePhoto = useCallback(async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    // Haptic feedback on capture
+    triggerHaptic('medium');
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0);
+      const rawImage = canvas.toDataURL('image/jpeg', 0.95);
+      // Compress to max 2000px for optimal OCR + performance
+      const compressedImage = await compressImage(rawImage);
+      setCapturedImage(compressedImage);
+      stopCamera();
+    }
+  }, [stopCamera]);
+
+  const processFiles = useCallback(async (files: FileList) => {
+    if (files.length === 0) return;
+
+    // Haptic feedback on file drop
     triggerHaptic('light');
 
-    // Compress image for optimal size
-    const compressedImage = await compressImage(file);
+    const imageFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].type.startsWith('image/')) {
+        imageFiles.push(files[i]);
+      }
+    }
+
+    if (imageFiles.length === 0) return;
+
+    // Compress all images in parallel for optimal size
+    const compressedImages = await Promise.all(
+      imageFiles.map(file => compressImage(file))
+    );
 
     // Success haptic after processing
     triggerHaptic('success');
 
-    setCapturedImage(compressedImage);
-  }, []);
+    setCapturedImages(prev => [...prev, ...compressedImages]);
+    stopCamera();
+  }, [stopCamera]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      // Only process first file (single-capture mode)
-      processFile(files[0]);
+    if (files) {
+      processFiles(files);
     }
     event.target.value = '';
-  }, [processFile]);
-
-  const handleFileUploadOriginal = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      processFile(files[0]);
-    }
-    event.target.value = '';
-  }, [processFile]);
+  }, [processFiles]);
 
   // Drag & drop handlers for file upload
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -119,7 +150,7 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
     e.stopPropagation();
     setIsDraggingOver(false);
   }, []);
-    
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -127,27 +158,44 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
     
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      // Create absorbing animation particle at drop position
+      // Create absorbing animation particles at drop position
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-      const newAbsorbing = [{
-        id: Date.now(),
-        x: e.clientX - centerX,
-        y: e.clientY - centerY,
-      }];
+      const newAbsorbing = Array.from({ length: files.length }, (_, i) => ({
+        id: Date.now() + i,
+        x: e.clientX - centerX + (Math.random() - 0.5) * 100,
+        y: e.clientY - centerY + (Math.random() - 0.5) * 100,
+      }));
       setAbsorbingFiles(newAbsorbing);
       
       // Clear animation after it completes
       setTimeout(() => setAbsorbingFiles([]), 600);
       
-      // Only process first file (single-capture mode)
-      processFile(files[0]);
+      processFiles(files);
     }
-  }, [processFile]);
+  }, [processFiles]);
+
+  // Thumbnail removal only (no reordering in Silent Multi mode)
 
   const retake = useCallback(() => {
     triggerHaptic('light');
     setCapturedImage(null);
+    startCamera();
+  }, [startCamera]);
+
+  // Quick add: instantly add to collection and continue capturing
+  const addToCollection = useCallback(() => {
+    if (capturedImage) {
+      triggerHaptic('success');
+      setCapturedImages(prev => [...prev, capturedImage]);
+      setCapturedImage(null);
+      startCamera();
+    }
+  }, [capturedImage, startCamera]);
+
+  const removeFromCollection = useCallback((index: number) => {
+    triggerHaptic('light');
+    setCapturedImages(prev => prev.filter((_, i) => i !== index));
   }, []);
 
   const confirmSingleCapture = useCallback(() => {
@@ -155,27 +203,49 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
       triggerHaptic('success');
       onCapture(capturedImage);
       setCapturedImage(null);
+      setCapturedImages([]);
     }
   }, [capturedImage, onCapture]);
 
-  // Trigger file input when + is clicked
-  const handleCaptureClick = useCallback(() => {
-    markHintShown();
-    fileInputRef.current?.click();
-  }, [markHintShown]);
+  const confirmMultiCapture = useCallback(() => {
+    if (capturedImages.length > 0) {
+      triggerHaptic('success');
+      const allImages = capturedImage 
+        ? [...capturedImages, capturedImage]
+        : capturedImages;
+      onCaptureMultiple(allImages);
+      setCapturedImage(null);
+      setCapturedImages([]);
+    }
+  }, [capturedImages, capturedImage, onCaptureMultiple]);
+
+  const cancelMultiMode = useCallback(() => {
+    triggerHaptic('light');
+    setCapturedImages([]);
+    setCapturedImage(null);
+    startCamera();
+  }, [startCamera]);
+
+  // Auto-start camera on mount
+  useEffect(() => {
+    startCamera();
+    return () => stopCamera();
+  }, [startCamera, stopCamera]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-codex-ink-deep via-codex-ink to-codex-forest flex flex-col relative overflow-hidden">
-      {/* Hidden file input - single file only */}
+      {/* Hidden elements */}
+      <canvas ref={canvasRef} className="hidden" />
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         onChange={handleFileUpload}
         className="hidden"
       />
 
-      {/* Main capture area */}
+      {/* Camera/Preview area */}
       <div className="flex-1 relative flex items-center justify-center">
         {capturedImage ? (
           // Preview captured image
@@ -190,8 +260,34 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
             />
           </motion.div>
+        ) : isStreaming ? (
+          // Live camera feed
+          <div className="relative w-full h-full">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Capture guide overlay */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute inset-8 border-2 border-primary-foreground/30 rounded-lg">
+                <div className="absolute -top-1 -left-1 w-8 h-8 border-t-2 border-l-2 border-primary-foreground/60 rounded-tl" />
+                <div className="absolute -top-1 -right-1 w-8 h-8 border-t-2 border-r-2 border-primary-foreground/60 rounded-tr" />
+                <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-2 border-l-2 border-primary-foreground/60 rounded-bl" />
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-2 border-r-2 border-primary-foreground/60 rounded-br" />
+              </div>
+              
+              {/* Scanning line effect */}
+              <div className="absolute inset-8 overflow-hidden rounded-lg">
+                <div className="w-full h-1 bg-gradient-to-r from-transparent via-codex-gold/40 to-transparent animate-scan" />
+              </div>
+            </div>
+          </div>
         ) : (
-          // Ritual V6 Capture Portal - dashed circle with + icon
+          // Living Circle interface — the breathing portal
           <motion.div
             ref={dropZoneRef}
             initial={{ opacity: 0 }}
@@ -231,82 +327,75 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
               ))}
             </AnimatePresence>
 
-            {/* The Ritual V6 Capture Portal */}
-            <motion.button
-              onClick={handleCaptureClick}
-              className="relative w-40 h-40 flex items-center justify-center cursor-pointer focus:outline-none"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              aria-label="Capture a beginning"
-            >
-              {/* Dashed circle */}
-              <svg 
-                viewBox="0 0 160 160" 
-                className="absolute inset-0 w-full h-full"
-                fill="none"
+            {/* The Living Circle — tap to upload */}
+            <LivingCircle
+              isDraggingOver={isDraggingOver}
+              onClick={() => {
+                markHintShown();
+                fileInputRef.current?.click();
+              }}
+            />
+
+            {/* Seal Button — press and hold to confirm */}
+            {capturedImages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-12"
               >
-                {/* Dashed arc with gap at 3 o'clock */}
-                <circle
-                  cx="80"
-                  cy="80"
-                  r="70"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  strokeDasharray="8 6"
-                  className="text-codex-gold/50"
-                  fill="none"
+                <SealButton
+                  count={capturedImages.length}
+                  onSeal={confirmMultiCapture}
                 />
-              </svg>
-              
-              {/* Accent dot at 3 o'clock position */}
-              <motion.div
-                className="absolute w-2.5 h-2.5 rounded-full bg-codex-gold"
-                style={{ 
-                  top: '50%',
-                  right: '8px',
-                  transform: 'translateY(-50%)'
-                }}
-                animate={{ 
-                  scale: [1, 1.3, 1],
-                  opacity: [0.7, 1, 0.7]
-                }}
-                transition={{ 
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut'
-                }}
-              />
-
-              {/* + icon */}
-              <Plus className="w-10 h-10 text-codex-gold/70" strokeWidth={1} />
-            </motion.button>
-
-            {/* Drag over indicator */}
-            {isDraggingOver && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute inset-0 flex items-center justify-center bg-codex-gold/5 backdrop-blur-sm"
-              >
-                <div className="w-48 h-48 rounded-full border-2 border-dashed border-codex-gold/60 flex items-center justify-center">
-                  <Plus className="w-12 h-12 text-codex-gold" strokeWidth={1} />
-                </div>
               </motion.div>
             )}
           </motion.div>
         )}
       </div>
 
-      {/* Top bar - Origin seal for Wall of Existence */}
+      {/* Top bar - U seal for viewing origins, close when captured */}
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-        {/* Origin icon (U-seal) - links to history/Wall of Existence */}
+        {/* U seal - view marked beginnings */}
         {!capturedImage && (
           <button
             onClick={onBrowseAll}
-            className="w-12 h-12 flex items-center justify-center transition-all hover:scale-105"
-            aria-label="Wall of Existence"
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105"
+            aria-label="View marked beginnings"
           >
-            <OriginSeal className="w-10 h-10 text-codex-gold/80" />
+            <svg 
+              viewBox="0 0 48 48" 
+              className="w-10 h-10"
+              style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
+            >
+              {/* Open circle with gap - like the reference */}
+              <path
+                d="M 44 24 A 20 20 0 1 1 38 8"
+                fill="none"
+                stroke="hsl(var(--codex-gold))"
+                strokeWidth="1.5"
+                opacity="0.6"
+                strokeLinecap="round"
+              />
+              {/* Accent dot at the end of the arc */}
+              <circle
+                cx="38"
+                cy="8"
+                r="2"
+                fill="hsl(var(--codex-gold))"
+                opacity="0.8"
+              />
+              <text 
+                x="24" 
+                y="30" 
+                textAnchor="middle" 
+                fill="hsl(var(--codex-gold))"
+                fontFamily="Playfair Display, Georgia, serif"
+                fontSize="18"
+                opacity="0.8"
+              >
+                U
+              </text>
+            </svg>
           </button>
         )}
         
@@ -325,47 +414,88 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
         )}
       </div>
 
-      {/* Bottom left - History booklet icon (next to test panel) */}
-      {!capturedImage && (
-        <div className="absolute bottom-6 left-6 z-10">
-          <button
-            onClick={onBrowseAll}
-            className="w-10 h-10 flex items-center justify-center text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-            aria-label="View history"
-          >
-            <BookOpen className="w-5 h-5" strokeWidth={1.5} />
-          </button>
-        </div>
-      )
+      {/* Thumbnail strip removed: showing multiple artifacts activates archiving psychology */}
+      {/* At the moment of marking, only the current beginning exists */}
 
-}
-
-      {/* Bottom controls - only visible when preview mode */}
-      {capturedImage && (
+      {/* Bottom controls - only visible when camera/preview mode */}
+      {(capturedImage || isStreaming) && (
         <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-center items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3 items-center"
-          >
-            <Button
-              onClick={retake}
-              variant="ghost"
-              size="lg"
-              className="text-primary-foreground hover:bg-primary-foreground/10"
+          {capturedImage ? (
+            // Preview mode: retake, add more, or seal
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3 items-center"
             >
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Retake
-            </Button>
-            
-            {/* Seal button for single capture */}
-            <SealButton
-              count={1}
-              onSeal={confirmSingleCapture}
-            />
-          </motion.div>
+              <Button
+                onClick={retake}
+                variant="ghost"
+                size="lg"
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+              >
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Retake
+              </Button>
+              
+              <Button
+                onClick={addToCollection}
+                variant="ghost"
+                size="lg"
+                className="text-codex-gold hover:bg-codex-gold/10"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add more
+              </Button>
+              
+              {/* Seal button for single/multi capture */}
+              <SealButton
+                count={isMultiMode ? capturedImages.length + 1 : 1}
+                onSeal={isMultiMode ? confirmMultiCapture : confirmSingleCapture}
+              />
+            </motion.div>
+          ) : isStreaming ? (
+            // Camera mode: capture button
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-4"
+            >
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center backdrop-blur-sm hover:bg-primary-foreground/20 transition-colors"
+              >
+                <Images className="w-5 h-5 text-primary-foreground" />
+              </button>
+              
+              <Button
+                onClick={takePhoto}
+                variant="capture"
+                size="capture"
+                className="bg-primary-foreground text-codex-ink hover:bg-primary-foreground/90 relative"
+              >
+                <Camera className="w-7 h-7" strokeWidth={2} />
+                {isMultiMode && (
+                  <span className="absolute -top-1 -right-1 bg-codex-gold text-codex-ink text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {capturedImages.length}
+                  </span>
+                )}
+              </Button>
+              
+              {isMultiMode && (
+                <SealButton
+                  count={capturedImages.length}
+                  onSeal={confirmMultiCapture}
+                />
+              )}
+            </motion.div>
+          ) : null}
         </div>
       )}
+
+      {/* No instructional text - the gesture is self-explanatory */}
+
+      {/* Brief-modus toggle - temporarily hidden */}
+
     </div>
   );
 }
