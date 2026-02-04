@@ -43,7 +43,7 @@ export default function CoreSpec() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Purpose</h2>
             <p className="text-landing-cream/90">
-              Umarise Core provides external attestation that a cryptographic hash existed at a specific moment in time.
+              Umarise Core provides immutable attestation that a cryptographic hash existed at a specific moment in time.
             </p>
             <p className="mt-4 text-landing-muted/60">
               Core accepts hashes only.<br />
@@ -127,7 +127,7 @@ export default function CoreSpec() {
               API key issuance is an infrastructural action, not a product flow.
             </p>
             <p className="text-landing-muted/50 text-sm">
-              Comparable to: TSA key issuance, DNS update rights, Certificate Transparency log writers.
+              Write access is permissioned. Read access is public.
             </p>
           </section>
 
