@@ -1,13 +1,13 @@
 # Umarise Core: Technische Inventarisatie v2
 
 **Datum:** 4 februari 2026  
-**Versie:** Na implementatie Infrastructure Plan (Fase 1 compleet)
+**Versie:** Na implementatie Infrastructure Plan + OTS Worker
 
 ---
 
 ## Executive Summary
 
-Umarise Core v1 is operationeel als production-ready origin registry. De infrastructuur is geüpgraded van een interne API naar een partner-integreerbare infrastructuur-primitief met API versioning, rate limiting, observability, en geformaliseerde partner onboarding.
+Umarise Core v1 is operationeel als production-ready origin registry met **Bitcoin-anchoring via OpenTimestamps**. De infrastructuur is geüpgraded van een interne API naar een partner-integreerbare infrastructuur-primitief met API versioning, rate limiting, observability, geformaliseerde partner onboarding, én trustless externe verificatie.
 
 ---
 
@@ -220,10 +220,10 @@ created_at          timestamptz Record creation
 
 | Metric | Value |
 |--------|-------|
-| Total Attestations | 7 |
+| Total Attestations | 8 |
 | Active Partners | 3 |
-| Total API Requests | 6 |
-| Requests (24h) | 6 |
+| OTS Anchored | 1 |
+| OTS Pending | 7 |
 
 ---
 
@@ -262,11 +262,13 @@ created_at          timestamptz Record creation
 - [x] 4.1 Internal Metrics Endpoint
 - [ ] 4.2 External Uptime Monitoring
 
-### Phase 2: OTS Integration (Not Started)
-- [ ] Merkle tree aggregation
-- [ ] Bitcoin anchoring
-- [ ] Proof storage
-- [ ] Public `/v1/core/proof` endpoint
+### Phase 2: OTS Integration ✅ COMPLEET
+- [x] Node.js worker op Hetzner (`/opt/umarise/ots-worker/`)
+- [x] Automatische stamping (cron: elk uur)
+- [x] Automatische upgrade checks (cron: elke 30 min)
+- [x] Proof storage in `core_ots_proofs`
+- [x] Public `/v1-core-proof` endpoint
+- [x] Failed proof retry logic
 
 ---
 
@@ -286,13 +288,27 @@ created_at          timestamptz Record creation
 
 ---
 
-## 11. Next Steps (Recommended Priority)
+## 11. OTS Worker Details
+
+| Aspect | Waarde |
+|--------|--------|
+| Locatie | Hetzner (94.130.180.233) `/opt/umarise/ots-worker/` |
+| Runtime | Node.js |
+| Cron: Stamp | Elk uur |
+| Cron: Upgrade | Elke 30 min |
+| Status | ✅ Live en geautomatiseerd |
+
+Zie [`docs/ots-worker-status.md`](./ots-worker-status.md) voor volledige documentatie.
+
+---
+
+## 12. Next Steps (Recommended Priority)
 
 1. **Roteer INTERNAL_API_SECRET** — Gedeeld in chat, security risk
 2. **Test full attestation flow** — Acme/Summer keys via /v1-core-origins
-3. **Build OTS worker** — Node.js process voor Bitcoin anchoring
-4. **Partner Dashboard** — Self-service key management
-5. **External monitoring** — BetterUptime/UptimeRobot configureren
+3. **Partner Dashboard** — Self-service key management
+4. **External monitoring** — BetterUptime/UptimeRobot configureren
+5. **Monitor OTS pending → anchored** — Eerste batch verwacht binnen 12 uur
 
 ---
 
