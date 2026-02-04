@@ -62,6 +62,66 @@ export type Database = {
         }
         Relationships: []
       }
+      core_rate_limits: {
+        Row: {
+          endpoint: string
+          id: string
+          rate_key: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          endpoint: string
+          id?: string
+          rate_key: string
+          request_count?: number
+          window_start: string
+        }
+        Update: {
+          endpoint?: string
+          id?: string
+          rate_key?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
+      core_request_log: {
+        Row: {
+          api_key_prefix: string | null
+          created_at: string
+          endpoint: string
+          error_code: string | null
+          id: string
+          ip_hash: string | null
+          method: string
+          response_time_ms: number
+          status_code: number
+        }
+        Insert: {
+          api_key_prefix?: string | null
+          created_at?: string
+          endpoint: string
+          error_code?: string | null
+          id?: string
+          ip_hash?: string | null
+          method: string
+          response_time_ms: number
+          status_code: number
+        }
+        Update: {
+          api_key_prefix?: string | null
+          created_at?: string
+          endpoint?: string
+          error_code?: string | null
+          id?: string
+          ip_hash?: string | null
+          method?: string
+          response_time_ms?: number
+          status_code?: number
+        }
+        Relationships: []
+      }
       hetzner_trash_index: {
         Row: {
           created_at: string
