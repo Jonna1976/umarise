@@ -1,73 +1,65 @@
-# Welcome to your Lovable project
+# Umarise
 
-## Project info
+**Origin attestation infrastructure.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Umarise is a public, protocol-level origin attestation constraint. It externally attests that a specific cryptographic hash existed at a specific moment in time.
 
-## How can I edit this code?
+## Architecture
 
-There are several ways of editing your application.
+Umarise consists of two explicitly separated layers:
 
-**Use Lovable**
+| Layer | Purpose |
+|-------|---------|
+| **Umarise Core** | Public origin attestation constraint (hash + timestamp + origin_id) |
+| **Umarise Companion** | Application layer that uses Core (storage, UX, integrations) |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Core defines the constraint. Companion provides convenience.  
+Companion depends on Core. Core does not depend on Companion.
 
-Changes made via Lovable will be committed automatically to this repo.
+For the full architectural specification, see [`docs/core-vs-companion.md`](./docs/core-vs-companion.md).
 
-**Use your preferred IDE**
+## Core API (v1)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+| Endpoint | Access | Purpose |
+|----------|--------|---------|
+| `POST /v1-core-origins` | Permissioned | Register hash → receive origin record |
+| `GET /v1-core-resolve` | Public | Retrieve origin facts by hash or origin_id |
+| `POST /v1-core-verify` | Public | Binary verification (match / no-match) |
+| `GET /v1-core-health` | Public | System status |
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Current Status
 
-Follow these steps:
+**Phase 1: Trusted Third Party (Production Ready)**
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Database-level immutability via PostgreSQL triggers
+- Write-once origin records
+- Public verification, permissioned attestation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Phase 2 (OpenTimestamps/Bitcoin anchoring) is on the roadmap for trustless external verification.
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Documentation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+| Document | Purpose |
+|----------|---------|
+| [`docs/core-vs-companion.md`](./docs/core-vs-companion.md) | Core/Companion architecture contract |
+| [`docs/integration-contract.md`](./docs/integration-contract.md) | API v1 specification for partners |
+| [`docs/layer-boundaries.md`](./docs/layer-boundaries.md) | Origin Layer vs Governance Layer scope |
+| [`docs/infrastructure-overview.md`](./docs/infrastructure-overview.md) | Architecture, DNS, security |
 
-**Edit a file directly in GitHub**
+## Public Pages
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- [umarise.com/origin](https://umarise.lovable.app/origin) — Origin mechanism overview
+- [umarise.com/spec](https://umarise.lovable.app/spec) — Technical specification
+- [umarise.com/core](https://umarise.lovable.app/core) — Core API reference
 
-**Use GitHub Codespaces**
+## Technology
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Built with Vite, TypeScript, React, Tailwind CSS, and Lovable Cloud (Supabase).
 
-## What technologies are used for this project?
+## Contact
 
-This project is built with:
+partners@umarise.com
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+© 2026 Umarise
