@@ -16,6 +16,9 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         serif: ["Playfair Display", "Georgia", "serif"],
+        playfair: ["Playfair Display", "Georgia", "serif"],
+        garamond: ["EB Garamond", "Georgia", "serif"],
+        mono: ["JetBrains Mono", "monospace"],
         handwritten: ["Reenie Beanie", "cursive"],
       },
       colors: {
@@ -79,7 +82,7 @@ export default {
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
-        ring: "hsl(var(--sidebar-ring))",
+          ring: "hsl(var(--sidebar-ring))",
         },
         // Landing page (Infrastructure Signal) colors
         landing: {
@@ -87,6 +90,26 @@ export default {
           copper: "hsl(var(--landing-copper))",
           cream: "hsl(var(--landing-cream))",
           muted: "hsl(var(--landing-muted))",
+        },
+        // Ritual V6 colors
+        ritual: {
+          bg: "hsl(var(--ritual-bg))",
+          surface: "hsl(var(--ritual-surface))",
+          "surface-elevated": "hsl(var(--ritual-surface-elevated))",
+          "border-subtle": "hsl(var(--ritual-border-subtle))",
+          gold: "hsl(var(--ritual-gold))",
+          "gold-glow": "hsl(var(--ritual-gold-glow))",
+          "gold-muted": "hsl(var(--ritual-gold-muted))",
+          cream: "hsl(var(--ritual-cream))",
+          "cream-70": "hsl(var(--ritual-cream-70))",
+          "cream-40": "hsl(var(--ritual-cream-40))",
+          "cream-20": "hsl(var(--ritual-cream-20))",
+          "red-accent": "hsl(var(--ritual-red-accent))",
+          "red-soft": "hsl(var(--ritual-red-soft))",
+          "yellow-accent": "hsl(var(--ritual-yellow-accent))",
+          "blue-accent": "hsl(var(--ritual-blue-accent))",
+          "green-accent": "hsl(var(--ritual-green-accent))",
+          "green-muted": "hsl(var(--ritual-green-muted))",
         },
       },
       borderRadius: {
