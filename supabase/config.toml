@@ -107,3 +107,6 @@ verify_jwt = false
 [functions.v1-internal-partner-create]
 verify_jwt = false
 
+[functions.v1-core-proof]
+verify_jwt = false
+
