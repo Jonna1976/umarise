@@ -62,6 +62,47 @@ export type Database = {
         }
         Relationships: []
       }
+      core_ots_proofs: {
+        Row: {
+          anchored_at: string | null
+          bitcoin_block_height: number | null
+          created_at: string
+          id: string
+          origin_id: string
+          ots_proof: string
+          status: string
+          upgraded_at: string | null
+        }
+        Insert: {
+          anchored_at?: string | null
+          bitcoin_block_height?: number | null
+          created_at?: string
+          id?: string
+          origin_id: string
+          ots_proof: string
+          status?: string
+          upgraded_at?: string | null
+        }
+        Update: {
+          anchored_at?: string | null
+          bitcoin_block_height?: number | null
+          created_at?: string
+          id?: string
+          origin_id?: string
+          ots_proof?: string
+          status?: string
+          upgraded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "core_ots_proofs_origin_id_fkey"
+            columns: ["origin_id"]
+            isOneToOne: true
+            referencedRelation: "origin_attestations"
+            referencedColumns: ["origin_id"]
+          },
+        ]
+      }
       core_rate_limits: {
         Row: {
           endpoint: string
