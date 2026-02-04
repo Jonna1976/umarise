@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Camera, X, RotateCcw, Check, Plus, Images } from 'lucide-react';
+import { Camera, X, RotateCcw, Check, Plus, Images, BookOpen } from 'lucide-react';
 import { compressImage } from '@/lib/imageCompression';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { triggerHaptic } from '@/lib/haptics';
@@ -355,47 +355,14 @@ export function CameraView({ onCapture, onCaptureMultiple, onBrowseAll, onOpenSe
 
       {/* Top bar - U seal for viewing origins, close when captured */}
       <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-        {/* U seal - view marked beginnings */}
+        {/* History icon - view marked beginnings (temporary: book icon until Wall of Existence) */}
         {!capturedImage && (
           <button
             onClick={onBrowseAll}
-            className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105"
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 bg-codex-gold/10"
             aria-label="View marked beginnings"
           >
-            <svg 
-              viewBox="0 0 48 48" 
-              className="w-10 h-10"
-              style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
-            >
-              {/* Open circle with gap - like the reference */}
-              <path
-                d="M 44 24 A 20 20 0 1 1 38 8"
-                fill="none"
-                stroke="hsl(var(--codex-gold))"
-                strokeWidth="1.5"
-                opacity="0.6"
-                strokeLinecap="round"
-              />
-              {/* Accent dot at the end of the arc */}
-              <circle
-                cx="38"
-                cy="8"
-                r="2"
-                fill="hsl(var(--codex-gold))"
-                opacity="0.8"
-              />
-              <text 
-                x="24" 
-                y="30" 
-                textAnchor="middle" 
-                fill="hsl(var(--codex-gold))"
-                fontFamily="Playfair Display, Georgia, serif"
-                fontSize="18"
-                opacity="0.8"
-              >
-                U
-              </text>
-            </svg>
+            <BookOpen className="w-6 h-6 text-codex-gold/80" strokeWidth={1.5} />
           </button>
         )}
         
