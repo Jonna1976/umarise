@@ -89,7 +89,8 @@ async function validatePartnerApiKey(
     return { valid: false, error: 'Invalid API key format' };
   }
 
-  const keyPrefix = apiKey.substring(0, 8);
+  // Key format: um_<64 hex chars>, prefix is um_ + first 8 hex chars = 11 chars
+  const keyPrefix = apiKey.substring(0, 11);
   const keyHash = await computeKeyHash(apiKey, coreApiSecret);
 
   const { data: keyRecords, error: lookupError } = await supabase
