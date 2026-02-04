@@ -54,6 +54,8 @@ tags:
     description: Lookup origins by ID or hash
   - name: Verification
     description: Verify hash existence
+  - name: Proof
+    description: Download OpenTimestamps proofs
   - name: Health
     description: System status
 
@@ -291,6 +293,115 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
 
+  /v1-core-proof:
+    get:
+      tags:
+        - Proof
+      summary: Download OpenTimestamps proof
+      description: |
+        Download the OpenTimestamps (.ots) proof file for a given origin attestation.
+        
+        This endpoint enables independent, trustless verification against the Bitcoin blockchain.
+        The returned .ots file can be verified using any OpenTimestamps client without relying on Umarise infrastructure.
+        
+        **Response behavior:**
+        - **200 OK**: Proof is anchored. Returns binary .ots file for download.
+        - **202 Accepted**: Proof is pending. Returns JSON with status information.
+        - **404 Not Found**: No proof exists for the given origin_id.
+        
+        **Verification:**
+        Once downloaded, verify the proof using the OpenTimestamps CLI:
+        ```bash
+        ots verify <origin_id>.ots
+        ```
+      operationId: getProof
+      parameters:
+        - name: origin_id
+          in: query
+          description: The unique origin identifier (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Anchored proof available for download
+          headers:
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+            X-Bitcoin-Block-Height:
+              description: Bitcoin block height where the proof was anchored
+              schema:
+                type: integer
+                example: 880000
+            X-Anchored-At:
+              description: ISO 8601 timestamp when the proof was anchored
+              schema:
+                type: string
+                format: date-time
+                example: "2026-02-04T14:30:00.000Z"
+            Content-Disposition:
+              description: Attachment filename for the .ots file
+              schema:
+                type: string
+                example: "attachment; filename=\"550e8400-e29b-41d4-a716-446655440000.ots\""
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                description: OpenTimestamps proof file (.ots)
+        '202':
+          description: Proof is pending - not yet anchored to Bitcoin
+          headers:
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingProofResponse'
+              example:
+                origin_id: "550e8400-e29b-41d4-a716-446655440000"
+                status: "pending"
+                message: "Proof is pending Bitcoin confirmation. Retry later."
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "INVALID_REQUEST_BODY"
+                  message: "Missing required query parameter: origin_id"
+        '404':
+          description: No proof found for this origin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "NOT_FOUND"
+                  message: "No proof found for origin_id"
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
   /v1-core-health:
     get:
       tags:
@@ -433,6 +544,28 @@ components:
         timestamp:
           type: string
           format: date-time
+
+    PendingProofResponse:
+      type: object
+      required:
+        - origin_id
+        - status
+        - message
+      properties:
+        origin_id:
+          type: string
+          format: uuid
+          description: The origin identifier for this proof
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          enum: [pending]
+          description: Current status of the proof
+          example: "pending"
+        message:
+          type: string
+          description: Human-readable status message
+          example: "Proof is pending Bitcoin confirmation. Retry later."
           description: Server timestamp
           example: "2026-02-04T14:30:00.000Z"
 
