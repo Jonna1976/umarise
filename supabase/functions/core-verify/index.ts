@@ -30,6 +30,12 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Deprecation headers for legacy endpoint
+const deprecationHeaders = {
+  'X-Deprecated': 'true',
+  'X-Upgrade-To': '/v1/core/verify',
+};
+
 interface CoreVerifyRequest {
   hash: string;
 }
@@ -177,7 +183,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify(response),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, ...deprecationHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {

@@ -33,6 +33,12 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
+// Deprecation headers for legacy endpoint
+const deprecationHeaders = {
+  'X-Deprecated': 'true',
+  'X-Upgrade-To': '/v1/core/resolve',
+};
+
 interface CoreOrigin {
   origin_id: string;
   hash: string;
@@ -167,6 +173,7 @@ Deno.serve(async (req: Request) => {
         status: 200, 
         headers: { 
           ...corsHeaders, 
+          ...deprecationHeaders,
           'Content-Type': 'application/json',
           'Cache-Control': 'public, max-age=3600',
         } 

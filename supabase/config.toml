@@ -88,3 +88,16 @@ verify_jwt = false
 [functions.internal-e2e-test]
 verify_jwt = false
 
+# Core API v1 endpoints
+[functions.v1-core-health]
+verify_jwt = false
+
+[functions.v1-core-resolve]
+verify_jwt = false
+
+[functions.v1-core-verify]
+verify_jwt = false
+
+[functions.v1-core-origins]
+verify_jwt = false
+
