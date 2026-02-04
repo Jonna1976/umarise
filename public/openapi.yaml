@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: Umarise Core API
+  description: |
+    Origin registry for digital artifacts. Attests that a hash existed at a specific point in time.
+    
+    Core stores only the hash, timestamp, and origin ID. It never sees, stores, or interprets 
+    the original content. Partners retain full custody of their artifacts.
+    
+    ## Authentication
+    
+    - **Public endpoints** (`/v1/core/resolve`, `/v1/core/verify`, `/v1/core/health`): No authentication required.
+    - **Private endpoints** (`/v1/core/origins`): Requires `X-API-Key` header with a valid partner API key.
+    
+    ## Rate Limits
+    
+    | Endpoint | Limit | Window |
+    |----------|-------|--------|
+    | POST /v1/core/origins | Tier-based (100-100,000) | per minute per API key |
+    | GET /v1/core/resolve | 1,000 | per minute per IP |
+    | POST /v1/core/verify | 1,000 | per minute per IP |
+    
+    Rate limit headers are included in every response:
+    - `X-RateLimit-Limit`: Maximum requests allowed in the window
+    - `X-RateLimit-Remaining`: Requests remaining in the current window
+    - `X-RateLimit-Reset`: Unix timestamp when the window resets
+    
+    ## Privacy
+    
+    "Publicly verifiable" does NOT mean "publicly browsable."
+    
+    - There is no endpoint to list all attestations.
+    - SHA-256 is a one-way function: content → hash is possible, hash → content is mathematically impossible.
+    - Core stores no identity. Attestations cannot be linked to persons, devices, or accounts.
+    
+    You can only verify if you already know what you're looking for.
+    
+  version: "1.0.0"
+  contact:
+    name: Umarise Partners
+    email: partners@umarise.com
+  license:
+    name: Proprietary
+    url: https://umarise.com/terms
+
+servers:
+  - url: https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1
+    description: Production
+
+tags:
+  - name: Attestation
+    description: Create origin attestations
+  - name: Resolution
+    description: Lookup origins by ID or hash
+  - name: Verification
+    description: Verify hash existence
+  - name: Health
+    description: System status
+
+paths:
+  /v1-core-origins:
+    post:
+      tags:
+        - Attestation
+      summary: Create origin attestation
+      description: |
+        Records that a hash existed at this moment in time.
+        
+        **Important constraints:**
+        - Hash-only: Do not send bytes, content, files, or metadata.
+        - Write-once: Attestations are immutable. The same hash can be attested multiple times (each creates a new record).
+        - No idempotency: Submitting the same hash twice creates two attestations.
+      operationId: createOrigin
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOriginRequest'
+            examples:
+              prefixed:
+                summary: With sha256 prefix
+                value:
+                  hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              raw:
+                summary: Raw hex (64 chars)
+                value:
+                  hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      responses:
+        '201':
+          description: Origin attestation created
+          headers:
+            Location:
+              description: URI to resolve this origin
+              schema:
+                type: string
+                example: "/v1/core/resolve?origin_id=550e8400-e29b-41d4-a716-446655440000"
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Origin'
+              example:
+                origin_id: "550e8400-e29b-41d4-a716-446655440000"
+                hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                hash_algo: "sha256"
+                captured_at: "2026-02-04T14:30:00.000Z"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_hash:
+                  summary: Invalid hash format
+                  value:
+                    error:
+                      code: "INVALID_HASH_FORMAT"
+                      message: "Hash must be in format sha256:<64-hex-chars> or raw 64-char hex"
+                rejected_field:
+                  summary: Forbidden field included
+                  value:
+                    error:
+                      code: "REJECTED_FIELD"
+                      message: "Core does not accept bytes. Provide hash only."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1-core-resolve:
+    get:
+      tags:
+        - Resolution
+      summary: Resolve origin by ID or hash
+      description: |
+        Lookup an origin attestation by its origin_id or hash.
+        
+        If both parameters are provided, origin_id takes precedence.
+        
+        When resolving by hash, returns the **earliest** attestation for that hash (first-in-time).
+      operationId: resolveOrigin
+      parameters:
+        - name: origin_id
+          in: query
+          description: The unique origin identifier (UUID)
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+        - name: hash
+          in: query
+          description: The SHA-256 hash (prefixed or raw)
+          required: false
+          schema:
+            type: string
+            pattern: '^(sha256:)?[a-fA-F0-9]{64}$'
+            example: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      responses:
+        '200':
+          description: Origin found
+          headers:
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Origin'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_param:
+                  summary: No identifier provided
+                  value:
+                    error:
+                      code: "INVALID_REQUEST_BODY"
+                      message: "Provide either origin_id or hash query parameter"
+                invalid_hash:
+                  summary: Invalid hash format
+                  value:
+                    error:
+                      code: "INVALID_HASH_FORMAT"
+                      message: "Hash must be in format sha256:<64-hex-chars> or raw 64-char hex"
+        '404':
+          description: Origin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "NOT_FOUND"
+                  message: "No origin found for given identifier"
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1-core-verify:
+    post:
+      tags:
+        - Verification
+      summary: Verify hash existence
+      description: |
+        Binary verification: does this hash have an attestation?
+        
+        Returns the origin record if found, or 404 if not.
+        
+        When multiple attestations exist for the same hash, returns the **earliest** one (first-in-time).
+      operationId: verifyHash
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+            example:
+              hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      responses:
+        '200':
+          description: Hash has been attested
+          headers:
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Origin'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_hash:
+                  summary: Invalid hash format
+                  value:
+                    error:
+                      code: "INVALID_HASH_FORMAT"
+                      message: "Hash must be in format sha256:<64-hex-chars> or raw 64-char hex"
+                rejected_field:
+                  summary: Forbidden field included
+                  value:
+                    error:
+                      code: "REJECTED_FIELD"
+                      message: "Core verifies by hash only. Do not provide bytes or origin_id."
+        '404':
+          description: Hash not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error:
+                  code: "NOT_FOUND"
+                  message: "No matching origin found for hash"
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /v1-core-health:
+    get:
+      tags:
+        - Health
+      summary: Check system health
+      description: |
+        Returns the operational status of Umarise Core.
+        
+        Use this endpoint for uptime monitoring and integration health checks.
+      operationId: getHealth
+      responses:
+        '200':
+          description: System operational
+          headers:
+            X-API-Version:
+              $ref: '#/components/headers/X-API-Version'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "operational"
+                version: "v1"
+                timestamp: "2026-02-04T14:30:00.000Z"
+        '503':
+          description: System degraded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "degraded"
+                version: "v1"
+                timestamp: "2026-02-04T14:30:00.000Z"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Partner API key issued by Umarise
+
+  headers:
+    X-API-Version:
+      description: API version
+      schema:
+        type: string
+        example: "v1"
+    X-RateLimit-Limit:
+      description: Maximum requests allowed in the current window
+      schema:
+        type: integer
+        example: 100
+    X-RateLimit-Remaining:
+      description: Requests remaining in the current window
+      schema:
+        type: integer
+        example: 95
+    X-RateLimit-Reset:
+      description: Unix timestamp when the rate limit window resets
+      schema:
+        type: integer
+        example: 1707058260
+
+  schemas:
+    Origin:
+      type: object
+      required:
+        - origin_id
+        - hash
+        - hash_algo
+        - captured_at
+      properties:
+        origin_id:
+          type: string
+          format: uuid
+          description: Unique identifier for this attestation
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        hash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: SHA-256 hash of the attested content (lowercase hex, no prefix)
+          example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        hash_algo:
+          type: string
+          enum: [sha256]
+          description: Hash algorithm used
+          example: "sha256"
+        captured_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the attestation was created
+          example: "2026-02-04T14:30:00.000Z"
+
+    CreateOriginRequest:
+      type: object
+      required:
+        - hash
+      properties:
+        hash:
+          type: string
+          pattern: '^(sha256:)?[a-fA-F0-9]{64}$'
+          description: |
+            SHA-256 hash of the content to attest.
+            
+            Accepts two formats:
+            - Prefixed: `sha256:e3b0c44...` (64 hex chars after prefix)
+            - Raw: `e3b0c44...` (64 hex chars, assumed SHA-256)
+          example: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      additionalProperties: false
+
+    VerifyRequest:
+      type: object
+      required:
+        - hash
+      properties:
+        hash:
+          type: string
+          pattern: '^(sha256:)?[a-fA-F0-9]{64}$'
+          description: SHA-256 hash to verify
+          example: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      additionalProperties: false
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - version
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [operational, degraded]
+          description: Current system status
+        version:
+          type: string
+          description: API version
+          example: "v1"
+        timestamp:
+          type: string
+          format: date-time
+          description: Server timestamp
+          example: "2026-02-04T14:30:00.000Z"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code
+              enum:
+                - INVALID_HASH_FORMAT
+                - INVALID_REQUEST_BODY
+                - REJECTED_FIELD
+                - UNAUTHORIZED
+                - API_KEY_REVOKED
+                - NOT_FOUND
+                - RATE_LIMIT_EXCEEDED
+                - INTERNAL_ERROR
+            message:
+              type: string
+              description: Human-readable error message
+            retry_after_seconds:
+              type: integer
+              description: Seconds until rate limit resets (only for RATE_LIMIT_EXCEEDED)
+            limit:
+              type: integer
+              description: Rate limit that was exceeded (only for RATE_LIMIT_EXCEEDED)
+            window:
+              type: string
+              description: Rate limit window (only for RATE_LIMIT_EXCEEDED)
+              example: "1m"
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "UNAUTHORIZED"
+              message: "Missing X-API-Key header"
+
+    Forbidden:
+      description: API key has been revoked
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "API_KEY_REVOKED"
+              message: "API key has been revoked"
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          description: Seconds until rate limit resets
+          schema:
+            type: integer
+            example: 42
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Rate limit exceeded. Retry after 42 seconds."
+              retry_after_seconds: 42
+              limit: 100
+              window: "1m"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "INTERNAL_ERROR"
+              message: "Internal server error"
