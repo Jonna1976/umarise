@@ -101,3 +101,6 @@ verify_jwt = false
 [functions.v1-core-origins]
 verify_jwt = false
 
+[functions.v1-internal-metrics]
+verify_jwt = false
+
