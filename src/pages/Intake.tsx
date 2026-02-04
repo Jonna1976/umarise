@@ -56,9 +56,12 @@ export default function Intake() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2">
               <li>Origin Records are write-once</li>
-              <li>Origin Records are externally anchored</li>
+              <li>Origin Records are immutably recorded</li>
               <li>Verification is binary</li>
             </ul>
+            <p className="text-landing-muted/50 mt-4 text-sm">
+              Immutability is enforced at the database level. External anchoring (OpenTimestamps) is on the roadmap.
+            </p>
           </section>
 
           {/* The Law */}
