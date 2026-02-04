@@ -56,19 +56,19 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Validate internal access
+    // Validate internal access using dedicated internal secret
     const internalSecret = req.headers.get('x-internal-secret');
-    const coreApiSecret = Deno.env.get('CORE_API_SECRET');
+    const expectedSecret = Deno.env.get('INTERNAL_API_SECRET');
 
-    if (!coreApiSecret) {
-      console.error('[v1-internal-metrics] CORE_API_SECRET not configured');
+    if (!expectedSecret) {
+      console.error('[v1-internal-metrics] INTERNAL_API_SECRET not configured');
       return new Response(
         JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Server configuration error' } }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!internalSecret || internalSecret !== coreApiSecret) {
+    if (!internalSecret || internalSecret !== expectedSecret) {
       return new Response(
         JSON.stringify({ error: { code: 'UNAUTHORIZED', message: 'Invalid or missing X-Internal-Secret' } }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
