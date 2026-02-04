@@ -31,6 +31,12 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Deprecation headers for legacy endpoint
+const deprecationHeaders = {
+  'X-Deprecated': 'true',
+  'X-Upgrade-To': '/v1/core/origins',
+};
+
 interface CoreOriginRequest {
   hash: string; // Format: "sha256:<hex>" or just "<hex>"
 }
@@ -271,8 +277,9 @@ Deno.serve(async (req: Request) => {
         status: 201, 
         headers: { 
           ...corsHeaders, 
+          ...deprecationHeaders,
           'Content-Type': 'application/json',
-          'Location': `/core/resolve?origin_id=${data.origin_id}`,
+          'Location': `/v1/core/resolve?origin_id=${data.origin_id}`,
         } 
       }
     );

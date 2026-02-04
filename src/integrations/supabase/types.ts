@@ -526,6 +526,10 @@ export type Database = {
     }
     Functions: {
       cleanup_old_audit_logs: { Args: never; Returns: undefined }
+      core_check_rate_limit: {
+        Args: { p_endpoint: string; p_limit: number; p_rate_key: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
