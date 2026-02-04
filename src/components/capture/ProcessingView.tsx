@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '@/lib/haptics';
-import { Share2 } from 'lucide-react';
+import { Share2, BookOpen } from 'lucide-react';
 
 interface ProcessingViewProps {
   imageUrl: string;
@@ -438,47 +438,10 @@ export function ProcessingView({
             animate={{ opacity: 0.8, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
             onClick={onViewBeginnings}
-            className="mt-8 p-3 rounded-full hover:opacity-100 transition-opacity bg-codex-gold/10"
+            className="mt-8 p-4 rounded-full hover:opacity-100 transition-opacity bg-codex-gold/10"
             aria-label="View all beginnings"
           >
-            <svg 
-              viewBox="0 0 48 48" 
-              className="w-10 h-10"
-              style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
-            >
-              {/* Open circle with gap */}
-              <circle
-                cx="24"
-                cy="24"
-                r="20"
-                fill="none"
-                stroke="hsl(var(--codex-gold))"
-                strokeWidth="1.5"
-                strokeDasharray="120 8"
-                strokeDashoffset="-10"
-                strokeLinecap="round"
-                opacity="0.7"
-              />
-              {/* Accent dot */}
-              <circle
-                cx="40"
-                cy="12"
-                r="2.5"
-                fill="hsl(var(--codex-gold))"
-                opacity="0.9"
-              />
-              <text 
-                x="24" 
-                y="30" 
-                textAnchor="middle" 
-                fill="hsl(var(--codex-gold))"
-                fontFamily="Playfair Display, Georgia, serif"
-                fontSize="16"
-                opacity="0.8"
-              >
-                U
-              </text>
-            </svg>
+            <BookOpen className="w-8 h-8 text-codex-gold/80" strokeWidth={1.5} />
             <span className="sr-only">View all beginnings</span>
           </motion.button>
         )}
