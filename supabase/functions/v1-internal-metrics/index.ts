@@ -84,14 +84,13 @@ Deno.serve(async (req: Request) => {
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // Parallel queries for efficiency
+    // Parallel queries for efficiency - use RPC for request metrics to bypass 1000 row limit
     const [
       totalAttestationsResult,
       attestations24hResult,
       attestations7dResult,
       activePartnersResult,
-      requestStats24hResult,
-      requestsByEndpointResult,
+      requestMetrics24hResult,
     ] = await Promise.all([
       // Total attestations
       supabase
@@ -116,40 +115,25 @@ Deno.serve(async (req: Request) => {
         .select('*', { count: 'exact', head: true })
         .is('revoked_at', null),
       
-      // Request stats for last 24h (avg response time, error rate, total)
-      supabase
-        .from('core_request_log')
-        .select('status_code, response_time_ms')
-        .gte('created_at', twentyFourHoursAgo.toISOString()),
-      
-      // Requests by endpoint for last 24h
-      supabase
-        .from('core_request_log')
-        .select('endpoint')
-        .gte('created_at', twentyFourHoursAgo.toISOString()),
+      // Request metrics for last 24h - using RPC to bypass 1000 row limit
+      supabase.rpc('core_metrics_24h'),
     ]);
 
-    // Calculate derived metrics
-    const requestStats = requestStats24hResult.data || [];
-    const totalRequests24h = requestStats.length;
-    
-    let avgResponseTime = 0;
-    let errorRate = 0;
-    
-    if (totalRequests24h > 0) {
-      const totalResponseTime = requestStats.reduce((sum, r) => sum + (r.response_time_ms || 0), 0);
-      avgResponseTime = Math.round(totalResponseTime / totalRequests24h);
-      
-      const errorCount = requestStats.filter(r => r.status_code && r.status_code >= 400).length;
-      errorRate = Math.round((errorCount / totalRequests24h) * 10000) / 10000; // 4 decimal places
-    }
+    // Extract metrics from RPC result
+    const requestMetrics = requestMetrics24hResult.data || {
+      total_requests: 0,
+      avg_response_time_ms: 0,
+      error_count: 0,
+      by_endpoint: {},
+    };
 
-    // Count requests by endpoint
-    const requestsByEndpoint: Record<string, number> = {};
-    for (const r of requestsByEndpointResult.data || []) {
-      const endpoint = r.endpoint || 'unknown';
-      requestsByEndpoint[endpoint] = (requestsByEndpoint[endpoint] || 0) + 1;
-    }
+    const totalRequests24h = requestMetrics.total_requests || 0;
+    const avgResponseTime = requestMetrics.avg_response_time_ms || 0;
+    const errorCount = requestMetrics.error_count || 0;
+    const errorRate = totalRequests24h > 0 
+      ? Math.round((errorCount / totalRequests24h) * 10000) / 10000 
+      : 0;
+    const requestsByEndpoint = requestMetrics.by_endpoint || {};
 
     const metrics: MetricsResponse = {
       total_attestations: totalAttestationsResult.count || 0,

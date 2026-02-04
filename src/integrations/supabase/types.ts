@@ -530,6 +530,7 @@ export type Database = {
         Args: { p_endpoint: string; p_limit: number; p_rate_key: string }
         Returns: Json
       }
+      core_metrics_24h: { Args: never; Returns: Json }
     }
     Enums: {
       [_ in never]: never
