@@ -188,11 +188,14 @@ export function ProcessingView({
   const displayHash = formatHash(originHash);
   const displayOriginId = formatOriginId(originId);
 
+  // Determine if we should keep container visible (for first-visit install UI)
+  const keepVisible = phase === 'release' && isFirstVisit;
+  
   return (
     <motion.div 
       className="min-h-screen bg-codex-ink-deep flex flex-col items-center justify-center p-6"
       initial={{ opacity: 0 }}
-      animate={{ opacity: phase === 'release' ? 0 : 1 }}
+      animate={{ opacity: (phase === 'release' && !keepVisible) ? 0 : 1 }}
       transition={{ duration: phase === 'release' ? 0.8 : 0.3 }}
     >
       <AnimatePresence mode="wait">
@@ -242,7 +245,7 @@ export function ProcessingView({
           </motion.div>
         )}
 
-        {(phase === 'mark' || phase === 'release') && (
+        {(phase === 'mark' || (phase === 'release' && !showInstallUI)) && (
           // PHASE 2 & 3: THE CERTIFICATE + RELEASE
           // Mark: instant reveal — certificate appears out of nothing
           // Release: sinks down with gravity, felt not explained
@@ -389,92 +392,95 @@ export function ProcessingView({
               </motion.p>
             )}
 
-            {/* First-visit install prompt + share */}
-            {phase === 'release' && showInstallUI && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-                className="mt-12 flex flex-col items-center gap-6"
-              >
-                {/* Primary message */}
-                <p className="font-serif text-xl text-codex-cream/80 text-center">
-                  When it begins, hold on.
-                </p>
-                
-                {/* Install button (if PWA prompt available) */}
-                {deferredPrompt && (
-                  <button
-                    onClick={handleInstall}
-                    className="text-codex-gold/70 text-sm hover:text-codex-gold transition-colors underline underline-offset-4"
-                  >
-                    Add to Home Screen
-                  </button>
-                )}
-                
-                {/* Share button */}
-                <button
-                  onClick={handleShare}
-                  className="flex items-center gap-2 text-codex-cream/50 text-xs hover:text-codex-cream/70 transition-colors mt-2"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span>Share Umarise</span>
-                </button>
-              </motion.div>
-            )}
-
-            {/* History icon to view beginnings — appears during release when NOT first visit */}
-            {phase === 'release' && !showInstallUI && onViewBeginnings && (
-              <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 0.8, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                onClick={onViewBeginnings}
-                className="mt-8 p-3 rounded-full hover:opacity-100 transition-opacity bg-codex-gold/10"
-                aria-label="View all beginnings"
-              >
-                <svg 
-                  viewBox="0 0 48 48" 
-                  className="w-10 h-10"
-                  style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
-                >
-                  {/* Open circle with gap */}
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="20"
-                    fill="none"
-                    stroke="hsl(var(--codex-gold))"
-                    strokeWidth="1.5"
-                    strokeDasharray="120 8"
-                    strokeDashoffset="-10"
-                    strokeLinecap="round"
-                    opacity="0.7"
-                  />
-                  {/* Accent dot */}
-                  <circle
-                    cx="40"
-                    cy="12"
-                    r="2.5"
-                    fill="hsl(var(--codex-gold))"
-                    opacity="0.9"
-                  />
-                  <text 
-                    x="24" 
-                    y="30" 
-                    textAnchor="middle" 
-                    fill="hsl(var(--codex-gold))"
-                    fontFamily="Playfair Display, Georgia, serif"
-                    fontSize="16"
-                    opacity="0.8"
-                  >
-                    U
-                  </text>
-                </svg>
-                <span className="sr-only">View all beginnings</span>
-              </motion.button>
-            )}
           </motion.div>
+        )}
+
+        {/* First-visit install prompt + share - separate from certificate */}
+        {phase === 'release' && showInstallUI && (
+          <motion.div
+            key="install-ui"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="flex flex-col items-center gap-8 text-center"
+          >
+            {/* Primary message */}
+            <p className="font-serif text-2xl sm:text-3xl text-codex-cream/90">
+              When it begins, hold on.
+            </p>
+            
+            {/* Install button (if PWA prompt available) */}
+            {deferredPrompt && (
+              <button
+                onClick={handleInstall}
+                className="text-codex-gold text-base hover:text-codex-gold/80 transition-colors underline underline-offset-4"
+              >
+                Add to Home Screen
+              </button>
+            )}
+            
+            {/* Share button */}
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 text-codex-cream/60 text-sm hover:text-codex-cream/80 transition-colors"
+            >
+              <Share2 className="w-5 h-5" />
+              <span>Share Umarise</span>
+            </button>
+          </motion.div>
+        )}
+
+        {/* History icon to view beginnings — appears during release when NOT first visit */}
+        {phase === 'release' && !showInstallUI && onViewBeginnings && (
+          <motion.button
+            key="history-button"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 0.8, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            onClick={onViewBeginnings}
+            className="mt-8 p-3 rounded-full hover:opacity-100 transition-opacity bg-codex-gold/10"
+            aria-label="View all beginnings"
+          >
+            <svg 
+              viewBox="0 0 48 48" 
+              className="w-10 h-10"
+              style={{ filter: 'drop-shadow(0 0 8px rgba(200, 170, 100, 0.3))' }}
+            >
+              {/* Open circle with gap */}
+              <circle
+                cx="24"
+                cy="24"
+                r="20"
+                fill="none"
+                stroke="hsl(var(--codex-gold))"
+                strokeWidth="1.5"
+                strokeDasharray="120 8"
+                strokeDashoffset="-10"
+                strokeLinecap="round"
+                opacity="0.7"
+              />
+              {/* Accent dot */}
+              <circle
+                cx="40"
+                cy="12"
+                r="2.5"
+                fill="hsl(var(--codex-gold))"
+                opacity="0.9"
+              />
+              <text 
+                x="24" 
+                y="30" 
+                textAnchor="middle" 
+                fill="hsl(var(--codex-gold))"
+                fontFamily="Playfair Display, Georgia, serif"
+                fontSize="16"
+                opacity="0.8"
+              >
+                U
+              </text>
+            </svg>
+            <span className="sr-only">View all beginnings</span>
+          </motion.button>
         )}
       </AnimatePresence>
     </motion.div>
