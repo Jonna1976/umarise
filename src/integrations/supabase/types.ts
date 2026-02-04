@@ -393,6 +393,7 @@ export type Database = {
           key_hash: string
           key_prefix: string
           partner_name: string
+          rate_limit_tier: string
           revoked_at: string | null
         }
         Insert: {
@@ -402,6 +403,7 @@ export type Database = {
           key_hash: string
           key_prefix: string
           partner_name: string
+          rate_limit_tier?: string
           revoked_at?: string | null
         }
         Update: {
@@ -411,6 +413,7 @@ export type Database = {
           key_hash?: string
           key_prefix?: string
           partner_name?: string
+          rate_limit_tier?: string
           revoked_at?: string | null
         }
         Relationships: []
