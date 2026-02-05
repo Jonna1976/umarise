@@ -122,9 +122,9 @@ export default function Origin() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Record Structure (Normative)</h2>
             <p className="mb-4">An Origin Record consists of:</p>
             <ul className="space-y-2 pl-4">
-              <li><span className="text-landing-copper">hash</span> — identifying what existed</li>
-              <li><span className="text-landing-copper">timestamp</span> — identifying when it existed</li>
-              <li><span className="text-landing-copper">origin_id</span> — a stable external reference</li>
+              <li><span className="text-landing-copper">hash</span>: identifying what existed</li>
+              <li><span className="text-landing-copper">timestamp</span>: identifying when it existed</li>
+              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
             </ul>
             <p className="mt-4 text-landing-muted/50 text-sm">No additional fields are defined.</p>
           </section>

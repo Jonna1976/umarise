@@ -44,9 +44,9 @@ export default function Intake() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Record Contents</h2>
             <ul className="space-y-2">
-              <li><span className="text-landing-copper">hash</span> — what existed</li>
-              <li><span className="text-landing-copper">timestamp</span> — when it existed</li>
-              <li><span className="text-landing-copper">origin_id</span> — a stable external reference</li>
+              <li><span className="text-landing-copper">hash</span>: what existed</li>
+              <li><span className="text-landing-copper">timestamp</span>: when it existed</li>
+              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
             </ul>
             <p className="text-landing-muted/50 mt-4 text-sm">Nothing more.</p>
           </section>
@@ -115,9 +115,9 @@ export default function Intake() {
             </p>
             <p className="mb-3">Public endpoints:</p>
             <div className="font-mono text-sm space-y-2 pl-4 mb-6 text-landing-muted/70">
-              <div><span className="text-landing-copper">/v1-core-resolve</span> — Look up an Origin Record by ID or hash</div>
-              <div><span className="text-landing-copper">/v1-core-verify</span> — Verify whether a hash has been attested</div>
-              <div><span className="text-landing-copper">/v1-core-proof</span> — Download the .ots proof file</div>
+              <div><span className="text-landing-copper">/v1-core-resolve</span>: Look up an Origin Record by ID or hash</div>
+              <div><span className="text-landing-copper">/v1-core-verify</span>: Verify whether a hash has been attested</div>
+              <div><span className="text-landing-copper">/v1-core-proof</span>: Download the .ots proof file</div>
             </div>
             <p className="mb-3">Independent verification:</p>
             <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 font-mono text-sm text-landing-muted/70 mb-4">
