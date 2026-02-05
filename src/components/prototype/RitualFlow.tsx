@@ -106,17 +106,17 @@ export function RitualFlow() {
     goToScreen('seal-confirm');
   }, [goToScreen]);
 
-  // After seal confirmation (or skip), return to capture
+  // After seal confirmation (or skip), go to Wall of Existence to see the mark
   const handleSealConfirmComplete = useCallback(() => {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
-    goToScreen('capture');
+    goToScreen('wall');
   }, [goToScreen]);
 
   const handleSealConfirmSkip = useCallback(() => {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
-    goToScreen('capture');
+    goToScreen('wall');
   }, [goToScreen]);
 
   const handleOpenWall = useCallback(() => {

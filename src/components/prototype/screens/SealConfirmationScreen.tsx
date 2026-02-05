@@ -1,10 +1,11 @@
 /**
  * Seal Confirmation Screen
  * 
- * Post-mark auth flow: After the release, offer to receive 
- * the certificate via email. This is NOT an account creation prompt.
+ * Post-mark: Offer to receive the certificate via email.
+ * This is NOT an account creation prompt - it's "send me my proof".
  * 
- * "Send me my proof" vs "Create account"
+ * Per briefing: Email contains PDF with thumbnail, timestamp, 
+ * fingerprint, and OTS status.
  */
 
 import { useState } from 'react';
@@ -44,12 +45,11 @@ export function SealConfirmationScreen({
     setIsLoading(true);
 
     try {
-      // First sign in/up with magic link
+      // Sign in/up with magic link - this also links identity to marks
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: window.location.origin,
-          // The email will contain the magic link + certificate info
+          emailRedirectTo: `${window.location.origin}/prototype`,
           data: {
             originId,
             hash,
@@ -63,15 +63,15 @@ export function SealConfirmationScreen({
       }
 
       setIsSent(true);
-      toast.success('Certificate sent to your email');
+      toast.success('Certificate link sent');
       
       // Auto-complete after showing confirmation
       setTimeout(() => {
         onComplete();
-      }, 3000);
+      }, 2500);
     } catch (error) {
       console.error('Email send error:', error);
-      toast.error('Failed to send certificate. Please try again.');
+      toast.error('Failed to send. Try again.');
     } finally {
       setIsLoading(false);
     }
@@ -80,42 +80,53 @@ export function SealConfirmationScreen({
   if (isSent) {
     return (
       <motion.div
-        className="min-h-screen flex flex-col items-center justify-center bg-ritual-surface px-6"
+        className="min-h-screen flex flex-col items-center justify-center px-6"
+        style={{ background: 'hsl(var(--ritual-surface))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
         <div className="text-center max-w-[280px]">
-          {/* Envelope with checkmark */}
-          <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-            <svg 
-              viewBox="0 0 24 24" 
-              className="w-12 h-12 text-ritual-gold opacity-70"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-            >
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <path d="M22 6l-10 7L2 6" />
-              <circle cx="18" cy="18" r="4" fill="hsl(var(--ritual-gold))" stroke="none" />
-              <path d="M16 18l1.5 1.5L20 17" stroke="#0F1A0F" strokeWidth="1.5" />
+          {/* Checkmark seal */}
+          <div className="w-14 h-14 mx-auto mb-5">
+            <svg viewBox="0 0 56 56" width="56" height="56">
+              <circle 
+                cx="28" 
+                cy="28" 
+                r="23" 
+                fill="none" 
+                stroke="hsl(var(--ritual-gold))" 
+                strokeWidth="1" 
+                opacity="0.4"
+              />
+              <motion.path 
+                d="M18 28L25 35L38 22"
+                fill="none"
+                stroke="hsl(var(--ritual-gold))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              />
             </svg>
           </div>
 
           <h2 className="font-playfair text-2xl text-ritual-gold mb-3">
-            Certificate sent
+            Sent
           </h2>
           
-          <p className="font-garamond text-ritual-cream-60 text-sm mb-4">
-            Your proof is on its way to
+          <p className="font-garamond text-sm mb-4" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
+            Check your inbox for the magic link
           </p>
           
-          <p className="font-mono text-ritual-gold-muted text-xs tracking-wide mb-6">
+          <p className="font-mono text-[10px] tracking-wide mb-5" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
             {email}
           </p>
 
-          <p className="font-garamond italic text-ritual-cream-40 text-xs">
-            The PDF contains your timestamp, fingerprint, and OTS status
+          <p className="font-garamond italic text-[11px]" style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}>
+            The link includes your certificate with OTS proof
           </p>
         </div>
       </motion.div>
@@ -124,14 +135,15 @@ export function SealConfirmationScreen({
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center justify-center bg-ritual-surface px-6"
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
       <div className="w-full max-w-[280px]">
         {/* Seal icon */}
-        <div className="w-14 h-14 mx-auto mb-6">
+        <div className="w-14 h-14 mx-auto mb-5">
           <svg viewBox="0 0 56 56" width="56" height="56">
             <circle 
               cx="28" 
@@ -173,22 +185,22 @@ export function SealConfirmationScreen({
           </svg>
         </div>
 
-        <h2 className="font-playfair text-2xl text-ritual-gold text-center mb-2">
+        <h2 className="font-playfair text-[22px] text-ritual-gold text-center mb-2">
           Send me my proof
         </h2>
         
-        <p className="font-garamond text-ritual-cream-60 text-sm text-center mb-6">
-          Receive your certificate as PDF
+        <p className="font-garamond text-sm text-center mb-5" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
+          Receive your certificate via email
         </p>
 
-        {/* Origin summary */}
-        <div className="text-center mb-6 py-3 border-y border-ritual-gold/10">
-          <p className="font-mono text-[10px] text-ritual-gold-muted tracking-[2px] uppercase">
+        {/* Origin summary - subtle reminder of what was just marked */}
+        <div className="text-center mb-5 py-2.5 border-y" style={{ borderColor: 'hsl(var(--ritual-gold) / 0.1)' }}>
+          <p className="font-mono text-[9px] tracking-[2px] uppercase" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
             {originId}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
               type="email"
@@ -197,20 +209,26 @@ export function SealConfirmationScreen({
               placeholder="your@email.com"
               autoComplete="email"
               disabled={isLoading}
-              className="w-full px-4 py-3 bg-transparent border border-ritual-gold/30 rounded-lg
-                         font-mono text-sm text-ritual-cream placeholder:text-ritual-cream-40
-                         focus:outline-none focus:border-ritual-gold/60 transition-colors
+              className="w-full px-4 py-3 bg-transparent rounded-lg
+                         font-mono text-sm text-ritual-cream
+                         focus:outline-none transition-colors
                          disabled:opacity-50"
+              style={{ 
+                border: '1px solid hsl(var(--ritual-gold) / 0.3)',
+              }}
             />
           </div>
 
           <button
             type="submit"
             disabled={isLoading || !email}
-            className="w-full py-3 bg-ritual-gold/10 border border-ritual-gold/40 rounded-lg
-                       font-garamond text-ritual-gold text-sm
-                       hover:bg-ritual-gold/20 hover:border-ritual-gold/60 transition-all
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-lg font-garamond text-sm
+                       transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              background: 'hsl(var(--ritual-gold) / 0.1)',
+              border: '1px solid hsl(var(--ritual-gold) / 0.4)',
+              color: 'hsl(var(--ritual-gold))',
+            }}
           >
             {isLoading ? 'Sending...' : 'Send certificate'}
           </button>
@@ -218,14 +236,14 @@ export function SealConfirmationScreen({
 
         <button
           onClick={onSkip}
-          className="w-full mt-4 py-2 font-garamond text-ritual-cream-40 text-xs
-                     hover:text-ritual-cream-60 transition-colors"
+          className="w-full mt-4 py-2 font-garamond text-xs transition-colors"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
         >
-          Skip — keep it on device only
+          Skip — view on Wall
         </button>
 
-        <p className="mt-6 font-garamond italic text-ritual-cream-20 text-[11px] text-center">
-          Your email is masked in certificates (m***r@email.com)
+        <p className="mt-5 font-garamond italic text-[10px] text-center" style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}>
+          Your email is masked in certificates
         </p>
       </div>
     </motion.div>

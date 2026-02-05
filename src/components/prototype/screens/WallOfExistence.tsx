@@ -217,11 +217,33 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         ))}
       </div>
 
-      {/* U button to close wall - top: 38px, left: 16px per walkthrough spec */}
+      {/* U button to close wall and return to capture - top: 38px, left: 16px per walkthrough spec */}
       <OriginButton 
         onClick={onClose} 
         className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
       />
+
+      {/* New mark button - bottom center */}
+      <motion.button
+        onClick={onClose}
+        className="absolute bottom-[60px] left-1/2 -translate-x-1/2 z-50
+                   w-12 h-12 rounded-full flex items-center justify-center
+                   transition-all duration-300"
+        style={{
+          background: 'hsl(var(--ritual-gold) / 0.08)',
+          border: '1px solid hsl(var(--ritual-gold) / 0.25)',
+        }}
+        whileHover={{ 
+          scale: 1.05,
+          background: 'hsl(var(--ritual-gold) / 0.15)',
+        }}
+        whileTap={{ scale: 0.95 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 0.5 }}
+      >
+        <span className="font-playfair text-2xl text-ritual-gold opacity-60">+</span>
+      </motion.button>
 
       {/* Backup hint */}
       <motion.p
