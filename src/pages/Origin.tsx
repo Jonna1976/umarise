@@ -228,7 +228,7 @@ export default function Origin() {
               <li>the immutable record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              Origin Records are enforced as immutable by database-level constraints. External anchoring (TSA, blockchain) is on the roadmap.
+              Origin Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin.
             </p>
           </section>
 
