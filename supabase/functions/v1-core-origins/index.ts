@@ -49,6 +49,8 @@ interface CoreOriginResponse {
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
+  proof_status: 'pending';
+  proof_url: string;
 }
 
 // Compute HMAC-SHA256 of the API key using CORE_API_SECRET
@@ -315,6 +317,8 @@ Deno.serve(async (req: Request) => {
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
+      proof_status: 'pending',
+      proof_url: `/v1-core-origins-proof?origin_id=${data.origin_id}`,
     };
 
     console.log('[v1-core-origins] Created attestation:', {

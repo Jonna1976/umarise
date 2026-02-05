@@ -46,6 +46,8 @@ interface CoreOrigin {
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
+  proof_status: 'pending' | 'anchored';
+  proof_url: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -162,6 +164,9 @@ Deno.serve(async (req: Request) => {
       .limit(1)
       .maybeSingle();
 
+    // Also check proof status if origin is found
+    let proofStatus: 'pending' | 'anchored' = 'pending';
+
     if (error) {
       console.error('[v1-core-verify] Query error:', error);
       logRequest(supabase, {
@@ -197,18 +202,26 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Check OTS proof status for this origin
+    const { data: proofData } = await supabase
+      .from('core_ots_proofs')
+      .select('status')
+      .eq('origin_id', data.origin_id)
+      .maybeSingle();
+    
+    if (proofData?.status === 'anchored') {
+      proofStatus = 'anchored';
+    }
+
     // Attestation found - return origin directly (no wrapper)
     const origin: CoreOrigin = {
       origin_id: data.origin_id,
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
+      proof_status: proofStatus,
+      proof_url: `/v1-core-origins-proof?origin_id=${data.origin_id}`,
     };
-
-    console.log('[v1-core-verify] Match:', {
-      origin_id: data.origin_id,
-      hash: normalized.hash.substring(0, 20) + '...',
-    });
 
     logRequest(supabase, {
       endpoint: '/v1/core/verify',
