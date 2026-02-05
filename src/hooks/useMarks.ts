@@ -117,11 +117,21 @@ export function useMarks() {
     imageDataUrl: string,
     type: LocalMark['type'] = 'warm'
   ): Promise<DisplayMark | null> => {
-    const deviceUserId = getDeviceId();
+    // Auto-initialize device ID if not present
+    let deviceUserId = getDeviceId();
     if (!deviceUserId) {
+      console.log('[createMark] Auto-initializing device ID...');
+      const { initializeDeviceId } = await import('@/lib/deviceId');
+      deviceUserId = initializeDeviceId();
+    }
+    
+    if (!deviceUserId) {
+      console.error('[createMark] Failed to initialize device ID');
       toast.error('Device not initialized');
       return null;
     }
+    
+    console.log('[createMark] Using device ID:', deviceUserId.substring(0, 8) + '...');
 
     try {
       // Step 1: Generate compressed thumbnail
