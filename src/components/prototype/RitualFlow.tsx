@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen } from './screens/CaptureScreen';
 import { PauseScreen } from './screens/PauseScreen';
@@ -7,8 +7,10 @@ import { ReleaseScreen } from './screens/ReleaseScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { WallOfExistence } from './screens/WallOfExistence';
 import { OriginButton } from './components/OriginButton';
+import { MagicLinkAuth } from '@/components/auth/MagicLinkAuth';
+import { useAuth } from '@/hooks/useAuth';
 
-export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'auth' | 'capture' | 'pause' | 'mark' | 'release' | 'home' | 'wall';
 
 // Mock artifact for demo
 const MOCK_ARTIFACT = {
@@ -23,7 +25,24 @@ const MOCK_ARTIFACT = {
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('welcome');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Check if user has seen welcome/auth before
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
+    return localStorage.getItem('umarise_seen_onboarding') === 'true';
+  });
+
+  // Redirect authenticated users who've seen onboarding directly to capture
+  useEffect(() => {
+    if (!authLoading && hasSeenOnboarding) {
+      if (isAuthenticated) {
+        setScreen('capture');
+      } else if (screen === 'welcome') {
+        // User has seen welcome but not authenticated - show auth
+        setScreen('auth');
+      }
+    }
+  }, [authLoading, isAuthenticated, hasSeenOnboarding, screen]);
 
   const goToScreen = useCallback((target: RitualScreen) => {
     if (target !== 'wall') {
@@ -33,7 +52,27 @@ export function RitualFlow() {
   }, [screen]);
 
   const handleWelcomeComplete = useCallback(() => {
-    setHasSeenWelcome(true);
+    // After welcome, check if user is authenticated
+    if (isAuthenticated) {
+      setHasSeenOnboarding(true);
+      localStorage.setItem('umarise_seen_onboarding', 'true');
+      goToScreen('capture');
+    } else {
+      // Show auth screen
+      goToScreen('auth');
+    }
+  }, [goToScreen, isAuthenticated]);
+
+  const handleAuthSuccess = useCallback(() => {
+    setHasSeenOnboarding(true);
+    localStorage.setItem('umarise_seen_onboarding', 'true');
+    goToScreen('capture');
+  }, [goToScreen]);
+
+  const handleAuthSkip = useCallback(() => {
+    // Allow skipping auth for now (anonymous device ID as fallback)
+    setHasSeenOnboarding(true);
+    localStorage.setItem('umarise_seen_onboarding', 'true');
     goToScreen('capture');
   }, [goToScreen]);
 
@@ -64,6 +103,15 @@ export function RitualFlow() {
 
   const showOriginButton = screen === 'capture' || screen === 'pause' || screen === 'mark';
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-ritual-surface flex items-center justify-center">
+        <div className="w-3 h-3 rounded-full bg-ritual-gold animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-ritual-surface relative overflow-hidden font-garamond">
       {/* Origin Button (U) - visible on main screens: top: 40px, left: 18px per walkthrough spec */}
@@ -74,6 +122,10 @@ export function RitualFlow() {
       {/* Screens */}
       {screen === 'welcome' && (
         <WelcomeScreen onComplete={handleWelcomeComplete} />
+      )}
+
+      {screen === 'auth' && (
+        <MagicLinkAuth onSuccess={handleAuthSuccess} onSkip={handleAuthSkip} />
       )}
       
       {screen === 'capture' && (
