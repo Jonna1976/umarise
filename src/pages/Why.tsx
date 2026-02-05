@@ -58,10 +58,10 @@
                Regulatory frameworks increasingly require demonstrable data provenance:
              </p>
              <ul className="space-y-2 text-landing-muted/70 mb-4">
-               <li><span className="text-landing-copper">AI Act</span> — transparency requirements for training data and model inputs</li>
-               <li><span className="text-landing-copper">C2PA</span> — content authenticity standards for media provenance</li>
-               <li><span className="text-landing-copper">GDPR Article 5</span> — data accuracy and integrity requirements</li>
-               <li><span className="text-landing-copper">eIDAS 2.0</span> — qualified timestamps for legal validity</li>
+                <li><span className="text-landing-copper">AI Act</span>: transparency requirements for training data and model inputs</li>
+                <li><span className="text-landing-copper">C2PA</span>: content authenticity standards for media provenance</li>
+                <li><span className="text-landing-copper">GDPR Article 5</span>: data accuracy and integrity requirements</li>
+                <li><span className="text-landing-copper">eIDAS 2.0</span>: qualified timestamps for legal validity</li>
              </ul>
              <p className="text-landing-muted/50 text-sm">
                These frameworks share a common requirement: proof of what existed, when, from an independent source.
@@ -123,24 +123,24 @@
            <section className="border-t border-landing-muted/10 pt-12">
              <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Learn More</h2>
              <ul className="space-y-3">
-               <li>
-                 <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                   Origin One-Pager
-                 </Link>
-                 <span className="text-landing-muted/50 ml-2">— the normative mechanism</span>
-               </li>
-               <li>
-                 <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                   Specification
-                 </Link>
-                 <span className="text-landing-muted/50 ml-2">— technical details</span>
-               </li>
-               <li>
-                 <Link to="/core" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                   Core API
-                 </Link>
-                 <span className="text-landing-muted/50 ml-2">— integration reference</span>
-               </li>
+                <li>
+                  <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                    Origin One-Pager
+                  </Link>
+                  <span className="text-landing-muted/50 ml-2">: the normative mechanism</span>
+                </li>
+                <li>
+                  <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                    Specification
+                  </Link>
+                  <span className="text-landing-muted/50 ml-2">: technical details</span>
+                </li>
+                <li>
+                  <Link to="/core" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                    Core API
+                  </Link>
+                  <span className="text-landing-muted/50 ml-2">: integration reference</span>
+                </li>
              </ul>
            </section>
  

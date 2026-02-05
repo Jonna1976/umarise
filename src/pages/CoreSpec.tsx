@@ -59,13 +59,13 @@ export default function CoreSpec() {
                 <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
                   Origin One-Pager
                 </Link>
-                <span className="text-landing-muted/50 ml-2">— when and why origin attestation is correct</span>
+                <span className="text-landing-muted/50 ml-2">: when and why origin attestation is correct</span>
               </li>
               <li>
                 <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
                   Origin Record Specification
                 </Link>
-                <span className="text-landing-muted/50 ml-2">— the normative definition of an Origin Record</span>
+                <span className="text-landing-muted/50 ml-2">: the normative definition of an Origin Record</span>
               </li>
             </ul>
             <p className="mt-4 text-landing-muted/50 text-sm">
@@ -139,11 +139,11 @@ export default function CoreSpec() {
               Verification is public. Attestation is permissioned.
             </p>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
-              <li><span className="text-landing-cream/80">GET /v1-core-resolve</span> — public</li>
-              <li><span className="text-landing-cream/80">POST /v1-core-verify</span> — public</li>
-              <li><span className="text-landing-cream/80">GET /v1-core-proof</span> — public</li>
-              <li><span className="text-landing-cream/80">GET /v1-core-health</span> — public</li>
-              <li><span className="text-landing-cream/80">POST /v1-core-origins</span> — requires API key</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-resolve</span>: public</li>
+              <li><span className="text-landing-cream/80">POST /v1-core-verify</span>: public</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-proof</span>: public</li>
+              <li><span className="text-landing-cream/80">GET /v1-core-health</span>: public</li>
+              <li><span className="text-landing-cream/80">POST /v1-core-origins</span>: requires API key</li>
             </ul>
             <p className="text-landing-muted/60 mb-2">
               API key issuance is an infrastructural action, not a product flow.
@@ -189,7 +189,7 @@ export default function CoreSpec() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Stability</h2>
             <p className="text-landing-cream/90 mb-4">
-              Core v1 is <span className="text-landing-copper">STABLE — IMMUTABLE INTERFACE</span>.
+              Core v1 is <span className="text-landing-copper">STABLE. IMMUTABLE INTERFACE</span>.
             </p>
             <ul className="space-y-1 text-landing-muted/60 text-sm mb-4">
               <li>No new fields</li>
@@ -226,10 +226,10 @@ export default function CoreSpec() {
               An Origin Record contains:
             </p>
             <ul className="space-y-1 text-landing-muted/70 mb-6">
-              <li><span className="text-landing-copper">hash</span> — what existed</li>
-              <li><span className="text-landing-copper">hash_algo</span> — how it was computed</li>
-              <li><span className="text-landing-copper">timestamp</span> — when it existed</li>
-              <li><span className="text-landing-copper">origin_id</span> — a stable external reference</li>
+              <li><span className="text-landing-copper">hash</span>: what existed</li>
+              <li><span className="text-landing-copper">hash_algo</span>: how it was computed</li>
+              <li><span className="text-landing-copper">timestamp</span>: when it existed</li>
+              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
             </ul>
             <p className="text-landing-muted/60">
               Artifacts, bytes, files, and content remain entirely with the originating party.
