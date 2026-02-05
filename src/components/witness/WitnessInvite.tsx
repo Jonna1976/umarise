@@ -35,7 +35,8 @@ export function WitnessInvite({ pageId, originId, onComplete, onSkip }: WitnessI
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
 
-      const { error } = await supabase
+      // Use type assertion for witnesses table (not yet in generated types)
+      const { error } = await (supabase as any)
         .from('witnesses')
         .insert({
           page_id: pageId,

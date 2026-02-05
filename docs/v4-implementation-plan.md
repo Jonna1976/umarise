@@ -1,6 +1,6 @@
 # Umarise v4 Implementation Plan
 
-**Status:** Planning  
+**Status:** Phase 0-3 Implemented  
 **Created:** 2026-02-05  
 **Reference:** docs/complete-briefing-v4.md  
 **Language:** English (all UI strings must be English)
