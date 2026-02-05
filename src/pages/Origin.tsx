@@ -67,7 +67,7 @@ export default function Origin() {
               <li>In audits, disputes, or provenance challenges, the question is not whether a system recorded something, but whether that record can be independently verified without relying on the system's explanations</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              This creates a structural gap between operational correctness and evidentiary validity.
+              This creates a structural gap between operational correctness and verifiable validity.
             </p>
           </section>
 
@@ -173,7 +173,7 @@ export default function Origin() {
                   </tr>
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Operational</td>
-                    <td className="py-2">Evidentiary</td>
+                    <td className="py-2">Verifiable</td>
                   </tr>
                   <tr>
                     <td className="py-2 pr-4">Trust-based</td>
@@ -250,7 +250,7 @@ export default function Origin() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Reference</h2>
             <p className="mb-6">
-              Umarise is defined as an origin-attestation constraint implementing the properties described in this document.
+              Umarise Core is an origin registry implementing the properties described in this document.
             </p>
             <a
               href="mailto:partners@umarise.com"

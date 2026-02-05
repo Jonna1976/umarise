@@ -29,6 +29,13 @@ export default function Privacy() {
 
         <div className="space-y-12 text-landing-muted/80 leading-relaxed">
           
+          {/* Scope note */}
+          <section>
+            <p className="text-landing-muted/50 text-sm italic mb-8">
+              This Privacy Policy covers all Umarise services, including the Core API and the Umarise companion application.
+            </p>
+          </section>
+
           {/* Scope */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
@@ -106,16 +113,56 @@ export default function Privacy() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Not Processed</h2>
             <p className="mb-4">Umarise does not process or store:</p>
             <ul className="space-y-1 mb-4">
-              <li>• names or personal identifiers</li>
+              <li>• personal names or individual identifiers</li>
               <li>• email addresses</li>
               <li>• user accounts or passwords</li>
-              <li>• IP address logs</li>
               <li>• tracking cookies or analytics</li>
               <li>• behavioral or profiling data</li>
             </ul>
             <p className="text-landing-cream/70">
-              Umarise cannot identify users and does not attempt to do so.
+              Umarise cannot identify end users and does not attempt to do so. Partner organizations are identified solely by API key prefix for operational purposes.
             </p>
+          </section>
+
+          {/* Operational Data */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Operational Data</h2>
+            <p className="mb-4">
+              Umarise processes operational data to maintain service integrity and prevent abuse.
+            </p>
+            <div className="border border-landing-muted/20 rounded-lg overflow-hidden mb-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-landing-muted/20 bg-landing-muted/5">
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Data element</th>
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Purpose</th>
+                    <th className="text-left py-3 px-4 font-medium text-landing-cream/70">Storage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-3 px-4">IP address (hashed)</td>
+                    <td className="py-3 px-4">Rate limiting, abuse prevention</td>
+                    <td className="py-3 px-4">Hashed with SHA-256. Original IP is not retained.</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-3 px-4">API key prefix</td>
+                    <td className="py-3 px-4">Request attribution</td>
+                    <td className="py-3 px-4">First 11 characters only. Full key is hashed.</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-3 px-4">Request metadata</td>
+                    <td className="py-3 px-4">Operational monitoring</td>
+                    <td className="py-3 px-4">Endpoint, method, status code, response time.</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4">Partner name</td>
+                    <td className="py-3 px-4">Partner identification</td>
+                    <td className="py-3 px-4">Organization name (not personal names).</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
 
           {/* Data Processing Structure */}
@@ -132,9 +179,14 @@ export default function Privacy() {
           {/* Jurisdiction */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Jurisdiction</h2>
-            <p className="mb-4">All data processing occurs within the European Union.</p>
-            <p>
-              Origin records are stored exclusively in Germany (Hetzner) and are subject to GDPR and German data protection law.
+            <p className="mb-4">
+              Origin records are stored in the European Union and processed by infrastructure located in Germany (Hetzner).
+            </p>
+            <p className="mb-4">
+              Cryptographic hashes (non-personal data, 64-character strings) are submitted to independent OpenTimestamps calendar servers for Bitcoin anchoring. These servers are globally distributed and not operated by Umarise.
+            </p>
+            <p className="text-landing-muted/50 text-sm">
+              EU data processing is subject to GDPR and applicable data protection law.
             </p>
           </section>
 

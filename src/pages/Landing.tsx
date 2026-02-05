@@ -30,6 +30,13 @@ export default function Landing() {
           {/* Protocol rule - lower contrast, separated */}
           <p className="text-base text-landing-muted/35 tracking-wide">
             Verification is public. Attestation is permissioned.
+            <br />
+            Proof is independently verifiable — anchored in Bitcoin.
+          </p>
+
+          {/* Category descriptor */}
+          <p className="text-sm text-landing-muted/25 tracking-widest uppercase mt-6">
+            Verifiable Origin Registry
           </p>
         </main>
 
@@ -43,6 +50,7 @@ export default function Landing() {
             <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
             <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
             <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
+            <Link to="/why" className="hover:text-landing-muted/60 transition-colors">Why</Link>
           </div>
 
           {/* Legal documents */}

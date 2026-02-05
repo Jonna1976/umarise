@@ -161,6 +161,9 @@ export default function CoreSpec() {
               <li>Origin Records are immutably recorded</li>
               <li>Verification is binary (match / no-match)</li>
             </ul>
+            <p className="text-landing-muted/60 mb-6">
+              Origin Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
+            </p>
             <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">
               <p className="text-landing-copper/80 font-medium mb-2">Law of Origin:</p>
               <p className="text-landing-cream/90">
@@ -220,12 +223,13 @@ export default function CoreSpec() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Boundary</h2>
             <p className="text-landing-cream/90 mb-4">
-              Umarise Core stores only Origin Records:
+              An Origin Record contains:
             </p>
             <ul className="space-y-1 text-landing-muted/70 mb-6">
-              <li>a cryptographic hash</li>
-              <li>a timestamp</li>
-              <li>an origin identifier</li>
+              <li><span className="text-landing-copper">hash</span> — what existed</li>
+              <li><span className="text-landing-copper">hash_algo</span> — how it was computed</li>
+              <li><span className="text-landing-copper">timestamp</span> — when it existed</li>
+              <li><span className="text-landing-copper">origin_id</span> — a stable external reference</li>
             </ul>
             <p className="text-landing-muted/60">
               Artifacts, bytes, files, and content remain entirely with the originating party.

@@ -29,6 +29,7 @@ import Origin from "./pages/Origin";
 import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
+import Why from "./pages/Why";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/why" element={<Why />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
