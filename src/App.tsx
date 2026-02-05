@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { PinGate } from "@/components/PinGate";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import OriginView from "./pages/OriginView";
@@ -30,6 +32,8 @@ import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import Why from "./pages/Why";
+import Install from "./pages/Install";
+import PartnerDashboard from "./pages/PartnerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +43,8 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <InstallPrompt />
+        <PWAUpdatePrompt />
         <BrowserRouter>
           <Routes>
             {/* PUBLIC ROUTES - No PinGate */}
@@ -60,6 +66,8 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/why" element={<Why />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/dashboard" element={<PartnerDashboard />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
