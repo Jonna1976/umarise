@@ -34,90 +34,100 @@
            </p>
          </div>
  
-         {/* Document content */}
-         <div className="space-y-12 text-landing-muted/80 leading-relaxed">
- 
-           {/* The Problem */}
-           <section>
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Problem</h2>
-             <p className="mb-4 text-landing-cream/90">
-               Systems that process data cannot prove they received it unaltered.
-             </p>
-             <p className="mb-4">
-               Internal logs, timestamps, and signatures are self-attested. They prove what the system claims — not what actually existed before the system touched it.
-             </p>
-             <p className="text-landing-muted/60">
-               When disputes arise, when audits occur, when provenance matters — internal evidence is insufficient.
-             </p>
-           </section>
- 
-           {/* The Shift */}
-           <section>
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Shift</h2>
-             <p className="mb-4">
-               Regulatory frameworks increasingly require demonstrable data provenance:
-             </p>
-             <ul className="space-y-2 text-landing-muted/70 mb-4">
-                <li><span className="text-landing-copper">AI Act</span>: transparency requirements for training data and model inputs</li>
-                <li><span className="text-landing-copper">C2PA</span>: content authenticity standards for media provenance</li>
-                <li><span className="text-landing-copper">GDPR Article 5</span>: data accuracy and integrity requirements</li>
-                <li><span className="text-landing-copper">eIDAS 2.0</span>: qualified timestamps for legal validity</li>
-             </ul>
-             <p className="text-landing-muted/50 text-sm">
-               These frameworks share a common requirement: proof of what existed, when, from an independent source.
-             </p>
-           </section>
- 
-           {/* The Gap */}
-           <section>
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Gap</h2>
-             <p className="mb-4 text-landing-cream/90">
-               Content authenticity standards like C2PA address the lifecycle of media.
-             </p>
-             <p className="mb-4">
-               But what about the moment before? The original input? The first capture?
-             </p>
-             <p className="text-landing-muted/60">
-               Origin attestation fills this gap. It establishes the starting point — verifiable, immutable, independent of downstream processing.
-             </p>
-           </section>
- 
-           {/* How It Works */}
-           <section className="border-l-2 border-landing-copper/30 pl-6">
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">How It Works</h2>
-             <ol className="space-y-3 text-landing-muted/70">
-               <li><span className="text-landing-copper">1.</span> Data enters a system</li>
-               <li><span className="text-landing-copper">2.</span> A SHA-256 hash is computed at the moment of entry</li>
-               <li><span className="text-landing-copper">3.</span> The hash is submitted to Umarise Core</li>
-               <li><span className="text-landing-copper">4.</span> Umarise anchors the hash via OpenTimestamps to Bitcoin</li>
-               <li><span className="text-landing-copper">5.</span> The resulting proof is independently verifiable — forever</li>
-             </ol>
-           </section>
- 
-           {/* Interoperability */}
-           <section>
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Interoperability</h2>
-             <p className="mb-4">
-               Umarise uses SHA-256 — the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
-             </p>
-             <p className="text-landing-muted/60">
-               This means an origin attestation can serve as the root of a C2PA provenance chain, or as an independent anchor for any system that computes SHA-256 hashes.
-             </p>
-           </section>
- 
-           {/* What Umarise Is Not */}
-           <section>
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">What Umarise Is Not</h2>
-             <ul className="space-y-2 text-landing-muted/70">
-               <li>Not a content management system</li>
-               <li>Not a media authenticity platform</li>
-               <li>Not a governance or policy layer</li>
-               <li>Not a replacement for internal logging</li>
-             </ul>
-             <p className="mt-4 text-landing-cream/70">
-               Umarise is an origin layer — it establishes what existed when, and nothing more.
-             </p>
-           </section>
+        {/* Document content */}
+        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
+
+          {/* The Problem */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Problem</h2>
+            <p className="mb-4 text-landing-cream/90">
+              Systems that process data cannot prove they received it unaltered.
+            </p>
+            <p className="mb-4">
+              Internal logs, timestamps, and signatures are self-attested. They prove what the system claims, not what actually existed before the system touched it.
+            </p>
+            <p className="mb-4">
+              This applies to any processing system. It becomes critical when the processing is automated. When an AI model reviews a contract, analyzes an image, or summarizes a document, no human witnesses what went in. The output is visible. The input is not independently verifiable.
+            </p>
+            <p className="text-landing-muted/60">
+              When disputes arise, when audits occur, when provenance matters, internal evidence is insufficient.
+            </p>
+          </section>
+
+          {/* The Shift */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Shift</h2>
+            <p className="mb-4">
+              Regulatory frameworks increasingly require demonstrable data provenance.
+            </p>
+            <p className="mb-4">
+              The AI Act requires traceability and transparency for high-risk AI systems, including training data governance. C2PA defines content authenticity standards for media provenance. GDPR Article 5 mandates data accuracy and integrity. eIDAS 2.0 establishes qualified timestamps for legal validity.
+            </p>
+            <p className="text-landing-muted/50 text-sm">
+              These frameworks share a common requirement: proof of what existed, when, from an independent source.
+            </p>
+          </section>
+
+          {/* The Gap */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Gap</h2>
+            <p className="mb-4 text-landing-cream/90">
+              Content authenticity standards like C2PA address the lifecycle of media.
+            </p>
+            <p className="mb-4">
+              But what about the moment before? The original input? The first capture?
+            </p>
+            <p className="text-landing-muted/60">
+              Origin attestation fills this gap. It establishes the starting point: verifiable, immutable, independent of downstream processing.
+            </p>
+          </section>
+
+          {/* The Provenance Gap in Automated Workflows */}
+          <section className="border-l-2 border-landing-copper/30 pl-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Provenance Gap in Automated Workflows</h2>
+            <p className="mb-4 text-landing-cream/90">
+              Automated systems transform data at scale. AI models, document processors, data pipelines. The provenance question they create is specific:
+            </p>
+            <p className="mb-4 text-landing-cream italic">
+              What was the exact input before the system processed it?
+            </p>
+            <p className="mb-4">
+              A contract reviewed by AI. A dataset ingested by a model. An image processed by an automated pipeline. In each case, the system produces output, but the original input has no independent record.
+            </p>
+            <p className="mb-4">
+              Origin attestation provides that record. A SHA-256 hash computed at the moment of intake establishes what existed before any processing occurred. The proof is anchored externally and verifiable without trusting the processing system.
+            </p>
+            <p className="text-landing-muted/60">
+              This is not a feature of the processing system. It is independent infrastructure, the same way a timestamp from a Time-Stamping Authority is independent of the system that requests it.
+            </p>
+          </section>
+
+          {/* How It Works */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">How It Works</h2>
+            <p className="text-landing-muted/70">
+              Data enters a system. A SHA-256 hash is computed at the moment of entry. The hash is submitted to Umarise Core. Umarise anchors the hash via OpenTimestamps to Bitcoin. The resulting proof is independently verifiable, forever.
+            </p>
+          </section>
+
+          {/* Interoperability */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Interoperability</h2>
+            <p className="mb-4">
+              Umarise uses SHA-256, the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
+            </p>
+            <p className="text-landing-muted/60">
+              This means an origin attestation can serve as the root of a C2PA provenance chain, or as an independent anchor for any system that computes SHA-256 hashes.
+            </p>
+          </section>
+
+          {/* What Umarise Is Not */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">What Umarise Is Not</h2>
+            <p className="text-landing-muted/70">
+              Umarise does not manage content, authenticate media, enforce governance, or replace internal logging. It is an origin layer. It establishes what existed when, and nothing more.
+            </p>
+          </section>
  
            {/* Reference */}
            <section className="border-t border-landing-muted/10 pt-12">
