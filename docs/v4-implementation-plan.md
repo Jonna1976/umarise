@@ -2,7 +2,8 @@
 
 **Status:** Planning  
 **Created:** 2026-02-05  
-**Reference:** docs/complete-briefing-v4.md
+**Reference:** docs/complete-briefing-v4.md  
+**Language:** English (all UI strings must be English)
 
 ---
 
@@ -33,6 +34,8 @@ All existing components (HistoryView, SearchView, Codex features, etc.) remain i
 | VaultView | `src/components/codex/VaultView.tsx` | Preserve |
 | Export functionality | `src/lib/exportService.ts` | Preserve |
 | Ritual flow prototype | `src/components/prototype/` | Active |
+| BackupNudge component | `src/components/prototype/components/BackupNudge.tsx` | ✅ Created |
+| useMarkCount hook | `src/hooks/useMarkCount.ts` | ✅ Created |
 
 ### What Needs to Change (v4)
 
@@ -42,8 +45,7 @@ All existing components (HistoryView, SearchView, Codex features, etc.) remain i
 | Add IndexedDB thumbnail storage | Add | Low — additive |
 | Remove server-side image storage | Remove | **HIGH** — data loss risk |
 | Add `witnesses` table | Add | Low |
-| Rename `pages` → `origin_attestations` | Rename | Medium — many references |
-| Add device fingerprint | Add | Low |
+| Add device fingerprint generation | Add | Low |
 | Add certificate export (jsPDF) | Add | Low |
 
 ---
@@ -61,11 +63,29 @@ All existing components (HistoryView, SearchView, Codex features, etc.) remain i
 ### 0.2 Add jsPDF + JSZip Dependencies
 - [ ] Install `jspdf` and ensure `jszip` is available
 - [ ] Create `src/lib/certificateService.ts` — client-side PDF generation
+- [ ] **Email masking:** Display email as `m***r@email.com` format in certificate
 - [ ] Test certificate generation in isolation
 
 ### 0.3 Create Dual-Write Infrastructure
 - [ ] Create abstraction that writes to BOTH Supabase AND IndexedDB
 - [ ] This allows gradual migration without data loss
+
+### 0.4 Device Fingerprint Generation
+- [ ] Create `src/lib/deviceFingerprint.ts`
+- [ ] Collect: `navigator.userAgent`, `screen.width`, `screen.height`, `navigator.language`, `timezone`
+- [ ] Generate SHA-256 hash of concatenated values
+- [ ] Store as `device_fingerprint_hash` — never the raw fingerprint
+
+### 0.5 Origin ID Generation
+- [ ] Create `src/lib/originId.ts`
+- [ ] Use `crypto.getRandomValues()` to generate 8 hex characters
+- [ ] Format: `um-XXXXXXXX` (e.g., `um-a7f3b2c1`)
+- [ ] Collision handling: retry up to 3 times if collision detected
+
+### 0.6 Integrate Backup Nudge
+- [ ] Wire `incrementMarkCount()` into the mark creation flow (ReleaseScreen or mark service)
+- [ ] Configure nudge to appear after 3rd mark, repeat hint at 10th mark
+- [ ] One-time per threshold (localStorage flags)
 
 ---
 
@@ -90,14 +110,16 @@ All existing components (HistoryView, SearchView, Codex features, etc.) remain i
 ### 1.4 Migration Path for Existing Users
 - [ ] On first login, allow user to "claim" pages by their old `device_user_id`
 - [ ] Create migration edge function: `migrate-anonymous-to-auth`
-- [ ] UI prompt: "We found pages from this device. Link them to your account?"
+- [ ] **Confirmation screen:** Show preview of marks to be claimed before confirming
+- [ ] UI prompt: "We found X marks from this device. Link them to your account?"
+- [ ] Handle shared device case: user sees the marks and explicitly confirms
 
 ### 1.5 Update Database Schema
 ```sql
 -- Add user_id to pages (nullable initially for migration)
 ALTER TABLE pages ADD COLUMN user_id UUID REFERENCES auth.users(id);
 
--- Add device_fingerprint_hash
+-- Add device_fingerprint_hash (for forensic linking, not auth)
 ALTER TABLE pages ADD COLUMN device_fingerprint_hash TEXT;
 
 -- Create index
@@ -106,16 +128,24 @@ CREATE INDEX idx_pages_user_id ON pages(user_id);
 
 ### 1.6 Update RLS Policies
 ```sql
--- Users can only see their own pages (via user_id)
+-- SECURE: Users can only see their own pages via authenticated user_id
+-- No fallback to device_user_id in RLS — that's handled by migration only
 CREATE POLICY "Users read own pages via user_id"
   ON pages FOR SELECT
-  USING (auth.uid() = user_id OR device_user_id = (current_setting('request.jwt.claims', true)::json->>'device_id')::uuid);
+  USING (auth.uid() = user_id);
+
+-- Legacy access: device_user_id check remains for non-authenticated reads
+-- This is the EXISTING policy — keep it for backward compatibility during migration
+-- Once migration complete, this policy can be deprecated
 ```
 
-### 1.7 Preserve Anonymous Access
-- [ ] Existing `device_user_id` logic remains as fallback
-- [ ] Users can still use the app without auth (read-only mode)
-- [ ] Mark creation requires auth
+**Note:** The original plan had an insecure JWT claim check. Removed. Device-based access
+is only for legacy pages before auth migration, not as a parallel auth path.
+
+### 1.7 Preserve Anonymous Access (Read-Only)
+- [ ] Existing `device_user_id` logic remains as fallback for viewing legacy marks
+- [ ] Mark creation requires auth (email verified)
+- [ ] Server-side validation: no JWT claim manipulation possible
 
 ---
 
@@ -126,6 +156,7 @@ CREATE POLICY "Users read own pages via user_id"
 ### 2.1 Implement Thumbnail Generation
 - [ ] Create `src/lib/thumbnailService.ts`
 - [ ] Generate ~400px max dimension, JPEG 70%
+- [ ] Target size: <50KB per thumbnail
 - [ ] Store in IndexedDB as Blob
 
 ### 2.2 Update Create Page Flow
@@ -142,10 +173,11 @@ Photo → SHA-256 hash → Generate thumbnail
      (hash + metadata only)   (thumbnail + metadata)
 ```
 
-### 2.3 Update Wall of Existence
-- [ ] Source thumbnails from IndexedDB first
-- [ ] Fallback to Supabase image_url if IndexedDB empty (graceful degradation)
-- [ ] Show origin_id + date if neither available
+### 2.3 Update Wall of Existence (Dual-Source)
+- [ ] **Primary:** Source thumbnails from IndexedDB
+- [ ] **Fallback:** Check Supabase `image_url` for legacy pages (pre-v4)
+- [ ] **Final fallback:** Show origin_id + date if neither available
+- [ ] UI must handle mixed sources gracefully — no visual difference to user
 
 ### 2.4 Implement Sync Logic
 - [ ] On app open: fetch new OTS proofs from Supabase
@@ -160,13 +192,15 @@ Photo → SHA-256 hash → Generate thumbnail
 
 ### 3.1 Create Witnesses Table
 ```sql
+-- Note: References pages.id, not origin_attestations (that rename is optional/later)
 CREATE TABLE witnesses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  origin_id TEXT REFERENCES origin_attestations(origin_id) NOT NULL,
+  page_id UUID REFERENCES pages(id) NOT NULL,
   witness_email TEXT NOT NULL,
   witness_confirmed_at TIMESTAMPTZ,
   confirmation_hash TEXT,
   verification_token TEXT UNIQUE,
+  token_expires_at TIMESTAMPTZ DEFAULT (now() + INTERVAL '7 days'),
   ots_status TEXT DEFAULT 'pending',
   ots_proof BYTEA,
   created_at TIMESTAMPTZ DEFAULT now()
@@ -174,31 +208,46 @@ CREATE TABLE witnesses (
 
 ALTER TABLE witnesses ENABLE ROW LEVEL SECURITY;
 
--- Makers can see witnesses for their marks
+-- Makers can see witnesses for their marks (via user_id on pages)
 CREATE POLICY "Makers see own witnesses"
   ON witnesses FOR SELECT
-  USING (origin_id IN (SELECT origin_id FROM pages WHERE user_id = auth.uid()));
+  USING (page_id IN (SELECT id FROM pages WHERE user_id = auth.uid()));
 
--- Anyone can confirm via token (public endpoint)
+-- Public can confirm via valid, non-expired token
 CREATE POLICY "Anyone confirms via token"
   ON witnesses FOR UPDATE
-  USING (verification_token IS NOT NULL);
+  USING (
+    verification_token IS NOT NULL 
+    AND token_expires_at > now()
+  );
 ```
 
 ### 3.2 Create Witness Invite Flow
 - [ ] Add "add a witness" prompt to Release screen (post-cascade)
-- [ ] Generate unique verification token
-- [ ] Share via native share sheet (link only — thumbnail shared separately by user)
+- [ ] Generate unique verification token (UUID)
+- [ ] Token expires after 7 days (`token_expires_at`)
+- [ ] Share via native share sheet with pre-composed text:
+  ```
+  I've sealed a moment in time and want you as witness.
+  Tap to confirm you saw this: [link]
+  (I'll send the image separately)
+  ```
+- [ ] User shares thumbnail separately via WhatsApp/Signal (not in link)
 
 ### 3.3 Create Witness Confirmation Page
 - [ ] Route: `/witness/:token`
-- [ ] Display: origin_id, date, hash (NO thumbnail)
+- [ ] Check token validity and expiry
+- [ ] Display: origin_id, date, hash (NO thumbnail — privacy)
 - [ ] Input: witness email
 - [ ] Button: "I confirm I saw this"
-- [ ] On confirm: send confirmation email to witness
+- [ ] On confirm: 
+  - Set `witness_confirmed_at`
+  - Generate `confirmation_hash` (SHA-256 of email + timestamp)
+  - Send confirmation email to witness
 
 ### 3.4 Update Certificate to Include Witness
-- [ ] If witness confirmed: add witness email (masked) to certificate
+- [ ] If witness confirmed: add witness section to certificate
+- [ ] Email displayed as masked: `j***n@example.com`
 - [ ] Add witness confirmation timestamp
 
 ---
@@ -217,10 +266,14 @@ CREATE POLICY "Anyone confirms via token"
 - [ ] `uploadImage()` → returns hash only, no upload
 - [ ] `createPage()` → no longer includes `image_url`
 
-### 4.3 Handle Legacy Pages
+### 4.3 Handle Legacy Pages (Dual-Source in Wall)
 - [ ] Pages with `image_url` continue to work (display from Supabase)
-- [ ] No migration of existing images (they stay where they are)
-- [ ] New pages have no `image_url`
+- [ ] Wall component checks:
+  1. IndexedDB for thumbnail (new marks)
+  2. Supabase `image_url` (legacy marks)
+  3. Hash + date fallback (both empty)
+- [ ] No migration of existing images — they stay in `page-images` bucket
+- [ ] New pages have no `image_url` field populated
 
 ### 4.4 Optional: Archive and Delete Bucket
 - [ ] Create backup of `page-images` bucket
@@ -229,7 +282,7 @@ CREATE POLICY "Anyone confirms via token"
 
 ---
 
-## Phase 5: Table Rename (Optional)
+## Phase 5: Table Rename (Optional — Deferred)
 
 **Goal:** Rename `pages` → `origin_attestations` for clarity
 
@@ -244,7 +297,7 @@ This rename affects:
 - All frontend queries
 - TypeScript types
 
-**Recommendation:** Defer until after Phase 4 is stable. The benefit is semantic clarity; the cost is significant refactoring.
+**Recommendation:** Defer indefinitely. The benefit is semantic clarity; the cost is significant refactoring. The `origin_attestations` table already exists for Core layer — no need to rename `pages`.
 
 ---
 
@@ -276,7 +329,7 @@ Phase 3 (Witness)       ←── New feature, independent
     ↓
 Phase 4 (Remove images) ←── Only after Phase 2 stable
     ↓
-Phase 5 (Rename)        ←── Optional, defer
+Phase 5 (Rename)        ←── DEFERRED — not needed
     ↓
 Phase 6 (Offline)       ←── Polish
 ```
@@ -288,10 +341,12 @@ Phase 6 (Offline)       ←── Polish
 | Risk | Mitigation |
 |------|------------|
 | Data loss during migration | Dual-write ensures both systems have data |
-| Users lose IndexedDB | Backup-nudge (implemented), certificate export |
-| Auth breaks existing users | Anonymous fallback preserved |
+| Users lose IndexedDB | Backup-nudge (Phase 0.6), certificate export |
+| Auth breaks existing users | Anonymous fallback preserved for legacy viewing |
 | Witness spam | Rate limit witness invites per origin |
-| Legacy pages inaccessible | image_url remains functional for existing pages |
+| Legacy pages inaccessible | Dual-source Wall (Phase 4.3) |
+| Witness token abuse | 7-day expiry (Phase 3.1) |
+| Shared device claims wrong pages | Confirmation preview screen (Phase 1.4) |
 
 ---
 
@@ -299,6 +354,7 @@ Phase 6 (Offline)       ←── Polish
 
 Each phase can be rolled back independently:
 
+- **Phase 0:** No rollback needed (purely additive)
 - **Phase 1:** Disable auth requirement, revert to device_user_id only
 - **Phase 2:** Continue using Supabase images (dual-write means both exist)
 - **Phase 3:** Hide witness UI, table can remain
@@ -310,12 +366,12 @@ Each phase can be rolled back independently:
 
 | Phase | Effort | Dependencies |
 |-------|--------|--------------|
-| Phase 0 | 1-2 days | None |
+| Phase 0 | 2-3 days | None |
 | Phase 1 | 3-4 days | Phase 0 |
 | Phase 2 | 3-4 days | Phase 0 |
 | Phase 3 | 2-3 days | Phase 1 |
 | Phase 4 | 1-2 days | Phase 2 stable (wait 1+ week) |
-| Phase 5 | 2-3 days | Phase 4 |
+| Phase 5 | DEFERRED | — |
 | Phase 6 | 2-3 days | Phase 2 |
 
 **Total:** ~2-3 weeks for core implementation
@@ -343,9 +399,14 @@ Per memory constraint, these files must remain even if hidden from Ritual UI:
 
 - [ ] User can create a mark without any image data reaching Supabase
 - [ ] Wall of Existence displays thumbnails from IndexedDB
-- [ ] Wall gracefully degrades to hash+date when IndexedDB is cleared
+- [ ] Wall gracefully falls back to Supabase image_url for legacy pages
+- [ ] Wall shows hash+date when IndexedDB is cleared (no crash)
 - [ ] Certificate can be exported with thumbnail embedded
-- [ ] Witness can confirm a mark via link
+- [ ] Certificate shows masked email (`m***r@example.com`)
+- [ ] Witness can confirm a mark via link (within 7 days)
+- [ ] Expired witness tokens are rejected
 - [ ] OTS proofs sync correctly to IndexedDB
 - [ ] Existing pages (with image_url) continue to display
 - [ ] All existing Codex features remain functional
+- [ ] Backup nudge appears after 3rd mark, hint at 10th
+- [ ] All UI strings are in English
