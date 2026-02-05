@@ -1,10 +1,10 @@
  # B2C-Inventarisatie v0 — Umarise App
  
  **Scope:** Uitsluitend de B2C-laag (Umarise App)  
- **Relatie tot Core:** Consument van Core API, geen overlap  
+**Relatie tot Core:** Automatische propagatie via database trigger  
  **Datum:** 5 februari 2026  
  **Status:** Formele systeemdefinitie  
- **Versie:** v0.2 — aangescherpt na review (5 feb 2026)
+**Versie:** v0.3 — Companion → Core brug gedocumenteerd (5 feb 2026)
  
  ---
  
@@ -199,21 +199,53 @@
  
  | Core-functionaliteit | B2C-toegang | Implementatie |
  |---------------------|-------------|---------------|
- | Origin attestatie (create) | ⚠️ Niet direct | App schrijft naar `pages` tabel, NIET naar `origin_attestations` |
+| Origin attestatie (create) | ✅ Via trigger | App insert in `pages` → trigger propageert naar `origin_attestations` |
  | `GET /v1-core-resolve` | ❌ Niet gebruikt | Geen UI-integratie |
  | `POST /v1-core-verify` | ❌ Niet gebruikt | Geen UI-integratie |
  | `GET /v1-core-proof` | ❌ Niet gebruikt | Geen OTS download in App |
  
- ### 9.2 Kritieke observatie
+ ### 9.2 Companion → Core Brug (Database Trigger)
  
- **App schrijft NIET naar Core API.** De huidige flow:
+**Status:** ✅ Geïmplementeerd (5 feb 2026)
  
- 1. App berekent hash client-side
- 2. App schrijft hash naar `pages.origin_hash_sha256` (Companion-laag)
- 3. App schrijft hash naar `page_origin_hashes` sidecar (Companion-laag)
- 4. **Geen automatische attestatie naar `origin_attestations`** (Core-laag)
+De brug tussen Companion en Core is geïmplementeerd via een PostgreSQL trigger:
  
- De brug tussen Companion en Core is **niet geïmplementeerd** in de huidige B2C flow.
+```sql
+CREATE TRIGGER bridge_page_to_core
+  AFTER INSERT ON public.pages
+  FOR EACH ROW
+  EXECUTE FUNCTION bridge_page_to_core_attestation();
+```
+
+**Flow:**
+
+1. App berekent hash client-side (Web Crypto API)
+2. App insert page met `origin_hash_sha256` naar `pages` tabel
+3. **Trigger propageert automatisch naar `origin_attestations`** (Core-laag)
+4. OTS worker pikt attestatie op voor Bitcoin anchoring (hourly cron)
+
+### 9.3 Twee schrijfpaden naar origin_attestations
+
+| Pad | Mechanisme | Rate Limiting | Validatie | Use Case |
+|-----|------------|---------------|-----------|----------|
+| **B2B** | `POST /v1-core-origins` | ✅ Ja (per-minute) | API key + HMAC | Partners, externe systemen |
+| **B2C** | Database trigger | ❌ Nee | Supabase RLS | Umarise App gebruikers |
+
+**Architecturale observatie:** Dit is een bewuste splitsing, geen omissie:
+
+- B2B-pad: Externe partijen hebben geen directe database-toegang → API-laag met rate limiting is vereist
+- B2C-pad: App-gebruikers werken binnen Supabase RLS-context → trigger is atomair en transactie-gebonden
+
+### 9.4 Geaccepteerd risico: Geen rate limiting op trigger-pad
+
+| Aspect | Status | Rationale |
+|--------|--------|-----------|
+| **Rate limiting** | ❌ Afwezig | Trigger draait binnen database-transactie |
+| **Misbruikdetectie** | ⚠️ Indirect | Misbruik vereist herhaaldelijk inserten van pages → zichtbaar in `pages` tabel |
+| **Huidige risico** | ✅ Acceptabel | Laag volume, geen geautomatiseerde page-insertie |
+| **Heroverwegen bij** | ⚠️ Groei | Als geautomatiseerde page-insertie mogelijk wordt (bot, script, bulk import) |
+
+**Consequentie:** Bij schaalgroei of introductie van bulk-import functionaliteit moet een throttle-mechanisme worden toegevoegd aan de trigger of aan de `pages` insert-laag.
  
  ---
  
@@ -259,7 +291,7 @@
  | "Geen service worker geïmplementeerd" | **Verifieerbaar** | vite.config.ts inspectie |
  | "Device loss = permanent verlies" | **Verifieerbaar** | localStorage-only storage voor device_id |
  | "Capture is niet atomair" | **Verifieerbaar** | pageService.ts code flow analyse |
- | "App schrijft niet naar Core API" | **Verifieerbaar** | Geen calls naar `/v1-core-origins` in codebase |
+| "App propageert naar Core via trigger" | **Verifieerbaar** | Database trigger `bridge_page_to_core_attestation` |
  | "De App is een ritueel" | **Hypothese** | Ontwerpintentie, niet technisch afdwingbaar |
  | "Gebruikers voelen zich gegrond" | **Hypothese** | Niet meetbaar via architectuur |
  
@@ -277,6 +309,8 @@
  | Device loss consequenties benoemd | ✅ |
  | Capture atomiciteit gedefinieerd | ✅ |
  | Tech stack benoemd | ✅ |
+| Companion → Core brug gedocumenteerd | ✅ |
+| Rate limiting risico geaccepteerd | ✅ |
  
  ---
  
