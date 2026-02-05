@@ -110,3 +110,6 @@ verify_jwt = false
 [functions.v1-core-proof]
 verify_jwt = false
 
+[functions.v1-core-origins-proof]
+verify_jwt = false
+
