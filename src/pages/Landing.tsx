@@ -31,12 +31,12 @@ export default function Landing() {
           <p className="text-base text-landing-muted/35 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
-            Proof is independently verifiable — anchored in Bitcoin.
+            Anchored in Bitcoin. Independently verifiable.
           </p>
 
           {/* Category descriptor */}
           <p className="text-sm text-landing-muted/25 tracking-widest uppercase mt-6">
-            Verifiable Origin Registry
+            Origin Registry
           </p>
         </main>
 
