@@ -13,7 +13,7 @@
  | Vraag | Antwoord |
  |-------|----------|
  | **Wat is Umarise (B2C) exact als systeem?** | Een client-side Single Page Application (React/TypeScript) die artifacts vastlegt, een SHA-256 hash genereert client-side, en die hash + artifact opslaat via Supabase + Hetzner Object Storage. |
- | **Welke handeling stelt de gebruiker technisch gezien vast?** | Het bestaan van specifieke bytes (artifact) op een specifiek moment, door middel van client-side hashing + database-insert met timestamp. |
+| **Welke handeling stelt de gebruiker technisch gezien vast?** | Het bestaan van specifieke bytes (artifact) op een specifiek moment, door middel van client-side hashing + database-insert. Een PostgreSQL trigger (`bridge_page_to_core`) propageert de hash automatisch naar de Core-laag (`origin_attestations`) binnen dezelfde transactie. |
  | **Wat is het formele output-object van die handeling?** | Een `page` record in Supabase met: `id` (UUID), `created_at` (timestamp), `origin_hash_sha256` (64-char hex), `image_url` (Hetzner public URL). Lokaal: alleen `device_user_id` in localStorage. |
  
  ---
@@ -144,6 +144,9 @@
  | Stap 2 faalt (upload) | Capture stopt, throw Error | ✅ Geen orphans |
  | Stap 3 faalt (createPage) | **Image op Hetzner, geen page record** | ⚠️ Orphan blob |
  | Stap 4 faalt (sidecar) | Page bestaat, hash in pages tabel, sidecar mist | ✅ Acceptable (sidecar is backup) |
+| Trigger faalt (attestatie) | **Page insert rollbackt** | ✅ Transactie-gebonden atomiciteit |
+
+**Verbetering door trigger:** De stap page insert → attestatie is atomair. Er kan geen page bestaan zonder bijbehorende attestatie in `origin_attestations`. Dit elimineert het risico van 'orphan pages' zonder Core-attestatie.
  
  ### 6.3 Kritieke observatie
  
@@ -208,7 +211,7 @@
  
 **Status:** ✅ Geïmplementeerd (5 feb 2026)
  
-De brug tussen Companion en Core is geïmplementeerd via een PostgreSQL trigger:
+De brug tussen Companion en Core is geïmplementeerd via een PostgreSQL trigger `bridge_page_to_core` die functie `bridge_page_to_core_attestation()` aanroept:
  
 ```sql
 CREATE TRIGGER bridge_page_to_core
@@ -221,8 +224,20 @@ CREATE TRIGGER bridge_page_to_core
 
 1. App berekent hash client-side (Web Crypto API)
 2. App insert page met `origin_hash_sha256` naar `pages` tabel
-3. **Trigger propageert automatisch naar `origin_attestations`** (Core-laag)
+3. **Trigger `bridge_page_to_core` propageert automatisch naar `origin_attestations`** (Core-laag)
 4. OTS worker pikt attestatie op voor Bitcoin anchoring (hourly cron)
+
+**Atomiciteit:** De trigger draait binnen dezelfde database-transactie als de page insert. Als de trigger faalt, rollbackt ook de page insert. Er kan geen page bestaan zonder bijbehorende attestatie.
+
+### 9.5 Duplicate hash gedrag
+
+| Scenario | Gedrag | Reden |
+|----------|--------|-------|
+| Twee captures van identieke bytes | Twee aparte attestaties | Geen unique constraint op `origin_attestations.hash` |
+| Verschillende `captured_at` timestamps | ✅ Correct | TSA-style: meerdere tijdstempels voor dezelfde content zijn valide |
+| `ON CONFLICT DO NOTHING` | ❌ Verwijderd | Was misleidend — er is geen conflict mogelijk |
+
+**Consequentie:** Elke page insert met hash genereert een nieuwe attestatie, ongeacht of dezelfde hash eerder is geattesteerd. Dit is intentioneel en ondersteunt het "notary/TSA" model.
 
 ### 9.3 Twee schrijfpaden naar origin_attestations
 
