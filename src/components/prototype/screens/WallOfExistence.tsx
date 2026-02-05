@@ -1,16 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { OriginButton } from '../components/OriginButton';
 import { ArtifactFrame } from '../components/ArtifactFrame';
 import { BackupNudge } from '../components/BackupNudge';
 import { useMarkCount } from '@/hooks/useMarkCount';
+import { useMarks, DisplayMark } from '@/hooks/useMarks';
+import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 interface WallOfExistenceProps {
   onClose: () => void;
   onBulkExport?: () => void;
 }
 
-// Mock artifacts for demo
+// Size mapping based on aspect ratio
+function getSizeFromMark(mark: DisplayMark): string {
+  switch (mark.sizeClass) {
+    case 'large': return 'large-landscape';
+    case 'small': return 'portrait';
+    default: return 'medium-square';
+  }
+}
+
+// Offset pattern for visual variety
+const OFFSET_PATTERN = ['high', 'low', 'middle', 'lower', 'highest'] as const;
+
+// Fallback mock artifacts for demo mode when no marks exist
 const MOCK_ARTIFACTS = [
   { id: '1', type: 'warm' as const, date: '4 Feb 2026', hash: '884d5f17...553df0a3', origin: 'ORIGIN 1916F13F', size: 'large-landscape', offset: 'high' },
   { id: '2', type: 'text' as const, date: '28 Jan 2026', hash: 'f3d18ca2...91bb7e05', origin: 'ORIGIN 7B3E09A1', size: 'small-square', offset: 'low' },
@@ -32,6 +46,59 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [focusedArtifacts, setFocusedArtifacts] = useState<Set<string>>(new Set());
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
+  const { marks, isLoading, importLegacyMarks } = useMarks();
+
+  // Import legacy marks on first load
+  useEffect(() => {
+    importLegacyMarks();
+  }, [importLegacyMarks]);
+
+  // Convert marks to artifact display format with dual-source fallback
+  const artifacts = useMemo(() => {
+    if (marks.length === 0 && !isLoading) {
+      // Show mock data when no marks exist
+      return MOCK_ARTIFACTS;
+    }
+
+    return marks.map((mark, index) => {
+      // Format date
+      const date = mark.timestamp.toLocaleDateString('en-GB', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+
+      // Format hash (first 8...last 8)
+      const hash = mark.hash 
+        ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
+        : 'pending...';
+
+      // Format origin ID
+      const origin = mark.originId.toUpperCase().replace('UM-', 'ORIGIN ');
+
+      // Determine image source (dual-source fallback chain)
+      let imageUrl: string | undefined;
+      if (mark.thumbnailUrl) {
+        // Priority 1: IndexedDB thumbnail (new v4 marks)
+        imageUrl = mark.thumbnailUrl;
+      } else if (mark.legacyImageUrl) {
+        // Priority 2: Supabase image_url (legacy marks)
+        imageUrl = getDisplayImageUrl(mark.legacyImageUrl);
+      }
+      // Priority 3: No image - ArtifactFrame will show hash+date only
+
+      return {
+        id: mark.id,
+        type: mark.type,
+        date,
+        hash,
+        origin,
+        size: getSizeFromMark(mark),
+        offset: OFFSET_PATTERN[index % OFFSET_PATTERN.length],
+        imageUrl,
+      };
+    });
+  }, [marks, isLoading]);
 
   // Initial scroll animation and backup hint
   useEffect(() => {
@@ -174,13 +241,24 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="flex items-center h-full px-[60px] min-w-max gap-[50px]">
-          {MOCK_ARTIFACTS.map((artifact) => (
-            <ArtifactFrame
-              key={artifact.id}
-              artifact={artifact}
-              isFocused={focusedArtifacts.has(artifact.id)}
-            />
-          ))}
+          {isLoading ? (
+            // Loading state
+            <div className="flex items-center justify-center w-full">
+              <motion.div
+                className="w-3 h-3 rounded-full bg-ritual-gold"
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+            </div>
+          ) : (
+            artifacts.map((artifact) => (
+              <ArtifactFrame
+                key={artifact.id}
+                artifact={artifact}
+                isFocused={focusedArtifacts.has(artifact.id)}
+              />
+            ))
+          )}
           {/* End spacer */}
           <div className="w-[100px] flex-shrink-0" />
         </div>
