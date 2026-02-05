@@ -1,7 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
-import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Artifact {
@@ -23,61 +22,34 @@ interface PauseScreenProps {
  * The artifact appears in darkness. Nothing else.
  * Just the beginning and you. A moment of quiet contemplation.
  * 
- * Includes subtle "Save to Photos" option so users keep the original
- * on their device (iCloud/Google Drive) - Umarise never stores the image.
+ * No auto-advance - waits for user to tap the photo to continue.
+ * Subtle "save" option for users who want to keep the original on-device.
  */
 export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
-  const [showSaveHint, setShowSaveHint] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  // Show save hint after brief delay
-  useEffect(() => {
-    const hintTimer = setTimeout(() => setShowSaveHint(true), 1200);
-    return () => clearTimeout(hintTimer);
-  }, []);
-
-  // Auto-advance after contemplation period (extended to allow save action)
-  useEffect(() => {
-    const timer = setTimeout(onComplete, 4000);
-    return () => clearTimeout(timer);
-  }, [onComplete]);
-
-  const handleSaveToPhotos = useCallback(async () => {
+  const handleSaveToPhotos = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering onComplete
     if (!artifact.imageUrl || isSaving) return;
     
     setIsSaving(true);
     
     try {
-      // Convert data URL to blob
-      const response = await fetch(artifact.imageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `umarise-${Date.now()}.jpg`, { type: 'image/jpeg' });
-
-      // Try Web Share API first (native share sheet on mobile)
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Save to Photos',
-        });
-        toast.success('Saved to Photos');
-      } else {
-        // Fallback: trigger download
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `umarise-${Date.now()}.jpg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        toast.success('Photo downloaded');
-      }
+      // Silent download - create link and click without navigating
+      const link = document.createElement('a');
+      link.href = artifact.imageUrl;
+      link.download = `umarise-${Date.now()}.jpg`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setSaved(true);
+      toast.success('Saved');
     } catch (error) {
-      // User cancelled share or error occurred
-      if ((error as Error).name !== 'AbortError') {
-        console.error('[PauseScreen] Save error:', error);
-        toast.error('Could not save photo');
-      }
+      console.error('[PauseScreen] Save error:', error);
+      toast.error('Could not save');
     } finally {
       setIsSaving(false);
     }
@@ -90,57 +62,63 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
+      onClick={onComplete}
     >
-      {/* Artifact container with entrance animation */}
+      {/* Artifact container - tap to continue */}
       <motion.div
-        className="w-[250px] h-[190px] rounded-[4px] overflow-hidden"
+        className="w-[250px] h-[190px] rounded-[4px] overflow-hidden cursor-pointer"
         initial={{ opacity: 0, scale: 0.96, y: 6 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
+        whileTap={{ scale: 0.98 }}
       >
         <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
       </motion.div>
 
-      {/* Save to Photos hint - appears subtly after delay */}
+      {/* Save to device - very subtle, below artifact */}
       <motion.div
-        className="mt-8"
+        className="mt-6"
         initial={{ opacity: 0 }}
-        animate={{ opacity: showSaveHint ? 1 : 0 }}
-        transition={{ duration: 0.6 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 1.5 }}
       >
-        <button
-          onClick={handleSaveToPhotos}
-          disabled={isSaving || !artifact.imageUrl}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all
-                     disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{
-            background: 'hsl(var(--ritual-gold) / 0.08)',
-            border: '1px solid hsl(var(--ritual-gold) / 0.2)',
-            color: 'hsl(var(--ritual-gold) / 0.7)',
-          }}
-        >
-          <Download className="w-4 h-4" />
-          <span className="font-garamond text-sm">
-            {isSaving ? 'Saving...' : 'Save to Photos'}
-          </span>
-        </button>
-        
-        <p className="mt-3 text-center font-garamond italic text-[10px]" 
-           style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}>
-          Your photo stays on your device · only the proof leaves
-        </p>
+        <AnimatePresence mode="wait">
+          {!saved ? (
+            <motion.button
+              key="save"
+              onClick={handleSaveToPhotos}
+              disabled={isSaving || !artifact.imageUrl}
+              className="font-garamond text-[11px] italic transition-opacity
+                         disabled:opacity-20 disabled:cursor-not-allowed"
+              style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+              whileHover={{ opacity: 0.6 }}
+              exit={{ opacity: 0 }}
+            >
+              {isSaving ? 'saving...' : 'save to device'}
+            </motion.button>
+          ) : (
+            <motion.span
+              key="saved"
+              className="font-garamond text-[11px] italic"
+              style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              saved ✓
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      {/* Tap anywhere to continue hint */}
+      {/* Hint to continue */}
       <motion.p
-        className="absolute bottom-8 font-garamond text-[11px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}
+        className="absolute bottom-10 font-garamond text-[10px]"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: showSaveHint ? 1 : 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        onClick={onComplete}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 2 }}
       >
-        tap to continue
+        tap to mark this beginning
       </motion.p>
     </motion.div>
   );
