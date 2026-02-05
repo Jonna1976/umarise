@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen } from './screens/CaptureScreen';
 import { PauseScreen } from './screens/PauseScreen';
@@ -9,23 +9,30 @@ import { WallOfExistence } from './screens/WallOfExistence';
 import { OriginButton } from './components/OriginButton';
 import { MagicLinkAuth } from '@/components/auth/MagicLinkAuth';
 import { useAuth } from '@/hooks/useAuth';
+import { useMarks, DisplayMark } from '@/hooks/useMarks';
+import { toast } from 'sonner';
 
 export type RitualScreen = 'welcome' | 'auth' | 'capture' | 'pause' | 'mark' | 'release' | 'home' | 'wall';
 
-// Mock artifact for demo
-const MOCK_ARTIFACT = {
-  id: '1916f13f-demo',
-  type: 'warm' as const,
-  origin: 'ORIGIN 1916F13F',
-  date: new Date(),
-  hash: '884d5f17553df0a3',
-  imageUrl: null,
-};
+interface Artifact {
+  id: string;
+  type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
+  origin: string;
+  date: Date;
+  hash: string;
+  imageUrl: string | null;
+}
 
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('welcome');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { createMark } = useMarks();
+
+  // Current capture state
+  const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
+  const [currentArtifact, setCurrentArtifact] = useState<Artifact | null>(null);
+  const isCreatingMark = useRef(false);
 
   // Check if user has seen welcome/auth before
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
@@ -76,8 +83,21 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  const handleCapture = useCallback(() => {
-    // In real app, this would trigger camera/file picker
+  // Handle file capture - store image and transition to pause
+  const handleCapture = useCallback((imageDataUrl: string) => {
+    setCapturedImageUrl(imageDataUrl);
+    
+    // Create temporary artifact for pause/mark screens (before mark is created)
+    const tempArtifact: Artifact = {
+      id: 'pending-' + Date.now(),
+      type: 'warm',
+      origin: 'ORIGIN --------',
+      date: new Date(),
+      hash: '----------------',
+      imageUrl: imageDataUrl,
+    };
+    setCurrentArtifact(tempArtifact);
+    
     goToScreen('pause');
   }, [goToScreen]);
 
@@ -85,12 +105,46 @@ export function RitualFlow() {
     goToScreen('mark');
   }, [goToScreen]);
 
-  const handleMarkComplete = useCallback(() => {
+  // Handle mark completion - create the actual mark with dual-write
+  const handleMarkComplete = useCallback(async () => {
+    if (!capturedImageUrl || isCreatingMark.current) return;
+    
+    isCreatingMark.current = true;
+    
+    try {
+      console.log('[RitualFlow] Creating mark...');
+      const mark = await createMark(capturedImageUrl, 'warm');
+      
+      if (mark) {
+        // Update artifact with real data
+        const realArtifact: Artifact = {
+          id: mark.id,
+          type: mark.type,
+          origin: mark.originId.toUpperCase().replace('UM-', 'ORIGIN '),
+          date: mark.timestamp,
+          hash: mark.hash,
+          imageUrl: mark.thumbnailUrl || capturedImageUrl,
+        };
+        setCurrentArtifact(realArtifact);
+        console.log('[RitualFlow] Mark created:', mark.id);
+      } else {
+        toast.error('Failed to seal mark');
+      }
+    } catch (error) {
+      console.error('[RitualFlow] Mark creation failed:', error);
+      toast.error('Failed to seal mark');
+    } finally {
+      isCreatingMark.current = false;
+    }
+    
     goToScreen('release');
-  }, [goToScreen]);
+  }, [capturedImageUrl, createMark, goToScreen]);
 
   const handleReleaseComplete = useCallback(() => {
-    goToScreen('home');
+    // Clear capture state for next mark
+    setCapturedImageUrl(null);
+    setCurrentArtifact(null);
+    goToScreen('capture'); // Return to capture for next mark
   }, [goToScreen]);
 
   const handleOpenWall = useCallback(() => {
@@ -102,6 +156,16 @@ export function RitualFlow() {
   }, [previousScreen, goToScreen]);
 
   const showOriginButton = screen === 'capture' || screen === 'pause' || screen === 'mark';
+
+  // Fallback artifact for screens that need one
+  const displayArtifact = currentArtifact || {
+    id: 'placeholder',
+    type: 'warm' as const,
+    origin: 'ORIGIN --------',
+    date: new Date(),
+    hash: '----------------',
+    imageUrl: null,
+  };
 
   // Show loading while checking auth
   if (authLoading) {
@@ -133,15 +197,15 @@ export function RitualFlow() {
       )}
       
       {screen === 'pause' && (
-        <PauseScreen artifact={MOCK_ARTIFACT} onComplete={handlePauseComplete} />
+        <PauseScreen artifact={displayArtifact} onComplete={handlePauseComplete} />
       )}
       
       {screen === 'mark' && (
-        <MarkScreen artifact={MOCK_ARTIFACT} onComplete={handleMarkComplete} />
+        <MarkScreen artifact={displayArtifact} onComplete={handleMarkComplete} />
       )}
       
       {screen === 'release' && (
-        <ReleaseScreen artifact={MOCK_ARTIFACT} onComplete={handleReleaseComplete} />
+        <ReleaseScreen artifact={displayArtifact} onComplete={handleReleaseComplete} />
       )}
       
       {screen === 'home' && (

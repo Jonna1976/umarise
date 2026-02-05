@@ -116,7 +116,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
         >
-          <ArtifactDisplay type={artifact.type} />
+          <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
         </motion.div>
 
         {/* Golden frame SVG overlay */}

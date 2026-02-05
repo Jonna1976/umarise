@@ -1,13 +1,45 @@
+import { motion } from 'framer-motion';
+
 /**
- * ArtifactDisplay - renders a placeholder artifact based on type
- * In the real app, this would display the actual captured content
+ * ArtifactDisplay - renders the actual artifact image or a placeholder
+ * 
+ * When imageUrl is provided, displays the real captured content.
+ * Otherwise, shows a stylized placeholder based on artifact type.
  */
 
 interface ArtifactDisplayProps {
   type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
+  imageUrl?: string;
 }
 
-export function ArtifactDisplay({ type }: ArtifactDisplayProps) {
+export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
+  // Show actual image when available
+  if (imageUrl) {
+    return (
+      <motion.div
+        className="w-full h-full relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <img
+          src={imageUrl}
+          alt="Artifact"
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+        {/* Subtle vignette overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            boxShadow: 'inset 0 0 40px rgba(0, 0, 0, 0.3)',
+          }}
+        />
+      </motion.div>
+    );
+  }
+
+  // Fallback to placeholder based on type
   return (
     <div 
       className="w-full h-full flex items-center justify-center"
