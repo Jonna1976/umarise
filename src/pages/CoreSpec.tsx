@@ -41,7 +41,7 @@ export default function CoreSpec() {
 
           {/* Purpose */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Purpose</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Purpose</h2>
             <p className="text-landing-cream/90">
               Umarise Core provides immutable attestation that a cryptographic hash existed at a specific moment in time.
             </p>
@@ -53,7 +53,7 @@ export default function CoreSpec() {
 
           {/* Normative Documents */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Normative Documents</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Normative Documents</h2>
             <ul className="space-y-3">
               <li>
                 <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
@@ -75,7 +75,7 @@ export default function CoreSpec() {
 
           {/* API Contract */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
               API Contract <span className="normal-case">(Non-Normative Summary)</span>
             </h2>
             
@@ -134,7 +134,7 @@ export default function CoreSpec() {
 
           {/* Access Model */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Access Model</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Access Model</h2>
             <p className="text-landing-cream text-lg mb-4">
               Verification is public. Attestation is permissioned.
             </p>
@@ -155,7 +155,7 @@ export default function CoreSpec() {
 
           {/* Invariants */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
               <li>Origin Records are write-once</li>
               <li>Origin Records are immutably recorded</li>
@@ -175,7 +175,7 @@ export default function CoreSpec() {
 
           {/* Resolution Semantics */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Resolution Semantics</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Resolution Semantics</h2>
             <ul className="space-y-2 text-landing-muted/70">
               <li>Multiple attestations of the same hash are permitted</li>
               <li>Resolution returns the earliest attestation by <span className="text-landing-copper">captured_at</span></li>
@@ -187,7 +187,7 @@ export default function CoreSpec() {
 
           {/* Stability */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Stability</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Stability</h2>
             <p className="text-landing-cream/90 mb-4">
               Core v1 is <span className="text-landing-copper">STABLE. IMMUTABLE INTERFACE</span>.
             </p>
@@ -204,7 +204,7 @@ export default function CoreSpec() {
 
           {/* Non-Responsibilities */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Non-Responsibilities</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
             <p className="text-landing-muted/60 mb-4">Umarise Core does not:</p>
             <ul className="space-y-1 text-landing-muted/60 text-sm mb-6">
               <li>store content</li>
@@ -221,7 +221,7 @@ export default function CoreSpec() {
 
           {/* Data Boundary */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Boundary</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Data Boundary</h2>
             <p className="text-landing-cream/90 mb-4">
               An Origin Record contains:
             </p>
@@ -238,7 +238,7 @@ export default function CoreSpec() {
 
           {/* Note */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Note</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Note</h2>
             <p className="text-landing-muted/60">
               Umarise Core may be used independently of any Umarise application.
             </p>

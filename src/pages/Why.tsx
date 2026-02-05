@@ -39,7 +39,7 @@
 
           {/* The Problem */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Problem</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">The Problem</h2>
             <p className="mb-4 text-landing-cream/90">
               Systems that process data cannot prove they received it unaltered.
             </p>
@@ -56,7 +56,7 @@
 
           {/* The Shift */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Shift</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">The Shift</h2>
             <p className="mb-4">
               Regulatory frameworks increasingly require demonstrable data provenance.
             </p>
@@ -70,7 +70,7 @@
 
           {/* The Gap */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Gap</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">The Gap</h2>
             <p className="mb-4 text-landing-cream/90">
               Content authenticity standards like C2PA address the lifecycle of media.
             </p>
@@ -84,7 +84,7 @@
 
           {/* The Provenance Gap in Automated Workflows */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Provenance Gap in Automated Workflows</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">The Provenance Gap in Automated Workflows</h2>
             <p className="mb-4 text-landing-cream/90">
               Automated systems transform data at scale. AI models, document processors, data pipelines. The provenance question they create is specific:
             </p>
@@ -104,7 +104,7 @@
 
           {/* How It Works */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">How It Works</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">How It Works</h2>
             <p className="text-landing-muted/70">
               Data enters a system. A SHA-256 hash is computed at the moment of entry. The hash is submitted to Umarise Core. Umarise anchors the hash via OpenTimestamps to Bitcoin. The resulting proof is independently verifiable, forever.
             </p>
@@ -112,7 +112,7 @@
 
           {/* Interoperability */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Interoperability</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Interoperability</h2>
             <p className="mb-4">
               Umarise uses SHA-256, the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
             </p>
@@ -123,7 +123,7 @@
 
           {/* What Umarise Is Not */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">What Umarise Is Not</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">What Umarise Is Not</h2>
             <p className="text-landing-muted/70">
               Umarise does not manage content, authenticate media, enforce governance, or replace internal logging. It is an origin layer. It establishes what existed when, and nothing more.
             </p>
@@ -131,7 +131,7 @@
  
            {/* Reference */}
            <section className="border-t border-landing-muted/10 pt-12">
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Learn More</h2>
+             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Learn More</h2>
              <ul className="space-y-3">
                 <li>
                   <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
@@ -156,7 +156,7 @@
  
            {/* Contact */}
            <section className="border-t border-landing-muted/10 pt-12">
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
+             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Contact</h2>
              <a
                href="mailto:partners@umarise.com"
                className="text-landing-copper/70 hover:text-landing-copper transition-colors"
