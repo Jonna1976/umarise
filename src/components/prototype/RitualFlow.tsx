@@ -88,17 +88,19 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
+        goToScreen('release');
       } else {
+        console.error('[RitualFlow] Mark creation returned null');
         toast.error('Failed to seal mark');
+        // Stay on mark screen, don't redirect
+        isCreatingMark.current = false;
       }
     } catch (error) {
       console.error('[RitualFlow] Mark creation failed:', error);
       toast.error('Failed to seal mark');
-    } finally {
+      // Stay on mark screen, don't redirect
       isCreatingMark.current = false;
     }
-    
-    goToScreen('release');
   }, [capturedImageUrl, createMark, goToScreen]);
 
   // After release animation, offer email confirmation
