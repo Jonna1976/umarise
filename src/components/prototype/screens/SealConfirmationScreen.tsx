@@ -12,7 +12,6 @@ import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Share2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
 
 interface SealConfirmationProps {
   originId: string;
@@ -49,49 +48,30 @@ export function SealConfirmationScreen({
   const shortHash = hash ? `${hash.substring(0, 16)}...${hash.substring(hash.length - 8)}` : '—';
 
   const handleShare = useCallback(async () => {
-    if (!certificateRef.current || isSharing) return;
+    if (isSharing) return;
     
     setIsSharing(true);
     
     try {
-      // Capture certificate as image using html2canvas
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#050A05', // ritual surface color
-        allowTaint: true,
-      });
+      // Share text only - no file to avoid ugly iOS file preview
+      const shareText = `✦ Certificate of Beginning ✦
 
-      // Convert canvas to blob
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (b) => b ? resolve(b) : reject(new Error('Failed to create image')),
-          'image/jpeg',
-          0.92
-        );
-      });
+Origin: ${originId}
+Sealed: ${formattedDate} at ${formattedTime}
+Fingerprint: ${hash.substring(0, 24)}...
 
-      const file = new File([blob], `umarise-certificate-${originId}.jpg`, { type: 'image/jpeg' });
+Verify at umarise.com`;
 
-      // Use native share with file
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      if (navigator.share) {
         await navigator.share({
-          files: [file],
           title: 'Certificate of Beginning',
+          text: shareText,
         });
         toast.success('Shared');
       } else {
-        // Fallback: download the image
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `umarise-certificate-${originId}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        toast.success('Certificate downloaded');
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(shareText);
+        toast.success('Copied to clipboard');
       }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
