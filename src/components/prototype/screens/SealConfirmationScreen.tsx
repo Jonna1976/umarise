@@ -1,16 +1,16 @@
 /**
  * Seal Confirmation Screen
  * 
- * Post-mark: Offer to receive the certificate via email.
- * This is NOT an account creation prompt - it's "send me my proof".
+ * Post-mark: Offer to download the certificate.
+ * Client-side only - no server involvement.
  * 
- * Per briefing: Email contains PDF with thumbnail, timestamp, 
- * fingerprint, and OTS status.
+ * Per briefing: Download ZIP with PDF (thumbnail, timestamp, 
+ * fingerprint, OTS status) and .ots proof file when available.
  */
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '@/integrations/supabase/client';
+import { downloadCertificate, CertificateData } from '@/lib/certificateService';
 import { toast } from 'sonner';
 
 interface SealConfirmationProps {
@@ -30,54 +30,39 @@ export function SealConfirmationScreen({
   onComplete, 
   onSkip 
 }: SealConfirmationProps) {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSent, setIsSent] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
-    setIsLoading(true);
+  const handleDownload = async () => {
+    setIsDownloading(true);
 
     try {
-      // Sign in/up with magic link - this also links identity to marks
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/prototype`,
-          data: {
-            originId,
-            hash,
-            timestamp: timestamp.toISOString(),
-          }
-        },
-      });
+      const certificateData: CertificateData = {
+        originId,
+        hash,
+        timestamp,
+        thumbnailDataUrl: thumbnailUrl,
+        otsStatus: 'pending', // Will be updated when OTS anchoring completes
+      };
 
-      if (error) {
-        throw error;
-      }
-
-      setIsSent(true);
-      toast.success('Certificate link sent');
+      await downloadCertificate(certificateData);
+      
+      setIsDownloaded(true);
+      toast.success('Certificate downloaded');
       
       // Auto-complete after showing confirmation
       setTimeout(() => {
         onComplete();
-      }, 2500);
+      }, 2000);
     } catch (error) {
-      console.error('Email send error:', error);
-      toast.error('Failed to send. Try again.');
+      console.error('[SealConfirmation] Download error:', error);
+      toast.error('Failed to download. Try again.');
     } finally {
-      setIsLoading(false);
+      setIsDownloading(false);
     }
   };
 
-  if (isSent) {
+  if (isDownloaded) {
     return (
       <motion.div
         className="min-h-screen flex flex-col items-center justify-center px-6"
@@ -114,19 +99,15 @@ export function SealConfirmationScreen({
           </div>
 
           <h2 className="font-playfair text-2xl text-ritual-gold mb-3">
-            Sent
+            Saved
           </h2>
           
           <p className="font-garamond text-sm mb-4" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
-            Check your inbox for the magic link
-          </p>
-          
-          <p className="font-mono text-[10px] tracking-wide mb-5" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
-            {email}
+            Your certificate has been downloaded
           </p>
 
           <p className="font-garamond italic text-[11px]" style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}>
-            The link includes your certificate with OTS proof
+            sealed on your device · only the proof leaves
           </p>
         </div>
       </motion.div>
@@ -186,11 +167,11 @@ export function SealConfirmationScreen({
         </div>
 
         <h2 className="font-playfair text-[22px] text-ritual-gold text-center mb-2">
-          Send me my proof
+          Your proof is ready
         </h2>
         
         <p className="font-garamond text-sm text-center mb-5" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
-          Receive your certificate via email
+          Download your Certificate of Beginning
         </p>
 
         {/* Origin summary - subtle reminder of what was just marked */}
@@ -200,39 +181,19 @@ export function SealConfirmationScreen({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              autoComplete="email"
-              disabled={isLoading}
-              className="w-full px-4 py-3 bg-transparent rounded-lg
-                         font-mono text-sm text-ritual-cream
-                         focus:outline-none transition-colors
-                         disabled:opacity-50"
-              style={{ 
-                border: '1px solid hsl(var(--ritual-gold) / 0.3)',
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading || !email}
-            className="w-full py-3 rounded-lg font-garamond text-sm
-                       transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              background: 'hsl(var(--ritual-gold) / 0.1)',
-              border: '1px solid hsl(var(--ritual-gold) / 0.4)',
-              color: 'hsl(var(--ritual-gold))',
-            }}
-          >
-            {isLoading ? 'Sending...' : 'Send certificate'}
-          </button>
-        </form>
+        <button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          className="w-full py-3 rounded-lg font-garamond text-sm
+                     transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'hsl(var(--ritual-gold) / 0.1)',
+            border: '1px solid hsl(var(--ritual-gold) / 0.4)',
+            color: 'hsl(var(--ritual-gold))',
+          }}
+        >
+          {isDownloading ? 'Generating...' : 'Download certificate'}
+        </button>
 
         <button
           onClick={onSkip}
@@ -243,7 +204,7 @@ export function SealConfirmationScreen({
         </button>
 
         <p className="mt-5 font-garamond italic text-[10px] text-center" style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}>
-          Your email is masked in certificates
+          sealed on your device · only the proof leaves
         </p>
       </div>
     </motion.div>
