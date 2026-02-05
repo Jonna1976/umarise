@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen } from './screens/CaptureScreen';
 import { PauseScreen } from './screens/PauseScreen';
@@ -6,13 +6,12 @@ import { MarkScreen } from './screens/MarkScreen';
 import { ReleaseScreen } from './screens/ReleaseScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { WallOfExistence } from './screens/WallOfExistence';
+import { SealConfirmationScreen } from './screens/SealConfirmationScreen';
 import { OriginButton } from './components/OriginButton';
-import { MagicLinkAuth } from '@/components/auth/MagicLinkAuth';
-import { useAuth } from '@/hooks/useAuth';
-import { useMarks, DisplayMark } from '@/hooks/useMarks';
+import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'auth' | 'capture' | 'pause' | 'mark' | 'release' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'seal-confirm' | 'home' | 'wall';
 
 interface Artifact {
   id: string;
@@ -26,30 +25,12 @@ interface Artifact {
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('welcome');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { createMark } = useMarks();
 
   // Current capture state
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
   const [currentArtifact, setCurrentArtifact] = useState<Artifact | null>(null);
   const isCreatingMark = useRef(false);
-
-  // Check if user has seen welcome/auth before
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
-    return localStorage.getItem('umarise_seen_onboarding') === 'true';
-  });
-
-  // Redirect authenticated users who've seen onboarding directly to capture
-  useEffect(() => {
-    if (!authLoading && hasSeenOnboarding) {
-      if (isAuthenticated) {
-        setScreen('capture');
-      } else if (screen === 'welcome') {
-        // User has seen welcome but not authenticated - show auth
-        setScreen('auth');
-      }
-    }
-  }, [authLoading, isAuthenticated, hasSeenOnboarding, screen]);
 
   const goToScreen = useCallback((target: RitualScreen) => {
     if (target !== 'wall') {
@@ -58,28 +39,8 @@ export function RitualFlow() {
     setScreen(target);
   }, [screen]);
 
+  // Welcome → Capture (no auth before mark!)
   const handleWelcomeComplete = useCallback(() => {
-    // After welcome, check if user is authenticated
-    if (isAuthenticated) {
-      setHasSeenOnboarding(true);
-      localStorage.setItem('umarise_seen_onboarding', 'true');
-      goToScreen('capture');
-    } else {
-      // Show auth screen
-      goToScreen('auth');
-    }
-  }, [goToScreen, isAuthenticated]);
-
-  const handleAuthSuccess = useCallback(() => {
-    setHasSeenOnboarding(true);
-    localStorage.setItem('umarise_seen_onboarding', 'true');
-    goToScreen('capture');
-  }, [goToScreen]);
-
-  const handleAuthSkip = useCallback(() => {
-    // Allow skipping auth for now (anonymous device ID as fallback)
-    setHasSeenOnboarding(true);
-    localStorage.setItem('umarise_seen_onboarding', 'true');
     goToScreen('capture');
   }, [goToScreen]);
 
@@ -140,11 +101,22 @@ export function RitualFlow() {
     goToScreen('release');
   }, [capturedImageUrl, createMark, goToScreen]);
 
+  // After release animation, offer email confirmation
   const handleReleaseComplete = useCallback(() => {
-    // Clear capture state for next mark
+    goToScreen('seal-confirm');
+  }, [goToScreen]);
+
+  // After seal confirmation (or skip), return to capture
+  const handleSealConfirmComplete = useCallback(() => {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
-    goToScreen('capture'); // Return to capture for next mark
+    goToScreen('capture');
+  }, [goToScreen]);
+
+  const handleSealConfirmSkip = useCallback(() => {
+    setCapturedImageUrl(null);
+    setCurrentArtifact(null);
+    goToScreen('capture');
   }, [goToScreen]);
 
   const handleOpenWall = useCallback(() => {
@@ -167,15 +139,6 @@ export function RitualFlow() {
     imageUrl: null,
   };
 
-  // Show loading while checking auth
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-ritual-surface flex items-center justify-center">
-        <div className="w-3 h-3 rounded-full bg-ritual-gold animate-pulse" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-ritual-surface relative overflow-hidden font-garamond">
       {/* Origin Button (U) - visible on main screens: top: 40px, left: 18px per walkthrough spec */}
@@ -186,10 +149,6 @@ export function RitualFlow() {
       {/* Screens */}
       {screen === 'welcome' && (
         <WelcomeScreen onComplete={handleWelcomeComplete} />
-      )}
-
-      {screen === 'auth' && (
-        <MagicLinkAuth onSuccess={handleAuthSuccess} onSkip={handleAuthSkip} />
       )}
       
       {screen === 'capture' && (
@@ -206,6 +165,17 @@ export function RitualFlow() {
       
       {screen === 'release' && (
         <ReleaseScreen artifact={displayArtifact} onComplete={handleReleaseComplete} />
+      )}
+
+      {screen === 'seal-confirm' && currentArtifact && (
+        <SealConfirmationScreen
+          originId={currentArtifact.origin}
+          hash={currentArtifact.hash}
+          timestamp={currentArtifact.date}
+          thumbnailUrl={currentArtifact.imageUrl || undefined}
+          onComplete={handleSealConfirmComplete}
+          onSkip={handleSealConfirmSkip}
+        />
       )}
       
       {screen === 'home' && (
