@@ -42,7 +42,7 @@ export default function Origin() {
 
           {/* Scope */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
               This document describes a mechanism for immutable attestation of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
@@ -56,7 +56,7 @@ export default function Origin() {
 
           {/* Problem Statement */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Problem Statement</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Problem Statement</h2>
             <p className="mb-4">
               Digital systems routinely compute cryptographic hashes to ensure internal integrity, consistency, and traceability.
             </p>
@@ -73,7 +73,7 @@ export default function Origin() {
 
           {/* Existing Practice */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Existing Practice</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Existing Practice</h2>
             <p className="mb-4">
               Modern systems already compute cryptographic hashes (e.g. SHA-256) for purposes including:
             </p>
@@ -95,7 +95,7 @@ export default function Origin() {
 
           {/* Origin Attestation */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Origin Attestation</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Origin Attestation</h2>
             <p className="text-landing-cream/90 mb-4">
               An Origin Record provides a minimal, immutable attestation that:
             </p>
@@ -119,7 +119,7 @@ export default function Origin() {
 
           {/* Record Structure */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Record Structure (Normative)</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Structure (Normative)</h2>
             <p className="mb-4">An Origin Record consists of:</p>
             <ul className="space-y-2 pl-4">
               <li><span className="text-landing-copper">hash</span>: identifying what existed</li>
@@ -131,7 +131,7 @@ export default function Origin() {
 
           {/* Invariants */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <p className="mb-4">The following properties MUST hold:</p>
             <ul className="space-y-2 pl-4">
               <li>Origin Records are write-once</li>
@@ -142,7 +142,7 @@ export default function Origin() {
 
           {/* Law of Origin */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Law of Origin</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Law of Origin</h2>
             <p className="text-landing-cream text-lg">
               If the bytes change, the origin no longer matches.
             </p>
@@ -153,7 +153,7 @@ export default function Origin() {
 
           {/* Internal vs External Evidence */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Internal vs External Evidence</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Internal vs External Evidence</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -189,7 +189,7 @@ export default function Origin() {
 
           {/* Non-Responsibilities */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Non-Responsibilities (Normative)</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities (Normative)</h2>
             <p className="mb-4">The origin mechanism does not:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
               <li>store content</li>
@@ -206,7 +206,7 @@ export default function Origin() {
 
           {/* Correct Usage Boundary */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Correct Usage Boundary</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Correct Usage Boundary</h2>
             <p className="mb-4">Use of origin attestation is appropriate only where:</p>
             <ul className="space-y-2 pl-4">
               <li>a moment must not be renegotiated later</li>
@@ -220,7 +220,7 @@ export default function Origin() {
 
           {/* Failure and Persistence Properties */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Failure and Persistence Properties</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Failure and Persistence Properties</h2>
             <p className="mb-4">Verification of an Origin Record depends solely on:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/70">
               <li>the hash</li>
@@ -234,7 +234,7 @@ export default function Origin() {
 
           {/* Context */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Context</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Context</h2>
             <p className="mb-4">As systems grow, the ability to prove what existed when becomes a constraint:</p>
             <ul className="space-y-2 text-landing-muted/60">
               <li>Internal timestamps are self-attested</li>
@@ -248,7 +248,7 @@ export default function Origin() {
 
           {/* Reference */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Reference</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Reference</h2>
             <p className="mb-6">
               Umarise Core is an origin registry implementing the properties described in this document.
             </p>

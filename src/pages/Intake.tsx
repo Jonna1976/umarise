@@ -34,7 +34,7 @@ export default function Intake() {
           
           {/* Definition */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Definition</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Definition</h2>
             <p className="text-landing-cream/90">
               An Origin Record is a write-once, externally anchored attestation that specific bytes existed at a specific moment in time. The record contains a cryptographic hash of those bytes, not the bytes themselves.
             </p>
@@ -42,7 +42,7 @@ export default function Intake() {
 
           {/* Record Contents */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Record Contents</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Contents</h2>
             <ul className="space-y-2">
               <li><span className="text-landing-copper">hash</span>: what existed</li>
               <li><span className="text-landing-copper">timestamp</span>: when it existed</li>
@@ -53,7 +53,7 @@ export default function Intake() {
 
           {/* Invariants */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2">
               <li>Origin Records are write-once</li>
               <li>Origin Records are immutably recorded</li>
@@ -63,7 +63,7 @@ export default function Intake() {
 
           {/* Anchoring */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Anchoring</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Anchoring</h2>
             <p className="mb-4 text-landing-cream/90">
               Origin Records are anchored externally via OpenTimestamps (OTS), an open-source protocol that creates a cryptographic path from the attestation hash to a Bitcoin transaction.
             </p>
@@ -81,7 +81,7 @@ export default function Intake() {
 
           {/* The Law */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">The Law</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">The Law</h2>
             <p className="text-landing-cream text-lg">
               If the bytes change, the origin no longer matches.
             </p>
@@ -92,7 +92,7 @@ export default function Intake() {
 
           {/* Non-Responsibilities */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Non-Responsibilities</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
             <p className="mb-4">Umarise does not:</p>
             <ul className="space-y-1 text-landing-muted/60">
               <li>store content</li>
@@ -109,7 +109,7 @@ export default function Intake() {
 
           {/* Verification */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Verification</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Verification</h2>
             <p className="mb-4 text-landing-cream/90">
               Verification does not require authentication, an account, or a relationship with Umarise.
             </p>
@@ -131,7 +131,7 @@ export default function Intake() {
 
           {/* Trust Model */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Trust Model</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Trust Model</h2>
             <div className="mb-6">
               <p className="text-landing-cream/90 mb-2">What is verifiable without trusting Umarise:</p>
               <p className="pl-4 text-landing-muted/70">
@@ -151,7 +151,7 @@ export default function Intake() {
 
           {/* Correct Usage Boundary */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Correct Usage Boundary</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Correct Usage Boundary</h2>
             <p className="mb-4">Umarise is appropriate only where:</p>
             <ul className="space-y-2">
               <li>a moment must not be renegotiated later</li>
@@ -165,7 +165,7 @@ export default function Intake() {
 
           {/* Context */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Context</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Context</h2>
             <p className="mb-4">Every mature digital system eventually externalizes its fundamentals.</p>
             <ul className="space-y-2 text-landing-muted/60">
               <li><span className="text-landing-copper">DNS</span> externalized naming</li>
@@ -179,7 +179,7 @@ export default function Intake() {
 
           {/* Reference */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Reference</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Reference</h2>
             <p className="mb-6 text-landing-cream/70">
               Umarise Core is an origin registry implementing the properties described in this document.
             </p>
@@ -187,7 +187,7 @@ export default function Intake() {
 
           {/* Contact */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Contact</h2>
             <a
               href="mailto:partners@umarise.com"
               className="text-landing-copper/70 hover:text-landing-copper transition-colors"
