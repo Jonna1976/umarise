@@ -39,7 +39,8 @@ export default function WitnessConfirmation() {
 
   const loadWitnessData = async (verificationToken: string) => {
     try {
-      const { data, error } = await supabase
+      // Use type assertion for witnesses table (not yet in generated types)
+      const { data, error } = await (supabase as any)
         .from('witnesses')
         .select(`
           id,
@@ -61,7 +62,7 @@ export default function WitnessConfirmation() {
         return;
       }
 
-      const page = (data as any).pages;
+      const page = data.pages;
       const tokenExpired = new Date(data.token_expires_at) < new Date();
       const alreadyConfirmed = !!data.witness_confirmed_at;
 
@@ -103,7 +104,8 @@ export default function WitnessConfirmation() {
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const confirmationHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-      const { error } = await supabase
+      // Use type assertion for witnesses table (not yet in generated types)
+      const { error } = await (supabase as any)
         .from('witnesses')
         .update({
           witness_email: email,

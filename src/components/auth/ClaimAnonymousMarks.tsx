@@ -73,11 +73,12 @@ export function ClaimAnonymousMarks({ userId, onComplete, onSkip }: ClaimAnonymo
     setIsClaiming(true);
 
     try {
+      // Use type assertion for new user_id column (not yet in generated types)
       const { error } = await supabase
         .from('pages')
-        .update({ user_id: userId })
+        .update({ user_id: userId } as any)
         .eq('device_user_id', deviceUserId)
-        .is('user_id', null);
+        .is('user_id' as any, null);
 
       if (error) throw error;
 

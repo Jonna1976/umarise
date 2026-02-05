@@ -305,6 +305,7 @@ export type Database = {
           capture_batch_id: string | null
           confidence_score: number | null
           created_at: string
+          device_fingerprint_hash: string | null
           device_user_id: string
           embedding: Json | null
           embedding_vector: Json | null
@@ -334,6 +335,7 @@ export type Database = {
           topic_labels: string[] | null
           trashed_at: string | null
           updated_at: string
+          user_id: string | null
           user_note: string | null
           writer_user_id: string
           written_at: string | null
@@ -344,6 +346,7 @@ export type Database = {
           capture_batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
+          device_fingerprint_hash?: string | null
           device_user_id: string
           embedding?: Json | null
           embedding_vector?: Json | null
@@ -373,6 +376,7 @@ export type Database = {
           topic_labels?: string[] | null
           trashed_at?: string | null
           updated_at?: string
+          user_id?: string | null
           user_note?: string | null
           writer_user_id?: string
           written_at?: string | null
@@ -383,6 +387,7 @@ export type Database = {
           capture_batch_id?: string | null
           confidence_score?: number | null
           created_at?: string
+          device_fingerprint_hash?: string | null
           device_user_id?: string
           embedding?: Json | null
           embedding_vector?: Json | null
@@ -412,6 +417,7 @@ export type Database = {
           topic_labels?: string[] | null
           trashed_at?: string | null
           updated_at?: string
+          user_id?: string | null
           user_note?: string | null
           writer_user_id?: string
           written_at?: string | null
@@ -563,6 +569,53 @@ export type Database = {
           top_5_page_ids?: string[] | null
         }
         Relationships: []
+      }
+      witnesses: {
+        Row: {
+          confirmation_hash: string | null
+          created_at: string | null
+          id: string
+          ots_proof: string | null
+          ots_status: string | null
+          page_id: string
+          token_expires_at: string | null
+          verification_token: string | null
+          witness_confirmed_at: string | null
+          witness_email: string
+        }
+        Insert: {
+          confirmation_hash?: string | null
+          created_at?: string | null
+          id?: string
+          ots_proof?: string | null
+          ots_status?: string | null
+          page_id: string
+          token_expires_at?: string | null
+          verification_token?: string | null
+          witness_confirmed_at?: string | null
+          witness_email?: string
+        }
+        Update: {
+          confirmation_hash?: string | null
+          created_at?: string | null
+          id?: string
+          ots_proof?: string | null
+          ots_status?: string | null
+          page_id?: string
+          token_expires_at?: string | null
+          verification_token?: string | null
+          witness_confirmed_at?: string | null
+          witness_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "witnesses_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

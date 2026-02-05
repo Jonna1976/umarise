@@ -140,3 +140,11 @@ export async function verifyFileHashDetailed(
     algorithm: 'sha256',
   };
 }
+
+/**
+ * Compute SHA-256 hash from raw bytes
+ * Exported alias for use in other modules
+ */
+export async function computeSHA256(data: Uint8Array): Promise<string> {
+  return calculateSHA256(data);
+}
