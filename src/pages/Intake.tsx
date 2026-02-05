@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
- * Umarise — Origin Record Specification
+ * Umarise: Origin Record Specification
  * A reference document, not onboarding.
  */
 export default function Intake() {
@@ -36,7 +36,7 @@ export default function Intake() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Definition</h2>
             <p className="text-landing-cream/90">
-              An Origin Record is a write-once, externally anchored attestation that specific bytes existed at a specific moment in time. The record contains a cryptographic hash of those bytes — not the bytes themselves.
+              An Origin Record is a write-once, externally anchored attestation that specific bytes existed at a specific moment in time. The record contains a cryptographic hash of those bytes, not the bytes themselves.
             </p>
           </section>
 
@@ -75,7 +75,7 @@ export default function Intake() {
               <li>The resulting .ots proof file contains the complete cryptographic path from the original hash to the Bitcoin block</li>
             </ol>
             <p className="text-landing-muted/50 text-sm">
-              The proof is a standard .ots file — an open format, verifiable with open-source tooling, without Umarise involvement.
+              The proof is a standard .ots file, an open format, verifiable with open-source tooling, without Umarise involvement.
             </p>
           </section>
 

@@ -2,7 +2,7 @@
  import { ArrowLeft } from 'lucide-react';
  
  /**
-  * Umarise — Why Origin Attestation
+  * Umarise: Why Origin Attestation
   * Market context and strategic positioning
   */
  export default function Why() {
