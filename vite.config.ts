@@ -96,5 +96,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Prevent duplicate React instances that cause "dispatcher.useState" errors
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
 }));
