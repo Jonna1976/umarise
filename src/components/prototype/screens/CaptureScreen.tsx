@@ -54,12 +54,11 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Hidden file input */}
+      {/* Hidden file input - NO capture attribute = file picker only (v4: artifact must exist BEFORE mark) */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleFileChange}
         className="hidden"
       />
