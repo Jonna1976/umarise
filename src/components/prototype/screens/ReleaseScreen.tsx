@@ -19,6 +19,8 @@ interface ReleaseScreenProps {
  * Screen 4: Release
  * The certificate of beginning.
  * Full resolution stays on device. Only the proof leaves.
+ * 
+ * Per briefing: Shows OTS status (pending → anchored)
  */
 export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showCard, setShowCard] = useState(false);
@@ -27,9 +29,11 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showDate, setShowDate] = useState(false);
   const [showLine, setShowLine] = useState(false);
   const [showHash, setShowHash] = useState(false);
+  const [showOts, setShowOts] = useState(false);
   const [showNote, setShowNote] = useState(false);
 
-  // Cascade animation timing
+  // Cascade animation timing per spec:
+  // 0.0s card, 0.6s title, 1.0s origin, 1.2s date, 1.5s line, 1.8s hash, 2.0s ots, 2.4s note
   useEffect(() => {
     const timers = [
       setTimeout(() => setShowCard(true), 0),
@@ -38,8 +42,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
       setTimeout(() => setShowDate(true), 1200),
       setTimeout(() => setShowLine(true), 1500),
       setTimeout(() => setShowHash(true), 1800),
-      setTimeout(() => setShowNote(true), 2200),
-      setTimeout(onComplete, 4500),
+      setTimeout(() => setShowOts(true), 2000),
+      setTimeout(() => setShowNote(true), 2400),
+      setTimeout(onComplete, 5000),
     ];
     return () => timers.forEach(clearTimeout);
   }, [onComplete]);
@@ -56,21 +61,24 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   };
 
   const formatHash = (hash: string) => {
+    if (hash.length < 16) return hash;
     return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
   };
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center bg-ritual-surface"
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Certificate card */}
+      {/* Certificate card - 280px, radius 14px, padding 44px 36px 36px */}
       <motion.div
-        className="w-[280px] rounded-[14px] p-9 pt-11 text-center relative overflow-hidden"
+        className="w-[280px] rounded-[14px] text-center relative overflow-hidden"
         style={{
+          padding: '44px 36px 36px',
           background: 'linear-gradient(170deg, rgba(30, 45, 30, 0.9), rgba(20, 32, 20, 0.95))',
           border: '1px solid hsl(var(--ritual-gold) / 0.15)',
         }}
@@ -132,9 +140,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           </svg>
         </div>
 
-        {/* "Marked" title */}
+        {/* "Marked" title - Playfair 400, 36px */}
         <motion.h2
-          className="font-playfair font-normal text-4xl text-ritual-gold mb-4"
+          className="font-playfair font-normal text-4xl text-ritual-gold mb-[18px]"
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}
           transition={{ duration: 0.5 }}
@@ -142,9 +150,10 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           Marked
         </motion.h2>
 
-        {/* Origin code */}
+        {/* Origin code - JetBrains Mono 10px, letter-spacing 2px */}
         <motion.p
-          className="font-mono text-[10px] text-ritual-gold-muted tracking-[2px] uppercase mb-1.5"
+          className="font-mono text-[10px] tracking-[2px] uppercase mb-1.5"
+          style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showOrigin ? 1 : 0, y: showOrigin ? 0 : 6 }}
           transition={{ duration: 0.5 }}
@@ -152,9 +161,10 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           {artifact.origin}
         </motion.p>
 
-        {/* Date */}
+        {/* Date - EB Garamond 14px */}
         <motion.p
-          className="font-garamond text-sm text-ritual-cream-40 mb-5"
+          className="font-garamond text-sm mb-5"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showDate ? 1 : 0, y: showDate ? 0 : 6 }}
           transition={{ duration: 0.5 }}
@@ -162,7 +172,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           {formatDate(artifact.date)}
         </motion.p>
 
-        {/* Gold line */}
+        {/* Gold line - 50px */}
         <motion.div
           className="w-[50px] h-px mx-auto mb-4"
           style={{ background: 'hsl(var(--ritual-gold))' }}
@@ -171,9 +181,10 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           transition={{ duration: 0.4 }}
         />
 
-        {/* Hash */}
+        {/* Hash - JetBrains Mono 10px */}
         <motion.p
-          className="font-mono text-[10px] text-ritual-gold-muted tracking-[1px]"
+          className="font-mono text-[10px] tracking-[1px] mb-3"
+          style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showHash ? 0.45 : 0 }}
           transition={{ duration: 0.4 }}
@@ -181,9 +192,32 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           {formatHash(artifact.hash)}
         </motion.p>
 
-        {/* Whisper note */}
+        {/* OTS Status - Bitcoin anchor status */}
+        <motion.div
+          className="flex items-center justify-center gap-2 mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showOts ? 0.6 : 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Bitcoin icon */}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="opacity-70">
+            <circle cx="12" cy="12" r="10" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
+            <path d="M9 8h4c1.5 0 2.5 1 2.5 2s-1 2-2.5 2H9V8z" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
+            <path d="M9 12h4.5c1.5 0 2.5 1 2.5 2s-1 2-2.5 2H9v-4z" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
+            <path d="M10 6v2M13 6v2M10 16v2M13 16v2" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
+          </svg>
+          <span 
+            className="font-mono text-[9px] tracking-[1px] uppercase"
+            style={{ color: 'hsl(var(--ritual-gold-muted))' }}
+          >
+            Pending Bitcoin anchor
+          </span>
+        </motion.div>
+
+        {/* Whisper note - EB Garamond italic 11px */}
         <motion.p
-          className="font-garamond italic text-[11px] text-ritual-cream-20 mt-5"
+          className="font-garamond italic text-[11px] mt-3"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showNote ? 0.45 : 0 }}
           transition={{ duration: 0.4 }}
