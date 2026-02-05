@@ -11,7 +11,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Share2 } from 'lucide-react';
+import { Share2, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 interface SealConfirmationProps {
   originId: string;
@@ -31,6 +32,7 @@ export function SealConfirmationScreen({
   onSkip 
 }: SealConfirmationProps) {
   const [isSharing, setIsSharing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const certificateRef = useRef<HTMLDivElement>(null);
 
   // Format date in ritual style
@@ -93,6 +95,55 @@ Verify at umarise.com`;
       setIsSharing(false);
     }
   }, [originId, hash, formattedDate, formattedTime, isSharing]);
+
+  const handleSaveCertificate = useCallback(async () => {
+    if (!certificateRef.current || isSaving) return;
+    
+    setIsSaving(true);
+    
+    try {
+      // Capture certificate as image using html2canvas
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#050A05',
+        allowTaint: true,
+      });
+
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => b ? resolve(b) : reject(new Error('Failed to create image')),
+          'image/jpeg',
+          0.92
+        );
+      });
+
+      const file = new File([blob], `umarise-certificate-${originId}.jpg`, { type: 'image/jpeg' });
+
+      // Use native share with file - this opens share sheet where user can "Save Image"
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        toast.success('Saved');
+      } else {
+        // Fallback: open image in new tab for manual save
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        toast('Long-press image to save', { duration: 3000 });
+        // Clean up after delay
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        return; // User cancelled
+      }
+      console.error('[SealConfirmation] Save error:', error);
+      toast.error('Could not save');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [originId, isSaving]);
 
   return (
     <motion.div
@@ -206,21 +257,40 @@ Verify at umarise.com`;
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.8 }}
       >
-        {/* Share button - subtle */}
-        <button
-          onClick={handleShare}
-          disabled={isSharing}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-garamond text-sm
-                     transition-all disabled:opacity-50"
-          style={{
-            background: 'hsl(var(--ritual-gold) / 0.08)',
-            border: '1px solid hsl(var(--ritual-gold) / 0.25)',
-            color: 'hsl(var(--ritual-gold) / 0.8)',
-          }}
-        >
-          <Share2 className="w-4 h-4" />
-          {isSharing ? 'Sharing...' : 'Share proof'}
-        </button>
+        {/* Action buttons */}
+        <div className="flex items-center gap-3">
+          {/* Save certificate as image */}
+          <button
+            onClick={handleSaveCertificate}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-garamond text-sm
+                       transition-all disabled:opacity-50"
+            style={{
+              background: 'hsl(var(--ritual-gold) / 0.12)',
+              border: '1px solid hsl(var(--ritual-gold) / 0.3)',
+              color: 'hsl(var(--ritual-gold) / 0.9)',
+            }}
+          >
+            <Download className="w-4 h-4" />
+            {isSaving ? 'Saving...' : 'Save'}
+          </button>
+
+          {/* Share text proof */}
+          <button
+            onClick={handleShare}
+            disabled={isSharing}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-garamond text-sm
+                       transition-all disabled:opacity-50"
+            style={{
+              background: 'hsl(var(--ritual-gold) / 0.05)',
+              border: '1px solid hsl(var(--ritual-gold) / 0.15)',
+              color: 'hsl(var(--ritual-gold) / 0.6)',
+            }}
+          >
+            <Share2 className="w-4 h-4" />
+            {isSharing ? 'Sharing...' : 'Share'}
+          </button>
+        </div>
 
         {/* Skip to Wall */}
         <button
