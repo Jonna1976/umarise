@@ -36,9 +36,26 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
     setIsSaving(true);
     
     try {
-      // Convert data URL or blob URL to Blob
-      const response = await fetch(artifact.imageUrl);
-      const blob = await response.blob();
+      let blob: Blob;
+      
+      // Handle data URL directly without fetch (more reliable)
+      if (artifact.imageUrl.startsWith('data:')) {
+        const [header, base64] = artifact.imageUrl.split(',');
+        const mimeMatch = header.match(/data:([^;]+)/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const byteString = atob(base64);
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+          uint8Array[i] = byteString.charCodeAt(i);
+        }
+        blob = new Blob([uint8Array], { type: mimeType });
+      } else {
+        // For blob URLs or http URLs
+        const response = await fetch(artifact.imageUrl);
+        blob = await response.blob();
+      }
+      
       const file = new File([blob], `umarise-${Date.now()}.jpg`, { type: 'image/jpeg' });
       
       // Check if Web Share API with files is supported
@@ -46,26 +63,28 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         await navigator.share({ files: [file] });
         setSaved(true);
         toast.success('Saved');
-      } else if (navigator.share) {
-        // Fallback: share as data URL
-        await navigator.share({
-          title: 'Umarise',
-          text: 'My beginning',
-          url: artifact.imageUrl,
-        });
-        setSaved(true);
       } else {
-        // Final fallback: open image in new tab for manual save
-        window.open(artifact.imageUrl, '_blank');
+        // Fallback: create object URL and open in new tab
+        const objectUrl = URL.createObjectURL(blob);
+        window.open(objectUrl, '_blank');
+        // Clean up after a delay
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
         toast('Long-press image to save', { duration: 3000 });
+        setSaved(true);
       }
     } catch (error) {
-      // User cancelled share sheet - that's fine, mark as saved anyway
+      // User cancelled share sheet - that's fine
       if ((error as Error).name === 'AbortError') {
         setSaved(true);
       } else {
         console.error('[PauseScreen] Save error:', error);
-        toast.error('Could not save');
+        // Last resort fallback - open image directly
+        if (artifact.imageUrl) {
+          window.open(artifact.imageUrl, '_blank');
+          toast('Long-press image to save', { duration: 3000 });
+        } else {
+          toast.error('Could not save');
+        }
       }
     } finally {
       setIsSaving(false);
