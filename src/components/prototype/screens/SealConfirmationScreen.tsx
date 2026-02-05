@@ -60,16 +60,17 @@ export function SealConfirmationScreen({
         useCORS: true,
         logging: false,
         backgroundColor: '#050A05', // ritual surface color
+        allowTaint: true,
       });
 
-      // Convert to blob
-      const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => b ? resolve(b) : reject(new Error('Failed to create image')),
+          'image/jpeg',
+          0.92
+        );
       });
-
-      if (!blob) {
-        throw new Error('Failed to create image');
-      }
 
       const file = new File([blob], `umarise-certificate-${originId}.jpg`, { type: 'image/jpeg' });
 
@@ -80,23 +81,32 @@ export function SealConfirmationScreen({
           title: 'Certificate of Beginning',
         });
         toast.success('Shared');
-      } else if (navigator.share) {
-        // Fallback: share text only
-        await navigator.share({
-          title: 'Certificate of Beginning',
-          text: `Origin: ${originId}\nSealed: ${formattedDate} at ${formattedTime}\nFingerprint: ${hash.substring(0, 24)}...\n\nVerify at umarise.com`,
-        });
-        toast.success('Shared');
       } else {
-        // Final fallback: copy to clipboard
+        // Fallback: download the image
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `umarise-certificate-${originId}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success('Certificate downloaded');
+      }
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // User cancelled - that's fine
+        return;
+      }
+      console.error('[SealConfirmation] Share error:', error);
+      
+      // Fallback: copy text to clipboard
+      try {
         await navigator.clipboard.writeText(
           `Origin: ${originId}\nSealed: ${formattedDate} at ${formattedTime}\nFingerprint: ${hash.substring(0, 24)}...`
         );
-        toast.success('Copied to clipboard');
-      }
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        console.error('[SealConfirmation] Share error:', error);
+        toast.success('Proof copied to clipboard');
+      } catch {
         toast.error('Could not share');
       }
     } finally {
