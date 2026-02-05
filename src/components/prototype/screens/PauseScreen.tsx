@@ -43,7 +43,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
       >
-        <ArtifactDisplay type={artifact.type} />
+        <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
       </motion.div>
     </motion.div>
   );
