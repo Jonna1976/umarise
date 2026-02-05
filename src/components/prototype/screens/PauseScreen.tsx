@@ -36,20 +36,28 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
     setIsSaving(true);
     
     try {
-      // Silent download - create link and click without navigating
-      const link = document.createElement('a');
-      link.href = artifact.imageUrl;
-      link.download = `umarise-${Date.now()}.jpg`;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Convert data URL or blob URL to File for native share
+      const response = await fetch(artifact.imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `umarise-${Date.now()}.jpg`, { type: 'image/jpeg' });
       
-      setSaved(true);
-      toast.success('Saved');
+      // Use native share with file - opens share sheet where user can "Save to Photos"
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+        });
+        setSaved(true);
+        toast.success('Saved');
+      } else {
+        // Fallback for browsers that don't support file sharing
+        // Use clipboard or show message
+        toast('Open the image and long-press to save', { duration: 3000 });
+      }
     } catch (error) {
-      console.error('[PauseScreen] Save error:', error);
-      toast.error('Could not save');
+      // User cancelled share sheet - that's fine
+      if ((error as Error).name !== 'AbortError') {
+        console.error('[PauseScreen] Save error:', error);
+      }
     } finally {
       setIsSaving(false);
     }
