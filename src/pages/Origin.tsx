@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
- * Umarise — Origin One-Pager
+ * Umarise: Origin One-Pager
  * Normative Overview
  * 
  * A formal description of the origin attestation mechanism.
- * Not marketing, not onboarding — a reference document.
+ * Not marketing, not onboarding. A reference document.
  */
 export default function Origin() {
   return (
@@ -50,7 +50,7 @@ export default function Origin() {
               The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once record with public verification is required.
             </p>
             <p className="mt-4 text-landing-cream/70">
-              Attestations are enforced as immutable through database-level constraints. Content is never stored — only cryptographic hashes.
+              Attestations are enforced as immutable through database-level constraints. Content is never stored. Only cryptographic hashes.
             </p>
           </section>
 

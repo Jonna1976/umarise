@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
- * Umarise Core — Public Specification
+ * Umarise Core: Public Specification
  * 
  * Minimal, normative, infrastructure-grade.
  * No SDK, no onboarding, no marketing.
@@ -32,7 +32,7 @@ export default function CoreSpec() {
             Umarise Core
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
-            v1 — Stable Interface
+            v1. Stable Interface
           </p>
         </div>
 

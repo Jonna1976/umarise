@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 /**
  * Umarise Core Homepage
- * Protocol root — not a product page, not marketing.
- * Status: Core v1 STABLE — this screen is an inscription, not a funnel.
+ * Protocol root. Not a product page, not marketing.
+ * Status: Core v1 STABLE. This screen is an inscription, not a funnel.
  */
 export default function Landing() {
   return (
