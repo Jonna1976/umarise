@@ -48,7 +48,7 @@ export default function Terms() {
             <p className="mb-4">Umarise establishes and maintains Origin Records.</p>
             <p className="mb-4">An Origin Record is a write-once, immutable reference to:</p>
             <ul className="space-y-1 mb-4">
-              <li>• the cryptographic hash of a digital artifact</li>
+              <li>• the cryptographic hash of digital data</li>
               <li>• a timestamp</li>
               <li>• a stable origin identifier</li>
             </ul>
@@ -76,11 +76,11 @@ export default function Terms() {
             <p className="mb-4">You are responsible for:</p>
             <ul className="space-y-1 mb-4">
               <li>• determining whether Umarise is appropriate for your system</li>
-              <li>• ensuring that artifacts submitted for origin recording are lawful</li>
+              <li>• ensuring that the data underlying any submitted hash is lawful and that you have the right to register its origin</li>
               <li>• maintaining custody of all original content</li>
             </ul>
             <p className="text-landing-muted/50 text-sm">
-              Umarise does not validate legality, ownership, or authorization of submitted artifacts.
+              Umarise does not validate legality, ownership, or authorization of submitted data.
             </p>
           </section>
 
@@ -103,7 +103,7 @@ export default function Terms() {
           {/* Correct Usage Boundary */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Correct Usage Boundary</h2>
-            <p className="mb-4">Umarise is only suitable where:</p>
+            <p className="mb-4">Umarise is appropriate only where:</p>
             <ul className="space-y-1 mb-6">
               <li>• a moment must not be renegotiated later</li>
               <li>• external verification outweighs flexibility</li>

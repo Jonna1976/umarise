@@ -36,7 +36,7 @@ export default function Intake() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Definition</h2>
             <p className="text-landing-cream/90">
-              An Origin Record is a write-once, external reference to the exact bytes of a digital artifact at a specific moment in time.
+              An Origin Record is a write-once, externally anchored attestation that specific bytes existed at a specific moment in time. The record contains a cryptographic hash of those bytes — not the bytes themselves.
             </p>
           </section>
 
@@ -59,8 +59,23 @@ export default function Intake() {
               <li>Origin Records are immutably recorded</li>
               <li>Verification is binary</li>
             </ul>
-            <p className="text-landing-muted/50 mt-4 text-sm">
-              Immutability is enforced at the database level. External anchoring (OpenTimestamps) is on the roadmap.
+          </section>
+
+          {/* Anchoring */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Anchoring</h2>
+            <p className="mb-4 text-landing-cream/90">
+              Origin Records are anchored externally via OpenTimestamps (OTS), an open-source protocol that creates a cryptographic path from the attestation hash to a Bitcoin transaction.
+            </p>
+            <p className="mb-4">The anchoring process:</p>
+            <ol className="space-y-2 pl-4 list-decimal text-landing-muted/70 mb-4">
+              <li>The SHA-256 hash is submitted to independent OTS calendar servers</li>
+              <li>Calendar servers combine thousands of hashes into a Merkle tree</li>
+              <li>The Merkle root is written to a Bitcoin transaction</li>
+              <li>The resulting .ots proof file contains the complete cryptographic path from the original hash to the Bitcoin block</li>
+            </ol>
+            <p className="text-landing-muted/50 text-sm">
+              The proof is a standard .ots file — an open format, verifiable with open-source tooling, without Umarise involvement.
             </p>
           </section>
 
@@ -92,10 +107,52 @@ export default function Intake() {
             </p>
           </section>
 
+          {/* Verification */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Verification</h2>
+            <p className="mb-4 text-landing-cream/90">
+              Verification does not require authentication, an account, or a relationship with Umarise.
+            </p>
+            <p className="mb-3">Public endpoints:</p>
+            <div className="font-mono text-sm space-y-2 pl-4 mb-6 text-landing-muted/70">
+              <div><span className="text-landing-copper">/v1-core-resolve</span> — Look up an Origin Record by ID or hash</div>
+              <div><span className="text-landing-copper">/v1-core-verify</span> — Verify whether a hash has been attested</div>
+              <div><span className="text-landing-copper">/v1-core-proof</span> — Download the .ots proof file</div>
+            </div>
+            <p className="mb-3">Independent verification:</p>
+            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 font-mono text-sm text-landing-muted/70 mb-4">
+              <div>curl https://core.umarise.com/v1-core-proof/{'{origin_id}'} -o proof.ots</div>
+              <div>ots verify proof.ots</div>
+            </div>
+            <p className="text-landing-muted/50 text-sm">
+              The <code className="text-landing-copper/70">ots verify</code> command checks the cryptographic path from the hash to the Bitcoin blockchain. It requires no Umarise software, account, or API key.
+            </p>
+          </section>
+
+          {/* Trust Model */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Trust Model</h2>
+            <div className="mb-6">
+              <p className="text-landing-cream/90 mb-2">What is verifiable without trusting Umarise:</p>
+              <p className="pl-4 text-landing-muted/70">
+                The timestamp. The .ots proof provides a cryptographic path to a Bitcoin transaction. Anyone can verify this independently.
+              </p>
+            </div>
+            <div>
+              <p className="text-landing-cream/90 mb-2">What requires trusting Umarise:</p>
+              <p className="pl-4 text-landing-muted/70 mb-4">
+                The data intake. Umarise receives data and computes the SHA-256 hash. The partner trusts that the correct data was hashed.
+              </p>
+              <p className="pl-4 text-landing-muted/50 text-sm">
+                Mitigation: partners can compute the hash client-side and submit only the hash. In that case, the entire chain is verifiable without trusting Umarise.
+              </p>
+            </div>
+          </section>
+
           {/* Correct Usage Boundary */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Correct Usage Boundary</h2>
-            <p className="mb-4">Umarise is only correct where:</p>
+            <p className="mb-4">Umarise is appropriate only where:</p>
             <ul className="space-y-2">
               <li>a moment must not be renegotiated later</li>
               <li>internal logs or signatures are insufficient as proof</li>
@@ -113,15 +170,23 @@ export default function Intake() {
             <ul className="space-y-2 text-landing-muted/60">
               <li><span className="text-landing-copper">DNS</span> externalized naming</li>
               <li><span className="text-landing-copper">Certificate authorities</span> externalized identity</li>
-              <li><span className="text-landing-copper">Time services</span> externalized ordering</li>
+              <li><span className="text-landing-copper">Time-Stamping Authorities</span> externalized time ordering</li>
             </ul>
             <p className="text-landing-cream/70 mt-6">
-              Origin follows the same pattern.
+              Origin attestation externalizes existence at the beginning.
+            </p>
+          </section>
+
+          {/* Reference */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Reference</h2>
+            <p className="mb-6 text-landing-cream/70">
+              Umarise Core is an origin registry implementing the properties described in this document.
             </p>
           </section>
 
           {/* Contact */}
-          <section className="border-t border-landing-muted/10 pt-12">
+          <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Contact</h2>
             <a
               href="mailto:partners@umarise.com"
