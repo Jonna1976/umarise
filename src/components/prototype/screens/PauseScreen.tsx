@@ -36,27 +36,36 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
     setIsSaving(true);
     
     try {
-      // Convert data URL or blob URL to File for native share
+      // Convert data URL or blob URL to Blob
       const response = await fetch(artifact.imageUrl);
       const blob = await response.blob();
       const file = new File([blob], `umarise-${Date.now()}.jpg`, { type: 'image/jpeg' });
       
-      // Use native share with file - opens share sheet where user can "Save to Photos"
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-        });
+      // Check if Web Share API with files is supported
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
         setSaved(true);
         toast.success('Saved');
+      } else if (navigator.share) {
+        // Fallback: share as data URL
+        await navigator.share({
+          title: 'Umarise',
+          text: 'My beginning',
+          url: artifact.imageUrl,
+        });
+        setSaved(true);
       } else {
-        // Fallback for browsers that don't support file sharing
-        // Use clipboard or show message
-        toast('Open the image and long-press to save', { duration: 3000 });
+        // Final fallback: open image in new tab for manual save
+        window.open(artifact.imageUrl, '_blank');
+        toast('Long-press image to save', { duration: 3000 });
       }
     } catch (error) {
-      // User cancelled share sheet - that's fine
-      if ((error as Error).name !== 'AbortError') {
+      // User cancelled share sheet - that's fine, mark as saved anyway
+      if ((error as Error).name === 'AbortError') {
+        setSaved(true);
+      } else {
         console.error('[PauseScreen] Save error:', error);
+        toast.error('Could not save');
       }
     } finally {
       setIsSaving(false);
