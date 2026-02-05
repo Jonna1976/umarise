@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { OriginButton } from '../components/OriginButton';
 import { ArtifactFrame } from '../components/ArtifactFrame';
+import { BackupNudge } from '../components/BackupNudge';
+import { useMarkCount } from '@/hooks/useMarkCount';
 
 interface WallOfExistenceProps {
   onClose: () => void;
+  onBulkExport?: () => void;
 }
 
 // Mock artifacts for demo
@@ -23,11 +26,12 @@ const MOCK_ARTIFACTS = [
  * Your beginnings on the wall. Each frame resonates differently.
  * Tap any frame to open it. Hover to zoom. Long-press ∪ to backup.
  */
-export function WallOfExistence({ onClose }: WallOfExistenceProps) {
+export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const lightRef = useRef<HTMLDivElement>(null);
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [focusedArtifacts, setFocusedArtifacts] = useState<Set<string>>(new Set());
+  const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
 
   // Initial scroll animation and backup hint
   useEffect(() => {
@@ -181,6 +185,17 @@ export function WallOfExistence({ onClose }: WallOfExistenceProps) {
           <div className="w-[100px] flex-shrink-0" />
         </div>
       </div>
+
+      {/* Backup nudge - appears once after 3rd mark */}
+      {shouldShowBackupNudge && (
+        <BackupNudge
+          onDismiss={markBackupNudgeShown}
+          onExport={() => {
+            onBulkExport?.();
+            markBackupNudgeShown();
+          }}
+        />
+      )}
     </motion.div>
   );
 }
