@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
 
 interface CaptureScreenProps {
@@ -7,18 +7,15 @@ interface CaptureScreenProps {
 
 /**
  * Screen 1: Capture
- * The capture space. The "+" opens the file picker directly.
+ * The "+" opens the system picker.
  * Semantically empty - no copy, instructions, or framing.
- * 
- * v4: Uses file picker (not camera) for stronger proof-of-existence.
- * The artifact must exist BEFORE capture to be marked.
+ *
+ * iOS/Safari note:
+ * Use a real <label htmlFor> click target (not input.click()) to preserve
+ * the user-gesture context reliably inside mobile webviews.
  */
 export function CaptureScreen({ onCapture }: CaptureScreenProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleClick = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
+  const inputId = useId();
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,21 +51,25 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Hidden file input - NO capture attribute = file picker only (v4: artifact must exist BEFORE mark) */}
+      {/*
+        Keep input in the layout tree (NOT display:none) for iOS reliability.
+        It remains visually hidden but still clickable via <label>.
+      */}
       <input
-        ref={fileInputRef}
+        id={inputId}
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="hidden"
+        className="sr-only"
       />
 
       {/* Capture circle with dashed stroke */}
-      <motion.div
+      <motion.label
+        htmlFor={inputId}
         className="relative w-[180px] h-[180px] flex items-center justify-center cursor-pointer group"
-        onClick={handleClick}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        aria-label="Select a photo"
       >
         {/* Dashed circle */}
         <svg 
@@ -107,7 +108,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         >
           +
         </motion.span>
-      </motion.div>
+      </motion.label>
     </motion.div>
   );
 }
