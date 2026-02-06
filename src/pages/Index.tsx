@@ -20,7 +20,8 @@ import {
   completeOnboarding 
 } from '@/lib/deviceId';
 import { usePages } from '@/hooks/usePages';
-import { Page, CapsulePages, getCapsulePages, confirmFutureYouCues } from '@/lib/pageService';
+import { useMarks } from '@/hooks/useMarks';
+import { Page, CapsulePages, getCapsulePages } from '@/lib/pageService';
 import { FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -39,8 +40,10 @@ const Index = () => {
   const [showTestPanel, setShowTestPanel] = useState(false);
   const [highlightPageId, setHighlightPageId] = useState<string | null>(null);
   
-  // Use real pages from database
-  const { pages, isLoading, createPage, createCapsule, addToCapsule, updatePage, deletePage, refresh } = usePages();
+  // Read pages from database (for history/search views)
+  const { pages, isLoading, updatePage, deletePage, refresh } = usePages();
+  // Local-first mark creation (no server image upload)
+  const { createMark } = useMarks();
   
   // Multi-image processing state
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -54,9 +57,14 @@ const Index = () => {
   // AI-suggested cues from processing (to prefill in ProcessingView)
   const [aiSuggestedCues, setAiSuggestedCues] = useState<string[]>([]);
   
-  // Processing gate: AI finishes first, then user must enter + confirm cues to proceed
+  // Processing gate: mark creation finishes, then user proceeds
   const [isProcessingComplete, setIsProcessingComplete] = useState(false);
-  const [pendingPagesToCue, setPendingPagesToCue] = useState<Page[] | null>(null);
+  const [capturedMarkInfo, setCapturedMarkInfo] = useState<{
+    id: string;
+    originId: string;
+    hash: string;
+    timestamp: Date;
+  } | null>(null);
   
   // Search match info (to show "why matched" in SnapshotView)
   const [searchMatchInfo, setSearchMatchInfo] = useState<SnapshotMatchInfo | null>(null);
@@ -110,18 +118,21 @@ const Index = () => {
     setCapturedImages([imageDataUrl]);
     setProcessingIndex(0);
     setIsProcessingComplete(false);
-    setPendingPagesToCue(null);
+    setCapturedMarkInfo(null);
     setView('processing');
     
     try {
-      // Real AI processing via backend function
-      const result = await createPage(imageDataUrl);
+      // Local-first: hash + thumbnail to IndexedDB, hash to Supabase (no image upload)
+      const mark = await createMark(imageDataUrl, 'warm');
       
-      if (result) {
-        // Wait for user cues confirmation before going to snapshot
-        setPendingPagesToCue([result.page]);
-        // Pass AI-suggested cues to ProcessingView for prefill
-        setAiSuggestedCues(result.suggestedCues || []);
+      if (mark) {
+        setCapturedMarkInfo({
+          id: mark.id,
+          originId: mark.originId,
+          hash: mark.hash,
+          timestamp: mark.timestamp,
+        });
+        setAiSuggestedCues([]); // No AI analysis in local-first flow
         setIsProcessingComplete(true);
       } else {
         toast.error('Failed to process page. Please try again.');
@@ -136,7 +147,7 @@ const Index = () => {
       setCapturedImage(null);
       setCapturedImages([]);
     }
-  }, [createPage]);
+  }, [createMark]);
 
   // Handle ritual completion — the beginning is marked, return to readiness
   // Per doctrine: "The app should disappear the moment it succeeds."
@@ -146,7 +157,7 @@ const Index = () => {
     // The ritual is complete — the beginning is marked
     setCapturedImage(null);
     setCapturedImages([]);
-    setPendingPagesToCue(null);
+    setCapturedMarkInfo(null);
     setIsProcessingComplete(false);
     setTargetCapsuleId(null);
     setCurrentPage(null);
@@ -169,16 +180,27 @@ const Index = () => {
     setCapturedImage(imageDataUrls[0]);
     setProcessingIndex(0);
     setIsProcessingComplete(false);
-    setPendingPagesToCue(null);
+    setCapturedMarkInfo(null);
     setView('processing');
     
     try {
-      // Process all images as a capsule
-      const result = await createCapsule(imageDataUrls);
+      // Create marks individually (local-first, no server capsule grouping)
+      let firstMarkInfo: typeof capturedMarkInfo = null;
+      for (let i = 0; i < imageDataUrls.length; i++) {
+        const mark = await createMark(imageDataUrls[i], 'warm');
+        if (mark && i === 0) {
+          firstMarkInfo = {
+            id: mark.id,
+            originId: mark.originId,
+            hash: mark.hash,
+            timestamp: mark.timestamp,
+          };
+        }
+        setProcessingIndex(i);
+      }
       
-      if (result && result.pages.length > 0) {
-        // Require user confirmation before snapshot (applies cues to all pages in this batch)
-        setPendingPagesToCue(result.pages);
+      if (firstMarkInfo) {
+        setCapturedMarkInfo(firstMarkInfo);
         setIsProcessingComplete(true);
       } else {
         toast.error('Failed to process pages. Please try again.');
@@ -187,33 +209,32 @@ const Index = () => {
         setCapturedImages([]);
       }
     } catch (error) {
-      console.error('Capsule capture error:', error);
+      console.error('Multi-capture error:', error);
       toast.error('Something went wrong. Please try again.');
       setView('camera');
       setCapturedImage(null);
       setCapturedImages([]);
     }
-  }, [createCapsule]);
+  }, [createMark]);
 
-  // Handle adding to existing capsule
+  // Handle adding to existing capsule (local-first, no server capsule association)
   const handleAddToCapsuleCapture = useCallback(async (imageDataUrl: string) => {
-    if (!targetCapsuleId) {
-      toast.error('No capsule selected');
-      setView('history');
-      return;
-    }
-    
     setCapturedImage(imageDataUrl);
     setCapturedImages([imageDataUrl]);
     setIsProcessingComplete(false);
-    setPendingPagesToCue(null);
+    setCapturedMarkInfo(null);
     setView('processing');
     
     try {
-      const result = await addToCapsule(imageDataUrl, targetCapsuleId);
+      const mark = await createMark(imageDataUrl, 'warm');
       
-      if (result) {
-        setPendingPagesToCue([result.page]);
+      if (mark) {
+        setCapturedMarkInfo({
+          id: mark.id,
+          originId: mark.originId,
+          hash: mark.hash,
+          timestamp: mark.timestamp,
+        });
         setIsProcessingComplete(true);
       } else {
         toast.error('Failed to add page. Please try again.');
@@ -230,7 +251,7 @@ const Index = () => {
     } finally {
       setTargetCapsuleId(null);
     }
-  }, [addToCapsule, targetCapsuleId]);
+  }, [createMark]);
 
   // Handle opening search - skip search and go directly to history (search UI hidden per strategy)
   const handleOpenSearch = useCallback(() => {
@@ -413,9 +434,9 @@ const Index = () => {
             onContinue={handleProcessingContinue}
             onViewBeginnings={handleOpenHistory}
             suggestedCues={aiSuggestedCues}
-            originId={pendingPagesToCue?.[0]?.id || undefined}
-            originHash={pendingPagesToCue?.[0]?.originHashSha256 || undefined}
-            capturedAt={pendingPagesToCue?.[0]?.createdAt || new Date()}
+            originId={capturedMarkInfo?.originId || undefined}
+            originHash={capturedMarkInfo?.hash || undefined}
+            capturedAt={capturedMarkInfo?.timestamp || new Date()}
           />
         ) : null;
       
