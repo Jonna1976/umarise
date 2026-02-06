@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from './ArtifactDisplay';
+import { Bitcoin, Clock, CheckCircle } from 'lucide-react';
 
 interface ArtifactFrameProps {
   artifact: {
@@ -10,8 +11,11 @@ interface ArtifactFrameProps {
     origin: string;
     size: string;
     offset: string;
+    imageUrl?: string;
+    otsStatus?: 'pending' | 'submitted' | 'anchored';
   };
   isFocused: boolean;
+  onClick?: () => void;
 }
 
 // Size mappings
@@ -38,9 +42,23 @@ const OFFSET_CLASSES: Record<string, string> = {
  * ArtifactFrame - Frame resonance based on artifact type
  * Each frame style matches its content type
  */
-export function ArtifactFrame({ artifact, isFocused }: ArtifactFrameProps) {
+export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFrameProps) {
   const size = SIZE_CLASSES[artifact.size] || SIZE_CLASSES['medium-square'];
   const offsetClass = OFFSET_CLASSES[artifact.offset] || OFFSET_CLASSES['middle'];
+
+  // OTS status indicator
+  const getOtsIndicator = () => {
+    switch (artifact.otsStatus) {
+      case 'anchored':
+        return { icon: <CheckCircle className="w-2.5 h-2.5" />, color: 'hsl(var(--ritual-gold))' };
+      case 'submitted':
+        return { icon: <Clock className="w-2.5 h-2.5 animate-pulse" />, color: 'hsl(var(--ritual-gold) / 0.6)' };
+      default:
+        return { icon: <Bitcoin className="w-2.5 h-2.5" />, color: 'hsl(var(--ritual-gold) / 0.35)' };
+    }
+  };
+
+  const otsIndicator = getOtsIndicator();
 
   const getFrameStyles = () => {
     const baseStyles = "relative transition-all duration-400";
@@ -125,13 +143,15 @@ export function ArtifactFrame({ artifact, isFocused }: ArtifactFrameProps) {
   return (
     <motion.div
       data-artifact-id={artifact.id}
-      className={`flex-shrink-0 flex flex-col items-center ${offsetClass}`}
+      className={`flex-shrink-0 flex flex-col items-center ${offsetClass} cursor-pointer`}
       animate={{
         opacity: isFocused ? 1 : 0.35,
         scale: isFocused ? 1 : 0.96,
       }}
       transition={{ duration: 0.4 }}
       whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
     >
       <div className={styles.frame} style={styles.frameStyle}>
         {/* Glass highlight overlay */}
@@ -147,13 +167,31 @@ export function ArtifactFrame({ artifact, isFocused }: ArtifactFrameProps) {
           className={`${styles.mat} bg-[rgba(15,26,15,0.9)]`}
           style={styles.matStyle}
         >
-          {/* Content */}
+          {/* Content - show image if available, else abstract display */}
           <div 
             className={`flex items-center justify-center overflow-hidden ${styles.content || ''}`}
             style={{ width: size.width, height: size.height }}
           >
-            <ArtifactDisplay type={artifact.type} />
+            {artifact.imageUrl ? (
+              <img 
+                src={artifact.imageUrl} 
+                alt="" 
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <ArtifactDisplay type={artifact.type} />
+            )}
           </div>
+        </div>
+
+        {/* OTS status indicator (bottom-right corner of frame) */}
+        <div 
+          className="absolute bottom-1 right-1 flex items-center justify-center"
+          style={{ color: otsIndicator.color }}
+          title={artifact.otsStatus === 'anchored' ? 'Anchored on Bitcoin' : 'Pending anchor'}
+        >
+          {otsIndicator.icon}
         </div>
       </div>
 
