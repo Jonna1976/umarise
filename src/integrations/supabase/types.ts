@@ -323,6 +323,7 @@ export type Database = {
           one_line_hint: string | null
           origin_hash_algo: string | null
           origin_hash_sha256: string | null
+          origin_id: string | null
           page_order: number | null
           primary_keyword: string | null
           project_id: string | null
@@ -364,6 +365,7 @@ export type Database = {
           one_line_hint?: string | null
           origin_hash_algo?: string | null
           origin_hash_sha256?: string | null
+          origin_id?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
@@ -405,6 +407,7 @@ export type Database = {
           one_line_hint?: string | null
           origin_hash_algo?: string | null
           origin_hash_sha256?: string | null
+          origin_id?: string | null
           page_order?: number | null
           primary_keyword?: string | null
           project_id?: string | null
