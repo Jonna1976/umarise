@@ -283,10 +283,20 @@ Deno.serve(async (req: Request) => {
         ipHash,
       });
 
-      // ots_proof is stored as bytea, convert to Uint8Array
-      const proofBytes = proof.ots_proof;
+      // Convert hex-encoded bytea string to Uint8Array
+      // PostgreSQL returns bytea as '\x...' or '0x...' hex string
+      const otsProof = proof.ots_proof as string;
+      let hexString = otsProof;
+      if (hexString.startsWith('\\x')) {
+        hexString = hexString.slice(2);
+      } else if (hexString.startsWith('0x')) {
+        hexString = hexString.slice(2);
+      }
+      const byteArray = new Uint8Array(
+        hexString.match(/.{1,2}/g)!.map((byte: string) => parseInt(byte, 16))
+      );
 
-      return new Response(proofBytes, {
+      return new Response(byteArray, {
         status: 200,
         headers: {
           ...corsHeaders,
