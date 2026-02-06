@@ -2,15 +2,17 @@
  * notify-ots-complete Edge Function
  * 
  * Triggered when an OTS proof is successfully anchored on Bitcoin.
- * Sends email notification to users who opted in for anchoring alerts.
+ * Sends email notification to authenticated users via auth.users.email.
  * 
  * Expected payload (from database trigger or webhook):
  * {
  *   origin_id: string,
- *   hash: string,
  *   bitcoin_block_height: number,
  *   anchored_at: string
  * }
+ * 
+ * Lookup chain: origin_id → pages.origin_id → pages.user_id → auth.users.email
+ * Anonymous marks (user_id = NULL) receive no notification — intentional.
  */
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -25,7 +27,6 @@ const corsHeaders = {
 
 interface OtsCompletePayload {
   origin_id: string;
-  hash: string;
   bitcoin_block_height?: number;
   anchored_at: string;
 }
@@ -52,44 +53,63 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(resendKey);
 
     const payload: OtsCompletePayload = await req.json();
-    console.log("[notify-ots-complete] Received:", payload.origin_id);
+    console.log("[notify-ots-complete] Received origin_id:", payload.origin_id);
 
-    if (!payload.origin_id || !payload.hash) {
+    if (!payload.origin_id) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Missing required field: origin_id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Find the page associated with this origin hash
+    // Step 1: Find the page by origin_id (unique 1:1 relationship)
     const { data: page, error: pageError } = await supabase
       .from("pages")
-      .select("id, user_note, created_at, origin_hash_sha256")
-      .eq("origin_hash_sha256", payload.hash)
-      .single();
+      .select("id, user_id, created_at")
+      .eq("origin_id", payload.origin_id)
+      .maybeSingle();
 
-    if (pageError || !page) {
-      console.log("[notify-ots-complete] No page found for hash:", payload.hash.substring(0, 16));
+    if (pageError) {
+      console.error("[notify-ots-complete] Page lookup error:", pageError.message);
       return new Response(
-        JSON.stringify({ message: "No page found for this hash" }),
+        JSON.stringify({ error: "Database error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!page) {
+      console.log("[notify-ots-complete] No page found for origin_id:", payload.origin_id);
+      return new Response(
+        JSON.stringify({ message: "No page found for this origin_id" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check if user opted in for notification (stored as "notify:email@example.com")
-    if (!page.user_note || !page.user_note.startsWith("notify:")) {
-      console.log("[notify-ots-complete] No notification opt-in for page:", page.id);
+    // Step 2: Check if user_id exists (anonymous marks have no user_id)
+    if (!page.user_id) {
+      console.log("[notify-ots-complete] Anonymous mark, no notification:", payload.origin_id);
       return new Response(
-        JSON.stringify({ message: "No notification requested" }),
+        JSON.stringify({ message: "Anonymous mark - no notification" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const email = page.user_note.replace("notify:", "").trim();
-    if (!email || !email.includes("@")) {
-      console.log("[notify-ots-complete] Invalid email in user_note");
+    // Step 3: Get user email from auth.users
+    const { data: authData, error: authError } = await supabase.auth.admin.getUserById(page.user_id);
+
+    if (authError || !authData.user) {
+      console.error("[notify-ots-complete] User lookup error:", authError?.message || "User not found");
       return new Response(
-        JSON.stringify({ message: "Invalid email" }),
+        JSON.stringify({ message: "User not found in auth" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const email = authData.user.email;
+    if (!email) {
+      console.log("[notify-ots-complete] User has no email:", page.user_id);
+      return new Response(
+        JSON.stringify({ message: "User has no email address" }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -151,13 +171,7 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("[notify-ots-complete] Email sent:", emailResult);
-
-    // Clear the notification flag to prevent duplicate emails
-    await supabase
-      .from("pages")
-      .update({ user_note: `notified:${email}:${payload.anchored_at}` } as any)
-      .eq("id", page.id);
+    console.log("[notify-ots-complete] Email sent to:", email.replace(/(.{2}).*@/, "$1***@"), emailResult);
 
     return new Response(
       JSON.stringify({ success: true, email_sent_to: email.replace(/(.{2}).*@/, "$1***@") }),
