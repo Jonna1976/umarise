@@ -14,15 +14,13 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
-import { encryptImage, decryptImage, isPrivateVaultEnabled } from '../crypto';
-import { hashAndDecodeDataUrl } from '../originHash';
+import { decryptImage } from '../crypto';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
 
 export interface IStorageProvider {
-  // Image operations - returns URL and origin hash
-  uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }>;
+  // Image operations
   deleteImage(imageUrl: string): Promise<void>;
   
   // Encrypted image operations (Private Vault)
@@ -78,88 +76,8 @@ export class LovableCloudStorage implements IStorageProvider {
     return id;
   }
 
-  /**
-   * Upload image - encrypts with AES-256-GCM only if Private Vault is enabled
-   * Also calculates SHA-256 origin hash for forensic verification
-   * 
-   * CRITICAL: Uses single-source bytes for both hash AND upload to ensure
-   * forensic integrity - the hash matches exactly what's stored.
-   */
-  async uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }> {
-    const deviceUserId = this.getRealDeviceUserId();
-    const timestamp = Date.now();
-    
-    // Decode data URL to raw bytes - this is our SINGLE SOURCE OF TRUTH
-    // Both hash and upload use these exact bytes
-    console.log('[Origin Hash] Decoding and hashing artifact...');
-    const { hash: originHash, bytes, mimeType } = await hashAndDecodeDataUrl(imageDataUrl);
-    console.log('[Origin Hash] Fingerprint:', originHash.substring(0, 16) + '...', 'MIME:', mimeType);
-    
-    // Check if Private Vault mode is enabled
-    if (isPrivateVaultEnabled()) {
-      // PRIVATE VAULT: Encrypt image before upload
-      // Note: Hash is of PRE-encryption bytes (the original artifact)
-      console.log('[Vault] Private Vault enabled - encrypting image...');
-      const encryptedBase64 = await encryptImage(imageDataUrl);
-      
-      // Convert encrypted base64 to blob
-      const encryptedBytes = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-      const encryptedBlob = new Blob([encryptedBytes], { type: 'application/octet-stream' });
-      
-      // Store in encrypted folder with .enc extension
-      const filename = `encrypted/${deviceUserId}/${timestamp}.enc`;
-      
-      const { data, error } = await supabase.storage
-        .from('page-images')
-        .upload(filename, encryptedBlob, {
-          contentType: 'application/octet-stream',
-          cacheControl: '3600',
-        });
-
-      if (error) {
-        console.error('Upload error:', error);
-        throw new Error('Failed to upload encrypted image');
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('page-images')
-        .getPublicUrl(data.path);
-
-      console.log('[Vault] Encrypted image uploaded successfully');
-      return { imageUrl: urlData.publicUrl, originHash };
-    }
-    
-    // DEFAULT: Upload without encryption using the SAME bytes we hashed
-    console.log('[Storage] Uploading image (unencrypted)...');
-    
-    // Determine file extension from MIME type
-    const ext = mimeType.includes('png') ? 'png' : 
-                mimeType.includes('webp') ? 'webp' : 
-                mimeType.includes('gif') ? 'gif' : 'jpg';
-    const filename = `${deviceUserId}/${timestamp}.${ext}`;
-    
-    // Create blob from the EXACT bytes we hashed (single source of truth)
-    // Use Array.from to ensure compatibility with all TypeScript targets
-    const blob = new Blob([new Uint8Array(bytes)], { type: mimeType });
-    
-    const { data, error } = await supabase.storage
-      .from('page-images')
-      .upload(filename, blob, {
-        contentType: mimeType, // Use detected MIME, not hardcoded
-        cacheControl: '3600',
-      });
-
-    if (error) {
-      console.error('Upload error:', error);
-      throw new Error('Failed to upload image');
-    }
-
-    const { data: urlData } = supabase.storage
-      .from('page-images')
-      .getPublicUrl(data.path);
-
-    return { imageUrl: urlData.publicUrl, originHash };
-  }
+  // uploadImage removed — legacy server-side upload no longer used.
+  // The app now uses the local-first useMarks flow (IndexedDB + client-side hashing).
 
   /**
    * Decrypt and return a viewable image URL from an encrypted storage URL
@@ -912,37 +830,8 @@ export class HetznerVaultStorage implements IStorageProvider {
     return new Set((data || []).map((row: any) => row.page_id as string));
   }
 
-  /**
-   * Upload image to Hetzner Vault via IPFS storage.
-   * Returns ipfs:// URL for the uploaded image and SHA-256 origin hash.
-   */
-  async uploadImage(imageDataUrl: string): Promise<{ imageUrl: string; originHash: string }> {
-    const deviceUserId = this.getRealDeviceUserId();
-    
-    // Decode and hash using single source of truth
-    console.log('[HetznerVaultStorage] Decoding and hashing artifact...');
-    const { hash: originHash, mimeType } = await hashAndDecodeDataUrl(imageDataUrl);
-    console.log('[HetznerVaultStorage] Fingerprint:', originHash.substring(0, 16) + '...', 'MIME:', mimeType);
-    
-    console.log('[HetznerVaultStorage] Uploading image to Hetzner Vault...');
-    
-    const response = await this.proxyRequest('POST', '/vault/images', {
-      imageDataUrl,
-      deviceUserId,
-      encrypt: isPrivateVaultEnabled(),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      const errorMessage = error.error || error.details || 'Failed to upload image';
-      console.error('[HetznerVaultStorage] Upload failed:', errorMessage);
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    console.log('[HetznerVaultStorage] Image uploaded successfully:', data.imageUrl);
-    return { imageUrl: data.imageUrl, originHash };
-  }
+  // uploadImage removed — legacy server-side upload no longer used.
+  // The app now uses the local-first useMarks flow (IndexedDB + client-side hashing).
 
   async deleteImage(imageUrl: string): Promise<void> {
     const deviceUserId = this.getDeviceUserId();
