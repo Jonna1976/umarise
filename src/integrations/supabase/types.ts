@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      core_ddl_audit: {
+        Row: {
+          command_tag: string | null
+          event_type: string
+          executed_at: string | null
+          executed_by: string | null
+          id: string
+          object_name: string | null
+          object_type: string | null
+          raw_command: string | null
+        }
+        Insert: {
+          command_tag?: string | null
+          event_type: string
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          object_name?: string | null
+          object_type?: string | null
+          raw_command?: string | null
+        }
+        Update: {
+          command_tag?: string | null
+          event_type?: string
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          object_name?: string | null
+          object_type?: string | null
+          raw_command?: string | null
+        }
+        Relationships: []
+      }
       core_ots_proofs: {
         Row: {
           anchored_at: string | null
