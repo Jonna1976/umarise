@@ -21,40 +21,6 @@ export type { Page, Project, CapsulePages };
 // ============= Origin Hash Sidecar =============
 
 /**
- * Persist origin hash in sidecar table (backend-agnostic)
- * This ensures origin hashes are stored even when the backend doesn't return them
- */
-async function persistOriginHashSidecar(
-  deviceUserId: string,
-  pageId: string,
-  imageUrl: string,
-  originHash: string
-): Promise<void> {
-  try {
-    const { error } = await supabase.from('page_origin_hashes').insert({
-      device_user_id: deviceUserId,
-      page_id: pageId,
-      image_url: imageUrl,
-      origin_hash_sha256: originHash,
-      origin_hash_algo: 'sha256',
-    });
-    
-    if (error) {
-      // Ignore duplicate key errors (hash already exists)
-      if (error.code === '23505') {
-        console.log('[Origin Hash] Sidecar already exists for page:', pageId);
-        return;
-      }
-      console.warn('[Origin Hash] Sidecar insert failed:', error.message);
-    } else {
-      console.log('[Origin Hash] Sidecar persisted for page:', pageId);
-    }
-  } catch (err) {
-    console.warn('[Origin Hash] Sidecar insert failed (non-critical):', err);
-  }
-}
-
-/**
  * Lookup origin hash from sidecar table
  */
 export async function lookupOriginHash(
@@ -124,52 +90,6 @@ export async function confirmFutureYouCues(
     futureYouCuesSource: { ai_prefill_version: 'v1', user_edited: userEdited },
     writtenAt,
   });
-}
-
-/**
- * Add a page to an existing capsule
- */
-export async function addToCapsule(imageDataUrl: string, capsuleId: string): Promise<{ page: Page; suggestedCues: string[] }> {
-  const storage = getStorageProvider();
-  
-  // Get the current max page_order for this capsule
-  const existingPages = await storage.getCapsulePages(capsuleId);
-  const maxOrder = existingPages.reduce((max, p) => Math.max(max, p.pageOrder ?? 0), -1);
-  const nextOrder = maxOrder + 1;
-
-  return createPage(imageDataUrl, capsuleId, nextOrder);
-}
-
-/**
- * Create a capsule from multiple images - PARALLEL processing
- */
-export async function createCapsule(
-  imageDataUrls: string[], 
-  onProgress?: (completed: number, total: number) => void
-): Promise<{ pages: Page[]; suggestedCuesPerPage: string[][] }> {
-  if (imageDataUrls.length === 0) {
-    throw new Error('No images provided');
-  }
-
-  const capsuleId = crypto.randomUUID();
-  let completed = 0;
-
-  const pagePromises = imageDataUrls.map(async (imageDataUrl, index) => {
-    console.log(`Starting processing of image ${index + 1}...`);
-    const result = await createPage(imageDataUrl, capsuleId, index);
-    completed++;
-    onProgress?.(completed, imageDataUrls.length);
-    console.log(`Completed image ${index + 1} of ${imageDataUrls.length}`);
-    return { ...result, order: index };
-  });
-
-  const results = await Promise.all(pagePromises);
-  results.sort((a, b) => a.order - b.order);
-  
-  return {
-    pages: results.map(r => r.page),
-    suggestedCuesPerPage: results.map(r => r.suggestedCues),
-  };
 }
 
 /**
