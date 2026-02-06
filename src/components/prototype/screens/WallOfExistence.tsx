@@ -1,11 +1,27 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { OriginButton } from '../components/OriginButton';
 import { ArtifactFrame } from '../components/ArtifactFrame';
 import { BackupNudge } from '../components/BackupNudge';
+import { MarkDetailModal } from '../components/MarkDetailModal';
 import { useMarkCount } from '@/hooks/useMarkCount';
 import { useMarks, DisplayMark } from '@/hooks/useMarks';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
+
+interface WallArtifact {
+  id: string;
+  type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
+  date: string;
+  hash: string;
+  origin: string;
+  size: string;
+  offset: string;
+  imageUrl?: string;
+  otsStatus: 'pending' | 'submitted' | 'anchored';
+  timestamp: Date;
+  originId: string;
+}
+
 
 interface WallOfExistenceProps {
   onClose: () => void;
@@ -25,14 +41,14 @@ function getSizeFromMark(mark: DisplayMark): string {
 const OFFSET_PATTERN = ['high', 'low', 'middle', 'lower', 'highest'] as const;
 
 // Fallback mock artifacts for demo mode when no marks exist
-const MOCK_ARTIFACTS = [
-  { id: '1', type: 'warm' as const, date: '4 Feb 2026', hash: '884d5f17...553df0a3', origin: 'ORIGIN 1916F13F', size: 'large-landscape', offset: 'high' },
-  { id: '2', type: 'text' as const, date: '28 Jan 2026', hash: 'f3d18ca2...91bb7e05', origin: 'ORIGIN 7B3E09A1', size: 'small-square', offset: 'low' },
-  { id: '3', type: 'text' as const, date: '15 Jan 2026', hash: '6e0a44d7...c28f1b93', origin: 'ORIGIN 4D2F88C6', size: 'portrait', offset: 'high' },
-  { id: '4', type: 'sketch' as const, date: '3 Jan 2026', hash: 'a1b2c3d4...e5f6g7h8', origin: 'ORIGIN E9A10B3C', size: 'landscape-small', offset: 'lower' },
-  { id: '5', type: 'digital' as const, date: '21 Dec 2025', hash: '7c9e2f31...0a4b8d56', origin: 'ORIGIN 5F7C2D88', size: 'medium-square', offset: 'highest' },
-  { id: '6', type: 'sound' as const, date: '14 Dec 2025', hash: 'b2e7a91c...4f0d3c88', origin: 'ORIGIN 0A8B4E17', size: 'tiny', offset: 'low' },
-  { id: '7', type: 'organic' as const, date: '1 Dec 2025', hash: 'd4c6b8a2...1e3f5079', origin: 'ORIGIN 3C6D9F42', size: 'panoramic', offset: 'middle' },
+const MOCK_ARTIFACTS: WallArtifact[] = [
+  { id: '1', type: 'warm', date: '4 Feb 2026', hash: '884d5f17553df0a3884d5f17553df0a3884d5f17553df0a3', origin: 'ORIGIN 1916F13F', size: 'large-landscape', offset: 'high', otsStatus: 'anchored', timestamp: new Date('2026-02-04'), originId: 'UM-1916F13F' },
+  { id: '2', type: 'text', date: '28 Jan 2026', hash: 'f3d18ca291bb7e05f3d18ca291bb7e05f3d18ca291bb7e05', origin: 'ORIGIN 7B3E09A1', size: 'small-square', offset: 'low', otsStatus: 'pending', timestamp: new Date('2026-01-28'), originId: 'UM-7B3E09A1' },
+  { id: '3', type: 'text', date: '15 Jan 2026', hash: '6e0a44d7c28f1b936e0a44d7c28f1b936e0a44d7c28f1b93', origin: 'ORIGIN 4D2F88C6', size: 'portrait', offset: 'high', otsStatus: 'submitted', timestamp: new Date('2026-01-15'), originId: 'UM-4D2F88C6' },
+  { id: '4', type: 'sketch', date: '3 Jan 2026', hash: 'a1b2c3d4e5f6g7h8a1b2c3d4e5f6g7h8a1b2c3d4e5f6g7h8', origin: 'ORIGIN E9A10B3C', size: 'landscape-small', offset: 'lower', otsStatus: 'anchored', timestamp: new Date('2026-01-03'), originId: 'UM-E9A10B3C' },
+  { id: '5', type: 'digital', date: '21 Dec 2025', hash: '7c9e2f310a4b8d567c9e2f310a4b8d567c9e2f310a4b8d56', origin: 'ORIGIN 5F7C2D88', size: 'medium-square', offset: 'highest', otsStatus: 'pending', timestamp: new Date('2025-12-21'), originId: 'UM-5F7C2D88' },
+  { id: '6', type: 'sound', date: '14 Dec 2025', hash: 'b2e7a91c4f0d3c88b2e7a91c4f0d3c88b2e7a91c4f0d3c88', origin: 'ORIGIN 0A8B4E17', size: 'tiny', offset: 'low', otsStatus: 'anchored', timestamp: new Date('2025-12-14'), originId: 'UM-0A8B4E17' },
+  { id: '7', type: 'organic', date: '1 Dec 2025', hash: 'd4c6b8a21e3f5079d4c6b8a21e3f5079d4c6b8a21e3f5079', origin: 'ORIGIN 3C6D9F42', size: 'panoramic', offset: 'middle', otsStatus: 'pending', timestamp: new Date('2025-12-01'), originId: 'UM-3C6D9F42' },
 ];
 
 /**
@@ -45,8 +61,14 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const lightRef = useRef<HTMLDivElement>(null);
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [focusedArtifacts, setFocusedArtifacts] = useState<Set<string>>(new Set());
+  const [selectedMark, setSelectedMark] = useState<WallArtifact | null>(null);
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
   const { marks, isLoading, importLegacyMarks } = useMarks();
+
+  // Handle artifact click to open detail modal
+  const handleArtifactClick = useCallback((artifact: WallArtifact) => {
+    setSelectedMark(artifact);
+  }, []);
 
   // Import legacy marks on first load
   useEffect(() => {
@@ -96,7 +118,10 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         size: getSizeFromMark(mark),
         offset: OFFSET_PATTERN[index % OFFSET_PATTERN.length],
         imageUrl,
-      };
+        otsStatus: mark.otsStatus,
+        timestamp: mark.timestamp,
+        originId: mark.originId,
+      } as WallArtifact;
     });
   }, [marks, isLoading]);
 
@@ -278,6 +303,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
                 key={artifact.id}
                 artifact={artifact}
                 isFocused={focusedArtifacts.has(artifact.id)}
+                onClick={() => handleArtifactClick(artifact)}
               />
             ))
           )}
@@ -294,6 +320,23 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
             onBulkExport?.();
             markBackupNudgeShown();
           }}
+        />
+      )}
+
+      {/* Mark detail modal */}
+      {selectedMark && (
+        <MarkDetailModal
+          mark={{
+            id: selectedMark.id,
+            originId: selectedMark.originId,
+            hash: selectedMark.hash.includes('...') 
+              ? marks.find(m => m.id === selectedMark.id)?.hash || selectedMark.hash
+              : selectedMark.hash,
+            timestamp: selectedMark.timestamp,
+            otsStatus: selectedMark.otsStatus,
+            imageUrl: selectedMark.imageUrl,
+          }}
+          onClose={() => setSelectedMark(null)}
         />
       )}
     </motion.div>

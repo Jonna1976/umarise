@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Mail } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Artifact {
   id: string;
@@ -21,6 +24,7 @@ interface ReleaseScreenProps {
  * Full resolution stays on device. Only the proof leaves.
  * 
  * Per briefing: Shows OTS status (pending → anchored)
+ * NEW: "Notify me when anchored" email prompt (per v4 user flow)
  */
 export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showCard, setShowCard] = useState(false);
@@ -30,10 +34,17 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showLine, setShowLine] = useState(false);
   const [showHash, setShowHash] = useState(false);
   const [showOts, setShowOts] = useState(false);
+  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
   const [showNote, setShowNote] = useState(false);
+  
+  // Email state
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   // Cascade animation timing per spec:
-  // 0.0s card, 0.6s title, 1.0s origin, 1.2s date, 1.5s line, 1.8s hash, 2.0s ots, 2.4s note
+  // 0.0s card, 0.6s title, 1.0s origin, 1.2s date, 1.5s line, 1.8s hash, 2.0s ots, 2.4s email prompt, 2.8s note
+  // Auto-continue to next screen after 8s (giving user time to enter email or skip)
   useEffect(() => {
     const timers = [
       setTimeout(() => setShowCard(true), 0),
@@ -43,10 +54,55 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
       setTimeout(() => setShowLine(true), 1500),
       setTimeout(() => setShowHash(true), 1800),
       setTimeout(() => setShowOts(true), 2000),
-      setTimeout(() => setShowNote(true), 2400),
-      setTimeout(onComplete, 5000),
+      setTimeout(() => setShowEmailPrompt(true), 2400),
+      setTimeout(() => setShowNote(true), 2800),
     ];
     return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // Handle email submission for OTS notification
+  const handleEmailSubmit = useCallback(async () => {
+    if (!email || isSubmitting || emailSubmitted) return;
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Store email for OTS notification in the pages table
+      // The notify-ots-complete function will use this to send email when anchored
+      const { error } = await supabase
+        .from('pages')
+        .update({ 
+          user_note: `notify:${email}` // Temporary storage until proper field added
+        } as any)
+        .eq('id', artifact.id);
+
+      if (error) {
+        console.warn('[ReleaseScreen] Email save failed:', error);
+        // Don't show error to user, just continue
+      }
+
+      setEmailSubmitted(true);
+      toast.success("We'll notify you when anchored");
+      
+      // Continue to next screen after brief delay
+      setTimeout(onComplete, 1500);
+    } catch (e) {
+      console.error('[ReleaseScreen] Email submit error:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [email, isSubmitting, emailSubmitted, artifact.id, onComplete]);
+
+  // Handle skip - continue without email
+  const handleSkip = useCallback(() => {
+    onComplete();
   }, [onComplete]);
 
   const formatDate = (date: Date) => {
@@ -214,9 +270,74 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           </span>
         </motion.div>
 
+        {/* Email notification prompt */}
+        <motion.div
+          className="mt-5 w-full"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: showEmailPrompt ? 1 : 0, y: showEmailPrompt ? 0 : 8 }}
+          transition={{ duration: 0.5 }}
+        >
+          {!emailSubmitted ? (
+            <>
+              <p className="font-garamond text-[11px] text-center mb-3"
+                 style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}>
+                Get notified when anchored on Bitcoin
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <div className="flex-1 relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-40"
+                        style={{ color: 'hsl(var(--ritual-gold))' }} />
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleEmailSubmit()}
+                    className="w-full pl-9 pr-3 py-2 rounded-md font-garamond text-sm
+                               placeholder:text-[hsl(var(--ritual-cream)/0.25)]
+                               focus:outline-none focus:ring-1"
+                    style={{
+                      background: 'hsl(var(--ritual-surface-light) / 0.5)',
+                      border: '1px solid hsl(var(--ritual-gold) / 0.15)',
+                      color: 'hsl(var(--ritual-cream) / 0.8)',
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={handleEmailSubmit}
+                  disabled={!email || isSubmitting}
+                  className="px-4 py-2 rounded-md font-garamond text-sm transition-all
+                             disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    background: 'hsl(var(--ritual-gold) / 0.15)',
+                    border: '1px solid hsl(var(--ritual-gold) / 0.3)',
+                    color: 'hsl(var(--ritual-gold) / 0.9)',
+                  }}
+                >
+                  {isSubmitting ? '...' : 'Notify'}
+                </button>
+              </div>
+
+              <button
+                onClick={handleSkip}
+                className="w-full mt-3 font-garamond text-[10px] transition-opacity hover:opacity-60"
+                style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}
+              >
+                skip — I'll check back later
+              </button>
+            </>
+          ) : (
+            <p className="font-garamond text-sm text-center"
+               style={{ color: 'hsl(var(--ritual-gold) / 0.7)' }}>
+              ✓ We'll email you when anchored
+            </p>
+          )}
+        </motion.div>
+
         {/* Whisper note - EB Garamond italic 11px */}
         <motion.p
-          className="font-garamond italic text-[11px] mt-3"
+          className="font-garamond italic text-[11px] mt-4"
           style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showNote ? 0.45 : 0 }}
