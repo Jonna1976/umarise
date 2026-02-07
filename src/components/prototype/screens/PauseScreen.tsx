@@ -147,6 +147,17 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         </AnimatePresence>
       </motion.div>
 
+      {/* Title — per briefing: "Your artifact" */}
+      <motion.p
+        className="absolute top-[38px] left-0 right-0 text-center font-playfair text-[17px] text-ritual-cream pointer-events-none"
+        style={{ fontWeight: 300 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1.2 }}
+      >
+        Your artifact
+      </motion.p>
+
       {/* Hint to continue */}
       <motion.p
         className="absolute bottom-10 font-garamond text-[10px]"
