@@ -196,9 +196,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           </svg>
         </div>
 
-        {/* Title — per briefing: "Origin marked" */}
+        {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
         <motion.h2
-          className="font-playfair text-4xl text-ritual-gold mb-[18px]"
+          className="font-playfair text-[22px] text-ritual-gold mb-[18px]"
           style={{ fontWeight: 300 }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}

@@ -101,6 +101,17 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
       transition={{ duration: 0.6 }}
       onClick={onComplete}
     >
+      {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
+      <motion.h1
+        className="font-playfair text-[22px] text-ritual-gold mb-6 pointer-events-none"
+        style={{ fontWeight: 300 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+      >
+        Your artifact
+      </motion.h1>
+
       {/* Artifact container - tap to continue */}
       <motion.div
         className="w-[250px] h-[190px] rounded-[4px] overflow-hidden cursor-pointer"
@@ -112,9 +123,9 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
       </motion.div>
 
-      {/* Save to device - very subtle, below artifact */}
+      {/* Save confirmation — per briefing: "✓ saved to your device" italic */}
       <motion.div
-        className="mt-6"
+        className="mt-5"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 1.5 }}
@@ -125,42 +136,31 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
               key="save"
               onClick={handleSaveToPhotos}
               disabled={isSaving || !artifact.imageUrl}
-              className="font-garamond text-[11px] italic transition-opacity
+              className="font-garamond text-[12px] italic transition-opacity
                          disabled:opacity-20 disabled:cursor-not-allowed"
               style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
               whileHover={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
             >
-              {isSaving ? 'saving...' : 'save to device'}
+              {isSaving ? 'saving...' : '✓ saved to your device'}
             </motion.button>
           ) : (
             <motion.span
               key="saved"
-              className="font-garamond text-[11px] italic"
+              className="font-garamond text-[12px] italic"
               style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              saved ✓
+              ✓ saved to your device
             </motion.span>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* Title — per briefing: "Your artifact" */}
-      <motion.p
-        className="absolute top-[38px] left-0 right-0 text-center font-playfair text-[17px] text-ritual-cream pointer-events-none"
-        style={{ fontWeight: 300 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.2 }}
-      >
-        Your artifact
-      </motion.p>
-
       {/* Hint to continue */}
       <motion.p
-        className="absolute bottom-10 font-garamond text-[10px]"
+        className="absolute bottom-10 font-garamond text-[11px] italic"
         style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

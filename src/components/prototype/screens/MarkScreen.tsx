@@ -103,16 +103,17 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Title — per briefing: "Your artifact" */}
-      <motion.p
-        className="absolute top-[38px] left-0 right-0 text-center font-playfair text-[17px] text-ritual-cream pointer-events-none"
+      {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
+      <motion.h1
+        className="font-playfair text-[22px] text-ritual-gold mb-6 pointer-events-none"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
         Your artifact
-      </motion.p>
+      </motion.h1>
+
       <div className="relative flex items-center justify-center">
         {/* Artifact with press interaction */}
         <motion.div
@@ -175,11 +176,11 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
         )}
       </div>
 
-      {/* Instruction — per briefing: "hold to mark" */}
+      {/* Instruction — per briefing: "hold to mark", 17px Playfair, goud */}
       {!isSealed && (
         <motion.p
-          className="absolute bottom-10 font-garamond italic text-[11px]"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}
+          className="mt-6 font-playfair text-[17px] text-ritual-gold"
+          style={{ fontWeight: 300 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: isPressed ? 0 : 1 }}
           transition={{ duration: 0.4 }}
