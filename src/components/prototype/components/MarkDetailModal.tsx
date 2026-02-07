@@ -19,7 +19,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-
+import { saveOriginZip } from '@/lib/originZip';
 
 interface MarkDetailModalProps {
   mark: {
@@ -59,65 +59,30 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
   const isAnchored = mark.otsStatus === 'anchored';
 
-  // Handle ZIP save via Web Share API
+  // Handle ZIP save via shared utility
   const handleSaveAsZip = useCallback(async () => {
     if (isSaving) return;
     setIsSaving(true);
 
     try {
-      const certificateData = JSON.stringify({
-        version: '1.0',
-        origin_id: displayOriginId,
+      const success = await saveOriginZip({
+        originId: mark.originId,
         hash: mark.hash,
-        hash_algo: 'SHA-256',
-        captured_at: mark.timestamp.toISOString(),
-        verify_url: 'https://verify.umarise.com',
-        claimed_by: passkeyEnabled ? '(passkey-public-key-placeholder)' : null,
+        timestamp: mark.timestamp,
+        imageUrl: mark.imageUrl ?? null,
+        claimedBy: passkeyEnabled ? '(passkey-public-key-placeholder)' : null,
         signature: passkeyEnabled ? '(signature-placeholder)' : null,
-      }, null, 2);
+      });
 
-      const zipFileName = `origin-${displayOriginId}.zip`;
-
-      if (navigator.share) {
-        const file = new File(
-          [certificateData], 
-          zipFileName, 
-          { type: 'application/zip' }
-        );
-
-        const canShareFiles = navigator.canShare?.({ files: [file] });
-
-        if (canShareFiles) {
-          await navigator.share({ files: [file] });
-          setSaved(true);
-        } else {
-          await navigator.share({
-            title: `Origin ${displayOriginId}`,
-            text: `Origin certificate for ${displayOriginId}\n\nVerify at verify.umarise.com`,
-          });
-          setSaved(true);
-        }
-      } else {
-        const blob = new Blob([certificateData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `certificate-${displayOriginId}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+      if (success) {
         setSaved(true);
       }
     } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        setIsSaving(false);
-        return;
-      }
       console.error('[MarkDetailModal] Save error:', error);
-      console.warn('[MarkDetailModal] Save failed');
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, displayOriginId, mark.hash, mark.timestamp, passkeyEnabled]);
+  }, [isSaving, mark.originId, mark.hash, mark.timestamp, mark.imageUrl, passkeyEnabled]);
 
   return (
     <AnimatePresence>

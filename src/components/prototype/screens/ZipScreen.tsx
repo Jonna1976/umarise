@@ -15,6 +15,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { saveOriginZip } from '@/lib/originZip';
 
 interface ZipScreenProps {
   originId: string;
@@ -28,83 +29,26 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Clean origin ID for filename
-  const cleanId = originId.replace(/^(ORIGIN\s+|um-)/i, '').trim();
-
   const handleSave = useCallback(async () => {
     if (isSaving || saved) return;
     setIsSaving(true);
 
     try {
-      // In production: build actual ZIP with JSZip and share via Web Share API
-      // For prototype: simulate the share sheet interaction
-      
-      // Create a simple text blob as placeholder for the ZIP
-      const certificateData = JSON.stringify({
-        version: '1.0',
-        origin_id: cleanId,
-        hash,
-        hash_algo: 'SHA-256',
-        captured_at: timestamp.toISOString(),
-        verify_url: 'https://verify.umarise.com',
-        claimed_by: null,
-        signature: null,
-      }, null, 2);
+      const success = await saveOriginZip({ originId, hash, timestamp, imageUrl });
 
-      const zipFileName = `origin-${cleanId}.zip`;
-
-      // Try Web Share API with file first
-      let shared = false;
-      
-      if (navigator.share) {
-        try {
-          const file = new File(
-            [certificateData], 
-            zipFileName, 
-            { type: 'application/zip' }
-          );
-
-          const canShareFiles = navigator.canShare?.({ files: [file] });
-
-          if (canShareFiles) {
-            await navigator.share({ files: [file] });
-            shared = true;
-          }
-        } catch (shareError) {
-          // Share rejected or cancelled
-          if ((shareError as Error).name === 'AbortError') {
-            setIsSaving(false);
-            return;
-          }
-          // Fall through to download fallback
-        }
+      if (!success) {
+        // User cancelled share sheet
+        setIsSaving(false);
+        return;
       }
 
-      // Fallback: direct download
-      if (!shared) {
-        const blob = new Blob([certificateData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `certificate-${cleanId}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-
-      // Mark as saved
       setSaved(true);
-      
-      // Auto-advance after 1.2s
-      setTimeout(() => {
-        onComplete();
-      }, 1200);
+      setTimeout(() => onComplete(), 1200);
     } catch (error) {
       console.error('[ZipScreen] Save error:', error);
       setIsSaving(false);
     }
-  }, [isSaving, saved, cleanId, hash, timestamp, onComplete]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete]);
 
   return (
     <motion.div
