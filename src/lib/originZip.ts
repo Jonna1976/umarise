@@ -2,7 +2,10 @@
  * Origin ZIP Builder
  * 
  * Generates the local ZIP product — the tangible outcome of the ritual.
- * Contains: photo.jpg + certificate.json
+ * Contains up to 3 files:
+ *   1. photo.jpg    — the original artifact (if available)
+ *   2. certificate.json — immutable metadata (always present)
+ *   3. proof.ots    — OpenTimestamps proof binary (when anchored)
  * 
  * Uses Web Share API to trigger the native OS share sheet (no browser download bar).
  * Falls back to direct download when Web Share is unavailable.
@@ -18,6 +21,8 @@ export interface OriginZipInput {
   imageUrl: string | null;
   claimedBy?: string | null;
   signature?: string | null;
+  /** Base64-encoded OpenTimestamps proof binary (included when status = anchored) */
+  otsProof?: string | null;
 }
 
 /**
@@ -41,7 +46,7 @@ async function fetchImageBytes(url: string): Promise<{ blob: Blob; ext: string }
 }
 
 /**
- * Build a ZIP blob containing photo + certificate.json
+ * Build a ZIP blob containing photo + certificate.json + proof.ots
  */
 export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   const zip = new JSZip();
@@ -66,6 +71,20 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     input.signature ?? null,
   );
   zip.file('certificate.json', serializeCertificate(cert));
+
+  // 3. Add proof.ots (OpenTimestamps binary, when anchored)
+  if (input.otsProof) {
+    try {
+      const binaryString = atob(input.otsProof);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      zip.file('proof.ots', bytes);
+    } catch (e) {
+      console.warn('[originZip] Failed to decode OTS proof:', e);
+    }
+  }
 
   // Generate ZIP blob
   return zip.generateAsync({ type: 'blob' });

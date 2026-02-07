@@ -9,6 +9,34 @@
  * 2. The credentialId + publicKey are stored in memory
  * 3. signHash() signs the origin hash with the passkey → produces a signature
  * 4. publicKey + signature are included in certificate.json inside the ZIP
+ * 
+ * ─── MIGRATION RISK: RP ID ───────────────────────────────────────────────
+ * 
+ * rp.id is set to window.location.hostname (e.g. "lovable.app" during dev).
+ * WebAuthn credentials are bound to their RP ID — if the domain changes
+ * (e.g. from lovable.app → umarise.com), ALL existing passkeys become
+ * permanently unusable. There is no WebAuthn mechanism to migrate credentials
+ * across RP IDs.
+ * 
+ * Mitigation options when migrating to umarise.com:
+ * 1. Set rp.id to "umarise.com" from day one (requires hosting on that domain)
+ * 2. Accept that dev-era passkeys are throwaway; prompt re-registration on prod
+ * 3. Use the Related Origins File spec (draft, not yet widely supported)
+ * 
+ * For now (prototype on lovable.app), option 2 applies: passkeys created here
+ * are valid only on this domain and will need re-creation on the final domain.
+ * 
+ * ─── ATTESTATION MODEL ──────────────────────────────────────────────────
+ * 
+ * attestation: 'none' is deliberate. We don't verify which device created
+ * the passkey (no server-side attestation verification). This means:
+ * ✓ The private key is in a secure enclave (guaranteed by WebAuthn spec)
+ * ✓ The signature is cryptographically valid (verifiable with the public key)
+ * ✗ We cannot prove WHICH specific device/enclave holds the key
+ * 
+ * This is acceptable for Umarise's model: the passkey proves "someone with
+ * biometric access to this device signed this hash" — identity-linking is
+ * optional and device-forensic proof is handled by Layer 3 (device fingerprint).
  */
 
 export interface PasskeyCredential {
