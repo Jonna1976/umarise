@@ -39,7 +39,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
     >
       {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
-        className="font-playfair text-[22px] text-ritual-gold mb-6 pointer-events-none"
+        className="font-playfair text-[26px] text-ritual-gold mb-6 pointer-events-none"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -60,7 +60,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
 
       {/* Save confirmation — per briefing: "✓ saved to your device" is a static confirmation, NOT a button */}
       <motion.p
-        className="mt-5 font-garamond text-[12px] italic pointer-events-none"
+        className="mt-5 font-garamond text-[14px] italic pointer-events-none"
         style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

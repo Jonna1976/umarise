@@ -173,7 +173,7 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
 
       {/* Date label — JetBrains Mono 7px per reference */}
       <motion.p
-        className="font-mono text-[7px] tracking-[2px] whitespace-nowrap mt-2"
+        className="font-mono text-[10px] tracking-[2px] whitespace-nowrap mt-2"
         animate={{
           color: isFocused ? 'hsl(var(--ritual-gold-muted))' : 'hsl(var(--ritual-gold-muted))',
           opacity: isFocused ? 0.6 : 0.35,

@@ -35,7 +35,7 @@ export function OwnedScreen({ onComplete }: OwnedScreenProps) {
     >
       {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
-        className="font-playfair text-[22px] text-ritual-gold mb-7"
+        className="font-playfair text-[26px] text-ritual-gold mb-7"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
