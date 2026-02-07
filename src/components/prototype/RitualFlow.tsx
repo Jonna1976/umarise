@@ -4,14 +4,15 @@ import { CaptureScreen } from './screens/CaptureScreen';
 import { PauseScreen } from './screens/PauseScreen';
 import { MarkScreen } from './screens/MarkScreen';
 import { ReleaseScreen } from './screens/ReleaseScreen';
+import { ZipScreen } from './screens/ZipScreen';
+import { OwnedScreen } from './screens/OwnedScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { WallOfExistence } from './screens/WallOfExistence';
-import { SealConfirmationScreen } from './screens/SealConfirmationScreen';
 import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'seal-confirm' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'zip' | 'owned' | 'home' | 'wall';
 
 interface Artifact {
   id: string;
@@ -92,32 +93,30 @@ export function RitualFlow() {
       } else {
         console.error('[RitualFlow] Mark creation returned null');
         toast.error('Failed to seal mark');
-        // Stay on mark screen, don't redirect
         isCreatingMark.current = false;
       }
     } catch (error) {
       console.error('[RitualFlow] Mark creation failed:', error);
       toast.error('Failed to seal mark');
-      // Stay on mark screen, don't redirect
       isCreatingMark.current = false;
     }
   }, [capturedImageUrl, createMark, goToScreen]);
 
-  // After release animation, offer email confirmation
+  // S4 Release → S5 ZIP
   const handleReleaseComplete = useCallback(() => {
-    goToScreen('seal-confirm');
+    goToScreen('zip');
   }, [goToScreen]);
 
-  // After seal confirmation (or skip), go to Wall of Existence to see the mark
-  const handleSealConfirmComplete = useCallback(() => {
-    setCapturedImageUrl(null);
-    setCurrentArtifact(null);
-    goToScreen('wall');
+  // S5 ZIP → S6 Owned (after save + "✓ Owned" + 1.2s)
+  const handleZipComplete = useCallback(() => {
+    goToScreen('owned');
   }, [goToScreen]);
 
-  const handleSealConfirmSkip = useCallback(() => {
+  // S6 Owned → S7 Wall (auto-advance after 2s)
+  const handleOwnedComplete = useCallback(() => {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
+    isCreatingMark.current = false;
     goToScreen('wall');
   }, [goToScreen]);
 
@@ -143,7 +142,7 @@ export function RitualFlow() {
 
   return (
     <div className="min-h-screen relative overflow-hidden font-garamond" style={{ background: 'hsl(var(--ritual-bg))' }}>
-      {/* Origin Button (U) - visible on main screens: top: 40px, left: 18px per walkthrough spec */}
+      {/* Origin Button (U) - visible on main screens */}
       {showOriginButton && (
         <OriginButton onClick={handleOpenWall} className="absolute top-[40px] left-[18px] z-50" />
       )}
@@ -169,15 +168,18 @@ export function RitualFlow() {
         <ReleaseScreen artifact={displayArtifact} onComplete={handleReleaseComplete} />
       )}
 
-      {screen === 'seal-confirm' && currentArtifact && (
-        <SealConfirmationScreen
+      {screen === 'zip' && currentArtifact && (
+        <ZipScreen
           originId={currentArtifact.origin}
           hash={currentArtifact.hash}
           timestamp={currentArtifact.date}
-          thumbnailUrl={currentArtifact.imageUrl || undefined}
-          onComplete={handleSealConfirmComplete}
-          onSkip={handleSealConfirmSkip}
+          imageUrl={currentArtifact.imageUrl}
+          onComplete={handleZipComplete}
         />
+      )}
+
+      {screen === 'owned' && (
+        <OwnedScreen onComplete={handleOwnedComplete} />
       )}
       
       {screen === 'home' && (
