@@ -124,7 +124,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   return (
     <motion.div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: 'hsl(var(--ritual-surface))' }}
+      style={{ background: 'hsl(var(--ritual-bg))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
