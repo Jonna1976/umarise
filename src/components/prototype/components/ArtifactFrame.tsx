@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from './ArtifactDisplay';
 
@@ -42,6 +43,7 @@ const OFFSET_CLASSES: Record<string, string> = {
  * Each frame style matches its content type
  */
 export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFrameProps) {
+  const [imageError, setImageError] = useState(false);
   const size = SIZE_CLASSES[artifact.size] || SIZE_CLASSES['medium-square'];
   const offsetClass = OFFSET_CLASSES[artifact.offset] || OFFSET_CLASSES['middle'];
 
@@ -157,12 +159,13 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
             className={`flex items-center justify-center overflow-hidden ${styles.content || ''}`}
             style={{ width: size.width, height: size.height }}
           >
-            {artifact.imageUrl ? (
+            {artifact.imageUrl && !imageError ? (
               <img 
                 src={artifact.imageUrl} 
                 alt="" 
                 className="w-full h-full object-cover"
                 loading="lazy"
+                onError={() => setImageError(true)}
               />
             ) : (
               <ArtifactDisplay type={artifact.type} />
