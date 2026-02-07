@@ -142,7 +142,7 @@ export function RitualFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-ritual-surface relative overflow-hidden font-garamond">
+    <div className="min-h-screen relative overflow-hidden font-garamond" style={{ background: 'hsl(var(--ritual-bg))' }}>
       {/* Origin Button (U) - visible on main screens: top: 40px, left: 18px per walkthrough spec */}
       {showOriginButton && (
         <OriginButton onClick={handleOpenWall} className="absolute top-[40px] left-[18px] z-50" />

@@ -23,7 +23,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     <motion.div
       className="min-h-screen flex flex-col items-center justify-center cursor-pointer"
       style={{
-        background: 'radial-gradient(ellipse at 50% 45%, hsl(140 25% 9%), hsl(var(--ritual-surface)) 70%)',
+        background: 'radial-gradient(ellipse at 50% 45%, hsl(120 25% 11%), hsl(var(--ritual-surface)) 70%)',
       }}
       onClick={onComplete}
       initial={{ opacity: 0 }}
@@ -31,9 +31,10 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Title: "This is where it began" */}
+      {/* Title: "This is where it began" — Playfair 300, 22px per v7 spec */}
       <motion.h1
         className="font-playfair font-light text-[22px] text-ritual-cream mb-7"
+        style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.5 }}
@@ -41,7 +42,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         This is where it began
       </motion.h1>
 
-      {/* Origin dot - 12x12px, pulsing */}
+      {/* Origin dot — 12x12px, pulsing gold */}
       <motion.div
         className="w-3 h-3 rounded-full bg-ritual-gold"
         initial={{ opacity: 0 }}

@@ -182,7 +182,7 @@ Verify at umarise.com`;
         </div>
 
         {/* Title */}
-        <h2 className="font-playfair text-lg text-ritual-gold text-center mb-5">
+        <h2 className="font-playfair text-lg text-ritual-gold text-center mb-5" style={{ fontWeight: 300 }}>
           Certificate of Beginning
         </h2>
 
@@ -202,7 +202,7 @@ Verify at umarise.com`;
         <div className="space-y-3 text-center">
           {/* Origin ID */}
           <div>
-            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
+            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1 opacity-[0.45]"
                style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
               ORIGIN
             </p>
@@ -213,7 +213,7 @@ Verify at umarise.com`;
 
           {/* Timestamp */}
           <div>
-            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
+            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1 opacity-[0.45]"
                style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
               SEALED
             </p>
@@ -224,7 +224,7 @@ Verify at umarise.com`;
 
           {/* Hash/Fingerprint */}
           <div>
-            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
+            <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1 opacity-[0.45]"
                style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
               FINGERPRINT
             </p>
