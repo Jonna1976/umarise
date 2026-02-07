@@ -106,6 +106,20 @@ export async function saveMark(mark: Omit<LocalMark, 'createdAt' | 'updatedAt'>)
 }
 
 /**
+ * Update an existing mark in IndexedDB (preserves createdAt)
+ */
+export async function updateMark(mark: LocalMark): Promise<LocalMark> {
+  const db = await getDB();
+  const updated: LocalMark = {
+    ...mark,
+    updatedAt: new Date(),
+  };
+  await db.put('marks', updated);
+  console.log('[IndexedDB] Mark updated:', mark.id);
+  return updated;
+}
+
+/**
  * Get a mark by ID
  */
 export async function getMark(id: string): Promise<LocalMark | undefined> {

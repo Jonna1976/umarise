@@ -19,7 +19,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { saveOriginZip } from '@/lib/originZip';
-import { fetchOtsProof } from '@/lib/otsProof';
+import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
 import { 
   registerPasskey, 
   signHash, 
@@ -47,26 +47,29 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [passkeyLinked, setPasskeyLinked] = useState(false);
   const [passkeyLinking, setPasskeyLinking] = useState(false);
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [proofLoaded, setProofLoaded] = useState(false);
+  const [fetchingProof, setFetchingProof] = useState(false);
   
   // Store credential data for signing and ZIP inclusion
   const credentialRef = useRef<PasskeyCredential | null>(null);
   const signatureRef = useRef<string | null>(null);
   const otsProofRef = useRef<string | null>(null);
 
-  // Fetch OTS proof when origin is anchored and has a real UUID
+  // Eagerly fetch OTS proof when origin has a real UUID
   useEffect(() => {
-    if (mark.otsStatus === 'anchored' && mark.originUuid) {
-      fetchOtsProof(mark.originUuid).then(result => {
-        if (result) {
-          otsProofRef.current = result.otsProof;
-          console.info('[MarkDetailModal] OTS proof loaded:', {
-            block: result.bitcoinBlockHeight,
-            anchoredAt: result.anchoredAt,
-          });
-        }
-      });
-    }
-  }, [mark.otsStatus, mark.originUuid]);
+    if (!mark.originUuid) return;
+
+    fetchProofStatus(mark.originUuid).then(result => {
+      if (result.status === 'anchored' && result.otsProofBytes) {
+        otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
+        setProofLoaded(true);
+        console.info('[MarkDetailModal] OTS proof loaded:', {
+          block: result.bitcoinBlockHeight,
+          anchoredAt: result.anchoredAt,
+        });
+      }
+    });
+  }, [mark.originUuid]);
 
   // Format date per briefing: "7 February 2026 · 20:35"
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
@@ -89,7 +92,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
   const isAnchored = mark.otsStatus === 'anchored';
 
-  // Handle ZIP save via shared utility — includes real passkey data when linked
+  // Handle ZIP save — fetches proof on-demand if anchored but not yet loaded
   const handleSaveAsZip = useCallback(async () => {
     if (isSaving) return;
     setIsSaving(true);
@@ -102,6 +105,22 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           signatureRef.current = sig.signature;
         } catch (e) {
           console.warn('[MarkDetailModal] Hash signing skipped:', e);
+        }
+      }
+
+      // If anchored but proof not loaded yet, fetch it now
+      if (isAnchored && !otsProofRef.current && mark.originUuid) {
+        setFetchingProof(true);
+        try {
+          const result = await fetchProofStatus(mark.originUuid);
+          if (result.status === 'anchored' && result.otsProofBytes) {
+            otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
+            setProofLoaded(true);
+          }
+        } catch (e) {
+          console.warn('[MarkDetailModal] Proof fetch failed, saving without .ots:', e);
+        } finally {
+          setFetchingProof(false);
         }
       }
 
@@ -124,7 +143,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, mark.originId, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
+  }, [isSaving, isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
 
   // Handle passkey link — real WebAuthn registration + signing
   const handlePasskeyLink = useCallback(async () => {
@@ -289,20 +308,32 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           {/* "Save as ZIP" button — gold, pill-shaped, always available */}
           <button
             onClick={handleSaveAsZip}
-            disabled={isSaving}
+            disabled={isSaving || fetchingProof}
             className="font-playfair text-[13px] px-6 py-2.5 rounded-full transition-all disabled:opacity-50 mb-2.5"
             style={{
               fontWeight: 300,
               background: saved 
-                ? 'hsl(var(--ritual-gold) / 0.08)' 
+                ? 'hsl(var(--ritual-gold) / 0.12)' 
                 : 'hsl(var(--ritual-gold) / 0.08)',
               border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.4' : '0.2'})`,
               color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
             }}
           >
             {saved 
-              ? (passkeyLinked ? '✓ ZIP saved (with passkey)' : '✓ ZIP saved')
-              : isSaving ? 'Saving...' : 'Save as ZIP'
+              ? (proofLoaded 
+                  ? '✓ ZIP saved (with proof)' 
+                  : passkeyLinked 
+                    ? '✓ ZIP saved (with passkey)'
+                    : '✓ ZIP saved')
+              : fetchingProof
+                ? 'Fetching proof…'
+                : isSaving 
+                  ? 'Saving…' 
+                  : isAnchored && !proofLoaded && mark.originUuid
+                    ? 'Save as ZIP'
+                    : !isAnchored
+                      ? 'Save as ZIP (proof pending)'
+                      : 'Save as ZIP'
             }
           </button>
 

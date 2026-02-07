@@ -18,6 +18,7 @@ import { BackupNudge } from '../components/BackupNudge';
 import { MarkDetailModal } from '../components/MarkDetailModal';
 import { useMarkCount } from '@/hooks/useMarkCount';
 import { useMarks, DisplayMark } from '@/hooks/useMarks';
+import { useProofPolling } from '@/hooks/useProofPolling';
 import { getDisplayImageUrl } from '@/hooks/useResolvedImageUrl';
 
 interface WallArtifact {
@@ -68,17 +69,39 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [focusedArtifacts, setFocusedArtifacts] = useState<Set<string>>(new Set());
   const [selectedMark, setSelectedMark] = useState<WallArtifact | null>(null);
+  const [originUuidMap, setOriginUuidMap] = useState<Map<string, string>>(new Map());
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
-  const { marks, isLoading, importLegacyMarks } = useMarks();
+  const { marks, isLoading, importLegacyMarks, refresh } = useMarks();
+  const { pollPendingProofs, getOriginUuid } = useProofPolling();
 
-  const handleArtifactClick = useCallback((artifact: WallArtifact) => {
+  const handleArtifactClick = useCallback(async (artifact: WallArtifact) => {
+    // Fetch origin UUID for detail view if not cached
+    if (!originUuidMap.has(artifact.id)) {
+      const uuid = await getOriginUuid(artifact.id);
+      if (uuid) {
+        setOriginUuidMap(prev => new Map(prev).set(artifact.id, uuid));
+      }
+    }
     setSelectedMark(artifact);
-  }, []);
+  }, [originUuidMap, getOriginUuid]);
 
-  // Import legacy marks on first load
+  // Import legacy marks and poll pending proofs on first load
   useEffect(() => {
     importLegacyMarks();
   }, [importLegacyMarks]);
+
+  // Background poll for pending proofs when Wall opens
+  useEffect(() => {
+    if (isLoading || marks.length === 0) return;
+    const pending = marks.filter(m => m.otsStatus !== 'anchored');
+    if (pending.length === 0) return;
+
+    pollPendingProofs(pending).then(results => {
+      if (results.length > 0) {
+        refresh(); // Reload marks to reflect updated statuses
+      }
+    });
+  }, [isLoading, marks.length]); // Only run once when marks are loaded
 
   // Convert marks to artifact display format
   const artifacts = useMemo(() => {
@@ -310,6 +333,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
             timestamp: selectedMark.timestamp,
             otsStatus: selectedMark.otsStatus,
             imageUrl: selectedMark.imageUrl,
+            originUuid: originUuidMap.get(selectedMark.id),
           }}
           onClose={() => setSelectedMark(null)}
         />
