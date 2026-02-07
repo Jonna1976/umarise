@@ -35,6 +35,12 @@ export interface OriginCertificate {
   /** URL for independent verification */
   verify_url: string;
 
+  /** Whether a proof.ots file is included in this ZIP */
+  proof_included: boolean;
+
+  /** Current proof status: pending (not yet anchored), anchored (Bitcoin-verified) */
+  proof_status: 'pending' | 'anchored';
+
   /** 
    * Public key of the passkey credential (optional).
    * Only populated when the user enables the passkey toggle.
@@ -58,6 +64,8 @@ export interface OriginCertificate {
  * @param capturedAt - Date of capture
  * @param claimedBy - Optional passkey public key
  * @param signature - Optional cryptographic signature
+ * @param proofIncluded - Whether proof.ots is included in this ZIP
+ * @param proofStatus - Current anchoring status
  */
 export function createCertificate(
   originId: string,
@@ -65,6 +73,8 @@ export function createCertificate(
   capturedAt: Date,
   claimedBy: string | null = null,
   signature: string | null = null,
+  proofIncluded: boolean = false,
+  proofStatus: 'pending' | 'anchored' = 'pending',
 ): OriginCertificate {
   // Strip prefix if present (um- → raw hex)
   const cleanId = originId.toUpperCase().replace(/^UM-/i, '');
@@ -76,6 +86,8 @@ export function createCertificate(
     hash_algo: 'SHA-256',
     captured_at: capturedAt.toISOString(),
     verify_url: 'https://verify.umarise.com',
+    proof_included: proofIncluded,
+    proof_status: proofStatus,
     claimed_by: claimedBy,
     signature,
   };

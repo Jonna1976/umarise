@@ -63,12 +63,15 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   }
 
   // 2. Add certificate.json (immutable schema from certificate.ts)
+  const hasProof = !!input.otsProof;
   const cert = createCertificate(
     cleanId,
     input.hash,
     input.timestamp,
     input.claimedBy ?? null,
     input.signature ?? null,
+    hasProof,
+    hasProof ? 'anchored' : 'pending',
   );
   zip.file('certificate.json', serializeCertificate(cert));
 
