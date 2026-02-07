@@ -118,11 +118,36 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
       if ((error as Error).name === 'AbortError') {
         return false; // User cancelled — not an error
       }
-      // Fall through to download fallback
+      console.warn('[originZip] Share API failed, trying fallback:', error);
     }
   }
 
-  // Fallback: direct download (desktop browsers)
+  // Detect mobile/iOS — avoid ugly in-browser ZIP preview
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    // On mobile: open blob URL in new tab → triggers iOS "Save to Files" sheet
+    // This avoids the in-browser file preview that breaks the ritual flow
+    try {
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = zipFileName;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      // Don't revoke immediately — give browser time to process
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (e) {
+      console.warn('[originZip] Mobile download fallback failed:', e);
+    }
+    // Always return true on mobile — the ZIP is generated and the ritual should advance.
+    // The user can re-download from the Wall detail view if needed.
+    return true;
+  }
+
+  // Desktop fallback: direct download
   const url = URL.createObjectURL(zipBlob);
   const a = document.createElement('a');
   a.href = url;
