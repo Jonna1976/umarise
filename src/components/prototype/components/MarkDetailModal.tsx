@@ -19,7 +19,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { toast } from 'sonner';
+
 
 interface MarkDetailModalProps {
   mark: {
@@ -35,6 +35,7 @@ interface MarkDetailModalProps {
 
 export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [passkeyEnabled, setPasskeyEnabled] = useState(false);
 
   // Format date per briefing: "7 February 2026 · 20:35"
@@ -88,12 +89,13 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
         if (canShareFiles) {
           await navigator.share({ files: [file] });
-          toast.success('Saved');
+          setSaved(true);
         } else {
           await navigator.share({
             title: `Origin ${displayOriginId}`,
             text: `Origin certificate for ${displayOriginId}\n\nVerify at verify.umarise.com`,
           });
+          setSaved(true);
         }
       } else {
         const blob = new Blob([certificateData], { type: 'application/json' });
@@ -103,7 +105,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         a.download = `certificate-${displayOriginId}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        toast.success('Downloaded');
+        setSaved(true);
       }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
@@ -111,7 +113,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         return;
       }
       console.error('[MarkDetailModal] Save error:', error);
-      toast.error('Could not save');
+      console.warn('[MarkDetailModal] Save failed');
     } finally {
       setIsSaving(false);
     }
@@ -236,7 +238,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   className="font-mono text-[9px] tracking-[1.5px] uppercase"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
                 >
-                  PENDING BITCOIN ANCHOR
+                  PENDING
                 </p>
               </>
             )}
@@ -254,7 +256,10 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               color: 'hsl(var(--ritual-gold) / 0.85)',
             }}
           >
-            {isSaving ? 'Saving...' : 'Save as ZIP'}
+            {saved 
+              ? (passkeyEnabled ? '✓ ZIP saved with passkey' : '✓ ZIP saved')
+              : isSaving ? 'Saving...' : 'Save as ZIP'
+            }
           </button>
 
           {/* Passkey toggle: "Include passkey signature" */}
