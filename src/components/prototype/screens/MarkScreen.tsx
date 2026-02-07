@@ -32,7 +32,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  const SEAL_DURATION = 1500; // 1.5 seconds
+  const SEAL_DURATION = 1200; // 1.2 seconds per briefing
 
   // Frame dimensions for stroke calculation
   const frameWidth = 258;

@@ -1,7 +1,5 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
-import { toast } from 'sonner';
 
 interface Artifact {
   id: string;
@@ -19,81 +17,19 @@ interface PauseScreenProps {
 
 /**
  * Screen 2: Pause
- * The artifact appears in darkness. Nothing else.
- * Just the beginning and you. A moment of quiet contemplation.
  * 
- * No auto-advance - waits for user to tap the photo to continue.
- * Subtle "save" option for users who want to keep the original on-device.
+ * Per briefing sectie 4 (S2):
+ * - "Your artifact" — 22px Playfair 300, gold
+ * - Foto in native oriëntatie (object-fit: contain)
+ * - "✓ saved to your device" — italic, bevestiging (NIET een knop)
+ * - Tap anywhere to continue to S3
+ * 
+ * No auto-advance — waits for user to tap to continue.
  */
 export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const handleSaveToPhotos = useCallback(async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering onComplete
-    if (!artifact.imageUrl || isSaving) return;
-    
-    setIsSaving(true);
-    
-    try {
-      let blob: Blob;
-      
-      // Handle data URL directly without fetch (more reliable)
-      if (artifact.imageUrl.startsWith('data:')) {
-        const [header, base64] = artifact.imageUrl.split(',');
-        const mimeMatch = header.match(/data:([^;]+)/);
-        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-        const byteString = atob(base64);
-        const arrayBuffer = new ArrayBuffer(byteString.length);
-        const uint8Array = new Uint8Array(arrayBuffer);
-        for (let i = 0; i < byteString.length; i++) {
-          uint8Array[i] = byteString.charCodeAt(i);
-        }
-        blob = new Blob([uint8Array], { type: mimeType });
-      } else {
-        // For blob URLs or http URLs
-        const response = await fetch(artifact.imageUrl);
-        blob = await response.blob();
-      }
-      
-      const file = new File([blob], `umarise-${Date.now()}.jpg`, { type: 'image/jpeg' });
-      
-      // Check if Web Share API with files is supported
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        setSaved(true);
-        toast.success('Saved');
-      } else {
-        // Fallback: create object URL and open in new tab
-        const objectUrl = URL.createObjectURL(blob);
-        window.open(objectUrl, '_blank');
-        // Clean up after a delay
-        setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);
-        toast('Long-press image to save', { duration: 3000 });
-        setSaved(true);
-      }
-    } catch (error) {
-      // User cancelled share sheet - that's fine
-      if ((error as Error).name === 'AbortError') {
-        setSaved(true);
-      } else {
-        console.error('[PauseScreen] Save error:', error);
-        // Last resort fallback - open image directly
-        if (artifact.imageUrl) {
-          window.open(artifact.imageUrl, '_blank');
-          toast('Long-press image to save', { duration: 3000 });
-        } else {
-          toast.error('Could not save');
-        }
-      }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [artifact.imageUrl, isSaving]);
-
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center justify-center px-6"
+      className="min-h-screen flex flex-col items-center justify-center px-6 cursor-pointer"
       style={{ background: 'hsl(var(--ritual-bg))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -112,51 +48,26 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         Your artifact
       </motion.h1>
 
-      {/* Artifact container - tap to continue */}
+      {/* Artifact container — tap anywhere to continue */}
       <motion.div
-        className="w-[250px] h-[190px] rounded-[4px] overflow-hidden cursor-pointer"
+        className="w-[250px] h-[190px] rounded-[4px] overflow-hidden"
         initial={{ opacity: 0, scale: 0.96, y: 6 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-        whileTap={{ scale: 0.98 }}
       >
         <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
       </motion.div>
 
-      {/* Save confirmation — per briefing: "✓ saved to your device" italic */}
-      <motion.div
-        className="mt-5"
+      {/* Save confirmation — per briefing: "✓ saved to your device" is a static confirmation, NOT a button */}
+      <motion.p
+        className="mt-5 font-garamond text-[12px] italic pointer-events-none"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 1.5 }}
       >
-        <AnimatePresence mode="wait">
-          {!saved ? (
-            <motion.button
-              key="save"
-              onClick={handleSaveToPhotos}
-              disabled={isSaving || !artifact.imageUrl}
-              className="font-garamond text-[12px] italic transition-opacity
-                         disabled:opacity-20 disabled:cursor-not-allowed"
-              style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
-              whileHover={{ opacity: 0.6 }}
-              exit={{ opacity: 0 }}
-            >
-              {isSaving ? 'saving...' : '✓ saved to your device'}
-            </motion.button>
-          ) : (
-            <motion.span
-              key="saved"
-              className="font-garamond text-[12px] italic"
-              style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              ✓ saved to your device
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        ✓ saved to your device
+      </motion.p>
     </motion.div>
   );
 }

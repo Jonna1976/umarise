@@ -1,8 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Mail } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface Artifact {
   id: string;
@@ -20,11 +17,18 @@ interface ReleaseScreenProps {
 
 /**
  * Screen 4: Release
- * The certificate of beginning.
- * Full resolution stays on device. Only the proof leaves.
  * 
- * Per briefing: Shows OTS status (pending → anchored)
- * NEW: "Notify me when anchored" email prompt (per v4 user flow)
+ * Per briefing sectie 4 (S4):
+ * - "Origin marked" title (22px Playfair 300, gold)
+ * - U-zegel (56x56 SVG)
+ * - ORIGIN ID [8-karakter hex] — JetBrains Mono 9px
+ * - Datum en tijd — EB Garamond 13px
+ * - Volledige SHA-256 hash (twee regels) — JetBrains Mono 9px, 0.45 opacity
+ * - ⏳ PENDING status
+ * - "Bitcoin anchoring takes 1–2 blocks. Your origin is registered. No action needed."
+ * - Privacy-notitie: "your file stays on your device · only the proof leaves"
+ * 
+ * NO email prompt. NO skip button. NO registration. Auto-advance after cascade.
  */
 export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showCard, setShowCard] = useState(false);
@@ -33,18 +37,13 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
   const [showDate, setShowDate] = useState(false);
   const [showLine, setShowLine] = useState(false);
   const [showHash, setShowHash] = useState(false);
-  const [showOts, setShowOts] = useState(false);
-  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
+  const [showStatus, setShowStatus] = useState(false);
+  const [showAnchorNote, setShowAnchorNote] = useState(false);
   const [showNote, setShowNote] = useState(false);
-  
-  // Email state
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailSubmitted, setEmailSubmitted] = useState(false);
 
-  // Cascade animation timing per spec:
-  // 0.0s card, 0.6s title, 1.0s origin, 1.2s date, 1.5s line, 1.8s hash, 2.0s ots, 2.4s email prompt, 2.8s note
-  // Auto-continue to next screen after 8s (giving user time to enter email or skip)
+  // Cascade animation timing:
+  // 0.0s card, 0.6s title, 1.0s origin, 1.2s date, 1.5s line, 1.8s hash, 2.2s status, 2.6s anchor note, 3.0s privacy note
+  // Auto-advance to S5 after 6s (enough time to read)
   useEffect(() => {
     const timers = [
       setTimeout(() => setShowCard(true), 0),
@@ -53,56 +52,13 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
       setTimeout(() => setShowDate(true), 1200),
       setTimeout(() => setShowLine(true), 1500),
       setTimeout(() => setShowHash(true), 1800),
-      setTimeout(() => setShowOts(true), 2000),
-      setTimeout(() => setShowEmailPrompt(true), 2400),
-      setTimeout(() => setShowNote(true), 2800),
+      setTimeout(() => setShowStatus(true), 2200),
+      setTimeout(() => setShowAnchorNote(true), 2600),
+      setTimeout(() => setShowNote(true), 3000),
+      // Auto-advance after 6 seconds — user can also tap to skip
+      setTimeout(() => onComplete(), 6000),
     ];
     return () => timers.forEach(clearTimeout);
-  }, []);
-
-  // Handle email submission for OTS notification
-  const handleEmailSubmit = useCallback(async () => {
-    if (!email || isSubmitting || emailSubmitted) return;
-    
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error('Please enter a valid email');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Store email for OTS notification in the pages table
-      // The notify-ots-complete function will use this to send email when anchored
-      const { error } = await supabase
-        .from('pages')
-        .update({ 
-          user_note: `notify:${email}` // Temporary storage until proper field added
-        } as any)
-        .eq('id', artifact.id);
-
-      if (error) {
-        console.warn('[ReleaseScreen] Email save failed:', error);
-        // Don't show error to user, just continue
-      }
-
-      setEmailSubmitted(true);
-      toast.success("We'll notify you when anchored");
-      
-      // Continue to next screen after brief delay
-      setTimeout(onComplete, 1500);
-    } catch (e) {
-      console.error('[ReleaseScreen] Email submit error:', e);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [email, isSubmitting, emailSubmitted, artifact.id, onComplete]);
-
-  // Handle skip - continue without email
-  const handleSkip = useCallback(() => {
-    onComplete();
   }, [onComplete]);
 
   const formatDate = (date: Date) => {
@@ -116,19 +72,24 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
     });
   };
 
-  const formatHash = (hash: string) => {
-    if (hash.length < 16) return hash;
-    return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
+  // Full hash on two lines per briefing — not truncated
+  const formatHashTwoLines = (hash: string) => {
+    if (hash.length <= 32) return [hash, ''];
+    const mid = Math.ceil(hash.length / 2);
+    return [hash.slice(0, mid), hash.slice(mid)];
   };
+
+  const [hashLine1, hashLine2] = formatHashTwoLines(artifact.hash);
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center cursor-pointer"
       style={{ background: 'hsl(var(--ritual-bg))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
+      onClick={onComplete}
     >
       {/* Certificate card - 280px, radius 14px, padding 44px 36px 36px */}
       <motion.div
@@ -144,6 +105,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           scale: showCard ? 1 : 0.97 
         }}
         transition={{ duration: 0.6 }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Radial gold glow behind card */}
         <div 
@@ -218,9 +180,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           {artifact.origin}
         </motion.p>
 
-        {/* Date - EB Garamond 14px */}
+        {/* Date — EB Garamond 13px */}
         <motion.p
-          className="font-garamond text-sm mb-5"
+          className="font-garamond text-[13px] mb-5"
           style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showDate ? 1 : 0, y: showDate ? 0 : 6 }}
@@ -238,113 +200,70 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           transition={{ duration: 0.4 }}
         />
 
-        {/* Hash — JetBrains Mono 9px, 0.45 opacity per v7 spec */}
-        <motion.p
-          className="font-mono text-[9px] tracking-[1px] mb-3"
-          style={{ color: 'hsl(var(--ritual-gold-muted))' }}
+        {/* Full SHA-256 hash on two lines — JetBrains Mono 9px, 0.45 opacity */}
+        <motion.div
+          className="mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: showHash ? 0.45 : 0 }}
           transition={{ duration: 0.4 }}
         >
-          {formatHash(artifact.hash)}
-        </motion.p>
-
-        {/* OTS Status - Bitcoin anchor status */}
-        <motion.div
-          className="flex items-center justify-center gap-2 mb-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: showOts ? 0.6 : 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {/* Bitcoin icon */}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="opacity-70">
-            <circle cx="12" cy="12" r="10" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
-            <path d="M9 8h4c1.5 0 2.5 1 2.5 2s-1 2-2.5 2H9V8z" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
-            <path d="M9 12h4.5c1.5 0 2.5 1 2.5 2s-1 2-2.5 2H9v-4z" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
-            <path d="M10 6v2M13 6v2M10 16v2M13 16v2" stroke="hsl(var(--ritual-gold))" strokeWidth="1.5"/>
-          </svg>
-          <span 
-            className="font-mono text-[9px] tracking-[1px] uppercase"
+          <p 
+            className="font-mono text-[9px] tracking-[0.5px] leading-relaxed"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
-            Pending Bitcoin anchor
-          </span>
-        </motion.div>
-
-        {/* Email notification prompt */}
-        <motion.div
-          className="mt-5 w-full"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: showEmailPrompt ? 1 : 0, y: showEmailPrompt ? 0 : 8 }}
-          transition={{ duration: 0.5 }}
-        >
-          {!emailSubmitted ? (
-            <>
-              <p className="font-garamond text-[11px] text-center mb-3"
-                 style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}>
-                Get notified when anchored on Bitcoin
-              </p>
-              
-              <div className="flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-40"
-                        style={{ color: 'hsl(var(--ritual-gold))' }} />
-                  <input
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleEmailSubmit()}
-                    className="w-full pl-9 pr-3 py-2 rounded-md font-garamond text-sm
-                               placeholder:text-[hsl(var(--ritual-cream)/0.25)]
-                               focus:outline-none focus:ring-1"
-                    style={{
-                      background: 'hsl(var(--ritual-surface-light) / 0.5)',
-                      border: '1px solid hsl(var(--ritual-gold) / 0.15)',
-                      color: 'hsl(var(--ritual-cream) / 0.8)',
-                    }}
-                  />
-                </div>
-                <button
-                  onClick={handleEmailSubmit}
-                  disabled={!email || isSubmitting}
-                  className="px-4 py-2 rounded-md font-garamond text-sm transition-all
-                             disabled:opacity-30 disabled:cursor-not-allowed"
-                  style={{
-                    background: 'hsl(var(--ritual-gold) / 0.15)',
-                    border: '1px solid hsl(var(--ritual-gold) / 0.3)',
-                    color: 'hsl(var(--ritual-gold) / 0.9)',
-                  }}
-                >
-                  {isSubmitting ? '...' : 'Notify'}
-                </button>
-              </div>
-
-              <button
-                onClick={handleSkip}
-                className="w-full mt-3 font-garamond text-[10px] transition-opacity hover:opacity-60"
-                style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}
-              >
-                skip — I'll check back later
-              </button>
-            </>
-          ) : (
-            <p className="font-garamond text-sm text-center"
-               style={{ color: 'hsl(var(--ritual-gold) / 0.7)' }}>
-              ✓ We'll email you when anchored
+            {hashLine1}
+          </p>
+          {hashLine2 && (
+            <p 
+              className="font-mono text-[9px] tracking-[0.5px] leading-relaxed"
+              style={{ color: 'hsl(var(--ritual-gold-muted))' }}
+            >
+              {hashLine2}
             </p>
           )}
         </motion.div>
 
-        {/* Whisper note - EB Garamond italic 11px */}
+        {/* ⏳ PENDING status */}
+        <motion.div
+          className="flex items-center justify-center gap-2 mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showStatus ? 0.6 : 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.span
+            className="w-[6px] h-[6px] rounded-full"
+            style={{ background: 'hsl(var(--ritual-gold))' }}
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <span 
+            className="font-mono text-[9px] tracking-[1.5px] uppercase"
+            style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
+          >
+            PENDING
+          </span>
+        </motion.div>
+
+        {/* Anchoring note — per briefing: exact text */}
         <motion.p
-          className="font-garamond italic text-[11px] mt-4"
+          className="font-garamond italic text-[11px] leading-relaxed mb-4"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showAnchorNote ? 1 : 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          Bitcoin anchoring takes 1–2 blocks. Your origin is registered. No action needed.
+        </motion.p>
+
+        {/* Privacy note */}
+        <motion.p
+          className="font-garamond italic text-[11px]"
           style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showNote ? 0.45 : 0 }}
           transition={{ duration: 0.4 }}
         >
-          sealed on your device · only the proof leaves
+          your file stays on your device · only the proof leaves
         </motion.p>
       </motion.div>
     </motion.div>

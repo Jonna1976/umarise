@@ -25,7 +25,7 @@ export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
         <img
           src={imageUrl}
           alt="Artifact"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           draggable={false}
         />
         {/* Subtle vignette overlay */}

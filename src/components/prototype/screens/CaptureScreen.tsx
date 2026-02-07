@@ -7,12 +7,14 @@ interface CaptureScreenProps {
 
 /**
  * Screen 1: Capture
- * The "+" opens the system picker.
- * Semantically empty - no copy, instructions, or framing.
- *
- * iOS/Safari note:
- * Use a real <label htmlFor> click target (not input.click()) to preserve
- * the user-gesture context reliably inside mobile webviews.
+ * 
+ * Per briefing sectie 4 (S1):
+ * - Origin dot centraal in capture ring
+ * - Dezelfde dot als op het welkomstscherm, dezelfde ademhaling
+ * - Tik op de dot → native OS-menu (Take Photo / Photo Library)
+ * - Semantisch leeg — geen copy, instructies, of framing
+ * 
+ * Technisch: <input type="file" accept="image/*"> via <label>
  */
 export function CaptureScreen({ onCapture }: CaptureScreenProps) {
   const inputId = useId();
@@ -64,7 +66,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         className="sr-only"
       />
 
-      {/* Capture circle with dashed stroke */}
+      {/* Capture ring with origin dot — per briefing: "dezelfde dot als op het welkomstscherm" */}
       <motion.label
         htmlFor={inputId}
         className="relative w-[180px] h-[180px] flex items-center justify-center cursor-pointer group"
@@ -72,7 +74,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         whileTap={{ scale: 0.98 }}
         aria-label="Select a photo"
       >
-        {/* Dashed circle */}
+        {/* Dashed circle (capture ring) */}
         <svg 
           viewBox="0 0 180 180" 
           className="absolute inset-0 w-full h-full"
@@ -89,26 +91,22 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
           />
         </svg>
 
-        {/* Status dot - breathing animation, top-right of circle */}
+        {/* Origin dot — same breathing animation as S0, centered in ring */}
         <motion.div
-          className="absolute top-[10px] right-[24px] w-2 h-2 rounded-full bg-ritual-gold"
+          className="w-3 h-3 rounded-full bg-ritual-gold"
           animate={{
-            opacity: [0.9, 0.4, 0.9],
             boxShadow: [
-              '0 0 6px hsl(var(--ritual-gold-glow))',
-              '0 0 2px hsl(var(--ritual-gold-glow))',
-              '0 0 6px hsl(var(--ritual-gold-glow))',
+              '0 0 20px hsl(var(--ritual-gold-glow))',
+              '0 0 35px hsl(var(--ritual-gold-glow)), 0 0 70px hsl(32 55% 55% / 0.2)',
+              '0 0 20px hsl(var(--ritual-gold-glow))',
             ],
+            scale: [1, 1.15, 1],
           }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          transition={{
+            boxShadow: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+            scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+          }}
         />
-
-        {/* Plus symbol */}
-        <motion.span
-          className="font-playfair font-light text-[40px] text-ritual-gold opacity-50 group-hover:opacity-80 transition-opacity duration-300"
-        >
-          +
-        </motion.span>
       </motion.label>
     </motion.div>
   );
