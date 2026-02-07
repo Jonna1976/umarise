@@ -231,8 +231,8 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <h1 
-          className="font-playfair text-[20px] text-ritual-cream"
-          style={{ fontWeight: 300 }}
+          className="font-playfair text-[15px] tracking-[4px] uppercase"
+          style={{ fontWeight: 300, color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
         >
           Marked Origins
         </h1>

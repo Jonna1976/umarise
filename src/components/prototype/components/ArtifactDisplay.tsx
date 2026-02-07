@@ -59,26 +59,49 @@ export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
 }
 
 function WarmArtifact() {
+  // Kindertekening — zonnetje, huisje, stokpoppetje, bloemetjes, gras
+  // Exact per reference briefing SVG
   return (
-    <svg width="180" height="130" viewBox="0 0 180 140">
-      {/* Sun */}
-      <circle cx="145" cy="30" r="14" fill="none" stroke="hsl(var(--ritual-yellow-accent))" strokeWidth="2.5" opacity="0.8"/>
-      <line x1="145" y1="10" x2="147" y2="3" stroke="hsl(var(--ritual-yellow-accent))" strokeWidth="2" opacity="0.6"/>
-      <line x1="160" y1="22" x2="167" y2="18" stroke="hsl(var(--ritual-yellow-accent))" strokeWidth="2" opacity="0.6"/>
-      <line x1="163" y1="35" x2="170" y2="38" stroke="hsl(var(--ritual-yellow-accent))" strokeWidth="2" opacity="0.6"/>
-      {/* House */}
-      <path d="M30 70L30 115 90 115 90 70" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="2.5"/>
-      <path d="M25 72L60 42 95 72" fill="none" stroke="hsl(var(--ritual-red-accent))" strokeWidth="3"/>
-      <rect x="50" y="88" width="18" height="27" rx="2" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="2"/>
-      {/* Figure */}
-      <circle cx="120" cy="82" r="8" fill="none" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      <path d="M120 90L120 112" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      <path d="M120 97L110 105" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      <path d="M120 97L130 104" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      <path d="M120 112L112 125" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      <path d="M120 112L128 124" stroke="hsl(var(--ritual-red-soft))" strokeWidth="2"/>
-      {/* Ground */}
-      <path d="M10 120Q45 118 90 120Q130 122 170 119" fill="none" stroke="hsl(var(--ritual-green-accent))" strokeWidth="2" opacity="0.5"/>
+    <svg width="180" height="140" viewBox="0 0 180 140">
+      {/* Paper background hint */}
+      <rect x="3" y="3" width="174" height="134" rx="2" fill="#F5F0E6" opacity="0.04" />
+      
+      {/* Zonnetje — top-right */}
+      <circle cx="145" cy="30" r="16" fill="none" stroke="#E8C547" strokeWidth="2.2" opacity="0.35" strokeLinecap="round" />
+      <line x1="145" y1="10" x2="145" y2="14" stroke="#E8C547" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <line x1="145" y1="46" x2="145" y2="50" stroke="#E8C547" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <line x1="125" y1="30" x2="129" y2="30" stroke="#E8C547" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <line x1="161" y1="30" x2="165" y2="30" stroke="#E8C547" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <line x1="131" y1="16" x2="134" y2="19" stroke="#E8C547" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <line x1="156" y1="41" x2="159" y2="44" stroke="#E8C547" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <line x1="131" y1="44" x2="134" y2="41" stroke="#E8C547" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <line x1="156" y1="19" x2="159" y2="16" stroke="#E8C547" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      
+      {/* Huisje — triangle roof + door + windows */}
+      <path d="M30 105 L50 65 L70 105Z" fill="none" stroke="#E87070" strokeWidth="2" opacity="0.3" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="44" y="85" width="12" height="20" fill="none" stroke="#6BA3D6" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <rect x="34" y="75" width="8" height="8" fill="none" stroke="#6BA3D6" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <rect x="58" y="75" width="8" height="8" fill="none" stroke="#6BA3D6" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      
+      {/* Gras — wavy ground line */}
+      <path d="M15 105 C15 105, 25 108, 40 105 C55 102, 70 108, 85 105 C100 102, 115 108, 130 105 C145 102, 160 107, 170 105" fill="none" stroke="#8BAA8B" strokeWidth="1.8" opacity="0.2" strokeLinecap="round" />
+      
+      {/* Stokpoppetje — center */}
+      <line x1="100" y1="105" x2="100" y2="70" stroke="#8BAA8B" strokeWidth="1.5" opacity="0.25" strokeLinecap="round" />
+      <circle cx="100" cy="60" r="10" fill="none" stroke="#E87070" strokeWidth="1.8" opacity="0.25" strokeLinecap="round" />
+      <circle cx="96" cy="57" r="1.5" fill="#E87070" opacity="0.15" />
+      <circle cx="104" cy="57" r="1.5" fill="#E87070" opacity="0.15" />
+      <path d="M95 63 C97 66, 103 66, 105 63" fill="none" stroke="#E87070" strokeWidth="1" opacity="0.18" strokeLinecap="round" />
+      {/* Arms */}
+      <line x1="90" y1="80" x2="80" y2="72" stroke="#8BAA8B" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <line x1="110" y1="80" x2="120" y2="72" stroke="#8BAA8B" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      {/* Legs */}
+      <line x1="95" y1="105" x2="88" y2="120" stroke="#8BAA8B" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      <line x1="105" y1="105" x2="112" y2="120" stroke="#8BAA8B" strokeWidth="1.2" opacity="0.2" strokeLinecap="round" />
+      
+      {/* Bloemetjes — left side */}
+      <path d="M22 45 C24 40, 28 38, 32 40 C36 42, 35 46, 30 48 C28 44, 24 42, 22 45Z" fill="none" stroke="#6BA3D6" strokeWidth="1.2" opacity="0.18" strokeLinecap="round" />
+      <path d="M35 42 C37 37, 41 35, 45 37 C49 39, 48 43, 43 45 C41 41, 37 39, 35 42Z" fill="none" stroke="#6BA3D6" strokeWidth="1.2" opacity="0.15" strokeLinecap="round" />
     </svg>
   );
 }
