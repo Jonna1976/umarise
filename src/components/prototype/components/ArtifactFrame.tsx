@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from './ArtifactDisplay';
-import { Bitcoin, Clock, CheckCircle } from 'lucide-react';
 
 interface ArtifactFrameProps {
   artifact: {
@@ -45,20 +44,6 @@ const OFFSET_CLASSES: Record<string, string> = {
 export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFrameProps) {
   const size = SIZE_CLASSES[artifact.size] || SIZE_CLASSES['medium-square'];
   const offsetClass = OFFSET_CLASSES[artifact.offset] || OFFSET_CLASSES['middle'];
-
-  // OTS status indicator
-  const getOtsIndicator = () => {
-    switch (artifact.otsStatus) {
-      case 'anchored':
-        return { icon: <CheckCircle className="w-2.5 h-2.5" />, color: 'hsl(var(--ritual-gold))' };
-      case 'submitted':
-        return { icon: <Clock className="w-2.5 h-2.5 animate-pulse" />, color: 'hsl(var(--ritual-gold) / 0.6)' };
-      default:
-        return { icon: <Bitcoin className="w-2.5 h-2.5" />, color: 'hsl(var(--ritual-gold) / 0.35)' };
-    }
-  };
-
-  const otsIndicator = getOtsIndicator();
 
   const getFrameStyles = () => {
     const baseStyles = "relative transition-all duration-400";
@@ -184,22 +169,14 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
             )}
           </div>
         </div>
-
-        {/* OTS status indicator (bottom-right corner of frame) */}
-        <div 
-          className="absolute bottom-1 right-1 flex items-center justify-center"
-          style={{ color: otsIndicator.color }}
-          title={artifact.otsStatus === 'anchored' ? 'Anchored on Bitcoin' : 'Pending anchor'}
-        >
-          {otsIndicator.icon}
-        </div>
       </div>
 
-      {/* Date label */}
+      {/* Date label — JetBrains Mono 7px per reference */}
       <motion.p
-        className="font-garamond text-[10px] tracking-[0.8px] whitespace-nowrap mt-2.5"
+        className="font-mono text-[7px] tracking-[2px] whitespace-nowrap mt-2"
         animate={{
-          color: isFocused ? 'hsl(var(--ritual-cream-40))' : 'hsl(var(--ritual-cream-20))',
+          color: isFocused ? 'hsl(var(--ritual-gold-muted))' : 'hsl(var(--ritual-gold-muted))',
+          opacity: isFocused ? 0.6 : 0.35,
         }}
         transition={{ duration: 0.4 }}
       >
