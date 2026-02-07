@@ -171,7 +171,7 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
         </div>
       </div>
 
-      {/* Date label — JetBrains Mono 7px per reference */}
+      {/* Date label */}
       <motion.p
         className="font-mono text-[10px] tracking-[2px] whitespace-nowrap mt-2"
         animate={{
@@ -182,6 +182,30 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
       >
         {artifact.date}
       </motion.p>
+
+      {/* Anchored indicator — solid dot (anchored) vs pulsing dot (pending) */}
+      {artifact.otsStatus === 'anchored' ? (
+        <motion.div
+          className="w-[5px] h-[5px] rounded-full mt-1.5"
+          style={{ background: 'hsl(var(--ritual-gold))' }}
+          animate={{ opacity: isFocused ? 0.7 : 0.25 }}
+          transition={{ duration: 0.4 }}
+        />
+      ) : (
+        <motion.div
+          className="w-[5px] h-[5px] rounded-full mt-1.5"
+          style={{ background: 'hsl(var(--ritual-gold))' }}
+          animate={{
+            opacity: isFocused ? [0.2, 0.6, 0.2] : [0.1, 0.3, 0.1],
+            scale: [1, 1.3, 1],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      )}
     </motion.div>
   );
 }
