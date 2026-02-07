@@ -157,17 +157,6 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
           )}
         </AnimatePresence>
       </motion.div>
-
-      {/* Hint to continue */}
-      <motion.p
-        className="absolute bottom-10 font-garamond text-[11px] italic"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 2 }}
-      >
-        tap to mark this beginning
-      </motion.p>
     </motion.div>
   );
 }
