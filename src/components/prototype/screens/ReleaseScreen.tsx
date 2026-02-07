@@ -196,7 +196,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           </svg>
         </div>
 
-        {/* "Marked" title — Playfair 300 per v7 spec */}
+        {/* Title — per briefing: "Origin marked" */}
         <motion.h2
           className="font-playfair text-4xl text-ritual-gold mb-[18px]"
           style={{ fontWeight: 300 }}
@@ -204,7 +204,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}
           transition={{ duration: 0.5 }}
         >
-          Marked
+          Origin marked
         </motion.h2>
 
         {/* Origin code — JetBrains Mono 9px, 0.45 opacity per v7 spec */}

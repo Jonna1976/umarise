@@ -31,7 +31,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Title: "This is where it began" — Playfair 300, 22px per v7 spec */}
+      {/* Title: "Own your origin" — per briefing sectie 10 */}
       <motion.h1
         className="font-playfair font-light text-[22px] text-ritual-cream mb-7"
         style={{ fontWeight: 300 }}
@@ -39,7 +39,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.5 }}
       >
-        This is where it began
+        Own your origin
       </motion.h1>
 
       {/* Origin dot — 12x12px, pulsing gold */}
