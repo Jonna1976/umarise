@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -84,12 +84,13 @@
     --sidebar-border: 35 20% 82%;
     --sidebar-ring: 38 45% 40%;
 
-    /* === RITUAL V6 TOKENS === */
-    /* Background: Deep forest green (near-black with green undertone) */
-    --ritual-bg: 140 33% 2%;
-    --ritual-surface: 140 27% 6%;
-    --ritual-surface-elevated: 140 25% 9%;
-    --ritual-border-subtle: 140 15% 13%;
+    /* === RITUAL V7 TOKENS === */
+    /* Background: #050A05 (body) / #0F1A0F (screens) — prototype is visual truth */
+    --ritual-bg: 120 33% 3%;
+    --ritual-surface: 120 27% 8%;
+    --ritual-surface-elevated: 120 25% 11%;
+    --ritual-surface-light: 120 20% 14%;
+    --ritual-border-subtle: 120 15% 15%;
     
     /* Gold accent: Warm antique gold */
     --ritual-gold: 32 55% 55%;

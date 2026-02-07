@@ -93,7 +93,8 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center justify-center bg-ritual-surface px-6"
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: 'hsl(var(--ritual-bg))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

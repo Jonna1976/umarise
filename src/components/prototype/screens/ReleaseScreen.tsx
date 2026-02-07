@@ -196,9 +196,10 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           </svg>
         </div>
 
-        {/* "Marked" title - Playfair 400, 36px */}
+        {/* "Marked" title — Playfair 300 per v7 spec */}
         <motion.h2
-          className="font-playfair font-normal text-4xl text-ritual-gold mb-[18px]"
+          className="font-playfair text-4xl text-ritual-gold mb-[18px]"
+          style={{ fontWeight: 300 }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}
           transition={{ duration: 0.5 }}
@@ -206,9 +207,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           Marked
         </motion.h2>
 
-        {/* Origin code - JetBrains Mono 10px, letter-spacing 2px */}
+        {/* Origin code — JetBrains Mono 9px, 0.45 opacity per v7 spec */}
         <motion.p
-          className="font-mono text-[10px] tracking-[2px] uppercase mb-1.5"
+          className="font-mono text-[9px] tracking-[2px] uppercase mb-1.5"
           style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showOrigin ? 1 : 0, y: showOrigin ? 0 : 6 }}
@@ -237,9 +238,9 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           transition={{ duration: 0.4 }}
         />
 
-        {/* Hash - JetBrains Mono 10px */}
+        {/* Hash — JetBrains Mono 9px, 0.45 opacity per v7 spec */}
         <motion.p
-          className="font-mono text-[10px] tracking-[1px] mb-3"
+          className="font-mono text-[9px] tracking-[1px] mb-3"
           style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showHash ? 0.45 : 0 }}
