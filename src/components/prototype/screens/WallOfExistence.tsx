@@ -1,3 +1,15 @@
+/**
+ * Screen 7: Marked Origins
+ * 
+ * Per briefing sectie 4 (S7):
+ * - Title: "Marked Origins" — 20px Playfair 300, cream, centered, padding-top 44px
+ * - Hint: "Tap an origin to view, save as ZIP, or link your passkey." — 12px Garamond italic
+ * - Origins: horizontal scrolling, museum-style, each in own frame with date below
+ * - Detail view on tap (handled by MarkDetailModal)
+ * - U button top-left for close. Long-press for backup.
+ * - NO "New origin" button. NO "Prove card". NO bulk-passkey.
+ */
+
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { OriginButton } from '../components/OriginButton';
@@ -22,7 +34,6 @@ interface WallArtifact {
   originId: string;
 }
 
-
 interface WallOfExistenceProps {
   onClose: () => void;
   onBulkExport?: () => void;
@@ -45,17 +56,12 @@ const MOCK_ARTIFACTS: WallArtifact[] = [
   { id: '1', type: 'warm', date: '4 Feb 2026', hash: '884d5f17553df0a3884d5f17553df0a3884d5f17553df0a3', origin: 'ORIGIN 1916F13F', size: 'large-landscape', offset: 'high', otsStatus: 'anchored', timestamp: new Date('2026-02-04'), originId: 'UM-1916F13F' },
   { id: '2', type: 'text', date: '28 Jan 2026', hash: 'f3d18ca291bb7e05f3d18ca291bb7e05f3d18ca291bb7e05', origin: 'ORIGIN 7B3E09A1', size: 'small-square', offset: 'low', otsStatus: 'pending', timestamp: new Date('2026-01-28'), originId: 'UM-7B3E09A1' },
   { id: '3', type: 'text', date: '15 Jan 2026', hash: '6e0a44d7c28f1b936e0a44d7c28f1b936e0a44d7c28f1b93', origin: 'ORIGIN 4D2F88C6', size: 'portrait', offset: 'high', otsStatus: 'submitted', timestamp: new Date('2026-01-15'), originId: 'UM-4D2F88C6' },
-  { id: '4', type: 'sketch', date: '3 Jan 2026', hash: 'a1b2c3d4e5f6g7h8a1b2c3d4e5f6g7h8a1b2c3d4e5f6g7h8', origin: 'ORIGIN E9A10B3C', size: 'landscape-small', offset: 'lower', otsStatus: 'anchored', timestamp: new Date('2026-01-03'), originId: 'UM-E9A10B3C' },
+  { id: '4', type: 'sketch', date: '3 Jan 2026', hash: 'a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8', origin: 'ORIGIN E9A10B3C', size: 'landscape-small', offset: 'lower', otsStatus: 'anchored', timestamp: new Date('2026-01-03'), originId: 'UM-E9A10B3C' },
   { id: '5', type: 'digital', date: '21 Dec 2025', hash: '7c9e2f310a4b8d567c9e2f310a4b8d567c9e2f310a4b8d56', origin: 'ORIGIN 5F7C2D88', size: 'medium-square', offset: 'highest', otsStatus: 'pending', timestamp: new Date('2025-12-21'), originId: 'UM-5F7C2D88' },
   { id: '6', type: 'sound', date: '14 Dec 2025', hash: 'b2e7a91c4f0d3c88b2e7a91c4f0d3c88b2e7a91c4f0d3c88', origin: 'ORIGIN 0A8B4E17', size: 'tiny', offset: 'low', otsStatus: 'anchored', timestamp: new Date('2025-12-14'), originId: 'UM-0A8B4E17' },
   { id: '7', type: 'organic', date: '1 Dec 2025', hash: 'd4c6b8a21e3f5079d4c6b8a21e3f5079d4c6b8a21e3f5079', origin: 'ORIGIN 3C6D9F42', size: 'panoramic', offset: 'middle', otsStatus: 'pending', timestamp: new Date('2025-12-01'), originId: 'UM-3C6D9F42' },
 ];
 
-/**
- * Screen 6: Wall of Existence
- * Your beginnings on the wall. Each frame resonates differently.
- * Tap any frame to open it. Hover to zoom. Long-press ∪ to backup.
- */
 export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const lightRef = useRef<HTMLDivElement>(null);
@@ -65,7 +71,6 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
   const { marks, isLoading, importLegacyMarks } = useMarks();
 
-  // Handle artifact click to open detail modal
   const handleArtifactClick = useCallback((artifact: WallArtifact) => {
     setSelectedMark(artifact);
   }, []);
@@ -75,39 +80,27 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     importLegacyMarks();
   }, [importLegacyMarks]);
 
-  // Convert marks to artifact display format with dual-source fallback
+  // Convert marks to artifact display format
   const artifacts = useMemo(() => {
     if (marks.length === 0 && !isLoading) {
-      // Show mock data when no marks exist
       return MOCK_ARTIFACTS;
     }
 
     return marks.map((mark, index) => {
-      // Format date
       const date = mark.timestamp.toLocaleDateString('en-GB', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric' 
+        day: 'numeric', month: 'short', year: 'numeric' 
       });
-
-      // Format hash (first 8...last 8)
       const hash = mark.hash 
         ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
         : 'pending...';
-
-      // Format origin ID
       const origin = mark.originId.toUpperCase().replace('UM-', 'ORIGIN ');
 
-      // Determine image source (dual-source fallback chain)
       let imageUrl: string | undefined;
       if (mark.thumbnailUrl) {
-        // Priority 1: IndexedDB thumbnail (new v4 marks)
         imageUrl = mark.thumbnailUrl;
       } else if (mark.legacyImageUrl) {
-        // Priority 2: Supabase image_url (legacy marks)
         imageUrl = getDisplayImageUrl(mark.legacyImageUrl);
       }
-      // Priority 3: No image - ArtifactFrame will show hash+date only
 
       return {
         id: mark.id,
@@ -125,18 +118,16 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     });
   }, [marks, isLoading]);
 
-  // Initial scroll animation and backup hint
+  // Scroll hint and backup hint
   useEffect(() => {
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
 
-    // Gentle scroll hint
     setTimeout(() => {
       scrollEl.scrollTo({ left: 45, behavior: 'smooth' });
       setTimeout(() => scrollEl.scrollTo({ left: 0, behavior: 'smooth' }), 600);
     }, 800);
 
-    // Show backup hint
     setTimeout(() => {
       setShowBackupHint(true);
       setTimeout(() => setShowBackupHint(false), 3000);
@@ -149,15 +140,13 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     const lightEl = lightRef.current;
     if (!scrollEl || !lightEl) return;
 
-    // Parallax light source
     lightEl.style.transform = `translateX(calc(-50% + ${-scrollEl.scrollLeft * 0.15}px))`;
 
-    // Focus effect on artifacts
-    const artifacts = scrollEl.querySelectorAll('[data-artifact-id]');
+    const artifactEls = scrollEl.querySelectorAll('[data-artifact-id]');
     const scrollRect = scrollEl.getBoundingClientRect();
     const newFocused = new Set<string>();
 
-    artifacts.forEach((artifact) => {
+    artifactEls.forEach((artifact) => {
       const rect = artifact.getBoundingClientRect();
       const center = rect.left + rect.width / 2 - scrollRect.left;
       const distance = Math.abs(center - scrollRect.width / 2);
@@ -173,7 +162,8 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
 
   return (
     <motion.div
-      className="min-h-screen bg-ritual-surface relative overflow-hidden"
+      className="min-h-screen relative overflow-hidden"
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -181,15 +171,12 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     >
       {/* Atmospheric layers */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Vertical line texture */}
         <div 
           className="absolute inset-0"
           style={{
             background: 'repeating-linear-gradient(90deg, transparent, hsl(var(--ritual-gold) / 0.006) 1px, transparent 2px, transparent 40px)',
           }}
         />
-        
-        {/* Radial gold light source (parallax) */}
         <div
           ref={lightRef}
           className="absolute -top-[10%] left-1/2 w-[200px] h-[200px] transition-transform duration-[600ms] ease-out"
@@ -198,26 +185,18 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
             background: 'radial-gradient(ellipse, hsl(var(--ritual-gold) / 0.06), transparent 70%)',
           }}
         />
-
-        {/* Ceiling shadow */}
         <div 
           className="absolute top-0 left-0 right-0 h-[15%]"
           style={{ background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent)' }}
         />
-
-        {/* Floor shadow */}
         <div 
           className="absolute bottom-0 left-0 right-0 h-[35%]"
           style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1) 40%, transparent)' }}
         />
-
-        {/* Vignette */}
         <div 
           className="absolute inset-0"
           style={{ boxShadow: 'inset 0 0 120px rgba(0, 0, 0, 0.5)' }}
         />
-
-        {/* Dust particles */}
         {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
@@ -227,11 +206,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
               top: `${35 + Math.random() * 40}%`,
               background: 'hsl(var(--ritual-gold) / 0.12)',
             }}
-            animate={{
-              y: -80,
-              x: 18,
-              opacity: [0, 0.35, 0.15, 0],
-            }}
+            animate={{ y: -80, x: 18, opacity: [0, 0.35, 0.15, 0] }}
             transition={{
               duration: 6 + Math.random() * 8,
               delay: Math.random() * 5,
@@ -242,37 +217,39 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         ))}
       </div>
 
-      {/* U button to close wall and return to capture - top: 38px, left: 16px per walkthrough spec */}
+      {/* U button — close wall, long-press for backup */}
       <OriginButton 
         onClick={onClose} 
         className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
       />
 
-      {/* New mark button - bottom center */}
-      <motion.button
-        onClick={onClose}
-        className="absolute bottom-[60px] left-1/2 -translate-x-1/2 z-50
-                   w-12 h-12 rounded-full flex items-center justify-center
-                   transition-all duration-300"
-        style={{
-          background: 'hsl(var(--ritual-gold) / 0.08)',
-          border: '1px solid hsl(var(--ritual-gold) / 0.25)',
-        }}
-        whileHover={{ 
-          scale: 1.05,
-          background: 'hsl(var(--ritual-gold) / 0.15)',
-        }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
+      {/* Title: "Marked Origins" — 20px Playfair 300, cream, centered, pt-44px */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center pt-[44px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <span className="font-playfair text-2xl text-ritual-gold opacity-60">+</span>
-      </motion.button>
+        <h1 
+          className="font-playfair text-[20px] text-ritual-cream"
+          style={{ fontWeight: 300 }}
+        >
+          Marked Origins
+        </h1>
 
-      {/* Backup hint */}
+        {/* Hint — 12px EB Garamond italic, low opacity */}
+        <p 
+          className="font-garamond italic text-[12px] mt-2 text-center px-8"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
+        >
+          Tap an origin to view, save as ZIP, or link your passkey.
+        </p>
+      </motion.div>
+
+      {/* Backup hint (appears on long-press ∪) */}
       <motion.p
-        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[10px] text-ritual-gold-muted pointer-events-none"
+        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[10px] pointer-events-none"
+        style={{ color: 'hsl(var(--ritual-gold-muted))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: showBackupHint ? 0.5 : 0 }}
         transition={{ duration: 0.6 }}
@@ -289,7 +266,6 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       >
         <div className="flex items-center h-full px-[60px] min-w-max gap-[50px]">
           {isLoading ? (
-            // Loading state
             <div className="flex items-center justify-center w-full">
               <motion.div
                 className="w-3 h-3 rounded-full bg-ritual-gold"
@@ -307,7 +283,6 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
               />
             ))
           )}
-          {/* End spacer */}
           <div className="w-[100px] flex-shrink-0" />
         </div>
       </div>
