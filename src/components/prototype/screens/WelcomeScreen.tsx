@@ -33,7 +33,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     >
       {/* Title: "Own your origin" — per briefing sectie 10 */}
       <motion.h1
-        className="font-playfair font-light text-[22px] text-ritual-cream mb-7"
+        className="font-playfair font-light text-[26px] text-ritual-cream mb-7"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

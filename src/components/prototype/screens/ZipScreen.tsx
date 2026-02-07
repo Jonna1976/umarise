@@ -88,7 +88,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
 
       {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
-        className="font-playfair text-[22px] text-ritual-gold mb-8"
+        className="font-playfair text-[26px] text-ritual-gold mb-8"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -114,7 +114,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
             <path d="M1 13L5 9L8 12L11 8L17 14" 
                   stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.4" />
           </svg>
-          <span className="font-garamond text-[13px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[15px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             photo.jpg <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· original bytes</span>
           </span>
         </div>
@@ -131,7 +131,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
             <line x1="5" y1="12" x2="10" y2="12" 
                   stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
           </svg>
-          <span className="font-garamond text-[13px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[15px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             certificate.json <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· hash · origin_id · timestamp</span>
           </span>
         </div>
@@ -146,7 +146,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
             <circle cx="9" cy="9" r="1" 
                     fill="hsl(var(--ritual-gold))" opacity="0.4" />
           </svg>
-          <span className="font-garamond text-[13px] flex items-center gap-1.5" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[15px] flex items-center gap-1.5" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             proof.ots <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· anchoring</span>
             {/* Pulsing dot — anchoring in progress */}
             <motion.span
@@ -167,7 +167,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
 
       {/* Anchoring note — italic, 12px per briefing */}
       <motion.p
-        className="font-garamond italic text-[12px] text-center max-w-[260px] mb-10 leading-relaxed"
+        className="font-garamond italic text-[14px] text-center max-w-[280px] mb-10 leading-relaxed"
         style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -181,7 +181,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       <motion.button
         onClick={handleSave}
         disabled={isSaving}
-        className="font-playfair text-[15px] px-8 py-3 rounded-full transition-all disabled:opacity-50"
+        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all disabled:opacity-50"
         style={{
           fontWeight: 300,
           background: saved

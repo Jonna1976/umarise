@@ -105,7 +105,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
     >
       {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
-        className="font-playfair text-[22px] text-ritual-gold mb-6 pointer-events-none"
+        className="font-playfair text-[26px] text-ritual-gold mb-6 pointer-events-none"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -179,7 +179,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
       {/* Instruction — per briefing: "hold to mark", 17px Playfair, goud */}
       {!isSealed && (
         <motion.p
-          className="mt-6 font-playfair text-[17px] text-ritual-gold"
+          className="mt-6 font-playfair text-[20px] text-ritual-gold"
           style={{ fontWeight: 300 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: isPressed ? 0 : 1 }}

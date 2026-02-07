@@ -256,7 +256,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <h1 
-          className="font-playfair text-[15px] tracking-[4px] uppercase"
+          className="font-playfair text-[17px] tracking-[4px] uppercase"
           style={{ fontWeight: 300, color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
         >
           Marked Origins
@@ -264,7 +264,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
 
         {/* Hint — 12px EB Garamond italic, low opacity */}
         <p 
-          className="font-garamond italic text-[12px] mt-2 text-center px-8"
+          className="font-garamond italic text-[14px] mt-2 text-center px-8"
           style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
         >
           Tap an origin to view, save as ZIP, or link your passkey.
@@ -273,7 +273,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
 
       {/* Backup hint (appears on long-press ∪) */}
       <motion.p
-        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[10px] pointer-events-none"
+        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[12px] pointer-events-none"
         style={{ color: 'hsl(var(--ritual-gold-muted))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: showBackupHint ? 0.5 : 0 }}

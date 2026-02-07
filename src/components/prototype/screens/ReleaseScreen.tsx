@@ -160,7 +160,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
 
         {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
         <motion.h2
-          className="font-playfair text-[22px] text-ritual-gold mb-[18px]"
+          className="font-playfair text-[26px] text-ritual-gold mb-[18px]"
           style={{ fontWeight: 300 }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}
@@ -171,7 +171,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
 
         {/* Origin code — JetBrains Mono 9px, 0.45 opacity per v7 spec */}
         <motion.p
-          className="font-mono text-[9px] tracking-[2px] uppercase mb-1.5"
+          className="font-mono text-[11px] tracking-[2px] uppercase mb-1.5"
           style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showOrigin ? 1 : 0, y: showOrigin ? 0 : 6 }}
@@ -182,7 +182,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
 
         {/* Date — EB Garamond 13px */}
         <motion.p
-          className="font-garamond text-[13px] mb-5"
+          className="font-garamond text-[15px] mb-5"
           style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: showDate ? 1 : 0, y: showDate ? 0 : 6 }}
@@ -208,14 +208,14 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           transition={{ duration: 0.4 }}
         >
           <p 
-            className="font-mono text-[9px] tracking-[0.5px] leading-relaxed"
+            className="font-mono text-[11px] tracking-[0.5px] leading-relaxed"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
             {hashLine1}
           </p>
           {hashLine2 && (
             <p 
-              className="font-mono text-[9px] tracking-[0.5px] leading-relaxed"
+              className="font-mono text-[11px] tracking-[0.5px] leading-relaxed"
               style={{ color: 'hsl(var(--ritual-gold-muted))' }}
             >
               {hashLine2}
@@ -237,7 +237,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
           <span 
-            className="font-mono text-[9px] tracking-[1.5px] uppercase"
+            className="font-mono text-[11px] tracking-[1.5px] uppercase"
             style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
           >
             PENDING
@@ -246,7 +246,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
 
         {/* Anchoring note — per briefing: exact text */}
         <motion.p
-          className="font-garamond italic text-[11px] leading-relaxed mb-4"
+          className="font-garamond italic text-[13px] leading-relaxed mb-4"
           style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showAnchorNote ? 1 : 0 }}
@@ -257,7 +257,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
 
         {/* Privacy note */}
         <motion.p
-          className="font-garamond italic text-[11px]"
+          className="font-garamond italic text-[13px]"
           style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: showNote ? 0.45 : 0 }}

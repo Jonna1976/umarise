@@ -242,7 +242,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* "Origin marked" title */}
           <h2 
-            className="font-playfair text-[18px] text-ritual-gold mb-2"
+            className="font-playfair text-[22px] text-ritual-gold mb-2"
             style={{ fontWeight: 400 }}
           >
             Origin marked
@@ -250,7 +250,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* Origin ID — JetBrains Mono 9px */}
           <p 
-            className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
+            className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
             {mark.originId.toUpperCase().replace('UM-', 'ORIGIN ')}
@@ -258,7 +258,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* Date — EB Garamond 13px */}
           <p 
-            className="font-garamond text-[13px] mb-1.5"
+            className="font-garamond text-[15px] mb-1.5"
             style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
           >
             {formattedDate} · {formattedTime}
@@ -266,7 +266,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* Hash — JetBrains Mono 9px, 0.5 opacity */}
           <p 
-            className="font-mono text-[9px] tracking-wide mb-2.5"
+            className="font-mono text-[11px] tracking-wide mb-2.5"
             style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
           >
             {shortHash}
@@ -281,22 +281,22 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   style={{ background: 'hsl(var(--ritual-gold))' }}
                 />
                 <p 
-                  className="font-mono text-[9px] tracking-[1px] uppercase"
-                  style={{ color: 'hsl(var(--ritual-gold))' }}
-                >
-                  ANCHORED IN BITCOIN
-                </p>
-              </>
-            ) : (
-              <>
-                <motion.span 
-                  className="w-[5px] h-[5px] rounded-full"
-                  style={{ background: 'hsl(var(--ritual-gold))' }}
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                />
-                <p 
-                  className="font-mono text-[9px] tracking-[1px] uppercase"
+                   className="font-mono text-[11px] tracking-[1px] uppercase"
+                   style={{ color: 'hsl(var(--ritual-gold))' }}
+                 >
+                   ANCHORED IN BITCOIN
+                 </p>
+               </>
+             ) : (
+               <>
+                 <motion.span 
+                   className="w-[5px] h-[5px] rounded-full"
+                   style={{ background: 'hsl(var(--ritual-gold))' }}
+                   animate={{ opacity: [0.4, 1, 0.4] }}
+                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                 />
+                 <p 
+                   className="font-mono text-[11px] tracking-[1px] uppercase"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
                 >
                   PENDING · anchoring in 1–2 blocks
@@ -309,7 +309,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           <button
             onClick={handleSaveAsZip}
             disabled={isSaving || fetchingProof}
-            className="font-playfair text-[13px] px-6 py-2.5 rounded-full transition-all disabled:opacity-50 mb-2.5"
+            className="font-playfair text-[15px] px-6 py-2.5 rounded-full transition-all disabled:opacity-50 mb-2.5"
             style={{
               fontWeight: 300,
               background: saved 
@@ -341,7 +341,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           <button
             onClick={handlePasskeyLink}
             disabled={passkeyLinked || passkeyLinking}
-            className="font-garamond text-[12px] tracking-[0.3px] transition-all mb-1"
+            className="font-garamond text-[14px] tracking-[0.3px] transition-all mb-1"
             style={{ 
               color: passkeyLinked 
                 ? 'hsl(var(--ritual-gold))' 
@@ -361,7 +361,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           {/* Passkey error message (subtle, non-intrusive) */}
           {passkeyError && (
             <p 
-              className="font-mono text-[9px] tracking-wide mb-1"
+              className="font-mono text-[11px] tracking-wide mb-1"
               style={{ color: 'hsl(0 60% 60% / 0.6)' }}
             >
               {passkeyError}
@@ -370,7 +370,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* Privacy note */}
           <p 
-            className="font-garamond italic text-[11px] mt-2.5"
+            className="font-garamond italic text-[13px] mt-2.5"
             style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           >
             your file stays on your device · only the proof leaves
