@@ -70,10 +70,10 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const [focusedArtifacts, setFocusedArtifacts] = useState<Set<string>>(new Set());
   const [selectedMark, setSelectedMark] = useState<WallArtifact | null>(null);
   const [originUuidMap, setOriginUuidMap] = useState<Map<string, string>>(new Map());
+  const hasPolledRef = useRef(false);
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
   const { marks, isLoading, importLegacyMarks, refresh } = useMarks();
   const { pollPendingProofs, getOriginUuid } = useProofPolling();
-
   const handleArtifactClick = useCallback(async (artifact: WallArtifact) => {
     // Fetch origin UUID for detail view if not cached
     if (!originUuidMap.has(artifact.id)) {
@@ -90,9 +90,11 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     importLegacyMarks();
   }, [importLegacyMarks]);
 
-  // Background poll for pending proofs when Wall opens
+  // Background poll for pending proofs — runs once per mount
   useEffect(() => {
-    if (isLoading || marks.length === 0) return;
+    if (isLoading || marks.length === 0 || hasPolledRef.current) return;
+    hasPolledRef.current = true;
+
     const pending = marks.filter(m => m.otsStatus !== 'anchored');
     if (pending.length === 0) return;
 
@@ -101,7 +103,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         refresh(); // Reload marks to reflect updated statuses
       }
     });
-  }, [isLoading, marks.length]); // Only run once when marks are loaded
+  }, [isLoading, marks, pollPendingProofs, refresh]);
 
   // Convert marks to artifact display format
   const artifacts = useMemo(() => {
