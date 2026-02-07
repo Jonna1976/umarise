@@ -15,7 +15,6 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 
 interface ZipScreenProps {
   originId: string;
@@ -54,34 +53,43 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
 
       const zipFileName = `origin-${cleanId}.zip`;
 
-      // Try Web Share API with file
+      // Try Web Share API with file first
+      let shared = false;
+      
       if (navigator.share) {
-        // Create a simple file to share (in production this would be a real ZIP)
-        const file = new File(
-          [certificateData], 
-          zipFileName, 
-          { type: 'application/zip' }
-        );
+        try {
+          const file = new File(
+            [certificateData], 
+            zipFileName, 
+            { type: 'application/zip' }
+          );
 
-        const canShareFiles = navigator.canShare?.({ files: [file] });
+          const canShareFiles = navigator.canShare?.({ files: [file] });
 
-        if (canShareFiles) {
-          await navigator.share({ files: [file] });
-        } else {
-          // Fallback: share as text
-          await navigator.share({
-            title: `Origin ${cleanId}`,
-            text: `Origin certificate for ${cleanId}\n\nVerify at verify.umarise.com`,
-          });
+          if (canShareFiles) {
+            await navigator.share({ files: [file] });
+            shared = true;
+          }
+        } catch (shareError) {
+          // Share rejected or cancelled
+          if ((shareError as Error).name === 'AbortError') {
+            setIsSaving(false);
+            return;
+          }
+          // Fall through to download fallback
         }
-      } else {
-        // Fallback: download link
+      }
+
+      // Fallback: direct download
+      if (!shared) {
         const blob = new Blob([certificateData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `certificate-${cleanId}.json`;
+        document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }
 
@@ -93,13 +101,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
         onComplete();
       }, 1200);
     } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        // User cancelled share sheet — that's fine
-        setIsSaving(false);
-        return;
-      }
       console.error('[ZipScreen] Save error:', error);
-      toast.error('Could not save');
       setIsSaving(false);
     }
   }, [isSaving, saved, cleanId, hash, timestamp, onComplete]);
