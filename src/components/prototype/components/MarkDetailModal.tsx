@@ -15,10 +15,11 @@
  * - Close button (✕) top-right
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { saveOriginZip } from '@/lib/originZip';
+import { fetchOtsProof } from '@/lib/otsProof';
 import { 
   registerPasskey, 
   signHash, 
@@ -34,6 +35,8 @@ interface MarkDetailModalProps {
     timestamp: Date;
     otsStatus: 'pending' | 'submitted' | 'anchored';
     imageUrl?: string;
+    /** Real UUID from origin_attestations table (for OTS proof lookup) */
+    originUuid?: string;
   };
   onClose: () => void;
 }
@@ -48,6 +51,22 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   // Store credential data for signing and ZIP inclusion
   const credentialRef = useRef<PasskeyCredential | null>(null);
   const signatureRef = useRef<string | null>(null);
+  const otsProofRef = useRef<string | null>(null);
+
+  // Fetch OTS proof when origin is anchored and has a real UUID
+  useEffect(() => {
+    if (mark.otsStatus === 'anchored' && mark.originUuid) {
+      fetchOtsProof(mark.originUuid).then(result => {
+        if (result) {
+          otsProofRef.current = result.otsProof;
+          console.info('[MarkDetailModal] OTS proof loaded:', {
+            block: result.bitcoinBlockHeight,
+            anchoredAt: result.anchoredAt,
+          });
+        }
+      });
+    }
+  }, [mark.otsStatus, mark.originUuid]);
 
   // Format date per briefing: "7 February 2026 · 20:35"
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
@@ -93,6 +112,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         imageUrl: mark.imageUrl ?? null,
         claimedBy: credentialRef.current?.publicKey ?? null,
         signature: signatureRef.current ?? null,
+        otsProof: otsProofRef.current,
       });
 
       if (success) {

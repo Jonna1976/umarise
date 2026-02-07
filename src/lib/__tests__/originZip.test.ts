@@ -42,6 +42,50 @@ describe('buildOriginZip', () => {
     // This test passes in a real browser but jsdom lacks proper Blob support for fetch
   });
 
+  it('includes proof.ots when OTS proof is provided', async () => {
+    // Create a small fake OTS proof (just some bytes, base64-encoded)
+    const fakeOtsBytes = new Uint8Array([0x00, 0x4f, 0x54, 0x53, 0x01, 0x02, 0x03]);
+    let binary = '';
+    for (let i = 0; i < fakeOtsBytes.length; i++) {
+      binary += String.fromCharCode(fakeOtsBytes[i]);
+    }
+    const fakeOtsBase64 = btoa(binary);
+
+    const zipBlob = await buildOriginZip({
+      originId: 'um-AABB1122',
+      hash: 'deadbeef'.repeat(8),
+      timestamp: new Date('2026-02-07T12:00:00Z'),
+      imageUrl: null,
+      otsProof: fakeOtsBase64,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    expect(files).toContain('certificate.json');
+    expect(files).toContain('proof.ots');
+
+    // Verify proof.ots content matches original bytes
+    const otsContent = await zip.file('proof.ots')!.async('uint8array');
+    expect(otsContent).toEqual(fakeOtsBytes);
+  });
+
+  it('omits proof.ots when not provided', async () => {
+    const zipBlob = await buildOriginZip({
+      originId: 'um-CCDD0011',
+      hash: 'abcd1234'.repeat(8),
+      timestamp: new Date('2026-02-07T12:00:00Z'),
+      imageUrl: null,
+      otsProof: null,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    expect(files).toContain('certificate.json');
+    expect(files).not.toContain('proof.ots');
+  });
+
   it('includes passkey fields when provided', async () => {
     const zipBlob = await buildOriginZip({
       originId: 'um-11223344',
