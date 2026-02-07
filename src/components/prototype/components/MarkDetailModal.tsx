@@ -1,18 +1,25 @@
 /**
- * Mark Detail Modal
+ * Mark Detail Modal — S7 detail view
  * 
- * Fullscreen view of a single mark showing:
- * - Large thumbnail/image
- * - Origin ID, hash, timestamp
- * - OTS anchoring status (pending/anchored)
- * - Download certificate button (when anchored)
+ * Per briefing sectie 4 (S7 detail view):
+ * - Overlay (96% opacity dark)
+ * - Photo/artifact in golden frame (same frame style as S3)
+ * - "Origin marked" title
+ * - Origin ID (JetBrains Mono 9px)
+ * - Date (EB Garamond 13px)
+ * - Hash (JetBrains Mono 9px, 0.5 opacity)
+ * - Status: pulsing dot + "PENDING" or solid dot + "ANCHORED IN BITCOIN"
+ * - "Save as ZIP" button (gold, pill-shaped, always available)
+ * - Passkey toggle: "Include passkey signature" with on/off switch
+ * - Passkey hint (only visible when toggle active)
+ * - Privacy note: "your file stays on your device · only the proof leaves"
+ * - Close button (✕) top-right
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Bitcoin, Clock, CheckCircle } from 'lucide-react';
+import { X } from 'lucide-react';
 import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
 
 interface MarkDetailModalProps {
   mark: {
@@ -28,9 +35,9 @@ interface MarkDetailModalProps {
 
 export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const certificateRef = useRef<HTMLDivElement>(null);
+  const [passkeyEnabled, setPasskeyEnabled] = useState(false);
 
-  // Format date
+  // Format date per briefing: "7 February 2026 · 20:35"
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -41,224 +48,270 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     minute: '2-digit',
   });
 
+  // Clean origin ID for display
+  const displayOriginId = mark.originId.toUpperCase().replace('UM-', '');
+
   // Truncate hash for display
   const shortHash = mark.hash 
-    ? `${mark.hash.substring(0, 12)}...${mark.hash.substring(mark.hash.length - 8)}`
+    ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
     : '—';
 
-  // OTS status display
-  const getOtsStatusDisplay = () => {
-    switch (mark.otsStatus) {
-      case 'anchored':
-        return {
-          icon: <CheckCircle className="w-3.5 h-3.5" />,
-          text: 'Anchored on Bitcoin',
-          color: 'hsl(var(--ritual-gold))',
-          canDownload: true,
-        };
-      case 'submitted':
-        return {
-          icon: <Clock className="w-3.5 h-3.5 animate-pulse" />,
-          text: 'Awaiting confirmation...',
-          color: 'hsl(var(--ritual-gold) / 0.6)',
-          canDownload: false,
-        };
-      default:
-        return {
-          icon: <Bitcoin className="w-3.5 h-3.5" />,
-          text: 'Pending anchor',
-          color: 'hsl(var(--ritual-gold) / 0.4)',
-          canDownload: false,
-        };
-    }
-  };
+  const isAnchored = mark.otsStatus === 'anchored';
 
-  const otsStatus = getOtsStatusDisplay();
-
-  // Download certificate as image
-  const handleDownloadCertificate = useCallback(async () => {
-    if (!certificateRef.current || isSaving) return;
-    
+  // Handle ZIP save via Web Share API
+  const handleSaveAsZip = useCallback(async () => {
+    if (isSaving) return;
     setIsSaving(true);
-    
+
     try {
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#050A05',
-        allowTaint: true,
-      });
+      const certificateData = JSON.stringify({
+        version: '1.0',
+        origin_id: displayOriginId,
+        hash: mark.hash,
+        hash_algo: 'SHA-256',
+        captured_at: mark.timestamp.toISOString(),
+        verify_url: 'https://verify.umarise.com',
+        claimed_by: passkeyEnabled ? '(passkey-public-key-placeholder)' : null,
+        signature: passkeyEnabled ? '(signature-placeholder)' : null,
+      }, null, 2);
 
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (b) => b ? resolve(b) : reject(new Error('Failed to create image')),
-          'image/jpeg',
-          0.92
+      const zipFileName = `origin-${displayOriginId}.zip`;
+
+      if (navigator.share) {
+        const file = new File(
+          [certificateData], 
+          zipFileName, 
+          { type: 'application/zip' }
         );
-      });
 
-      const file = new File([blob], `umarise-proof-${mark.originId}.jpg`, { type: 'image/jpeg' });
+        const canShareFiles = navigator.canShare?.({ files: [file] });
 
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        toast.success('Saved');
+        if (canShareFiles) {
+          await navigator.share({ files: [file] });
+          toast.success('Saved');
+        } else {
+          await navigator.share({
+            title: `Origin ${displayOriginId}`,
+            text: `Origin certificate for ${displayOriginId}\n\nVerify at verify.umarise.com`,
+          });
+        }
       } else {
+        const blob = new Blob([certificateData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        toast('Long-press image to save', { duration: 3000 });
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `certificate-${displayOriginId}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Downloaded');
       }
     } catch (error) {
-      if ((error as Error).name === 'AbortError') return;
+      if ((error as Error).name === 'AbortError') {
+        setIsSaving(false);
+        return;
+      }
       console.error('[MarkDetailModal] Save error:', error);
       toast.error('Could not save');
     } finally {
       setIsSaving(false);
     }
-  }, [mark.originId, isSaving]);
+  }, [isSaving, displayOriginId, mark.hash, mark.timestamp, passkeyEnabled]);
 
   return (
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-[100] flex items-center justify-center"
-        style={{ background: 'hsl(var(--ritual-surface) / 0.95)' }}
+        style={{ background: 'hsl(var(--ritual-bg) / 0.96)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
         onClick={onClose}
       >
-        {/* Close button */}
+        {/* Close button (✕) top-right */}
         <button
           onClick={onClose}
           className="absolute top-6 right-6 z-10 p-2 rounded-full transition-opacity hover:opacity-60"
-          style={{ background: 'hsl(var(--ritual-gold) / 0.1)' }}
+          style={{ background: 'hsl(var(--ritual-gold) / 0.08)' }}
         >
-          <X className="w-5 h-5 text-ritual-gold opacity-70" />
+          <X className="w-5 h-5 text-ritual-gold opacity-60" />
         </button>
 
-        {/* Content */}
+        {/* Content card */}
         <motion.div
-          ref={certificateRef}
-          className="w-full max-w-[340px] mx-4 rounded-lg p-6 relative overflow-hidden"
-          style={{ 
-            background: 'hsl(var(--ritual-surface))',
-            border: '1px solid hsl(var(--ritual-gold) / 0.15)',
-            boxShadow: '0 0 80px hsl(var(--ritual-gold) / 0.08)',
-          }}
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="w-full max-w-[340px] mx-4 flex flex-col items-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.4, delay: 0.1 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Decorative corners */}
-          <div className="absolute top-3 left-3 w-4 h-4 border-t border-l" 
-               style={{ borderColor: 'hsl(var(--ritual-gold) / 0.25)' }} />
-          <div className="absolute top-3 right-3 w-4 h-4 border-t border-r" 
-               style={{ borderColor: 'hsl(var(--ritual-gold) / 0.25)' }} />
-          <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l" 
-               style={{ borderColor: 'hsl(var(--ritual-gold) / 0.25)' }} />
-          <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r" 
-               style={{ borderColor: 'hsl(var(--ritual-gold) / 0.25)' }} />
-
-          {/* U Seal */}
-          <div className="text-center mb-3">
-            <span className="font-playfair text-2xl text-ritual-gold opacity-70">U</span>
-          </div>
-
-          {/* Thumbnail */}
+          {/* Photo/artifact in golden frame (same frame style as S3) */}
           {mark.imageUrl && (
-            <div 
-              className="w-full aspect-[4/3] mx-auto mb-5 rounded overflow-hidden"
-              style={{ border: '1px solid hsl(var(--ritual-gold) / 0.12)' }}
-            >
-              <img 
-                src={mark.imageUrl} 
-                alt="Marked artifact" 
-                className="w-full h-full object-cover"
+            <div className="relative mb-6">
+              <div 
+                className="w-[250px] h-[190px] rounded-[4px] overflow-hidden"
+              >
+                <img 
+                  src={mark.imageUrl} 
+                  alt="" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Golden frame border */}
+              <div 
+                className="absolute -inset-[3px] rounded-[6px] pointer-events-none"
+                style={{ 
+                  border: '1.5px solid hsl(var(--ritual-gold) / 0.4)',
+                  boxShadow: '0 0 12px hsl(var(--ritual-gold) / 0.08)',
+                }}
               />
             </div>
           )}
 
-          {/* Certificate Data */}
-          <div className="space-y-3 text-center">
-            {/* Origin ID */}
-            <div>
-              <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
-                 style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
-                ORIGIN
-              </p>
-              <p className="font-mono text-sm tracking-wide text-ritual-cream">
-                {mark.originId.toUpperCase().replace('UM-', '')}
-              </p>
-            </div>
-
-            {/* Timestamp */}
-            <div>
-              <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
-                 style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
-                SEALED
-              </p>
-              <p className="font-garamond text-sm" style={{ color: 'hsl(var(--ritual-cream) / 0.75)' }}>
-                {formattedDate} · {formattedTime}
-              </p>
-            </div>
-
-            {/* Hash */}
-            <div>
-              <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
-                 style={{ color: 'hsl(var(--ritual-gold-muted))' }}>
-                FINGERPRINT
-              </p>
-              <p className="font-mono text-[10px]" 
-                 style={{ color: 'hsl(var(--ritual-cream) / 0.45)' }}>
-                {shortHash}
-              </p>
-            </div>
-          </div>
-
-          {/* OTS Status */}
-          <div 
-            className="mt-5 pt-4 flex items-center justify-center gap-2"
-            style={{ borderTop: '1px solid hsl(var(--ritual-gold) / 0.1)' }}
+          {/* "Origin marked" title */}
+          <h2 
+            className="font-playfair text-[22px] text-ritual-gold mb-4"
+            style={{ fontWeight: 300 }}
           >
-            <span style={{ color: otsStatus.color }}>{otsStatus.icon}</span>
-            <p className="font-mono text-[10px] tracking-wide" style={{ color: otsStatus.color }}>
-              {otsStatus.text}
-            </p>
+            Origin marked
+          </h2>
+
+          {/* Origin ID — JetBrains Mono 9px */}
+          <p 
+            className="font-mono text-[9px] tracking-[2.5px] uppercase mb-2"
+            style={{ color: 'hsl(var(--ritual-gold-muted))' }}
+          >
+            ORIGIN {displayOriginId}
+          </p>
+
+          {/* Date — EB Garamond 13px */}
+          <p 
+            className="font-garamond text-[13px] mb-3"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
+          >
+            {formattedDate} · {formattedTime}
+          </p>
+
+          {/* Separator */}
+          <div 
+            className="w-10 h-[1px] mb-3"
+            style={{ background: 'hsl(var(--ritual-gold) / 0.2)' }}
+          />
+
+          {/* Hash — JetBrains Mono 9px, 0.5 opacity */}
+          <p 
+            className="font-mono text-[9px] tracking-wide mb-3"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.5)' }}
+          >
+            {shortHash}
+          </p>
+
+          {/* Status: pulsing dot + text */}
+          <div className="flex items-center gap-2 mb-6">
+            {isAnchored ? (
+              <>
+                {/* Solid dot for anchored */}
+                <span 
+                  className="w-[6px] h-[6px] rounded-full"
+                  style={{ background: 'hsl(var(--ritual-gold))' }}
+                />
+                <p 
+                  className="font-mono text-[9px] tracking-[1.5px] uppercase"
+                  style={{ color: 'hsl(var(--ritual-gold))' }}
+                >
+                  ANCHORED IN BITCOIN
+                </p>
+              </>
+            ) : (
+              <>
+                {/* Pulsing dot for pending */}
+                <motion.span 
+                  className="w-[6px] h-[6px] rounded-full"
+                  style={{ background: 'hsl(var(--ritual-gold))' }}
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <p 
+                  className="font-mono text-[9px] tracking-[1.5px] uppercase"
+                  style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
+                >
+                  PENDING BITCOIN ANCHOR
+                </p>
+              </>
+            )}
           </div>
 
-          {/* Download button (when anchored) */}
-          {otsStatus.canDownload && (
-            <motion.div 
-              className="mt-4 flex justify-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <button
-                onClick={handleDownloadCertificate}
-                disabled={isSaving}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-garamond text-sm
-                           transition-all disabled:opacity-50"
-                style={{
-                  background: 'hsl(var(--ritual-gold) / 0.15)',
-                  border: '1px solid hsl(var(--ritual-gold) / 0.35)',
-                  color: 'hsl(var(--ritual-gold))',
-                }}
-              >
-                <Download className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Download proof'}
-              </button>
-            </motion.div>
-          )}
+          {/* "Save as ZIP" button — gold, pill-shaped, always available */}
+          <button
+            onClick={handleSaveAsZip}
+            disabled={isSaving}
+            className="font-playfair text-[14px] px-7 py-2.5 rounded-full transition-all disabled:opacity-50 mb-4"
+            style={{
+              fontWeight: 300,
+              background: 'hsl(var(--ritual-gold) / 0.12)',
+              border: '1px solid hsl(var(--ritual-gold) / 0.35)',
+              color: 'hsl(var(--ritual-gold) / 0.85)',
+            }}
+          >
+            {isSaving ? 'Saving...' : 'Save as ZIP'}
+          </button>
 
-          {/* Footer whisper */}
-          <p className="mt-4 font-garamond italic text-[9px] text-center"
-             style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}>
-            sealed on your device · verified on Bitcoin
+          {/* Passkey toggle: "Include passkey signature" */}
+          <div className="flex items-center gap-3 mb-2">
+            <button
+              onClick={() => setPasskeyEnabled(!passkeyEnabled)}
+              className="relative w-[36px] h-[18px] rounded-full transition-all duration-300"
+              style={{
+                background: passkeyEnabled 
+                  ? 'hsl(var(--ritual-gold) / 0.35)' 
+                  : 'hsl(var(--ritual-cream) / 0.1)',
+                border: `1px solid ${passkeyEnabled 
+                  ? 'hsl(var(--ritual-gold) / 0.5)' 
+                  : 'hsl(var(--ritual-cream) / 0.15)'}`,
+              }}
+            >
+              <motion.div
+                className="absolute top-[2px] w-[12px] h-[12px] rounded-full"
+                style={{
+                  background: passkeyEnabled 
+                    ? 'hsl(var(--ritual-gold))' 
+                    : 'hsl(var(--ritual-cream) / 0.3)',
+                }}
+                animate={{ left: passkeyEnabled ? 19 : 2 }}
+                transition={{ duration: 0.2 }}
+              />
+            </button>
+            <span 
+              className="font-garamond text-[12px]"
+              style={{ color: 'hsl(var(--ritual-cream) / 0.5)' }}
+            >
+              Include passkey signature
+            </span>
+          </div>
+
+          {/* Passkey hint — only visible when toggle active, 10.5px italic */}
+          <AnimatePresence>
+            {passkeyEnabled && (
+              <motion.p
+                className="font-garamond italic text-[10.5px] text-center max-w-[260px] mb-3 leading-relaxed"
+                style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                Links this origin to your identity via Face ID / fingerprint. No names, no emails.
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          {/* Privacy note */}
+          <p 
+            className="font-garamond italic text-[10px] mt-3"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
+          >
+            your file stays on your device · only the proof leaves
           </p>
         </motion.div>
       </motion.div>
