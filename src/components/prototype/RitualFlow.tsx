@@ -125,8 +125,11 @@ export function RitualFlow() {
   }, [goToScreen]);
 
   const handleCloseWall = useCallback(() => {
-    goToScreen(previousScreen);
-  }, [previousScreen, goToScreen]);
+    // Always return to capture (S1) — the ritual's home base.
+    // previousScreen may point to transient screens (zip, owned) whose
+    // state has been cleared, which would render a black screen.
+    goToScreen('capture');
+  }, [goToScreen]);
 
   const showOriginButton = screen === 'capture' || screen === 'pause' || screen === 'mark';
 

@@ -256,16 +256,16 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <h1 
-          className="font-playfair text-[17px] tracking-[4px] uppercase"
-          style={{ fontWeight: 300, color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
+          className="font-playfair text-[20px] tracking-[5px] uppercase"
+          style={{ fontWeight: 300, color: 'hsl(var(--ritual-gold-muted))', opacity: 0.6 }}
         >
           Marked Origins
         </h1>
 
-        {/* Hint — 12px EB Garamond italic, low opacity */}
+        {/* Hint — EB Garamond italic */}
         <p 
-          className="font-garamond italic text-[14px] mt-2 text-center px-8"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
+          className="font-garamond italic text-[16px] mt-2.5 text-center px-8"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         >
           Tap an origin to view, save as ZIP, or link your passkey.
         </p>
