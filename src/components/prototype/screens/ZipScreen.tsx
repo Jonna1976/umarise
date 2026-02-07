@@ -37,16 +37,19 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       const success = await saveOriginZip({ originId, hash, timestamp, imageUrl });
 
       if (!success) {
-        // User cancelled share sheet
+        // User cancelled share sheet — stay on screen, let them retry
         setIsSaving(false);
         return;
       }
 
+      // Always advance the ritual flow — ZIP is generated
       setSaved(true);
       setTimeout(() => onComplete(), 1200);
     } catch (error) {
       console.error('[ZipScreen] Save error:', error);
-      setIsSaving(false);
+      // Even on error: advance the flow. The ZIP can be re-downloaded from the Wall.
+      setSaved(true);
+      setTimeout(() => onComplete(), 1200);
     }
   }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete]);
 
