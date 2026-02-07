@@ -15,10 +15,16 @@
  * - Close button (✕) top-right
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { saveOriginZip } from '@/lib/originZip';
+import { 
+  registerPasskey, 
+  signHash, 
+  isWebAuthnSupported,
+  type PasskeyCredential,
+} from '@/lib/webauthn';
 
 interface MarkDetailModalProps {
   mark: {
@@ -37,6 +43,11 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [saved, setSaved] = useState(false);
   const [passkeyLinked, setPasskeyLinked] = useState(false);
   const [passkeyLinking, setPasskeyLinking] = useState(false);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  
+  // Store credential data for signing and ZIP inclusion
+  const credentialRef = useRef<PasskeyCredential | null>(null);
+  const signatureRef = useRef<string | null>(null);
 
   // Format date per briefing: "7 February 2026 · 20:35"
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
@@ -59,24 +70,33 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
   const isAnchored = mark.otsStatus === 'anchored';
 
-  // Handle ZIP save via shared utility
+  // Handle ZIP save via shared utility — includes real passkey data when linked
   const handleSaveAsZip = useCallback(async () => {
     if (isSaving) return;
     setIsSaving(true);
 
     try {
+      // If passkey is linked but not yet signed, sign the hash now
+      if (passkeyLinked && credentialRef.current && !signatureRef.current) {
+        try {
+          const sig = await signHash(credentialRef.current.credentialId, mark.hash);
+          signatureRef.current = sig.signature;
+        } catch (e) {
+          console.warn('[MarkDetailModal] Hash signing skipped:', e);
+        }
+      }
+
       const success = await saveOriginZip({
         originId: mark.originId,
         hash: mark.hash,
         timestamp: mark.timestamp,
         imageUrl: mark.imageUrl ?? null,
-        claimedBy: passkeyLinked ? '(passkey-public-key)' : null,
-        signature: passkeyLinked ? '(passkey-signature)' : null,
+        claimedBy: credentialRef.current?.publicKey ?? null,
+        signature: signatureRef.current ?? null,
       });
 
       if (success) {
         setSaved(true);
-        // Reset after 2.5s per reference
         setTimeout(() => setSaved(false), 2500);
       }
     } catch (error) {
@@ -86,18 +106,44 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     }
   }, [isSaving, mark.originId, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
 
-  // Handle passkey link — subtle text interaction
-  const handlePasskeyLink = useCallback(() => {
+  // Handle passkey link — real WebAuthn registration + signing
+  const handlePasskeyLink = useCallback(async () => {
     if (passkeyLinked || passkeyLinking) return;
+    setPasskeyError(null);
     setPasskeyLinking(true);
-    
-    // In production: trigger navigator.credentials.create() for Face ID/fingerprint
-    // For prototype: simulate authentication delay
-    setTimeout(() => {
+
+    try {
+      // Step 1: Register a new passkey (Face ID / fingerprint / Windows Hello)
+      const credential = await registerPasskey(mark.originId);
+      credentialRef.current = credential;
+
+      // Step 2: Immediately sign the origin hash with the new credential
+      const sig = await signHash(credential.credentialId, mark.hash);
+      signatureRef.current = sig.signature;
+
       setPasskeyLinked(true);
+      console.info('[MarkDetailModal] Passkey linked:', {
+        credentialId: credential.credentialId.substring(0, 12) + '…',
+        algorithm: credential.publicKeyAlgorithm,
+        signed: true,
+      });
+    } catch (error) {
+      const err = error as Error;
+      // NotAllowedError = user cancelled the biometric prompt
+      if (err.name === 'NotAllowedError') {
+        console.info('[MarkDetailModal] Passkey cancelled by user');
+      } else {
+        console.error('[MarkDetailModal] Passkey error:', err);
+        setPasskeyError(
+          isWebAuthnSupported()
+            ? 'Passkey registration failed'
+            : 'Passkeys not supported on this device'
+        );
+      }
+    } finally {
       setPasskeyLinking(false);
-    }, 1500);
-  }, [passkeyLinked, passkeyLinking]);
+    }
+  }, [passkeyLinked, passkeyLinking, mark.originId, mark.hash]);
 
   return (
     <AnimatePresence>
@@ -243,23 +289,33 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           {/* "+ link passkey" — subtle text link, NOT a toggle */}
           <button
             onClick={handlePasskeyLink}
-            disabled={passkeyLinked}
-            className="font-garamond text-[12px] tracking-[0.3px] transition-all mb-2.5"
+            disabled={passkeyLinked || passkeyLinking}
+            className="font-garamond text-[12px] tracking-[0.3px] transition-all mb-1"
             style={{ 
               color: passkeyLinked 
                 ? 'hsl(var(--ritual-gold))' 
                 : 'hsl(var(--ritual-gold-muted))',
               opacity: passkeyLinked ? 0.6 : 0.35,
-              cursor: passkeyLinked ? 'default' : 'pointer',
+              cursor: (passkeyLinked || passkeyLinking) ? 'default' : 'pointer',
             }}
           >
             {passkeyLinking 
-              ? 'Authenticating...' 
+              ? 'Authenticating…' 
               : passkeyLinked 
                 ? '✓ passkey linked' 
                 : '+ link passkey'
             }
           </button>
+
+          {/* Passkey error message (subtle, non-intrusive) */}
+          {passkeyError && (
+            <p 
+              className="font-mono text-[9px] tracking-wide mb-1"
+              style={{ color: 'hsl(0 60% 60% / 0.6)' }}
+            >
+              {passkeyError}
+            </p>
+          )}
 
           {/* Privacy note */}
           <p 
