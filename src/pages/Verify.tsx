@@ -220,7 +220,7 @@ export default function Verify() {
     await delay(200);
 
     if (cert.claimed_by && cert.signature) {
-      updateStep('claim', 'done', 'Passkey claim found — signature present');
+      updateStep('claim', 'done', 'Passkey claim found, signature present');
     } else {
       updateStep('claim', 'done', 'Anonymous origin (no passkey)');
     }
@@ -431,7 +431,7 @@ export default function Verify() {
           {
             num: '1',
             title: 'Drop',
-            text: 'Drop the Origin ZIP you received. It contains the original file, a certificate with the Origin ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser — nothing is uploaded.',
+            text: 'Drop the Origin ZIP you received. It contains the original file, a certificate with the Origin ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
           },
           {
             num: '2',
@@ -440,19 +440,19 @@ export default function Verify() {
           },
           {
             num: '3',
-            title: 'Download the proof',
+            title: 'Keep the proof',
             text: (
               <>
-                If the origin is anchored in Bitcoin, a download button appears in the result:{' '}
-                <strong className="text-ritual-cream">↓ Download proof.ots</strong>. This is an{' '}
+                If the origin is anchored in Bitcoin, the result shows a download button:{' '}
+                <strong className="text-ritual-cream">↓ Download proof.ots</strong>. This{' '}
                 <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
                   OpenTimestamps
                 </a>{' '}
-                proof — a small file you can keep forever. You can verify it yourself against the Bitcoin blockchain using the{' '}
+                file is yours to keep. Verify it against the Bitcoin blockchain with the{' '}
                 <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
                   OTS verifier
                 </a>{' '}
-                or any Bitcoin full node. No Umarise needed.
+                or any full node. No Umarise needed.
               </>
             ),
           },
@@ -479,10 +479,10 @@ export default function Verify() {
             This file existed at the registered time. That fact is anchored in the Bitcoin blockchain and independently verifiable.
           </p>
           <p className="text-[13px] text-ritual-cream-40 leading-relaxed">
-            If a passkey was used, it also proves someone claimed this origin with their device's secure enclave — a cryptographic signature, not a name or identity.
+            If a passkey was used, it also proves someone claimed this origin with their device's secure enclave. A cryptographic signature, not a name or identity.
           </p>
           <p className="text-[13px] text-ritual-cream-40 leading-relaxed mt-3">
-            An origin does not prove first creation or exclusivity — the same file could be registered elsewhere. The{' '}
+            An origin does not prove first creation or exclusivity. The same file could be registered elsewhere. The{' '}
             <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline">
               .ots proof
             </a>{' '}

@@ -26,7 +26,7 @@ export function VerifyHashDisplay({ hash, matchStatus }: VerifyHashDisplayProps)
       )}
       {matchStatus === 'mismatch' && (
         <div className="font-mono text-[9px] mt-1.5 text-verify-red">
-          ✗ Hash does not match certificate — file may have been modified
+          ✗ Hash does not match certificate. File may have been modified
         </div>
       )}
     </motion.div>
