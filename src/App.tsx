@@ -33,7 +33,7 @@ import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import Why from "./pages/Why";
 import Install from "./pages/Install";
-import PartnerDashboard from "./pages/PartnerDashboard";
+
 import WitnessConfirmation from "./pages/WitnessConfirmation";
 import Verify from "./pages/Verify";
 import Legal from "./pages/Legal";
@@ -60,8 +60,6 @@ const App = () => (
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
-            <Route path="/intake" element={<Intake />} />
-            <Route path="/spec" element={<Intake />} />
             <Route path="/origin" element={<Origin />} />
             <Route path="/core" element={<CoreSpec />} />
             <Route path="/proof" element={<ProofPage />} />
@@ -70,7 +68,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/why" element={<Why />} />
             <Route path="/install" element={<Install />} />
-            <Route path="/dashboard" element={<PartnerDashboard />} />
+            
             <Route path="/verify" element={<Verify />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
@@ -79,7 +77,7 @@ const App = () => (
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
             <Route path="/pilot-tracker" element={<PinGate><PilotTracker /></PinGate>} />
             <Route path="/prototype" element={<PinGate><Prototype /></PinGate>} />
-            <Route path="/dashboard" element={<PinGate><PartnerDashboard /></PinGate>} />
+            <Route path="/intake" element={<PinGate><Intake /></PinGate>} />
             <Route path="/pilot" element={<PinGate><PilotDocs /></PinGate>} />
             <Route path="/intake" element={<PinGate><Intake /></PinGate>} />
             <Route path="/spec" element={<PinGate><Intake /></PinGate>} />
