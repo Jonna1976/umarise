@@ -172,7 +172,31 @@ export function useMarks() {
         syncStatus: 'queued',
       });
 
-      // Step 6: Sync hash to Supabase (no image data!)
+      // Step 6: Upload tiny thumbnail to storage (visual fallback)
+      let thumbnailPublicUrl: string | null = null;
+      try {
+        const storagePath = `${deviceUserId}/${localMark.id}.jpg`;
+        const { error: uploadError } = await supabase.storage
+          .from('thumbnails')
+          .upload(storagePath, thumbnailBlob, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+        
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('thumbnails')
+            .getPublicUrl(storagePath);
+          thumbnailPublicUrl = urlData.publicUrl;
+          console.log('[createMark] Thumbnail uploaded to storage');
+        } else {
+          console.warn('[createMark] Thumbnail upload failed:', uploadError);
+        }
+      } catch (e) {
+        console.warn('[createMark] Thumbnail upload error:', e);
+      }
+
+      // Step 7: Sync hash to Supabase (no original image data!)
       console.log('[createMark] Syncing hash to Supabase...');
       const { error: supabaseError } = await supabase
         .from('pages')
@@ -184,6 +208,7 @@ export function useMarks() {
           origin_hash_sha256: hash,
           origin_hash_algo: 'sha256',
           device_fingerprint_hash: deviceFingerprint,
+          thumbnail_uri: thumbnailPublicUrl || null,
           ocr_text: '',
           is_trashed: false,
         } as any);
@@ -248,30 +273,35 @@ export function useMarks() {
     if (!deviceUserId) return 0;
 
     try {
-      // Fetch legacy pages with image_url
-      const { data: legacyPages, error } = await supabase
+      // Fetch all pages for this device (legacy with image_url OR v4 with thumbnail_uri)
+      const { data: allPages, error } = await supabase
         .from('pages')
-        .select('id, image_url, origin_hash_sha256, created_at')
+        .select('id, image_url, origin_hash_sha256, created_at, thumbnail_uri')
         .eq('device_user_id', deviceUserId)
         .eq('is_trashed', false)
-        .not('image_url', 'eq', '')
         .order('created_at', { ascending: false });
 
-      if (error || !legacyPages) {
+      if (error || !allPages) {
         console.warn('[importLegacyMarks] Fetch failed:', error);
         return 0;
       }
 
       let imported = 0;
-      for (const page of legacyPages) {
+      for (const page of allPages) {
+        // Skip pages with no image source at all
+        const hasLegacyImage = page.image_url && page.image_url !== '';
+        const hasThumbnail = page.thumbnail_uri && page.thumbnail_uri !== '';
+        if (!hasLegacyImage && !hasThumbnail) continue;
+
         // Check if already in IndexedDB
         const existing = await getMark(page.id);
         if (existing) continue;
 
-        // Import as legacy mark
+        // Import — use thumbnail_uri as fallback when image_url is empty
+        const displayUrl = hasLegacyImage ? page.image_url : (page.thumbnail_uri || '');
         await importLegacyPage({
           id: page.id,
-          imageUrl: page.image_url,
+          imageUrl: displayUrl,
           hash: page.origin_hash_sha256 || '',
           createdAt: new Date(page.created_at),
         });
