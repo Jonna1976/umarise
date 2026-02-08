@@ -117,7 +117,7 @@ export default function CoreSpec() {
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id</span></div>
                   <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">Binary .ots file</span> <span className="text-landing-muted/50">(200), pending status (202), or 404</span></div>
                   <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
-                  <div><span className="text-landing-muted/50">Note:</span> <span className="text-landing-muted/60">OpenTimestamps proof for trustless verification (Phase 2)</span></div>
+                  <div><span className="text-landing-muted/50">Note:</span> <span className="text-landing-muted/60">Returns the OpenTimestamps proof file for trustless, independent verification against the Bitcoin blockchain.</span></div>
                 </div>
               </div>
 
