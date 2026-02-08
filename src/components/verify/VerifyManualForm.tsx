@@ -29,7 +29,7 @@ export function VerifyManualForm({
       <div className="text-center mt-8">
         <button
           onClick={onToggle}
-          className="font-garamond italic text-[13px] text-ritual-gold-muted bg-transparent border-none cursor-pointer transition-colors hover:text-ritual-gold p-1"
+          className="text-sm text-landing-muted/50 bg-transparent border-none cursor-pointer transition-colors hover:text-landing-cream p-1"
         >
           No ZIP? Enter Origin ID and hash manually
         </button>
@@ -48,7 +48,7 @@ export function VerifyManualForm({
             <div className="mt-6">
               {/* Origin ID field */}
               <div className="mb-4">
-                <label className="font-mono text-[9px] tracking-[2px] uppercase text-ritual-gold-muted mb-2 block">
+                <label className="font-mono text-[10px] tracking-[2px] uppercase text-landing-muted/50 mb-2 block">
                   Origin ID
                 </label>
                 <input
@@ -56,16 +56,16 @@ export function VerifyManualForm({
                   value={originId}
                   onChange={(e) => onOriginIdChange(e.target.value)}
                   placeholder="UUID from certificate.json (optional)"
-                  className="w-full py-3.5 px-4 font-mono text-[13px] font-light bg-ritual-surface border border-ritual-gold/[0.08] text-ritual-cream outline-none transition-colors focus:border-ritual-gold/30 placeholder:text-ritual-cream-20"
+                  className="w-full py-3.5 px-4 font-mono text-[13px] font-light bg-landing-muted/5 border border-landing-muted/10 text-landing-cream outline-none transition-colors focus:border-landing-copper/30 placeholder:text-landing-muted/30 rounded"
                 />
-                <p className="font-garamond italic text-xs text-ritual-gold/30 mt-1.5">
+                <p className="text-xs text-landing-muted/30 mt-1.5">
                   Optional. Used for proof retrieval
                 </p>
               </div>
 
               {/* Hash field */}
               <div className="mb-4">
-                <label className="font-mono text-[9px] tracking-[2px] uppercase text-ritual-gold-muted mb-2 block">
+                <label className="font-mono text-[10px] tracking-[2px] uppercase text-landing-muted/50 mb-2 block">
                   SHA-256 Hash
                 </label>
                 <input
@@ -73,7 +73,7 @@ export function VerifyManualForm({
                   value={hash}
                   onChange={(e) => onHashChange(e.target.value)}
                   placeholder="64-character hex string"
-                  className="w-full py-3.5 px-4 font-mono text-[13px] font-light bg-ritual-surface border border-ritual-gold/[0.08] text-ritual-cream outline-none transition-colors focus:border-ritual-gold/30 placeholder:text-ritual-cream-20"
+                  className="w-full py-3.5 px-4 font-mono text-[13px] font-light bg-landing-muted/5 border border-landing-muted/10 text-landing-cream outline-none transition-colors focus:border-landing-copper/30 placeholder:text-landing-muted/30 rounded"
                 />
               </div>
 
@@ -81,7 +81,7 @@ export function VerifyManualForm({
               <button
                 onClick={onVerify}
                 disabled={!canVerify}
-                className="w-full py-3.5 font-mono text-[10px] tracking-[4px] uppercase bg-transparent text-ritual-gold border border-ritual-gold/25 cursor-pointer transition-all duration-300 hover:border-ritual-gold hover:bg-ritual-gold/[0.04] disabled:opacity-30 disabled:cursor-not-allowed mt-2"
+                className="w-full py-3.5 font-mono text-[10px] tracking-[4px] uppercase bg-transparent text-landing-copper border border-landing-copper/25 cursor-pointer transition-all duration-300 hover:border-landing-copper hover:bg-landing-muted/5 disabled:opacity-30 disabled:cursor-not-allowed mt-2 rounded"
               >
                 Verify
               </button>
