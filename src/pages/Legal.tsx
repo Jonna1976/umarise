@@ -16,7 +16,7 @@ const dataModel = [
   { field: 'origin_id', type: 'text', description: '8-character hexadecimal identifier' },
   { field: 'created_at', type: 'timestamp', description: 'Server time when the hash was received' },
   { field: 'ots_proof', type: 'text', description: 'Base64-encoded .ots file (after Bitcoin confirmation)' },
-  { field: 'ots_status', type: 'text', description: '"pending" or "verified"' },
+  { field: 'ots_status', type: 'text', description: '"pending" or "anchored"' },
   { field: 'bitcoin_block', type: 'integer', description: 'Block height (after confirmation)' },
   { field: 'user_id', type: 'uuid', description: 'Nullable. Present only if a passkey was used.' },
 ];
@@ -31,16 +31,20 @@ const chainSteps = [
     text: 'The hash is recorded with a timestamp and assigned an origin_id. Status: "pending".',
   },
   {
+    label: 'Batch aggregation',
+    text: 'A background worker collects pending hashes and aggregates them into a Merkle tree.',
+  },
+  {
     label: 'OpenTimestamps',
-    text: 'The hash is submitted to OTS calendar servers. Calendar servers aggregate thousands of hashes into a Merkle tree.',
+    text: 'The Merkle root of the batch is submitted to OTS calendar servers.',
   },
   {
     label: 'Bitcoin',
-    text: 'The Merkle root is written to a Bitcoin transaction. Confirmation takes 1 to 2 blocks (10 to 20 minutes).',
+    text: 'The Merkle root is embedded in a Bitcoin transaction. Confirmation takes 1 to 2 blocks (10 to 20 minutes).',
   },
   {
     label: 'Proof file',
-    text: 'An .ots file is generated containing the complete cryptographic path from the original hash to the Bitcoin block. Status changes to "verified".',
+    text: 'An .ots file is generated containing the complete cryptographic path from the original hash to the Bitcoin block. Status changes to "anchored".',
   },
 ];
 
@@ -249,10 +253,48 @@ export default function Legal() {
             </div>
           </section>
 
-          {/* Section 7: Verification */}
+          {/* Section 7: Independent Verification */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Verification
+              Independent Verification
+            </h2>
+            <p className="mb-4">
+              A third party who receives a file and its certificate can verify the origin independently. Two scenarios apply, depending on the anchoring status at the time the file was shared.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
+                  Origin anchored at time of sharing
+                </h3>
+                <p className="text-landing-muted/70">
+                  The .ots proof file is included in the ZIP. The third party has everything needed for independent verification: original file, certificate, and cryptographic proof.
+                </p>
+              </div>
+
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
+                  Origin pending at time of sharing
+                </h3>
+                <p className="text-landing-muted/70">
+                  The .ots proof file is not yet available. The third party has the original file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
+                  <code className="font-mono text-sm text-landing-copper">umarise.com/verify</code>{' '}
+                  using the origin_id from the certificate, or directly via the{' '}
+                  <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
+                  endpoint.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-landing-cream/70">
+              In both cases, final verification requires only the original file, the .ots proof, and a Bitcoin node or standard OTS tooling. No contact with Umarise is required.
+            </p>
+          </section>
+
+          {/* Section 8: API Endpoints */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Verification Endpoints
             </h2>
             <p className="mb-4">
               Any Origin Record can be verified through the public API without authentication.
