@@ -85,8 +85,8 @@ export default function CoreSpec() {
                 <div className="text-landing-copper mb-3">POST /v1-core-origins</div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Permissioned (API key required)</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at, proof_status, proof_url }"}</span></div>
+                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Permissioned (X-API-Key header)</span></div>
                 </div>
               </div>
 
@@ -105,16 +105,16 @@ export default function CoreSpec() {
                 <div className="text-landing-copper mb-3">POST /v1-core-verify</div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or 404</span></div>
+                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at, proof_status, proof_url }"}</span> <span className="text-landing-muted/50">or 404</span></div>
                   <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
                 </div>
               </div>
 
               {/* GET /v1-core-proof */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">GET /v1-core-proof</div>
+                <div className="text-landing-copper mb-3">GET /v1-core-proof?origin_id=&#123;uuid&#125;</div>
                 <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id</span></div>
+                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id (query parameter)</span></div>
                   <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">Binary .ots file</span> <span className="text-landing-muted/50">(200), pending status (202), or 404</span></div>
                   <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
                   <div><span className="text-landing-muted/50">Note:</span> <span className="text-landing-muted/60">Returns the OpenTimestamps proof file for trustless, independent verification against the Bitcoin blockchain.</span></div>
