@@ -59,7 +59,7 @@ export function VerifyManualForm({
                   className="w-full py-3.5 px-4 font-mono text-[13px] font-light bg-ritual-surface border border-ritual-gold/[0.08] text-ritual-cream outline-none transition-colors focus:border-ritual-gold/30 placeholder:text-ritual-cream-20"
                 />
                 <p className="font-garamond italic text-xs text-ritual-gold/30 mt-1.5">
-                  Optional — used for proof retrieval
+                  Optional. Used for proof retrieval
                 </p>
               </div>
 
