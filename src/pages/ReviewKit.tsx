@@ -157,7 +157,7 @@ export default function ReviewKit() {
 }`}
               response={`{
   "origin_id": "fb025c0e-0dc8-4b4f-b795-43177ea2a045",
-  "hash": "a1b2c3d4e5f6...",
+  "hash": "sha256:a1b2c3d4e5f6...",
   "hash_algo": "sha256",
   "captured_at": "2026-02-08T14:22:00Z",
   "proof_status": "pending",
@@ -175,7 +175,7 @@ export default function ReviewKit() {
               endpoint={`/v1-core-resolve?origin_id={uuid}\n/v1-core-resolve?hash={sha256}`}
               response={`{
   "origin_id": "fb025c0e-...",
-  "hash": "a1b2c3d4e5f6...",
+  "hash": "sha256:a1b2c3d4e5f6...",
   "hash_algo": "sha256",
   "captured_at": "2026-02-08T14:22:00Z"
 }`}
@@ -194,7 +194,7 @@ export default function ReviewKit() {
 }`}
               response={`{
   "origin_id": "fb025c0e-...",
-  "hash": "a1b2c3d4e5f6...",
+  "hash": "sha256:a1b2c3d4e5f6...",
   "hash_algo": "sha256",
   "captured_at": "2026-02-08T14:22:00Z",
   "proof_status": "anchored",
@@ -219,9 +219,38 @@ to a Bitcoin transaction. Verifiable with:
 No Umarise software required.`}
             />
 
-            {/* 5. Health */}
+            {/* 5. Partner Proof Data */}
             <ApiBlock
               number={5}
+              title="Partner Proof Data"
+              subtitle="partner endpoint"
+              method="GET"
+              endpoint="/v1-core-origins-proof?origin_id={uuid}"
+              auth="X-API-Key: {api_key}"
+              response={`{
+  "origin_id": "fb025c0e-...",
+  "proof_status": "anchored",
+  "bitcoin_block_height": 884321,
+  "anchored_at": "2026-02-08T16:00:00Z",
+  "ots_proof": "<base64>"
+}`}
+              note="Response (pending): 202 + { &quot;proof_status&quot;: &quot;pending&quot; }"
+            />
+
+            {/* 6. Bulk Proof Export */}
+            <ApiBlock
+              number={6}
+              title="Bulk Proof Export"
+              subtitle="partner endpoint"
+              method="GET"
+              endpoint="/v1-core-proofs-export?status=anchored&limit=100"
+              auth="X-API-Key: {api_key}"
+              response={`Paginated list of proofs. Max 1000 per page. Cursor-based.`}
+            />
+
+            {/* 7. Health */}
+            <ApiBlock
+              number={7}
               title="Health"
               method="GET"
               endpoint="/v1-core-health"
@@ -271,7 +300,9 @@ No Umarise software required.`}
                 <AccessRow method="POST" endpoint="/v1-core-origins" access="API key required" permissioned />
                 <AccessRow method="GET" endpoint="/v1-core-resolve" access="Public" />
                 <AccessRow method="POST" endpoint="/v1-core-verify" access="Public" />
-                <AccessRow method="GET" endpoint="/v1-core-proof" access="Public" />
+                <AccessRow method="GET" endpoint="/v1-core-proof" access="Public (raw .ots binary)" />
+                <AccessRow method="GET" endpoint="/v1-core-origins-proof" access="API key required (partner JSON)" permissioned />
+                <AccessRow method="GET" endpoint="/v1-core-proofs-export" access="API key required (bulk export)" permissioned />
                 <AccessRow method="GET" endpoint="/v1-core-health" access="Public" />
               </div>
             </div>
