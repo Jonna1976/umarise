@@ -43,23 +43,23 @@ export function VerifyDropZone({ onFile, isProcessing }: VerifyDropZoneProps) {
       onDrop={handleDrop}
       onClick={handleClick}
       className={`
-        border border-dashed p-12 text-center cursor-pointer transition-all duration-300 relative
+        border border-dashed p-12 text-center cursor-pointer transition-all duration-300 relative rounded
         ${isProcessing 
-          ? 'pointer-events-none border-ritual-gold/30 bg-ritual-surface/50' 
+          ? 'pointer-events-none border-landing-muted/30 bg-landing-muted/5' 
           : isDragOver 
-            ? 'border-ritual-gold/50 bg-ritual-gold/[0.03]' 
-            : 'border-ritual-gold/20 bg-ritual-surface/50 hover:border-ritual-gold/50 hover:bg-ritual-gold/[0.03]'
+            ? 'border-landing-copper/50 bg-landing-muted/5' 
+            : 'border-landing-muted/20 bg-landing-muted/5 hover:border-landing-copper/50 hover:bg-landing-muted/10'
         }
       `}
     >
-      <div className="text-[28px] text-ritual-gold-muted mb-3.5 opacity-40">↑</div>
-      <div className="font-serif font-light text-xl text-ritual-cream mb-2">
+      <div className="text-[28px] text-landing-muted/40 mb-3">↑</div>
+      <div className="font-serif text-xl text-landing-cream mb-2">
         Drop your Origin ZIP
       </div>
-      <p className="text-sm text-ritual-cream-40">
+      <p className="text-sm text-landing-muted/50">
         or a photo, or a certificate.json
       </p>
-      <p className="font-mono text-[9px] tracking-wider text-ritual-gold/30 mt-4">
+      <p className="font-mono text-[10px] tracking-wider text-landing-muted/30 mt-4">
         Nothing leaves your device. The file is read locally.
       </p>
       <input

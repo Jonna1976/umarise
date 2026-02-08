@@ -20,11 +20,11 @@ interface VerifyResultProps {
 
 function ResultRow({ label, value, valueClassName }: { label: string; value: string; valueClassName?: string }) {
   return (
-    <div className="flex justify-between items-baseline py-2 border-b border-ritual-gold/[0.04] last:border-b-0">
-      <span className="font-mono text-[9px] tracking-[2px] uppercase text-ritual-gold-muted flex-shrink-0">
+    <div className="flex justify-between items-baseline py-2 border-b border-landing-muted/10 last:border-b-0">
+      <span className="font-mono text-[10px] tracking-[2px] uppercase text-landing-muted/50 flex-shrink-0">
         {label}
       </span>
-      <span className={`font-mono text-xs font-light text-right break-all ml-5 ${valueClassName || 'text-ritual-cream-70'}`}>
+      <span className={`font-mono text-xs font-light text-right break-all ml-5 ${valueClassName || 'text-landing-cream/70'}`}>
         {value}
       </span>
     </div>
@@ -62,11 +62,11 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       >
         {/* Verified + Anchored */}
         {result.status === 'verified' && (
-          <div className="p-7 border border-verify-green/30 bg-gradient-to-br from-[rgba(15,26,15,0.95)] to-[rgba(20,35,20,0.9)]">
-            <div className="font-serif font-light text-[22px] text-verify-green-bright mb-3">
+          <div className="p-6 border border-verify-green/30 bg-landing-muted/5 rounded">
+            <div className="font-serif text-xl text-verify-green-bright mb-3">
               ✓ Origin Verified
             </div>
-            <p className="text-[15px] font-garamond text-ritual-cream-70 mb-5 leading-relaxed">
+            <p className="text-sm text-landing-cream/70 mb-5 leading-relaxed">
               This file was registered and anchored in the Bitcoin blockchain.
             </p>
 
@@ -78,13 +78,13 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
             )}
 
             {/* Passkey claim section */}
-            <div className="border-t border-ritual-gold/[0.08] mt-1 pt-3">
+            <div className="border-t border-landing-muted/10 mt-1 pt-3">
               {result.claimed_by ? (
                 <>
                   <ResultRow
                     label="Claimed by"
                     value={`${result.claimed_by.substring(0, 20)}...`}
-                    valueClassName="text-ritual-gold"
+                    valueClassName="text-landing-copper"
                   />
                   {result.signature && (
                     <ResultRow
@@ -98,7 +98,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
                 <ResultRow
                   label="Claimed by"
                   value="Anonymous (no passkey)"
-                  valueClassName="text-ritual-cream-20"
+                  valueClassName="text-landing-muted/30"
                 />
               )}
             </div>
@@ -108,7 +108,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               <button
                 onClick={handleDownloadProof}
                 disabled={downloading}
-                className="inline-flex items-center gap-2 mt-5 px-5 py-3 font-mono text-[10px] tracking-[2px] uppercase text-verify-green-bright border border-verify-green/25 bg-transparent cursor-pointer transition-all duration-300 hover:border-verify-green/50 hover:bg-verify-green/[0.04] hover:shadow-[0_0_16px_rgba(90,140,90,0.06)] disabled:opacity-50"
+                className="inline-flex items-center gap-2 mt-5 px-5 py-3 font-mono text-[10px] tracking-[2px] uppercase text-verify-green-bright border border-verify-green/25 bg-transparent cursor-pointer transition-all duration-300 hover:border-verify-green/50 hover:bg-verify-green/[0.04] disabled:opacity-50 rounded"
               >
                 {downloading ? '↓  Downloading...' : '↓  Download proof.ots'}
               </button>
@@ -118,11 +118,11 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
         {/* Pending */}
         {result.status === 'pending' && (
-          <div className="p-7 border border-ritual-gold/20 bg-gradient-to-br from-[rgba(26,22,15,0.95)] to-[rgba(30,25,15,0.9)]">
-            <div className="font-serif font-light text-[22px] text-ritual-gold mb-3">
+          <div className="p-6 border border-landing-copper/20 bg-landing-muted/5 rounded">
+            <div className="font-serif text-xl text-landing-copper mb-3">
               ⧗ Pending
             </div>
-            <p className="text-[15px] font-garamond text-ritual-cream-70 leading-relaxed">
+            <p className="text-sm text-landing-cream/70 leading-relaxed">
               This origin is registered but the Bitcoin proof is not yet ready. This typically takes 10–20 minutes after registration.
             </p>
           </div>
@@ -130,11 +130,11 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
         {/* Not Found */}
         {result.status === 'not_found' && (
-          <div className="p-7 border border-verify-red/20 bg-gradient-to-br from-[rgba(26,15,15,0.95)] to-[rgba(35,20,20,0.9)]">
-            <div className="font-serif font-light text-[22px] text-verify-red mb-3">
+          <div className="p-6 border border-verify-red/20 bg-landing-muted/5 rounded">
+            <div className="font-serif text-xl text-verify-red mb-3">
               Not found
             </div>
-            <p className="text-[15px] font-garamond text-ritual-cream-70 leading-relaxed">
+            <p className="text-sm text-landing-cream/70 leading-relaxed">
               No origin matches this ID and hash. The Origin ID may not exist, or the hash does not match.
             </p>
           </div>
@@ -142,11 +142,11 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
         {/* Hash Mismatch */}
         {result.status === 'mismatch' && (
-          <div className="p-7 border border-verify-red/20 bg-gradient-to-br from-[rgba(26,15,15,0.95)] to-[rgba(35,20,20,0.9)]">
-            <div className="font-serif font-light text-[22px] text-verify-red mb-3">
+          <div className="p-6 border border-verify-red/20 bg-landing-muted/5 rounded">
+            <div className="font-serif text-xl text-verify-red mb-3">
               Hash mismatch
             </div>
-            <p className="text-[15px] font-garamond text-ritual-cream-70 leading-relaxed">
+            <p className="text-sm text-landing-cream/70 leading-relaxed">
               The file in this ZIP does not match the hash recorded in the certificate. The file may have been modified after the origin was created.
             </p>
           </div>
@@ -154,11 +154,11 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
         {/* Error */}
         {result.status === 'error' && (
-          <div className="p-7 border border-verify-red/20 bg-gradient-to-br from-[rgba(26,15,15,0.95)] to-[rgba(35,20,20,0.9)]">
-            <div className="font-serif font-light text-[22px] text-verify-red mb-3">
+          <div className="p-6 border border-verify-red/20 bg-landing-muted/5 rounded">
+            <div className="font-serif text-xl text-verify-red mb-3">
               Verification error
             </div>
-            <p className="text-[15px] font-garamond text-ritual-cream-70 leading-relaxed">
+            <p className="text-sm text-landing-cream/70 leading-relaxed">
               Something went wrong while verifying. Please try again.
             </p>
           </div>
@@ -169,7 +169,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       <div className="text-center mt-6">
         <button
           onClick={onReset}
-          className="font-garamond italic text-sm text-ritual-gold-muted bg-transparent border-none cursor-pointer transition-colors hover:text-ritual-gold"
+          className="text-sm text-landing-muted/50 bg-transparent border-none cursor-pointer transition-colors hover:text-landing-cream"
         >
           Verify another origin
         </button>

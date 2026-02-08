@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import JSZip from 'jszip';
 import { verifyOriginByHash, fetchProofStatus } from '@/lib/coreApi';
 import { VerifyDropZone } from '@/components/verify/VerifyDropZone';
@@ -344,160 +345,140 @@ export default function Verify() {
 
   // ─── Render ───
   return (
-    <div className="min-h-[100dvh] bg-ritual-bg text-ritual-cream font-garamond leading-relaxed">
+    <div className="min-h-screen bg-landing-deep text-landing-cream">
       {/* Header */}
-      <header className="py-7 px-8 flex items-center justify-between border-b border-ritual-gold/[0.06]">
-        <Link to="/" className="font-serif font-light text-sm tracking-[5px] uppercase text-ritual-gold-muted no-underline hover:text-ritual-gold transition-colors">
-          Umarise
-        </Link>
-        <span className="font-mono text-[10px] tracking-[3px] uppercase text-ritual-gold">
-          Verify
-        </span>
+      <header className="border-b border-landing-muted/10">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-landing-muted/50 hover:text-landing-cream transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back</span>
+          </Link>
+          <span className="font-serif text-lg text-landing-cream/80">Umarise</span>
+        </div>
       </header>
 
-      {/* Hero */}
-      <section
-        className="text-center py-20 px-8 relative"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 30%, #1B2B1B, hsl(var(--ritual-bg)) 70%)',
-        }}
-      >
-        {/* Bottom accent line */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-px bg-ritual-gold opacity-30" />
-
-        <h1 className="font-serif font-light text-[38px] text-ritual-cream mb-4 tracking-wide">
-          Verify an Origin
-        </h1>
-        <p className="text-lg text-ritual-cream-70 max-w-[420px] mx-auto mb-10 leading-relaxed">
-          You received a ZIP with an origin claim. Drop it here to verify the registration, check when it was recorded, and download the Bitcoin proof.
-        </p>
+      {/* Content */}
+      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+        {/* Title */}
+        <div className="mb-16">
+          <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
+            Verify an Origin
+          </h1>
+          <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
+            Verify the registration, check when it was recorded, download the Bitcoin proof
+          </p>
+        </div>
 
         {/* USP strip */}
-        <div className="flex justify-center gap-12 flex-wrap max-w-[680px] mx-auto">
-          {[
-            { icon: '◇', title: 'Private', text: 'Your file stays in your browser. Only the hash is checked.' },
-            { icon: '◈', title: 'Independent', text: 'The Bitcoin proof is yours. Verifiable without Umarise.' },
-            { icon: '◉', title: 'One action', text: 'Drop the ZIP. The certificate is read and the registration is verified.' },
-          ].map(usp => (
-            <div key={usp.title} className="text-center max-w-[160px]">
-              <div className="font-serif text-2xl text-ritual-gold mb-2 opacity-80">{usp.icon}</div>
-              <div className="font-mono text-[9px] tracking-[3px] uppercase text-ritual-gold mb-1.5">{usp.title}</div>
-              <p className="text-sm text-ritual-cream-40 leading-snug">{usp.text}</p>
+        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
+          <section>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {[
+                { title: 'Private', text: 'Your file stays in your browser. Only the hash is checked.' },
+                { title: 'Independent', text: 'The Bitcoin proof is yours. Verifiable without Umarise.' },
+                { title: 'One action', text: 'Drop the ZIP. The certificate is read and the registration is verified.' },
+              ].map(usp => (
+                <div key={usp.title} className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                  <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-2">
+                    {usp.title}
+                  </h3>
+                  <p className="text-landing-muted/60 text-sm">{usp.text}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </section>
+
+          {/* Drop zone */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Drop your file
+            </h2>
+            <div className="max-w-xl mx-auto">
+              <VerifyDropZone onFile={handleFile} isProcessing={isProcessing} />
+
+              {/* Process log */}
+              <VerifyProcessLog steps={steps} visible={showSteps} />
+
+              {/* Hash display */}
+              {computedHash && (
+                <VerifyHashDisplay hash={computedHash} matchStatus={hashMatch} />
+              )}
+
+              {/* Result */}
+              {result && (
+                <VerifyResult result={result} onReset={resetAll} />
+              )}
+
+              {/* Manual form (hidden when result is shown) */}
+              {!result && (
+                <VerifyManualForm
+                  isOpen={manualOpen}
+                  onToggle={() => setManualOpen(o => !o)}
+                  originId={manualOriginId}
+                  hash={manualHash}
+                  onOriginIdChange={setManualOriginId}
+                  onHashChange={setManualHash}
+                  onVerify={handleManualVerify}
+                  isVerifying={isVerifying}
+                />
+              )}
+            </div>
+          </section>
+
+          {/* How it works */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              How it works
+            </h2>
+
+            <ul className="space-y-4 pl-4">
+              {[
+                {
+                  label: 'Drop',
+                  text: 'Drop the Origin ZIP you received. It contains the original file, a certificate with the Origin ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
+                },
+                {
+                  label: 'Verify',
+                  text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when it was recorded. If a passkey claim is present, the signature is displayed.',
+                },
+                {
+                  label: 'Keep the proof',
+                  text: 'After verification, if the origin is anchored in Bitcoin, a button appears in the result to download the OpenTimestamps proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with the OTS verifier or any full node. No Umarise needed.',
+                },
+              ].map(step => (
+                <li key={step.label}>
+                  <span className="text-landing-copper">{step.label}</span>
+                  <span className="text-landing-muted/50 ml-2">:</span>
+                  <span className="ml-2">{step.text}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* What an origin proves */}
+          <section className="border-l-2 border-landing-copper/30 pl-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              What an origin proves
+            </h2>
+            <p className="text-landing-cream/90 mb-4">
+              This file existed at the registered time. That fact is anchored in the Bitcoin blockchain and independently verifiable.
+            </p>
+            <p className="text-landing-muted/60 mb-4">
+              If a passkey was used, it also proves someone claimed this origin with their device's secure enclave. A cryptographic signature, not a name or identity.
+            </p>
+            <p className="text-landing-muted/50 text-sm">
+              An origin does not prove first creation or exclusivity. The same file could be registered elsewhere. The .ots proof survives without Umarise. The origin metadata does not.
+            </p>
+          </section>
         </div>
-      </section>
-
-      {/* Main */}
-      <main className="max-w-[520px] mx-auto px-6 pt-14 pb-10">
-        {/* Drop zone */}
-        <VerifyDropZone onFile={handleFile} isProcessing={isProcessing} />
-
-        {/* Process log */}
-        <VerifyProcessLog steps={steps} visible={showSteps} />
-
-        {/* Hash display */}
-        {computedHash && (
-          <VerifyHashDisplay hash={computedHash} matchStatus={hashMatch} />
-        )}
-
-        {/* Result */}
-        {result && (
-          <VerifyResult result={result} onReset={resetAll} />
-        )}
-
-        {/* Manual form (hidden when result is shown) */}
-        {!result && (
-          <VerifyManualForm
-            isOpen={manualOpen}
-            onToggle={() => setManualOpen(o => !o)}
-            originId={manualOriginId}
-            hash={manualHash}
-            onOriginIdChange={setManualOriginId}
-            onHashChange={setManualHash}
-            onVerify={handleManualVerify}
-            isVerifying={isVerifying}
-          />
-        )}
       </main>
 
-      {/* How it works */}
-      <section className="max-w-[520px] mx-auto px-6 pt-14 pb-14 border-t border-ritual-gold/[0.04]">
-        <div className="font-mono text-[9px] tracking-[4px] uppercase text-ritual-gold-muted text-center mb-9">
-          How it works
-        </div>
-
-        {[
-          {
-            num: '1',
-            title: 'Drop',
-            text: 'Drop the Origin ZIP you received. It contains the original file, a certificate with the Origin ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
-          },
-          {
-            num: '2',
-            title: 'Verify',
-            text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when it was recorded. If a passkey claim is present, the signature is displayed.',
-          },
-          {
-            num: '3',
-            title: 'Keep the proof',
-            text: (
-              <>
-                After verification, if the origin is anchored in Bitcoin, a button appears in the result to download the{' '}
-                <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
-                  OpenTimestamps
-                </a>{' '}
-                proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with the{' '}
-                <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
-                  OTS verifier
-                </a>{' '}
-                or any full node. No Umarise needed.
-              </>
-            ),
-          },
-        ].map(step => (
-          <div key={step.num} className="flex gap-5 mb-6 items-start">
-            <span className="font-serif font-light text-xl text-ritual-gold opacity-50 flex-shrink-0 w-6 text-right pt-px">
-              {step.num}
-            </span>
-            <div className="flex-1">
-              <div className="font-serif text-base text-ritual-cream mb-1">{step.title}</div>
-              <p className="text-sm text-ritual-cream-40 leading-relaxed">{step.text}</p>
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* What an origin proves */}
-      <div className="max-w-[520px] mx-auto px-6 pb-20">
-        <div className="p-5 border border-ritual-gold/[0.06] bg-ritual-surface/50">
-          <div className="font-mono text-[8px] tracking-[3px] uppercase text-ritual-gold-muted mb-2.5">
-            What an origin proves
-          </div>
-          <p className="text-[15px] text-ritual-cream mb-3 leading-relaxed">
-            This file existed at the registered time. That fact is anchored in the Bitcoin blockchain and independently verifiable.
-          </p>
-          <p className="text-[13px] text-ritual-cream-40 leading-relaxed">
-            If a passkey was used, it also proves someone claimed this origin with their device's secure enclave. A cryptographic signature, not a name or identity.
-          </p>
-          <p className="text-[13px] text-ritual-cream-40 leading-relaxed mt-3">
-            An origin does not prove first creation or exclusivity. The same file could be registered elsewhere. The{' '}
-            <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline">
-              .ots proof
-            </a>{' '}
-            survives without Umarise. The origin metadata does not.
-          </p>
-        </div>
-      </div>
-
       {/* Footer */}
-      <footer className="py-6 px-8 border-t border-ritual-gold/[0.04] flex justify-between items-center">
-        <span className="font-mono text-[9px] tracking-wider text-ritual-gold/25">
-          umarise.com/verify
-        </span>
-        <span className="font-mono text-[9px] tracking-wider text-ritual-gold/25">
-          Earliest provable occurrence
-        </span>
+      <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
+        <p>© {new Date().getFullYear()} Umarise</p>
       </footer>
     </div>
   );

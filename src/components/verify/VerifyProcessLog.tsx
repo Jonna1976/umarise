@@ -45,7 +45,7 @@ export function VerifyProcessLog({ steps, visible }: VerifyProcessLogProps) {
                 flex items-center gap-2.5 py-1.5 font-mono text-[11px] font-light
                 ${step.status === 'done' ? 'text-verify-green-bright' : ''}
                 ${step.status === 'fail' ? 'text-verify-red' : ''}
-                ${step.status === 'active' ? 'text-ritual-cream-40' : ''}
+                ${step.status === 'active' ? 'text-landing-muted/50' : ''}
               `}
             >
               <StepIcon status={step.status} />
