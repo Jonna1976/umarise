@@ -108,18 +108,26 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
   if (navigator.share) {
     try {
       const file = new File([zipBlob], zipFileName, { type: 'application/zip' });
-      const canShareFiles = navigator.canShare?.({ files: [file] });
-
-      if (canShareFiles) {
-        await navigator.share({ files: [file] });
-        return true;
-      }
+      
+      // Try sharing regardless of canShare result — some browsers support
+      // file sharing without properly implementing canShare for ZIP types
+      const canShare = navigator.canShare?.({ files: [file] });
+      console.log('[originZip] canShare files:', canShare, '— attempting share anyway');
+      
+      await navigator.share({ files: [file] });
+      console.log('[originZip] Share sheet completed successfully');
+      return true;
     } catch (error) {
-      if ((error as Error).name === 'AbortError') {
+      const err = error as Error;
+      if (err.name === 'AbortError') {
+        console.log('[originZip] User cancelled share sheet');
         return false; // User cancelled — not an error
       }
-      console.warn('[originZip] Share API failed:', error);
+      // NotAllowedError or TypeError = files not supported, fall through to download
+      console.warn('[originZip] Share API failed:', err.name, err.message);
     }
+  } else {
+    console.info('[originZip] navigator.share not available');
   }
 
   // Fallback: direct download
