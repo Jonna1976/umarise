@@ -78,13 +78,26 @@ const App = () => (
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<PinGate><Index /></PinGate>} />
             <Route path="/pilot-tracker" element={<PinGate><PilotTracker /></PinGate>} />
+            <Route path="/prototype" element={<PinGate><Prototype /></PinGate>} />
+            <Route path="/dashboard" element={<PinGate><PartnerDashboard /></PinGate>} />
+            <Route path="/pilot" element={<PinGate><PilotDocs /></PinGate>} />
+            <Route path="/intake" element={<PinGate><Intake /></PinGate>} />
+            <Route path="/spec" element={<PinGate><Intake /></PinGate>} />
+            <Route path="/cto-overview" element={<PinGate><CTOOverview /></PinGate>} />
             
-            {/* DEV/PREVIEW ROUTES */}
-            <Route path="/prototype" element={<Prototype />} />
-            <Route path="/origin-flow" element={<B2BWalkthrough />} />
-            <Route path="/landing-variants" element={<LandingVariants />} />
-            <Route path="/widget-design" element={<WidgetMockup />} />
-            <Route path="/origin-mark" element={<UMarkMockup />} />
+            {/* DEV/PREVIEW ROUTES - Behind PinGate */}
+            <Route path="/origin-flow" element={<PinGate><B2BWalkthrough /></PinGate>} />
+            <Route path="/landing-variants" element={<PinGate><LandingVariants /></PinGate>} />
+            <Route path="/widget-design" element={<PinGate><WidgetMockup /></PinGate>} />
+            <Route path="/origin-mark" element={<PinGate><UMarkMockup /></PinGate>} />
+            
+            {/* INTERNAL EXPORT ROUTES - Behind PinGate */}
+            <Route path="/review" element={<PinGate><ReviewKit /></PinGate>} />
+            <Route path="/docs-export" element={<PinGate><DocsExport /></PinGate>} />
+            <Route path="/briefing-export" element={<PinGate><BriefingExport /></PinGate>} />
+            <Route path="/privacy-export" element={<PinGate><PrivacyExport /></PinGate>} />
+            <Route path="/iso-export" element={<PinGate><IsoExport /></PinGate>} />
+            <Route path="/partner-onboarding-export" element={<PinGate><PartnerOnboardingExport /></PinGate>} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
