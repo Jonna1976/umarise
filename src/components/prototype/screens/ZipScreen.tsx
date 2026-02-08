@@ -14,7 +14,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { saveOriginZip } from '@/lib/originZip';
 
 interface ZipScreenProps {
@@ -28,6 +28,9 @@ interface ZipScreenProps {
 export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: ZipScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   const handleSave = useCallback(async () => {
     if (isSaving || saved) return;
@@ -42,16 +45,21 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
         return;
       }
 
+      // On mobile without Web Share file support, show hint about where to find it
+      if (isMobile) {
+        setShowHint(true);
+      }
+
       // Always advance the ritual flow — ZIP is generated
       setSaved(true);
-      setTimeout(() => onComplete(), 1200);
+      setTimeout(() => onComplete(), showHint ? 3000 : 1200);
     } catch (error) {
       console.error('[ZipScreen] Save error:', error);
       // Even on error: advance the flow. The ZIP can be re-downloaded from the Wall.
       setSaved(true);
       setTimeout(() => onComplete(), 1200);
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, showHint]);
 
   return (
     <motion.div
@@ -200,6 +208,23 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       >
         {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
       </motion.button>
+
+      {/* Mobile hint — where to find the ZIP */}
+      <AnimatePresence>
+        {showHint && (
+          <motion.p
+            className="font-garamond italic text-[13px] text-center mt-4 max-w-[260px]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            Tap "Save to Files" to choose where to keep it.
+            You can always re-download from Marked Origins.
+          </motion.p>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
