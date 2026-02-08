@@ -443,12 +443,11 @@ export default function Verify() {
             title: 'Keep the proof',
             text: (
               <>
-                If the origin is anchored in Bitcoin, the result shows a download button:{' '}
-                <strong className="text-ritual-cream">↓ Download proof.ots</strong>. This{' '}
+                After verification, if the origin is anchored in Bitcoin, a button appears in the result to download the{' '}
                 <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
                   OpenTimestamps
                 </a>{' '}
-                file is yours to keep. Verify it against the Bitcoin blockchain with the{' '}
+                proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with the{' '}
                 <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer" className="text-ritual-gold border-b border-ritual-gold/20 no-underline hover:border-ritual-gold/50 transition-colors">
                   OTS verifier
                 </a>{' '}
