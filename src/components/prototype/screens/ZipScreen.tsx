@@ -13,9 +13,9 @@
  * - After save: "✓ Owned" → 1.2s → S6
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { saveOriginZip } from '@/lib/originZip';
+import { saveOriginZip, buildOriginZip } from '@/lib/originZip';
 
 interface ZipScreenProps {
   originId: string;
@@ -29,15 +29,32 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const prebuiltZipRef = useRef<Blob | null>(null);
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // Pre-build the ZIP on mount so navigator.share() fires instantly on tap
+  // (iOS Safari drops user gesture context after async work)
+  useEffect(() => {
+    const input = { originId, hash, timestamp, imageUrl };
+    buildOriginZip(input).then(blob => {
+      prebuiltZipRef.current = blob;
+      console.log('[ZipScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
+    }).catch(err => {
+      console.warn('[ZipScreen] Failed to pre-build ZIP:', err);
+    });
+  }, [originId, hash, timestamp, imageUrl]);
 
   const handleSave = useCallback(async () => {
     if (isSaving || saved) return;
     setIsSaving(true);
 
     try {
-      const success = await saveOriginZip({ originId, hash, timestamp, imageUrl });
+      // Pass the pre-built ZIP blob so navigator.share fires immediately
+      const success = await saveOriginZip(
+        { originId, hash, timestamp, imageUrl },
+        prebuiltZipRef.current || undefined,
+      );
 
       if (!success) {
         // User cancelled share sheet — stay on screen, let them retry

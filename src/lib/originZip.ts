@@ -97,22 +97,26 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
  * Save origin ZIP to device via Web Share API → native share sheet.
  * Falls back to direct download on desktop / unsupported browsers.
  * 
+ * IMPORTANT: Pass a pre-built zipBlob to avoid async work between user gesture
+ * and navigator.share() — iOS Safari drops the gesture context otherwise.
+ * 
  * Returns true if saved/shared successfully, false if cancelled.
  */
-export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
+export async function saveOriginZip(
+  input: OriginZipInput,
+  prebuiltZipBlob?: Blob,
+): Promise<boolean> {
   const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
-  const zipBlob = await buildOriginZip(input);
   const zipFileName = `origin-${cleanId}.zip`;
+  
+  // Use pre-built blob if provided (preserves iOS gesture context), otherwise build now
+  const zipBlob = prebuiltZipBlob || await buildOriginZip(input);
 
   // Try Web Share API with File object (native share sheet)
   if (navigator.share) {
     try {
       const file = new File([zipBlob], zipFileName, { type: 'application/zip' });
-      
-      // Try sharing regardless of canShare result — some browsers support
-      // file sharing without properly implementing canShare for ZIP types
-      const canShare = navigator.canShare?.({ files: [file] });
-      console.log('[originZip] canShare files:', canShare, '— attempting share anyway');
+      console.log('[originZip] Attempting navigator.share with file...');
       
       await navigator.share({ files: [file] });
       console.log('[originZip] Share sheet completed successfully');
@@ -123,7 +127,6 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
         console.log('[originZip] User cancelled share sheet');
         return false; // User cancelled — not an error
       }
-      // NotAllowedError or TypeError = files not supported, fall through to download
       console.warn('[originZip] Share API failed:', err.name, err.message);
     }
   } else {
@@ -131,23 +134,17 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
   }
 
   // Fallback: direct download
-  console.info('[originZip] Share API unavailable or failed — triggering direct download');
+  console.info('[originZip] Falling back to direct download');
   const url = URL.createObjectURL(zipBlob);
-  
-  // Try <a download> first (works on most browsers outside iframes)
   const a = document.createElement('a');
   a.href = url;
   a.download = zipFileName;
   a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
-  
-  // Fallback for iframes where <a download> is blocked: open in new tab
-  // This ensures the file is always accessible, even in preview environments
   setTimeout(() => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, 2000);
-  
   return true;
 }
