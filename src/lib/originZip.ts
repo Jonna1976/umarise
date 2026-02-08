@@ -122,17 +122,7 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
     }
   }
 
-  // iOS Safari: <a download> opens an ugly file-preview page instead of
-  // saving silently. Skip the download on mobile — the ritual flow must
-  // advance cleanly. The ZIP is always re-downloadable from the Wall
-  // detail view via the "Save as ZIP" button.
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    console.info('[originZip] Mobile without Web Share file support — skipping download, ZIP available from Wall');
-    return true;
-  }
-
-  // Desktop fallback: direct download (works reliably on Chrome/Firefox/Edge)
+  // Fallback: direct download (works on all platforms including mobile)
   const url = URL.createObjectURL(zipBlob);
   const a = document.createElement('a');
   a.href = url;
