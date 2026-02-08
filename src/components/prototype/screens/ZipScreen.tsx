@@ -15,7 +15,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { saveOriginZip, buildOriginZip } from '@/lib/originZip';
+import { buildOriginZip } from '@/lib/originZip';
 
 interface ZipScreenProps {
   originId: string;
@@ -29,54 +29,100 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
   const prebuiltZipRef = useRef<Blob | null>(null);
+  const prebuiltFileRef = useRef<File | null>(null);
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  // Pre-build the ZIP on mount so navigator.share() fires instantly on tap
-  // (iOS Safari drops user gesture context after async work)
+  // Pre-build the ZIP AND the File object on mount
+  // iOS Safari requires navigator.share() in the same synchronous call stack as the user gesture
   useEffect(() => {
     const input = { originId, hash, timestamp, imageUrl };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
-      console.log('[ZipScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
+      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+      prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
+      
+      // Debug: check share capabilities
+      const hasShare = !!navigator.share;
+      const canShareFile = hasShare && !!navigator.canShare?.({ files: [prebuiltFileRef.current] });
+      const info = `ZIP: ${Math.round(blob.size / 1024)}KB | share: ${hasShare} | canShare(files): ${canShareFile}`;
+      console.log('[ZipScreen]', info);
+      setDebugInfo(info);
     }).catch(err => {
       console.warn('[ZipScreen] Failed to pre-build ZIP:', err);
     });
   }, [originId, hash, timestamp, imageUrl]);
 
-  const handleSave = useCallback(async () => {
+  // CRITICAL: This handler must call navigator.share() with ZERO awaits before it
+  // iOS Safari invalidates the user gesture context after any microtask boundary
+  const handleSave = useCallback(() => {
     if (isSaving || saved) return;
     setIsSaving(true);
 
-    try {
-      // Pass the pre-built ZIP blob so navigator.share fires immediately
-      const success = await saveOriginZip(
-        { originId, hash, timestamp, imageUrl },
-        prebuiltZipRef.current || undefined,
-      );
-
-      if (!success) {
-        // User cancelled share sheet — stay on screen, let them retry
-        setIsSaving(false);
-        return;
-      }
-
-      // On mobile without Web Share file support, show hint about where to find it
-      if (isMobile) {
-        setShowHint(true);
-      }
-
-      // Always advance the ritual flow — ZIP is generated
-      setSaved(true);
-      setTimeout(() => onComplete(), showHint ? 3000 : 1200);
-    } catch (error) {
-      console.error('[ZipScreen] Save error:', error);
-      // Even on error: advance the flow. The ZIP can be re-downloaded from the Wall.
-      setSaved(true);
-      setTimeout(() => onComplete(), 1200);
+    const file = prebuiltFileRef.current;
+    
+    // Attempt 1: navigator.share with pre-built File (share sheet)
+    if (file && navigator.share) {
+      console.log('[ZipScreen] Calling navigator.share SYNCHRONOUSLY from click...');
+      
+      // NO await here — call share directly, handle promise with .then/.catch
+      navigator.share({ files: [file] })
+        .then(() => {
+          console.log('[ZipScreen] Share sheet completed!');
+          setSaved(true);
+          setTimeout(() => onComplete(), 1200);
+        })
+        .catch((err: Error) => {
+          if (err.name === 'AbortError') {
+            console.log('[ZipScreen] User cancelled');
+            setIsSaving(false);
+            return;
+          }
+          console.warn('[ZipScreen] Share failed:', err.name, err.message);
+          // Fallback to download
+          triggerDownload();
+        });
+      return;
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, showHint]);
+
+    // Attempt 2: direct download fallback
+    console.log('[ZipScreen] No share API or no pre-built file, using download fallback');
+    if (prebuiltZipRef.current) {
+      triggerDownload();
+    } else {
+      // ZIP not ready yet — build and download
+      buildOriginZip({ originId, hash, timestamp, imageUrl }).then(blob => {
+        prebuiltZipRef.current = blob;
+        triggerDownload();
+      });
+    }
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete]);
+
+  const triggerDownload = useCallback(() => {
+    const blob = prebuiltZipRef.current;
+    if (!blob) return;
+    
+    const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `origin-${cleanId}.zip`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 2000);
+
+    if (isMobile) {
+      setShowHint(true);
+    }
+    setSaved(true);
+    setTimeout(() => onComplete(), isMobile ? 3000 : 1200);
+  }, [originId, onComplete, isMobile]);
 
   return (
     <motion.div
@@ -225,6 +271,19 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       >
         {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
       </motion.button>
+
+      {/* Debug info — temporary, remove after testing */}
+      {debugInfo && (
+        <motion.p
+          className="font-mono text-[9px] text-center mt-3 max-w-[300px] break-all"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+        >
+          {debugInfo}
+        </motion.p>
+      )}
 
       {/* Mobile hint — where to find the ZIP */}
       <AnimatePresence>
