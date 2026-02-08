@@ -53,8 +53,10 @@ export default function Landing() {
             <Link to="/why" className="hover:text-landing-muted/60 transition-colors">Why</Link>
           </div>
 
-          {/* Legal documents */}
+          {/* Verification & legal */}
           <div className="flex items-center gap-6 text-base text-landing-muted/35">
+            <Link to="/verify" className="hover:text-landing-muted/55 transition-colors">Verify</Link>
+            <Link to="/legal" className="hover:text-landing-muted/55 transition-colors">Legal</Link>
             <Link to="/privacy" className="hover:text-landing-muted/55 transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-landing-muted/55 transition-colors">Terms</Link>
           </div>
