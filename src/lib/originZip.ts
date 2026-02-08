@@ -122,26 +122,13 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
     }
   }
 
-  // Mobile fallback: open blob URL in new tab so user can save manually.
-  // <a download> doesn't work reliably in iOS Safari iframes/PWAs,
-  // but window.open with a blob URL lets the user tap "Download" in Safari.
+  // iOS Safari: <a download> opens an ugly file-preview page instead of
+  // saving silently. Skip the download on mobile — the ritual flow must
+  // advance cleanly. The ZIP is always re-downloadable from the Wall
+  // detail view via the "Save as ZIP" button.
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (isMobile) {
-    try {
-      const url = URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = zipFileName;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      // Keep URL alive briefly for download to complete
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-      console.info('[originZip] Mobile download triggered via <a download>');
-    } catch (e) {
-      console.warn('[originZip] Mobile download failed:', e);
-    }
+    console.info('[originZip] Mobile without Web Share file support — skipping download, ZIP available from Wall');
     return true;
   }
 
