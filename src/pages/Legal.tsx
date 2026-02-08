@@ -253,7 +253,41 @@ export default function Legal() {
             </div>
           </section>
 
-          {/* Section 7: Independent Verification */}
+          {/* Section 7: Access Model */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Access Model
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
+                  Verification (public)
+                </h3>
+                <p className="text-landing-muted/70">
+                  Any party can look up, verify, and retrieve proof files for any Origin Record. No credentials, no registration, no relationship with Umarise required.
+                </p>
+              </div>
+
+              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
+                  Attestation (permissioned)
+                </h3>
+                <p className="text-landing-muted/70">
+                  Creating an Origin Record requires authorized access. Only identified registrants can submit hashes for attestation.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-landing-cream/70 mb-4">
+              This asymmetry is an integrity constraint, not a commercial restriction. An Origin Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry itself.
+            </p>
+            <p className="text-landing-muted/60">
+              The same principle applies to comparable registries. DNS allows anyone to resolve a domain, but not anyone to register one. Certificate Authorities allow anyone to verify a certificate, but not anyone to issue one. The constraint protects the record.
+            </p>
+          </section>
+
+          {/* Section 8: Independent Verification */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
               Independent Verification
@@ -291,7 +325,7 @@ export default function Legal() {
             </p>
           </section>
 
-          {/* Section 8: API Endpoints */}
+          {/* Section 9: Verification Endpoints */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
               Verification Endpoints
