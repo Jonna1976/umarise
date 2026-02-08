@@ -151,7 +151,7 @@ export default function ReviewKit() {
               subtitle="write-once, permissioned"
               method="POST"
               endpoint="/v1-core-origins"
-              auth="Authorization: Bearer {api_key}"
+              auth="X-API-Key: {api_key}"
               request={`{
   "hash": "a1b2c3d4e5f6..."
 }`}
@@ -159,7 +159,9 @@ export default function ReviewKit() {
   "origin_id": "fb025c0e-0dc8-4b4f-b795-43177ea2a045",
   "hash": "a1b2c3d4e5f6...",
   "hash_algo": "sha256",
-  "captured_at": "2026-02-08T14:22:00Z"
+  "captured_at": "2026-02-08T14:22:00Z",
+  "proof_status": "pending",
+  "proof_url": "/v1-core-origins-proof?origin_id=fb025c0e-..."
 }`}
               note="No UPDATE endpoint exists. Write-once."
             />
@@ -194,7 +196,9 @@ export default function ReviewKit() {
   "origin_id": "fb025c0e-...",
   "hash": "a1b2c3d4e5f6...",
   "hash_algo": "sha256",
-  "captured_at": "2026-02-08T14:22:00Z"
+  "captured_at": "2026-02-08T14:22:00Z",
+  "proof_status": "anchored",
+  "proof_url": "/v1-core-origins-proof?origin_id=fb025c0e-..."
 }`}
               note="Or 404 if not found. Binary: match or no match."
             />
@@ -205,7 +209,7 @@ export default function ReviewKit() {
               title="Download Proof"
               subtitle="public, no auth"
               method="GET"
-              endpoint="/v1-core-proof/{origin_id}"
+              endpoint="/v1-core-proof?origin_id={uuid}"
               response={`200 + binary .ots file (OpenTimestamps proof)
 202 if proof is pending (Bitcoin anchor not yet confirmed)
 404 if not found`}
@@ -267,7 +271,7 @@ No Umarise software required.`}
                 <AccessRow method="POST" endpoint="/v1-core-origins" access="API key required" permissioned />
                 <AccessRow method="GET" endpoint="/v1-core-resolve" access="Public" />
                 <AccessRow method="POST" endpoint="/v1-core-verify" access="Public" />
-                <AccessRow method="GET" endpoint="/v1-core-proof/{id}" access="Public" />
+                <AccessRow method="GET" endpoint="/v1-core-proof" access="Public" />
                 <AccessRow method="GET" endpoint="/v1-core-health" access="Public" />
               </div>
             </div>
