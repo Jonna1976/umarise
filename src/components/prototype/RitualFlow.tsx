@@ -176,7 +176,7 @@ export function RitualFlow() {
           originId={currentArtifact.origin}
           hash={currentArtifact.hash}
           timestamp={currentArtifact.date}
-          imageUrl={currentArtifact.imageUrl}
+          imageUrl={capturedImageUrl}
           onComplete={handleZipComplete}
         />
       )}
