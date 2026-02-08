@@ -54,7 +54,13 @@ export function useMarks() {
     let thumbnailUrl: string | undefined;
     
     if (mark.thumbnail) {
-      thumbnailUrl = URL.createObjectURL(mark.thumbnail);
+      try {
+        thumbnailUrl = URL.createObjectURL(mark.thumbnail);
+      } catch (e) {
+        // Blob may be corrupted or evicted on mobile Safari
+        console.warn('[toDisplayMark] Failed to create blob URL, using remote fallback:', e);
+        thumbnailUrl = undefined;
+      }
     }
 
     return {
@@ -189,6 +195,15 @@ export function useMarks() {
             .getPublicUrl(storagePath);
           thumbnailPublicUrl = urlData.publicUrl;
           console.log('[createMark] Thumbnail uploaded to storage');
+          
+          // Save remote URL back to IndexedDB as fallback for when blobs get evicted
+          const { updateMark } = await import('@/lib/indexedDB');
+          await updateMark({
+            ...localMark,
+            legacyImageUrl: thumbnailPublicUrl,
+          });
+          localMark.legacyImageUrl = thumbnailPublicUrl;
+          console.log('[createMark] Remote thumbnail URL saved to IndexedDB as fallback');
         } else {
           console.warn('[createMark] Thumbnail upload failed:', uploadError);
         }
@@ -288,17 +303,25 @@ export function useMarks() {
 
       let imported = 0;
       for (const page of allPages) {
-        // Skip pages with no image source at all
         const hasLegacyImage = page.image_url && page.image_url !== '';
         const hasThumbnail = page.thumbnail_uri && page.thumbnail_uri !== '';
-        if (!hasLegacyImage && !hasThumbnail) continue;
+        // Prefer thumbnail_uri (v4 marks), fallback to image_url (legacy)
+        const displayUrl = hasThumbnail ? page.thumbnail_uri! : (hasLegacyImage ? page.image_url : '');
 
-        // Check if already in IndexedDB
+        // Check if already in IndexedDB with a valid image source
         const existing = await getMark(page.id);
-        if (existing) continue;
+        if (existing) {
+          // If mark exists but lost its blob AND has no legacyImageUrl, repair it
+          if (!existing.thumbnail && !existing.legacyImageUrl && displayUrl) {
+            const { updateMark } = await import('@/lib/indexedDB');
+            await updateMark({ ...existing, legacyImageUrl: displayUrl });
+            imported++;
+            console.log('[importLegacyMarks] Repaired mark with remote URL:', page.id);
+          }
+          continue;
+        }
 
-        // Import — use thumbnail_uri as fallback when image_url is empty
-        const displayUrl = hasLegacyImage ? page.image_url : (page.thumbnail_uri || '');
+        // Import as new — even marks without images (show as hash+date on Wall)
         await importLegacyPage({
           id: page.id,
           imageUrl: displayUrl,
@@ -310,7 +333,7 @@ export function useMarks() {
 
       if (imported > 0) {
         await loadMarks(); // Refresh display
-        console.log(`[importLegacyMarks] Imported ${imported} legacy marks`);
+        console.log(`[importLegacyMarks] Imported/repaired ${imported} marks`);
       }
 
       return imported;
