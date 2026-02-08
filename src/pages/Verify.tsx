@@ -369,7 +369,7 @@ export default function Verify() {
           Verify an Origin
         </h1>
         <p className="text-lg text-ritual-cream-70 max-w-[420px] mx-auto mb-10 leading-relaxed">
-          You received a ZIP with an origin claim. Drop it here to check if it's real, when it was registered, and download the Bitcoin proof.
+          You received a ZIP with an origin claim. Drop it here to verify the registration, check when it was recorded, and download the Bitcoin proof.
         </p>
 
         {/* USP strip */}
@@ -377,7 +377,7 @@ export default function Verify() {
           {[
             { icon: '◇', title: 'Private', text: 'Your file stays in your browser. Only the hash is checked.' },
             { icon: '◈', title: 'Independent', text: 'The Bitcoin proof is yours. Verifiable without Umarise.' },
-            { icon: '◉', title: 'One action', text: 'Drop the ZIP. We read the certificate and verify everything.' },
+            { icon: '◉', title: 'One action', text: 'Drop the ZIP. The certificate is read and the registration is verified.' },
           ].map(usp => (
             <div key={usp.title} className="text-center max-w-[160px]">
               <div className="font-serif text-2xl text-ritual-gold mb-2 opacity-80">{usp.icon}</div>
@@ -436,7 +436,7 @@ export default function Verify() {
           {
             num: '2',
             title: 'Verify',
-            text: 'We hash the file, compare it with the certificate, check the Umarise registry, and confirm when it was registered. If a passkey claim is present, we show who signed it.',
+            text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when it was recorded. If a passkey claim is present, the signature is displayed.',
           },
           {
             num: '3',
