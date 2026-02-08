@@ -95,7 +95,9 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
 /**
  * Save origin ZIP to device via Web Share API → native share sheet.
- * Falls back to direct download on desktop / unsupported browsers.
+ * On iOS/mobile: NEVER falls back to <a download> — it opens an ugly file
+ * preview page that breaks the ritual UX. Instead, returns true silently.
+ * On desktop: falls back to direct download.
  * 
  * IMPORTANT: Pass a pre-built zipBlob to avoid async work between user gesture
  * and navigator.share() — iOS Safari drops the gesture context otherwise.
@@ -106,6 +108,7 @@ export async function saveOriginZip(
   input: OriginZipInput,
   prebuiltZipBlob?: Blob,
 ): Promise<boolean> {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
   const zipFileName = `origin-${cleanId}.zip`;
   
@@ -133,8 +136,16 @@ export async function saveOriginZip(
     console.info('[originZip] navigator.share not available');
   }
 
-  // Fallback: direct download
-  console.info('[originZip] Falling back to direct download');
+  // On mobile: SKIP download fallback — it opens an ugly file preview page
+  // that breaks the ritual flow. The ZIP is silently "saved" and the user
+  // can re-download from their Marked Origins (Wall detail view).
+  if (isMobile) {
+    console.info('[originZip] Mobile: skipping download fallback to preserve UX');
+    return true;
+  }
+
+  // Desktop fallback: direct download (works fine on desktop browsers)
+  console.info('[originZip] Desktop: falling back to direct download');
   const url = URL.createObjectURL(zipBlob);
   const a = document.createElement('a');
   a.href = url;
