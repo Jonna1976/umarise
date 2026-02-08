@@ -14,8 +14,25 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { buildOriginZip } from '@/lib/originZip';
+
+/** Desktop-only download helper — creates a hidden <a> tag to trigger download */
+function downloadBlob(blob: Blob | null, originId: string) {
+  if (!blob) return;
+  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `origin-${cleanId}.zip`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 2000);
+}
 
 interface ZipScreenProps {
   originId: string;
@@ -28,8 +45,6 @@ interface ZipScreenProps {
 export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: ZipScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string>('');
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -43,13 +58,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       prebuiltZipRef.current = blob;
       const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
       prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
-      
-      // Debug: check share capabilities
-      const hasShare = !!navigator.share;
-      const canShareFile = hasShare && !!navigator.canShare?.({ files: [prebuiltFileRef.current] });
-      const info = `ZIP: ${Math.round(blob.size / 1024)}KB | share: ${hasShare} | canShare(files): ${canShareFile}`;
-      console.log('[ZipScreen]', info);
-      setDebugInfo(info);
+      console.log('[ZipScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
     }).catch(err => {
       console.warn('[ZipScreen] Failed to pre-build ZIP:', err);
     });
@@ -81,24 +90,25 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
             return;
           }
           console.warn('[ZipScreen] Share failed:', err.name, err.message);
-          // On iOS: SKIP download fallback — it opens an ugly file preview page
-          // that breaks the ritual flow. Just mark as saved and continue.
-          // The user can re-download from their Marked Origins (Wall detail view).
+          // On iOS: SKIP download fallback — it opens an ugly file preview page.
+          // On desktop: use <a download> which works fine.
           if (isMobile) {
-            console.log('[ZipScreen] iOS fallback: skipping download, marking as saved');
+            console.log('[ZipScreen] iOS: skipping download, marking as saved');
             setSaved(true);
             setTimeout(() => onComplete(), 1200);
             return;
           }
-          // Desktop: download fallback is fine
-          triggerDownload();
+          // Desktop download fallback
+          downloadBlob(prebuiltZipRef.current, originId);
+          setSaved(true);
+          setTimeout(() => onComplete(), 1200);
         });
       return;
     }
 
     // Attempt 2: On mobile without share API — skip download to preserve UX
     if (isMobile) {
-      console.log('[ZipScreen] Mobile without share API: skipping download, marking as saved');
+      console.log('[ZipScreen] Mobile without share API: marking as saved');
       setSaved(true);
       setTimeout(() => onComplete(), 1200);
       return;
@@ -107,38 +117,17 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
     // Attempt 3: Desktop download fallback
     console.log('[ZipScreen] Desktop fallback: direct download');
     if (prebuiltZipRef.current) {
-      triggerDownload();
+      downloadBlob(prebuiltZipRef.current, originId);
+      setSaved(true);
+      setTimeout(() => onComplete(), 1200);
     } else {
       buildOriginZip({ originId, hash, timestamp, imageUrl }).then(blob => {
-        prebuiltZipRef.current = blob;
-        triggerDownload();
+        downloadBlob(blob, originId);
+        setSaved(true);
+        setTimeout(() => onComplete(), 1200);
       });
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete]);
-
-  const triggerDownload = useCallback(() => {
-    const blob = prebuiltZipRef.current;
-    if (!blob) return;
-    
-    const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `origin-${cleanId}.zip`;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 2000);
-
-    if (isMobile) {
-      setShowHint(true);
-    }
-    setSaved(true);
-    setTimeout(() => onComplete(), isMobile ? 3000 : 1200);
-  }, [originId, onComplete, isMobile]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile]);
 
   return (
     <motion.div
@@ -287,36 +276,6 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       >
         {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
       </motion.button>
-
-      {/* Debug info — temporary, remove after testing */}
-      {debugInfo && (
-        <motion.p
-          className="font-mono text-[9px] text-center mt-3 max-w-[300px] break-all"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
-        >
-          {debugInfo}
-        </motion.p>
-      )}
-
-      {/* Mobile hint — where to find the ZIP */}
-      <AnimatePresence>
-        {showHint && (
-          <motion.p
-            className="font-garamond italic text-[13px] text-center mt-4 max-w-[260px]"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            Tap "Save to Files" to choose where to keep it.
-            You can always re-download from Marked Origins.
-          </motion.p>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
