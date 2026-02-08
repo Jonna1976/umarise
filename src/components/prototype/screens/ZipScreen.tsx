@@ -76,23 +76,39 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
         })
         .catch((err: Error) => {
           if (err.name === 'AbortError') {
-            console.log('[ZipScreen] User cancelled');
+            console.log('[ZipScreen] User cancelled share sheet');
             setIsSaving(false);
             return;
           }
           console.warn('[ZipScreen] Share failed:', err.name, err.message);
-          // Fallback to download
+          // On iOS: SKIP download fallback — it opens an ugly file preview page
+          // that breaks the ritual flow. Just mark as saved and continue.
+          // The user can re-download from their Marked Origins (Wall detail view).
+          if (isMobile) {
+            console.log('[ZipScreen] iOS fallback: skipping download, marking as saved');
+            setSaved(true);
+            setTimeout(() => onComplete(), 1200);
+            return;
+          }
+          // Desktop: download fallback is fine
           triggerDownload();
         });
       return;
     }
 
-    // Attempt 2: direct download fallback
-    console.log('[ZipScreen] No share API or no pre-built file, using download fallback');
+    // Attempt 2: On mobile without share API — skip download to preserve UX
+    if (isMobile) {
+      console.log('[ZipScreen] Mobile without share API: skipping download, marking as saved');
+      setSaved(true);
+      setTimeout(() => onComplete(), 1200);
+      return;
+    }
+
+    // Attempt 3: Desktop download fallback
+    console.log('[ZipScreen] Desktop fallback: direct download');
     if (prebuiltZipRef.current) {
       triggerDownload();
     } else {
-      // ZIP not ready yet — build and download
       buildOriginZip({ originId, hash, timestamp, imageUrl }).then(blob => {
         prebuiltZipRef.current = blob;
         triggerDownload();
