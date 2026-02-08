@@ -1,39 +1,43 @@
 /**
  * API Tester Component
  * 
- * Interactive component that lets partners test the /resolve endpoint live.
- * Shows how to make API calls and displays real responses.
+ * Interactive component that lets technical reviewers test the /v1-core-resolve
+ * endpoint live. Shows cURL command with core.umarise.com and displays real responses.
  */
 
 import { useState } from 'react';
-import { Play, Copy, Check, Loader2, AlertCircle } from 'lucide-react';
+import { Play, Copy, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ApiResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   duration?: number;
 }
 
-// Example origin IDs that are known to exist
-const EXAMPLE_ORIGINS = [
-  { id: 'fb025c0e-0dc8-4b4f-b795-43177ea2a045', label: 'Validation Stack (demo)' },
-];
+const CORE_PUBLIC_URL = 'https://core.umarise.com';
+const EXAMPLE_ORIGIN_ID = 'fb025c0e-0dc8-4b4f-b795-43177ea2a045';
 
 export function ApiTester() {
-  const [originId, setOriginId] = useState(EXAMPLE_ORIGINS[0].id);
+  const [originId, setOriginId] = useState(EXAMPLE_ORIGIN_ID);
   const [hash, setHash] = useState('');
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [copiedCurl, setCopiedCurl] = useState(false);
   const [activeTab, setActiveTab] = useState<'by-id' | 'by-hash'>('by-id');
 
-  const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+  // Internal URL for actual requests (Supabase functions)
+  const internalBaseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+
+  const getQueryParams = () => {
+    return activeTab === 'by-id'
+      ? `origin_id=${originId}`
+      : `hash=${hash}`;
+  };
 
   const handleTest = async () => {
     setLoading(true);
@@ -41,25 +45,10 @@ export function ApiTester() {
     const startTime = Date.now();
 
     try {
-      const params = activeTab === 'by-id' 
-        ? `origin_id=${originId}` 
-        : `hash=${hash}`;
-      
-      const { data, error } = await supabase.functions.invoke('resolve', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: null,
-      });
-
-      // Since invoke doesn't support GET params directly, use fetch
-      const fetchResponse = await fetch(`${baseUrl}/resolve?${params}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const fetchResponse = await fetch(
+        `${internalBaseUrl}/v1-core-resolve?${getQueryParams()}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+      );
 
       const responseData = await fetchResponse.json();
       const duration = Date.now() - startTime;
@@ -73,7 +62,7 @@ export function ApiTester() {
       const duration = Date.now() - startTime;
       setResponse({
         success: false,
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: err instanceof Error ? err.message : 'Network error',
         duration,
       });
     } finally {
@@ -82,10 +71,7 @@ export function ApiTester() {
   };
 
   const getCurlCommand = () => {
-    const params = activeTab === 'by-id' 
-      ? `origin_id=${originId}` 
-      : `hash=${hash}`;
-    return `curl "${baseUrl}/resolve?${params}"`;
+    return `curl "${CORE_PUBLIC_URL}/v1-core-resolve?${getQueryParams()}"`;
   };
 
   const handleCopyCurl = async () => {
@@ -94,39 +80,20 @@ export function ApiTester() {
     setTimeout(() => setCopiedCurl(false), 2000);
   };
 
-  const handleUseExample = (id: string) => {
-    setOriginId(id);
-    setActiveTab('by-id');
-  };
-
   return (
     <div className="space-y-4">
-      {/* Example Origins */}
-      <div className="flex flex-wrap gap-2">
-        <span className="text-codex-cream/50 text-sm">Voorbeelden:</span>
-        {EXAMPLE_ORIGINS.map((example) => (
-          <button
-            key={example.id}
-            onClick={() => handleUseExample(example.id)}
-            className="text-xs px-2 py-1 rounded bg-codex-gold/10 text-codex-gold hover:bg-codex-gold/20 transition-colors"
-          >
-            {example.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tabs for different query types */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'by-id' | 'by-hash')}>
-        <TabsList className="bg-codex-ink/50 border border-codex-cream/10">
-          <TabsTrigger 
-            value="by-id" 
-            className="data-[state=active]:bg-codex-gold/20 data-[state=active]:text-codex-gold"
+        <TabsList className="bg-[hsl(var(--landing-deep))] border border-[hsl(var(--landing-cream)/0.1)]">
+          <TabsTrigger
+            value="by-id"
+            className="data-[state=active]:bg-[hsl(var(--landing-copper)/0.15)] data-[state=active]:text-[hsl(var(--landing-copper))]"
           >
             By Origin ID
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="by-hash"
-            className="data-[state=active]:bg-codex-gold/20 data-[state=active]:text-codex-gold"
+            className="data-[state=active]:bg-[hsl(var(--landing-copper)/0.15)] data-[state=active]:text-[hsl(var(--landing-copper))]"
           >
             By Hash
           </TabsTrigger>
@@ -134,38 +101,40 @@ export function ApiTester() {
 
         <TabsContent value="by-id" className="mt-4">
           <div className="space-y-2">
-            <Label className="text-codex-cream/70">Origin ID (UUID)</Label>
+            <Label className="text-[hsl(var(--landing-cream)/0.6)] text-xs">Origin ID (UUID)</Label>
             <Input
               value={originId}
               onChange={(e) => setOriginId(e.target.value)}
               placeholder="fb025c0e-0dc8-4b4f-b795-43177ea2a045"
-              className="bg-codex-ink/50 border-codex-cream/20 text-codex-cream font-mono text-sm"
+              className="bg-[hsl(var(--landing-deep))] border-[hsl(var(--landing-cream)/0.15)] text-[hsl(var(--landing-cream))] font-mono text-sm"
             />
           </div>
         </TabsContent>
 
         <TabsContent value="by-hash" className="mt-4">
           <div className="space-y-2">
-            <Label className="text-codex-cream/70">SHA-256 Hash</Label>
+            <Label className="text-[hsl(var(--landing-cream)/0.6)] text-xs">SHA-256 Hash</Label>
             <Input
               value={hash}
               onChange={(e) => setHash(e.target.value)}
               placeholder="e3b0c44298fc1c149afbf4c8996fb924..."
-              className="bg-codex-ink/50 border-codex-cream/20 text-codex-cream font-mono text-sm"
+              className="bg-[hsl(var(--landing-deep))] border-[hsl(var(--landing-cream)/0.15)] text-[hsl(var(--landing-cream))] font-mono text-sm"
             />
           </div>
         </TabsContent>
       </Tabs>
 
       {/* cURL Preview */}
-      <div className="p-3 bg-codex-ink/70 rounded-lg border border-codex-cream/10 font-mono text-xs">
+      <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-deep))] font-mono text-xs">
         <div className="flex items-start gap-2">
-          <code className="text-codex-cream/80 flex-1 break-all">{getCurlCommand()}</code>
+          <code className="text-[hsl(var(--landing-cream)/0.7)] flex-1 break-all">
+            {getCurlCommand()}
+          </code>
           <Button
             onClick={handleCopyCurl}
             variant="ghost"
             size="sm"
-            className="text-codex-cream/50 hover:text-codex-gold shrink-0 h-6 w-6 p-0"
+            className="text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-copper))] shrink-0 h-6 w-6 p-0"
           >
             {copiedCurl ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
           </Button>
@@ -176,54 +145,52 @@ export function ApiTester() {
       <Button
         onClick={handleTest}
         disabled={loading || (activeTab === 'by-id' ? !originId : !hash)}
-        className="w-full bg-codex-gold text-codex-ink hover:bg-codex-gold/90"
+        className="w-full bg-[hsl(var(--landing-copper))] text-[hsl(var(--landing-deep))] hover:bg-[hsl(var(--landing-copper)/0.85)]"
       >
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            Testing...
+            Resolving...
           </>
         ) : (
           <>
             <Play className="w-4 h-4 mr-2" />
-            Test API
+            Test Resolve
           </>
         )}
       </Button>
 
       {/* Response */}
       {response && (
-        <div className={`p-4 rounded-lg border ${
-          response.success 
-            ? 'bg-green-900/20 border-green-500/30' 
-            : 'bg-red-900/20 border-red-500/30'
+        <div className={`p-4 rounded border ${
+          response.success
+            ? 'border-[hsl(120,23%,45%,0.3)] bg-[hsl(120,23%,45%,0.06)]'
+            : 'border-[hsl(14,60%,56%,0.3)] bg-[hsl(14,60%,56%,0.06)]'
         }`}>
           <div className="flex items-center justify-between mb-2">
             <span className={`text-sm font-medium ${
-              response.success ? 'text-green-400' : 'text-red-400'
+              response.success ? 'text-[hsl(120,33%,65%)]' : 'text-[hsl(14,60%,56%)]'
             }`}>
-              {response.success ? '✓ Success' : '✗ Error'}
+              {response.success ? '✓ Found' : '✗ Not found'}
             </span>
             {response.duration && (
-              <span className="text-codex-cream/50 text-xs">
+              <span className="text-[hsl(var(--landing-muted))] text-xs font-mono">
                 {response.duration}ms
               </span>
             )}
           </div>
-          <pre className="text-xs font-mono text-codex-cream/80 overflow-x-auto whitespace-pre-wrap">
+          <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre-wrap">
             {JSON.stringify(response.data || { error: response.error }, null, 2)}
           </pre>
         </div>
       )}
 
-      {/* How it works */}
-      <div className="pt-4 border-t border-codex-cream/10">
-        <h4 className="text-codex-cream/70 text-sm font-medium mb-2">Hoe werkt dit?</h4>
-        <ol className="text-codex-cream/50 text-xs space-y-1 list-decimal list-inside">
-          <li>Voer een origin_id (UUID) of SHA-256 hash in</li>
-          <li>Klik "Test API" om een echte request te sturen naar <code className="text-codex-gold">/resolve</code></li>
-          <li>Bekijk de JSON response met origin metadata</li>
-          <li>Kopieer het cURL commando om zelf te testen in je terminal</li>
+      {/* Instructions */}
+      <div className="pt-3 border-t border-[hsl(var(--landing-cream)/0.08)]">
+        <ol className="text-[hsl(var(--landing-muted))] text-xs space-y-1 list-decimal list-inside">
+          <li>Enter an origin_id (UUID) or SHA-256 hash</li>
+          <li>Click "Test Resolve" to query the live registry</li>
+          <li>Copy the cURL command to test from your terminal</li>
         </ol>
       </div>
     </div>
