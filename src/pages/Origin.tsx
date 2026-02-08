@@ -252,6 +252,14 @@ export default function Origin() {
             <p className="mb-6">
               Umarise Core is an origin registry implementing the properties described in this document.
             </p>
+          </section>
+
+          {/* Attestation Access */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Attestation Access</h2>
+            <p className="text-landing-muted/60 mb-4">
+              Verification is public. Attestation is permissioned.
+            </p>
             <a
               href="mailto:partners@umarise.com"
               className="text-landing-copper/70 hover:text-landing-copper transition-colors"
