@@ -156,10 +156,14 @@ Deno.serve(async (req: Request) => {
     const anonClient = createClient(supabaseUrl, supabaseAnonKey);
 
     // Return the first (oldest) attestation for this hash
+    // Search both with and without sha256: prefix for compatibility
+    const rawHex = normalized.hash.startsWith('sha256:') ? normalized.hash.slice(7) : normalized.hash;
+    const prefixedHash = `sha256:${rawHex}`;
+
     const { data, error } = await anonClient
       .from('origin_attestations')
       .select('origin_id, hash, hash_algo, captured_at')
-      .eq('hash', normalized.hash)
+      .or(`hash.eq.${prefixedHash},hash.eq.${rawHex}`)
       .order('captured_at', { ascending: true })
       .limit(1)
       .maybeSingle();
