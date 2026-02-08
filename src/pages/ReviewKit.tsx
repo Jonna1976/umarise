@@ -226,8 +226,8 @@ No Umarise software required.`}
               method="GET"
               endpoint="/v1-core-health"
               response={`{
-  "status": "ok",
-  "version": "1.0",
+  "status": "operational",
+  "version": "v1",
   "timestamp": "2026-02-08T14:22:00Z"
 }`}
             />
