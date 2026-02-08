@@ -110,6 +110,11 @@
     --ritual-blue-accent: 210 55% 62%;
     --ritual-green-accent: 120 23% 45%;
     --ritual-green-muted: 120 16% 60%;
+
+    /* === VERIFY PAGE TOKENS === */
+    --verify-green: 120 23% 45%;
+    --verify-green-bright: 120 33% 65%;
+    --verify-red: 14 60% 56%;
   }
 
   .dark {

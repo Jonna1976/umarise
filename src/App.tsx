@@ -35,6 +35,7 @@ import Why from "./pages/Why";
 import Install from "./pages/Install";
 import PartnerDashboard from "./pages/PartnerDashboard";
 import WitnessConfirmation from "./pages/WitnessConfirmation";
+import Verify from "./pages/Verify";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/why" element={<Why />} />
             <Route path="/install" element={<Install />} />
             <Route path="/dashboard" element={<PartnerDashboard />} />
+            <Route path="/verify" element={<Verify />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}

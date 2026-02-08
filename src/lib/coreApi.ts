@@ -138,6 +138,84 @@ export async function fetchOriginMetadata(originUuid: string): Promise<OriginMet
 }
 
 /**
+ * Verify a hash against the Umarise Core registry.
+ * 
+ * POST /v1-core-verify with { hash }
+ * - 200: origin found → returns origin data with proof_status
+ * - 404: no matching origin
+ * 
+ * Note: v1-core-verify accepts ONLY hash. origin_id is rejected.
+ */
+export interface CoreVerifyResult {
+  found: boolean;
+  origin?: {
+    origin_id: string;
+    hash: string;
+    hash_algo: string;
+    captured_at: string;
+    proof_status: 'pending' | 'anchored';
+    proof_url: string;
+  };
+}
+
+export async function verifyOriginByHash(rawHash: string): Promise<CoreVerifyResult> {
+  try {
+    // Normalize: ensure sha256: prefix
+    const hash = rawHash.startsWith('sha256:') ? rawHash : rawHash;
+    
+    const response = await fetch(
+      `${CORE_API_BASE}/v1-core-verify`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hash }),
+      }
+    );
+
+    if (response.status === 200) {
+      const data = await response.json();
+      return { found: true, origin: data };
+    }
+
+    if (response.status === 404) {
+      await response.text();
+      return { found: false };
+    }
+
+    await response.text();
+    console.warn(`[coreApi] Unexpected verify status: ${response.status}`);
+    return { found: false };
+  } catch (error) {
+    console.error('[coreApi] verifyOriginByHash error:', error);
+    return { found: false };
+  }
+}
+
+/**
+ * Download proof.ots file for a given origin_id.
+ * Calls fetchProofStatus internally and triggers browser download.
+ */
+export async function downloadProofFile(originId: string): Promise<boolean> {
+  const result = await fetchProofStatus(originId);
+  
+  if (result.status !== 'anchored' || !result.otsProofBytes) {
+    return false;
+  }
+
+  const blob = new Blob([result.otsProofBytes], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `proof-${originId.substring(0, 8)}.ots`;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  return true;
+}
+
+/**
  * Convert ArrayBuffer to base64 string (for storage or ZIP inclusion).
  */
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {

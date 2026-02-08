@@ -111,6 +111,11 @@ export default {
           "green-accent": "hsl(var(--ritual-green-accent))",
           "green-muted": "hsl(var(--ritual-green-muted))",
         },
+        verify: {
+          green: "hsl(var(--verify-green))",
+          "green-bright": "hsl(var(--verify-green-bright))",
+          red: "hsl(var(--verify-red))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
