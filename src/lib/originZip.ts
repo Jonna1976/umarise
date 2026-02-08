@@ -122,14 +122,24 @@ export async function saveOriginZip(input: OriginZipInput): Promise<boolean> {
     }
   }
 
-  // Fallback: direct download (works on all platforms including mobile)
+  // Fallback: direct download
+  console.info('[originZip] Share API unavailable or failed — triggering direct download');
   const url = URL.createObjectURL(zipBlob);
+  
+  // Try <a download> first (works on most browsers outside iframes)
   const a = document.createElement('a');
   a.href = url;
   a.download = zipFileName;
+  a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  
+  // Fallback for iframes where <a download> is blocked: open in new tab
+  // This ensures the file is always accessible, even in preview environments
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 2000);
+  
   return true;
 }
