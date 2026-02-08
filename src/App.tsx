@@ -33,6 +33,7 @@ import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import Why from "./pages/Why";
 import Install from "./pages/Install";
+import Architecture from "./pages/Architecture";
 
 import WitnessConfirmation from "./pages/WitnessConfirmation";
 import Verify from "./pages/Verify";
@@ -85,6 +86,7 @@ const App = () => (
             <Route path="/landing-variants" element={<PinGate><LandingVariants /></PinGate>} />
             <Route path="/widget-design" element={<PinGate><WidgetMockup /></PinGate>} />
             <Route path="/origin-mark" element={<PinGate><UMarkMockup /></PinGate>} />
+            <Route path="/architecture" element={<PinGate><Architecture /></PinGate>} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
