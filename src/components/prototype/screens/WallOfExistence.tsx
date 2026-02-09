@@ -248,28 +248,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
       />
 
-      {/* Title: "Marked Origins" — 20px Playfair 300, cream, centered, pt-44px */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center pt-[44px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <h1 
-          className="font-playfair text-[20px] tracking-[5px] uppercase"
-          style={{ fontWeight: 300, color: 'hsl(var(--ritual-gold-muted))', opacity: 0.6 }}
-        >
-          Marked Origins
-        </h1>
-
-        {/* Hint — EB Garamond italic */}
-        <p 
-          className="font-garamond italic text-[16px] mt-2.5 text-center px-8"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
-        >
-          Tap an origin to view, save as ZIP, or link your passkey.
-        </p>
-      </motion.div>
+      {/* Title and subtitle removed — the artifacts speak for themselves */}
 
       {/* Backup hint (appears on long-press ∪) */}
       <motion.p
