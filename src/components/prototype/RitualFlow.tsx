@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { WelcomeScreen } from './screens/WelcomeScreen';
-import { CaptureScreen } from './screens/CaptureScreen';
+import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
 import { PauseScreen } from './screens/PauseScreen';
 import { MarkScreen } from './screens/MarkScreen';
 import { ReleaseScreen } from './screens/ReleaseScreen';
@@ -14,13 +14,17 @@ import { toast } from 'sonner';
 
 export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'zip' | 'owned' | 'home' | 'wall';
 
-interface Artifact {
+export interface Artifact {
   id: string;
   type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
   origin: string;
   date: Date;
   hash: string;
   imageUrl: string | null;
+  /** MIME type of the captured file (e.g. image/jpeg, application/pdf, audio/mpeg) */
+  mimeType: string;
+  /** Original file name */
+  fileName: string;
 }
 
 export function RitualFlow() {
@@ -45,18 +49,25 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  // Handle file capture - store image and transition to pause
-  const handleCapture = useCallback((imageDataUrl: string) => {
-    setCapturedImageUrl(imageDataUrl);
+  // Handle file capture - store file data and transition to pause
+  const handleCapture = useCallback((file: CapturedFile) => {
+    setCapturedImageUrl(file.dataUrl);
+    
+    // Derive artifact type from MIME
+    const artifactType = file.mimeType.startsWith('audio/') ? 'sound'
+      : file.mimeType.startsWith('image/') ? 'warm'
+      : 'text';
     
     // Create temporary artifact for pause/mark screens (before mark is created)
     const tempArtifact: Artifact = {
       id: 'pending-' + Date.now(),
-      type: 'warm',
+      type: artifactType,
       origin: 'ORIGIN --------',
       date: new Date(),
       hash: '----------------',
-      imageUrl: imageDataUrl,
+      imageUrl: file.dataUrl,
+      mimeType: file.mimeType,
+      fileName: file.fileName,
     };
     setCurrentArtifact(tempArtifact);
     
@@ -86,6 +97,8 @@ export function RitualFlow() {
           date: mark.timestamp,
           hash: mark.hash,
           imageUrl: mark.thumbnailUrl || capturedImageUrl,
+          mimeType: currentArtifact?.mimeType || 'image/jpeg',
+          fileName: currentArtifact?.fileName || 'unknown',
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
@@ -141,6 +154,8 @@ export function RitualFlow() {
     date: new Date(),
     hash: '----------------',
     imageUrl: null,
+    mimeType: 'image/jpeg',
+    fileName: 'unknown',
   };
 
   return (

@@ -1,8 +1,22 @@
 import { useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
 
+/**
+ * Metadata passed from capture to the rest of the ritual flow.
+ * Downstream screens use mimeType to decide visual representation:
+ * - image/*  → show the actual image
+ * - audio/*  → stylised waveform icon in golden frame
+ * - other    → document icon in golden frame
+ */
+export interface CapturedFile {
+  dataUrl: string;
+  mimeType: string;
+  fileName: string;
+  fileSize: number;
+}
+
 interface CaptureScreenProps {
-  onCapture: (imageDataUrl: string) => void;
+  onCapture: (file: CapturedFile) => void;
 }
 
 /**
@@ -23,18 +37,17 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      console.warn('[Capture] Invalid file type:', file.type);
-      return;
-    }
-
-    // Read file as data URL
+    // Read any file as data URL — SHA-256 operates on raw bytes regardless of type
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      console.log('[Capture] Image loaded:', file.name, `(${(file.size / 1024).toFixed(1)}KB)`);
-      onCapture(dataUrl);
+      console.log('[Capture] File loaded:', file.name, `(${file.type}, ${(file.size / 1024).toFixed(1)}KB)`);
+      onCapture({
+        dataUrl,
+        mimeType: file.type || 'application/octet-stream',
+        fileName: file.name,
+        fileSize: file.size,
+      });
     };
     reader.onerror = () => {
       console.error('[Capture] Failed to read file');
@@ -61,7 +74,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
       <input
         id={inputId}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf,audio/*,video/*,text/*"
         onChange={handleFileChange}
         className="sr-only"
       />
