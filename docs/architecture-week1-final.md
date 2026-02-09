@@ -31,7 +31,7 @@ graph TB
     end
 
     subgraph "Hetzner Worker"
-        OTS["OTS Aggregator\nMerkle → Bitcoin"]
+        OTS["OTS Aggregator\nElk uur stamp, elke 30 min upgrade\nMerkle → Bitcoin Calendar → Anchored"]
     end
 
     subgraph "Client Device"
@@ -62,6 +62,7 @@ graph TB
 
 | Onderdeel | Status | Waar |
 |-----------|--------|------|
+| **device_user_id** | ✅ Auto-generated UUID | LocalStorage — anonieme device-identiteit, nooit gedeeld met Core |
 | **S0 Welcome** | ✅ Live | Browser UI |
 | **S1 Capture** | ✅ Camera + Photo Library | Device → Web Crypto |
 | **S2 Pause** | ✅ Visuele bevestiging | Browser UI |
@@ -142,7 +143,8 @@ graph LR
 | Richting | Mechanisme | Wat |
 |----------|-----------|-----|
 | **B2C → Core** | DB trigger `bridge_page_to_core` | Hash + timestamp propagatie naar `origin_attestations` |
-| **Core → B2C** | Async notification `notify-ots-complete` | Best-effort, in try/catch (geen hard dependency) |
+| **Core Worker → DB** | Hetzner OTS Worker schrijft naar `core_ots_proofs` | Status update (pending→anchored) rechtstreeks in de database |
+| **DB → B2C (best-effort)** | Supabase Edge Function `notify-ots-complete` | Wordt getriggerd door DB-event, niet door Core zelf. Best-effort in try/catch — de App pollt ook zelfstandig via `useProofPolling` |
 | **B2C leest Core** | `GET /v1-core-resolve` | Status ophalen (pending/anchored) |
 | **B2C leest Core** | `GET /v1-core-proof` | Raw `.ots` binary voor ZIP |
 
