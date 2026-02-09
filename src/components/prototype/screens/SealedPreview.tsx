@@ -74,7 +74,7 @@ export function SealedPreview() {
       >
         {/* Origin ID */}
         <p
-          className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+          className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
           style={{ color: 'hsl(var(--ritual-gold) / 0.45)' }}
         >
           ORIGIN {shortId}
@@ -82,7 +82,7 @@ export function SealedPreview() {
 
         {/* Date */}
         <p
-          className="font-garamond text-[15px] mb-3"
+          className="font-garamond text-[17px] mb-3"
           style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         >
           {formatDate(MOCK.timestamp)}
@@ -91,13 +91,13 @@ export function SealedPreview() {
         {/* Hash — two lines, very subtle */}
         <div style={{ opacity: 0.35 }}>
           <p
-            className="font-mono text-[10px] tracking-[0.5px] leading-relaxed"
+            className="font-mono text-[12px] tracking-[0.5px] leading-relaxed"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
             {hashLine1}
           </p>
           <p
-            className="font-mono text-[10px] tracking-[0.5px] leading-relaxed"
+            className="font-mono text-[12px] tracking-[0.5px] leading-relaxed"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
             {hashLine2}
@@ -142,7 +142,7 @@ export function SealedPreview() {
             <path d="M1 13L5 9L8 12L11 8L17 14"
               stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.4" />
           </svg>
-          <span className="font-garamond text-[15px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[17px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             photo.jpg <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· original bytes</span>
           </span>
         </div>
@@ -159,7 +159,7 @@ export function SealedPreview() {
             <line x1="5" y1="12" x2="10" y2="12"
               stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
           </svg>
-          <span className="font-garamond text-[15px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[17px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             certificate.json <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· hash · origin_id · timestamp</span>
           </span>
         </div>
@@ -174,7 +174,7 @@ export function SealedPreview() {
             <circle cx="9" cy="9" r="1"
               fill="hsl(var(--ritual-gold))" opacity="0.4" />
           </svg>
-          <span className="font-garamond text-[15px] flex items-center gap-1.5" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
+          <span className="font-garamond text-[17px] flex items-center gap-1.5" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
             proof.ots <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· anchoring</span>
             <motion.span
               className="inline-block w-[5px] h-[5px] rounded-full bg-ritual-gold"
@@ -187,7 +187,7 @@ export function SealedPreview() {
 
       {/* ── Anchoring note ── */}
       <motion.p
-        className="font-garamond italic text-[14px] text-center max-w-[280px] mb-4 leading-relaxed"
+        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-4 leading-relaxed"
         style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -198,7 +198,7 @@ export function SealedPreview() {
 
       {/* ── Privacy note ── */}
       <motion.p
-        className="font-garamond italic text-[13px] text-center max-w-[280px] mb-10"
+        className="font-garamond italic text-[15px] text-center max-w-[280px] mb-10"
         style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
