@@ -206,7 +206,7 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
           onTouchStart={artifact.otsStatus !== 'anchored' ? handleDotTap : undefined}
         >
           <OriginMark
-            size={14}
+            size={20}
             state={artifact.otsStatus === 'anchored' ? 'anchored' : 'pending'}
             animated={artifact.otsStatus !== 'anchored'}
             variant="dark"

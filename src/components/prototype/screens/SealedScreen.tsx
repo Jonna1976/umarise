@@ -168,7 +168,7 @@ export function SealedScreen({
         transition={{ duration: 0.6, delay: 0.1 }}
       >
         <OriginMark
-          size={28}
+          size={48}
           state="anchored"
           glow
           variant="dark"
