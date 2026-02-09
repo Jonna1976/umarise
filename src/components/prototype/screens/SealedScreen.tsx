@@ -328,6 +328,20 @@ export function SealedScreen({
       >
         {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
       </motion.button>
+
+      {/* ── Verify link (subtle, secondary) ── */}
+      <motion.a
+        href="/verify"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-garamond italic text-[15px] mt-4 transition-opacity hover:opacity-60"
+        style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.35 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.35 }}
+        transition={{ duration: 0.6, delay: 2.0 }}
+      >
+        Verifieer je origin
+      </motion.a>
     </motion.div>
   );
 }

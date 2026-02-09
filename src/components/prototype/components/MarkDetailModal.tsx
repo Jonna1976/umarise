@@ -21,8 +21,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { OriginMark } from './OriginMark';
-import { saveOriginZip } from '@/lib/originZip';
+import { buildOriginZip, saveOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
+import { toast } from 'sonner';
 import { 
   registerPasskey, 
   signHash, 
@@ -330,6 +331,49 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                       ? 'Save as ZIP (proof pending)'
                       : 'Save as ZIP'
             }
+          </button>
+
+          {/* Share button — Web Share API or clipboard fallback */}
+          <button
+            onClick={async () => {
+              const zipInput = {
+                originId: mark.originId,
+                hash: mark.hash,
+                timestamp: mark.timestamp,
+                imageUrl: mark.imageUrl ?? null,
+                claimedBy: credentialRef.current?.publicKey ?? null,
+                signature: signatureRef.current ?? null,
+                otsProof: otsProofRef.current,
+              };
+              const cleanId = mark.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+              const zipBlob = await buildOriginZip(zipInput);
+              const zipFile = new File([zipBlob], `origin-${cleanId}.zip`, { type: 'application/zip' });
+
+              if (navigator.share) {
+                try {
+                  await navigator.share({
+                    files: [zipFile],
+                    text: 'Verifieer mijn origin op umarise.com/verify',
+                    url: 'https://umarise.com/verify',
+                  });
+                  return;
+                } catch (err) {
+                  if ((err as Error).name === 'AbortError') return;
+                  console.warn('[MarkDetailModal] Share failed, falling back to clipboard');
+                }
+              }
+              // Fallback: copy verify link to clipboard
+              await navigator.clipboard.writeText(`https://umarise.com/verify`);
+              toast.success('Verify link gekopieerd');
+            }}
+            className="font-garamond text-[17px] tracking-[0.3px] transition-all mb-2"
+            style={{
+              color: 'hsl(var(--ritual-gold-muted))',
+              opacity: 0.45,
+              cursor: 'pointer',
+            }}
+          >
+            ↗ deel origin
           </button>
 
           {/* "+ link passkey" */}
