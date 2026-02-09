@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { OriginMark } from '../components/OriginMark';
 
 interface WelcomeScreenProps {
   onComplete: () => void;
@@ -6,11 +7,18 @@ interface WelcomeScreenProps {
 
 /**
  * Screen 0: Welcome (First Launch Only)
- * Silence, a sentence, a breathing origin dot.
+ * Silence, a sentence, a breathing origin mark.
  * After first interaction this screen is never shown again.
  * 
  * Copy: "You are the origin." — dienend, erkenning dat de gebruiker de bron is.
- * Dot: Sterke hartslag-pulsatie, voelbaar als levend centrum.
+ * 
+ * Animation sequence (per briefing):
+ * 1. Text "You are the origin." fade in (1.5s ease, delay 0.5s)
+ * 2. Dot appears (scale 0→1, 0.8s ease, delay 1.5s)
+ * 3. Circle draws itself around dot (stroke-dashoffset, 2s, delay 2s)
+ * 4. Dot starts subtle pulse (3s infinite, delay 3.5s)
+ * 
+ * De bron eerst, de verankering volgt.
  */
 export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   return (
@@ -36,25 +44,14 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         You are the origin.
       </motion.h1>
 
-      {/* Origin dot — heartbeat pulse, voelbaar als levend centrum */}
-      <motion.div
-        className="w-3.5 h-3.5 rounded-full bg-ritual-gold"
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          boxShadow: [
-            '0 0 12px hsl(var(--ritual-gold-glow))',
-            '0 0 40px hsl(var(--ritual-gold-glow)), 0 0 80px hsl(32 55% 55% / 0.3)',
-            '0 0 18px hsl(var(--ritual-gold-glow)), 0 0 50px hsl(32 55% 55% / 0.15)',
-            '0 0 12px hsl(var(--ritual-gold-glow))',
-          ],
-          scale: [1, 1.3, 1.05, 1],
-        }}
-        transition={{
-          opacity: { duration: 0.8, delay: 1.2 },
-          boxShadow: { duration: 2.4, delay: 1.8, repeat: Infinity, ease: 'easeInOut' },
-          scale: { duration: 2.4, delay: 1.8, repeat: Infinity, ease: 'easeInOut' },
-        }}
+      {/* Origin Mark — circumpunct with intro animation sequence
+          48x48px, with glow filter, intro animation:
+          dot scale-in → ring stroke-draw → heartbeat pulse */}
+      <OriginMark
+        size={48}
+        state="anchored"
+        glow
+        introAnimation
       />
     </motion.div>
   );

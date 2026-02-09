@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { OriginMark } from './OriginMark';
 
 interface OriginButtonProps {
   onClick: () => void;
@@ -6,71 +7,30 @@ interface OriginButtonProps {
 }
 
 /**
- * The "U" Origin Button - 42x42px navigational element
+ * The Origin Mark navigation button — 20x20px circumpunct
  * Position: top: 40px, left: 18px (main screens) or top: 38px, left: 16px (wall)
  * Tapping opens Wall of Existence
- * Long-press (1.2s) triggers backup (future feature)
  * 
- * Specs from walkthrough:
- * - Circle: 17r, 0.5px stroke, opacity 0.2
- * - Arc: ~270° (path d="M33 12A15 15 0 1 1 29 8.5"), 1.2px stroke, opacity 0.6
- * - Pulsing dot: 2r at (33,12), 3s pulse animation
- * - U text: Playfair Display 16px, opacity 0.85
+ * Per briefing: replaces U-in-circle with circumpunct (20x20px).
+ * Subtiel, niet dominant. De stip pulst langzaam (breathe animatie).
  */
 export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
   return (
     <motion.button
       onClick={onClick}
-      className={`w-[42px] h-[42px] cursor-pointer ${className}`}
+      className={`w-[42px] h-[42px] cursor-pointer flex items-center justify-center ${className}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       whileHover={{ opacity: 1 }}
       aria-label="Open Wall of Existence"
     >
-      <svg viewBox="0 0 42 42" width="42" height="42">
-        {/* Thin circle - r=17, stroke-width=0.5, opacity=0.2 */}
-        <circle 
-          cx="21" 
-          cy="21" 
-          r="17" 
-          fill="none" 
-          stroke="hsl(var(--ritual-gold))" 
-          strokeWidth="0.5" 
-          opacity="0.2"
-        />
-        {/* Arc stroke (~270°) - stroke-width=1.2, opacity=0.6 */}
-        <path 
-          d="M33 12A15 15 0 1 1 29 8.5" 
-          fill="none" 
-          stroke="hsl(var(--ritual-gold))" 
-          strokeWidth="1.2" 
-          strokeLinecap="round" 
-          opacity="0.6"
-        />
-        {/* Pulsing dot at arc end - r=2, 3s pulse */}
-        <motion.circle 
-          cx="33" 
-          cy="12" 
-          r="2" 
-          fill="hsl(var(--ritual-gold))"
-          animate={{ opacity: [0.8, 0.4, 0.8] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        />
-        {/* Centered U - Playfair Display 16px, opacity 0.85 */}
-        <text 
-          x="21" 
-          y="26" 
-          textAnchor="middle" 
-          fontFamily="'Playfair Display', Georgia, serif" 
-          fontSize="16" 
-          fontWeight="400" 
-          fill="hsl(var(--ritual-gold))" 
-          opacity="0.85"
-        >
-          U
-        </text>
-      </svg>
+      <OriginMark
+        size={20}
+        state="anchored"
+        animated
+        variant="dark"
+      />
     </motion.button>
   );
 }
