@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass } from 'lucide-react';
+import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 /**
  * Architecture Overview — Internal Document
  * 
- * Complete architecture overview of Umarise as of 8 Feb 2026.
- * B2C App + B2B Core + Bridge + Verify — fully split.
+ * Complete architecture overview of Umarise as of 9 Feb 2026.
+ * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
  * 
  * Source: docs/architecture-week1-final.md
  * Access: PinGate protected
@@ -15,11 +16,11 @@ const b2cItems = [
   { name: 'S0 Welcome', status: '✅ Live', where: 'Browser UI' },
   { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto' },
   { name: 'S2 Pause', status: '✅ Visuele bevestiging', where: 'Browser UI' },
-  { name: 'S3 Mark', status: '✅ SHA-256 hashing', where: 'Client-side → pages INSERT' },
-  { name: 'S4 Release', status: '✅ Origin ID + status', where: 'Browser UI' },
-  { name: 'S5 ZIP', status: '✅ Live', where: 'Client-side JSZip' },
-  { name: 'S6 Owned', status: '✅ Live (Wall)', where: 'Browser UI' },
-  { name: 'S7 Marked Origins', status: '✅ Live', where: 'Client + /v1-core-resolve' },
+  { name: 'S3 Mark', status: '✅ SHA-256 hashing + hold-to-mark', where: 'Client-side → pages INSERT' },
+  { name: 'S4 Sealed', status: '✅ Museum label + artifact + file list', where: 'Browser UI' },
+  { name: 'S5 ZIP', status: '✅ photo + certificate + VERIFY.txt + .ots', where: 'Client-side JSZip' },
+  { name: 'S6 Owned', status: '✅ Auto-advance na save', where: 'Browser UI → Wall' },
+  { name: 'S7 Wall of Existence', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
   { name: 'Passkey', status: '✅ Live', where: 'Client-side WebAuthn' },
   { name: 'IndexedDB thumbnails', status: '✅ Live', where: 'Lokaal op device' },
   { name: 'OTS status polling', status: '✅ Live', where: '/v1-core-resolve + /v1-core-proof via useProofPolling' },
@@ -66,16 +67,43 @@ const dbIntegrity = [
 ];
 
 const publicRoutes = [
-  { route: '/', purpose: 'Landing / infrastructuur positionering', audience: 'Iedereen' },
-  { route: '/origin', purpose: 'Wat is een origin?', audience: 'Prospects' },
-  { route: '/core', purpose: 'Core API spec', audience: 'Technisch' },
-  { route: '/why', purpose: 'Waarom origins?', audience: 'Business' },
-  { route: '/review', purpose: 'Technical Review Kit', audience: 'CTOs / integrators' },
-  { route: '/proof', purpose: 'Proof uitleg', audience: 'Algemeen' },
-  { route: '/verify', purpose: 'Verificatie tool', audience: 'Iedereen' },
-  { route: '/legal', purpose: 'Juridisch kader', audience: 'Juridisch' },
-  { route: '/privacy + /terms', purpose: 'Privacy en voorwaarden', audience: 'Compliance' },
-  { route: '/install', purpose: 'PWA installatie', audience: 'Consumenten' },
+  { route: '/', purpose: 'Landing / infrastructuur positionering', audience: 'Iedereen', mark: '16px header' },
+  { route: '/origin', purpose: 'Wat is een origin?', audience: 'Prospects', mark: '16px header' },
+  { route: '/core', purpose: 'Core API spec', audience: 'Technisch', mark: '16px header + 12px inline' },
+  { route: '/why', purpose: 'Waarom origins?', audience: 'Business', mark: '16px header' },
+  { route: '/review', purpose: 'Technical Review Kit', audience: 'CTOs / integrators', mark: '16px header + 12px inline' },
+  { route: '/proof', purpose: 'Proof uitleg', audience: 'Algemeen', mark: '16px header' },
+  { route: '/verify', purpose: 'Verificatie tool', audience: 'Iedereen', mark: '16px header + 48px/28px' },
+  { route: '/legal', purpose: 'Juridisch kader', audience: 'Juridisch', mark: '16px header' },
+  { route: '/privacy + /terms', purpose: 'Privacy en voorwaarden', audience: 'Compliance', mark: '16px header' },
+  { route: '/install', purpose: 'PWA installatie', audience: 'Consumenten', mark: '16px header' },
+];
+
+const discoveryPath = [
+  { num: 1, contact: 'VERIFY.txt', where: 'In elke ZIP', mechanism: 'Origin ID, timestamp, hash, directe verificatielink' },
+  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canoniek)' },
+  { num: 3, contact: 'Verifieer-link', where: 'Sealed screen (S4)', mechanism: 'Subtiele link onder save-button' },
+  { num: 4, contact: 'Deel origin', where: 'Wall detail modal (S7)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
+];
+
+const originMarkUsage = [
+  { context: 'S0 Welcome', size: '72px', state: 'anchored', detail: 'Heartbeat animatie' },
+  { context: 'S1 Capture', size: '48px', state: 'anchored', detail: 'Breathing animatie' },
+  { context: 'S4 Sealed', size: '48px', state: 'anchored', detail: 'Glow' },
+  { context: 'Wall status', size: '20px', state: 'anchored/pending', detail: 'Per-origin status' },
+  { context: 'Navigation', size: '28px', state: 'anchored', detail: 'OriginButton' },
+  { context: 'Site header', size: '16px', state: 'anchored', detail: 'Alle pagina\'s' },
+  { context: '/verify upload', size: '48px', state: 'ghost', detail: 'Lege ring' },
+  { context: '/verify resultaat', size: '28px', state: 'anchored', detail: 'Glow' },
+  { context: '/core partner', size: '12px', state: 'pending', detail: 'Gestreepeld' },
+  { context: '/review properties', size: '12px', state: 'anchored', detail: 'Inline' },
+];
+
+const zipContents = [
+  { file: 'photo.jpg/png', always: false, desc: 'Origineel artifact' },
+  { file: 'certificate.json', always: true, desc: 'Origin ID, hash, timestamp, claimed_by, verify_url' },
+  { file: 'VERIFY.txt', always: true, desc: 'Menselijk leesbare verificatie-instructies + link' },
+  { file: 'proof.ots', always: false, desc: 'OpenTimestamps binary bewijs (alleen bij anchored)' },
 ];
 
 const onboardingSteps = [
@@ -120,6 +148,16 @@ const AccessBadge = ({ type }: { type: 'public' | 'partner' | 'internal' }) => (
   </span>
 );
 
+const StateBadge = ({ state }: { state: string }) => (
+  <span className={`text-xs px-2 py-0.5 rounded font-mono ${
+    state.includes('anchored') ? 'bg-emerald-500/10 text-emerald-400/70' :
+    state === 'pending' ? 'bg-amber-500/10 text-amber-400/70' :
+    'bg-landing-cream/5 text-landing-cream/40'
+  }`}>
+    {state}
+  </span>
+);
+
 const Architecture = () => {
   return (
     <div className="min-h-screen bg-[#050A05] text-landing-cream/80">
@@ -137,7 +175,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          8 February 2026 — Week 1 Final
+          9 February 2026 — Week 1 Final (updated)
         </p>
       </div>
 
@@ -150,6 +188,10 @@ const Architecture = () => {
 │                                                      │
 │  Publiek:  / /origin /core /why /verify /review ...  │
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
+│            /architecture                              │
+│                                                      │
+│  Visueel:  Origin Mark (⊙) op alle headers (16px)   │
+│            Ghost/pending/anchored states per context  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │               core.umarise.com                       │
@@ -157,6 +199,7 @@ const Architecture = () => {
 │  Publiek:    resolve, verify, proof, health           │
 │  Partner:    origins, origins-proof, proofs-export    │
 │  Intern:     partner-create, metrics                  │
+│  Status:     v1 bevroren (6 feb 2026)                │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │                  Hetzner                              │
@@ -169,6 +212,7 @@ const Architecture = () => {
 │                                                      │
 │  IndexedDB, Web Crypto, WebAuthn, JSZip              │
 │  Geen data verlaat het device zonder expliciete actie │
+│  ZIP = photo + certificate.json + VERIFY.txt + .ots  │
 └─────────────────────────────────────────────────────┘`}
         </div>
 
@@ -202,8 +246,8 @@ const Architecture = () => {
             <ul className="space-y-1 text-sm text-landing-cream/60">
               <li>• Passkey/WebAuthn → <code className="text-xs bg-landing-cream/5 px-1 rounded">claimed_by</code> + <code className="text-xs bg-landing-cream/5 px-1 rounded">signature</code> in certificate.json</li>
               <li>• Thumbnails in IndexedDB</li>
-              <li>• ZIP generatie met photo + certificate</li>
-              <li>• Alle UI/UX schermen</li>
+              <li>• ZIP generatie met photo + certificate + VERIFY.txt</li>
+              <li>• Alle UI/UX schermen (Museum Aesthetic design system)</li>
             </ul>
           </div>
         </section>
@@ -251,7 +295,7 @@ const Architecture = () => {
           </div>
 
           {/* Internal */}
-          <div>
+          <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
               <Lock className="w-4 h-4 text-red-400/50" />
               <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider">Internal Endpoints</h3>
@@ -267,6 +311,12 @@ const Architecture = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <p className="text-xs text-landing-muted/40">
+              <strong className="text-landing-cream/60">Core v1 status:</strong> Technisch bevroren (6 feb 2026). Geen nieuwe features. Alleen bugfixes en security hardening.
+            </p>
           </div>
         </section>
 
@@ -296,9 +346,75 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 4. /verify */}
+        {/* 4. Verify Discovery Path (NEW) */}
         <section>
-          <SectionHeader icon={CheckCircle} title="/verify — Onafhankelijk Verificatie-instrument" num={4} />
+          <SectionHeader icon={Compass} title="Verify Discovery Path" num={4} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Vier technische contactpunten die verkeer naar <code className="text-xs bg-landing-cream/5 px-1 rounded">/verify</code> leiden:
+          </p>
+          <div className="space-y-2">
+            {discoveryPath.map((dp) => (
+              <div key={dp.num} className="flex gap-3 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                <span className="font-mono text-landing-muted/30 text-xs w-4 pt-0.5">{dp.num}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-landing-cream/90 font-medium font-mono">{dp.contact}</span>
+                    <span className="text-xs text-landing-muted/30">— {dp.where}</span>
+                  </div>
+                  <p className="text-xs text-landing-cream/50">{dp.mechanism}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 5. Origin Mark Visual System (NEW) */}
+        <section>
+          <SectionHeader icon={Eye} title="Origin Mark Visueel Systeem" num={5} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            De circumpunct (⊙) als universeel brand- en statussymbool:
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                  <th className="pb-3 pr-4">Context</th>
+                  <th className="pb-3 pr-4">Formaat</th>
+                  <th className="pb-3 pr-4">State</th>
+                  <th className="pb-3">Detail</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-landing-cream/5">
+                {originMarkUsage.map((row) => (
+                  <tr key={row.context} className="text-landing-cream/70">
+                    <td className="py-2.5 pr-4 text-landing-cream/90">{row.context}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs">{row.size}</td>
+                    <td className="py-2.5 pr-4"><StateBadge state={row.state} /></td>
+                    <td className="py-2.5 text-xs text-landing-muted/50">{row.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-6 flex items-center gap-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <div className="flex items-center gap-2">
+              <OriginMark size={16} state="anchored" variant="light" />
+              <span className="text-xs text-landing-muted/40">anchored</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <OriginMark size={16} state="pending" variant="light" />
+              <span className="text-xs text-landing-muted/40">pending</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <OriginMark size={16} state="ghost" variant="light" />
+              <span className="text-xs text-landing-muted/40">ghost</span>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. /verify */}
+        <section>
+          <SectionHeader icon={CheckCircle} title="/verify — Onafhankelijk Verificatie-instrument" num={6} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               ['Route', '/verify (publiek, geen PinGate)'],
@@ -308,6 +424,7 @@ const Architecture = () => {
               ['ZIP extractie', 'Client-side JSZip'],
               ['API calls', 'POST /v1-core-verify (publiek)'],
               ['Privacy', 'Bestanden verlaten device NIET'],
+              ['Origin Mark', 'Ghost (upload) → Anchored+glow (resultaat)'],
             ].map(([label, value]) => (
               <div key={label} className="p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
                 <p className="text-xs text-landing-muted/40 mb-1">{label}</p>
@@ -317,9 +434,9 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 5. Database Integrity */}
+        {/* 7. Database Integrity */}
         <section>
-          <SectionHeader icon={Database} title="Database Integriteit" num={5} />
+          <SectionHeader icon={Database} title="Database Integriteit" num={7} />
           <div className="space-y-2">
             {dbIntegrity.map((row) => (
               <div key={row.table} className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
@@ -333,16 +450,17 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 6. Public Routes */}
+        {/* 8. Public Routes */}
         <section>
-          <SectionHeader icon={Globe} title="Publieke Documentatie-routes" num={6} />
+          <SectionHeader icon={Globe} title="Publieke Documentatie-routes" num={8} />
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
                   <th className="pb-3 pr-4">Route</th>
                   <th className="pb-3 pr-4">Doel</th>
-                  <th className="pb-3">Doelgroep</th>
+                  <th className="pb-3 pr-4">Doelgroep</th>
+                  <th className="pb-3">Origin Mark</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-landing-cream/5">
@@ -350,7 +468,8 @@ const Architecture = () => {
                   <tr key={r.route}>
                     <td className="py-2 pr-4 font-mono text-landing-cream/80">{r.route}</td>
                     <td className="py-2 pr-4 text-landing-cream/60">{r.purpose}</td>
-                    <td className="py-2 text-landing-muted/40 text-xs">{r.audience}</td>
+                    <td className="py-2 pr-4 text-landing-muted/40 text-xs">{r.audience}</td>
+                    <td className="py-2 text-landing-muted/40 text-xs font-mono">{r.mark}</td>
                   </tr>
                 ))}
               </tbody>
@@ -358,9 +477,28 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 7. Partner Onboarding */}
+        {/* 9. ZIP Artifact Composition (NEW) */}
         <section>
-          <SectionHeader icon={Key} title="Partner Onboarding Flow" num={7} />
+          <SectionHeader icon={FileArchive} title="ZIP Artifact Compositie" num={9} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Elke origin produceert een zelfstandig bewijspakket:
+          </p>
+          <div className="space-y-2">
+            {zipContents.map((z) => (
+              <div key={z.file} className="flex items-center gap-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                <code className="text-sm text-landing-cream/80 w-40">{z.file}</code>
+                <span className={`text-xs px-2 py-0.5 rounded font-mono ${z.always ? 'bg-emerald-500/10 text-emerald-400/70' : 'bg-landing-cream/5 text-landing-cream/40'}`}>
+                  {z.always ? 'ALTIJD' : 'CONDITIONEEL'}
+                </span>
+                <span className="text-xs text-landing-muted/40 flex-1">{z.desc}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 10. Partner Onboarding */}
+        <section>
+          <SectionHeader icon={Key} title="Partner Onboarding Flow" num={10} />
           <div className="space-y-2">
             {onboardingSteps.map((s) => (
               <div key={s.num} className="flex gap-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
@@ -387,9 +525,17 @@ const Architecture = () => {
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
             Core weet niet dat de App bestaat. De App weet dat Core bestaat.
           </p>
-          <p className="text-landing-muted/40 text-xs">
+          <p className="text-landing-muted/40 text-xs mb-4">
             De grens is schoon.
           </p>
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Vandaag toegevoegd (9 feb)</p>
+            <ul className="space-y-1 text-xs text-landing-cream/50">
+              <li>• Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Wall deel-knop)</li>
+              <li>• Origin Mark visueel systeem op alle site-pagina's (16px header, ghost/pending/anchored states)</li>
+              <li>• ZIP bevat nu VERIFY.txt met menselijk leesbare verificatie-instructies</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
