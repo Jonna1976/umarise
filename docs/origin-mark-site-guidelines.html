@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umarise: Origin Mark & Badge Richtlijnen + Site Plaatsing</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050A05;
+    --surface: #0F1A0F;
+    --gold: #C5935A;
+    --gold-dim: rgba(197,147,90,0.4);
+    --gold-faint: rgba(197,147,90,0.08);
+    --gold-stroke: rgba(197,147,90,0.3);
+    --cream: #F5F0E8;
+    --cream-soft: rgba(245,240,232,0.7);
+    --cream-dim: rgba(245,240,232,0.3);
+    --cream-ghost: rgba(245,240,232,0.12);
+    /* Light variants */
+    --light-bg: #FAFAF8;
+    --light-surface: #F0EFEB;
+    --light-ink: #1a1a1a;
+    --light-mid: #6b6b6b;
+    --light-gold: #8B7355;
+    --light-gold-stroke: rgba(139,115,85,0.3);
+    --light-rule: #d4d0c8;
+    --accent: #c45d2c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'EB Garamond', Georgia, serif;
+    line-height: 1.6;
+  }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 80px 40px 120px; }
+
+  .intro {
+    text-align: center;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--gold-faint);
+  }
+
+  .intro-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.5);
+    margin-bottom: 20px;
+  }
+
+  .intro h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 300;
+    font-size: 36px;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+
+  .intro p {
+    font-size: 17px;
+    color: var(--cream-soft);
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .section { margin-top: 80px; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.5);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 300;
+    font-size: 24px;
+    color: var(--gold);
+    margin-bottom: 40px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--gold-faint);
+    margin: 80px 0;
+  }
+
+  .annotation {
+    max-width: 500px;
+    margin: 30px auto 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--cream-dim);
+    font-style: italic;
+  }
+
+  /* ================================================================ */
+  /* BADGE VARIANTS (updated with circumpunct)                        */
+  /* ================================================================ */
+
+  .badge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .badge-card {
+    background: var(--surface);
+    border: 1px solid var(--gold-faint);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .badge-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gold-faint);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.4);
+  }
+
+  .badge-body {
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90px;
+  }
+
+  .badge-body.light {
+    background: var(--light-bg);
+  }
+
+  /* Inline */
+  .b-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--cream-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .b-inline:hover { color: var(--gold); }
+  .b-inline.on-light { color: var(--light-ink); }
+  .b-inline.on-light:hover { color: var(--light-gold); }
+
+  /* Pill */
+  .b-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px 5px 10px;
+    border: 1px solid var(--cream-ghost);
+    border-radius: 100px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--cream-soft);
+    text-decoration: none;
+    transition: border-color 0.3s;
+  }
+  .b-pill:hover { border-color: var(--gold-dim); }
+  .b-pill.on-light { border-color: rgba(0,0,0,0.12); color: var(--light-ink); }
+  .b-pill.on-light:hover { border-color: var(--light-gold); }
+
+  /* Stamp */
+  .b-stamp {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 20px;
+    border: 1.5px solid var(--cream-ghost);
+    text-decoration: none;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+  .b-stamp:hover { border-color: var(--gold-dim); }
+  .b-stamp .s-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-top: 8px;
+  }
+  .b-stamp .s-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--cream-dim);
+    margin-top: 2px;
+  }
+  .b-stamp.on-light { border-color: rgba(0,0,0,0.12); }
+  .b-stamp.on-light .s-id { color: var(--light-ink); }
+  .b-stamp.on-light .s-date { color: var(--light-mid); }
+
+  /* Card badge */
+  .b-card {
+    display: inline-flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    background: rgba(197,147,90,0.04);
+    border-left: 3px solid var(--gold);
+    font-family: 'DM Mono', monospace;
+    text-decoration: none;
+    color: var(--cream);
+    max-width: 260px;
+    transition: background 0.2s;
+  }
+  .b-card:hover { background: rgba(197,147,90,0.08); }
+  .b-card .c-top {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .b-card .c-status {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--gold);
+  }
+  .b-card .c-id { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .b-card .c-date { font-size: 10px; color: var(--cream-dim); margin-bottom: 8px; }
+  .b-card .c-verify { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+  .b-card.on-light {
+    background: var(--light-surface); color: var(--light-ink);
+  }
+  .b-card.on-light .c-status { color: var(--light-gold); }
+  .b-card.on-light .c-date { color: var(--light-mid); }
+  .b-card.on-light:hover { background: #e8e7e2; }
+
+  /* Rules */
+  .rules-box {
+    background: var(--surface);
+    border: 1px solid var(--gold-faint);
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 40px;
+  }
+
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 16px;
+  }
+
+  .rules-col h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .rules-col h3.green { color: #6b9e6b; }
+  .rules-col h3.red { color: var(--accent); }
+
+  .rules-col ul { list-style: none; padding: 0; }
+  .rules-col li {
+    font-size: 13px; padding: 3px 0; color: var(--cream-dim);
+    font-family: 'EB Garamond', serif;
+  }
+  .rules-col li::before {
+    font-family: 'DM Mono', monospace; margin-right: 8px; font-size: 10px;
+  }
+  .rules-col:first-child li::before { content: ">"; color: #6b9e6b; }
+  .rules-col:last-child li::before { content: "x"; color: var(--accent); }
+
+  /* ================================================================ */
+  /* PAGE MOCKUPS                                                     */
+  /* ================================================================ */
+
+  .mockup-container {
+    margin-top: 40px;
+  }
+
+  .mockup {
+    background: var(--surface);
+    border: 1px solid var(--gold-faint);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .mockup-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--gold-faint);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.4);
+  }
+
+  .mockup-url {
+    font-size: 10px;
+    color: var(--cream-dim);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Browser chrome */
+  .browser {
+    background: #fafaf8;
+    min-height: 500px;
+    position: relative;
+  }
+
+  .browser.dark-page {
+    background: var(--bg);
+  }
+
+  /* Shared header bar for site pages */
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .site-header.dark {
+    border-bottom-color: var(--gold-faint);
+  }
+
+  .site-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .site-header-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 18px;
+  }
+
+  .site-header-name.dark { color: var(--cream); }
+  .site-header-name.light { color: var(--light-ink); }
+
+  .site-nav {
+    display: flex;
+    gap: 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .site-nav a {
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .site-nav.dark a { color: var(--cream-dim); }
+  .site-nav.dark a:hover { color: var(--gold); }
+  .site-nav.light a { color: var(--light-mid); }
+  .site-nav.light a:hover { color: var(--light-gold); }
+
+  .site-nav a.active { color: var(--gold); }
+  .site-nav.light a.active { color: var(--light-gold); }
+
+  /* Page content areas */
+  .page-content {
+    padding: 48px 32px;
+  }
+
+  .page-content.centered {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Callout box in mockup */
+  .callout {
+    position: absolute;
+    background: rgba(197,147,90,0.12);
+    border: 1px dashed var(--gold);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Placement table */
+  .placement-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  .placement-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+    color: rgba(197,147,90,0.5);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gold-faint);
+  }
+
+  .placement-table td {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gold-faint);
+    vertical-align: top;
+    color: var(--cream-soft);
+  }
+
+  .placement-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--cream);
+    width: 22%;
+  }
+
+  .placement-table td:nth-child(2) { width: 15%; }
+  .placement-table td:nth-child(3) { width: 25%; }
+
+  .mono { font-family: 'DM Mono', monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="intro">
+  <div class="intro-label">Origin Mark & Badge Richtlijnen</div>
+  <h1>Circumpunct op umarise.com</h1>
+  <p>Plaatsingsregels, badge-varianten en pagina-mockups. Alles met de circumpunct als universeel origin mark.</p>
+  <div style="margin-top:24px;padding:14px 20px;border:1px solid rgba(197,147,90,0.2);border-radius:6px;text-align:left;max-width:520px;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#c45d2c;margin-bottom:6px;">Belangrijk</div>
+    <div style="font-size:14px;color:var(--cream-soft);line-height:1.5;">
+      Dit document is uitsluitend een richtlijn voor <strong style="color:var(--cream);">waar en hoe de circumpunct geplaatst wordt</strong>.
+      De pagina-mockups hieronder zijn illustratief, niet prescriptief. De bestaande pagina's
+      (umarise.com, /verify, /core, /review) behouden hun huidige inhoud, lay-out en design.
+      Alleen de circumpunct wordt toegevoegd op de aangegeven posities. Niets anders verandert.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: UPDATED BADGES                                     -->
+<!-- ============================================================ -->
+
+<div class="section">
+  <div class="section-label">Badge varianten</div>
+  <div class="section-title">Circumpunct als verificatie-indicator</div>
+
+  <div class="badge-grid">
+
+    <!-- Inline dark -->
+    <div class="badge-card">
+      <div class="badge-header">Inline (dark)</div>
+      <div class="badge-body">
+        <a href="#" class="b-inline">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(197,147,90,0.4)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#C5935A"/></svg>
+          origin 59D00F42
+        </a>
+      </div>
+    </div>
+
+    <!-- Inline light -->
+    <div class="badge-card">
+      <div class="badge-header">Inline (light)</div>
+      <div class="badge-body light">
+        <a href="#" class="b-inline on-light">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#8B7355"/></svg>
+          origin 59D00F42
+        </a>
+      </div>
+    </div>
+
+    <!-- Pill dark -->
+    <div class="badge-card">
+      <div class="badge-header">Pill (dark)</div>
+      <div class="badge-body">
+        <a href="#" class="b-pill">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(197,147,90,0.4)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#C5935A"/></svg>
+          Origin 59D00F42
+        </a>
+      </div>
+    </div>
+
+    <!-- Pill light -->
+    <div class="badge-card">
+      <div class="badge-header">Pill (light)</div>
+      <div class="badge-body light">
+        <a href="#" class="b-pill on-light">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#8B7355"/></svg>
+          Origin 59D00F42
+        </a>
+      </div>
+    </div>
+
+    <!-- Stamp dark -->
+    <div class="badge-card">
+      <div class="badge-header">Stamp (dark)</div>
+      <div class="badge-body">
+        <a href="#" class="b-stamp">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="1"/><circle cx="14" cy="14" r="3.5" fill="#C5935A"/></svg>
+          <span class="s-id">59D00F42</span>
+          <span class="s-date">8 feb 2026, 14:23 UTC</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Stamp light -->
+    <div class="badge-card">
+      <div class="badge-header">Stamp (light)</div>
+      <div class="badge-body light">
+        <a href="#" class="b-stamp on-light">
+          <svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="rgba(139,115,85,0.25)" stroke-width="1"/><circle cx="14" cy="14" r="3.5" fill="#8B7355"/></svg>
+          <span class="s-id">59D00F42</span>
+          <span class="s-date">8 feb 2026, 14:23 UTC</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Card dark -->
+    <div class="badge-card">
+      <div class="badge-header">Card (dark)</div>
+      <div class="badge-body">
+        <a href="#" class="b-card">
+          <div class="c-top">
+            <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(197,147,90,0.4)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#C5935A"/></svg>
+            <span class="c-status">Verankerd</span>
+          </div>
+          <span class="c-id">Origin 59D00F42</span>
+          <span class="c-date">8 februari 2026, 14:23 UTC</span>
+          <span class="c-verify">Verifieer op umarise.com/verify ></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Card light -->
+    <div class="badge-card">
+      <div class="badge-header">Card (light)</div>
+      <div class="badge-body light">
+        <a href="#" class="b-card on-light">
+          <div class="c-top">
+            <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.8"/><circle cx="7" cy="7" r="2" fill="#8B7355"/></svg>
+            <span class="c-status">Verankerd</span>
+          </div>
+          <span class="c-id">Origin 59D00F42</span>
+          <span class="c-date">8 februari 2026, 14:23 UTC</span>
+          <span class="c-verify">Verifieer op umarise.com/verify ></span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Rules -->
+  <div class="rules-box">
+    <div class="section-label">Badge Principes (Guardian-compliant)</div>
+    <div class="rules-grid">
+      <div class="rules-col">
+        <h3 class="green">Badge mag zeggen</h3>
+        <ul>
+          <li>Origin ID + datum/tijd</li>
+          <li>"Verifieerbaar" of "Verankerd"</li>
+          <li>"Verifieer op umarise.com/verify"</li>
+          <li>Status: pending (gestreepte cirkel) of verankerd (volle cirkel)</li>
+        </ul>
+      </div>
+      <div class="rules-col">
+        <h3 class="red">Badge mag nooit zeggen</h3>
+        <ul>
+          <li>"Gecertificeerd door Umarise"</li>
+          <li>"Bewezen origineel"</li>
+          <li>"Bewezen van deze persoon"</li>
+          <li>"Authentiek" of "Gegarandeerd"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 2: PLACEMENT TABLE                                    -->
+<!-- ============================================================ -->
+
+<div class="section">
+  <div class="section-label">Plaatsingsregels</div>
+  <div class="section-title">Waar komt wat</div>
+
+  <table class="placement-table">
+    <tr>
+      <th>Pagina</th>
+      <th>Element</th>
+      <th>Variant</th>
+      <th>Details</th>
+    </tr>
+    <tr>
+      <td>Alle pagina's</td>
+      <td>Header</td>
+      <td class="mono">16x16, naast "Umarise"</td>
+      <td>Circumpunct links van de naam. Subtiel. Dark variant op donkere pagina's, light op lichte.</td>
+    </tr>
+    <tr>
+      <td>umarise.com</td>
+      <td>Hero</td>
+      <td class="mono">Geen</td>
+      <td>Landing page heeft bewust geen origin mark. Te vroeg in de funnel. De tekst doet het werk.</td>
+    </tr>
+    <tr>
+      <td>/verify</td>
+      <td>Resultaat</td>
+      <td class="mono">28x28, verankerd, met glow</td>
+      <td>Verschijnt na succesvolle verificatie. Bij mismatch: niets tonen (geen ghost, geen rood).</td>
+    </tr>
+    <tr>
+      <td>/verify</td>
+      <td>Upload zone</td>
+      <td class="mono">48x48, ghost</td>
+      <td>Lege cirkel zonder stip in het upload-gebied. Nodigt uit. Wordt verankerd na succesvolle check.</td>
+    </tr>
+    <tr>
+      <td>/core</td>
+      <td>Endpoints</td>
+      <td class="mono">12x12, inline</td>
+      <td>Naast endpoints die origins betreffen. Decoratief. Geen interactie.</td>
+    </tr>
+    <tr>
+      <td>/core</td>
+      <td>Hero</td>
+      <td class="mono">Geen</td>
+      <td>Technische pagina. Laat de endpoints spreken, niet het symbool.</td>
+    </tr>
+    <tr>
+      <td>/review</td>
+      <td>Response velden</td>
+      <td class="mono">12x12, inline</td>
+      <td>Naast origin_id velden in response-voorbeelden. Light variant.</td>
+    </tr>
+    <tr>
+      <td>/legal</td>
+      <td>Geen</td>
+      <td class="mono">Geen</td>
+      <td>Juridische pagina. Geen symbolen, alleen tekst.</td>
+    </tr>
+    <tr>
+      <td>/privacy</td>
+      <td>Geen</td>
+      <td class="mono">Geen</td>
+      <td>Juridische pagina. Geen symbolen.</td>
+    </tr>
+  </table>
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 3: PAGE MOCKUPS                                       -->
+<!-- ============================================================ -->
+
+<div class="section">
+  <div class="section-label">Pagina mockups</div>
+  <div class="section-title">Vier pagina's, concreet</div>
+  <div style="font-size:13px;color:var(--cream-dim);margin-top:-30px;margin-bottom:32px;font-style:italic;">
+    Onderstaande mockups tonen alleen waar de circumpunct komt. De pagina-inhoud is vereenvoudigd
+    ter illustratie en is niet bedoeld als herontwerp. Bestaande pagina's blijven ongewijzigd.
+  </div>
+
+  <!-- ==================== umarise.com ==================== -->
+
+  <div class="mockup-container">
+    <div class="mockup">
+      <div class="mockup-label">
+        <span>umarise.com</span>
+        <span class="mockup-url">Landing / hero</span>
+      </div>
+      <div class="browser dark-page">
+        <!-- Header -->
+        <div class="site-header dark">
+          <div class="site-header-left">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="0.8"/>
+              <circle cx="8" cy="8" r="2" fill="#C5935A"/>
+            </svg>
+            <span class="site-header-name dark">Umarise</span>
+          </div>
+          <div class="site-nav dark">
+            <a href="#" class="active">Home</a>
+            <a href="#">Core</a>
+            <a href="#">Verify</a>
+            <a href="#">Review</a>
+            <a href="#">Legal</a>
+          </div>
+        </div>
+        <!-- Hero -->
+        <div class="page-content centered" style="padding: 100px 32px 120px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(197,147,90,0.4);margin-bottom:24px;">Proof-of-existence infrastructure</div>
+          <div style="font-family:'Playfair Display',serif;font-weight:300;font-size:36px;color:var(--cream);margin-bottom:16px;max-width:500px;line-height:1.3;">When everything can be generated, proof of pre-existence becomes infrastructure.</div>
+          <div style="font-size:15px;color:var(--cream-soft);max-width:400px;margin-bottom:32px;">Register when specific bytes existed. Anchored in Bitcoin. Nothing leaves your device.</div>
+          <div style="display:flex;gap:16px;">
+            <div style="font-family:'DM Mono',monospace;font-size:11px;padding:10px 24px;border:1px solid var(--gold-dim);color:var(--cream-soft);border-radius:4px;">Open App</div>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;padding:10px 24px;color:var(--cream-dim);">View Core API ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="annotation">
+      Circumpunct alleen in de header (16x16, naast "Umarise"). Geen mark in de hero.
+      De landing verkoopt het concept met woorden, niet met symbolen.
+    </p>
+  </div>
+
+  <!-- ==================== /verify ==================== -->
+
+  <div class="mockup-container">
+    <div class="mockup">
+      <div class="mockup-label">
+        <span>umarise.com/verify</span>
+        <span class="mockup-url">Verificatie tool</span>
+      </div>
+      <div class="browser dark-page">
+        <!-- Header -->
+        <div class="site-header dark">
+          <div class="site-header-left">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="0.8"/>
+              <circle cx="8" cy="8" r="2" fill="#C5935A"/>
+            </svg>
+            <span class="site-header-name dark">Umarise</span>
+          </div>
+          <div class="site-nav dark">
+            <a href="#">Home</a>
+            <a href="#">Core</a>
+            <a href="#" class="active">Verify</a>
+            <a href="#">Review</a>
+          </div>
+        </div>
+
+        <!-- Pre-upload state -->
+        <div class="page-content centered" style="padding: 60px 32px 24px;">
+          <div style="font-family:'Playfair Display',serif;font-weight:300;font-size:26px;color:var(--cream);margin-bottom:8px;">Verify an Origin</div>
+          <div style="font-size:14px;color:var(--cream-dim);margin-bottom:32px;">Upload a ZIP to verify independently. No account needed.</div>
+
+          <!-- Upload zone with ghost circumpunct -->
+          <div style="width:400px;padding:48px;border:1.5px dashed rgba(197,147,90,0.15);border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+            <svg width="48" height="48" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.12)" stroke-width="1.2"/>
+            </svg>
+            <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--cream-dim);">Drop ZIP here or click to upload</div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(197,147,90,0.3);">RESULT</div>
+        </div>
+
+        <!-- Post-verification result -->
+        <div class="page-content centered" style="padding: 0 32px 60px;">
+          <div style="width:400px;padding:28px;background:rgba(197,147,90,0.04);border:1px solid rgba(197,147,90,0.1);border-radius:8px;text-align:left;">
+            <!-- Circumpunct as result indicator -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <svg width="28" height="28" viewBox="0 0 28 28">
+                <circle cx="14" cy="14" r="11" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="1"/>
+                <circle cx="14" cy="14" r="3.5" fill="#C5935A" filter="url(#g1)"/>
+                <defs><filter id="g1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+              </svg>
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:0.5px;">Verankerd</div>
+                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--cream-dim);">Bitcoin block #882,441</div>
+              </div>
+            </div>
+
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--cream-dim);margin-bottom:4px;">ORIGIN ID</div>
+            <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--cream);margin-bottom:14px;">59D00F42</div>
+
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--cream-dim);margin-bottom:4px;">HASH</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cream-soft);word-break:break-all;margin-bottom:14px;">sha256:e3b0c44298fc1c149afbf4c8996fb924...</div>
+
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--cream-dim);margin-bottom:4px;">GEREGISTREERD</div>
+            <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--cream);">8 februari 2026, 14:23:07 UTC</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="annotation">
+      Upload zone: ghost circumpunct (lege cirkel, geen stip). Na succesvolle verificatie:
+      verankerd circumpunct (28x28, met glow) naast "Verankerd" status.
+      Bij mismatch: geen circumpunct, foutmelding in tekst.
+    </p>
+  </div>
+
+  <!-- ==================== /core ==================== -->
+
+  <div class="mockup-container">
+    <div class="mockup">
+      <div class="mockup-label">
+        <span>umarise.com/core</span>
+        <span class="mockup-url">API documentatie</span>
+      </div>
+      <div class="browser" style="background: var(--light-bg);">
+        <!-- Header light -->
+        <div class="site-header" style="border-bottom-color: var(--light-rule);">
+          <div class="site-header-left">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(139,115,85,0.3)" stroke-width="0.8"/>
+              <circle cx="8" cy="8" r="2" fill="#8B7355"/>
+            </svg>
+            <span class="site-header-name light">Umarise</span>
+          </div>
+          <div class="site-nav light">
+            <a href="#">Home</a>
+            <a href="#" class="active">Core</a>
+            <a href="#">Verify</a>
+            <a href="#">Review</a>
+          </div>
+        </div>
+
+        <div class="page-content" style="max-width: 680px; margin: 0 auto;">
+          <div style="font-family:'Playfair Display',serif;font-weight:400;font-size:24px;color:var(--light-ink);margin-bottom:6px;">Core API v1</div>
+          <div style="font-size:14px;color:var(--light-mid);margin-bottom:32px;">Frozen. No breaking changes.</div>
+
+          <!-- Endpoint list -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--light-mid);margin-bottom:12px;">Public Endpoints</div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">GET</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-resolve?origin_id=</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">Resolve an origin</span>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">GET</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-proof?origin_id=</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">Download .ots proof</span>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">GET</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-health</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">Service status</span>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">GET</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-stats</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">Registry statistics</span>
+          </div>
+
+          <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--light-mid);margin-top:28px;margin-bottom:12px;">Partner Endpoints</div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.2)" stroke-width="0.7" stroke-dasharray="2.5 2.5"/><circle cx="6" cy="6" r="1.8" fill="rgba(139,115,85,0.4)"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">POST</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-origins</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">Create origin (auth)</span>
+          </div>
+
+          <div style="padding:14px 0;border-bottom:1px solid var(--light-rule);display:flex;align-items:center;gap:10px;">
+            <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.2)" stroke-width="0.7" stroke-dasharray="2.5 2.5"/><circle cx="6" cy="6" r="1.8" fill="rgba(139,115,85,0.4)"/></svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);">GET</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-mid);">/v1-core-origins-proof</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--light-mid);">JSON proof (auth)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="annotation">
+      Inline circumpunct (12x12) naast elk endpoint. Publieke endpoints: volle mark.
+      Partner endpoints: pending-variant (gestreept) om auth-vereiste te signaleren.
+      Geen mark bij health/stats als die geen origins betreffen.
+    </p>
+  </div>
+
+  <!-- ==================== /review ==================== -->
+
+  <div class="mockup-container">
+    <div class="mockup">
+      <div class="mockup-label">
+        <span>umarise.com/review</span>
+        <span class="mockup-url">Technical Review Kit</span>
+      </div>
+      <div class="browser" style="background: var(--light-bg);">
+        <!-- Header light -->
+        <div class="site-header" style="border-bottom-color: var(--light-rule);">
+          <div class="site-header-left">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(139,115,85,0.3)" stroke-width="0.8"/>
+              <circle cx="8" cy="8" r="2" fill="#8B7355"/>
+            </svg>
+            <span class="site-header-name light">Umarise</span>
+          </div>
+          <div class="site-nav light">
+            <a href="#">Home</a>
+            <a href="#">Core</a>
+            <a href="#">Verify</a>
+            <a href="#" class="active">Review</a>
+          </div>
+        </div>
+
+        <div class="page-content" style="max-width: 680px; margin: 0 auto;">
+          <div style="font-family:'Playfair Display',serif;font-weight:400;font-size:24px;color:var(--light-ink);margin-bottom:6px;">Technical Review Kit</div>
+          <div style="font-size:14px;color:var(--light-mid);margin-bottom:32px;">For technical due diligence. Verify every claim independently.</div>
+
+          <!-- Example response -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--light-mid);margin-bottom:12px;">Example: Resolve Response</div>
+
+          <div style="background:#f0efeb;border-radius:8px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--light-ink);line-height:1.8;">
+            {<br>
+            &nbsp;&nbsp;<span style="color:var(--light-mid);">"origin_id":</span> <span style="display:inline-flex;align-items:center;gap:6px;">"59D00F42" <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg></span>,<br>
+            &nbsp;&nbsp;<span style="color:var(--light-mid);">"hash":</span> "sha256:e3b0c442...",<br>
+            &nbsp;&nbsp;<span style="color:var(--light-mid);">"captured_at":</span> "2026-02-08T14:23:07Z",<br>
+            &nbsp;&nbsp;<span style="color:var(--light-mid);">"ots_status":</span> "anchored"<br>
+            }
+          </div>
+
+          <div style="margin-top:24px;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--light-mid);margin-bottom:12px;">Architecture Properties</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="padding:14px;background:#f0efeb;border-radius:6px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--light-gold);text-transform:uppercase;letter-spacing:1px;">Zero-knowledge</span>
+              </div>
+              <div style="font-size:13px;color:var(--light-mid);">Only SHA-256 hash received. No content, no PII.</div>
+            </div>
+            <div style="padding:14px;background:#f0efeb;border-radius:6px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--light-gold);text-transform:uppercase;letter-spacing:1px;">Write-once</span>
+              </div>
+              <div style="font-size:13px;color:var(--light-mid);">Database triggers enforce immutability.</div>
+            </div>
+            <div style="padding:14px;background:#f0efeb;border-radius:6px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--light-gold);text-transform:uppercase;letter-spacing:1px;">Survives</span>
+              </div>
+              <div style="font-size:13px;color:var(--light-mid);">Proof verifiable without Umarise.</div>
+            </div>
+            <div style="padding:14px;background:#f0efeb;border-radius:6px;">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="rgba(139,115,85,0.35)" stroke-width="0.7"/><circle cx="6" cy="6" r="1.8" fill="#8B7355"/></svg>
+                <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--light-gold);text-transform:uppercase;letter-spacing:1px;">On-device</span>
+              </div>
+              <div style="font-size:13px;color:var(--light-mid);">Content never leaves your phone.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="annotation">
+      Inline circumpunct (12x12) naast origin_id in response-voorbeelden.
+      Naast elke architectuureigenschap als subtiel icoon.
+      Light variant overal. Consistent, niet dominant.
+    </p>
+  </div>
+
+</div>
+
+<hr class="divider">
+
+<!-- ============================================================ -->
+<!-- SECTION 4: DESIGN REGELS SAMENVATTING                         -->
+<!-- ============================================================ -->
+
+<div class="section">
+  <div class="section-label">Samenvatting</div>
+  <div class="section-title">Design regels</div>
+
+  <table class="placement-table">
+    <tr><th>Regel</th><th colspan="3">Toelichting</th></tr>
+    <tr>
+      <td>Header: altijd</td>
+      <td colspan="3">Circumpunct (16x16) links van "Umarise" op elke pagina. Enige constante. Dark of light afhankelijk van achtergrond.</td>
+    </tr>
+    <tr>
+      <td>Hero: nooit</td>
+      <td colspan="3">Geen circumpunct in hero-secties. De tekst doet het werk. Het symbool is dienend, niet schreeuwend.</td>
+    </tr>
+    <tr>
+      <td>Glow: alleen /verify</td>
+      <td colspan="3">feGaussianBlur alleen bij verificatie-resultaat (ceremonieel moment). Overal anders: clean, plat.</td>
+    </tr>
+    <tr>
+      <td>Ghost: alleen upload</td>
+      <td colspan="3">Lege cirkel zonder stip alleen in /verify upload zone. Niet op andere pagina's.</td>
+    </tr>
+    <tr>
+      <td>Inline: 12x12</td>
+      <td colspan="3">Naast technische velden (endpoints, response keys). Decoratief, geen interactie.</td>
+    </tr>
+    <tr>
+      <td>Juridisch: niets</td>
+      <td colspan="3">/legal, /privacy, /terms: geen symbolen. Alleen tekst.</td>
+    </tr>
+    <tr>
+      <td>Partner endpoints</td>
+      <td colspan="3">Pending-variant (gestreepte cirkel) om auth-vereiste visueel te onderscheiden van publieke endpoints.</td>
+    </tr>
+    <tr>
+      <td>Dark vs light</td>
+      <td colspan="3">umarise.com en /verify: dark (#C5935A stip, rgba gold stroke). /core en /review: light (#8B7355 stip, rgba brown stroke).</td>
+    </tr>
+  </table>
+</div>
+
+</div>
+</body>
+</html>

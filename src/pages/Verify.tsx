@@ -8,6 +8,7 @@ import { VerifyProcessLog, type StepState } from '@/components/verify/VerifyProc
 import { VerifyHashDisplay } from '@/components/verify/VerifyHashDisplay';
 import { VerifyResult, type VerifyResultData } from '@/components/verify/VerifyResult';
 import { VerifyManualForm } from '@/components/verify/VerifyManualForm';
+import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 // ─── Helpers ───
 
@@ -356,7 +357,10 @@ export default function Verify() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg text-landing-cream/80">Umarise</span>
+          <span className="font-serif text-lg text-landing-cream/80 flex items-center gap-2">
+            <OriginMark size={16} state="anchored" variant="dark" />
+            Umarise
+          </span>
         </div>
       </header>
 

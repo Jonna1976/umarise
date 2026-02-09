@@ -11,7 +11,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, Check, Terminal } from 'lucide-react';
+import { Copy, Check, Terminal, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { ApiTester } from '@/components/codex/ApiTester';
 import { Button } from '@/components/ui/button';
 import { OriginMark } from '@/components/prototype/components/OriginMark';
@@ -33,7 +34,20 @@ export default function ReviewKit() {
     <div className="min-h-screen bg-[hsl(var(--landing-deep))]">
       {/* Header */}
       <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
-        <div className="max-w-3xl mx-auto px-6 py-10">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back</span>
+          </Link>
+          <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.8)] flex items-center gap-2">
+            <OriginMark size={16} state="anchored" variant="dark" />
+            Umarise
+          </span>
+        </div>
+        <div className="max-w-3xl mx-auto px-6 pb-10 pt-6">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

@@ -52,7 +52,10 @@ export function VerifyDropZone({ onFile, isProcessing }: VerifyDropZoneProps) {
         }
       `}
     >
-      <div className="text-[28px] text-landing-muted/40 mb-3">↑</div>
+      {/* Ghost circumpunct — empty ring, no dot (invites upload) */}
+      <svg width="48" height="48" viewBox="0 0 48 48" className="mx-auto mb-4">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.12)" strokeWidth="1.2"/>
+      </svg>
       <div className="font-serif text-xl text-landing-cream mb-2">
         Drop your Origin ZIP
       </div>
