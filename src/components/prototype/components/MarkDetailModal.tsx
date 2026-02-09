@@ -1,23 +1,26 @@
 /**
- * Mark Detail Modal — S7 detail view
+ * Mark Detail Modal. S7 detail view
  * 
- * Per briefing reference (v7):
+ * Per V7 design specs:
  * - Overlay (96% opacity dark)
  * - Photo/artifact in golden frame
- * - "Origin marked" title
- * - Origin ID (JetBrains Mono 9px)
- * - Date (EB Garamond 13px)
- * - Hash (JetBrains Mono 9px, 0.5 opacity)
- * - Status: pulsing dot + "PENDING" or solid dot + "ANCHORED IN BITCOIN"
+ * - "Origin marked" title (26px Playfair)
+ * - Origin ID (JetBrains Mono 13px)
+ * - Date (EB Garamond 20px)
+ * - Hash (JetBrains Mono 13px, 0.5 opacity)
+ * - Status: circumpunct + "PENDING" or "ANCHORED IN BITCOIN"
  * - "Save as ZIP" button (gold, pill-shaped, always available)
- * - "+ link passkey" subtle text link underneath (NOT a toggle)
- * - Privacy note: "your file stays on your device · only the proof leaves"
- * - Close button (✕) top-right
+ * - "+ link passkey" subtle text link underneath
+ * - Privacy note: "your file stays on your device. only the proof leaves"
+ * - Close button top-right
+ * 
+ * Minimum font size: 17px body, 13px mono (per V7 scaling)
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { OriginMark } from './OriginMark';
 import { saveOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
 import { 
@@ -242,46 +245,43 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* "Origin marked" title */}
           <h2 
-            className="font-playfair text-[22px] text-ritual-gold mb-2"
+            className="font-playfair text-[26px] text-ritual-gold mb-3"
             style={{ fontWeight: 400 }}
           >
             Origin marked
           </h2>
 
-          {/* Origin ID — JetBrains Mono 9px */}
+          {/* Origin ID */}
           <p 
-            className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+            className="font-mono text-[13px] tracking-[3px] uppercase mb-1.5"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
-            {mark.originId.toUpperCase().replace('UM-', 'ORIGIN ')}
+            ORIGIN {displayOriginId}
           </p>
 
-          {/* Date — EB Garamond 13px */}
+          {/* Date */}
           <p 
-            className="font-garamond text-[15px] mb-1.5"
+            className="font-garamond text-[20px] mb-2"
             style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
           >
             {formattedDate} · {formattedTime}
           </p>
 
-          {/* Hash — JetBrains Mono 9px, 0.5 opacity */}
+          {/* Hash */}
           <p 
-            className="font-mono text-[11px] tracking-wide mb-2.5"
+            className="font-mono text-[13px] tracking-wide mb-3"
             style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
           >
             {shortHash}
           </p>
 
-          {/* Status: pulsing dot + text */}
-          <div className="flex items-center gap-1.5 mb-4">
+          {/* Status: circumpunct + text */}
+          <div className="flex items-center gap-2.5 mb-5">
             {isAnchored ? (
               <>
-                <span 
-                  className="w-[5px] h-[5px] rounded-full"
-                  style={{ background: 'hsl(var(--ritual-gold))' }}
-                />
+                <OriginMark size={20} state="anchored" variant="dark" />
                 <p 
-                   className="font-mono text-[11px] tracking-[1px] uppercase"
+                   className="font-mono text-[13px] tracking-[1.5px] uppercase"
                    style={{ color: 'hsl(var(--ritual-gold))' }}
                  >
                    ANCHORED IN BITCOIN
@@ -289,27 +289,22 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                </>
              ) : (
                <>
-                 <motion.span 
-                   className="w-[5px] h-[5px] rounded-full"
-                   style={{ background: 'hsl(var(--ritual-gold))' }}
-                   animate={{ opacity: [0.4, 1, 0.4] }}
-                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                 />
+                 <OriginMark size={20} state="pending" animated variant="dark" />
                  <p 
-                   className="font-mono text-[11px] tracking-[1px] uppercase"
+                   className="font-mono text-[13px] tracking-[1.5px] uppercase"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
                 >
-                  PENDING · anchoring in 1–2 blocks
+                  PENDING · ANCHORING IN 1-2 BLOCKS
                 </p>
               </>
             )}
           </div>
 
-          {/* "Save as ZIP" button — gold, pill-shaped, always available */}
+          {/* "Save as ZIP" button */}
           <button
             onClick={handleSaveAsZip}
             disabled={isSaving || fetchingProof}
-            className="font-playfair text-[15px] px-6 py-2.5 rounded-full transition-all disabled:opacity-50 mb-2.5"
+            className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
             style={{
               fontWeight: 300,
               background: saved 
@@ -337,11 +332,11 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             }
           </button>
 
-          {/* "+ link passkey" — subtle text link, NOT a toggle */}
+          {/* "+ link passkey" */}
           <button
             onClick={handlePasskeyLink}
             disabled={passkeyLinked || passkeyLinking}
-            className="font-garamond text-[14px] tracking-[0.3px] transition-all mb-1"
+            className="font-garamond text-[17px] tracking-[0.3px] transition-all mb-1.5"
             style={{ 
               color: passkeyLinked 
                 ? 'hsl(var(--ritual-gold))' 
@@ -358,10 +353,10 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             }
           </button>
 
-          {/* Passkey error message (subtle, non-intrusive) */}
+          {/* Passkey error message */}
           {passkeyError && (
             <p 
-              className="font-mono text-[11px] tracking-wide mb-1"
+              className="font-mono text-[13px] tracking-wide mb-1.5"
               style={{ color: 'hsl(0 60% 60% / 0.6)' }}
             >
               {passkeyError}
@@ -370,10 +365,10 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* Privacy note */}
           <p 
-            className="font-garamond italic text-[13px] mt-2.5"
+            className="font-garamond italic text-[17px] mt-3"
             style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
           >
-            your file stays on your device · only the proof leaves
+            your file stays on your device. only the proof leaves
           </p>
         </motion.div>
       </motion.div>
