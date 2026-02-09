@@ -3,16 +3,15 @@ import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
 // PauseScreen removed — merged into MarkScreen
 import { MarkScreen } from './screens/MarkScreen';
-import { ReleaseScreen } from './screens/ReleaseScreen';
-import { ZipScreen } from './screens/ZipScreen';
-import { OwnedScreen } from './screens/OwnedScreen';
+// ReleaseScreen, ZipScreen, OwnedScreen removed — merged into SealedScreen
+import { SealedScreen } from './screens/SealedScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { WallOfExistence } from './screens/WallOfExistence';
 import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'capture' | 'mark' | 'release' | 'zip' | 'owned' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'capture' | 'mark' | 'sealed' | 'home' | 'wall';
 
 export interface Artifact {
   id: string;
@@ -98,7 +97,7 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
-        goToScreen('release');
+        goToScreen('sealed');
       } else {
         console.error('[RitualFlow] Mark creation returned null');
         toast.error('Failed to seal mark');
@@ -111,18 +110,8 @@ export function RitualFlow() {
     }
   }, [capturedImageUrl, createMark, goToScreen]);
 
-  // S4 Release → S5 ZIP
-  const handleReleaseComplete = useCallback(() => {
-    goToScreen('zip');
-  }, [goToScreen]);
-
-  // S5 ZIP → S6 Owned (after save + "✓ Owned" + 1.2s)
-  const handleZipComplete = useCallback(() => {
-    goToScreen('owned');
-  }, [goToScreen]);
-
-  // S6 Owned → S7 Wall (auto-advance after 2s)
-  const handleOwnedComplete = useCallback(() => {
+  // Sealed → Wall (after Save → ✓ Owned → 0.8s)
+  const handleSealedComplete = useCallback(() => {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
     isCreatingMark.current = false;
@@ -176,22 +165,17 @@ export function RitualFlow() {
         <MarkScreen artifact={displayArtifact} onComplete={handleMarkComplete} />
       )}
       
-      {screen === 'release' && (
-        <ReleaseScreen artifact={displayArtifact} onComplete={handleReleaseComplete} />
-      )}
-
-      {screen === 'zip' && currentArtifact && (
-        <ZipScreen
+      {screen === 'sealed' && currentArtifact && (
+        <SealedScreen
           originId={currentArtifact.origin}
           hash={currentArtifact.hash}
           timestamp={currentArtifact.date}
           imageUrl={capturedImageUrl}
-          onComplete={handleZipComplete}
+          mimeType={currentArtifact.mimeType}
+          fileName={currentArtifact.fileName}
+          artifactType={currentArtifact.type}
+          onComplete={handleSealedComplete}
         />
-      )}
-
-      {screen === 'owned' && (
-        <OwnedScreen onComplete={handleOwnedComplete} />
       )}
       
       {screen === 'home' && (

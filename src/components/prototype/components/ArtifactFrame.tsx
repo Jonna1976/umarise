@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactDisplay } from './ArtifactDisplay';
 
 interface ArtifactFrameProps {
@@ -46,6 +46,13 @@ const OFFSET_CLASSES: Record<string, string> = {
  */
 export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFrameProps) {
   const [imageError, setImageError] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const handleDotTap = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setShowTooltip(true);
+    setTimeout(() => setShowTooltip(false), 2500);
+  }, []);
   const size = SIZE_CLASSES[artifact.size] || SIZE_CLASSES['medium-square'];
   const offsetClass = OFFSET_CLASSES[artifact.offset] || OFFSET_CLASSES['middle'];
 
@@ -189,28 +196,48 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
       </motion.p>
 
       {/* Anchored indicator — solid dot (anchored) vs pulsing dot (pending) */}
-      {artifact.otsStatus === 'anchored' ? (
-        <motion.div
-          className="w-[5px] h-[5px] rounded-full mt-1.5"
-          style={{ background: 'hsl(var(--ritual-gold))' }}
-          animate={{ opacity: isFocused ? 0.7 : 0.25 }}
-          transition={{ duration: 0.4 }}
-        />
-      ) : (
-        <motion.div
-          className="w-[5px] h-[5px] rounded-full mt-1.5"
-          style={{ background: 'hsl(var(--ritual-gold))' }}
-          animate={{
-            opacity: isFocused ? [0.2, 0.6, 0.2] : [0.1, 0.3, 0.1],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      )}
+      <div className="relative flex flex-col items-center">
+        {artifact.otsStatus === 'anchored' ? (
+          <motion.div
+            className="w-[5px] h-[5px] rounded-full mt-1.5"
+            style={{ background: 'hsl(var(--ritual-gold))' }}
+            animate={{ opacity: isFocused ? 0.7 : 0.25 }}
+            transition={{ duration: 0.4 }}
+          />
+        ) : (
+          <motion.div
+            className="w-[5px] h-[5px] rounded-full mt-1.5 cursor-pointer"
+            style={{ background: 'hsl(var(--ritual-gold))' }}
+            animate={{
+              opacity: isFocused ? [0.2, 0.6, 0.2] : [0.1, 0.3, 0.1],
+              scale: [1, 1.3, 1],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            onClick={handleDotTap}
+            onTouchStart={handleDotTap}
+          />
+        )}
+
+        {/* Tooltip — appears on tap/hover for pending dots */}
+        <AnimatePresence>
+          {showTooltip && artifact.otsStatus !== 'anchored' && (
+            <motion.p
+              className="absolute top-6 whitespace-nowrap font-garamond italic text-[13px]"
+              style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.3 }}
+            >
+              anchoring in Bitcoin
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
