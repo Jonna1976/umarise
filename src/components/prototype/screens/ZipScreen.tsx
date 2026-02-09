@@ -167,7 +167,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
 
       {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
-        className="font-playfair text-[26px] text-ritual-gold mb-8"
+        className="font-playfair text-[30px] text-ritual-gold mb-8"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
