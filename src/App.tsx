@@ -81,7 +81,7 @@ const App = () => (
             <Route path="/pilot-tracker" element={<InternalGate><PilotTracker /></InternalGate>} />
             <Route path="/prototype" element={<InternalGate><Prototype /></InternalGate>} />
             <Route path="/intake" element={<InternalGate><Intake /></InternalGate>} />
-            <Route path="/spec" element={<InternalGate><Intake /></InternalGate>} />
+            <Route path="/spec" element={<Intake />} />
             
             {/* DEV/PREVIEW ROUTES - Behind InternalGate */}
             <Route path="/origin-flow" element={<InternalGate><B2BWalkthrough /></InternalGate>} />
