@@ -216,16 +216,6 @@ export function SealedPreview() {
         {saved ? '✓ Owned' : 'Save your origin'}
       </motion.button>
 
-      {/* ── Privacy note ── */}
-      <motion.p
-        className="font-garamond italic text-[15px] text-center max-w-[280px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 2.2 }}
-      >
-        your file stays on your device · only the proof leaves
-      </motion.p>
     </motion.div>
   );
 }
