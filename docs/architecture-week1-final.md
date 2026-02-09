@@ -1,4 +1,4 @@
-# Umarise: Architectuuroverzicht (8 feb 2026)
+# Umarise: Architectuuroverzicht (9 feb 2026)
 
 ```mermaid
 graph TB
@@ -20,6 +20,7 @@ graph TB
         PROTO["/prototype: S0-S7 Flow"]
         INTAKE["/intake"]
         PILOT["/pilot-tracker"]
+        ARCH["/architecture"]
     end
 
     subgraph "core.umarise.com (B2B API)"
@@ -37,7 +38,7 @@ graph TB
         IDB["IndexedDB\nThumbnails"]
         WC["Web Crypto API\nSHA-256"]
         WA["WebAuthn\nPasskey"]
-        ZIP["JSZip\nCertificate + Photo"]
+        ZIP["JSZip\nCertificate + Photo + VERIFY.txt"]
     end
 
     PROTO -->|"INSERT pages"| DB
@@ -64,11 +65,11 @@ graph TB
 | **S0 Welcome** | ✅ Live | Browser UI |
 | **S1 Capture** | ✅ Camera + Photo Library | Device → Web Crypto |
 | **S2 Pause** | ✅ Visuele bevestiging | Browser UI |
-| **S3 Mark** | ✅ SHA-256 hashing | Client-side → `pages` INSERT |
-| **S4 Release** | ✅ Origin ID + status | Browser UI |
-| **S5 ZIP** | ✅ Live | Client-side JSZip |
-| **S6 Owned** | ✅ Live (Wall) | Browser UI |
-| **S7 Marked Origins** | ✅ Live | Client + `/v1-core-resolve` |
+| **S3 Mark** | ✅ SHA-256 hashing + hold-to-mark | Client-side → `pages` INSERT |
+| **S4 Sealed** | ✅ Museum label + artifact + file list | Browser UI |
+| **S5 ZIP** | ✅ Live (photo + certificate + VERIFY.txt + proof.ots) | Client-side JSZip |
+| **S6 Owned** | ✅ Auto-advance na save | Browser UI → Wall |
+| **S7 Wall of Existence** | ✅ Horizontal gallery + detail modal | Client + `/v1-core-resolve` |
 | **Passkey** | ✅ Live | Client-side WebAuthn |
 | **IndexedDB thumbnails** | ✅ Live | Lokaal op device |
 | **OTS status polling** | ✅ Live | `/v1-core-resolve` + `/v1-core-proof` via `useProofPolling` |
@@ -76,8 +77,8 @@ graph TB
 **Consumer-only features** (raken Core NIET):
 - Passkey/WebAuthn ceremony → `claimed_by` + `signature` in certificate.json
 - Thumbnails in IndexedDB
-- ZIP generatie met photo + certificate
-- Alle UI/UX schermen
+- ZIP generatie met photo + certificate + VERIFY.txt
+- Alle UI/UX schermen (Museum Aesthetic design system)
 
 ---
 
@@ -106,6 +107,8 @@ graph TB
 |---|--------|----------|---------|
 | 8 | `POST` | `/v1-internal-partner-create` | API key generatie |
 | 9 | `GET` | `/v1-internal-metrics` | 24h operationele metrics |
+
+**Core v1 status:** Technisch bevroren (6 feb 2026). Geen nieuwe features. Alleen bugfixes en security hardening.
 
 ---
 
@@ -146,27 +149,60 @@ graph LR
 **Wat er NIET over de grens gaat:**
 - Foto bytes (nooit)
 - Thumbnails (lokaal)
-- Passkey credentials (Supabase Auth, niet Core)
+- Passkey credentials (Auth, niet Core)
 - UI labels, schermnamen (App-domein)
 - `device_user_id` (Core is identity-agnostic)
 
 ---
 
-### 4. `/verify`: Onafhankelijk Verificatie-instrument
+### 4. Verify Discovery Path (nieuw: 9 feb)
+
+Vier technische contactpunten die verkeer naar `/verify` leiden:
+
+| # | Contactpunt | Waar | Mechanisme |
+|---|-------------|------|------------|
+| 1 | **VERIFY.txt** | In elke ZIP | Origin ID, timestamp, hash, directe verificatielink |
+| 2 | **verify_url** | In certificate.json | `https://umarise.com/verify` (canoniek) |
+| 3 | **Verifieer-link** | Sealed screen (S4) | Subtiele link onder save-button |
+| 4 | **Deel origin** | Wall detail modal (S7) | Web Share API → ZIP / clipboard fallback |
+
+---
+
+### 5. Origin Mark Visueel Systeem (nieuw: 9 feb)
+
+De circumpunct (⊙) als universeel brand- en statussymbool:
+
+| Context | Formaat | State | Variant |
+|---------|---------|-------|---------|
+| **S0 Welcome** | 72px | anchored | dark, heartbeat animatie |
+| **S1 Capture** | 48px | anchored | dark, breathing animatie |
+| **S4 Sealed** | 48px | anchored | dark, glow |
+| **Wall status** | 20px | anchored/pending | dark |
+| **Navigation** | 28px | anchored | dark |
+| **Site header** | 16px | anchored | dark (alle pagina's) |
+| **/verify upload zone** | 48px | ghost | dark (lege ring) |
+| **/verify resultaat** | 28px | anchored | dark, glow |
+| **/core partner endpoints** | 12px | pending | dark (gestreepeld) |
+| **/review properties** | 12px | anchored | dark |
+
+---
+
+### 6. `/verify`: Onafhankelijk Verificatie-instrument
 
 | Eigenschap | Waarde |
 |-----------|--------|
 | **Route** | `/verify` (publiek, geen PinGate) |
-| **Architectuur** | Gesoleerd van App-laag |
+| **Architectuur** | Geïsoleerd van App-laag |
 | **Dependencies** | Geen Auth, geen IndexedDB, geen `pages` tabel |
 | **Hashing** | Client-side Web Crypto API |
 | **ZIP extractie** | Client-side JSZip |
 | **API calls** | `POST /v1-core-verify` (publiek) |
 | **Privacy** | Bestanden verlaten device NIET |
+| **Origin Mark** | Ghost (upload) → Anchored+glow (resultaat) |
 
 ---
 
-### 5. Database Integriteit
+### 7. Database Integriteit
 
 | Tabel | Bescherming | Doel |
 |-------|-------------|------|
@@ -177,24 +213,24 @@ graph LR
 
 ---
 
-### 6. Publieke Documentatie-routes
+### 8. Publieke Documentatie-routes
 
-| Route | Doel | Doelgroep |
-|-------|------|-----------|
-| `/` | Landing / infrastructuur positionering | Iedereen |
-| `/origin` | Wat is een origin? | Prospects |
-| `/core` | Core API spec | Technisch |
-| `/why` | Waarom origins? | Business |
-| `/review` | Technical Review Kit | CTOs / integrators |
-| `/proof` | Proof uitleg | Algemeen |
-| `/verify` | Verificatie tool | Iedereen |
-| `/legal` | Juridisch kader | Juridisch |
-| `/privacy` + `/terms` | Privacy en voorwaarden | Compliance |
-| `/install` | PWA installatie | Consumenten |
+| Route | Doel | Doelgroep | Origin Mark |
+|-------|------|-----------|-------------|
+| `/` | Landing / infrastructuur positionering | Iedereen | 16px header |
+| `/origin` | Wat is een origin? | Prospects | 16px header |
+| `/core` | Core API spec | Technisch | 16px header + 12px inline |
+| `/why` | Waarom origins? | Business | 16px header |
+| `/review` | Technical Review Kit | CTOs / integrators | 16px header + 12px inline |
+| `/proof` | Proof uitleg | Algemeen | 16px header |
+| `/verify` | Verificatie tool | Iedereen | 16px header + 48px/28px |
+| `/legal` | Juridisch kader | Juridisch | 16px header |
+| `/privacy` + `/terms` | Privacy en voorwaarden | Compliance | 16px header |
+| `/install` | PWA installatie | Consumenten | 16px header |
 
 ---
 
-### 7. Partner Onboarding Flow
+### 9. Partner Onboarding Flow
 
 ```mermaid
 graph TD
@@ -211,25 +247,24 @@ graph TD
     K --> L["Partner live"]
 ```
 
-| # | Stap | Wie | Wat |
-|---|------|-----|-----|
-| 1 | Eerste contact | Partner | Mailt `partners@umarise.com` met use case |
-| 2 | Suitability check | Umarise | Green flags: hoge frequentie data, regulatory druk, audit needs. Red flags: wil records verwijderen, zoekt content management |
-| 3 | Kwalificatie | Umarise | 4x JA + 4x OK framework. Past dit bij een write-once registry? |
-| 4 | Intake | Partner | Vult systeemdetails in (intern `/intake` checklist) |
-| 5 | Due diligence | Umarise | Technische evaluatie: welke artifacts, hashing capability, volume |
-| 6 | Tier selectie | Samen | Op basis van volume en use case |
-| 7 | API key generatie | Umarise | Via `v1-internal-partner-create`, 64-char hex key |
-| 8 | Key overdracht | Umarise → Partner | Plaintext key eenmalig gedeeld, daarna nooit meer opvraagbaar |
-| 9 | Integratie | Partner | `POST /v1-core-origins` met `X-API-Key` header |
-| 10 | Verificatie | Samen | Eerste attestatie testen, resolve en proof checken |
-| 11 | Live | Partner | Productie-traffic start |
-
 **Kernprincipes:** Geen self-service. Elke partner wordt handmatig gekwalificeerd. Key is eenmalig. Write-once en hash-only.
 
 ---
 
-### 8. Samenvatting
+### 10. ZIP Artifact Compositie
+
+Elke origin produceert een zelfstandig bewijspakket:
+
+| Bestand | Altijd aanwezig | Inhoud |
+|---------|----------------|--------|
+| `photo.jpg/png` | Nee (alleen als foto beschikbaar) | Origineel artifact |
+| `certificate.json` | ✅ Ja | Origin ID, hash, timestamp, claimed_by, verify_url |
+| `VERIFY.txt` | ✅ Ja | Menselijk leesbare verificatie-instructies + link |
+| `proof.ots` | Nee (alleen bij anchored status) | OpenTimestamps binary bewijs |
+
+---
+
+### 11. Samenvatting
 
 ```
 +-----------------------------------------------------+
@@ -237,6 +272,10 @@ graph TD
 |                                                      |
 |  Publiek:  / /origin /core /why /verify /review ...  |
 |  PinGate:  /app /prototype /intake /pilot-tracker    |
+|            /architecture                              |
+|                                                      |
+|  Visueel:  Origin Mark (⊙) op alle headers (16px)   |
+|            Ghost/pending/anchored states per context  |
 |                                                      |
 +-----------------------------------------------------+
 |               core.umarise.com                       |
@@ -244,6 +283,7 @@ graph TD
 |  Publiek:    resolve, verify, proof, health           |
 |  Partner:    origins, origins-proof, proofs-export    |
 |  Intern:     partner-create, metrics                  |
+|  Status:     v1 bevroren (6 feb 2026)                |
 |                                                      |
 +-----------------------------------------------------+
 |                  Hetzner                              |
@@ -256,7 +296,13 @@ graph TD
 |                                                      |
 |  IndexedDB, Web Crypto, WebAuthn, JSZip              |
 |  Geen data verlaat het device zonder expliciete actie |
+|  ZIP = photo + certificate.json + VERIFY.txt + .ots  |
 +-----------------------------------------------------+
 ```
 
 **Kernfeit:** Core weet niet dat de App bestaat. De App weet dat Core bestaat. De grens is schoon.
+
+**Vandaag toegevoegd (9 feb):**
+- Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Wall deel-knop)
+- Origin Mark visueel systeem op alle site-pagina's (16px header, ghost/pending/anchored states)
+- ZIP bevat nu VERIFY.txt met menselijk leesbare verificatie-instructies

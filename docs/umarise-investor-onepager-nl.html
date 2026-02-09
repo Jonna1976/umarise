@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umarise: Investor Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fafaf8;
+    --mid: #6b6b6b;
+    --accent: #c45d2c;
+    --rule: #d4d0c8;
+    --code-bg: #f0efeb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    font-family: 'Newsreader', Georgia, serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.55;
+    font-size: 14.5px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 56px;
+  }
+
+  @media print {
+    body { padding: 40px 48px; font-size: 13.5px; }
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 32px;
+  }
+
+  .header h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+
+  .header .meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .positioning {
+    font-size: 19px;
+    line-height: 1.45;
+    margin-bottom: 32px;
+    max-width: 640px;
+  }
+
+  .positioning em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .section p {
+    margin-bottom: 8px;
+    max-width: 640px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 28px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+    color: var(--mid);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  td {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  td:first-child {
+    font-weight: 600;
+    width: 40%;
+  }
+
+  .mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .highlight-box {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .highlight-box p { margin-bottom: 4px; }
+  .highlight-box p:last-child { margin-bottom: 0; }
+
+  .stack {
+    font-family: 'DM Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.7;
+    background: var(--code-bg);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin: 8px 0;
+    white-space: pre;
+  }
+
+  .footer {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+  }
+
+  .footer a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .compact-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .compact-list li {
+    padding: 3px 0;
+    font-size: 13.5px;
+  }
+
+  .compact-list li::before {
+    content: ">";
+    font-family: 'DM Mono', monospace;
+    color: var(--accent);
+    margin-right: 8px;
+    font-size: 12px;
+  }
+
+  .small { font-size: 12px; color: var(--mid); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Umarise</h1>
+  <div class="meta">
+    Investor Overview<br>
+    Februari 2026<br>
+    Vertrouwelijk
+  </div>
+</div>
+
+<p class="positioning">
+  Een bewijslaag voor digitale content. Umarise registreert <em>wanneer specifieke bytes bestonden</em>,
+  verankerd in Bitcoin via OpenTimestamps. Geen content verlaat het apparaat.
+  Het bewijs overleeft onafhankelijk van de dienst.
+</p>
+
+<div class="two-col">
+  <div class="section">
+    <div class="section-title">Het Probleem</div>
+    <p>
+      Er is geen standaard infrastructuur om te bewijzen dat een digitaal bestand op een specifiek
+      moment bestond. Screenshots zijn vervalsbaar. Metadata is bewerkbaar. Cloud-timestamps zijn
+      afhankelijk van de provider. Nu AI-gegenereerde content schaalt, wordt het gat tussen
+      "dit bestond" en "dit is bewijsbaar" een structureel risico voor juridisch bewijs,
+      IP-bescherming, compliance en audit trails.
+    </p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">De Oplossing</div>
+    <p>
+      Umarise is een attestatie-register. Het apparaat berekent een SHA-256 hash client-side en
+      stuurt alleen de hash. De hash wordt verankerd in Bitcoin via OpenTimestamps. Het resulterende
+      .ots bewijsbestand is onafhankelijk verifieerbaar door iedereen, zonder Umarise te hoeven vertrouwen.
+    </p>
+    <p>
+      Write-once, append-only. Geen wijzigingen, geen verwijderingen. Afgedwongen op database-niveau.
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Wat Er Live Staat (Februari 2026)</div>
+  <div class="stack">Client Device          SHA-256 hashing, WebAuthn passkey, ZIP generatie
+Umarise App (B2C)     Camera capture, volledige S0-S7 flow, Wall, verify tool
+Core API (B2B)        9 endpoints (4 publiek, 3 partner, 2 intern), v1 bevroren
+Hetzner Worker        OTS Merkle-aggregatie, Bitcoin-verankering
+Database              Write-once triggers, DDL audit, immutability enforcement</div>
+  <p class="small" style="margin-top: 8px;">
+    End-to-end geverifieerd: van camera tot Bitcoin-verankerd bewijs in zelfstandige ZIP.
+    Alle componenten productie-klaar. Core API is bevroren; geen breaking changes.
+  </p>
+</div>
+
+<div class="two-col">
+  <div class="section">
+    <div class="section-title">Waarom Nu</div>
+    <ul class="compact-list">
+      <li>EU AI Act Art. 50 (augustus 2026): AI-outputs moeten detecteerbaar zijn. Bewijs van pre-AI bestaan wordt infrastructuur.</li>
+      <li>eIDAS 2.0: elektronische timestamps krijgen wettelijk vermoeden van juistheid in de hele EU.</li>
+      <li>Content-authenticiteitscrisis: deepfakes, synthetische media, AI-gegenereerde documenten ondermijnen basisvertrouwen.</li>
+      <li>Marseille-uitspraak (maart 2025): Franse rechter accepteerde blockchain-timestamp als primair bewijs in IP-zaak.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Verdienmodel</div>
+    <table>
+      <tr><th>Kanaal</th><th>Model</th></tr>
+      <tr><td>B2C App</td><td>Gratis. Foto's (V1). Bouwt het attestatie-register op. Vliegwiel voor B2B-vraag.</td></tr>
+      <tr><td>B2B API</td><td>SaaS per tier. Partners betalen voor schrijftoegang (POST /v1-core-origins). Verificatie is altijd gratis en publiek.</td></tr>
+    </table>
+    <p style="margin-top: 10px; font-size: 13px;">
+      Unit economics: marginale kosten per attestatie nagenoeg nul. Bitcoin-verankering wordt gebatcht via Merkle-aggregatie.
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Concurrentielandschap</div>
+  <table>
+    <tr><th>Eigenschap</th><th>Umarise</th><th>C2PA</th><th>Bernstein / OriginStamp</th></tr>
+    <tr><td>Content-zichtbaarheid</td><td>Alleen hash. Nul.</td><td>Volledige metadata-keten</td><td>Hash of document-upload</td></tr>
+    <tr><td>Identiteit vereist</td><td>Nee (passkey optioneel)</td><td>Ja (CA-gecertificeerd)</td><td>Ja (account)</td></tr>
+    <tr><td>Bewijsonafhankelijkheid</td><td>Overleeft zonder dienst</td><td>Vereist CA trust chain</td><td>Platformafhankelijk</td></tr>
+    <tr><td>Consumententoegang</td><td>Gratis app</td><td>Geen consumentenproduct</td><td>Enterprise-pricing</td></tr>
+    <tr><td>Verificatie</td><td>Publiek, geen auth</td><td>Toolafhankelijk</td><td>Platformafhankelijk</td></tr>
+  </table>
+  <p style="margin-top: 10px; font-size: 13px;">
+    C2PA en Umarise zijn complementair: C2PA volgt de levenscyclus van content door enabled tools.
+    Umarise registreert bestaan voor, tussen of buiten die tools.
+  </p>
+</div>
+
+<div class="highlight-box">
+  <div class="section-title" style="margin-bottom: 6px;">Architectuureigenschappen</div>
+  <p><strong>Hash-only:</strong> Geen content, geen PII, geen account. GDPR-compliant door architectuur, niet door beleid.</p>
+  <p><strong>Write-once:</strong> Database-triggers blokkeren UPDATE en DELETE. Onveranderlijkheid wordt afgedwongen, niet beloofd.</p>
+  <p><strong>Bewijs overleeft:</strong> Elk .ots bestand is verifieerbaar tegen Bitcoin zonder Umarise.</p>
+  <p><strong>Core-onafhankelijkheid:</strong> De API functioneert zonder de App, de website of het bedrijf.</p>
+</div>
+
+<div class="two-col">
+  <div class="section">
+    <div class="section-title">Status</div>
+    <table>
+      <tr><td>Fase</td><td>Pre-revenue</td></tr>
+      <tr><td>Product</td><td>Live, productie-klaar</td></tr>
+      <tr><td>Partners</td><td>0 (onboarding pipeline actief)</td></tr>
+      <tr><td>Team</td><td>Solo founder</td></tr>
+      <tr><td>Funding</td><td>Gebootstrapt</td></tr>
+      <tr><td>Bouwtijd</td><td>1 week (full stack)</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Kernrisico's</div>
+    <ul class="compact-list">
+      <li>Geen bewezen product-market fit</li>
+      <li>Solo team, bus factor = 1</li>
+      <li>Regulatoire timing onzeker (12-36 maanden)</li>
+      <li>C2PA heeft Adobe, Microsoft, BBC consortium-backing</li>
+    </ul>
+    <p style="margin-top: 10px; font-size: 13px;">
+      Mitiganten: nagenoeg nul burn rate, werkend product verlaagt executierisico,
+      C2PA lost een ander (complementair) probleem op.
+    </p>
+  </div>
+</div>
+
+<div class="footer">
+  <div>
+    <a href="https://umarise.com">umarise.com</a>&ensp;/&ensp;
+    <a href="https://umarise.com/core">umarise.com/core</a>&ensp;/&ensp;
+    <a href="https://umarise.com/legal">umarise.com/legal</a>
+  </div>
+  <div>partners@umarise.com</div>
+</div>
+
+</body>
+</html>
