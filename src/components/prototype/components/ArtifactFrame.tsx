@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactDisplay } from './ArtifactDisplay';
+import { OriginMark } from './OriginMark';
 
 interface ArtifactFrameProps {
   artifact: {
@@ -195,38 +196,28 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
         {artifact.date}
       </motion.p>
 
-      {/* Anchored indicator — solid dot (anchored) vs pulsing dot (pending) */}
+      {/* Circumpunct status indicator — anchored (solid) vs pending (dashed) */}
       <div className="relative flex flex-col items-center">
-        {artifact.otsStatus === 'anchored' ? (
-          <motion.div
-            className="w-[5px] h-[5px] rounded-full mt-1.5"
-            style={{ background: 'hsl(var(--ritual-gold))' }}
-            animate={{ opacity: isFocused ? 0.7 : 0.25 }}
-            transition={{ duration: 0.4 }}
+        <motion.div
+          className="mt-1.5"
+          animate={{ opacity: isFocused ? 0.8 : 0.35 }}
+          transition={{ duration: 0.4 }}
+          onClick={artifact.otsStatus !== 'anchored' ? handleDotTap : undefined}
+          onTouchStart={artifact.otsStatus !== 'anchored' ? handleDotTap : undefined}
+        >
+          <OriginMark
+            size={14}
+            state={artifact.otsStatus === 'anchored' ? 'anchored' : 'pending'}
+            animated={artifact.otsStatus !== 'anchored'}
+            variant="dark"
           />
-        ) : (
-          <motion.div
-            className="w-[5px] h-[5px] rounded-full mt-1.5 cursor-pointer"
-            style={{ background: 'hsl(var(--ritual-gold))' }}
-            animate={{
-              opacity: isFocused ? [0.2, 0.6, 0.2] : [0.1, 0.3, 0.1],
-              scale: [1, 1.3, 1],
-            }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            onClick={handleDotTap}
-            onTouchStart={handleDotTap}
-          />
-        )}
+        </motion.div>
 
-        {/* Tooltip — appears on tap/hover for pending dots */}
+        {/* Tooltip — appears on tap/hover for pending marks */}
         <AnimatePresence>
           {showTooltip && artifact.otsStatus !== 'anchored' && (
             <motion.p
-              className="absolute top-6 whitespace-nowrap font-garamond italic text-[13px]"
+              className="absolute top-7 whitespace-nowrap font-garamond italic text-[13px]"
               style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}

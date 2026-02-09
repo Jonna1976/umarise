@@ -16,6 +16,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
+import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
 
 /** Desktop-only download helper */
@@ -159,6 +160,21 @@ export function SealedScreen({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* ── Origin Mark — circumpunct (28x28, glow) ── */}
+      <motion.div
+        className="mb-5"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      >
+        <OriginMark
+          size={28}
+          state="anchored"
+          glow
+          variant="dark"
+        />
+      </motion.div>
+
       {/* ── Title ── */}
       <motion.h1
         className="font-playfair text-[30px] text-ritual-gold mb-8"

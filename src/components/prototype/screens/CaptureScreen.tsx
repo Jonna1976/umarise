@@ -1,5 +1,6 @@
 import { useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
+import { OriginMark } from '../components/OriginMark';
 
 /**
  * Metadata passed from capture to the rest of the ritual flow.
@@ -23,8 +24,8 @@ interface CaptureScreenProps {
  * Screen 1: Capture
  * 
  * Per briefing sectie 4 (S1):
- * - Origin dot centraal in capture ring
- * - Dezelfde dot als op het welkomstscherm, dezelfde ademhaling
+ * - Origin Mark centraal in capture ring
+ * - Dezelfde circumpunct als op het welkomstscherm, dezelfde ademhaling
  * - Tik op de dot → native OS-menu (Take Photo / Photo Library)
  * - Semantisch leeg — geen copy, instructies, of framing
  * 
@@ -79,7 +80,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         className="sr-only"
       />
 
-      {/* Capture ring with origin dot — grotere ring, zelfde hartslag als S0 */}
+      {/* Capture ring with origin mark — grotere ring, zelfde hartslag als S0 */}
       <motion.label
         htmlFor={inputId}
         className="relative w-[240px] h-[240px] flex items-center justify-center cursor-pointer group"
@@ -104,22 +105,13 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
           />
         </svg>
 
-        {/* Origin dot — heartbeat pulse, gesynchroniseerd met S0 */}
-        <motion.div
-          className="w-3.5 h-3.5 rounded-full bg-ritual-gold"
-          animate={{
-            boxShadow: [
-              '0 0 12px hsl(var(--ritual-gold-glow))',
-              '0 0 40px hsl(var(--ritual-gold-glow)), 0 0 80px hsl(32 55% 55% / 0.3)',
-              '0 0 18px hsl(var(--ritual-gold-glow)), 0 0 50px hsl(32 55% 55% / 0.15)',
-              '0 0 12px hsl(var(--ritual-gold-glow))',
-            ],
-            scale: [1, 1.3, 1.05, 1],
-          }}
-          transition={{
-            boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
-            scale: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
-          }}
+        {/* Origin Mark — circumpunct with breathe animation, gesynchroniseerd met S0 */}
+        <OriginMark
+          size={28}
+          state="anchored"
+          glow
+          animated
+          variant="dark"
         />
       </motion.label>
     </motion.div>
