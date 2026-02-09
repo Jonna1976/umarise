@@ -32,6 +32,7 @@ import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import Why from "./pages/Why";
+import SealedPreviewPage from "./pages/SealedPreview";
 import Install from "./pages/Install";
 import Architecture from "./pages/Architecture";
 
@@ -87,6 +88,7 @@ const App = () => (
             <Route path="/widget-design" element={<PinGate><WidgetMockup /></PinGate>} />
             <Route path="/origin-mark" element={<PinGate><UMarkMockup /></PinGate>} />
             <Route path="/architecture" element={<PinGate><Architecture /></PinGate>} />
+            <Route path="/sealed-preview" element={<PinGate><SealedPreviewPage /></PinGate>} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
