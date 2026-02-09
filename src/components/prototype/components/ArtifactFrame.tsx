@@ -13,6 +13,8 @@ interface ArtifactFrameProps {
     offset: string;
     imageUrl?: string;
     otsStatus?: 'pending' | 'submitted' | 'anchored';
+    mimeType?: string;
+    fileName?: string;
   };
   isFocused: boolean;
   onClick?: () => void;
@@ -159,7 +161,7 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
             className={`flex items-center justify-center overflow-hidden ${styles.content || ''}`}
             style={{ width: size.width, height: size.height }}
           >
-            {artifact.imageUrl && !imageError ? (
+            {artifact.imageUrl && !imageError && (!artifact.mimeType || artifact.mimeType.startsWith('image/')) ? (
               <img 
                 src={artifact.imageUrl} 
                 alt="" 
@@ -168,7 +170,7 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
                 onError={() => setImageError(true)}
               />
             ) : (
-              <ArtifactDisplay type={artifact.type} />
+              <ArtifactDisplay type={artifact.type} mimeType={artifact.mimeType} fileName={artifact.fileName} />
             )}
           </div>
         </div>
