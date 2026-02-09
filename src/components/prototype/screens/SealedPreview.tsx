@@ -185,32 +185,10 @@ export function SealedPreview() {
         </div>
       </motion.div>
 
-      {/* ── Anchoring note ── */}
-      <motion.p
-        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-4 leading-relaxed"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.4 }}
-      >
-        Your proof is anchoring in Bitcoin. This takes 1–2 blocks.
-      </motion.p>
-
-      {/* ── Privacy note ── */}
-      <motion.p
-        className="font-garamond italic text-[15px] text-center max-w-[280px] mb-10"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.6 }}
-      >
-        your file stays on your device · only the proof leaves
-      </motion.p>
-
       {/* ── Save button ── */}
       <motion.button
         onClick={() => setSaved(true)}
-        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all"
+        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all mb-8"
         style={{
           fontWeight: 300,
           background: saved
@@ -226,6 +204,28 @@ export function SealedPreview() {
       >
         {saved ? '✓ Owned' : 'Save your origin'}
       </motion.button>
+
+      {/* ── Anchoring note ── */}
+      <motion.p
+        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-4 leading-relaxed"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 2.0 }}
+      >
+        Your proof is anchoring in Bitcoin. This takes 1–2 blocks.
+      </motion.p>
+
+      {/* ── Privacy note ── */}
+      <motion.p
+        className="font-garamond italic text-[15px] text-center max-w-[280px]"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 2.2 }}
+      >
+        your file stays on your device · only the proof leaves
+      </motion.p>
     </motion.div>
   );
 }
