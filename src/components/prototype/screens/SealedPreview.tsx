@@ -5,9 +5,9 @@
  * Combines the cascade weight of ReleaseScreen with the actionable purpose of ZipScreen.
  * 
  * Layout:
- * 1. Artifact in golden frame (photo preview or type icon)
- * 2. Museum label beneath: Origin ID + date + hash (subtle, JetBrains Mono)
- * 3. "Your origin is ready" title
+ * 1. "Your origin is ready" title
+ * 2. Artifact in golden frame (photo preview or type icon)
+ * 3. Museum label beneath: Origin ID + date + hash (subtle, JetBrains Mono)
  * 4. Three files (photo.jpg, certificate.json, proof.ots)
  * 5. "Save your origin" button
  */
@@ -43,6 +43,17 @@ export function SealedPreview() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
+      {/* ── Title ── */}
+      <motion.h1
+        className="font-playfair text-[30px] text-ritual-gold mb-8"
+        style={{ fontWeight: 300 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        Your origin is ready
+      </motion.h1>
+
       {/* ── Artifact in golden frame ── */}
       <motion.div
         className="w-[200px] h-[200px] rounded-[3px] mb-6 flex items-center justify-center overflow-hidden"
@@ -52,7 +63,7 @@ export function SealedPreview() {
         }}
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
       >
         {/* Placeholder: image icon in ritual gold */}
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -70,7 +81,7 @@ export function SealedPreview() {
         className="text-center mb-8"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
       >
         {/* Origin ID */}
         <p
@@ -111,19 +122,8 @@ export function SealedPreview() {
         style={{ background: 'hsl(var(--ritual-gold) / 0.25)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
+        transition={{ duration: 0.4, delay: 1.0 }}
       />
-
-      {/* ── Title ── */}
-      <motion.h1
-        className="font-playfair text-[30px] text-ritual-gold mb-8"
-        style={{ fontWeight: 300 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.0 }}
-      >
-        Your origin is ready
-      </motion.h1>
 
       {/* ── File list ── */}
       <motion.div
