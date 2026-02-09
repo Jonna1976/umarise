@@ -21,7 +21,10 @@ export default function CoreSpec() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg text-landing-cream/80">Umarise</span>
+          <span className="font-serif text-lg text-landing-cream/80 flex items-center gap-2">
+            <OriginMark size={16} state="anchored" variant="dark" />
+            Umarise
+          </span>
         </div>
       </header>
 
@@ -84,7 +87,7 @@ export default function CoreSpec() {
               {/* POST /v1-core-origins */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <div className="text-landing-copper mb-3 flex items-center gap-2">
-                  <OriginMark size={12} state="anchored" variant="light" />
+                  <OriginMark size={12} state="pending" variant="light" />
                   <span>POST /v1-core-origins</span>
                 </div>
                 <div className="space-y-2 text-landing-muted/70">

@@ -65,7 +65,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
         {result.status === 'verified' && (
           <div className="p-6 border border-verify-green/30 bg-landing-muted/5 rounded">
             <div className="font-serif text-xl text-verify-green-bright mb-3 flex items-center gap-3">
-              <OriginMark size={20} state="anchored" variant="light" />
+              <OriginMark size={28} state="anchored" variant="light" glow />
               <span>Origin Verified</span>
             </div>
             <p className="text-sm text-landing-cream/70 mb-5 leading-relaxed">
