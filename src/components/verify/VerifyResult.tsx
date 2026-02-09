@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { downloadProofFile } from '@/lib/coreApi';
+import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 export interface VerifyResultData {
   status: 'verified' | 'pending' | 'not_found' | 'mismatch' | 'error';
@@ -63,8 +64,9 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
         {/* Verified + Anchored */}
         {result.status === 'verified' && (
           <div className="p-6 border border-verify-green/30 bg-landing-muted/5 rounded">
-            <div className="font-serif text-xl text-verify-green-bright mb-3">
-              ✓ Origin Verified
+            <div className="font-serif text-xl text-verify-green-bright mb-3 flex items-center gap-3">
+              <OriginMark size={20} state="anchored" variant="light" />
+              <span>Origin Verified</span>
             </div>
             <p className="text-sm text-landing-cream/70 mb-5 leading-relaxed">
               This file was registered and anchored in the Bitcoin blockchain.
@@ -119,8 +121,9 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
         {/* Pending */}
         {result.status === 'pending' && (
           <div className="p-6 border border-landing-copper/20 bg-landing-muted/5 rounded">
-            <div className="font-serif text-xl text-landing-copper mb-3">
-              ⧗ Pending
+            <div className="font-serif text-xl text-landing-copper mb-3 flex items-center gap-3">
+              <OriginMark size={20} state="pending" variant="light" animated />
+              <span>Pending</span>
             </div>
             <p className="text-sm text-landing-cream/70 leading-relaxed">
               This origin is registered but the Bitcoin proof is not yet ready. This typically takes 10–20 minutes after registration.

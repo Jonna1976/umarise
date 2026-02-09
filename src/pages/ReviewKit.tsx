@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 import { Copy, Check, Terminal } from 'lucide-react';
 import { ApiTester } from '@/components/codex/ApiTester';
 import { Button } from '@/components/ui/button';
+import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 const CORE_BASE_URL = 'https://core.umarise.com';
 
@@ -415,6 +416,19 @@ function ApiBlock({
   response?: string;
   note?: string;
 }) {
+  // Add inline OriginMark next to origin_id lines in response
+  const renderResponse = (text: string) => {
+    return text.split('\n').map((line, i) => {
+      const hasOriginId = line.includes('"origin_id"');
+      return (
+        <div key={i} className="flex items-center gap-1.5">
+          {hasOriginId && <OriginMark size={12} state="anchored" variant="light" className="shrink-0" />}
+          <span>{line}</span>
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="rounded border border-[hsl(var(--landing-cream)/0.08)] overflow-hidden">
       <div className="p-4 font-mono text-sm">
@@ -440,7 +454,7 @@ function ApiBlock({
         {response && (
           <>
             <div className="text-[hsl(var(--landing-muted))] text-xs mt-3 mb-1">Response:</div>
-            <pre className="text-[hsl(var(--landing-cream)/0.6)] text-xs whitespace-pre">{response}</pre>
+            <pre className="text-[hsl(var(--landing-cream)/0.6)] text-xs whitespace-pre">{renderResponse(response)}</pre>
           </>
         )}
         {note && (
