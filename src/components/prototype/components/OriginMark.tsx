@@ -153,10 +153,18 @@ export function OriginMark({
       {/* Glow filter — warm golden glow around the dot */}
       {glow && (
         <defs>
-          <filter id={glowId} x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation={Math.max(2, size * 0.12)} result="blur" />
+          <filter id={glowId} x="-200%" y="-200%" width="500%" height="500%">
+            {/* Inner glow — tight bright halo */}
+            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, size * 0.15)} result="blur1" />
+            {/* Outer glow — wide soft aura */}
+            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(4, size * 0.35)} result="blur2" />
+            {/* Color overlay — golden warmth */}
+            <feFlood floodColor="#C5935A" floodOpacity="0.6" result="goldColor" />
+            <feComposite in="goldColor" in2="blur2" operator="in" result="coloredGlow" />
             <feMerge>
-              <feMergeNode in="blur" />
+              <feMergeNode in="coloredGlow" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="blur1" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
@@ -209,11 +217,11 @@ export function OriginMark({
           fill={colors.dotFill}
           filter={glow ? `url(#${glowId})` : undefined}
           animate={{
-            opacity: state === 'pending' ? [0.3, 0.5, 0.3] : [0.8, 0.5, 0.8],
-            scale: [1, 1.15, 1],
+            opacity: state === 'pending' ? [0.4, 0.9, 0.4] : [0.7, 1, 0.7],
+            scale: [1, 1.3, 1],
           }}
           transition={{
-            duration: 3,
+            duration: 2.5,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
