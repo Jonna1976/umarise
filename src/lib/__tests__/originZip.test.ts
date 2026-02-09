@@ -19,6 +19,7 @@ describe('buildOriginZip', () => {
     const files = Object.keys(zip.files);
 
     expect(files).toContain('certificate.json');
+    expect(files).toContain('VERIFY.txt');
     expect(files).not.toContain('photo.jpg');
 
     // Verify certificate.json content
@@ -30,7 +31,7 @@ describe('buildOriginZip', () => {
     expect(cert.hash).toBe('a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8');
     expect(cert.hash_algo).toBe('SHA-256');
     expect(cert.captured_at).toBe('2026-02-07T20:00:00.000Z');
-    expect(cert.verify_url).toBe('https://verify.umarise.com');
+    expect(cert.verify_url).toBe('https://umarise.com/verify');
     expect(cert.proof_included).toBe(false);
     expect(cert.proof_status).toBe('pending');
     expect(cert.claimed_by).toBeNull();
