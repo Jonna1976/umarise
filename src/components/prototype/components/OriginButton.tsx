@@ -26,7 +26,7 @@ export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
       aria-label="Open Wall of Existence"
     >
       <OriginMark
-        size={20}
+        size={28}
         state="anchored"
         animated
         variant="dark"

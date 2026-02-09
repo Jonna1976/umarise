@@ -48,7 +48,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           48x48px, with glow filter, intro animation:
           dot scale-in → ring stroke-draw → heartbeat pulse */}
       <OriginMark
-        size={48}
+        size={72}
         state="anchored"
         glow
         introAnimation

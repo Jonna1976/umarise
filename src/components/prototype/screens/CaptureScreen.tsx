@@ -107,7 +107,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
 
         {/* Origin Mark — circumpunct with breathe animation, gesynchroniseerd met S0 */}
         <OriginMark
-          size={28}
+          size={48}
           state="anchored"
           glow
           animated
