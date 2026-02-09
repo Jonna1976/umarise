@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { PinGate } from "@/components/PinGate";
-import { ArchitectureGate } from "@/components/ArchitectureGate";
+import { InternalGate } from "@/components/InternalGate";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import Index from "./pages/Index";
@@ -77,19 +77,19 @@ const App = () => (
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
-            <Route path="/app" element={<PinGate><Index /></PinGate>} />
-            <Route path="/pilot-tracker" element={<PinGate><PilotTracker /></PinGate>} />
-            <Route path="/prototype" element={<PinGate><Prototype /></PinGate>} />
-            <Route path="/intake" element={<PinGate><Intake /></PinGate>} />
-            <Route path="/spec" element={<PinGate><Intake /></PinGate>} />
+            <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
+            <Route path="/pilot-tracker" element={<InternalGate><PilotTracker /></InternalGate>} />
+            <Route path="/prototype" element={<InternalGate><Prototype /></InternalGate>} />
+            <Route path="/intake" element={<InternalGate><Intake /></InternalGate>} />
+            <Route path="/spec" element={<InternalGate><Intake /></InternalGate>} />
             
-            {/* DEV/PREVIEW ROUTES - Behind PinGate */}
-            <Route path="/origin-flow" element={<PinGate><B2BWalkthrough /></PinGate>} />
-            <Route path="/landing-variants" element={<PinGate><LandingVariants /></PinGate>} />
-            <Route path="/widget-design" element={<PinGate><WidgetMockup /></PinGate>} />
-            <Route path="/origin-mark" element={<PinGate><UMarkMockup /></PinGate>} />
-            <Route path="/architecture" element={<ArchitectureGate><Architecture /></ArchitectureGate>} />
-            <Route path="/sealed-preview" element={<PinGate><SealedPreviewPage /></PinGate>} />
+            {/* DEV/PREVIEW ROUTES - Behind InternalGate */}
+            <Route path="/origin-flow" element={<InternalGate><B2BWalkthrough /></InternalGate>} />
+            <Route path="/landing-variants" element={<InternalGate><LandingVariants /></InternalGate>} />
+            <Route path="/widget-design" element={<InternalGate><WidgetMockup /></InternalGate>} />
+            <Route path="/origin-mark" element={<InternalGate><UMarkMockup /></InternalGate>} />
+            <Route path="/architecture" element={<InternalGate><Architecture /></InternalGate>} />
+            <Route path="/sealed-preview" element={<InternalGate><SealedPreviewPage /></InternalGate>} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />

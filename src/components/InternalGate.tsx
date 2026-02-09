@@ -1,5 +1,5 @@
 /**
- * ArchitectureGate - Always-on PIN protection for sensitive internal routes.
+ * InternalGate - Always-on PIN protection for sensitive internal routes.
  * Unlike PinGate (disabled during pilot), this gate is NEVER bypassed.
  */
 
@@ -11,11 +11,11 @@ import { triggerHaptic } from '@/lib/haptics';
 const INTERNAL_PIN = '2407';
 const SESSION_KEY = 'umarise_arch_unlocked';
 
-interface ArchitectureGateProps {
+interface InternalGateProps {
   children: React.ReactNode;
 }
 
-export function ArchitectureGate({ children }: ArchitectureGateProps) {
+export function InternalGate({ children }: InternalGateProps) {
   const [unlocked, setUnlocked] = useState(() => 
     sessionStorage.getItem(SESSION_KEY) === 'true'
   );
