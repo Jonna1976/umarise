@@ -185,21 +185,10 @@ export function SealedPreview() {
         </div>
       </motion.div>
 
-      {/* ── Anchoring note (under proof.ots, above Save) ── */}
-      <motion.p
-        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-8 leading-relaxed"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.4 }}
-      >
-        Your proof is anchoring in Bitcoin. This takes 1–2 blocks.
-      </motion.p>
-
       {/* ── Save button ── */}
       <motion.button
         onClick={() => setSaved(true)}
-        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all mb-8"
+        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all"
         style={{
           fontWeight: 300,
           background: saved
