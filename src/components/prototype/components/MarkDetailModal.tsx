@@ -279,7 +279,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           <div className="flex items-center gap-2.5 mb-5">
             {isAnchored ? (
               <>
-                <OriginMark size={20} state="anchored" variant="dark" />
+                <OriginMark size={20} state="anchored" glow variant="dark" />
                 <p 
                    className="font-mono text-[13px] tracking-[1.5px] uppercase"
                    style={{ color: 'hsl(var(--ritual-gold))' }}
@@ -289,7 +289,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                </>
              ) : (
                <>
-                 <OriginMark size={20} state="pending" animated variant="dark" />
+                 <OriginMark size={20} state="pending" glow animated variant="dark" />
                  <p 
                    className="font-mono text-[13px] tracking-[1.5px] uppercase"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}

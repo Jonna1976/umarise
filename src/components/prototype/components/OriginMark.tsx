@@ -150,11 +150,11 @@ export function OriginMark({
       className={className}
       style={{ overflow: 'visible' }}
     >
-      {/* Glow filter — only ceremonial */}
+      {/* Glow filter — warm golden glow around the dot */}
       {glow && (
         <defs>
-          <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation={size * 0.06} result="blur" />
+          <filter id={glowId} x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation={Math.max(2, size * 0.12)} result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
