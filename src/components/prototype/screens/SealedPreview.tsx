@@ -185,6 +185,17 @@ export function SealedPreview() {
         </div>
       </motion.div>
 
+      {/* ── Anchoring note (under proof.ots, above Save) ── */}
+      <motion.p
+        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-8 leading-relaxed"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1.4 }}
+      >
+        Your proof is anchoring in Bitcoin. This takes 1–2 blocks.
+      </motion.p>
+
       {/* ── Save button ── */}
       <motion.button
         onClick={() => setSaved(true)}
@@ -199,22 +210,11 @@ export function SealedPreview() {
         }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.8 }}
+        transition={{ duration: 0.6, delay: 1.6 }}
         whileTap={!saved ? { scale: 0.97 } : {}}
       >
         {saved ? '✓ Owned' : 'Save your origin'}
       </motion.button>
-
-      {/* ── Anchoring note ── */}
-      <motion.p
-        className="font-garamond italic text-[16px] text-center max-w-[280px] mb-4 leading-relaxed"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 2.0 }}
-      >
-        Your proof is anchoring in Bitcoin. This takes 1–2 blocks.
-      </motion.p>
 
       {/* ── Privacy note ── */}
       <motion.p
