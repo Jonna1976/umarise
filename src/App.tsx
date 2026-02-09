@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { PinGate } from "@/components/PinGate";
+import { ArchitectureGate } from "@/components/ArchitectureGate";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import Index from "./pages/Index";
@@ -87,7 +88,7 @@ const App = () => (
             <Route path="/landing-variants" element={<PinGate><LandingVariants /></PinGate>} />
             <Route path="/widget-design" element={<PinGate><WidgetMockup /></PinGate>} />
             <Route path="/origin-mark" element={<PinGate><UMarkMockup /></PinGate>} />
-            <Route path="/architecture" element={<PinGate><Architecture /></PinGate>} />
+            <Route path="/architecture" element={<ArchitectureGate><Architecture /></ArchitectureGate>} />
             <Route path="/sealed-preview" element={<PinGate><SealedPreviewPage /></PinGate>} />
             
             {/* Redirect old landing route */}
