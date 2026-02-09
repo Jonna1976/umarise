@@ -140,11 +140,19 @@ export function useMarks() {
     console.log('[createMark] Using device ID:', deviceUserId.substring(0, 8) + '...');
 
     try {
-      // Step 1: Generate compressed thumbnail
-      console.log('[createMark] Generating thumbnail...');
-      const thumbnailBlob = await generateThumbnail(imageDataUrl);
+      const isImage = !type || type === 'warm' || type === 'organic' || type === 'sketch';
       
-      // Step 2: Compute SHA-256 hash from ORIGINAL image (not thumbnail)
+      // Step 1: Generate compressed thumbnail (only for images)
+      let thumbnailBlob: Blob;
+      if (isImage) {
+        console.log('[createMark] Generating thumbnail...');
+        thumbnailBlob = await generateThumbnail(imageDataUrl);
+      } else {
+        // Non-image: create a tiny placeholder blob
+        thumbnailBlob = new Blob(['non-image'], { type: 'text/plain' });
+      }
+      
+      // Step 2: Compute SHA-256 hash from ORIGINAL file (not thumbnail)
       console.log('[createMark] Computing hash...');
       const { hash } = await hashAndDecodeDataUrl(imageDataUrl);
       
@@ -152,16 +160,20 @@ export function useMarks() {
       const originId = generateOriginId();
       const deviceFingerprint = await getDeviceFingerprintHash();
       
-      // Step 4: Determine size class based on thumbnail
-      const img = new Image();
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.src = imageDataUrl;
-      });
-      const aspectRatio = img.width / img.height;
-      const sizeClass: LocalMark['sizeClass'] = 
-        aspectRatio > 1.5 ? 'large' : 
-        aspectRatio < 0.7 ? 'small' : 'medium';
+      // Step 4: Determine size class based on content type
+      let sizeClass: LocalMark['sizeClass'] = 'medium';
+      if (isImage) {
+        const img = new Image();
+        await new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Don't hang on error
+          img.src = imageDataUrl;
+        });
+        if (img.width > 0 && img.height > 0) {
+          const aspectRatio = img.width / img.height;
+          sizeClass = aspectRatio > 1.5 ? 'large' : aspectRatio < 0.7 ? 'small' : 'medium';
+        }
+      }
 
       // Step 5: Save to IndexedDB (local-first)
       console.log('[createMark] Saving to IndexedDB...');

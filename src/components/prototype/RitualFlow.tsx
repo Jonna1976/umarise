@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
-import { PauseScreen } from './screens/PauseScreen';
+// PauseScreen removed — merged into MarkScreen
 import { MarkScreen } from './screens/MarkScreen';
 import { ReleaseScreen } from './screens/ReleaseScreen';
 import { ZipScreen } from './screens/ZipScreen';
@@ -12,7 +12,7 @@ import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'capture' | 'pause' | 'mark' | 'release' | 'zip' | 'owned' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'capture' | 'mark' | 'release' | 'zip' | 'owned' | 'home' | 'wall';
 
 export interface Artifact {
   id: string;
@@ -49,7 +49,7 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  // Handle file capture - store file data and transition to pause
+  // Handle file capture - store file data and transition to mark (pause merged into mark)
   const handleCapture = useCallback((file: CapturedFile) => {
     setCapturedImageUrl(file.dataUrl);
     
@@ -71,10 +71,6 @@ export function RitualFlow() {
     };
     setCurrentArtifact(tempArtifact);
     
-    goToScreen('pause');
-  }, [goToScreen]);
-
-  const handlePauseComplete = useCallback(() => {
     goToScreen('mark');
   }, [goToScreen]);
 
@@ -144,7 +140,7 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  const showOriginButton = screen === 'capture' || screen === 'pause' || screen === 'mark';
+  const showOriginButton = screen === 'capture' || screen === 'mark';
 
   // Fallback artifact for screens that need one
   const displayArtifact = currentArtifact || {
@@ -174,9 +170,7 @@ export function RitualFlow() {
         <CaptureScreen onCapture={handleCapture} />
       )}
       
-      {screen === 'pause' && (
-        <PauseScreen artifact={displayArtifact} onComplete={handlePauseComplete} />
-      )}
+      {/* PauseScreen removed — merged into MarkScreen */}
       
       {screen === 'mark' && (
         <MarkScreen artifact={displayArtifact} onComplete={handleMarkComplete} />

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 
@@ -19,12 +19,20 @@ interface MarkScreenProps {
 }
 
 /**
- * Screen 3: Mark
- * "Your artifact" title + "hold to mark" instruction.
- * Press and hold. A golden frame draws itself.
- * Release early → retract. Hold 1.5s → seal complete.
+ * Screen 3: Mark (merged with former Pause screen)
+ * 
+ * Flow:
+ * 1. Artifact fades in with title "Your artifact" (pause moment)
+ * 2. After 0.8s, "hold to mark" instruction appears
+ * 3. Press and hold 1.0s → golden frame draws itself
+ * 4. Release early → retract. Hold 1.0s → seal complete.
+ * 5. Flash → auto-advance
+ * 
+ * Non-image files show type-appropriate icons (document/audio)
+ * inside the golden frame instead of a photo.
  */
 export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
+  const [showInstruction, setShowInstruction] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [isSealed, setIsSealed] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
@@ -34,7 +42,13 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  const SEAL_DURATION = 1200; // 1.2 seconds per briefing
+  const SEAL_DURATION = 1000; // 1.0 second
+
+  // Reveal "hold to mark" after pause moment
+  useEffect(() => {
+    const t = setTimeout(() => setShowInstruction(true), 800);
+    return () => clearTimeout(t);
+  }, []);
 
   // Frame dimensions for stroke calculation
   const frameWidth = 258;
@@ -53,7 +67,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
   }, []);
 
   const handlePressStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (isSealed) return;
+    if (isSealed || !showInstruction) return;
     e.preventDefault();
     
     setIsPressed(true);
@@ -72,7 +86,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
       // Auto-advance after 1.8s
       setTimeout(onComplete, 1800);
     }, SEAL_DURATION);
-  }, [isSealed, onComplete, animateProgress]);
+  }, [isSealed, showInstruction, onComplete, animateProgress]);
 
   const handlePressEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (isSealed) return;
@@ -105,13 +119,13 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
+      {/* Title — "Your artifact" during pause, stays during mark */}
       <motion.h1
         className="font-playfair text-[26px] text-ritual-gold mb-6 pointer-events-none"
         style={{ fontWeight: 300 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
       >
         Your artifact
       </motion.h1>
@@ -119,22 +133,30 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
       <div className="relative flex items-center justify-center">
         {/* Artifact with press interaction */}
         <motion.div
-          className="relative w-[250px] h-[190px] rounded-[4px] overflow-hidden cursor-pointer select-none"
+          className="relative w-[250px] h-[190px] rounded-[4px] overflow-hidden select-none"
+          style={{ cursor: showInstruction && !isSealed ? 'pointer' : 'default' }}
+          initial={{ opacity: 0, scale: 0.96, y: 6 }}
           animate={{
+            opacity: 1,
             scale: isPressed ? 0.985 : isSealed ? 0.98 : 1,
             y: isSealed ? 1 : 0,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
           onMouseDown={handlePressStart}
           onMouseUp={handlePressEnd}
           onMouseLeave={handlePressEnd}
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
         >
-          <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} mimeType={artifact.mimeType} fileName={artifact.fileName} />
+          <ArtifactDisplay
+            type={artifact.type}
+            imageUrl={artifact.imageUrl || undefined}
+            mimeType={artifact.mimeType}
+            fileName={artifact.fileName}
+          />
         </motion.div>
 
-        {/* Golden frame SVG overlay */}
+        {/* Golden frame SVG overlay — only visible during/after hold */}
         <svg
           className="absolute -top-[6px] -left-[6px] pointer-events-none"
           width={frameWidth + 4}
@@ -158,7 +180,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
                 ? 'drop-shadow(0 0 3px hsl(32 55% 55% / 0.2))'
                 : 'drop-shadow(0 0 8px hsl(var(--ritual-gold-glow)))',
               transition: isPressed 
-                ? 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' 
+                ? 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)' 
                 : 'stroke-dashoffset 0.3s ease-in',
             }}
           />
@@ -178,13 +200,13 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
         )}
       </div>
 
-      {/* Instruction — per briefing: "hold to mark", 17px Playfair, goud */}
+      {/* Instruction — appears after pause moment, hidden during/after seal */}
       {!isSealed && (
         <motion.p
           className="mt-6 font-playfair text-[20px] text-ritual-gold"
           style={{ fontWeight: 300 }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: isPressed ? 0 : 1 }}
+          animate={{ opacity: showInstruction ? (isPressed ? 0 : 1) : 0 }}
           transition={{ duration: 0.4 }}
         >
           hold to mark
