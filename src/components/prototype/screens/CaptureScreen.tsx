@@ -66,45 +66,46 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         className="sr-only"
       />
 
-      {/* Capture ring with origin dot — per briefing: "dezelfde dot als op het welkomstscherm" */}
+      {/* Capture ring with origin dot — grotere ring, zelfde hartslag als S0 */}
       <motion.label
         htmlFor={inputId}
-        className="relative w-[180px] h-[180px] flex items-center justify-center cursor-pointer group"
+        className="relative w-[240px] h-[240px] flex items-center justify-center cursor-pointer group"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         aria-label="Select a photo"
       >
-        {/* Dashed circle (capture ring) */}
+        {/* Dashed circle (capture ring) — groter, subtiel */}
         <svg 
-          viewBox="0 0 180 180" 
+          viewBox="0 0 240 240" 
           className="absolute inset-0 w-full h-full"
         >
           <circle
-            cx="90"
-            cy="90"
-            r="82"
+            cx="120"
+            cy="120"
+            r="110"
             fill="none"
             stroke="hsl(var(--ritual-gold))"
             strokeWidth="1"
-            strokeDasharray="4 8"
-            opacity="0.3"
+            strokeDasharray="4 10"
+            opacity="0.25"
           />
         </svg>
 
-        {/* Origin dot — same breathing animation as S0, centered in ring */}
+        {/* Origin dot — heartbeat pulse, gesynchroniseerd met S0 */}
         <motion.div
-          className="w-3 h-3 rounded-full bg-ritual-gold"
+          className="w-3.5 h-3.5 rounded-full bg-ritual-gold"
           animate={{
             boxShadow: [
-              '0 0 20px hsl(var(--ritual-gold-glow))',
-              '0 0 35px hsl(var(--ritual-gold-glow)), 0 0 70px hsl(32 55% 55% / 0.2)',
-              '0 0 20px hsl(var(--ritual-gold-glow))',
+              '0 0 12px hsl(var(--ritual-gold-glow))',
+              '0 0 40px hsl(var(--ritual-gold-glow)), 0 0 80px hsl(32 55% 55% / 0.3)',
+              '0 0 18px hsl(var(--ritual-gold-glow)), 0 0 50px hsl(32 55% 55% / 0.15)',
+              '0 0 12px hsl(var(--ritual-gold-glow))',
             ],
-            scale: [1, 1.15, 1],
+            scale: [1, 1.3, 1.05, 1],
           }}
           transition={{
-            boxShadow: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
-            scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+            boxShadow: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
+            scale: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' },
           }}
         />
       </motion.label>
