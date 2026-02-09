@@ -8,6 +8,8 @@ interface Artifact {
   date: Date;
   hash: string;
   imageUrl: string | null;
+  mimeType?: string;
+  fileName?: string;
 }
 
 interface PauseScreenProps {
@@ -55,7 +57,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
       >
-        <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
+        <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} mimeType={artifact.mimeType} fileName={artifact.fileName} />
       </motion.div>
 
       {/* Save confirmation — per briefing: "✓ saved to your device" is a static confirmation, NOT a button */}

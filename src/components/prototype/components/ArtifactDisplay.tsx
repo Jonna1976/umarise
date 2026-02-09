@@ -1,19 +1,44 @@
 import { motion } from 'framer-motion';
 
 /**
- * ArtifactDisplay - renders the actual artifact image or a placeholder
+ * ArtifactDisplay - renders the captured content or a type-appropriate icon
  * 
- * When imageUrl is provided, displays the real captured content.
- * Otherwise, shows a stylized placeholder based on artifact type.
+ * For images: shows the actual photo
+ * For documents (PDF, etc.): shows a minimalist document icon in gold
+ * For audio: shows a minimalist audio waveform icon in gold
+ * For other/fallback: shows a placeholder based on artifact type
  */
 
 interface ArtifactDisplayProps {
   type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
   imageUrl?: string;
+  /** MIME type determines visual representation for non-image files */
+  mimeType?: string;
+  /** Original file name shown beneath the icon */
+  fileName?: string;
 }
 
-export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
-  // Show actual image when available
+/** Determine if a MIME type represents a viewable image */
+function isImageMime(mimeType?: string): boolean {
+  if (!mimeType) return true; // default assumption for backwards compat
+  return mimeType.startsWith('image/');
+}
+
+/** Determine if a MIME type represents audio */
+function isAudioMime(mimeType?: string): boolean {
+  return mimeType?.startsWith('audio/') ?? false;
+}
+
+export function ArtifactDisplay({ type, imageUrl, mimeType, fileName }: ArtifactDisplayProps) {
+  // Non-image file: show stylised type icon instead of broken <img>
+  if (imageUrl && !isImageMime(mimeType)) {
+    if (isAudioMime(mimeType)) {
+      return <AudioArtifactIcon fileName={fileName} />;
+    }
+    return <DocumentArtifactIcon fileName={fileName} />;
+  }
+
+  // Show actual image when available and it's an image type
   if (imageUrl) {
     return (
       <motion.div
@@ -47,7 +72,6 @@ export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
         background: 'linear-gradient(135deg, #2D1B0E, #1A2E1A, #1B1B2E)',
       }}
     >
-      {/* Placeholder content based on type */}
       {type === 'warm' && <WarmArtifact />}
       {type === 'text' && <TextArtifact />}
       {type === 'sound' && <SoundArtifact />}
@@ -55,6 +79,103 @@ export function ArtifactDisplay({ type, imageUrl }: ArtifactDisplayProps) {
       {type === 'organic' && <OrganicArtifact />}
       {type === 'sketch' && <SketchArtifact />}
     </div>
+  );
+}
+
+/**
+ * Document icon — minimalist, museum aesthetic
+ * A clean document silhouette with folded corner in ritual gold
+ */
+function DocumentArtifactIcon({ fileName }: { fileName?: string }) {
+  return (
+    <motion.div
+      className="w-full h-full flex flex-col items-center justify-center gap-4"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="relative">
+        {/* Document shape with folded corner */}
+        <svg width="64" height="80" viewBox="0 0 64 80" fill="none">
+          {/* Main document body */}
+          <path
+            d="M4 4 L44 4 L60 20 L60 76 L4 76 Z"
+            stroke="hsl(var(--ritual-gold))"
+            strokeWidth="1.2"
+            fill="none"
+            opacity="0.5"
+          />
+          {/* Folded corner */}
+          <path
+            d="M44 4 L44 20 L60 20"
+            stroke="hsl(var(--ritual-gold))"
+            strokeWidth="1.2"
+            fill="none"
+            opacity="0.35"
+          />
+          {/* Text lines */}
+          <line x1="14" y1="34" x2="46" y2="34" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.2" />
+          <line x1="14" y1="42" x2="40" y2="42" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.15" />
+          <line x1="14" y1="50" x2="44" y2="50" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.2" />
+          <line x1="14" y1="58" x2="32" y2="58" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.12" />
+        </svg>
+      </div>
+      {/* File name — truncated, subtle */}
+      {fileName && (
+        <p 
+          className="font-mono text-[11px] tracking-[1px] max-w-[180px] truncate text-center"
+          style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}
+        >
+          {fileName}
+        </p>
+      )}
+    </motion.div>
+  );
+}
+
+/**
+ * Audio icon — minimalist waveform, museum aesthetic
+ * Vertical bars suggesting a waveform in ritual gold
+ */
+function AudioArtifactIcon({ fileName }: { fileName?: string }) {
+  // Waveform bar heights (symmetrical, organic feel)
+  const bars = [8, 16, 28, 20, 36, 24, 32, 18, 26, 14, 22, 30, 16, 10];
+
+  return (
+    <motion.div
+      className="w-full h-full flex flex-col items-center justify-center gap-4"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      {/* Waveform */}
+      <div className="flex items-center gap-[3px] h-[48px]">
+        {bars.map((height, i) => (
+          <motion.div
+            key={i}
+            className="rounded-full"
+            style={{
+              width: 3,
+              height,
+              background: 'hsl(var(--ritual-gold))',
+              opacity: 0.3 + (height / 80),
+            }}
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={{ duration: 0.4, delay: i * 0.04 }}
+          />
+        ))}
+      </div>
+      {/* File name — truncated, subtle */}
+      {fileName && (
+        <p 
+          className="font-mono text-[11px] tracking-[1px] max-w-[180px] truncate text-center"
+          style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}
+        >
+          {fileName}
+        </p>
+      )}
+    </motion.div>
   );
 }
 

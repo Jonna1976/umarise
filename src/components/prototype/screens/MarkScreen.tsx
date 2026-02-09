@@ -9,6 +9,8 @@ interface Artifact {
   date: Date;
   hash: string;
   imageUrl: string | null;
+  mimeType?: string;
+  fileName?: string;
 }
 
 interface MarkScreenProps {
@@ -129,7 +131,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
         >
-          <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} />
+          <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} mimeType={artifact.mimeType} fileName={artifact.fileName} />
         </motion.div>
 
         {/* Golden frame SVG overlay */}
