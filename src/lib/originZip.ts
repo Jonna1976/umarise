@@ -26,23 +26,45 @@ export interface OriginZipInput {
 }
 
 /**
- * Fetch image bytes from a URL (blob:, data:, or remote).
- * Returns null if the image cannot be fetched.
+ * Fetch artifact bytes from a URL (blob:, data:, or remote).
+ * Returns null if the artifact cannot be fetched.
+ * Supports images, videos, PDFs, audio, and other file types.
  */
-async function fetchImageBytes(url: string): Promise<{ blob: Blob; ext: string } | null> {
+async function fetchArtifactBytes(url: string): Promise<{ blob: Blob; ext: string } | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
 
     const blob = await response.blob();
-    const mime = blob.type || 'image/jpeg';
-    const ext = mime.includes('png') ? 'png' : 'jpg';
+    const mime = blob.type || 'application/octet-stream';
+    const ext = mimeToExtension(mime);
 
     return { blob, ext };
   } catch (e) {
-    console.warn('[originZip] Failed to fetch image:', e);
+    console.warn('[originZip] Failed to fetch artifact:', e);
     return null;
   }
+}
+
+/** Map MIME type to file extension */
+function mimeToExtension(mime: string): string {
+  const map: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'video/mp4': 'mp4',
+    'video/quicktime': 'mov',
+    'video/webm': 'webm',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+    'audio/mp4': 'm4a',
+    'application/pdf': 'pdf',
+  };
+  for (const [key, val] of Object.entries(map)) {
+    if (mime.includes(key.split('/')[1])) return val;
+  }
+  return 'bin';
 }
 
 /**
@@ -54,11 +76,11 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   // Clean origin ID (strip prefix)
   const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
 
-  // 1. Add photo (if available)
+  // 1. Add artifact (photo, video, document, etc.)
   if (input.imageUrl) {
-    const image = await fetchImageBytes(input.imageUrl);
-    if (image) {
-      zip.file(`photo.${image.ext}`, image.blob);
+    const artifact = await fetchArtifactBytes(input.imageUrl);
+    if (artifact) {
+      zip.file(`artifact.${artifact.ext}`, artifact.blob);
     }
   }
 
