@@ -1,334 +1,616 @@
- # B2C-Inventarisatie v0 — Umarise App
- 
- **Scope:** Uitsluitend de B2C-laag (Umarise App)  
-**Relatie tot Core:** Automatische propagatie via database trigger  
- **Datum:** 5 februari 2026  
- **Status:** Formele systeemdefinitie  
-**Versie:** v0.3 — Companion → Core brug gedocumenteerd (5 feb 2026)
- 
- ---
- 
- ## 1. Systeemdefinitie
- 
- | Vraag | Antwoord |
- |-------|----------|
- | **Wat is Umarise (B2C) exact als systeem?** | Een client-side Single Page Application (React/TypeScript) die artifacts vastlegt, een SHA-256 hash genereert client-side, en die hash + artifact opslaat via Supabase + Hetzner Object Storage. |
-| **Welke handeling stelt de gebruiker technisch gezien vast?** | Het bestaan van specifieke bytes (artifact) op een specifiek moment, door middel van client-side hashing + database-insert. Een PostgreSQL trigger (`bridge_page_to_core`) propageert de hash automatisch naar de Core-laag (`origin_attestations`) binnen dezelfde transactie. |
- | **Wat is het formele output-object van die handeling?** | Een `page` record in Supabase met: `id` (UUID), `created_at` (timestamp), `origin_hash_sha256` (64-char hex), `image_url` (Hetzner public URL). Lokaal: alleen `device_user_id` in localStorage. |
- 
- ---
- 
- ## 2. Tech Stack
- 
- | Component | Technologie | Versie/Details |
- |-----------|-------------|----------------|
- | **Framework** | React + TypeScript | ^18.3.1 |
- | **Build tooling** | Vite | via vite.config.ts |
- | **Styling** | Tailwind CSS | met shadcn/ui componenten |
- | **State management** | React Query | @tanstack/react-query ^5.83.0 |
- | **Database** | Supabase (PostgreSQL) | Lovable Cloud EU |
- | **Object Storage** | Supabase Storage → Hetzner proxy | EU-gehost |
- | **Hashing** | Web Crypto API | crypto.subtle.digest('SHA-256') |
- | **Hosting** | Lovable Cloud | CDN + EU edge |
- 
- ---
- 
- ## 3. PWA Lifecycle
- 
- ### 3.1 Huidige status
- 
- | Eigenschap | Status | Technische realiteit |
- |------------|--------|---------------------|
- | **Service Worker** | ❌ Niet geïmplementeerd | vite.config.ts bevat geen vite-plugin-pwa |
- | **Offline capability** | ❌ Niet beschikbaar | Geen service worker = geen offline cache |
- | **Cache strategie** | ❌ Geen | Browser default caching only |
- | **Update-mechanisme** | ❌ Niet gedefinieerd | Nieuwe versie = browser refresh, geen prompt |
- | **Installability** | ⚠️ Deels | manifest.json aanwezig, maar geen service worker = beperkte PWA-installatie |
- | **Web Share Target** | ✅ Gedefinieerd | manifest.json bevat share_target voor images |
- 
- ### 3.2 manifest.json configuratie
- 
- ```json
- {
-   "start_url": "/app",
-   "display": "standalone",
-   "share_target": {
-     "action": "/app",
-     "method": "POST",
-     "enctype": "multipart/form-data",
-     "params": { "files": [{ "name": "media", "accept": ["image/*"] }] }
-   }
- }
- ```
- 
- ### 3.3 Consequenties
- 
- - **Geen offline capture mogelijk** — App vereist netwerkverbinding voor elke handeling
- - **Geen background sync** — Als upload faalt, is de capture verloren
- - **Geen update-notificatie** — Gebruiker weet niet wanneer nieuwe versie beschikbaar is
- - **Web Share Target vereist service worker** — Zonder SW werkt share_target niet op alle platforms
- 
- ---
- 
- ## 4. Device Loss = Permanent Verlies
- 
- ### 4.1 Architecturaal feit
- 
- | Element | Opslag | Consequentie bij verlies |
- |---------|--------|--------------------------|
- | `device_user_id` | localStorage | **Onherstelbaar** — UUID genereert opnieuw |
- | Link user ↔ pages | Supabase `pages.device_user_id` | **Onbereikbaar** — geen pad terug zonder originele UUID |
- | Artifact bytes | Hetzner Object Storage | **Technisch bereikbaar** via directe URL, maar gebruiker kent URL niet |
- | Origin attestatie | Supabase `origin_attestations` | **Publiek verifieerbaar** via hash, maar gebruiker kent hash niet |
- 
- ### 4.2 Expliciete acceptatie
- 
- Dit is een **bewuste ontwerpkeuze**, niet een bug:
- 
- - **Privacy-by-design**: Geen account = geen identiteit op server
- - **Zero-knowledge**: Server weet niet wie welke pages bezit
- - **Trade-off**: Privacy > recoverability
- 
- ### 4.3 Recovery paden (beperkt)
- 
- | Scenario | Mogelijk? | Mechanisme |
- |----------|-----------|------------|
- | Backup device_user_id exporteren | ⚠️ Handmatig | Via TestPanel > DeviceDebug (dev feature) |
- | Cross-device sync | ❌ Nee | Niet geïmplementeerd |
- | Hash-based recovery | ❌ Nee | Gebruiker kent hash niet zonder toegang tot pages |
- | URL-based recovery | ⚠️ Theoretisch | Als gebruiker image_url heeft opgeslagen elders |
- 
- ---
- 
- ## 5. Data & Opslag (gecorrigeerd)
- 
- ### 5.1 Opslaglocaties
- 
- | Data | Locatie | Persistentie | IndexedDB? |
- |------|---------|--------------|------------|
- | Artifact bytes (afbeelding) | Hetzner Object Storage (via Supabase proxy) | Permanent | ❌ Nee |
- | Page metadata (OCR, keywords, summary) | Supabase `pages` tabel | Permanent | ❌ Nee |
- | Origin hash sidecar | Supabase `page_origin_hashes` tabel | Permanent, immutable | ❌ Nee |
- | Device identifier | localStorage (`umarise_device_id`) | Lokaal, browser-gebonden | ❌ Nee |
- | UI preferences | localStorage | Lokaal | ❌ Nee |
- 
- **Correctie t.o.v. v0.1:** IndexedDB wordt NIET gebruikt. Alle data gaat direct naar Supabase. Er is geen lokale cache-laag.
- 
- ### 5.2 Niet opgeslagen of terughaalbaar
- 
- - Geen user accounts of authenticatie credentials
- - Geen relaties tussen gebruikers
- - Geen gedeelde artifacts tussen devices
- - Geen lokale backup van pages (alles server-only)
- 
- ---
- 
- ## 6. Capture Atomiciteit
- 
- ### 6.1 Transactiegrens
- 
- De capture-handeling bestaat uit **vier sequentiële stappen** die NIET atomair zijn:
- 
- ```
- [1] hashAndDecodeDataUrl() → SHA-256 hash berekenen (client-side, sync)
- [2] storage.uploadImage()  → Blob naar Hetzner (async, kan falen)
- [3] storage.createPage()   → Record naar Supabase (async, kan falen)
- [4] persistOriginHashSidecar() → Hash naar sidecar tabel (async, non-blocking)
- ```
- 
- ### 6.2 Failure modes
- 
- | Failure point | Resultaat | Data-integriteit |
- |---------------|-----------|------------------|
- | Stap 1 faalt (hash) | Capture stopt | ✅ Geen orphans |
- | Stap 2 faalt (upload) | Capture stopt, throw Error | ✅ Geen orphans |
- | Stap 3 faalt (createPage) | **Image op Hetzner, geen page record** | ⚠️ Orphan blob |
- | Stap 4 faalt (sidecar) | Page bestaat, hash in pages tabel, sidecar mist | ✅ Acceptable (sidecar is backup) |
-| Trigger faalt (attestatie) | **Page insert rollbackt** | ✅ Transactie-gebonden atomiciteit |
+# B2C-Inventarisatie v0.7 — Umarise App
 
-**Verbetering door trigger:** De stap page insert → attestatie is atomair. Er kan geen page bestaan zonder bijbehorende attestatie in `origin_attestations`. Dit elimineert het risico van 'orphan pages' zonder Core-attestatie.
- 
- ### 6.3 Kritieke observatie
- 
- **Stap 2→3 failure = orphan blob op Hetzner**
- 
- Als image-upload slaagt maar database-insert faalt:
- - Blob bestaat op Hetzner (kost opslag)
- - Geen page record om naar te verwijzen
- - Geen cleanup-mechanisme geïmplementeerd
- - Gebruiker ziet geen capture (correcte UI-feedback)
- 
- **Status:** Geaccepteerd risico. Orphan blobs zijn laag-volume en kunnen handmatig worden opgeruimd.
- 
- ### 6.4 Idempotentie
- 
- | Stap | Idempotent? | Reden |
- |------|-------------|-------|
- | Hash berekenen | ✅ Ja | Deterministische functie |
- | Image upload | ❌ Nee | Timestamp in filename = unieke key |
- | Page insert | ❌ Nee | Auto-generated UUID |
- | Sidecar insert | ⚠️ Deels | Duplicate key = silent ignore (code 23505) |
- 
- ---
- 
- ## 7. Scope-afbakening
- 
- | In scope | Buiten scope |
- |----------|--------------|
- | Artifact capture (camera, upload) | Betekenisgeving aan artifacts |
- | Client-side SHA-256 hashing | Interpretatie van content |
- | Remote opslag van artifacts (Hetzner) | Voortgang, herinnering, terugkeer |
- | Supabase page records | Hergebruik of bewerking van artifacts |
- | Weergave van bestaande captures | Relaties tussen captures |
- | AI-metadata (OCR, keywords — verborgen) | Sociale features, delen, publiceren |
- 
- ---
- 
- ## 8. Operationele invarianten
- 
- | Invariant | Status | Afdwinging |
- |-----------|--------|------------|
- | **Write-once artifacts** | ⚠️ Conventie | Geen technische blokkade; image bytes worden niet overschreven maar tabel-updates zijn mogelijk |
- | **Geen relaties tussen handelingen** | ✅ Technisch | Geen foreign keys tussen `pages` records (capsule_id is optioneel grouping, geen dependency) |
- | **Geen mutaties op Core-niveau** | ✅ Technisch afgedwongen | PostgreSQL triggers op `origin_attestations` |
- | **Geen mutaties op lokale artifacts** | ⚠️ N/A | Geen lokale opslag — artifacts zijn server-only |
- | **Origin hash immutabel** | ✅ Technisch | `page_origin_hashes` sidecar tabel is insert-only (duplicate = ignore) |
- 
- ---
- 
- ## 9. Interface ↔ Core-relatie
- 
- ### 9.1 Huidige status
- 
- | Core-functionaliteit | B2C-toegang | Implementatie |
- |---------------------|-------------|---------------|
-| Origin attestatie (create) | ✅ Via trigger | App insert in `pages` → trigger propageert naar `origin_attestations` |
- | `GET /v1-core-resolve` | ❌ Niet gebruikt | Geen UI-integratie |
- | `POST /v1-core-verify` | ❌ Niet gebruikt | Geen UI-integratie |
- | `GET /v1-core-proof` | ❌ Niet gebruikt | Geen OTS download in App |
- 
- ### 9.2 Companion → Core Brug (Database Trigger)
- 
-**Status:** ✅ Geïmplementeerd (5 feb 2026)
- 
-De brug tussen Companion en Core is geïmplementeerd via een PostgreSQL trigger `bridge_page_to_core` die functie `bridge_page_to_core_attestation()` aanroept:
- 
+**Scope:** Uitsluitend de B2C-laag (Umarise App)  
+**Relatie tot Core:** Automatische propagatie via database trigger  
+**Datum:** 6 februari 2026  
+**Status:** Formele systeemdefinitie  
+**Versie:** v0.7 — gecorrigeerd na database-verificatie
+
+---
+
+## Δ Wijzigingen t.o.v. v0.6
+
+| Aspect | v0.6 | v0.7 |
+|--------|------|------|
+| `pages.origin_id` | Niet in schema | ✅ UUID kolom toegevoegd, teruggeschreven door bridge trigger |
+| OTS trigger chain | `on_ots_complete` trigger op `origin_attestations` | ✅ Gecorrigeerd: HTTP call vanuit OTS Worker (geen database trigger) |
+| Certificate bron `bitcoin_block_height` | `origin_attestations.bitcoin_block_height` | ✅ Gecorrigeerd: `core_ots_proofs.bitcoin_block_height` |
+| Trigger `on_ots_complete` | Beschreven als database trigger | ✅ Gecorrigeerd: bestaat niet als trigger |
+| `notify-ots-complete` lookup | Via `origin_hash_sha256` (fragiel) | ✅ Gecorrigeerd: via `pages.origin_id` (uniek) |
+| Immutability triggers | Aangenomen als actief | ✅ Geverifieerd en getest op 6 feb 2026 |
+| Privacy-by-Design Assessment | ✅ Sectie 16 | Ongewijzigd |
+
+---
+
+## 1. Systeemdefinitie
+
+| Vraag | Antwoord |
+|-------|----------|
+| **Wat is Umarise (B2C) exact als systeem?** | Een privacy-first PWA (React/TypeScript) die artifacts vastlegt via een client-side SHA-256 hash. De hash + metadata gaat naar Supabase; de thumbnail blijft lokaal in IndexedDB. Geen artifact bytes verlaten het device. Een database trigger propageert de hash naar `origin_attestations` (Core-laag) voor OTS-anchoring. |
+| **Welke handeling stelt de gebruiker technisch gezien vast?** | Het bestaan van specifieke bytes (artifact) op een specifiek moment, door middel van client-side hashing. De originele bytes blijven op het device van de gebruiker — alleen de hash wordt geattesteerd. |
+| **Wat is het formele output-object van die handeling?** | **Lokaal (IndexedDB):** thumbnail, hash, origin_id, timestamp, ots_proof, sync_status. **Server (Supabase):** `pages` record met hash, device_fingerprint_hash, user_id (nullable). **Core:** `origin_attestation` via trigger. **Export:** PDF-certificaat + .ots proof (client-side gegenereerd). |
+
+---
+
+## 2. Tech Stack
+
+| Component | Technologie | Versie/Details |
+|-----------|-------------|----------------|
+| **Framework** | React + TypeScript | ^18.3.1 |
+| **Build tooling** | Vite | via vite.config.ts |
+| **Styling** | Tailwind CSS | met shadcn/ui componenten |
+| **State management** | React Query | @tanstack/react-query ^5.83.0 |
+| **Database** | Supabase (PostgreSQL) | Lovable Cloud EU |
+| **Auth** | Supabase Auth | Magic Link (passwordless) |
+| **Lokale opslag** | IndexedDB | Thumbnails, proofs, sync queue |
+| **Hashing** | Web Crypto API | crypto.subtle.digest('SHA-256') |
+| **PDF generatie** | jsPDF | Client-side certificate |
+| **Archivering** | JSZip | Certificate + .ots bundel |
+| **Email notificatie** | Resend | OTS completion alerts |
+| **Hosting** | Lovable Cloud | CDN + EU edge |
+
+---
+
+## 3. Privacy-Architectuur
+
+### 3.1 Kernprincipe: "Sealed on your device · only the proof leaves"
+
+| Data | Locatie | Verlaat device? |
+|------|---------|-----------------|
+| Originele foto | Nooit opgeslagen | ❌ Nee |
+| Thumbnail (~400px) | IndexedDB | ❌ Nee |
+| SHA-256 hash | Supabase | ✅ Ja (64 hex chars) |
+| Device fingerprint hash | Supabase | ✅ Ja (niet reversible) |
+| Email (indien gegeven) | Supabase Auth | ✅ Ja |
+| OTS proof | Supabase → IndexedDB sync | ✅ Ja (publieke blockchain data) |
+
+### 3.2 Wat de server NIET heeft
+
+- Geen originele foto bytes
+- Geen thumbnail
+- Geen raw device fingerprint (alleen hash)
+- Geen manier om de hash terug te rekenen naar de foto
+
+### 3.3 Verifieerbaarheid van privacy-claim
+
+| Claim | Verificatie |
+|-------|-------------|
+| "Geen images naar server" | Network tab inspectie: POST naar `/pages` bevat geen image_url of blob |
+| "Thumbnail alleen lokaal" | IndexedDB inspectie: thumbnails aanwezig; Supabase `pages.image_url` is leeg voor v4 marks |
+| "Hash is one-way" | SHA-256 is cryptografisch niet-reverseerbaar (standaard eigenschap) |
+
+---
+
+## 4. PWA Lifecycle
+
+### 4.1 Status
+
+| Eigenschap | Status | Technische realiteit |
+|------------|--------|---------------------|
+| **Service Worker** | ✅ Geïmplementeerd | PWA service worker actief |
+| **Offline capability** | ⚠️ Gedeeltelijk | Marks kunnen offline gemaakt worden, queue in IndexedDB |
+| **Cache strategie** | ✅ Aanwezig | App shell cached |
+| **Installability** | ✅ Volledig | manifest.json + service worker |
+| **Web Share Target** | ✅ Gedefinieerd | manifest.json share_target |
+| **Background Sync** | 🔄 In ontwikkeling | Queued marks synced when online |
+
+### 4.2 Offline Gedrag
+
+| Actie | Offline mogelijk? | Gedrag |
+|-------|-------------------|--------|
+| Mark maken | ✅ Ja | Thumbnail → IndexedDB, hash queued |
+| Wall bekijken | ✅ Ja | Thumbnails uit IndexedDB |
+| Certificate downloaden | ⚠️ Deels | Alleen voor al-gesyncte marks met OTS proof |
+| Email verificatie | ❌ Nee | Vereist netwerk |
+
+---
+
+## 5. Authenticatie
+
+### 5.1 Model: Optional Auth, Post-Mark
+
+| Eigenschap | Waarde |
+|------------|--------|
+| **Type** | Supabase Auth Magic Link (passwordless) |
+| **Timing** | Na eerste mark (Release screen), niet ervoor |
+| **Vereist voor marks?** | ❌ Nee — anonymous marks toegestaan |
+| **Voordeel van auth** | OTS notificatie, email op certificaat, account recovery |
+
+### 5.2 User States
+
+| State | Kan markeren? | Krijgt OTS notificatie? | Certificaat toont |
+|-------|---------------|------------------------|-------------------|
+| Anonymous | ✅ | ❌ | `creator: [device only]` |
+| Email ingevoerd, niet geverifieerd | ✅ | ❌ | `creator: [device only]` |
+| Geverifieerd (Magic Link geklikt) | ✅ | ✅ | `creator: m***r@email.com` |
+
+### 5.3 Claim Anonymous Marks
+
+Wanneer een gebruiker email verifieert:
+
 ```sql
-CREATE TRIGGER bridge_page_to_core
-  AFTER INSERT ON public.pages
-  FOR EACH ROW
-  EXECUTE FUNCTION bridge_page_to_core_attestation();
+UPDATE pages 
+SET user_id = auth.uid()
+WHERE device_user_id = [current_device_id]
+AND user_id IS NULL;
 ```
 
-**Flow:**
+Alle eerder gemaakte marks op dit device worden gekoppeld aan de geverifieerde identity.
 
-1. App berekent hash client-side (Web Crypto API)
-2. App insert page met `origin_hash_sha256` naar `pages` tabel
-3. **Trigger `bridge_page_to_core` propageert automatisch naar `origin_attestations`** (Core-laag)
-4. OTS worker pikt attestatie op voor Bitcoin anchoring (hourly cron)
+---
 
-**Atomiciteit:** De trigger draait binnen dezelfde database-transactie als de page insert. Als de trigger faalt, rollbackt ook de page insert. Er kan geen page bestaan zonder bijbehorende attestatie.
+## 6. Data & Opslag
 
-### 9.5 Duplicate hash gedrag
+### 6.1 Opslaglocaties
 
-| Scenario | Gedrag | Reden |
-|----------|--------|-------|
-| Twee captures van identieke bytes | Twee aparte attestaties | Geen unique constraint op `origin_attestations.hash` |
-| Verschillende `captured_at` timestamps | ✅ Correct | TSA-style: meerdere tijdstempels voor dezelfde content zijn valide |
-| `ON CONFLICT DO NOTHING` | ❌ Verwijderd | Was misleidend — er is geen conflict mogelijk |
+| Data | Locatie | Persistentie |
+|------|---------|--------------|
+| **Thumbnail** | IndexedDB | Lokaal, device-gebonden |
+| **Mark metadata** | IndexedDB + Supabase | Dual-write |
+| **OTS proof** | Supabase → synced naar IndexedDB | Permanent |
+| **User identity** | Supabase Auth | Permanent (indien geverifieerd) |
+| **Device identifier** | localStorage (`device_user_id`) | Lokaal |
+| **Device fingerprint hash** | Supabase `pages` | Permanent |
+| **Witness confirmations** | Supabase `witnesses` | Permanent |
 
-**Consequentie:** Elke page insert met hash genereert een nieuwe attestatie, ongeacht of dezelfde hash eerder is geattesteerd. Dit is intentioneel en ondersteunt het "notary/TSA" model.
+### 6.2 IndexedDB Schema
 
-### 9.3 Twee schrijfpaden naar origin_attestations
+```typescript
+interface LocalMark {
+  id: string;                    // UUID
+  thumbnail: Blob;               // ~400px JPEG, <50KB
+  hash: string;                  // SHA-256 (64 hex)
+  originId: string;              // um-XXXXXXXX
+  timestamp: Date;
+  otsProof: Blob | null;         // .ots file wanneer anchored
+  otsStatus: 'pending' | 'anchored';
+  type: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
+  sizeClass: 'small' | 'medium' | 'large';
+  syncStatus: 'queued' | 'synced' | 'failed';
+  legacyImageUrl?: string;       // Voor pre-v4 migratie
+  userNote?: string;
+}
+```
 
-| Pad | Mechanisme | Rate Limiting | Validatie | Use Case |
-|-----|------------|---------------|-----------|----------|
-| **B2B** | `POST /v1-core-origins` | ✅ Ja (per-minute) | API key + HMAC | Partners, externe systemen |
-| **B2C** | Database trigger | ❌ Nee | Supabase RLS | Umarise App gebruikers |
+### 6.3 Supabase `pages` Schema (v4)
 
-**Architecturale observatie:** Dit is een bewuste splitsing, geen omissie:
+| Kolom | Type | Nullable | Nieuw in v4 |
+|-------|------|----------|-------------|
+| id | UUID | ❌ | |
+| device_user_id | UUID | ❌ | |
+| user_id | UUID | ✅ | ✅ |
+| origin_id | UUID | ✅ | ✅ (v0.7) |
+| origin_hash_sha256 | TEXT | ❌ | |
+| origin_hash_algo | TEXT | ❌ | |
+| device_fingerprint_hash | TEXT | ✅ | ✅ |
+| image_url | TEXT | ✅ | Leeg voor v4 marks |
+| created_at | TIMESTAMPTZ | ❌ | |
+| is_trashed | BOOLEAN | ❌ | |
 
-- B2B-pad: Externe partijen hebben geen directe database-toegang → API-laag met rate limiting is vereist
-- B2C-pad: App-gebruikers werken binnen Supabase RLS-context → trigger is atomair en transactie-gebonden
+**`origin_id`:** Teruggeschreven door de `bridge_page_to_core` trigger na INSERT in `origin_attestations`. Geïndexeerd (`idx_pages_origin_id`). Gebruikt door `notify-ots-complete` voor de notificatie-lookup.
 
-### 9.4 Geaccepteerd risico: Geen rate limiting op trigger-pad
+### 6.4 Witness Schema (nieuw)
 
-| Aspect | Status | Rationale |
-|--------|--------|-----------|
-| **Rate limiting** | ❌ Afwezig | Trigger draait binnen database-transactie |
-| **Misbruikdetectie** | ⚠️ Indirect | Misbruik vereist herhaaldelijk inserten van pages → zichtbaar in `pages` tabel |
-| **Huidige risico** | ✅ Acceptabel | Laag volume, geen geautomatiseerde page-insertie |
-| **Heroverwegen bij** | ⚠️ Groei | Als geautomatiseerde page-insertie mogelijk wordt (bot, script, bulk import) |
+```sql
+CREATE TABLE witnesses (
+  id UUID PRIMARY KEY,
+  page_id UUID REFERENCES pages(id),
+  witness_email TEXT,
+  witness_confirmed_at TIMESTAMPTZ,
+  confirmation_hash TEXT,
+  verification_token TEXT UNIQUE,
+  token_expires_at TIMESTAMPTZ,  -- +7 dagen
+  ots_status TEXT DEFAULT 'pending',
+  ots_proof BYTEA,
+  created_at TIMESTAMPTZ
+);
+```
 
-**Consequentie:** Bij schaalgroei of introductie van bulk-import functionaliteit moet een throttle-mechanisme worden toegevoegd aan de trigger of aan de `pages` insert-laag.
- 
- ---
- 
- ## 10. Uitsluitingen (kritisch)
- 
- | Element | Aanwezig? | Uitsluiting |
- |---------|-----------|-------------|
- | **Uitleg/onboarding** | ❌ Nee | Ontwerpconventie — geen onboarding screens |
- | **Feedbackloops** | ❌ Nee | Geen progressie, ratings, of achievement |
- | **Optimalisatie** | ❌ Nee | Geen suggesties of recommendations in capture flow |
- | **Herhaalmechanismen** | ❌ Nee | Geen reminders, streaks, of push notifications |
- | **Betekenislabels** | ⚠️ Deels | AI-gegenereerde metadata bestaat maar is verborgen in UI |
- 
- ---
- 
- ## 11. Native Extension Migratiepad
- 
- ### 11.1 PWA-afhankelijke componenten
- 
- | Component | PWA-specifiek | Portable naar native? |
- |-----------|---------------|----------------------|
- | Web Share Target (manifest.json) | ✅ PWA-only | ❌ Nee — vereist iOS Share Extension |
- | localStorage voor device_id | ✅ Browser-only | ❌ Nee — vereist Keychain/SharedPreferences |
- | Web Crypto API (hashing) | ⚠️ Deels | ✅ Ja — CommonCrypto/Android Crypto equivalent |
- | Service worker (niet geïmplementeerd) | ✅ PWA-only | ❌ N/A — niet aanwezig |
- | React UI components | ❌ Nee | ⚠️ Nee — vereist SwiftUI/Kotlin UI |
- 
- ### 11.2 Portable componenten
- 
- | Component | Portable? | Native equivalent |
- |-----------|-----------|-------------------|
- | SHA-256 hashing logic | ✅ Ja | CommonCrypto (iOS) / java.security (Android) |
- | Supabase client calls | ✅ Ja | Supabase Swift/Kotlin SDK |
- | Business logic (pageService) | ⚠️ Deels | Concept portable, implementatie niet |
- 
- ---
- 
- ## 12. Verifieerbaarheid
- 
- | Claim | Type | Verificatie |
- |-------|------|-------------|
- | "App genereert SHA-256 hash client-side" | **Verifieerbaar** | `src/lib/originHash.ts`, unit tests |
- | "Geen service worker geïmplementeerd" | **Verifieerbaar** | vite.config.ts inspectie |
- | "Device loss = permanent verlies" | **Verifieerbaar** | localStorage-only storage voor device_id |
- | "Capture is niet atomair" | **Verifieerbaar** | pageService.ts code flow analyse |
-| "App propageert naar Core via trigger" | **Verifieerbaar** | Database trigger `bridge_page_to_core_attestation` |
- | "De App is een ritueel" | **Hypothese** | Ontwerpintentie, niet technisch afdwingbaar |
- | "Gebruikers voelen zich gegrond" | **Hypothese** | Niet meetbaar via architectuur |
- 
- ---
- 
- ## 13. Acceptatiecriterium
- 
- | Criterium | Status |
- |-----------|--------|
- | Elke uitspraak herleidbaar tot systeemgedrag | ✅ |
- | Geen ervarings- of verspreidingsclaims | ✅ |
- | CORE en B2C strikt gescheiden | ✅ |
- | Leesbaar zonder context of visie-sessie | ✅ |
- | PWA-lifecycle gedocumenteerd | ✅ |
- | Device loss consequenties benoemd | ✅ |
- | Capture atomiciteit gedefinieerd | ✅ |
- | Tech stack benoemd | ✅ |
-| Companion → Core brug gedocumenteerd | ✅ |
-| Rate limiting risico geaccepteerd | ✅ |
- 
- ---
- 
- **Document classification:** Formele systeemdefinitie  
- **Scope:** B2C-laag exclusief  
- **Geen overlap met:** Core Inventarisatie v3, App Experience Briefing (intentie-document)
+---
+
+## 7. Capture Flow (Dual-Write)
+
+### 7.1 Sequentie
+
+```
+[1] User selecteert foto (file picker)
+[2] Client genereert thumbnail (~400px, JPEG 70%, <50KB)
+[3] Client berekent SHA-256 hash van ORIGINELE foto
+[4] Client genereert device fingerprint hash
+[5] Client genereert origin_id (um-XXXXXXXX)
+[6] DUAL-WRITE:
+    ├── IndexedDB: thumbnail + metadata (syncStatus: 'queued')
+    └── Supabase: hash + metadata (GEEN image data)
+[7] Supabase trigger: bridge_page_to_core → origin_attestations
+[8] Update IndexedDB: syncStatus: 'synced'
+[9] OTS worker (async, 1-12h): anchoring in Bitcoin
+[10] OTS complete → trigger → Edge Function → Resend notificatie
+```
+
+### 7.2 Failure Modes
+
+| Failure point | Resultaat | Data-integriteit |
+|---------------|-----------|------------------|
+| Stap 2 faalt (thumbnail) | Capture stopt | ✅ Geen orphans |
+| Stap 3 faalt (hash) | Capture stopt | ✅ Geen orphans |
+| Stap 6a faalt (IndexedDB) | Capture stopt | ✅ Geen orphans |
+| Stap 6b faalt (Supabase) | Mark in IndexedDB, queued | ✅ Retry later |
+| Stap 7 trigger faalt | Page rollback, mark in IndexedDB | ⚠️ Lokaal orphan, retry |
+| Stap 10 faalt (notificatie) | Mark anchored, user niet genotificeerd | ⚠️ User kan handmatig checken |
+
+### 7.3 Orphan Blob Risico: GEËLIMINEERD
+
+In v0.4 bestond het risico van orphan blobs op Hetzner. In v0.6 worden geen images geüpload naar de server — dit risico bestaat niet meer.
+
+---
+
+## 8. OTS Notificatie Systeem
+
+### 8.1 Notificatie Chain
+
+```
+OTS Worker (Hetzner) upgrades proof to 'anchored'
+  ↓
+UPDATE core_ots_proofs SET status = 'anchored', bitcoin_block_height = N
+  ↓
+Worker HTTP POST → Edge Function: notify-ots-complete
+  ↓
+Lookup: pages.origin_id → pages.user_id → auth.users.email
+  ↓
+Resend API → Email: "Your proof is anchored ✓"
+```
+
+**Mechanisme:** Directe HTTP call vanuit de OTS Worker (Hetzner) naar de Supabase Edge Function. Er is geen database trigger of webhook — de worker roept de functie aan na een succesvolle upgrade. De call zit in een eigen try/catch; falen heeft geen impact op de proof status.
+
+### 8.2 Notificatie Inhoud
+
+```
+Subject: Your proof is anchored ✓
+
+Your mark [ORIGIN 1916F13F] is now permanently 
+anchored in Bitcoin block #879,241.
+
+Open Umarise to download your certificate.
+
+[Open App]
+```
+
+### 8.3 Voorwaarden voor Notificatie
+
+| Voorwaarde | Vereist? |
+|------------|----------|
+| OTS proof aanwezig | ✅ |
+| user_id niet NULL | ✅ |
+| User heeft email (via Supabase Auth) | ✅ |
+
+Gevolg: Anonymous users krijgen geen notificatie maar kunnen wel handmatig hun certificaat downloaden via de Wall.
+
+---
+
+## 9. Certificate Export
+
+### 9.1 Generatie (Client-Side)
+
+| Component | Technologie |
+|-----------|-------------|
+| PDF rendering | jsPDF |
+| Thumbnail embedding | Uit IndexedDB |
+| Bundeling | JSZip |
+| Levering | Browser download |
+
+### 9.2 Certificaat Inhoud
+
+| Veld | Bron | Voorbeeld |
+|------|------|-----------|
+| Thumbnail | IndexedDB | Embedded JPEG |
+| Origin ID | pages.origin_id (UUID, teruggeschreven door bridge trigger) | ORIGIN 1916F13F |
+| Created | pages.created_at | 4 Feb 2026, 15:23 |
+| SHA-256 Hash | pages.origin_hash_sha256 | 884d5f17...553df0a3 |
+| Creator | auth.users.email (masked) of "[device only]" | m***r@email.com |
+| Device | pages.device_fingerprint_hash (truncated) | a7f3...b2c1 |
+| Bitcoin Block | core_ots_proofs.bitcoin_block_height | #879,241 |
+| Witness (optioneel) | witnesses.witness_email (masked) | j***n@example.com |
+
+### 9.3 Export Bundle
+
+```
+umarise-1916F13F.zip
+├── certificate.pdf    ← Visueel, human-readable
+└── proof.ots          ← Technisch verificatiebestand
+```
+
+---
+
+## 10. Device Loss Scenario
+
+### 10.1 Wat verloren gaat
+
+| Element | Lokatie | Bij device loss |
+|---------|---------|-----------------|
+| Thumbnails | IndexedDB | ❌ Verloren |
+| Downloaded certificates | Device filesystem | ❌ Verloren (tenzij gebackupt) |
+| device_user_id | localStorage | ❌ Verloren |
+
+### 10.2 Wat behouden blijft (indien email geverifieerd)
+
+| Element | Lokatie | Toegang |
+|---------|---------|---------|
+| Hash attestaties | Supabase | ✅ Via email login op nieuw device |
+| OTS proofs | Supabase | ✅ Downloadbaar |
+| Witness confirmaties | Supabase | ✅ Zichtbaar |
+
+### 10.3 Recovery Flow
+
+1. User installeert app op nieuw device
+2. User voert email in → Magic Link
+3. Marks gekoppeld aan user_id worden getoond
+4. Thumbnails tonen als `[device only]` placeholder (hash + date)
+5. Certificates kunnen opnieuw gegenereerd worden (zonder thumbnail)
+
+### 10.4 Mitigatie: Backup Nudge
+
+Na de 3e mark verschijnt eenmalig:
+
+> "your memories live in your browser · back them up to keep them safe"
+
+Met "back up now" link → bulk export alle certificaten.
+
+Herhaling bij 10e mark indien niet gebackupt.
+
+---
+
+## 11. Witness Feature
+
+### 11.1 Flow
+
+```
+Creator maakt mark
+  ↓
+Release screen: "Add a witness"
+  ↓
+Native share sheet: link + instructie
+  ↓
+Creator stuurt thumbnail apart (WhatsApp/Signal)
+  ↓
+Witness opent link → ziet origin_id, date, hash (GEEN thumbnail)
+  ↓
+Witness voert email in → "I confirm I saw this"
+  ↓
+Witness confirmation anchored separaat
+  ↓
+Creator's certificate toont witness info
+```
+
+### 11.2 Privacy
+
+- Witness ziet GEEN thumbnail via Umarise — alleen metadata
+- Creator deelt thumbnail zelf via eigen kanaal
+- Umarise server heeft geen thumbnail van creator OF witness
+
+### 11.3 Token Expiry
+
+Witness links verlopen na 7 dagen (`token_expires_at`).
+
+---
+
+## 12. Wall of Existence (Dual-Source)
+
+### 12.1 Thumbnail Resolution
+
+```
+1. Check IndexedDB voor thumbnail (v4 marks)
+   ↓ niet gevonden
+2. Check Supabase image_url (legacy pre-v4 marks)
+   ↓ niet gevonden
+3. Toon origin_id + date (graceful degradation)
+```
+
+### 12.2 Mark States
+
+| Status | Visueel | Actie beschikbaar |
+|--------|---------|-------------------|
+| `pending` | "anchoring..." | Geen download |
+| `anchored` | ✓ checkmark | "Download certificate" |
+
+---
+
+## 13. Interface ↔ Core Relatie
+
+### 13.1 Triggers
+
+| Trigger | Wanneer | Actie |
+|---------|---------|-------|
+| `trigger_bridge_page_to_core` | INSERT op pages | → origin_attestations + schrijft origin_id terug naar pages |
+| `trigger_bridge_page_to_core_update` | UPDATE op pages | → origin_attestations (bij hash wijziging) |
+
+**OTS notificatie:** Geen database trigger. De OTS Worker roept `notify-ots-complete` aan via HTTP na succesvolle upgrade. Lookup: `pages.origin_id` → `pages.user_id` → `auth.users.email`.
+
+### 13.2 Twee Schrijfpaden naar origin_attestations
+
+| Pad | Mechanisme | Rate Limiting | Use Case |
+|-----|------------|---------------|----------|
+| **B2B** | `POST /v1-core-origins` | ✅ Ja | Partners, externe systemen |
+| **B2C** | Trigger `bridge_page_to_core` | ❌ Nee | Umarise App gebruikers |
+
+---
+
+## 14. Operationele Invarianten
+
+| Invariant | Status | Afdwinging |
+|-----------|--------|------------|
+| **Geen images op server (v4)** | ✅ Technisch | image_url leeg, geen upload endpoint |
+| **Hash immutabel** | ✅ Technisch, getest | Trigger `trigger_prevent_attestation_update` (geverifieerd 6 feb 2026) |
+| **Attestatie immutabel** | ✅ Technisch, getest | Trigger `trigger_prevent_attestation_delete` (geverifieerd 6 feb 2026) |
+| **Thumbnail alleen lokaal** | ✅ Technisch | Alleen IndexedDB writes |
+| **OTS proof publiek verifieerbaar** | ✅ Technisch | Bitcoin blockchain |
+| **origin_id teruggeschreven naar pages** | ✅ Technisch | Bridge trigger schrijft UUID terug na INSERT |
+
+---
+
+## 15. Verifieerbaarheid
+
+| Claim | Type | Verificatie |
+|-------|------|-------------|
+| "Geen images naar server" | **Verifieerbaar** | Network tab: geen blob in POST |
+| "Thumbnail alleen in IndexedDB" | **Verifieerbaar** | DevTools → Application → IndexedDB |
+| "Hash client-side berekend" | **Verifieerbaar** | `src/lib/originHash.ts` |
+| "OTS notificatie bij completion" | **Verifieerbaar** | Edge Function logs + Resend dashboard |
+| "Witness link verloopt na 7 dagen" | **Verifieerbaar** | `witnesses.token_expires_at` check |
+| "Anonymous marks mogelijk" | **Verifieerbaar** | `pages.user_id` nullable |
+| "Privacy-first architectuur" | **Verifieerbaar** | Combinatie van bovenstaande |
+
+---
+
+## 16. Privacy-by-Design Assessment
+
+### 16.1 Architectuuroverzicht
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER DEVICE                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐ │
+│  │   Photo     │───▶│  SHA-256    │───▶│     IndexedDB       │ │
+│  │  (input)    │    │   Hash      │    │  - thumbnail        │ │
+│  └─────────────┘    └──────┬──────┘    │  - hash             │ │
+│                            │           │  - ots_proof        │ │
+│         TRUST BOUNDARY     │           └─────────────────────┘ │
+└────────────────────────────┼───────────────────────────────────┘
+                             │ hash only (64 chars)
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      SUPABASE (EU)                              │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐ │
+│  │   pages     │───▶│  trigger    │───▶│ origin_attestations │ │
+│  │  (hash)     │    │             │    │                     │ │
+│  └─────────────┘    └─────────────┘    └──────────┬──────────┘ │
+└────────────────────────────────────────────────────┼───────────┘
+                                                     │
+                             ┌───────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    BITCOIN BLOCKCHAIN                           │
+│                   (OTS Merkle anchor)                           │
+│                   Immutable, public                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 16.2 Privacy Principles Assessment
+
+| Principe | Implementatie | Score |
+|----------|---------------|-------|
+| **1. Proactive not Reactive** | Architectuur ontworpen met privacy als uitgangspunt, niet als afterthought. Geen images op server is een bewuste keuze, niet een optimalisatie. | ✅ Volledig |
+| **2. Privacy as Default** | Geen opt-in vereist. Thumbnails blijven lokaal zonder configuratie. Email is optioneel. Anonymous marks toegestaan. | ✅ Volledig |
+| **3. Privacy Embedded in Design** | Hash-only architectuur maakt reconstructie van content onmogelijk. Niet een policy, maar een technische eigenschap. | ✅ Volledig |
+| **4. Full Functionality** | Volledige bewijskracht zonder privacy-opoffering. OTS-anchoring werkt met hash alleen. Certificate bevat alle bewijslagen. | ✅ Volledig |
+| **5. End-to-End Security** | Data protection over hele lifecycle: lokale opslag (IndexedDB), transport (hash only), anchoring (Bitcoin immutability). | ✅ Volledig |
+| **6. Visibility and Transparency** | Open architectuur. Verificatie mogelijk via Network tab, IndexedDB inspectie, blockchain lookup. Geen hidden data flows. | ✅ Volledig |
+| **7. Respect for User Privacy** | User-centric: content blijft op device, email optioneel, anonymous gebruik mogelijk, backup in eigen handen. | ✅ Volledig |
+
+### 16.3 Data Minimization Matrix
+
+| Data Element | Nodig voor bewijs? | Naar server? | Rationale |
+|--------------|-------------------|--------------|-----------|
+| Originele foto | ❌ Nee (hash volstaat) | ❌ Nee | Nooit opgeslagen, alleen gehashed |
+| Thumbnail | ❌ Nee (visueel gemak) | ❌ Nee | Alleen lokaal voor UX |
+| SHA-256 hash | ✅ Ja | ✅ Ja | Minimaal noodzakelijk voor attestatie |
+| Timestamp | ✅ Ja | ✅ Ja | Kern van tijdsbewijs |
+| Device fingerprint | ⚠️ Optioneel | ✅ Ja (hash) | Versterkt bewijs, niet reverseerbaar |
+| Email | ⚠️ Optioneel | ✅ Ja (indien gegeven) | Alleen voor notificatie + identity |
+| Witness email | ⚠️ Optioneel | ✅ Ja (indien gegeven) | Alleen voor confirmatie |
+
+**Conclusie:** Alleen cryptografisch noodzakelijke data verlaat het device. Alle visuele content blijft lokaal.
+
+### 16.4 Trust Boundaries
+
+| Boundary | Wat passeert | Wat NIET passeert |
+|----------|--------------|-------------------|
+| **Device → Network** | 64-char hash, timestamp, device_fingerprint_hash | Foto bytes, thumbnail, origineel bestand |
+| **Supabase → Bitcoin** | Merkle root (aggregatie van hashes) | Individuele hashes (in tree), geen metadata |
+| **App → Witness** | Origin ID, date, hash | Thumbnail (creator deelt apart) |
+
+### 16.5 Threat Model
+
+| Threat | Mitigatie | Residueel risico |
+|--------|-----------|------------------|
+| **Server compromise** | Server heeft alleen hashes. Geen reconstructie mogelijk van originele content. | ✅ Laag — metadata exposure (timestamps, hashes) |
+| **Database leak** | Hashes zijn publiek verifieerbaar anyway (blockchain). Geen geheime content. | ✅ Laag — email addresses indien opgeslagen |
+| **Man-in-the-middle** | HTTPS transport. Hash verificatie mogelijk client-side. | ✅ Laag |
+| **Device theft** | IndexedDB accessible. Mitigatie: device encryption (OS-level). | ⚠️ Medium — thumbnails lokaal zichtbaar |
+| **Supabase/Anthropic subpoena** | Server heeft geen content, alleen hashes. Onmogelijk om foto te reconstrueren. | ✅ Laag |
+| **OTS calendar compromise** | Bitcoin anchor is onafhankelijk van calendar. Proof blijft geldig. | ✅ Laag |
+
+### 16.6 Control Plane vs Truth
+
+**Kernprincipe:** Control plane compromise degrades convenience, not truth.
+
+| Scenario | Impact op gemak | Impact op waarheid |
+|----------|-----------------|-------------------|
+| Supabase offline | ❌ Geen sync, geen notificaties | ✅ Lokale marks blijven geldig |
+| Supabase data verloren | ❌ Wall leeg op server-side | ✅ IndexedDB + blockchain bewijzen bestaan nog |
+| Resend offline | ❌ Geen email notificaties | ✅ OTS proof ongewijzigd |
+| Umarise failliet | ❌ App werkt niet meer | ✅ Certificates + .ots files blijven verifieerbaar |
+
+**Gebruiker bezit het bewijs.** Het certificaat + .ots bestand is volledig onafhankelijk verifieerbaar zonder Umarise infrastructure.
+
+### 16.7 Vergelijking met Oude Architectuur (v0.4)
+
+| Aspect | v0.4 (oud) | v0.6 (nieuw) | Privacy-impact |
+|--------|-----------|--------------|----------------|
+| Image opslag | Hetzner (server) | IndexedDB (lokaal) | **+++ Drastisch verbeterd** |
+| Server heeft content | ✅ Ja (volledige foto) | ❌ Nee (alleen hash) | **+++ Drastisch verbeterd** |
+| Subpoena risico | ⚠️ Server kan foto leveren | ✅ Server heeft geen foto | **+++ Geëlimineerd** |
+| Data minimization | ❌ Niet | ✅ Volledig | **+++ Drastisch verbeterd** |
+| Orphan blob risico | ⚠️ Ja | ✅ Geëlimineerd | **++ Verbeterd** |
+
+### 16.8 GDPR Alignment
+
+| GDPR Principe | Implementatie |
+|---------------|---------------|
+| **Lawfulness** | Consent impliciet via app gebruik. Geen data zonder user actie. |
+| **Purpose limitation** | Data alleen voor timestamping en bewijs. Geen secundair gebruik. |
+| **Data minimization** | Alleen hash + timestamp naar server. Minimum noodzakelijk. |
+| **Accuracy** | Hash is mathematisch exact. Geen interpretatie. |
+| **Storage limitation** | User controleert lokale data. Server data minimaal. |
+| **Integrity & confidentiality** | Hash-only = geen content exposure. |
+| **Accountability** | Architectuur verifieerbaar. Geen hidden flows. |
+
+### 16.9 Privacy Assessment Conclusie
+
+| Categorie | Score | Toelichting |
+|-----------|-------|-------------|
+| **Data minimization** | ✅ Excellent | Alleen cryptografisch noodzakelijke data naar server |
+| **User control** | ✅ Excellent | Content blijft op device, user bezit bewijs |
+| **Transparency** | ✅ Excellent | Volledig verifieerbaar via browser tools |
+| **Security** | ✅ Goed | Hash-only elimineert content exposure risico's |
+| **Resilience** | ✅ Goed | Bewijs blijft geldig onafhankelijk van Umarise |
+
+**Overall: Privacy-by-Design compliant.**
+
+De v0.6 architectuur realiseert de claim "sealed on your device · only the proof leaves" op technisch verifieerbare wijze. De server functioneert als een blind attestation service — het ziet hashes maar kan geen content reconstrueren.
+
+---
+
+## 17. Acceptatiecriterium
+
+| Criterium | Status |
+|-----------|--------|
+| Privacy-claims technisch verifieerbaar | ✅ |
+| Privacy-by-Design assessment compleet | ✅ |
+| Trust boundaries gedefinieerd | ✅ |
+| Threat model gedocumenteerd | ✅ |
+| GDPR alignment beschreven | ✅ |
+| Dual-write flow gedocumenteerd | ✅ |
+| OTS notificatie systeem gedocumenteerd | ✅ |
+| Witness feature gedocumenteerd | ✅ |
+| Device loss scenario gedocumenteerd | ✅ |
+| Certificate export gedocumenteerd | ✅ |
+| Auth model gedocumenteerd | ✅ |
+| Alle wijzigingen t.o.v. v0.4/v0.5 benoemd | ✅ |
+
+---
+
+**Document classification:** Formele systeemdefinitie + Privacy Assessment  
+**Scope:** B2C-laag exclusief  
+**Consistent met:** v4 User Flow (6 feb 2026)  
+**Supersedes:** B2C-Inventarisatie v0.4, v0.5, v0.6  
+**Geverifieerd tegen database:** 6 februari 2026
