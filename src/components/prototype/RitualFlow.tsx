@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
-// PauseScreen removed — merged into MarkScreen
-import { MarkScreen } from './screens/MarkScreen';
+// MarkScreen removed — mark creation now happens automatically after capture
 // ReleaseScreen, ZipScreen, OwnedScreen removed — merged into SealedScreen
 import { SealedScreen } from './screens/SealedScreen';
 import { HomeScreen } from './screens/HomeScreen';
@@ -11,7 +11,7 @@ import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'capture' | 'mark' | 'sealed' | 'home' | 'wall';
+export type RitualScreen = 'welcome' | 'capture' | 'processing' | 'sealed' | 'home' | 'wall';
 
 export interface Artifact {
   id: string;
@@ -54,8 +54,10 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  // Handle file capture - store file data and transition to mark (pause merged into mark)
-  const handleCapture = useCallback((file: CapturedFile) => {
+  // Handle file capture - auto-hash + create mark, then go to sealed
+  const handleCapture = useCallback(async (file: CapturedFile) => {
+    if (isCreatingMark.current) return;
+    
     setCapturedImageUrl(file.dataUrl);
     
     // Derive artifact type from MIME
@@ -63,7 +65,7 @@ export function RitualFlow() {
       : file.mimeType.startsWith('image/') ? 'warm'
       : 'text';
     
-    // Create temporary artifact for pause/mark screens (before mark is created)
+    // Create temporary artifact for display during processing
     const tempArtifact: Artifact = {
       id: 'pending-' + Date.now(),
       type: artifactType,
@@ -76,30 +78,25 @@ export function RitualFlow() {
     };
     setCurrentArtifact(tempArtifact);
     
-    goToScreen('mark');
-  }, [goToScreen]);
-
-  // Handle mark completion - create the actual mark with dual-write
-  const handleMarkComplete = useCallback(async () => {
-    if (!capturedImageUrl || isCreatingMark.current) return;
+    // Show processing state
+    goToScreen('processing');
     
+    // Auto-create mark (hash + DB insert)
     isCreatingMark.current = true;
-    
     try {
-      console.log('[RitualFlow] Creating mark...');
-      const mark = await createMark(capturedImageUrl, 'warm');
+      console.log('[RitualFlow] Auto-creating mark after capture...');
+      const mark = await createMark(file.dataUrl, 'warm');
       
       if (mark) {
-        // Update artifact with real data
         const realArtifact: Artifact = {
           id: mark.id,
           type: mark.type,
           origin: mark.originId.toUpperCase().replace('UM-', 'ORIGIN '),
           date: mark.timestamp,
           hash: mark.hash,
-          imageUrl: mark.thumbnailUrl || capturedImageUrl,
-          mimeType: currentArtifact?.mimeType || 'image/jpeg',
-          fileName: currentArtifact?.fileName || 'unknown',
+          imageUrl: mark.thumbnailUrl || file.dataUrl,
+          mimeType: file.mimeType,
+          fileName: file.fileName,
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
@@ -107,14 +104,18 @@ export function RitualFlow() {
       } else {
         console.error('[RitualFlow] Mark creation returned null');
         toast.error('Failed to seal mark');
+        goToScreen('capture');
         isCreatingMark.current = false;
       }
     } catch (error) {
       console.error('[RitualFlow] Mark creation failed:', error);
       toast.error('Failed to seal mark');
+      goToScreen('capture');
       isCreatingMark.current = false;
     }
-  }, [capturedImageUrl, createMark, goToScreen]);
+  }, [goToScreen, createMark]);
+
+  // handleMarkComplete removed — mark creation now happens automatically in handleCapture
 
   // Sealed → Wall (after Save → ✓ Owned → 0.8s)
   const handleSealedComplete = useCallback(() => {
@@ -135,7 +136,7 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  const showOriginButton = screen === 'capture' || screen === 'mark';
+  const showOriginButton = screen === 'capture';
 
   // Fallback artifact for screens that need one
   const displayArtifact = currentArtifact || {
@@ -165,10 +166,27 @@ export function RitualFlow() {
         <CaptureScreen onCapture={handleCapture} showOriginText={showOriginText} />
       )}
       
-      {/* PauseScreen removed — merged into MarkScreen */}
-      
-      {screen === 'mark' && (
-        <MarkScreen artifact={displayArtifact} onComplete={handleMarkComplete} />
+      {/* Processing state - brief visual during auto-hash + mark creation */}
+      {screen === 'processing' && (
+        <motion.div
+          className="min-h-screen flex flex-col items-center justify-center"
+          style={{ background: 'hsl(var(--ritual-bg))' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Origin Mark breathing animation during processing */}
+          <motion.div
+            className="relative"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <svg viewBox="0 0 48 48" className="w-16 h-16">
+              <circle cx="24" cy="24" r="20" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="1" opacity="0.4" />
+              <circle cx="24" cy="24" r="7" fill="hsl(var(--ritual-gold))" opacity="0.7" />
+            </svg>
+          </motion.div>
+        </motion.div>
       )}
       
       {screen === 'sealed' && currentArtifact && (
