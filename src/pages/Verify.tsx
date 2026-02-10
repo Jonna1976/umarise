@@ -185,15 +185,27 @@ export default function Verify() {
     // Step 3: Hash photo
     updateStep('hash', 'active', 'Hashing photo...');
 
-    // Find the first image file in the ZIP
-    const imageFiles = zip.file(/\.(jpg|jpeg|png)$/i);
-    if (imageFiles.length === 0) {
-      updateStep('hash', 'fail', 'No image file found in ZIP');
+    // Find the artifact file in the ZIP (any format: image, video, audio, PDF)
+    const artifactFiles = zip.file(/^artifact\./i);
+    // Fallback: legacy ZIPs may contain photo.jpg or other image files
+    const legacyImageFiles = zip.file(/\.(jpg|jpeg|png|webp|heic)$/i);
+    // Also try video/audio/pdf files as fallback
+    const mediaFiles = zip.file(/\.(mp4|mov|webm|mp3|wav|m4a|pdf)$/i);
+    
+    const allCandidates = [
+      ...artifactFiles,
+      ...legacyImageFiles.filter(f => !artifactFiles.some(a => a.name === f.name)),
+      ...mediaFiles.filter(f => !artifactFiles.some(a => a.name === f.name)),
+    ].filter(f => f.name !== 'certificate.json' && f.name !== 'VERIFY.txt' && !f.name.endsWith('.ots'));
+
+    if (allCandidates.length === 0) {
+      updateStep('hash', 'fail', 'No artifact file found in ZIP');
       setIsProcessing(false);
       return;
     }
 
-    const photoBuffer = await imageFiles[0].async('arraybuffer');
+    const artifactEntry = allCandidates[0];
+    const photoBuffer = await artifactEntry.async('arraybuffer');
     const hash = await computeSHA256(photoBuffer);
     setComputedHash(hash);
     updateStep('hash', 'done', `SHA-256: ${hash.substring(0, 16)}...`);
