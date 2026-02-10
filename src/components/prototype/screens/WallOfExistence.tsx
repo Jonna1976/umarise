@@ -1,13 +1,10 @@
 /**
- * Screen 7: Marked Origins
+ * S3: Origin Registry (formerly "Wall of Existence" / "Marked Origins")
  * 
- * Per briefing sectie 4 (S7):
- * - Title: "Marked Origins" — 20px Playfair 300, cream, centered, padding-top 44px
- * - Hint: "Tap an origin to view, save as ZIP, or link your passkey." — 12px Garamond italic
- * - Origins: horizontal scrolling, museum-style, each in own frame with date below
- * - Detail view on tap (handled by MarkDetailModal)
- * - U button top-left for close. Long-press for backup.
- * - NO "New origin" button. NO "Prove card". NO bulk-passkey.
+ * Horizontal scrolling gallery of sealed origins, museum-style.
+ * Each origin in its own frame with date below.
+ * Detail view on tap (handled by MarkDetailModal).
+ * Origin button top-left for close.
  */
 
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
@@ -242,7 +239,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         ))}
       </div>
 
-      {/* U button — close wall, long-press for backup */}
+      {/* Origin button — close registry */}
       <OriginButton 
         onClick={onClose} 
         className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
@@ -250,7 +247,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
 
       {/* Title and subtitle removed — the artifacts speak for themselves */}
 
-      {/* Backup hint (appears on long-press ∪) */}
+      {/* Backup hint */}
       <motion.p
         className="absolute top-[86px] left-4 z-50 font-garamond italic text-[12px] pointer-events-none"
         style={{ color: 'hsl(var(--ritual-gold-muted))' }}
@@ -258,7 +255,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         animate={{ opacity: showBackupHint ? 0.5 : 0 }}
         transition={{ duration: 0.6 }}
       >
-        long-press ∪ to backup
+        long-press ⊙ to backup
       </motion.p>
 
       {/* Scrolling artifact track */}

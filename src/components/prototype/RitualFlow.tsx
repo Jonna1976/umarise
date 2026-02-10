@@ -6,7 +6,7 @@ import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
 // ReleaseScreen, ZipScreen, OwnedScreen removed — merged into SealedScreen
 import { SealedScreen } from './screens/SealedScreen';
 import { HomeScreen } from './screens/HomeScreen';
-import { WallOfExistence } from './screens/WallOfExistence';
+import { WallOfExistence } from './screens/WallOfExistence'; // Origin Registry
 import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
@@ -125,14 +125,12 @@ export function RitualFlow() {
     goToScreen('wall');
   }, [goToScreen]);
 
-  const handleOpenWall = useCallback(() => {
+  const handleOpenRegistry = useCallback(() => {
     goToScreen('wall');
   }, [goToScreen]);
 
-  const handleCloseWall = useCallback(() => {
+  const handleCloseRegistry = useCallback(() => {
     // Always return to capture (S1) — the ritual's home base.
-    // previousScreen may point to transient screens (zip, owned) whose
-    // state has been cleared, which would render a black screen.
     goToScreen('capture');
   }, [goToScreen]);
 
@@ -152,9 +150,9 @@ export function RitualFlow() {
 
   return (
     <div className="min-h-screen relative overflow-hidden font-garamond" style={{ background: 'hsl(var(--ritual-bg))' }}>
-      {/* Origin Button (U) - visible on main screens */}
+      {/* Origin Button — opens Origin Registry */}
       {showOriginButton && (
-        <OriginButton onClick={handleOpenWall} className="absolute top-[40px] left-[18px] z-50" />
+        <OriginButton onClick={handleOpenRegistry} className="absolute top-[40px] left-[18px] z-50" />
       )}
 
       {/* Screens */}
@@ -207,7 +205,7 @@ export function RitualFlow() {
       )}
       
       {screen === 'wall' && (
-        <WallOfExistence onClose={handleCloseWall} />
+        <WallOfExistence onClose={handleCloseRegistry} />
       )}
     </div>
   );

@@ -7,12 +7,9 @@ interface OriginButtonProps {
 }
 
 /**
- * The Origin Mark navigation button — 20x20px circumpunct
- * Position: top: 40px, left: 18px (main screens) or top: 38px, left: 16px (wall)
- * Tapping opens Wall of Existence
- * 
- * Per briefing: replaces U-in-circle with circumpunct (20x20px).
- * Subtiel, niet dominant. De stip pulst langzaam (breathe animatie).
+ * The Origin Mark navigation button — 28px circumpunct (orbit symbol)
+ * Position: top: 40px, left: 18px (main screens) or top: 38px, left: 16px (registry)
+ * Tapping opens Origin Registry
  */
 export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
   return (
@@ -23,7 +20,7 @@ export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       whileHover={{ opacity: 1 }}
-      aria-label="Open Wall of Existence"
+      aria-label="Open Origin Registry"
     >
       <OriginMark
         size={28}
