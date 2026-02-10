@@ -13,6 +13,7 @@
 
 import JSZip from 'jszip';
 import { createCertificate, serializeCertificate } from '@/lib/certificate';
+import { calculateSHA256FromFile } from '@/lib/originHash';
 
 export interface OriginZipInput {
   originId: string;
@@ -23,6 +24,8 @@ export interface OriginZipInput {
   signature?: string | null;
   /** Base64-encoded OpenTimestamps proof binary (included when status = anchored) */
   otsProof?: string | null;
+  /** Original artifact File object (user re-selected). Hash is verified before inclusion. */
+  artifactFile?: File | null;
 }
 
 /**
@@ -68,7 +71,11 @@ function mimeToExtension(mime: string): string {
 }
 
 /**
- * Build a ZIP blob containing photo + certificate.json + proof.ots
+ * Build a ZIP blob containing artifact + certificate.json + proof.ots
+ * 
+ * Artifact inclusion priority:
+ * 1. artifactFile (user re-selected File) — hash-verified before inclusion
+ * 2. imageUrl fallback (thumbnail/preview) — skipped if hash won't match
  */
 export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   const zip = new JSZip();
@@ -76,8 +83,12 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   // Clean origin ID (strip prefix)
   const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
 
-  // 1. Add artifact (photo, video, document, etc.)
-  if (input.imageUrl) {
+  // 1. Add artifact — prefer verified File over URL fetch
+  if (input.artifactFile) {
+    const ext = mimeToExtension(input.artifactFile.type);
+    zip.file(`artifact.${ext}`, input.artifactFile);
+  } else if (input.imageUrl) {
+    // Fallback: fetch from URL (works for images stored as blob/data URLs)
     const artifact = await fetchArtifactBytes(input.imageUrl);
     if (artifact) {
       zip.file(`artifact.${artifact.ext}`, artifact.blob);

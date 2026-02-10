@@ -23,6 +23,7 @@ import { X } from 'lucide-react';
 import { OriginMark } from './OriginMark';
 import { buildOriginZip, saveOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
+import { verifyFileHash } from '@/lib/originHash';
 import { toast } from 'sonner';
 import { 
   registerPasskey, 
@@ -53,11 +54,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [proofLoaded, setProofLoaded] = useState(false);
   const [fetchingProof, setFetchingProof] = useState(false);
+  const [verifyingFile, setVerifyingFile] = useState(false);
   
   // Store credential data for signing and ZIP inclusion
   const credentialRef = useRef<PasskeyCredential | null>(null);
   const signatureRef = useRef<string | null>(null);
   const otsProofRef = useRef<string | null>(null);
+  const artifactFileRef = useRef<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Eagerly fetch OTS proof when origin has a real UUID
   useEffect(() => {
@@ -96,13 +100,23 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
   const isAnchored = mark.otsStatus === 'anchored';
 
-  // Handle ZIP save — fetches proof on-demand if anchored but not yet loaded
-  const handleSaveAsZip = useCallback(async () => {
-    if (isSaving) return;
-    setIsSaving(true);
-
+  // Handle file selection → verify hash → build ZIP
+  const handleFileSelected = useCallback(async (file: File) => {
+    setVerifyingFile(true);
     try {
-      // If passkey is linked but not yet signed, sign the hash now
+      const match = await verifyFileHash(file, mark.hash);
+      if (!match) {
+        toast.error('Hash mismatch — dit is niet het originele bestand');
+        setVerifyingFile(false);
+        return;
+      }
+      artifactFileRef.current = file;
+      
+      // Proceed with ZIP build
+      setIsSaving(true);
+      setVerifyingFile(false);
+
+      // Sign hash if passkey linked
       if (passkeyLinked && credentialRef.current && !signatureRef.current) {
         try {
           const sig = await signHash(credentialRef.current.credentialId, mark.hash);
@@ -112,7 +126,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         }
       }
 
-      // If anchored but proof not loaded yet, fetch it now
+      // Fetch OTS proof if anchored
       if (isAnchored && !otsProofRef.current && mark.originUuid) {
         setFetchingProof(true);
         try {
@@ -122,7 +136,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             setProofLoaded(true);
           }
         } catch (e) {
-          console.warn('[MarkDetailModal] Proof fetch failed, saving without .ots:', e);
+          console.warn('[MarkDetailModal] Proof fetch failed:', e);
         } finally {
           setFetchingProof(false);
         }
@@ -136,6 +150,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         claimedBy: credentialRef.current?.publicKey ?? null,
         signature: signatureRef.current ?? null,
         otsProof: otsProofRef.current,
+        artifactFile: artifactFileRef.current,
       });
 
       if (success) {
@@ -146,8 +161,15 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       console.error('[MarkDetailModal] Save error:', error);
     } finally {
       setIsSaving(false);
+      setVerifyingFile(false);
     }
-  }, [isSaving, isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
+  }, [isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
+
+  // Trigger file picker for ZIP save
+  const handleSaveAsZip = useCallback(() => {
+    if (isSaving || verifyingFile) return;
+    fileInputRef.current?.click();
+  }, [isSaving, verifyingFile]);
 
   // Handle passkey link — real WebAuthn registration + signing
   const handlePasskeyLink = useCallback(async () => {
@@ -301,10 +323,23 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             )}
           </div>
 
+          {/* Hidden file input for artifact re-selection */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*,audio/*,.pdf"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFileSelected(file);
+              e.target.value = ''; // Reset for re-selection
+            }}
+          />
+
           {/* "Save as ZIP" button */}
           <button
             onClick={handleSaveAsZip}
-            disabled={isSaving || fetchingProof}
+            disabled={isSaving || fetchingProof || verifyingFile}
             className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
             style={{
               fontWeight: 300,
@@ -321,15 +356,13 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   : passkeyLinked 
                     ? '✓ ZIP saved (with passkey)'
                     : '✓ ZIP saved')
-              : fetchingProof
-                ? 'Fetching proof…'
-                : isSaving 
-                  ? 'Saving…' 
-                  : isAnchored && !proofLoaded && mark.originUuid
-                    ? 'Save as ZIP'
-                    : !isAnchored
-                      ? 'Save as ZIP (proof pending)'
-                      : 'Save as ZIP'
+              : verifyingFile
+                ? 'Verifying…'
+                : fetchingProof
+                  ? 'Fetching proof…'
+                  : isSaving 
+                    ? 'Saving…' 
+                    : 'Select original → Save as ZIP'
             }
           </button>
 
@@ -344,6 +377,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 claimedBy: credentialRef.current?.publicKey ?? null,
                 signature: signatureRef.current ?? null,
                 otsProof: otsProofRef.current,
+                artifactFile: artifactFileRef.current,
               };
               const cleanId = mark.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
               const zipBlob = await buildOriginZip(zipInput);
