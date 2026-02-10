@@ -18,6 +18,7 @@ export interface CapturedFile {
 
 interface CaptureScreenProps {
   onCapture: (file: CapturedFile) => void;
+  showOriginText?: boolean;
 }
 
 /**
@@ -31,7 +32,7 @@ interface CaptureScreenProps {
  * 
  * Technisch: <input type="file" accept="image/*"> via <label>
  */
-export function CaptureScreen({ onCapture }: CaptureScreenProps) {
+export function CaptureScreen({ onCapture, showOriginText }: CaptureScreenProps) {
   const inputId = useId();
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +115,18 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
           variant="dark"
         />
       </motion.label>
+
+      {/* "You are the origin." — shown on return visits instead of S0 */}
+      {showOriginText && (
+        <motion.p
+          className="absolute bottom-[15%] font-playfair font-light text-[17px] text-ritual-cream/60"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+        >
+          You are the origin.
+        </motion.p>
+      )}
     </motion.div>
   );
 }
