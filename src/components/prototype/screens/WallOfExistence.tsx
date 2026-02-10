@@ -242,7 +242,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       {/* Origin button — close registry */}
       <OriginButton 
         onClick={onClose} 
-        className="absolute top-[38px] left-[16px] z-50 opacity-70 hover:opacity-100 transition-opacity" 
+        className="absolute top-[38px] left-[16px] z-50 opacity-100" 
       />
 
       {/* Title and subtitle removed — the artifacts speak for themselves */}
