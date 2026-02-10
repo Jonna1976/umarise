@@ -63,14 +63,10 @@ graph TB
 | Onderdeel | Status | Waar |
 |-----------|--------|------|
 | **device_user_id** | ✅ Auto-generated UUID | LocalStorage — anonieme device-identiteit, nooit gedeeld met Core |
-| **S0 Welcome** | ✅ Live | Browser UI |
-| **S1 Capture** | ✅ Camera + Photo Library | Device → Web Crypto |
-| **S2 Pause** | ✅ Visuele bevestiging | Browser UI |
-| **S3 Mark** | ✅ SHA-256 hashing + hold-to-mark | Client-side → `pages` INSERT |
-| **S4 Sealed** | ✅ Museum label + artifact + file list | Browser UI |
-| **S5 ZIP** | ✅ Live (photo + certificate + VERIFY.txt + proof.ots) | Client-side JSZip |
-| **S6 Owned** | ✅ Auto-advance na save | Browser UI → Wall |
-| **S7 Wall of Existence** | ✅ Horizontal gallery + detail modal | Client + `/v1-core-resolve` |
+| **S0 Welcome** | ✅ Eerste bezoek only | Browser UI (localStorage gate) |
+| **S1 Capture** | ✅ Camera + Photo Library | Device → Web Crypto → auto-hash + `pages` INSERT |
+| **S2 Sealed** | ✅ Museum label + artifact + file list + ZIP | Browser UI + Client-side JSZip |
+| **S3 Wall of Existence** | ✅ Horizontal gallery + detail modal | Client + `/v1-core-resolve` |
 | **Passkey** | ✅ Live | Client-side WebAuthn |
 | **IndexedDB thumbnails** | ✅ Live | Lokaal op device |
 | **OTS status polling** | ✅ Live | `/v1-core-resolve` + `/v1-core-proof` via `useProofPolling` |
