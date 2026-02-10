@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Origin Registry</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@300;400&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #030603;
+    --surface: #0A120A;
+    --gold: #C5935A;
+    --gold-dim: rgba(197,147,90,0.3);
+    --gold-faint: rgba(197,147,90,0.06);
+    --cream: #F5F0E8;
+    --cream-soft: rgba(245,240,232,0.7);
+    --cream-dim: rgba(245,240,232,0.25);
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* ================================================================ */
+  /* SCENE                                                            */
+  /* ================================================================ */
+
+  .scene {
+    width: 100vw;
+    height: 100vh;
+    perspective: 1400px;
+    perspective-origin: 50% 48%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scene::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 55% 45% at 50% 50%, transparent 0%, var(--bg) 100%);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .scene::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 25vh;
+    background: linear-gradient(to top, rgba(197,147,90,0.015), transparent);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ================================================================ */
+  /* HALL                                                             */
+  /* ================================================================ */
+
+  .hall {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  .hall-inner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-style: preserve-3d;
+  }
+
+  /* ================================================================ */
+  /* TIME LAYER                                                       */
+  /* ================================================================ */
+
+  .time-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-style: preserve-3d;
+  }
+
+  /* Floating date label in the hall */
+  .time-label {
+    position: absolute;
+    left: -180px;
+    top: 50%;
+    transform: translateY(-50%) rotateY(15deg);
+    font-family: 'Playfair Display', serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: rgba(197,147,90,0.08);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: color 0.5s;
+    letter-spacing: 1px;
+  }
+
+  .time-label.near {
+    color: rgba(197,147,90,0.25);
+  }
+
+  .time-label-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(197,147,90,0.06);
+    margin-top: 2px;
+    transition: color 0.5s;
+  }
+
+  .time-label.near .time-label-sub {
+    color: rgba(197,147,90,0.15);
+  }
+
+  /* Horizontal time wire */
+  .time-wire {
+    position: absolute;
+    left: -160px;
+    right: -160px;
+    top: 50%;
+    height: 1px;
+    background: rgba(197,147,90,0.03);
+    pointer-events: none;
+    transition: background 0.5s;
+  }
+
+  .time-layer.near .time-wire {
+    background: rgba(197,147,90,0.08);
+  }
+
+  /* ================================================================ */
+  /* ROW                                                              */
+  /* ================================================================ */
+
+  .row {
+    position: absolute;
+    left: 0;
+    display: flex;
+    gap: 5px;
+    transform-style: preserve-3d;
+    transform: translate(-50%, 0);
+  }
+
+  /* ================================================================ */
+  /* CAPSULE                                                          */
+  /* ================================================================ */
+
+  .capsule {
+    width: 64px;
+    height: 88px;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.5s,
+                opacity 0.4s;
+    transform-style: preserve-3d;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+
+  .capsule::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(197,147,90,0.05);
+    border-radius: 5px;
+    z-index: 2;
+    pointer-events: none;
+    transition: border-color 0.5s;
+  }
+
+  .capsule:hover {
+    transform: scale(1.2) translateZ(40px);
+    z-index: 100;
+  }
+
+  .capsule:hover::before {
+    border-color: rgba(197,147,90,0.3);
+  }
+
+  /* Light beam */
+  .capsule::after {
+    content: '';
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 0;
+    background: linear-gradient(to top, rgba(197,147,90,0.25), transparent);
+    transition: height 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s;
+    opacity: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .capsule:hover::after {
+    height: 180px;
+    opacity: 1;
+  }
+
+  .capsule-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: filter 0.5s;
+  }
+
+  .capsule:hover .capsule-inner {
+    filter: brightness(1.25) contrast(1.05);
+  }
+
+  .capsule-hash {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 1px;
+  }
+
+  .capsule-mark {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    transition: transform 0.5s;
+  }
+
+  .capsule:hover .capsule-mark {
+    transform: translateX(-50%) scale(1.5);
+  }
+
+  .capsule-info {
+    position: absolute;
+    bottom: -2px;
+    left: -8px;
+    right: -8px;
+    padding: 26px 4px 5px;
+    background: linear-gradient(to top, rgba(3,6,3,0.95), transparent);
+    border-radius: 0 0 5px 5px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 5;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .capsule:hover .capsule-info {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .capsule-info-id {
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--cream);
+    letter-spacing: 1px;
+  }
+
+  .capsule-info-time {
+    font-size: 7px;
+    color: rgba(197,147,90,0.35);
+    margin-top: 1px;
+  }
+
+  .row:has(.capsule:hover) .capsule:not(:hover) { opacity: 0.4; }
+  .capsule:hover + .capsule { transform: translateX(5px); opacity: 0.65 !important; }
+  .capsule:has(+ .capsule:hover) { transform: translateX(-5px); opacity: 0.65 !important; }
+
+  @keyframes mark-glow {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(197,147,90,0.15)); }
+    50% { filter: drop-shadow(0 0 8px rgba(197,147,90,0.4)); }
+  }
+  @keyframes mark-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+  }
+  .mark-anchored { animation: mark-glow 3s ease-in-out infinite; }
+  .mark-pending { animation: mark-pulse 2s ease-in-out infinite; }
+
+  /* Touch active */
+  .capsule.touch-active {
+    transform: scale(1.2) translateZ(40px);
+    z-index: 100;
+  }
+  .capsule.touch-active::before { border-color: rgba(197,147,90,0.3); }
+  .capsule.touch-active .capsule-inner { filter: brightness(1.25); }
+  .capsule.touch-active .capsule-mark { transform: translateX(-50%) scale(1.5); }
+  .capsule.touch-active .capsule-info { opacity: 1; transform: translateY(0); }
+
+  /* ================================================================ */
+  /* TIME HUD (left side)                                             */
+  /* ================================================================ */
+
+  .time-hud {
+    position: fixed;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 25;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .time-hud-current {
+    margin-bottom: 16px;
+  }
+
+  .time-hud-month {
+    font-family: 'Playfair Display', serif;
+    font-weight: 300;
+    font-size: 28px;
+    color: rgba(245,240,232,0.5);
+    line-height: 1;
+    transition: opacity 0.3s;
+  }
+
+  .time-hud-year {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: rgba(197,147,90,0.3);
+    margin-top: 4px;
+  }
+
+  .time-hud-day {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(245,240,232,0.15);
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+
+  /* Timeline rail */
+  .timeline-rail {
+    position: fixed;
+    right: 24px;
+    top: 15%;
+    bottom: 15%;
+    width: 2px;
+    z-index: 25;
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  .timeline-track {
+    position: absolute;
+    inset: 0;
+    width: 2px;
+    background: rgba(197,147,90,0.06);
+    border-radius: 1px;
+  }
+
+  .timeline-thumb {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.4;
+    transition: opacity 0.3s, transform 0.3s;
+    cursor: grab;
+  }
+
+  .timeline-thumb:hover {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+
+  .timeline-thumb:active {
+    cursor: grabbing;
+    opacity: 0.9;
+  }
+
+  .timeline-thumb-label {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(197,147,90,0.3);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .timeline-thumb:hover + .timeline-thumb-label,
+  .timeline-rail.dragging .timeline-thumb-label {
+    opacity: 1;
+  }
+
+  /* Month ticks on timeline */
+  .timeline-tick {
+    position: absolute;
+    left: -4px;
+    width: 10px;
+    height: 1px;
+    background: rgba(197,147,90,0.08);
+    pointer-events: none;
+  }
+
+  .timeline-tick-label {
+    position: absolute;
+    right: 14px;
+    transform: translateY(-50%);
+    font-size: 7px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.1);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ================================================================ */
+  /* TOP HUD                                                          */
+  /* ================================================================ */
+
+  .hud {
+    position: fixed;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .hud-top-left { top: 28px; left: 28px; }
+  .hud-top-right { top: 28px; right: 28px; text-align: right; }
+  .hud-bottom { bottom: 28px; left: 50%; transform: translateX(-50%); text-align: center; }
+
+  .hud-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 300;
+    font-size: 17px;
+    color: rgba(245,240,232,0.45);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hud-sub {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.25);
+  }
+
+  .hud-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 44px;
+    font-weight: 300;
+    color: rgba(197,147,90,0.12);
+    line-height: 1;
+  }
+
+  .hud-count-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(197,147,90,0.18);
+    margin-top: 4px;
+  }
+
+  .hud-hint {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(245,240,232,0.1);
+  }
+
+  .scanline {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 15;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(197,147,90,0.006) 2px, rgba(197,147,90,0.006) 4px);
+  }
+
+  .guide-line {
+    position: fixed;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(197,147,90,0.012);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ================================================================ */
+  /* DETAIL OVERLAY                                                   */
+  /* ================================================================ */
+
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(3,6,3,0.92);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .detail-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .detail-card {
+    width: 360px;
+    max-width: 92vw;
+    background: var(--surface);
+    border: 1px solid var(--gold-faint);
+    border-radius: 12px;
+    overflow: hidden;
+    transform: scale(0.85) translateY(30px);
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .detail-overlay.active .detail-card { transform: none; }
+
+  .detail-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    position: relative;
+  }
+
+  .detail-image::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, var(--surface));
+  }
+
+  .detail-body { padding: 16px 24px 24px; }
+
+  .detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .detail-id {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--cream);
+    letter-spacing: 1px;
+  }
+
+  .detail-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+  }
+
+  .detail-field { margin-bottom: 10px; }
+
+  .detail-field-label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--cream-dim);
+    margin-bottom: 2px;
+  }
+
+  .detail-field-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(245,240,232,0.6);
+    word-break: break-all;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--gold-faint);
+    flex-wrap: wrap;
+  }
+
+  .detail-action {
+    font-size: 10px;
+    color: var(--cream-dim);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .detail-action:hover { color: var(--gold); }
+  .detail-action.primary { color: var(--gold); }
+
+  /* ================================================================ */
+  /* MOBILE                                                           */
+  /* ================================================================ */
+
+  @media (max-width: 768px) {
+    .capsule { width: 48px; height: 66px; }
+    .row { gap: 3px; }
+    .hud-top-left { top: 14px; left: 14px; }
+    .hud-top-right { top: 14px; right: 14px; }
+    .hud-bottom { bottom: 16px; }
+    .hud-title { font-size: 13px; }
+    .hud-count { font-size: 32px; }
+    .scene { perspective: 900px; }
+    .capsule::after { display: none; }
+    .capsule-info { display: none; }
+    .time-label { display: none; }
+    .time-hud { left: 14px; }
+    .time-hud-month { font-size: 20px; }
+    .time-hud-year { font-size: 9px; }
+    .timeline-rail { right: 12px; }
+    .timeline-tick-label { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .capsule { width: 38px; height: 54px; }
+    .hud-count { font-size: 24px; }
+    .time-hud-month { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top HUD -->
+<div class="hud hud-top-left">
+  <div class="hud-title">
+    <svg width="16" height="16" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="0.8"/>
+      <circle cx="8" cy="8" r="2" fill="rgba(197,147,90,0.5)"/>
+    </svg>
+    Origin Registry
+  </div>
+  <div class="hud-sub">Proof-of-existence archive</div>
+</div>
+
+<div class="hud hud-top-right">
+  <div class="hud-count" id="counter">0</div>
+  <div class="hud-count-label">origins anchored</div>
+</div>
+
+<div class="hud hud-bottom">
+  <div class="hud-hint" id="hint">scroll to travel through time &middot; hover to inspect</div>
+</div>
+
+<!-- Time HUD (left center) -->
+<div class="time-hud" id="time-hud">
+  <div class="time-hud-current">
+    <div class="time-hud-month" id="time-month">February</div>
+    <div class="time-hud-year" id="time-year">2026</div>
+    <div class="time-hud-day" id="time-range"></div>
+  </div>
+</div>
+
+<!-- Timeline rail (right) -->
+<div class="timeline-rail" id="timeline-rail">
+  <div class="timeline-track"></div>
+  <div class="timeline-thumb" id="timeline-thumb"></div>
+  <div class="timeline-thumb-label" id="timeline-thumb-label"></div>
+</div>
+
+<div class="scanline"></div>
+<div class="guide-line" style="left: 25%;"></div>
+<div class="guide-line" style="left: 50%;"></div>
+<div class="guide-line" style="left: 75%;"></div>
+
+<!-- Scene -->
+<div class="scene" id="scene">
+  <div class="hall" id="hall">
+    <div class="hall-inner" id="hall-inner"></div>
+  </div>
+</div>
+
+<!-- Detail -->
+<div class="detail-overlay" id="detail">
+  <div class="detail-card" onclick="event.stopPropagation()">
+    <div class="detail-image" id="detail-image"></div>
+    <div class="detail-body">
+      <div class="detail-row">
+        <span class="detail-id" id="detail-id"></span>
+        <div class="detail-status">
+          <svg width="14" height="14" viewBox="0 0 14 14">
+            <circle cx="7" cy="7" r="6" fill="none" stroke="rgba(197,147,90,0.3)" stroke-width="0.8"/>
+            <circle cx="7" cy="7" r="2" fill="#C5935A"/>
+          </svg>
+          <span id="detail-status-text">Anchored</span>
+        </div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Registered</div>
+        <div class="detail-field-value" id="detail-date"></div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Hash</div>
+        <div class="detail-field-value" id="detail-hash"></div>
+      </div>
+      <div class="detail-field">
+        <div class="detail-field-label">Bitcoin block</div>
+        <div class="detail-field-value" id="detail-block"></div>
+      </div>
+      <div class="detail-actions">
+        <span class="detail-action primary">Share origin</span>
+        <span class="detail-action">Verify</span>
+        <span class="detail-action">Download ZIP</span>
+        <span class="detail-action" onclick="closeDetail()" style="margin-left:auto;">Close</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// CONFIG
+// ================================================================
+
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+const COLS = isMobile ? (window.innerWidth < 480 ? 6 : 8) : 10;
+const ROWS_PER_WEEK = 2;
+const ROW_GAP = 76;
+const WEEK_DEPTH = 220;
+
+// Generate 8 months of time layers (roughly 35 weeks)
+const MONTHS = [
+  { month: 'February', year: 2026, weeks: 4 },
+  { month: 'January', year: 2026, weeks: 4 },
+  { month: 'December', year: 2025, weeks: 5 },
+  { month: 'November', year: 2025, weeks: 4 },
+  { month: 'October', year: 2025, weeks: 4 },
+  { month: 'September', year: 2025, weeks: 4 },
+  { month: 'August', year: 2025, weeks: 5 },
+  { month: 'July', year: 2025, weeks: 5 },
+];
+
+const gradients = [
+  ['#3D2B1E','#2A3D2A'],['#1E2D3D','#2E1A0E'],['#1A2E2A','#2E2A1A'],
+  ['#1A1A2E','#2E1A2E'],['#1A2E1A','#2A1A0E'],['#0E2A1A','#1A1A2A'],
+  ['#2D1B0E','#1A2E1A'],['#1B1B2E','#3D2B1E'],['#2E1A0E','#1A2E2A'],
+  ['#1A1A2E','#0E2A1A'],['#2A1A0E','#1A2E1A'],['#2E2A1A','#1B1B2E'],
+  ['#1E2D3D','#2E1A2E'],['#2A3D2A','#1A1A2E'],['#3D2B1E','#0E2A1A'],
+];
+
+const monthAbbr = {
+  'January':'JAN','February':'FEB','March':'MAR','April':'APR','May':'MAY','June':'JUN',
+  'July':'JUL','August':'AUG','September':'SEP','October':'OCT','November':'NOV','December':'DEC'
+};
+
+function hex(n) {
+  let s = '';
+  const c = '0123456789ABCDEF';
+  for (let i = 0; i < n; i++) s += c[Math.floor(Math.random() * 16)];
+  return s;
+}
+
+// ================================================================
+// BUILD TIME LAYERS
+// ================================================================
+
+const hallInner = document.getElementById('hall-inner');
+const timeLayers = []; // { z, month, year, weekStart, weekEnd }
+let totalOrigins = 0;
+let weekIndex = 0;
+
+MONTHS.forEach(m => {
+  const daysInMonth = new Date(m.year, new Date(`${m.month} 1, ${m.year}`).getMonth() + 1, 0).getDate();
+
+  for (let w = 0; w < m.weeks; w++) {
+    const z = -weekIndex * WEEK_DEPTH;
+    const weekStart = Math.min(daysInMonth, w * 7 + 1);
+    const weekEnd = Math.min(daysInMonth, (w + 1) * 7);
+
+    const layer = document.createElement('div');
+    layer.className = 'time-layer';
+    layer.dataset.month = m.month;
+    layer.dataset.year = m.year;
+    layer.dataset.weekStart = weekStart;
+    layer.dataset.weekEnd = weekEnd;
+    layer.dataset.z = Math.abs(z);
+
+    // Time wire
+    const wire = document.createElement('div');
+    wire.className = 'time-wire';
+    wire.style.transform = `translateZ(${z}px)`;
+    layer.appendChild(wire);
+
+    // Floating date label (only first week of each month)
+    if (w === 0) {
+      const label = document.createElement('div');
+      label.className = 'time-label';
+      label.style.transform = `translateZ(${z}px) translateY(-50%) rotateY(12deg)`;
+      label.style.top = '50%';
+      label.innerHTML = `${m.month}<div class="time-label-sub">${m.year}</div>`;
+      layer.appendChild(label);
+    }
+
+    // Rows of capsules
+    for (let r = 0; r < ROWS_PER_WEEK; r++) {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      const y = (r - 0.5) * ROW_GAP;
+      row.style.top = '50%';
+      row.style.transform = `translate(-50%, ${y}px) translateZ(${z}px)`;
+
+      const depthFactor = Math.max(0.08, 1 - (weekIndex / 35) * 0.9);
+      row.style.opacity = depthFactor;
+
+      let html = '';
+      const capsuleCount = COLS - Math.floor(Math.random() * 3); // vary density
+
+      for (let c = 0; c < capsuleCount; c++) {
+        const day = weekStart + Math.floor(Math.random() * (weekEnd - weekStart + 1));
+        const hour = Math.floor(Math.random() * 24);
+        const min = Math.floor(Math.random() * 60);
+        const sec = Math.floor(Math.random() * 60);
+        const dateStr = `${day} ${m.month} ${m.year}, ${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')} UTC`;
+        const timeShort = `${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+
+        const id = hex(8);
+        const hash = 'sha256:' + hex(48).toLowerCase();
+        const block = '#' + (880000 + Math.floor(Math.random() * 5000)).toLocaleString();
+        const isImage = Math.random() > 0.18;
+        const isPending = weekIndex === 0 && Math.random() < 0.15;
+        const g = gradients[Math.floor(Math.random() * gradients.length)];
+        const angle = Math.floor(Math.random() * 360);
+
+        let inner = '';
+        if (isImage) {
+          inner = `<div class="capsule-inner" style="background:linear-gradient(${angle}deg,${g[0]},${g[1]})"></div>`;
+        } else {
+          let cells = '';
+          for (let j = 0; j < 48; j++) {
+            cells += `<div style="background:rgba(197,147,90,${(Math.random()*0.22+0.02).toFixed(2)});border-radius:1px;"></div>`;
+          }
+          inner = `<div class="capsule-inner"><div class="capsule-hash">${cells}</div></div>`;
+        }
+
+        const mark = isPending
+          ? `<svg class="mark-pending" width="12" height="12" viewBox="0 0 12 12">
+               <circle cx="6" cy="6" r="5" fill="none" stroke="rgba(197,147,90,0.12)" stroke-width="0.6" stroke-dasharray="2 2"/>
+               <circle cx="6" cy="6" r="1.8" fill="rgba(197,147,90,0.3)"/>
+             </svg>`
+          : `<svg class="mark-anchored" width="12" height="12" viewBox="0 0 12 12">
+               <circle cx="6" cy="6" r="5" fill="none" stroke="rgba(197,147,90,0.18)" stroke-width="0.6"/>
+               <circle cx="6" cy="6" r="1.8" fill="rgba(197,147,90,0.65)"/>
+             </svg>`;
+
+        html += `<div class="capsule" data-id="${id}" data-date="${dateStr}" data-hash="${hash}" data-block="${block}" data-pending="${isPending}" data-c1="${g[0]}" data-c2="${g[1]}" data-angle="${angle}">
+          ${inner}
+          <div class="capsule-mark">${mark}</div>
+          <div class="capsule-info">
+            <div class="capsule-info-id">${id}</div>
+            <div class="capsule-info-time">${timeShort}</div>
+          </div>
+        </div>`;
+
+        totalOrigins++;
+      }
+
+      row.innerHTML = html;
+      layer.appendChild(row);
+    }
+
+    hallInner.appendChild(layer);
+    timeLayers.push({
+      z: Math.abs(z),
+      month: m.month,
+      year: m.year,
+      weekStart,
+      weekEnd,
+      el: layer
+    });
+
+    weekIndex++;
+  }
+});
+
+const maxZ = (weekIndex - 1) * WEEK_DEPTH;
+
+// ================================================================
+// TIMELINE RAIL
+// ================================================================
+
+const rail = document.getElementById('timeline-rail');
+const thumb = document.getElementById('timeline-thumb');
+const thumbLabel = document.getElementById('timeline-thumb-label');
+
+// Add month ticks
+let accumulatedWeeks = 0;
+MONTHS.forEach(m => {
+  const pos = accumulatedWeeks / weekIndex;
+  const tick = document.createElement('div');
+  tick.className = 'timeline-tick';
+  tick.style.top = (pos * 100) + '%';
+
+  const tickLabel = document.createElement('div');
+  tickLabel.className = 'timeline-tick-label';
+  tickLabel.style.top = (pos * 100) + '%';
+  tickLabel.textContent = monthAbbr[m.month] + ' ' + String(m.year).slice(2);
+
+  rail.appendChild(tick);
+  rail.appendChild(tickLabel);
+  accumulatedWeeks += m.weeks;
+});
+
+// Timeline drag
+let isDraggingTimeline = false;
+
+function getTimelineY(e) {
+  const rect = rail.getBoundingClientRect();
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+}
+
+rail.addEventListener('mousedown', e => {
+  isDraggingTimeline = true;
+  rail.classList.add('dragging');
+  const pct = getTimelineY(e);
+  targetZ = pct * maxZ;
+});
+
+document.addEventListener('mousemove', e => {
+  if (!isDraggingTimeline) return;
+  const pct = getTimelineY(e);
+  targetZ = pct * maxZ;
+});
+
+document.addEventListener('mouseup', () => {
+  isDraggingTimeline = false;
+  rail.classList.remove('dragging');
+});
+
+// Touch on timeline
+rail.addEventListener('touchstart', e => {
+  isDraggingTimeline = true;
+  rail.classList.add('dragging');
+  const pct = getTimelineY(e);
+  targetZ = pct * maxZ;
+}, { passive: true });
+
+rail.addEventListener('touchmove', e => {
+  if (!isDraggingTimeline) return;
+  const pct = getTimelineY(e);
+  targetZ = pct * maxZ;
+}, { passive: true });
+
+rail.addEventListener('touchend', () => {
+  isDraggingTimeline = false;
+  rail.classList.remove('dragging');
+}, { passive: true });
+
+// ================================================================
+// TIME HUD UPDATE
+// ================================================================
+
+const timeMonth = document.getElementById('time-month');
+const timeYear = document.getElementById('time-year');
+const timeRange = document.getElementById('time-range');
+
+function updateTimeHUD(z) {
+  // Find closest layer
+  let closest = timeLayers[0];
+  let minDist = Infinity;
+
+  timeLayers.forEach(l => {
+    const dist = Math.abs(l.z - z);
+    if (dist < minDist) { minDist = dist; closest = l; }
+  });
+
+  timeMonth.textContent = closest.month;
+  timeYear.textContent = closest.year;
+  timeRange.textContent = `Week of ${closest.month.slice(0,3)} ${closest.weekStart}`;
+
+  // Update thumb position
+  const pct = Math.min(1, z / maxZ);
+  thumb.style.top = (pct * 100) + '%';
+  thumbLabel.textContent = `${closest.month.slice(0,3)} ${closest.weekStart}, ${closest.year}`;
+
+  // Highlight near layers
+  timeLayers.forEach(l => {
+    const dist = Math.abs(l.z - z);
+    const isNear = dist < WEEK_DEPTH * 1.5;
+    l.el.classList.toggle('near', isNear);
+    const labels = l.el.querySelectorAll('.time-label');
+    labels.forEach(lb => lb.classList.toggle('near', isNear));
+  });
+}
+
+// ================================================================
+// SCROLL
+// ================================================================
+
+let currentZ = 0;
+let targetZ = 0;
+
+document.addEventListener('wheel', e => {
+  e.preventDefault();
+  targetZ += e.deltaY * 0.8;
+  targetZ = Math.max(0, Math.min(maxZ, targetZ));
+}, { passive: false });
+
+// ================================================================
+// MOUSE PARALLAX
+// ================================================================
+
+let mouseTargetX = 0, mouseTargetY = 0;
+let mouseX = 0, mouseY = 0;
+
+if (!isMobile) {
+  document.addEventListener('mousemove', e => {
+    if (isDraggingTimeline) return;
+    mouseTargetX = (e.clientX / window.innerWidth - 0.5) * 3;
+    mouseTargetY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+}
+
+// ================================================================
+// RENDER
+// ================================================================
+
+const hall = document.getElementById('hall');
+
+function render() {
+  currentZ += (targetZ - currentZ) * 0.07;
+  mouseX += (mouseTargetX - mouseX) * 0.05;
+  mouseY += (mouseTargetY - mouseY) * 0.05;
+
+  hallInner.style.transform = `translate(-50%, -50%) translateZ(${currentZ}px)`;
+  hall.style.transform = `rotateY(${mouseX}deg) rotateX(${-mouseY}deg)`;
+
+  updateTimeHUD(currentZ);
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// ================================================================
+// COUNTER
+// ================================================================
+
+const counterEl = document.getElementById('counter');
+const startTime = performance.now();
+
+function animCounter(now) {
+  const p = Math.min((now - startTime) / 2500, 1);
+  counterEl.textContent = Math.floor((1 - Math.pow(1 - p, 3)) * totalOrigins);
+  if (p < 1) requestAnimationFrame(animCounter);
+}
+requestAnimationFrame(animCounter);
+
+// ================================================================
+// DETAIL
+// ================================================================
+
+const detailEl = document.getElementById('detail');
+
+function openDetail(el) {
+  const d = el.dataset;
+  document.getElementById('detail-id').textContent = d.id;
+  document.getElementById('detail-date').textContent = d.date;
+  document.getElementById('detail-hash').textContent = d.hash;
+  document.getElementById('detail-block').textContent = d.block;
+  document.getElementById('detail-image').style.background = `linear-gradient(${d.angle}deg, ${d.c1}, ${d.c2})`;
+  document.getElementById('detail-status-text').textContent = d.pending === 'true' ? 'Pending' : 'Anchored';
+  detailEl.classList.add('active');
+}
+
+function closeDetail() { detailEl.classList.remove('active'); }
+
+detailEl.addEventListener('click', closeDetail);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+document.querySelectorAll('.capsule').forEach(c => {
+  c.addEventListener('click', () => openDetail(c));
+});
+
+// ================================================================
+// MOBILE TOUCH
+// ================================================================
+
+if (isMobile) {
+  document.getElementById('hint').textContent = 'swipe to travel through time \u00b7 tap to inspect';
+
+  let touchStartY = 0;
+  let lastTouchY = 0;
+  let lastTouchTime = 0;
+  let touchVelocity = 0;
+  let hasMoved = false;
+  let activeCapsule = null;
+
+  const sceneEl = document.getElementById('scene');
+
+  sceneEl.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    touchStartY = t.clientY;
+    lastTouchY = t.clientY;
+    lastTouchTime = Date.now();
+    hasMoved = false;
+    touchVelocity = 0;
+
+    const cap = e.target.closest('.capsule');
+    if (cap) {
+      if (activeCapsule) activeCapsule.classList.remove('touch-active');
+      cap.classList.add('touch-active');
+      activeCapsule = cap;
+    }
+  }, { passive: true });
+
+  sceneEl.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    if (Math.abs(t.clientY - touchStartY) > 8) hasMoved = true;
+
+    targetZ -= (t.clientY - lastTouchY) * 1.5;
+    targetZ = Math.max(0, Math.min(maxZ, targetZ));
+
+    mouseTargetX = (t.clientX / window.innerWidth - 0.5) * 3;
+
+    const now = Date.now();
+    const dt = now - lastTouchTime;
+    if (dt > 0) touchVelocity = (t.clientY - lastTouchY) / dt;
+
+    lastTouchY = t.clientY;
+    lastTouchTime = now;
+  }, { passive: true });
+
+  sceneEl.addEventListener('touchend', () => {
+    if (Math.abs(touchVelocity) > 0.3) {
+      targetZ -= touchVelocity * 400;
+      targetZ = Math.max(0, Math.min(maxZ, targetZ));
+    }
+
+    if (!hasMoved && activeCapsule) openDetail(activeCapsule);
+
+    setTimeout(() => {
+      if (activeCapsule) {
+        activeCapsule.classList.remove('touch-active');
+        activeCapsule = null;
+      }
+    }, 200);
+  }, { passive: true });
+
+  // Gyro
+  if (window.DeviceOrientationEvent) {
+    let gx = null, gy = null;
+    function handleGyro(e) {
+      if (gx === null) { gx = e.gamma; gy = e.beta; }
+      mouseTargetX = Math.max(-6, Math.min(6, (e.gamma - gx) * 0.12));
+      mouseTargetY = Math.max(-4, Math.min(4, -(e.beta - gy) * 0.08));
+    }
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      document.body.addEventListener('click', () => {
+        DeviceOrientationEvent.requestPermission().then(r => {
+          if (r === 'granted') window.addEventListener('deviceorientation', handleGyro);
+        });
+      }, { once: true });
+    } else {
+      window.addEventListener('deviceorientation', handleGyro);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
