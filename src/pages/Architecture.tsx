@@ -13,14 +13,10 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
  */
 
 const b2cItems = [
-  { name: 'S0 Welcome', status: '✅ Live', where: 'Browser UI' },
-  { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto' },
-  { name: 'S2 Pause', status: '✅ Visuele bevestiging', where: 'Browser UI' },
-  { name: 'S3 Mark', status: '✅ SHA-256 hashing + hold-to-mark', where: 'Client-side → pages INSERT' },
-  { name: 'S4 Sealed', status: '✅ Museum label + artifact + file list', where: 'Browser UI' },
-  { name: 'S5 ZIP', status: '✅ photo + certificate + VERIFY.txt + .ots', where: 'Client-side JSZip' },
-  { name: 'S6 Owned', status: '✅ Auto-advance na save', where: 'Browser UI → Wall' },
-  { name: 'S7 Wall of Existence', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
+  { name: 'S0 Welcome', status: '✅ Eerste bezoek only', where: 'Browser UI (localStorage gate)' },
+  { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto → auto-hash + pages INSERT' },
+  { name: 'S2 Sealed', status: '✅ Museum label + artifact + file list + ZIP', where: 'Browser UI + Client-side JSZip' },
+  { name: 'S3 Wall of Existence', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
   { name: 'Passkey', status: '✅ Live', where: 'Client-side WebAuthn' },
   { name: 'IndexedDB thumbnails', status: '✅ Live', where: 'Lokaal op device' },
   { name: 'OTS status polling', status: '✅ Live', where: '/v1-core-resolve + /v1-core-proof via useProofPolling' },
@@ -89,7 +85,8 @@ const discoveryPath = [
 const originMarkUsage = [
   { context: 'S0 Welcome', size: '72px', state: 'anchored', detail: 'Heartbeat animatie' },
   { context: 'S1 Capture', size: '48px', state: 'anchored', detail: 'Breathing animatie' },
-  { context: 'S4 Sealed', size: '48px', state: 'anchored', detail: 'Glow' },
+  { context: 'Processing', size: '64px', state: 'anchored', detail: 'Breathing tijdens auto-hash' },
+  { context: 'S2 Sealed', size: '48px', state: 'anchored', detail: 'Glow' },
   { context: 'Wall status', size: '20px', state: 'anchored/pending', detail: 'Per-origin status' },
   { context: 'Navigation', size: '28px', state: 'anchored', detail: 'OriginButton' },
   { context: 'Site header', size: '16px', state: 'anchored', detail: 'Alle pagina\'s' },
