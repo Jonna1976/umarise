@@ -68,7 +68,7 @@ export function VerifyDropZone({ onFile, isProcessing }: VerifyDropZoneProps) {
       <input
         ref={inputRef}
         type="file"
-        accept=".zip,.jpg,.jpeg,.png,.pdf,.json"
+        accept=".zip,.jpg,.jpeg,.png,.pdf,.json,.mp4,.mov,.webm,.mp3,.wav,.m4a,.heic,.webp"
         onChange={handleFileChange}
         className="hidden"
       />
