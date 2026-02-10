@@ -16,7 +16,7 @@ const b2cItems = [
   { name: 'S0 Welcome', status: '✅ Eerste bezoek only', where: 'Browser UI (localStorage gate)' },
   { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto → auto-hash + pages INSERT' },
   { name: 'S2 Sealed', status: '✅ Museum label + artifact + file list + ZIP', where: 'Browser UI + Client-side JSZip' },
-  { name: 'S3 Wall of Existence', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
+  { name: 'S3 Origin Registry', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
   { name: 'Passkey', status: '✅ Live', where: 'Client-side WebAuthn' },
   { name: 'IndexedDB thumbnails', status: '✅ Live', where: 'Lokaal op device' },
   { name: 'OTS status polling', status: '✅ Live', where: '/v1-core-resolve + /v1-core-proof via useProofPolling' },
@@ -79,7 +79,7 @@ const discoveryPath = [
   { num: 1, contact: 'VERIFY.txt', where: 'In elke ZIP', mechanism: 'Origin ID, timestamp, hash, directe verificatielink' },
   { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canoniek)' },
   { num: 3, contact: 'Verifieer-link', where: 'Sealed screen (S4)', mechanism: 'Subtiele link onder save-button' },
-  { num: 4, contact: 'Deel origin', where: 'Wall detail modal (S7)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
+  { num: 4, contact: 'Deel origin', where: 'Origin Registry detail modal (S3)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
 ];
 
 const originMarkUsage = [
@@ -528,7 +528,7 @@ const Architecture = () => {
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Vandaag toegevoegd (9 feb)</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Wall deel-knop)</li>
+              <li>• Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Origin Registry deel-knop)</li>
               <li>• Origin Mark visueel systeem op alle site-pagina's (16px header, ghost/pending/anchored states)</li>
               <li>• ZIP bevat nu VERIFY.txt met menselijk leesbare verificatie-instructies</li>
             </ul>
