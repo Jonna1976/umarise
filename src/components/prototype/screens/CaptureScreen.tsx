@@ -1,6 +1,6 @@
 import { useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
-import { OriginMark } from '../components/OriginMark';
+
 
 /**
  * Metadata passed from capture to the rest of the ritual flow.
@@ -105,14 +105,53 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
           />
         </svg>
 
-        {/* Origin Mark — circumpunct with breathe animation, gesynchroniseerd met S0 */}
-        <OriginMark
-          size={48}
-          state="anchored"
-          glow
-          animated
-          variant="dark"
-        />
+        {/* Glowing pulsing + symbol */}
+        <motion.svg
+          width={48}
+          height={48}
+          viewBox="0 0 48 48"
+          style={{ overflow: 'visible' }}
+          animate={{
+            opacity: [0.7, 1, 0.7],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        >
+          <defs>
+            <filter id="plus-glow" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur1" />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur2" />
+              <feFlood floodColor="#C5935A" floodOpacity="0.6" result="goldColor" />
+              <feComposite in="goldColor" in2="blur2" operator="in" result="coloredGlow" />
+              <feMerge>
+                <feMergeNode in="coloredGlow" />
+                <feMergeNode in="blur2" />
+                <feMergeNode in="blur1" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          {/* Vertical line */}
+          <line
+            x1="24" y1="8" x2="24" y2="40"
+            stroke="#C5935A"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            filter="url(#plus-glow)"
+          />
+          {/* Horizontal line */}
+          <line
+            x1="8" y1="24" x2="40" y2="24"
+            stroke="#C5935A"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            filter="url(#plus-glow)"
+          />
+        </motion.svg>
       </motion.label>
 
     </motion.div>
