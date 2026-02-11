@@ -31,7 +31,7 @@ export function VerifyManualForm({
           onClick={onToggle}
           className="text-sm text-landing-muted/50 bg-transparent border-none cursor-pointer transition-colors hover:text-landing-cream p-1"
         >
-          No ZIP? Enter Origin ID and hash manually
+          No ZIP? Enter Anchor ID and hash manually
         </button>
       </div>
 
@@ -49,7 +49,7 @@ export function VerifyManualForm({
               {/* Origin ID field */}
               <div className="mb-4">
                 <label className="font-mono text-[10px] tracking-[2px] uppercase text-landing-muted/50 mb-2 block">
-                  Origin ID
+                   Anchor ID
                 </label>
                 <input
                   type="text"

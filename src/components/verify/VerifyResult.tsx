@@ -66,13 +66,13 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           <div className="p-6 border border-verify-green/30 bg-landing-muted/5 rounded">
             <div className="font-serif text-xl text-verify-green-bright mb-3 flex items-center gap-3">
               <OriginMark size={28} state="anchored" variant="light" glow />
-              <span>Origin Verified</span>
+              <span>Anchor Verified</span>
             </div>
             <p className="text-sm text-landing-cream/70 mb-5 leading-relaxed">
               This file was registered and anchored in the Bitcoin blockchain.
             </p>
 
-            <ResultRow label="Origin" value={result.origin_id ? `${result.origin_id.substring(0, 13)}...` : '—'} />
+            <ResultRow label="Anchor" value={result.origin_id ? `${result.origin_id.substring(0, 13)}...` : '—'} />
             <ResultRow label="Registered" value={result.captured_at ? formatTimestamp(result.captured_at) : '—'} />
             <ResultRow label="Hash" value={result.hash ? `${result.hash.substring(0, 24)}...` : '—'} />
             {result.bitcoin_block_height && (
@@ -126,7 +126,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               <span>Pending</span>
             </div>
             <p className="text-sm text-landing-cream/70 leading-relaxed">
-              This origin is registered but the Bitcoin proof is not yet ready. This typically takes 10–20 minutes after registration.
+              This anchor is registered but the Bitcoin proof is not yet ready. This typically takes 10–20 minutes after registration.
             </p>
           </div>
         )}
@@ -138,7 +138,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               Not found
             </div>
             <p className="text-sm text-landing-cream/70 leading-relaxed">
-              No origin matches this ID and hash. The Origin ID may not exist, or the hash does not match.
+              No anchor matches this ID and hash. The Anchor ID may not exist, or the hash does not match.
             </p>
           </div>
         )}
@@ -150,7 +150,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               Hash mismatch
             </div>
             <p className="text-sm text-landing-cream/70 leading-relaxed">
-              The file in this ZIP does not match the hash recorded in the certificate. The file may have been modified after the origin was created.
+              The file in this ZIP does not match the hash recorded in the certificate. The file may have been modified after the anchor was created.
             </p>
           </div>
         )}
@@ -174,7 +174,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           onClick={onReset}
           className="text-sm text-landing-muted/50 bg-transparent border-none cursor-pointer transition-colors hover:text-landing-cream"
         >
-          Verify another origin
+          Verify another anchor
         </button>
       </div>
     </div>
