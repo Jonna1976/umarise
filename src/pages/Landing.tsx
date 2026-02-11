@@ -21,21 +21,21 @@ export default function Landing() {
           </h1>
 
           {/* Core axiom */}
-          <p className="text-base text-landing-muted/50 leading-relaxed tracking-wide mb-8">
+          <p className="text-base text-landing-muted/60 leading-relaxed tracking-wide mb-8">
             When digital information matters,
             <br />
             anchor it outside your system.
           </p>
 
           {/* Protocol rule - lower contrast, separated */}
-          <p className="text-base text-landing-muted/35 tracking-wide">
+          <p className="text-base text-landing-muted/50 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
             Anchored in Bitcoin. Independently verifiable.
           </p>
 
           {/* Category descriptor */}
-          <p className="text-sm text-landing-muted/25 tracking-widest uppercase mt-6">
+          <p className="text-sm text-landing-muted/40 tracking-widest uppercase mt-6">
             Anchoring Infrastructure
           </p>
         </main>
