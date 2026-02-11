@@ -202,7 +202,7 @@ export function SealedPreview() {
         transition={{ duration: 0.6, delay: 1.6 }}
         whileTap={!saved ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓ Owned' : 'Save your origin'}
+        {saved ? '✓ Owned' : 'Download'}
       </motion.button>
 
     </motion.div>

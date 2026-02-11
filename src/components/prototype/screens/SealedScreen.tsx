@@ -326,7 +326,7 @@ export function SealedScreen({
         transition={{ duration: 0.6, delay: 1.6 }}
         whileTap={!saved ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
+        {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Download'}
       </motion.button>
 
       {/* ── Verify link (subtle, secondary) ── */}
