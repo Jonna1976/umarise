@@ -106,11 +106,16 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
         </svg>
 
         {/* Glowing pulsing + symbol */}
-        <motion.svg
-          width={48}
-          height={48}
-          viewBox="0 0 48 48"
-          style={{ overflow: 'visible' }}
+        <motion.span
+          className="relative z-10 select-none"
+          style={{
+            fontSize: '48px',
+            lineHeight: 1,
+            color: '#C5935A',
+            textShadow: '0 0 12px rgba(197,147,90,0.8), 0 0 30px rgba(197,147,90,0.4), 0 0 60px rgba(197,147,90,0.2)',
+            fontWeight: 200,
+            fontFamily: 'system-ui, sans-serif',
+          }}
           animate={{
             opacity: [0.7, 1, 0.7],
             scale: [1, 1.15, 1],
@@ -121,37 +126,8 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
             ease: 'easeInOut',
           }}
         >
-          <defs>
-            <filter id={`plus-glow-${inputId.replace(/:/g, '')}`} x="-200%" y="-200%" width="500%" height="500%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur1" />
-              <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur2" />
-              <feFlood floodColor="#C5935A" floodOpacity="0.7" result="goldColor" />
-              <feComposite in="goldColor" in2="blur2" operator="in" result="coloredGlow" />
-              <feMerge>
-                <feMergeNode in="coloredGlow" />
-                <feMergeNode in="blur2" />
-                <feMergeNode in="blur1" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          {/* Vertical line */}
-          <line
-            x1="24" y1="6" x2="24" y2="42"
-            stroke="#C5935A"
-            strokeWidth="2"
-            strokeLinecap="round"
-            filter={`url(#plus-glow-${inputId.replace(/:/g, '')})`}
-          />
-          {/* Horizontal line */}
-          <line
-            x1="6" y1="24" x2="42" y2="24"
-            stroke="#C5935A"
-            strokeWidth="2"
-            strokeLinecap="round"
-            filter={`url(#plus-glow-${inputId.replace(/:/g, '')})`}
-          />
-        </motion.svg>
+          +
+        </motion.span>
       </motion.label>
 
     </motion.div>
