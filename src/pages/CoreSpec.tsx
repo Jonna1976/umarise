@@ -60,16 +60,16 @@ export default function CoreSpec() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Normative Documents</h2>
             <ul className="space-y-3">
               <li>
-                <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                  Origin One-Pager
+                <Link to="/anchor" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  Anchor One-Pager
                 </Link>
-                <span className="text-landing-muted/50 ml-2">: when and why origin attestation is correct</span>
+                <span className="text-landing-muted/50 ml-2">: when and why anchor attestation is correct</span>
               </li>
               <li>
-                <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                  Origin Record Specification
+                <Link to="/legal" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  Anchor Record Specification
                 </Link>
-                <span className="text-landing-muted/50 ml-2">: the normative definition of an Origin Record</span>
+                <span className="text-landing-muted/50 ml-2">: the normative definition of an Anchor Record</span>
               </li>
             </ul>
             <p className="mt-4 text-landing-muted/50 text-sm">
@@ -173,17 +173,17 @@ export default function CoreSpec() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
-              <li>Origin Records are write-once</li>
-              <li>Origin Records are immutably recorded</li>
+              <li>Anchor Records are write-once</li>
+              <li>Anchor Records are immutably recorded</li>
               <li>Verification is binary (match / no-match)</li>
             </ul>
             <p className="text-landing-muted/60 mb-6">
-              Origin Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
+              Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
             </p>
             <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">
-              <p className="text-landing-copper/80 font-medium mb-2">Law of Origin:</p>
+              <p className="text-landing-copper/80 font-medium mb-2">Law of Anchoring:</p>
               <p className="text-landing-cream/90">
-                If the bytes change, the origin no longer matches.<br />
+                If the bytes change, the anchor no longer matches.<br />
                 There are no exceptions.
               </p>
             </div>
@@ -239,7 +239,7 @@ export default function CoreSpec() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Data Boundary</h2>
             <p className="text-landing-cream/90 mb-4">
-              An Origin Record contains:
+              An Anchor Record contains:
             </p>
             <ul className="space-y-1 text-landing-muted/70 mb-6">
               <li><span className="text-landing-copper">hash</span>: what existed</li>
