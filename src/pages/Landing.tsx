@@ -17,7 +17,7 @@ export default function Landing() {
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.15] mb-10">
             <span className="text-landing-cream/90">Umarise.</span>
             <br />
-            <span className="text-landing-copper">Origins.</span>
+            <span className="text-landing-copper">Anchors.</span>
           </h1>
 
           {/* Core axiom */}
@@ -36,7 +36,7 @@ export default function Landing() {
 
           {/* Category descriptor */}
           <p className="text-sm text-landing-muted/25 tracking-widest uppercase mt-6">
-            Origin Infrastructure
+            Anchoring Infrastructure
           </p>
         </main>
 
@@ -47,7 +47,7 @@ export default function Landing() {
         <nav className="py-6 md:py-8 flex flex-col gap-3">
           {/* Primary documents */}
           <div className="flex items-center gap-6 text-base text-landing-muted/40">
-            <Link to="/origin" className="hover:text-landing-muted/60 transition-colors">Origin</Link>
+            <Link to="/anchor" className="hover:text-landing-muted/60 transition-colors">Anchor</Link>
             <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
             <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
             <Link to="/why" className="hover:text-landing-muted/60 transition-colors">Why</Link>
