@@ -56,7 +56,7 @@ export default function ReviewKit() {
               Technical Review Kit
             </p>
             <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">
-              Umarise Origin Record Layer
+              Umarise Anchor Record Layer
             </h1>
             <p className="text-[hsl(var(--landing-cream)/0.6)]">
               Stack-level documentation for technical evaluation.
@@ -98,7 +98,7 @@ export default function ReviewKit() {
           </h2>
           <div className="space-y-4 text-[hsl(var(--landing-cream)/0.75)] leading-relaxed">
             <p>
-              An origin record layer that captures a SHA-256 hash of an artifact
+              An anchor record layer that captures a SHA-256 hash of an artifact
               at the moment of intake, and anchors it in the Bitcoin blockchain
               via OpenTimestamps.
             </p>
@@ -159,10 +159,10 @@ export default function ReviewKit() {
           </p>
 
           <div className="space-y-4">
-            {/* 1. Create Origin */}
+            {/* 1. Create Anchor */}
             <ApiBlock
               number={1}
-              title="Create Origin"
+              title="Create Anchor"
               subtitle="write-once, permissioned"
               method="POST"
               endpoint="/v1-core-origins"
@@ -181,10 +181,10 @@ export default function ReviewKit() {
               note="No UPDATE endpoint exists. Write-once."
             />
 
-            {/* 2. Resolve Origin */}
+            {/* 2. Resolve Anchor */}
             <ApiBlock
               number={2}
-              title="Resolve Origin"
+              title="Resolve Anchor"
               subtitle="public, no auth"
               method="GET"
               endpoint={`/v1-core-resolve?origin_id={uuid}\n/v1-core-resolve?hash={sha256}`}
@@ -380,7 +380,7 @@ No Umarise software required.`}
             <DocLink title="API Reference" url="umarise.com/core" />
             <DocLink title="Verify Tool" url="umarise.com/verify" />
             <DocLink title="Technical Specification" url="umarise.com/legal" />
-            <DocLink title="Origin Registry" url="umarise.com/origin" />
+            <DocLink title="Anchor Registry" url="umarise.com/anchor" />
             <DocLink title="Why This Exists" url="umarise.com/why" />
           </div>
         </motion.section>
@@ -393,10 +393,10 @@ No Umarise software required.`}
           className="pt-10 border-t border-[hsl(var(--landing-cream)/0.08)] text-center space-y-2"
         >
           <p className="text-[hsl(var(--landing-muted))] text-sm">
-            Umarise Origin Record Layer, v1 Stable
+            Umarise Anchor Record Layer, v1 Stable
           </p>
           <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs">
-            Evidence of origin, not interpretation.
+            Evidence of anchoring, not interpretation.
           </p>
           <p className="text-[hsl(var(--landing-cream)/0.25)] text-xs pt-2">
             Contact: partners@umarise.com
