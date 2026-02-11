@@ -20,7 +20,7 @@ import { buildOriginZip } from '@/lib/originZip';
 /** Desktop-only download helper — creates a hidden <a> tag to trigger download */
 function downloadBlob(blob: Blob | null, originId: string) {
   if (!blob) return;
-  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -56,7 +56,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
     const input = { originId, hash, timestamp, imageUrl };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
-      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
       prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
       console.log('[ZipScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
     }).catch(err => {
