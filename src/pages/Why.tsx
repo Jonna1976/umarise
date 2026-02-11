@@ -3,7 +3,7 @@
  import { OriginMark } from '@/components/prototype/components/OriginMark';
  
  /**
-  * Umarise: Why Origin Attestation
+  * Umarise: Why Anchor Attestation
   * Market context and strategic positioning
   */
  export default function Why() {

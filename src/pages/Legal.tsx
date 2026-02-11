@@ -5,16 +5,16 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
 /**
  * Umarise: Technical Description
  * 
- * Pure technical description of the Origin Record mechanism.
+ * Pure technical description of the Anchor Record mechanism.
  * Seven sections, each describing a property. No argumentation, no interpretation.
  * 
  * Briefing: docs/lovable-briefing-legal-v3.md
  */
 
 const dataModel = [
-  { field: 'hash', type: 'text', description: 'SHA-256 hash of the original bytes' },
+  { field: 'hash', type: 'text', description: 'SHA-256 hash of the submitted bytes' },
   { field: 'hash_algorithm', type: 'text', description: 'Always "sha256"' },
-  { field: 'origin_id', type: 'text', description: '8-character hexadecimal identifier' },
+  { field: 'anchor_id', type: 'text', description: '8-character hexadecimal identifier' },
   { field: 'created_at', type: 'timestamp', description: 'Server time when the hash was received' },
   { field: 'ots_proof', type: 'text', description: 'Base64-encoded .ots file (after Bitcoin confirmation)' },
   { field: 'ots_status', type: 'text', description: '"pending" or "anchored"' },
@@ -29,7 +29,7 @@ const chainSteps = [
   },
   {
     label: 'Server',
-    text: 'The hash is recorded with a timestamp and assigned an origin_id. Status: "pending".',
+    text: 'The hash is recorded with a timestamp and assigned an anchor_id. Status: "pending".',
   },
   {
     label: 'Batch aggregation',
@@ -45,7 +45,7 @@ const chainSteps = [
   },
   {
     label: 'Proof file',
-    text: 'An .ots file is generated containing the complete cryptographic path from the original hash to the Bitcoin block. Status changes to "anchored".',
+    text: 'An .ots file is generated containing the complete cryptographic path from the submitted hash to the Bitcoin block. Status changes to "anchored".',
   },
 ];
 
@@ -59,12 +59,12 @@ const scopeEstablished = [
 const scopeNotEstablished = [
   'Who created the file',
   'Whether this is the first or only attestation of these bytes',
-  'Whether the content is original, unique, or novel',
+  'Whether the content is unique or novel',
   'Authorship, ownership, or legal status of the content',
 ];
 
 const verificationEndpoints = [
-  { endpoint: '/v1-core-resolve', purpose: 'Look up an attestation by origin_id' },
+  { endpoint: '/v1-core-resolve', purpose: 'Look up an attestation by anchor_id' },
   { endpoint: '/v1-core-verify', purpose: 'Check whether a hash exists in the registry' },
   { endpoint: '/v1-core-proof', purpose: 'Retrieve the .ots proof file for a hash' },
 ];
@@ -104,7 +104,7 @@ export default function Legal() {
         {/* Document content */}
         <div className="space-y-12 text-landing-muted/80 leading-relaxed">
 
-          {/* Section 1: What an Origin Record Is */}
+          {/* Section 1: What an Anchor Record Is */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
               What an Anchor Record Is
@@ -148,7 +148,7 @@ export default function Legal() {
             </div>
 
             <p className="mt-4 text-landing-muted/50 text-sm">
-              There is no column for the original file, filename, file type, file size, or any metadata about the content. This is architectural: the system cannot store what it does not receive.
+              There is no column for the file itself, filename, file type, file size, or any metadata about the content. This is architectural: the system cannot store what it does not receive.
             </p>
           </section>
 
@@ -306,7 +306,7 @@ export default function Legal() {
                   Anchor confirmed at time of sharing
                 </h3>
                 <p className="text-landing-muted/70">
-                  The .ots proof file is included in the ZIP. The third party has everything needed for independent verification: original file, certificate, and cryptographic proof.
+                  The .ots proof file is included in the ZIP. The third party has everything needed for independent verification: the file, certificate, and cryptographic proof.
                 </p>
               </div>
 
@@ -315,9 +315,9 @@ export default function Legal() {
                   Anchor pending at time of sharing
                 </h3>
                 <p className="text-landing-muted/70">
-                  The .ots proof file is not yet available. The third party has the original file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
+                   The .ots proof file is not yet available. The third party has the file and certificate containing the anchor_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
                   <code className="font-mono text-sm text-landing-copper">umarise.com/verify</code>{' '}
-                  using the origin_id from the certificate, or directly via the{' '}
+                  using the anchor_id from the certificate, or directly via the{' '}
                   <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
                   endpoint.
                 </p>
@@ -325,7 +325,7 @@ export default function Legal() {
             </div>
 
             <p className="text-landing-cream/70">
-              In both cases, final verification requires only the original file, the .ots proof, and a Bitcoin node or standard OTS tooling. No contact with Umarise is required.
+              In both cases, final verification requires only the file, the .ots proof, and a Bitcoin node or standard OTS tooling. No contact with Umarise is required.
             </p>
           </section>
 
