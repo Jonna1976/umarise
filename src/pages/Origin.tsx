@@ -48,13 +48,21 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes a mechanism for immutable attestation of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes origin attestation: the immutable recording of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
-              The mechanism applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once record with public verification is required.
+              Origin attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
             </p>
             <p className="mt-4 text-landing-cream/70">
-              Attestations are enforced as immutable through database-level constraints. Content is never stored. Only cryptographic hashes.
+              Origin Records are enforced as immutable through database-level constraints. Content is never stored. Only cryptographic hashes.
+            </p>
+          </section>
+
+          {/* Definition */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Definition</h2>
+            <p className="text-landing-cream text-lg">
+              An Origin is an independently verifiable external anchor of specific digital bytes at a specific moment in time.
             </p>
           </section>
 
@@ -66,9 +74,9 @@ export default function Origin() {
             </p>
             <p className="mb-4">However:</p>
             <ul className="space-y-2 pl-4">
-              <li>Internally generated evidence constitutes self-attestation</li>
+              <li>Internal records are inherently self-attested because they depend on the system that produces them</li>
               <li>Self-attestation is insufficient under external scrutiny</li>
-              <li>In audits, disputes, or provenance challenges, the question is not whether a system recorded something, but whether that record can be independently verified without relying on the system's explanations</li>
+              <li>In audits, disputes, or provenance challenges, the question is not whether a system recorded something, but whether that record can be independently verified without relying on the system that produced it</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
               This creates a structural gap between operational correctness and verifiable validity.
@@ -97,17 +105,17 @@ export default function Origin() {
             </p>
           </section>
 
-          {/* Origin Attestation */}
+          {/* Origin Record */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Origin Attestation</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Origin Record</h2>
             <p className="text-landing-cream/90 mb-4">
-              An Origin Record provides a minimal, immutable attestation that:
+              An Origin Record is a minimal, independently verifiable and externally anchored attestation that:
             </p>
             <p className="text-landing-cream mb-4 pl-4">
               Specific bytes existed at a specific moment.
             </p>
             <p className="mb-4">
-              The attestation is derived from a cryptographic hash computed at the moment of origin and recorded immutably so that the record cannot be altered after creation.
+              The Origin Record is derived from a cryptographic hash computed at the moment of origin attestation and recorded immutably so that the record cannot be altered after creation.
             </p>
             <p className="text-landing-copper mb-4">
               Origin attestation asserts existence, not correctness.
@@ -169,7 +177,7 @@ export default function Origin() {
                 <tbody className="text-landing-muted/70">
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Self-attested</td>
-                    <td className="py-2">Independently recorded</td>
+                    <td className="py-2">Independently verifiable</td>
                   </tr>
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Context-bound</td>
@@ -232,7 +240,7 @@ export default function Origin() {
               <li>the immutable record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              Origin Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin.
+              Origin Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin. The immutable record is independent of application-layer policy.
             </p>
           </section>
 
@@ -254,7 +262,7 @@ export default function Origin() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Reference</h2>
             <p className="mb-6">
-              Umarise Core is an origin registry implementing the properties described in this document.
+              Umarise Core implements an origin infrastructure conforming to this specification.
             </p>
           </section>
 
