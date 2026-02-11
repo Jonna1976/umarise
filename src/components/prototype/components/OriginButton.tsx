@@ -20,7 +20,7 @@ export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       whileHover={{ opacity: 1 }}
-      aria-label="Open Origin Registry"
+      aria-label="Open Anchor Registry"
     >
       <OriginMark
         size={28}
