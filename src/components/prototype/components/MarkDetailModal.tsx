@@ -347,25 +347,40 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               const file = e.target.files?.[0];
               if (!file) return;
               const verifyUrl = `https://umarise.com/verify?origin_id=${encodeURIComponent(mark.originId)}`;
-              try {
-                if (navigator.share) {
+              let shared = false;
+
+              // Try native Share Sheet with ZIP + verify link
+              if (navigator.share) {
+                try {
                   await navigator.share({
                     files: [file],
                     title: `Origin ${mark.originId.replace(/^um-/i, '').slice(0, 8).toUpperCase()}`,
                     text: 'Verifieer mijn origin op umarise.com/verify',
                     url: verifyUrl,
                   });
-                  setSaved(true);
-                } else {
-                  await navigator.clipboard.writeText(verifyUrl);
-                  toast.success('Verify link gekopieerd');
-                  setSaved(true);
-                }
-              } catch (err) {
-                if ((err as Error).name !== 'AbortError') {
-                  console.warn('[MarkDetailModal] Share failed', err);
+                  shared = true;
+                } catch (err) {
+                  if ((err as Error).name === 'AbortError') {
+                    e.target.value = '';
+                    return; // User cancelled — do nothing
+                  }
+                  console.warn('[MarkDetailModal] Share API failed, falling back:', err);
                 }
               }
+
+              // Fallback: copy verify link to clipboard
+              if (!shared) {
+                try {
+                  await navigator.clipboard.writeText(verifyUrl);
+                  toast.success('Verify link gekopieerd: ' + verifyUrl);
+                } catch {
+                  // Clipboard also blocked — show link in toast so user can copy manually
+                  toast.info(verifyUrl, { duration: 8000 });
+                }
+              }
+
+              setSaved(true);
+              setTimeout(() => setSaved(false), 4000);
               e.target.value = '';
             }}
           />
