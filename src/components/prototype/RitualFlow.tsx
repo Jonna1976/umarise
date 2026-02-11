@@ -31,7 +31,7 @@ const FIRST_VISIT_KEY = 'umarise_first_visit_done';
 export function RitualFlow() {
   const isFirstVisit = !localStorage.getItem(FIRST_VISIT_KEY);
   const [screen, setScreen] = useState<RitualScreen>(isFirstVisit ? 'welcome' : 'capture');
-  const [showOriginText, setShowOriginText] = useState(!isFirstVisit);
+  
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const { createMark } = useMarks();
 
@@ -50,7 +50,6 @@ export function RitualFlow() {
   // Welcome → Capture (no auth before mark!)
   const handleWelcomeComplete = useCallback(() => {
     localStorage.setItem(FIRST_VISIT_KEY, '1');
-    setShowOriginText(true);
     goToScreen('capture');
   }, [goToScreen]);
 
@@ -161,7 +160,7 @@ export function RitualFlow() {
       )}
       
       {screen === 'capture' && (
-        <CaptureScreen onCapture={handleCapture} showOriginText={showOriginText} />
+        <CaptureScreen onCapture={handleCapture} />
       )}
       
       {/* Processing state - brief visual during auto-hash + mark creation */}
