@@ -48,7 +48,7 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes origin attestation: the immutable recording of the existence of digital bytes at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes origin attestation: the immutable recording that specific digital bytes existed at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
               Origin attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
@@ -115,7 +115,7 @@ export default function Origin() {
               Specific bytes existed at a specific moment.
             </p>
             <p className="mb-4">
-              The Origin Record is derived from a cryptographic hash computed at the moment of origin attestation and recorded immutably so that the record cannot be altered after creation.
+              The Origin Record is derived from a cryptographic hash computed at the moment the origin attestation is established and recorded immutably so that the record cannot be altered after creation.
             </p>
             <p className="text-landing-copper mb-4">
               Origin attestation asserts existence, not correctness.
@@ -156,7 +156,7 @@ export default function Origin() {
           <section className="border-l-2 border-landing-copper/30 pl-6">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Law of Origin</h2>
             <p className="text-landing-cream text-lg">
-              If the bytes change, the origin no longer matches.
+              If the bytes change, the Origin Record no longer matches.
             </p>
             <p className="text-landing-cream/70 mt-2">
               There are no exceptions.
@@ -185,11 +185,11 @@ export default function Origin() {
                   </tr>
                   <tr className="border-b border-landing-muted/10">
                     <td className="py-2 pr-4">Operational</td>
-                    <td className="py-2">Verifiable</td>
+                    <td className="py-2">Externally anchored</td>
                   </tr>
                   <tr>
                     <td className="py-2 pr-4">Trust-based</td>
-                    <td className="py-2">Verifiable</td>
+                    <td className="py-2">Publicly verifiable</td>
                   </tr>
                 </tbody>
               </table>
@@ -254,7 +254,7 @@ export default function Origin() {
               <li>Version control requires trust in the repository</li>
             </ul>
             <p className="text-landing-cream/90 mt-6">
-              Origin attestation provides a write-once record with public verification.
+              Origin attestation provides a write-once, independently verifiable and externally anchored record.
             </p>
           </section>
 
