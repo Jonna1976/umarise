@@ -48,7 +48,7 @@ export default function Landing() {
           {/* Primary documents */}
           <div className="flex items-center gap-6 text-base text-landing-muted/40">
             <Link to="/anchor" className="hover:text-landing-muted/60 transition-colors">Anchor</Link>
-            <Link to="/spec" className="hover:text-landing-muted/60 transition-colors">Specification</Link>
+            <Link to="/review" className="hover:text-landing-muted/60 transition-colors">Review</Link>
             <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
             <Link to="/why" className="hover:text-landing-muted/60 transition-colors">Why</Link>
           </div>
