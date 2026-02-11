@@ -33,12 +33,9 @@ export default function Origin() {
       <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
         {/* Title */}
         <div className="mb-16">
-          <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-             Anchor One-Pager
+          <h1 className="font-serif text-3xl md:text-4xl text-landing-cream">
+             Anchoring
           </h1>
-          <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
-            Normative Overview
-          </p>
         </div>
 
         {/* Document content */}
