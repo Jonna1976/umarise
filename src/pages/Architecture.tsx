@@ -13,7 +13,7 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
  */
 
 const b2cItems = [
-  { name: 'S0 Welcome', status: '✅ Eerste bezoek only', where: 'Browser UI (localStorage gate)' },
+  
   { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto → auto-hash + pages INSERT' },
   { name: 'S2 Sealed', status: '✅ Museum label + artifact + file list + ZIP', where: 'Browser UI + Client-side JSZip' },
   { name: 'S3 Origin Registry', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
@@ -83,7 +83,7 @@ const discoveryPath = [
 ];
 
 const originMarkUsage = [
-  { context: 'S0 Welcome', size: '72px', state: 'anchored', detail: 'Heartbeat animatie' },
+  
   { context: 'S1 Capture', size: '48px', state: 'anchored', detail: 'Breathing animatie' },
   { context: 'Processing', size: '64px', state: 'anchored', detail: 'Breathing tijdens auto-hash' },
   { context: 'S2 Sealed', size: '48px', state: 'anchored', detail: 'Glow' },
