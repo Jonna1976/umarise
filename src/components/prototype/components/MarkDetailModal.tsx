@@ -317,7 +317,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                    className="font-mono text-[13px] tracking-[1.5px] uppercase"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
                 >
-                  PENDING · ANCHORING IN 1-2 BLOCKS
+                  PENDING · BITCOIN CONFIRMATION
                 </p>
               </>
             )}
