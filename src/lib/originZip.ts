@@ -124,9 +124,9 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
   // 4. Add VERIFY.txt (human-readable instructions for third parties)
   const verifyTxt = [
-    'Dit is een Origin Record, geregistreerd via Umarise.',
+    'Dit is een Anchor Record, geregistreerd via Umarise.',
     '',
-    `Origin ID: ${cleanId}`,
+    `Anchor ID: ${cleanId}`,
     `Geregistreerd: ${input.timestamp.toISOString()}`,
     `Hash: ${input.hash}`,
     '',
@@ -135,7 +135,7 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     'Upload deze ZIP op bovenstaande pagina om het bewijs onafhankelijk te',
     'controleren. Geen account nodig.',
     '',
-    'Meer informatie: https://umarise.com/origin',
+    'Meer informatie: https://umarise.com/anchor',
   ].join('\n');
   zip.file('VERIFY.txt', verifyTxt);
 
