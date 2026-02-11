@@ -58,10 +58,10 @@ export default function Privacy() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Data Processed by Umarise</h2>
             <p className="mb-6">
-              Umarise processes only the minimum data required to establish and verify origin records.
+              Umarise processes only the minimum data required to establish and verify anchor records.
             </p>
             
-            <h3 className="text-landing-cream/90 font-medium mb-4">Origin Record Data</h3>
+            <h3 className="text-landing-cream/90 font-medium mb-4">Anchor Record Data</h3>
             <div className="border border-landing-muted/20 rounded-lg overflow-hidden mb-4">
               <table className="w-full text-sm">
                 <thead>
@@ -83,14 +83,14 @@ export default function Privacy() {
                     <td className="py-3 px-4">Germany (Hetzner)</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4">Origin ID</td>
+                    <td className="py-3 px-4">Anchor ID</td>
                     <td className="py-3 px-4">Stable external reference</td>
                     <td className="py-3 px-4">Germany (Hetzner)</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <p className="text-landing-muted/50 text-sm">Origin records are write-once and immutable.</p>
+            <p className="text-landing-muted/50 text-sm">Anchor records are write-once and immutable.</p>
           </section>
 
           {/* Local Device Data */}
@@ -176,7 +176,7 @@ export default function Privacy() {
               Umarise processes data using a segmented infrastructure to minimize exposure.
             </p>
             <p>
-              Origin records are stored separately from any interaction layer and are never processed together with personal data.
+              Anchor records are stored separately from any interaction layer and are never processed together with personal data.
             </p>
           </section>
 
@@ -184,7 +184,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Jurisdiction</h2>
             <p className="mb-4">
-              Origin records are stored in the European Union and processed by infrastructure located in Germany (Hetzner).
+              Anchor records are stored in the European Union and processed by infrastructure located in Germany (Hetzner).
             </p>
             <p className="mb-4">
               Cryptographic hashes (non-personal data, 64-character strings) are submitted to independent OpenTimestamps calendar servers for Bitcoin anchoring. These servers are globally distributed and not operated by Umarise.
@@ -203,15 +203,15 @@ export default function Privacy() {
             <ul className="space-y-6">
               <li>
                 <span className="block text-landing-copper mb-2">Access</span>
-                <p>Where applicable, origin records can be accessed or exported from the local device context.</p>
+                <p>Where applicable, anchor records can be accessed or exported from the local device context.</p>
               </li>
               <li>
                 <span className="block text-landing-copper mb-2">Erasure</span>
-                <p>Associations between a local device and origin records can be removed by clearing local browser data. The cryptographic origin record itself remains immutable by design.</p>
+                <p>Associations between a local device and anchor records can be removed by clearing local browser data. The cryptographic anchor record itself remains immutable by design.</p>
               </li>
               <li>
                 <span className="block text-landing-copper mb-2">Portability</span>
-                <p>Where applicable, origin records can be exported in machine-readable formats.</p>
+                <p>Where applicable, anchor records can be exported in machine-readable formats.</p>
               </li>
             </ul>
           </section>
