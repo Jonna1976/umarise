@@ -339,35 +339,20 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           {/* "Save as ZIP" button */}
           <button
             onClick={async () => {
-              // If already saved+shared, do nothing
               if (saved) return;
-              // Trigger the existing ZIP flow which includes file selection + verification
-              await handleSaveAsZip();
-              // After ZIP is built, attempt to share it
+              const verifyUrl = `https://umarise.com/verify?origin_id=${encodeURIComponent(mark.originId)}`;
               try {
-                const zipInput = {
-                  originId: mark.originId,
-                  hash: mark.hash,
-                  timestamp: mark.timestamp,
-                  imageUrl: mark.imageUrl ?? null,
-                  claimedBy: credentialRef.current?.publicKey ?? null,
-                  signature: signatureRef.current ?? null,
-                  otsProof: otsProofRef.current,
-                  artifactFile: artifactFileRef.current,
-                };
-                const cleanId = mark.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
-                const zipBlob = await buildOriginZip(zipInput);
-                const zipFile = new File([zipBlob], `origin-${cleanId}.zip`, { type: 'application/zip' });
-
                 if (navigator.share) {
                   await navigator.share({
-                    files: [zipFile],
+                    title: `Origin ${mark.originId.replace(/^um-/i, '').slice(0, 8).toUpperCase()}`,
                     text: 'Verifieer mijn origin op umarise.com/verify',
-                    url: 'https://umarise.com/verify',
+                    url: verifyUrl,
                   });
+                  setSaved(true);
                 } else {
-                  await navigator.clipboard.writeText('https://umarise.com/verify');
+                  await navigator.clipboard.writeText(verifyUrl);
                   toast.success('Verify link gekopieerd');
+                  setSaved(true);
                 }
               } catch (err) {
                 if ((err as Error).name !== 'AbortError') {
@@ -375,7 +360,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 }
               }
             }}
-            disabled={isSaving || fetchingProof || verifyingFile || saved}
+            disabled={saved}
             className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
             style={{
               fontWeight: 300,
@@ -386,16 +371,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
             }}
           >
-            {saved 
-              ? '✓ Shared'
-              : verifyingFile
-                ? 'Verifying…'
-                : fetchingProof
-                  ? 'Fetching proof…'
-                  : isSaving 
-                    ? 'Saving…' 
-                    : 'Upload and share'
-            }
+            {saved ? '✓ Shared' : 'Share origin'}
           </button>
 
           {/* "+ link passkey" */}
