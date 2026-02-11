@@ -54,7 +54,7 @@ export default function Origin() {
               Origin attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
             </p>
             <p className="mt-4 text-landing-cream/70">
-              Origin Records are enforced as immutable through database-level constraints. Content is never stored. Only cryptographic hashes.
+              Origin Records are enforced as immutable at the database level. Content is never stored. Only cryptographic hashes.
             </p>
           </section>
 
@@ -118,7 +118,7 @@ export default function Origin() {
               The Origin Record is derived from a cryptographic hash computed at the moment the origin attestation is established and recorded immutably so that the record cannot be altered after creation.
             </p>
             <p className="text-landing-copper mb-4">
-              Origin attestation asserts existence, not correctness.
+              Origin attestation asserts existence of specific bytes at a specific moment, not correctness.
             </p>
             <p className="mb-2">No assumptions are made about:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
@@ -221,7 +221,7 @@ export default function Origin() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Correct Usage Boundary</h2>
             <p className="mb-4">Use of origin attestation is appropriate only where:</p>
             <ul className="space-y-2 pl-4">
-              <li>a moment must not be renegotiated later</li>
+              <li>a specific moment must not be renegotiated later</li>
               <li>internal logs, timestamps, or signatures are insufficient as proof</li>
               <li>external, independent verification outweighs flexibility</li>
             </ul>
@@ -237,7 +237,7 @@ export default function Origin() {
             <ul className="space-y-1 pl-4 text-landing-muted/70">
               <li>the hash</li>
               <li>the timestamp</li>
-              <li>the immutable record</li>
+              <li>the externally anchored record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
               Origin Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin. The immutable record is independent of application-layer policy.
