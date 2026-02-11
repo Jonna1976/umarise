@@ -113,7 +113,7 @@ export function MarkScreen({ artifact, onComplete }: MarkScreenProps) {
   return (
     <motion.div
       className="min-h-screen flex flex-col items-center justify-center relative"
-      style={{ background: 'hsl(var(--ritual-bg))' }}
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

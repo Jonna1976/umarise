@@ -154,7 +154,7 @@ export function SealedScreen({
   return (
     <motion.div
       className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: 'hsl(var(--ritual-bg))' }}
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

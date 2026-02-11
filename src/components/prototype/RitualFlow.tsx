@@ -1,17 +1,14 @@
 import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { WelcomeScreen } from './screens/WelcomeScreen';
 import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
-// MarkScreen removed — mark creation now happens automatically after capture
-// ReleaseScreen, ZipScreen, OwnedScreen removed — merged into SealedScreen
 import { SealedScreen } from './screens/SealedScreen';
 import { HomeScreen } from './screens/HomeScreen';
-import { WallOfExistence } from './screens/WallOfExistence'; // Origin Registry
+import { WallOfExistence } from './screens/WallOfExistence';
 import { OriginButton } from './components/OriginButton';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
-export type RitualScreen = 'welcome' | 'capture' | 'processing' | 'sealed' | 'home' | 'wall';
+export type RitualScreen = 'capture' | 'processing' | 'sealed' | 'home' | 'wall';
 
 export interface Artifact {
   id: string;
@@ -29,8 +26,8 @@ export interface Artifact {
 const FIRST_VISIT_KEY = 'umarise_first_visit_done';
 
 export function RitualFlow() {
-  const isFirstVisit = !localStorage.getItem(FIRST_VISIT_KEY);
-  const [screen, setScreen] = useState<RitualScreen>(isFirstVisit ? 'welcome' : 'capture');
+  const [screen, setScreen] = useState<RitualScreen>('capture');
+  
   
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const { createMark } = useMarks();
@@ -47,11 +44,7 @@ export function RitualFlow() {
     setScreen(target);
   }, [screen]);
 
-  // Welcome → Capture (no auth before mark!)
-  const handleWelcomeComplete = useCallback(() => {
-    localStorage.setItem(FIRST_VISIT_KEY, '1');
-    goToScreen('capture');
-  }, [goToScreen]);
+  // Start capture directly — no welcome screen
 
   // Handle file capture - auto-hash + create mark, then go to sealed
   const handleCapture = useCallback(async (file: CapturedFile) => {
@@ -155,9 +148,6 @@ export function RitualFlow() {
       )}
 
       {/* Screens */}
-      {screen === 'welcome' && (
-        <WelcomeScreen onComplete={handleWelcomeComplete} />
-      )}
       
       {screen === 'capture' && (
         <CaptureScreen onCapture={handleCapture} />
@@ -167,7 +157,7 @@ export function RitualFlow() {
       {screen === 'processing' && (
         <motion.div
           className="min-h-screen flex flex-col items-center justify-center"
-          style={{ background: 'hsl(var(--ritual-bg))' }}
+          style={{ background: 'hsl(var(--ritual-surface))' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
