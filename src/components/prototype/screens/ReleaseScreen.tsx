@@ -166,7 +166,7 @@ export function ReleaseScreen({ artifact, onComplete }: ReleaseScreenProps) {
           animate={{ opacity: showTitle ? 1 : 0, y: showTitle ? 0 : 6 }}
           transition={{ duration: 0.5 }}
         >
-          Origin marked
+          Anchored
         </motion.h2>
 
         {/* Origin code — JetBrains Mono 9px, 0.45 opacity per v7 spec */}

@@ -271,7 +271,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             className="font-playfair text-[26px] text-ritual-gold mb-3"
             style={{ fontWeight: 400 }}
           >
-            Origin marked
+            Anchored
           </h2>
 
           {/* Origin ID */}
@@ -279,7 +279,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             className="font-mono text-[13px] tracking-[3px] uppercase mb-1.5"
             style={{ color: 'hsl(var(--ritual-gold-muted))' }}
           >
-            ORIGIN {displayOriginId}
+            ANCHOR {displayOriginId}
           </p>
 
           {/* Date */}
