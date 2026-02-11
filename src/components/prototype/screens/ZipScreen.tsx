@@ -274,7 +274,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
         transition={{ duration: 0.6, delay: 1 }}
         whileTap={!saved ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Save your origin'}
+        {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Download'}
       </motion.button>
     </motion.div>
   );
