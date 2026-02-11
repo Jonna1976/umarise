@@ -337,13 +337,20 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           />
 
           {/* "Save as ZIP" button */}
-          <button
-            onClick={async () => {
-              if (saved) return;
+          {/* Hidden file input for ZIP selection */}
+          <input
+            ref={(el) => { (window as any).__zipInputRef = el; }}
+            type="file"
+            accept=".zip,application/zip"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
               const verifyUrl = `https://umarise.com/verify?origin_id=${encodeURIComponent(mark.originId)}`;
               try {
                 if (navigator.share) {
                   await navigator.share({
+                    files: [file],
                     title: `Origin ${mark.originId.replace(/^um-/i, '').slice(0, 8).toUpperCase()}`,
                     text: 'Verifieer mijn origin op umarise.com/verify',
                     url: verifyUrl,
@@ -359,6 +366,13 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   console.warn('[MarkDetailModal] Share failed', err);
                 }
               }
+              e.target.value = '';
+            }}
+          />
+          <button
+            onClick={() => {
+              if (saved) return;
+              (window as any).__zipInputRef?.click();
             }}
             disabled={saved}
             className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
@@ -371,7 +385,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
             }}
           >
-            {saved ? '✓ Shared' : 'Share origin'}
+            {saved ? '✓ Shared' : 'Upload and share'}
           </button>
 
           {/* "+ link passkey" */}
