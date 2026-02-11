@@ -61,7 +61,7 @@ export function RitualFlow() {
     const tempArtifact: Artifact = {
       id: 'pending-' + Date.now(),
       type: artifactType,
-      origin: 'ORIGIN --------',
+      origin: 'ANCHOR --------',
       date: new Date(),
       hash: '----------------',
       imageUrl: file.dataUrl,
@@ -83,7 +83,7 @@ export function RitualFlow() {
         const realArtifact: Artifact = {
           id: mark.id,
           type: mark.type,
-          origin: mark.originId.toUpperCase().replace('UM-', 'ORIGIN '),
+          origin: mark.originId.toUpperCase().replace('UM-', 'ANCHOR '),
           date: mark.timestamp,
           hash: mark.hash,
           imageUrl: mark.thumbnailUrl || file.dataUrl,
@@ -132,7 +132,7 @@ export function RitualFlow() {
   const displayArtifact = currentArtifact || {
     id: 'placeholder',
     type: 'warm' as const,
-    origin: 'ORIGIN --------',
+    origin: 'ANCHOR --------',
     date: new Date(),
     hash: '----------------',
     imageUrl: null,

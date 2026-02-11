@@ -183,7 +183,7 @@ export function SealedScreen({
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        Your origin is ready
+        Your anchor is ready
       </motion.h1>
 
       {/* ── Artifact in golden frame ── */}
@@ -215,7 +215,7 @@ export function SealedScreen({
           className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
           style={{ color: 'hsl(var(--ritual-gold) / 0.45)' }}
         >
-          ORIGIN {shortId}
+          ANCHOR {shortId}
         </p>
         <p
           className="font-garamond text-[17px] mb-3"
@@ -340,7 +340,7 @@ export function SealedScreen({
         animate={{ opacity: 0.35 }}
         transition={{ duration: 0.6, delay: 2.0 }}
       >
-        Verifieer je origin
+        Verifieer je anchor
       </motion.a>
     </motion.div>
   );

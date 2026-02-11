@@ -173,7 +173,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
       >
-        Your origin is ready
+        Your anchor is ready
       </motion.h1>
 
       {/* File list — three files with subtle icons */}
