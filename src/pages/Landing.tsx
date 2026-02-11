@@ -22,9 +22,9 @@ export default function Landing() {
 
           {/* Core axiom */}
           <p className="text-base text-landing-muted/50 leading-relaxed tracking-wide mb-8">
-            Information has a beginning.
+            When digital information matters,
             <br />
-            Umarise makes that beginning provable.
+            anchor it outside your system.
           </p>
 
           {/* Protocol rule - lower contrast, separated */}
@@ -36,7 +36,7 @@ export default function Landing() {
 
           {/* Category descriptor */}
           <p className="text-sm text-landing-muted/25 tracking-widest uppercase mt-6">
-            Origin Registry
+            Origin Infrastructure
           </p>
         </main>
 
