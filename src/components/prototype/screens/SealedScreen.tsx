@@ -22,7 +22,7 @@ import { buildOriginZip } from '@/lib/originZip';
 /** Desktop-only download helper */
 function downloadBlob(blob: Blob | null, originId: string) {
   if (!blob) return;
-  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -66,7 +66,7 @@ export function SealedScreen({
   const isImage = mimeType.startsWith('image/');
 
   // Derive display values
-  const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+  const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
   const hashLine1 = hash.slice(0, 32);
   const hashLine2 = hash.slice(32);
 
@@ -91,7 +91,7 @@ export function SealedScreen({
     const input = { originId, hash, timestamp, imageUrl };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
-      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
       prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
       console.log('[SealedScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
     }).catch(err => {
