@@ -28,7 +28,7 @@ import PrivacyExport from "./pages/PrivacyExport";
 import IsoExport from "./pages/IsoExport";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import Origin from "./pages/Origin";
+import Anchor from "./pages/Anchor";
 import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
@@ -63,7 +63,8 @@ const App = () => (
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
-            <Route path="/origin" element={<Origin />} />
+            <Route path="/anchor" element={<Anchor />} />
+            <Route path="/origin" element={<Anchor />} />
             <Route path="/core" element={<CoreSpec />} />
             <Route path="/proof" element={<ProofPage />} />
             <Route path="/pilot" element={<PilotDocs />} />
