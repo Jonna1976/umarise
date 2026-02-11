@@ -97,7 +97,7 @@ export default function Legal() {
             Technical Description
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
-            What an Origin Record is, what it contains, and what it does not establish
+            What an Anchor Record is, what it contains, and what it does not establish
           </p>
         </div>
 
@@ -107,13 +107,13 @@ export default function Legal() {
           {/* Section 1: What an Origin Record Is */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              What an Origin Record Is
+              What an Anchor Record Is
             </h2>
             <p className="text-landing-cream/90 mb-4">
-              An Origin Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The result is a cryptographic proof that specific bytes existed at a specific moment.
+              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The result is a cryptographic proof that specific bytes existed at a specific moment.
             </p>
             <p>
-              An Origin Record does not contain the original file. It contains only the hash.
+              An Anchor Record does not contain the original file. It contains only the hash.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function Legal() {
               Data Model
             </h2>
             <p className="mb-4">
-              Each Origin Record consists of the following fields. No other data is stored.
+              Each Anchor Record consists of the following fields. No other data is stored.
             </p>
 
             <div className="overflow-x-auto">
@@ -212,7 +212,7 @@ export default function Legal() {
             </div>
 
             <p className="text-landing-cream/70">
-              An Origin Record provides building blocks. A court, arbitrator, or evaluating party draws conclusions from those building blocks in the context of a specific dispute.
+              An Anchor Record provides building blocks. A court, arbitrator, or evaluating party draws conclusions from those building blocks in the context of a specific dispute.
             </p>
           </section>
 
@@ -222,13 +222,13 @@ export default function Legal() {
               Device Binding (Optional)
             </h2>
             <p className="mb-4">
-              A passkey can optionally be associated with an Origin Record. The passkey uses the WebAuthn standard and is bound to the device's secure enclave (TPM, Secure Enclave, or equivalent). A biometric gate (fingerprint, face recognition) is required for signing.
+              A passkey can optionally be associated with an Anchor Record. The passkey uses the WebAuthn standard and is bound to the device's secure enclave (TPM, Secure Enclave, or equivalent). A biometric gate (fingerprint, face recognition) is required for signing.
             </p>
             <p className="mb-4">
               When present, a passkey establishes that someone with biometric access to a specific device claimed the record at the time of creation. It does not establish identity, name, or that a specific individual created the content. No username, email address, or sign-up is involved.
             </p>
             <p className="text-landing-muted/60">
-              The passkey is optional. Origin Records can be created without any device binding.
+              The passkey is optional. Anchor Records can be created without any device binding.
             </p>
           </section>
 
@@ -269,7 +269,7 @@ export default function Legal() {
                   Verification (public)
                 </h3>
                 <p className="text-landing-muted/70">
-                  Any party can look up, verify, and retrieve proof files for any Origin Record. No credentials, no registration, no relationship with Umarise required.
+                  Any party can look up, verify, and retrieve proof files for any Anchor Record. No credentials, no registration, no relationship with Umarise required.
                 </p>
               </div>
 
@@ -278,13 +278,13 @@ export default function Legal() {
                   Attestation (permissioned)
                 </h3>
                 <p className="text-landing-muted/70">
-                  Creating an Origin Record requires authorized access. Only identified registrants can submit hashes for attestation.
+                  Creating an Anchor Record requires authorized access. Only identified registrants can submit hashes for attestation.
                 </p>
               </div>
             </div>
 
             <p className="text-landing-cream/70 mb-4">
-              This asymmetry is an integrity constraint, not a commercial restriction. An Origin Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry itself.
+              This asymmetry is an integrity constraint, not a commercial restriction. An Anchor Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry itself.
             </p>
             <p className="text-landing-muted/60">
               The same principle applies to comparable registries. DNS allows anyone to resolve a domain, but not anyone to register one. Certificate Authorities allow anyone to verify a certificate, but not anyone to issue one. The constraint protects the record.
@@ -297,13 +297,13 @@ export default function Legal() {
               Independent Verification
             </h2>
             <p className="mb-4">
-              A third party who receives a file and its certificate can verify the origin independently. Two scenarios apply, depending on the anchoring status at the time the file was shared.
+              A third party who receives a file and its certificate can verify the anchor independently. Two scenarios apply, depending on the anchoring status at the time the file was shared.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Origin anchored at time of sharing
+                  Anchor confirmed at time of sharing
                 </h3>
                 <p className="text-landing-muted/70">
                   The .ots proof file is included in the ZIP. The third party has everything needed for independent verification: original file, certificate, and cryptographic proof.
@@ -312,7 +312,7 @@ export default function Legal() {
 
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
                 <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Origin pending at time of sharing
+                  Anchor pending at time of sharing
                 </h3>
                 <p className="text-landing-muted/70">
                   The .ots proof file is not yet available. The third party has the original file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
@@ -335,7 +335,7 @@ export default function Legal() {
               Verification Endpoints
             </h2>
             <p className="mb-4">
-              Any Origin Record can be verified through the public API without authentication.
+              Any Anchor Record can be verified through the public API without authentication.
             </p>
 
             <div className="overflow-x-auto">
@@ -368,7 +368,7 @@ export default function Legal() {
               Disclaimer
             </h2>
             <p className="text-landing-muted/60">
-              This page describes the technical properties of the Origin Record mechanism. It does not constitute legal advice. The evidential value of an Origin Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
+              This page describes the technical properties of the Anchor Record mechanism. It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
             </p>
             <p className="text-landing-muted/50 text-sm mt-4">
               Document version 1.0, February 2026

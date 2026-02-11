@@ -37,7 +37,7 @@ export default function Terms() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Scope</h2>
             <p className="mb-4">
-              These Terms of Service govern access to and use of the Umarise origin record service.
+              These Terms of Service govern access to and use of the Umarise anchor record service.
             </p>
             <p className="mb-4">
               Umarise provides an external, write-once origin reference for digital artifacts.
@@ -49,12 +49,12 @@ export default function Terms() {
           {/* Service Description */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Service Description</h2>
-            <p className="mb-4">Umarise establishes and maintains Origin Records.</p>
-            <p className="mb-4">An Origin Record is a write-once, immutable reference to:</p>
+            <p className="mb-4">Umarise establishes and maintains Anchor Records.</p>
+            <p className="mb-4">An Anchor Record is a write-once, immutable reference to:</p>
             <ul className="space-y-1 mb-4">
               <li>• the cryptographic hash of digital data</li>
               <li>• a timestamp</li>
-              <li>• a stable origin identifier</li>
+              <li>• a stable anchor identifier</li>
             </ul>
             <p className="mb-4">Verification is binary: match or no match.</p>
             <p className="text-landing-muted/50 text-sm">Umarise does not store artifact content.</p>
@@ -65,12 +65,12 @@ export default function Terms() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Invariants</h2>
             <p className="mb-4">The following properties are fixed and non-configurable:</p>
             <ul className="space-y-1 mb-6">
-              <li>• Origin Records are immutable</li>
-              <li>• Origin Records cannot be altered, revoked, or overridden</li>
+              <li>• Anchor Records are immutable</li>
+              <li>• Anchor Records cannot be altered, revoked, or overridden</li>
               <li>• Verification has no degrees or exceptions</li>
             </ul>
             <p className="text-landing-cream text-lg">
-              If the bytes change, the origin no longer matches.
+              If the bytes change, the anchor no longer matches.
             </p>
           </section>
 
@@ -100,7 +100,7 @@ export default function Terms() {
               <li>• provide governance or exceptions</li>
             </ul>
             <p className="text-landing-muted/50 text-sm">
-              All consequences of origin verification remain external to Umarise.
+              All consequences of anchor verification remain external to Umarise.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function Terms() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Availability and Changes</h2>
             <p className="mb-4">Umarise is provided on an as-is and as-available basis.</p>
             <p>
-              The core behavior of the origin record service is invariant.
+              The core behavior of the anchor record service is invariant.
               Operational aspects may change without notice, provided invariants are preserved.
             </p>
           </section>
@@ -146,7 +146,7 @@ export default function Terms() {
               Umarise may restrict or terminate access to the service if these terms are violated or if use would expose Umarise to legal or operational risk.
             </p>
             <p className="text-landing-muted/50 text-sm">
-              Termination does not alter existing Origin Records.
+              Termination does not alter existing Anchor Records.
             </p>
           </section>
 
