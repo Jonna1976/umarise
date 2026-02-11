@@ -1,24 +1,24 @@
-# B2C-Inventarisatie v0.8 — Umarise App
+# B2C-Inventarisatie v0.7 — Umarise App
 
 **Scope:** Uitsluitend de B2C-laag (Umarise App)  
 **Relatie tot Core:** Automatische propagatie via database trigger  
-**Datum:** 10 februari 2026  
+**Datum:** 6 februari 2026  
 **Status:** Formele systeemdefinitie  
-**Versie:** v0.8 — gesynchroniseerd met /architecture (10 feb 2026)
+**Versie:** v0.7 — gecorrigeerd na database-verificatie
 
 ---
 
-## Δ Wijzigingen t.o.v. v0.7
+## Δ Wijzigingen t.o.v. v0.6
 
-| Aspect | v0.7 | v0.8 |
+| Aspect | v0.6 | v0.7 |
 |--------|------|------|
-| Ritual flow | 8 stappen (S0–S7) | ✅ Geconsolideerd naar 4 stappen (S0–S3) |
-| Wall of Existence | Aparte naam | ✅ Hernoemd naar **Origin Registry** |
-| S2 Pause + S3 Mark | Handmatige stappen | ✅ Verwijderd: auto-hash bij file selectie |
-| S5 ZIP + S6 Owned | Aparte schermen | ✅ Geïntegreerd in S2 Sealed |
-| Certificate export | PDF (jsPDF) | ✅ certificate.json + VERIFY.txt in ZIP |
-| ZIP compositie | certificate.pdf + proof.ots | ✅ artifact + certificate.json + VERIFY.txt + proof.ots |
-| Origin Registry | S7 horizontale gallery | ✅ S3: Origin Registry (3D Hall concept) |
+| `pages.origin_id` | Niet in schema | ✅ UUID kolom toegevoegd, teruggeschreven door bridge trigger |
+| OTS trigger chain | `on_ots_complete` trigger op `origin_attestations` | ✅ Gecorrigeerd: HTTP call vanuit OTS Worker (geen database trigger) |
+| Certificate bron `bitcoin_block_height` | `origin_attestations.bitcoin_block_height` | ✅ Gecorrigeerd: `core_ots_proofs.bitcoin_block_height` |
+| Trigger `on_ots_complete` | Beschreven als database trigger | ✅ Gecorrigeerd: bestaat niet als trigger |
+| `notify-ots-complete` lookup | Via `origin_hash_sha256` (fragiel) | ✅ Gecorrigeerd: via `pages.origin_id` (uniek) |
+| Immutability triggers | Aangenomen als actief | ✅ Geverifieerd en getest op 6 feb 2026 |
+| Privacy-by-Design Assessment | ✅ Sectie 16 | Ongewijzigd |
 
 ---
 
@@ -44,8 +44,8 @@
 | **Auth** | Supabase Auth | Magic Link (passwordless) |
 | **Lokale opslag** | IndexedDB | Thumbnails, proofs, sync queue |
 | **Hashing** | Web Crypto API | crypto.subtle.digest('SHA-256') |
-| **Certificate** | JSON | certificate.json (immutable snapshot) |
-| **Archivering** | JSZip | artifact + certificate.json + VERIFY.txt + .ots |
+| **PDF generatie** | jsPDF | Client-side certificate |
+| **Archivering** | JSZip | Certificate + .ots bundel |
 | **Email notificatie** | Resend | OTS completion alerts |
 | **Hosting** | Lovable Cloud | CDN + EU edge |
 
@@ -99,8 +99,8 @@
 | Actie | Offline mogelijk? | Gedrag |
 |-------|-------------------|--------|
 | Mark maken | ✅ Ja | Thumbnail → IndexedDB, hash queued |
-| Origin Registry bekijken | ✅ Ja | Thumbnails uit IndexedDB |
-| ZIP downloaden | ⚠️ Deels | Alleen voor al-gesyncte marks met OTS proof |
+| Wall bekijken | ✅ Ja | Thumbnails uit IndexedDB |
+| Certificate downloaden | ⚠️ Deels | Alleen voor al-gesyncte marks met OTS proof |
 | Email verificatie | ❌ Nee | Vereist netwerk |
 
 ---
@@ -210,31 +210,22 @@ CREATE TABLE witnesses (
 
 ## 7. Capture Flow (Dual-Write)
 
-### 7.1 Sequentie (verkorte 4-stappen flow)
+### 7.1 Sequentie
 
 ```
-S1 Capture:
-  [1] User selecteert foto/bestand (file picker)
-  [2] AUTO: Client berekent SHA-256 hash (Web Crypto API)
-  [3] AUTO: Client genereert thumbnail (~400px, JPEG 70%, <50KB)
-  [4] AUTO: Client genereert device fingerprint hash
-  [5] Processing state: breathing Origin Mark animatie
-  [6] DUAL-WRITE:
-      ├── IndexedDB: thumbnail + metadata (syncStatus: 'queued')
-      └── Supabase: hash + metadata (GEEN image data)
-  [7] Supabase trigger: bridge_page_to_core → origin_attestations
-
-S2 Sealed:
-  [8] Receipt screen: "Your origin is ready"
-  [9] Artifact preview + museum label + file list
-  [10] ZIP download (artifact + certificate.json + VERIFY.txt)
-
-Async (achtergrond):
-  [11] OTS worker (1-12h): anchoring in Bitcoin
-  [12] OTS complete → HTTP call → Edge Function → Resend notificatie
+[1] User selecteert foto (file picker)
+[2] Client genereert thumbnail (~400px, JPEG 70%, <50KB)
+[3] Client berekent SHA-256 hash van ORIGINELE foto
+[4] Client genereert device fingerprint hash
+[5] Client genereert origin_id (um-XXXXXXXX)
+[6] DUAL-WRITE:
+    ├── IndexedDB: thumbnail + metadata (syncStatus: 'queued')
+    └── Supabase: hash + metadata (GEEN image data)
+[7] Supabase trigger: bridge_page_to_core → origin_attestations
+[8] Update IndexedDB: syncStatus: 'synced'
+[9] OTS worker (async, 1-12h): anchoring in Bitcoin
+[10] OTS complete → trigger → Edge Function → Resend notificatie
 ```
-
-**Verwijderd t.o.v. v0.7:** Handmatige Pause (S2) en Mark/hold-to-mark (S3) stappen. Hashing en DB insert zijn nu volledig geautomatiseerd bij file selectie.
 
 ### 7.2 Failure Modes
 
@@ -292,7 +283,7 @@ Open Umarise to download your certificate.
 | user_id niet NULL | ✅ |
 | User heeft email (via Supabase Auth) | ✅ |
 
-Gevolg: Anonymous users krijgen geen notificatie maar kunnen wel handmatig hun ZIP downloaden via de Origin Registry.
+Gevolg: Anonymous users krijgen geen notificatie maar kunnen wel handmatig hun certificaat downloaden via de Wall.
 
 ---
 
@@ -302,37 +293,30 @@ Gevolg: Anonymous users krijgen geen notificatie maar kunnen wel handmatig hun Z
 
 | Component | Technologie |
 |-----------|-------------|
-| Certificate | JSON (immutable snapshot) |
-| Verificatie-instructies | VERIFY.txt (menselijk leesbaar) |
+| PDF rendering | jsPDF |
+| Thumbnail embedding | Uit IndexedDB |
 | Bundeling | JSZip |
-| Levering | Browser download / Web Share API |
+| Levering | Browser download |
 
-### 9.2 certificate.json Schema
+### 9.2 Certificaat Inhoud
 
-```json
-{
-  "version": "1.0",
-  "origin_id": "um-1916F13F",
-  "hash": "884d5f17...553df0a3",
-  "hash_algo": "SHA-256",
-  "captured_at": "2026-02-07T14:25:00Z",
-  "claimed_by": null,
-  "signature": null,
-  "proof_included": false,
-  "proof_status": "pending"
-}
-```
+| Veld | Bron | Voorbeeld |
+|------|------|-----------|
+| Thumbnail | IndexedDB | Embedded JPEG |
+| Origin ID | pages.origin_id (UUID, teruggeschreven door bridge trigger) | ORIGIN 1916F13F |
+| Created | pages.created_at | 4 Feb 2026, 15:23 |
+| SHA-256 Hash | pages.origin_hash_sha256 | 884d5f17...553df0a3 |
+| Creator | auth.users.email (masked) of "[device only]" | m***r@email.com |
+| Device | pages.device_fingerprint_hash (truncated) | a7f3...b2c1 |
+| Bitcoin Block | core_ots_proofs.bitcoin_block_height | #879,241 |
+| Witness (optioneel) | witnesses.witness_email (masked) | j***n@example.com |
 
-**Wat er NIET in staat:** `status` (dynamisch, via API). Het certificaat bevat alleen onveranderlijke feiten.
-
-### 9.3 Export Bundle (ZIP)
+### 9.3 Export Bundle
 
 ```
-umarise-um-1916F13F.zip
-├── photo.jpg/png      ← Origineel artifact (indien beschikbaar)
-├── certificate.json   ← Immutable metadata snapshot
-├── VERIFY.txt         ← Menselijk leesbare verificatie-instructies + link
-└── proof.ots          ← OpenTimestamps binary (alleen bij anchored)
+umarise-1916F13F.zip
+├── certificate.pdf    ← Visueel, human-readable
+└── proof.ots          ← Technisch verificatiebestand
 ```
 
 ---
@@ -409,7 +393,7 @@ Witness links verlopen na 7 dagen (`token_expires_at`).
 
 ---
 
-## 12. Origin Registry (Dual-Source)
+## 12. Wall of Existence (Dual-Source)
 
 ### 12.1 Thumbnail Resolution
 
@@ -627,6 +611,6 @@ De v0.6 architectuur realiseert de claim "sealed on your device · only the proo
 
 **Document classification:** Formele systeemdefinitie + Privacy Assessment  
 **Scope:** B2C-laag exclusief  
-**Consistent met:** /architecture (10 feb 2026) — verkorte 4-stappen flow (S0–S3)  
-**Supersedes:** B2C-Inventarisatie v0.4, v0.5, v0.6, v0.7  
+**Consistent met:** v4 User Flow (6 feb 2026)  
+**Supersedes:** B2C-Inventarisatie v0.4, v0.5, v0.6  
 **Geverifieerd tegen database:** 6 februari 2026
