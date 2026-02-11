@@ -31,7 +31,7 @@
          {/* Title */}
          <div className="mb-16">
            <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-             Why Origin Attestation
+              Why Anchor Attestation
            </h1>
            <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
              Context
@@ -82,7 +82,7 @@
               But what about the moment before? The original input? The first capture?
             </p>
             <p className="text-landing-muted/60">
-              Origin attestation fills this gap. It establishes the starting point: verifiable, immutable, independent of downstream processing.
+              Anchor attestation fills this gap. It establishes the starting point: verifiable, immutable, independent of downstream processing.
             </p>
           </section>
 
@@ -99,7 +99,7 @@
               A contract reviewed by AI. A dataset ingested by a model. An image processed by an automated pipeline. In each case, the system produces output, but the original input has no independent record.
             </p>
             <p className="mb-4">
-              Origin attestation provides that record. A SHA-256 hash computed at the moment of intake establishes what existed before any processing occurred. The proof is anchored externally and verifiable without trusting the processing system.
+              Anchor attestation provides that record. A SHA-256 hash computed at the moment of intake establishes what existed before any processing occurred. The proof is anchored externally and verifiable without trusting the processing system.
             </p>
             <p className="text-landing-muted/60">
               This is not a feature of the processing system. It is independent infrastructure, the same way a timestamp from a Time-Stamping Authority is independent of the system that requests it.
@@ -121,7 +121,7 @@
               Umarise uses SHA-256, the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
             </p>
             <p className="text-landing-muted/60">
-              This means an origin attestation can serve as the root of a C2PA provenance chain, or as an independent anchor for any system that computes SHA-256 hashes.
+              This means an anchor attestation can serve as the root of a C2PA provenance chain, or as an independent anchor for any system that computes SHA-256 hashes.
             </p>
           </section>
 
@@ -129,7 +129,7 @@
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">What Umarise Is Not</h2>
             <p className="text-landing-muted/70">
-              Umarise does not manage content, authenticate media, enforce governance, or replace internal logging. It is an origin layer. It establishes what existed when, and nothing more.
+              Umarise does not manage content, authenticate media, enforce governance, or replace internal logging. It is an anchor layer. It establishes what existed when, and nothing more.
             </p>
           </section>
  
@@ -138,14 +138,14 @@
              <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Learn More</h2>
              <ul className="space-y-3">
                 <li>
-                  <Link to="/origin" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                    Origin One-Pager
+                  <Link to="/anchor" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                    Anchor One-Pager
                   </Link>
                   <span className="text-landing-muted/50 ml-2">: the normative mechanism</span>
                 </li>
                 <li>
-                  <Link to="/spec" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                    Specification
+                  <Link to="/legal" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                    Technical Specification
                   </Link>
                   <span className="text-landing-muted/50 ml-2">: technical details</span>
                 </li>
