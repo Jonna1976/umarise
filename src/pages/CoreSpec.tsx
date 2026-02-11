@@ -66,10 +66,10 @@ export default function CoreSpec() {
                 <span className="text-landing-muted/50 ml-2">: when and why anchor attestation is correct</span>
               </li>
               <li>
-                <Link to="/legal" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                  Anchor Record Specification
-                </Link>
-                <span className="text-landing-muted/50 ml-2">: the normative definition of an Anchor Record</span>
+                 <Link to="/legal" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                   Technical Specification
+                 </Link>
+                 <span className="text-landing-muted/50 ml-2">: the normative definition of an Anchor Record</span>
               </li>
             </ul>
             <p className="mt-4 text-landing-muted/50 text-sm">
@@ -177,9 +177,12 @@ export default function CoreSpec() {
               <li>Anchor Records are immutably recorded</li>
               <li>Verification is binary (match / no-match)</li>
             </ul>
-            <p className="text-landing-muted/60 mb-6">
-              Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
-            </p>
+             <p className="text-landing-muted/60 mb-4">
+               Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
+             </p>
+             <p className="text-landing-muted/60 mb-6">
+               The .ots proof file is independently verifiable against the Bitcoin blockchain without Umarise infrastructure. Verification depends on mathematics and a public ledger, not on this service.
+             </p>
             <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">
               <p className="text-landing-copper/80 font-medium mb-2">Law of Anchoring:</p>
               <p className="text-landing-cream/90">
@@ -255,9 +258,9 @@ export default function CoreSpec() {
           {/* Note */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Note</h2>
-            <p className="text-landing-muted/60">
-              Umarise Core may be used independently of any Umarise application.
-            </p>
+             <p className="text-landing-muted/60 mb-4">
+               Umarise Core may be used independently of any Umarise application. The proof primitive stands on its own.
+             </p>
             <p className="mt-4">
               <a
                 href="mailto:partners@umarise.com"
