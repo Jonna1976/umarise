@@ -338,8 +338,44 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
           {/* "Save as ZIP" button */}
           <button
-            onClick={handleSaveAsZip}
-            disabled={isSaving || fetchingProof || verifyingFile}
+            onClick={async () => {
+              // If already saved+shared, do nothing
+              if (saved) return;
+              // Trigger the existing ZIP flow which includes file selection + verification
+              await handleSaveAsZip();
+              // After ZIP is built, attempt to share it
+              try {
+                const zipInput = {
+                  originId: mark.originId,
+                  hash: mark.hash,
+                  timestamp: mark.timestamp,
+                  imageUrl: mark.imageUrl ?? null,
+                  claimedBy: credentialRef.current?.publicKey ?? null,
+                  signature: signatureRef.current ?? null,
+                  otsProof: otsProofRef.current,
+                  artifactFile: artifactFileRef.current,
+                };
+                const cleanId = mark.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+                const zipBlob = await buildOriginZip(zipInput);
+                const zipFile = new File([zipBlob], `origin-${cleanId}.zip`, { type: 'application/zip' });
+
+                if (navigator.share) {
+                  await navigator.share({
+                    files: [zipFile],
+                    text: 'Verifieer mijn origin op umarise.com/verify',
+                    url: 'https://umarise.com/verify',
+                  });
+                } else {
+                  await navigator.clipboard.writeText('https://umarise.com/verify');
+                  toast.success('Verify link gekopieerd');
+                }
+              } catch (err) {
+                if ((err as Error).name !== 'AbortError') {
+                  console.warn('[MarkDetailModal] Share failed', err);
+                }
+              }
+            }}
+            disabled={isSaving || fetchingProof || verifyingFile || saved}
             className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
             style={{
               fontWeight: 300,
@@ -351,63 +387,15 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             }}
           >
             {saved 
-              ? (proofLoaded 
-                  ? '✓ ZIP saved (with proof)' 
-                  : passkeyLinked 
-                    ? '✓ ZIP saved (with passkey)'
-                    : '✓ ZIP saved')
+              ? '✓ Shared'
               : verifyingFile
                 ? 'Verifying…'
                 : fetchingProof
                   ? 'Fetching proof…'
                   : isSaving 
                     ? 'Saving…' 
-                    : 'Select original → Save as ZIP'
+                    : 'Upload and share'
             }
-          </button>
-
-          {/* Share button — Web Share API or clipboard fallback */}
-          <button
-            onClick={async () => {
-              const zipInput = {
-                originId: mark.originId,
-                hash: mark.hash,
-                timestamp: mark.timestamp,
-                imageUrl: mark.imageUrl ?? null,
-                claimedBy: credentialRef.current?.publicKey ?? null,
-                signature: signatureRef.current ?? null,
-                otsProof: otsProofRef.current,
-                artifactFile: artifactFileRef.current,
-              };
-              const cleanId = mark.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
-              const zipBlob = await buildOriginZip(zipInput);
-              const zipFile = new File([zipBlob], `origin-${cleanId}.zip`, { type: 'application/zip' });
-
-              if (navigator.share) {
-                try {
-                  await navigator.share({
-                    files: [zipFile],
-                    text: 'Verifieer mijn origin op umarise.com/verify',
-                    url: 'https://umarise.com/verify',
-                  });
-                  return;
-                } catch (err) {
-                  if ((err as Error).name === 'AbortError') return;
-                  console.warn('[MarkDetailModal] Share failed, falling back to clipboard');
-                }
-              }
-              // Fallback: copy verify link to clipboard
-              await navigator.clipboard.writeText(`https://umarise.com/verify`);
-              toast.success('Verify link gekopieerd');
-            }}
-            className="font-garamond text-[17px] tracking-[0.3px] transition-all mb-2"
-            style={{
-              color: 'hsl(var(--ritual-gold-muted))',
-              opacity: 0.45,
-              cursor: 'pointer',
-            }}
-          >
-            ↗ deel origin
           </button>
 
           {/* "+ link passkey" */}
