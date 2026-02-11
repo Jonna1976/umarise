@@ -32,7 +32,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
   return (
     <motion.div
       className="min-h-screen flex flex-col items-center justify-center px-6 cursor-pointer"
-      style={{ background: 'hsl(var(--ritual-bg))' }}
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

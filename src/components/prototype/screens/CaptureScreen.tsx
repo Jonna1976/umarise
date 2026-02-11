@@ -62,7 +62,7 @@ export function CaptureScreen({ onCapture }: CaptureScreenProps) {
   return (
     <motion.div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: 'hsl(var(--ritual-bg))' }}
+      style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
