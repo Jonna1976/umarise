@@ -236,7 +236,7 @@ export default function Verify() {
     if (cert.claimed_by && cert.signature) {
       updateStep('claim', 'done', 'Passkey claim found, signature present');
     } else {
-      updateStep('claim', 'done', 'Anonymous origin (no passkey)');
+      updateStep('claim', 'done', 'Anonymous anchor (no passkey)');
     }
 
     // Step 6: Verify with registry
@@ -281,7 +281,7 @@ export default function Verify() {
     if (cert.claimed_by && cert.signature) {
       updateStep('claim', 'done', 'Passkey claim found');
     } else {
-      updateStep('claim', 'done', 'Anonymous origin');
+      updateStep('claim', 'done', 'Anonymous anchor');
     }
 
     // Verify with registry
@@ -381,7 +381,7 @@ export default function Verify() {
         {/* Title */}
         <div className="mb-16">
           <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-            Verify an Origin
+            Verify an Anchor
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
             Verify the registration, check when it was recorded, download the Bitcoin proof
@@ -454,15 +454,15 @@ export default function Verify() {
               {[
                 {
                   label: 'Drop',
-                  text: 'Drop the Origin ZIP you received. It contains the original file, a certificate with the Origin ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
+                  text: 'Drop the Anchor ZIP you received. It contains the original file, a certificate with the Anchor ID and hash, and optionally a Bitcoin proof. You can also drop just the photo or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
                 },
                 {
                   label: 'Verify',
-                  text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when it was recorded. If a passkey claim is present, the signature is displayed.',
+                   text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when it was recorded. If a passkey claim is present, the signature is displayed.',
                 },
                 {
                   label: 'Keep the proof',
-                  text: 'After verification, if the origin is anchored in Bitcoin, a button appears in the result to download the OpenTimestamps proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with the OTS verifier or any full node. No Umarise needed.',
+                  text: 'After verification, if the anchor is confirmed in Bitcoin, a button appears in the result to download the OpenTimestamps proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with the OTS verifier or any full node. No Umarise needed.',
                 },
               ].map(step => (
                 <li key={step.label}>
@@ -477,16 +477,16 @@ export default function Verify() {
           {/* What an origin proves */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              What an origin proves
+              What an anchor proves
             </h2>
             <p className="text-landing-cream/90 mb-4">
               This file existed at the registered time. That fact is anchored in the Bitcoin blockchain and independently verifiable.
             </p>
             <p className="text-landing-muted/60 mb-4">
-              If a passkey was used, it also proves someone claimed this origin with their device's secure enclave. A cryptographic signature, not a name or identity.
+              If a passkey was used, it also proves someone claimed this anchor with their device's secure enclave. A cryptographic signature, not a name or identity.
             </p>
             <p className="text-landing-muted/50 text-sm">
-              An origin does not prove first creation or exclusivity. The same file could be registered elsewhere. The .ots proof survives without Umarise. The origin metadata does not.
+              An anchor does not prove first creation or exclusivity. The same file could be registered elsewhere. The .ots proof survives without Umarise. The anchor metadata does not.
             </p>
           </section>
         </div>

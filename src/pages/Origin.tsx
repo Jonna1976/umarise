@@ -34,7 +34,7 @@ export default function Origin() {
         {/* Title */}
         <div className="mb-16">
           <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-            Origin One-Pager
+             Anchor One-Pager
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
             Normative Overview
@@ -48,13 +48,13 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes origin attestation: the immutable recording that specific digital bytes existed at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes anchor attestation: the immutable recording that specific digital bytes existed at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
-              Origin attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
+              Anchor attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
             </p>
             <p className="mt-4 text-landing-cream/70">
-              Origin Records are enforced as immutable at the database level. Content is never stored. Only cryptographic hashes.
+              Anchor Records are enforced as immutable at the database level. Content is never stored. Only cryptographic hashes.
             </p>
           </section>
 
@@ -62,7 +62,7 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Definition</h2>
             <p className="text-landing-cream text-lg">
-              An Origin is an independently verifiable external anchor of specific digital bytes at a specific moment in time.
+              An Anchor is an independently verifiable external anchor of specific digital bytes at a specific moment in time.
             </p>
           </section>
 
@@ -97,28 +97,28 @@ export default function Origin() {
               <li>Version control</li>
               <li>Internal auditability</li>
             </ul>
-            <p className="mt-4">
-              These practices are correct and sufficient within the originating system.
-            </p>
-            <p className="mt-2 text-landing-cream/70">
-            They do not, by themselves, establish independently verifiable existence at a point in time.
-            </p>
+             <p className="mt-4">
+               These practices are correct and sufficient within the originating system.
+             </p>
+             <p className="mt-2 text-landing-cream/70">
+             They do not, by themselves, establish independently verifiable existence at a point in time.
+             </p>
           </section>
 
-          {/* Origin Record */}
+          {/* Anchor Record */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Origin Record</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Anchor Record</h2>
             <p className="text-landing-cream/90 mb-4">
-              An Origin Record is a minimal, independently verifiable and externally anchored attestation that:
+              An Anchor Record is a minimal, independently verifiable and externally anchored attestation that:
             </p>
             <p className="text-landing-cream mb-4 pl-4">
               Specific bytes existed at a specific moment.
             </p>
             <p className="mb-4">
-              The Origin Record is derived from a cryptographic hash computed at the moment the origin attestation is established and recorded immutably so that the record cannot be altered after creation.
+              The Anchor Record is derived from a cryptographic hash computed at the moment the anchor attestation is established and recorded immutably so that the record cannot be altered after creation.
             </p>
             <p className="text-landing-copper mb-4">
-              Origin attestation asserts existence of specific bytes at a specific moment, not correctness.
+              Anchor attestation asserts existence of specific bytes at a specific moment, not correctness.
             </p>
             <p className="mb-2">No assumptions are made about:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
@@ -131,8 +131,8 @@ export default function Origin() {
 
           {/* Record Structure */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Structure (Normative)</h2>
-            <p className="mb-4">An Origin Record consists of:</p>
+             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Structure (Normative)</h2>
+             <p className="mb-4">An Anchor Record consists of:</p>
             <ul className="space-y-2 pl-4">
               <li><span className="text-landing-copper">hash</span>: identifying what existed</li>
               <li><span className="text-landing-copper">timestamp</span>: identifying when it existed</li>
@@ -145,23 +145,23 @@ export default function Origin() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <p className="mb-4">The following properties MUST hold:</p>
-            <ul className="space-y-2 pl-4">
-              <li>Origin Records are write-once</li>
-              <li>Origin Records are immutably recorded</li>
-              <li>Verification is binary (match / no match)</li>
-            </ul>
+             <ul className="space-y-2 pl-4">
+               <li>Anchor Records are write-once</li>
+               <li>Anchor Records are immutably recorded</li>
+               <li>Verification is binary (match / no match)</li>
+             </ul>
           </section>
 
           {/* Law of Origin */}
-          <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Law of Origin</h2>
-            <p className="text-landing-cream text-lg">
-              If the bytes change, the Origin Record no longer matches.
-            </p>
-            <p className="text-landing-cream/70 mt-2">
-              There are no exceptions.
-            </p>
-          </section>
+           <section className="border-l-2 border-landing-copper/30 pl-6">
+             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Law of Anchoring</h2>
+             <p className="text-landing-cream text-lg">
+               If the bytes change, the Anchor Record no longer matches.
+             </p>
+             <p className="text-landing-cream/70 mt-2">
+               There are no exceptions.
+             </p>
+           </section>
 
           {/* Internal vs External Evidence */}
           <section>
@@ -170,8 +170,8 @@ export default function Origin() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-landing-muted/20">
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Internal Records</th>
-                    <th className="text-left py-2 text-landing-muted/50 font-medium">Origin Records</th>
+                     <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Internal Records</th>
+                     <th className="text-left py-2 text-landing-muted/50 font-medium">Anchor Records</th>
                   </tr>
                 </thead>
                 <tbody className="text-landing-muted/70">
@@ -195,14 +195,14 @@ export default function Origin() {
               </table>
             </div>
             <p className="mt-4 text-sm text-landing-muted/50">
-              Origin attestation does not replace internal mechanisms; it operates orthogonally to them.
+               Anchor attestation does not replace internal mechanisms; it operates orthogonally to them.
             </p>
           </section>
 
           {/* Non-Responsibilities */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities (Normative)</h2>
-            <p className="mb-4">The origin mechanism does not:</p>
+            <p className="mb-4">The anchor mechanism does not:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
               <li>store content</li>
               <li>interpret meaning</li>
@@ -212,14 +212,14 @@ export default function Origin() {
               <li>determine outcomes</li>
             </ul>
             <p className="mt-4 text-landing-muted/50 text-sm">
-              All interpretation, decision-making, and enforcement remain external to the origin layer.
+              All interpretation, decision-making, and enforcement remain external to the anchor layer.
             </p>
           </section>
 
           {/* Correct Usage Boundary */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Correct Usage Boundary</h2>
-            <p className="mb-4">Use of origin attestation is appropriate only where:</p>
+            <p className="mb-4">Use of anchor attestation is appropriate only where:</p>
             <ul className="space-y-2 pl-4">
               <li>a specific moment must not be renegotiated later</li>
               <li>internal logs, timestamps, or signatures are insufficient as proof</li>
@@ -233,14 +233,14 @@ export default function Origin() {
           {/* Failure and Persistence Properties */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Failure and Persistence Properties</h2>
-            <p className="mb-4">Verification of an Origin Record depends solely on:</p>
+            <p className="mb-4">Verification of an Anchor Record depends solely on:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/70">
               <li>the hash</li>
               <li>the timestamp</li>
               <li>the externally anchored record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              Origin Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin. The immutable record is independent of application-layer policy.
+              Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin. The immutable record is independent of application-layer policy.
             </p>
           </section>
 
@@ -254,7 +254,7 @@ export default function Origin() {
               <li>Version control requires trust in the repository</li>
             </ul>
             <p className="text-landing-cream/90 mt-6">
-              Origin attestation provides a write-once, independently verifiable and externally anchored record.
+              Anchor attestation provides a write-once, independently verifiable and externally anchored record.
             </p>
           </section>
 
@@ -262,7 +262,7 @@ export default function Origin() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Reference</h2>
             <p className="mb-6">
-              Umarise Core implements an origin infrastructure conforming to this specification.
+              Umarise Core implements an anchor infrastructure conforming to this specification.
             </p>
           </section>
 
