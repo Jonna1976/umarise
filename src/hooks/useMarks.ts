@@ -26,8 +26,8 @@ import { hashAndDecodeDataUrl } from '@/lib/originHash';
 import { generateOriginId } from '@/lib/originId';
 import { getDeviceFingerprintHash } from '@/lib/deviceFingerprint';
 import { getDeviceId } from '@/lib/deviceId';
-import { getPasskeyCredential } from '@/lib/passkeyStore';
-import { signHash, isWebAuthnSupported } from '@/lib/webauthn';
+import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore';
+import { signHash, registerPasskey, isWebAuthnSupported, isPlatformAuthenticatorAvailable } from '@/lib/webauthn';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -162,7 +162,7 @@ export function useMarks() {
       const { hash } = await hashAndDecodeDataUrl(imageDataUrl);
       
       // Step 2b: Best-effort device signing (NEVER blocking)
-      // If a passkey credential exists, sign the hash automatically.
+      // Auto-register passkey on first capture if none exists.
       // Failure is silently caught — the anchor proceeds with null signature.
       let deviceSignature: string | null = null;
       let devicePublicKey: string | null = null;
@@ -170,8 +170,26 @@ export function useMarks() {
       const webAuthnSupported = isWebAuthnSupported();
       console.log('[createMark] WebAuthn supported:', webAuthnSupported);
       if (webAuthnSupported) {
-        const credential = getPasskeyCredential();
+        let credential = getPasskeyCredential();
         console.log('[createMark] Stored passkey credential:', credential ? credential.credentialId.substring(0, 12) + '…' : 'null');
+        
+        // Auto-register: if no credential exists, prompt Face ID / fingerprint
+        if (!credential) {
+          try {
+            const hasPlatform = await isPlatformAuthenticatorAvailable();
+            console.log('[createMark] Platform authenticator available:', hasPlatform);
+            if (hasPlatform) {
+              console.log('[createMark] Auto-registering passkey (first capture)...');
+              credential = await registerPasskey(hash.substring(0, 8));
+              savePasskeyCredential(credential);
+              console.log('[createMark] Passkey registered:', credential.credentialId.substring(0, 12) + '…');
+            }
+          } catch (e) {
+            // User cancelled or registration failed — proceed without passkey
+            console.warn('[createMark] Passkey auto-registration skipped:', e);
+          }
+        }
+        
         if (credential) {
           try {
             console.log('[createMark] Signing hash with passkey (best-effort)...');
@@ -185,8 +203,6 @@ export function useMarks() {
             deviceSignature = null;
             devicePublicKey = null;
           }
-        } else {
-          console.log('[createMark] No passkey credential stored — skipping signing');
         }
       }
       
