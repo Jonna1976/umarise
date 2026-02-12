@@ -28,13 +28,18 @@ export interface Artifact {
 }
 
 const FIRST_VISIT_KEY = 'umarise_first_visit_done';
+const ANCHOR_COUNT_KEY = 'umarise-mark-count';
 
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('capture');
-  
-  
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const { createMark } = useMarks();
+
+  // Determine first visit: 0 anchors in local storage
+  const [isFirstVisit, setIsFirstVisit] = useState(() => {
+    const count = localStorage.getItem(ANCHOR_COUNT_KEY);
+    return !count || parseInt(count, 10) === 0;
+  });
 
   // Current capture state
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
@@ -98,6 +103,8 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
+        // After first successful anchor, no longer first visit
+        setIsFirstVisit(false);
         goToScreen('sealed');
       } else {
         console.error('[RitualFlow] Mark creation returned null');
@@ -132,7 +139,8 @@ export function RitualFlow() {
     goToScreen('capture');
   }, [goToScreen]);
 
-  const showOriginButton = screen === 'capture';
+  // Only show V7 nav button when returning (not first visit)
+  const showOriginButton = screen === 'capture' && !isFirstVisit;
 
   // Fallback artifact for screens that need one
   const displayArtifact = currentArtifact || {
@@ -156,7 +164,7 @@ export function RitualFlow() {
       {/* Screens */}
       
       {screen === 'capture' && (
-        <CaptureScreen onCapture={handleCapture} />
+        <CaptureScreen onCapture={handleCapture} isFirstVisit={isFirstVisit} />
       )}
       
       {/* Processing state - brief visual during auto-hash + mark creation */}

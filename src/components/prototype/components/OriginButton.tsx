@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { OriginMark } from './OriginMark';
 
 interface OriginButtonProps {
   onClick: () => void;
@@ -7,9 +6,8 @@ interface OriginButtonProps {
 }
 
 /**
- * The Origin Mark navigation button — 28px circumpunct (orbit symbol)
- * Position: top: 40px, left: 18px (main screens) or top: 38px, left: 16px (registry)
- * Tapping opens Origin Registry
+ * V7 Hexagon navigation button — 24px, tap → Wall
+ * Position: top-left (handled by parent)
  */
 export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
   return (
@@ -22,12 +20,13 @@ export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
       whileHover={{ opacity: 1 }}
       aria-label="Open Anchor Registry"
     >
-      <OriginMark
-        size={28}
-        state="anchored"
-        animated
-        variant="dark"
-      />
+      <svg viewBox="0 0 28 28" width={24} height={24}>
+        <polygon
+          points="14,2.5 24.5,8.5 24.5,20.5 14,26.5 3.5,20.5 3.5,8.5"
+          fill="hsl(var(--ritual-gold))"
+        />
+        <rect x="9.5" y="9.5" width="9" height="9" rx="1.2" fill="hsl(var(--ritual-surface))" />
+      </svg>
     </motion.button>
   );
 }
