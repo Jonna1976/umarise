@@ -85,7 +85,7 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   const zip = new JSZip();
 
   // Clean origin ID (strip prefix)
-  const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
+  const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
 
   // 1. Add artifact — prefer verified File over URL fetch
   if (input.artifactFile) {
@@ -101,6 +101,7 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
   // 2. Add certificate.json (immutable schema from certificate.ts)
   const hasProof = !!input.otsProof;
+  console.log('[originZip] Building certificate with deviceSignature:', !!input.deviceSignature, 'devicePublicKey:', !!input.devicePublicKey);
   const cert = createCertificate(
     cleanId,
     input.hash,
@@ -112,6 +113,7 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     input.deviceSignature ?? null,
     input.devicePublicKey ?? null,
   );
+  console.log('[originZip] Certificate version:', cert.version, 'device_signature present:', !!cert.device_signature);
   zip.file('certificate.json', serializeCertificate(cert));
 
   // 3. Add proof.ots (OpenTimestamps binary, when anchored)

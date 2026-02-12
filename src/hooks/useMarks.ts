@@ -167,21 +167,26 @@ export function useMarks() {
       let deviceSignature: string | null = null;
       let devicePublicKey: string | null = null;
       
-      if (isWebAuthnSupported()) {
+      const webAuthnSupported = isWebAuthnSupported();
+      console.log('[createMark] WebAuthn supported:', webAuthnSupported);
+      if (webAuthnSupported) {
         const credential = getPasskeyCredential();
+        console.log('[createMark] Stored passkey credential:', credential ? credential.credentialId.substring(0, 12) + '…' : 'null');
         if (credential) {
           try {
             console.log('[createMark] Signing hash with passkey (best-effort)...');
             const sig = await signHash(credential.credentialId, hash);
             deviceSignature = sig.signature;
             devicePublicKey = credential.publicKey;
-            console.log('[createMark] Hash signed successfully');
+            console.log('[createMark] Hash signed successfully, signature length:', deviceSignature.length);
           } catch (e) {
             // Best-effort: signing failed, proceed without signature
             console.warn('[createMark] Passkey signing failed (non-blocking):', e);
             deviceSignature = null;
             devicePublicKey = null;
           }
+        } else {
+          console.log('[createMark] No passkey credential stored — skipping signing');
         }
       }
       
