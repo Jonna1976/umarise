@@ -12,6 +12,8 @@ export interface VerifyResultData {
   bitcoin_block_height?: number | null;
   claimed_by?: string | null;
   signature?: string | null;
+  device_signature?: string | null;
+  device_public_key?: string | null;
 }
 
 interface VerifyResultProps {
@@ -100,6 +102,32 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
                 <ResultRow
                   label="Claimed by"
                   value="Anonymous (no passkey)"
+                  valueClassName="text-landing-muted/30"
+                />
+              )}
+            </div>
+
+            {/* Device signature section (v1.1) */}
+            <div className="border-t border-landing-muted/10 mt-1 pt-3">
+              {result.device_signature ? (
+                <>
+                  <ResultRow
+                    label="Device signed"
+                    value="✓ Signed by holder of this device"
+                    valueClassName="text-verify-green-bright"
+                  />
+                  {result.device_public_key && (
+                    <ResultRow
+                      label="Device key"
+                      value={`${result.device_public_key.substring(0, 20)}...`}
+                      valueClassName="text-landing-copper"
+                    />
+                  )}
+                </>
+              ) : (
+                <ResultRow
+                  label="Device signed"
+                  value="— not signed"
                   valueClassName="text-landing-muted/30"
                 />
               )}

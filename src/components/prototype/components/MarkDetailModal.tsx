@@ -31,6 +31,7 @@ import {
   isWebAuthnSupported,
   type PasskeyCredential,
 } from '@/lib/webauthn';
+import { savePasskeyCredential } from '@/lib/passkeyStore';
 
 interface MarkDetailModalProps {
   mark: {
@@ -181,6 +182,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       // Step 1: Register a new passkey (Face ID / fingerprint / Windows Hello)
       const credential = await registerPasskey(mark.originId);
       credentialRef.current = credential;
+      // Persist credential for automatic signing in future captures
+      savePasskeyCredential(credential);
 
       // Step 2: Immediately sign the origin hash with the new credential
       const sig = await signHash(credential.credentialId, mark.hash);

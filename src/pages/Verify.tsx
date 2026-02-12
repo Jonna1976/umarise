@@ -31,6 +31,8 @@ interface CertificateData {
   proof_included?: boolean;
   claimed_by?: string | null;
   signature?: string | null;
+  device_signature?: string | null;
+  device_public_key?: string | null;
 }
 
 // ─── Initial steps ───
@@ -133,6 +135,8 @@ export default function Verify() {
       bitcoin_block_height: bitcoinBlockHeight,
       claimed_by: certificate?.claimed_by ?? null,
       signature: certificate?.signature ?? null,
+      device_signature: certificate?.device_signature ?? null,
+      device_public_key: certificate?.device_public_key ?? null,
     };
 
     setResult(resultData);
@@ -229,11 +233,13 @@ export default function Verify() {
     updateStep('match', 'done', 'Hash matches certificate ✓');
     setHashMatch('match');
 
-    // Step 5: Check identity claim
+    // Step 5: Check identity claim + device signature
     updateStep('claim', 'active', 'Checking identity claim...');
     await delay(200);
 
-    if (cert.claimed_by && cert.signature) {
+    if (cert.device_signature && cert.device_public_key) {
+      updateStep('claim', 'done', 'Device signature found ✓');
+    } else if (cert.claimed_by && cert.signature) {
       updateStep('claim', 'done', 'Passkey claim found, signature present');
     } else {
       updateStep('claim', 'done', 'Anonymous anchor (no passkey)');
@@ -274,11 +280,13 @@ export default function Verify() {
     const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
     setManualHash(certHash);
 
-    // Check identity claim
+    // Check identity claim + device signature
     updateStep('claim', 'active', 'Checking identity claim...');
     await delay(200);
 
-    if (cert.claimed_by && cert.signature) {
+    if (cert.device_signature && cert.device_public_key) {
+      updateStep('claim', 'done', 'Device signature found ✓');
+    } else if (cert.claimed_by && cert.signature) {
       updateStep('claim', 'done', 'Passkey claim found');
     } else {
       updateStep('claim', 'done', 'Anonymous anchor');

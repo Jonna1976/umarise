@@ -21,6 +21,10 @@ export interface Artifact {
   mimeType: string;
   /** Original file name */
   fileName: string;
+  /** WebAuthn signature over the hash (v1.1, null if unavailable) */
+  deviceSignature?: string | null;
+  /** SPKI public key of signing device (v1.1, null if unavailable) */
+  devicePublicKey?: string | null;
 }
 
 const FIRST_VISIT_KEY = 'umarise_first_visit_done';
@@ -89,6 +93,8 @@ export function RitualFlow() {
           imageUrl: mark.thumbnailUrl || file.dataUrl,
           mimeType: file.mimeType,
           fileName: file.fileName,
+          deviceSignature: mark.deviceSignature ?? null,
+          devicePublicKey: mark.devicePublicKey ?? null,
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
@@ -185,6 +191,8 @@ export function RitualFlow() {
           mimeType={currentArtifact.mimeType}
           fileName={currentArtifact.fileName}
           artifactType={currentArtifact.type}
+          deviceSignature={currentArtifact.deviceSignature ?? null}
+          devicePublicKey={currentArtifact.devicePublicKey ?? null}
           onComplete={handleSealedComplete}
         />
       )}
