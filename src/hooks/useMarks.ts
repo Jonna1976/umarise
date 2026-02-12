@@ -26,6 +26,8 @@ import { hashAndDecodeDataUrl } from '@/lib/originHash';
 import { generateOriginId } from '@/lib/originId';
 import { getDeviceFingerprintHash } from '@/lib/deviceFingerprint';
 import { getDeviceId } from '@/lib/deviceId';
+import { getPasskeyCredential } from '@/lib/passkeyStore';
+import { signHash, isWebAuthnSupported } from '@/lib/webauthn';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -42,6 +44,9 @@ export interface DisplayMark {
   thumbnailUrl?: string; // Object URL for display
   legacyImageUrl?: string;
   userNote?: string;
+  // Device signature (v1.1 — passkey signing)
+  deviceSignature?: string | null;
+  devicePublicKey?: string | null;
 }
 
 export function useMarks() {
@@ -156,6 +161,30 @@ export function useMarks() {
       console.log('[createMark] Computing hash...');
       const { hash } = await hashAndDecodeDataUrl(imageDataUrl);
       
+      // Step 2b: Best-effort device signing (NEVER blocking)
+      // If a passkey credential exists, sign the hash automatically.
+      // Failure is silently caught — the anchor proceeds with null signature.
+      let deviceSignature: string | null = null;
+      let devicePublicKey: string | null = null;
+      
+      if (isWebAuthnSupported()) {
+        const credential = getPasskeyCredential();
+        if (credential) {
+          try {
+            console.log('[createMark] Signing hash with passkey (best-effort)...');
+            const sig = await signHash(credential.credentialId, hash);
+            deviceSignature = sig.signature;
+            devicePublicKey = credential.publicKey;
+            console.log('[createMark] Hash signed successfully');
+          } catch (e) {
+            // Best-effort: signing failed, proceed without signature
+            console.warn('[createMark] Passkey signing failed (non-blocking):', e);
+            deviceSignature = null;
+            devicePublicKey = null;
+          }
+        }
+      }
+      
       // Step 3: Generate origin ID and get device fingerprint
       const originId = generateOriginId();
       const deviceFingerprint = await getDeviceFingerprintHash();
@@ -250,6 +279,9 @@ export function useMarks() {
       }
 
       const displayMark = toDisplayMark(localMark);
+      // Attach device signature (not persisted in IndexedDB, only in ZIP)
+      displayMark.deviceSignature = deviceSignature;
+      displayMark.devicePublicKey = devicePublicKey;
       setMarks(prev => [displayMark, ...prev]);
       
       return displayMark;

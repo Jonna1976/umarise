@@ -22,6 +22,10 @@ export interface OriginZipInput {
   imageUrl: string | null;
   claimedBy?: string | null;
   signature?: string | null;
+  /** WebAuthn signature over the hash (v1.1, null if no passkey or signing failed) */
+  deviceSignature?: string | null;
+  /** SPKI public key of the signing device (v1.1, null if no passkey or signing failed) */
+  devicePublicKey?: string | null;
   /** Base64-encoded OpenTimestamps proof binary (included when status = anchored) */
   otsProof?: string | null;
   /** Original artifact File object (user re-selected). Hash is verified before inclusion. */
@@ -105,6 +109,8 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     input.signature ?? null,
     hasProof,
     hasProof ? 'anchored' : 'pending',
+    input.deviceSignature ?? null,
+    input.devicePublicKey ?? null,
   );
   zip.file('certificate.json', serializeCertificate(cert));
 
@@ -123,12 +129,14 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   }
 
   // 4. Add VERIFY.txt (human-readable instructions for third parties)
+  const deviceSigned = input.deviceSignature ? 'yes' : 'no';
   const verifyTxt = [
     'Dit is een Anchor Record, geregistreerd via Umarise.',
     '',
     `Anchor ID: ${cleanId}`,
     `Geregistreerd: ${input.timestamp.toISOString()}`,
     `Hash: ${input.hash}`,
+    `Device signed: ${deviceSigned}`,
     '',
     'Verifieer dit bewijs: https://umarise.com/verify',
     '',

@@ -11,14 +11,20 @@
  * What is optional:
  * - `claimed_by` — public key from passkey (only when user enables passkey toggle)
  * - `signature` — hash signed by private key (verifiable with claimed_by, no server lookup)
+ * - `device_signature` — WebAuthn signature over the hash (v1.1)
+ * - `device_public_key` — SPKI public key of the signing device (v1.1)
  * 
  * This format must be identical to what verify.umarise.com reads.
  * Once created, a certificate is never modified.
+ * 
+ * Version history:
+ * - 1.0: Initial schema (hash, origin_id, claimed_by, signature)
+ * - 1.1: Added device_signature + device_public_key (passkey signing of hash)
  */
 
 export interface OriginCertificate {
-  /** Schema version — always "1.0" for v1 certificates */
-  version: '1.0';
+  /** Schema version — "1.0" for legacy, "1.1" for device-signed certificates */
+  version: '1.0' | '1.1';
 
   /** 8-character hex identifier (without prefix), e.g. "1916F13F" */
   origin_id: string;
@@ -54,6 +60,21 @@ export interface OriginCertificate {
    * Verifiable client-side using the public key in `claimed_by`.
    */
   signature: string | null;
+
+  /**
+   * WebAuthn signature over the SHA-256 hash of the artifact (v1.1).
+   * Base64url-encoded. Produced by navigator.credentials.get() with
+   * the hash as challenge. Verifiable with device_public_key.
+   * null if no passkey is available or signing failed.
+   */
+  device_signature: string | null;
+
+  /**
+   * SPKI public key of the device passkey that produced device_signature (v1.1).
+   * Base64url-encoded. Same key across all anchors from this device.
+   * null if no passkey is available or signing failed.
+   */
+  device_public_key: string | null;
 }
 
 /**
@@ -66,6 +87,8 @@ export interface OriginCertificate {
  * @param signature - Optional cryptographic signature
  * @param proofIncluded - Whether proof.ots is included in this ZIP
  * @param proofStatus - Current anchoring status
+ * @param deviceSignature - Optional WebAuthn signature over the hash
+ * @param devicePublicKey - Optional SPKI public key of signing device
  */
 export function createCertificate(
   originId: string,
@@ -75,12 +98,17 @@ export function createCertificate(
   signature: string | null = null,
   proofIncluded: boolean = false,
   proofStatus: 'pending' | 'anchored' = 'pending',
+  deviceSignature: string | null = null,
+  devicePublicKey: string | null = null,
 ): OriginCertificate {
   // Strip prefix if present (um- → raw hex)
   const cleanId = originId.toUpperCase().replace(/^UM-/i, '');
 
+  // Version bump: 1.1 if device signature fields are present
+  const version = (deviceSignature || devicePublicKey) ? '1.1' : '1.0';
+
   return {
-    version: '1.0',
+    version,
     origin_id: cleanId,
     hash,
     hash_algo: 'SHA-256',
@@ -90,6 +118,8 @@ export function createCertificate(
     proof_status: proofStatus,
     claimed_by: claimedBy,
     signature,
+    device_signature: deviceSignature,
+    device_public_key: devicePublicKey,
   };
 }
 

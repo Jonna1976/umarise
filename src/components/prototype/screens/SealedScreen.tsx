@@ -44,6 +44,8 @@ interface SealedScreenProps {
   mimeType?: string;
   fileName?: string;
   artifactType?: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
+  deviceSignature?: string | null;
+  devicePublicKey?: string | null;
   onComplete: () => void;
 }
 
@@ -55,6 +57,8 @@ export function SealedScreen({
   mimeType = 'image/jpeg',
   fileName = 'photo.jpg',
   artifactType = 'warm',
+  deviceSignature = null,
+  devicePublicKey = null,
   onComplete,
 }: SealedScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -88,7 +92,7 @@ export function SealedScreen({
 
   // Pre-build the ZIP on mount
   useEffect(() => {
-    const input = { originId, hash, timestamp, imageUrl };
+    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
       const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
@@ -97,7 +101,7 @@ export function SealedScreen({
     }).catch(err => {
       console.warn('[SealedScreen] Failed to pre-build ZIP:', err);
     });
-  }, [originId, hash, timestamp, imageUrl]);
+  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey]);
 
   // Save handler — identical logic to ZipScreen (share sheet or download)
   const handleSave = useCallback(() => {
@@ -143,7 +147,7 @@ export function SealedScreen({
       setSaved(true);
       setTimeout(() => onComplete(), 800);
     } else {
-      buildOriginZip({ originId, hash, timestamp, imageUrl }).then(blob => {
+      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey }).then(blob => {
         downloadBlob(blob, originId);
         setSaved(true);
         setTimeout(() => onComplete(), 800);
