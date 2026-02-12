@@ -64,9 +64,15 @@ export function InstallPrompt() {
     <div className="fixed bottom-4 left-4 right-4 z-50 bg-background/95 backdrop-blur border border-border rounded-lg p-4 shadow-lg animate-in slide-in-from-bottom-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <h3 className="font-medium text-foreground">Install Umarise</h3>
+          <h3 className="font-medium text-foreground flex items-center gap-2">
+            <svg viewBox="0 0 16 16" className="w-4 h-4 text-[hsl(var(--ritual-gold))]">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeWidth="1.2" />
+              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+            </svg>
+            Install Umarise
+          </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Add to your home screen for quick access and offline use.
+            Anchor what matters. Add to your home screen.
           </p>
         </div>
         <button 
