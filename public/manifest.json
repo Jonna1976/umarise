@@ -1,7 +1,7 @@
 {
-  "name": "Umarise",
+  "name": "Umarise — Anchoring",
   "short_name": "Umarise",
-  "description": "Mark beginnings.",
+  "description": "Anchor what matters.",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#0a0a0a",
