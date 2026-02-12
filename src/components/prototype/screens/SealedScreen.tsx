@@ -92,6 +92,13 @@ export function SealedScreen({
 
   // Pre-build the ZIP on mount
   useEffect(() => {
+    console.log('[SealedScreen] ZIP build input:', {
+      originId,
+      hashPrefix: hash?.substring(0, 16),
+      hasImage: !!imageUrl,
+      deviceSignature: deviceSignature ? deviceSignature.substring(0, 20) + '…' : 'NULL',
+      devicePublicKey: devicePublicKey ? devicePublicKey.substring(0, 20) + '…' : 'NULL',
+    });
     const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
