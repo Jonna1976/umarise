@@ -333,6 +333,19 @@ export function SealedScreen({
         {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Download'}
       </motion.button>
 
+      {/* ── Passkey status ── */}
+      {deviceSignature && (
+        <motion.p
+          className="font-garamond text-[15px] mt-3"
+          style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ duration: 0.6, delay: 1.8 }}
+        >
+          ✓ device signed
+        </motion.p>
+      )}
+
       {/* ── Verify link (subtle, secondary) ── */}
       <motion.a
         href="/verify"

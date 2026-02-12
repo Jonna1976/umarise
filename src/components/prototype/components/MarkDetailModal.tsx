@@ -150,6 +150,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         imageUrl: mark.imageUrl ?? null,
         claimedBy: credentialRef.current?.publicKey ?? null,
         signature: signatureRef.current ?? null,
+        deviceSignature: signatureRef.current ?? null,
+        devicePublicKey: credentialRef.current?.publicKey ?? null,
         otsProof: otsProofRef.current,
         artifactFile: artifactFileRef.current,
       });
