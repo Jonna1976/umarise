@@ -174,6 +174,7 @@ export function useMarks() {
         console.log('[createMark] Stored passkey credential:', credential ? credential.credentialId.substring(0, 12) + '…' : 'null');
         
         // Auto-register: if no credential exists, prompt Face ID / fingerprint
+        // After registration, immediately sign the hash in one flow
         if (!credential) {
           try {
             const hasPlatform = await isPlatformAuthenticatorAvailable();
@@ -183,22 +184,34 @@ export function useMarks() {
               credential = await registerPasskey(hash.substring(0, 8));
               savePasskeyCredential(credential);
               console.log('[createMark] Passkey registered:', credential.credentialId.substring(0, 12) + '…');
+              
+              // Sign immediately after registration (same biometric session on most platforms)
+              try {
+                console.log('[createMark] Signing hash immediately after registration...');
+                const sig = await signHash(credential.credentialId, hash);
+                deviceSignature = sig.signature;
+                devicePublicKey = credential.publicKey;
+                console.log('[createMark] ✓ Hash signed on first capture, sig length:', deviceSignature.length);
+              } catch (signErr) {
+                // Second biometric prompt failed — still save credential for next capture
+                console.warn('[createMark] Signing after registration failed (will work next capture):', signErr);
+                // Set public key anyway so certificate shows the device identity
+                devicePublicKey = credential.publicKey;
+              }
             }
           } catch (e) {
             // User cancelled or registration failed — proceed without passkey
             console.warn('[createMark] Passkey auto-registration skipped:', e);
           }
-        }
-        
-        if (credential) {
+        } else {
+          // Existing credential — sign directly
           try {
-            console.log('[createMark] Signing hash with passkey (best-effort)...');
+            console.log('[createMark] Signing hash with stored passkey...');
             const sig = await signHash(credential.credentialId, hash);
             deviceSignature = sig.signature;
             devicePublicKey = credential.publicKey;
-            console.log('[createMark] Hash signed successfully, signature length:', deviceSignature.length);
+            console.log('[createMark] ✓ Hash signed, sig length:', deviceSignature.length);
           } catch (e) {
-            // Best-effort: signing failed, proceed without signature
             console.warn('[createMark] Passkey signing failed (non-blocking):', e);
             deviceSignature = null;
             devicePublicKey = null;
