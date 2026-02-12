@@ -16,7 +16,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
-import { OriginMark } from '../components/OriginMark';
+
 import { buildOriginZip } from '@/lib/originZip';
 
 /** Desktop-only download helper */
@@ -171,19 +171,17 @@ export function SealedScreen({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* ── Origin Mark — circumpunct (28x28, glow) ── */}
+      {/* ── V7 Hexagon mark ── */}
       <motion.div
         className="mb-5"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <OriginMark
-          size={48}
-          state="anchored"
-          glow
-          variant="dark"
-        />
+        <svg viewBox="0 0 48 48" width={48} height={48} style={{ filter: 'drop-shadow(0 0 12px rgba(197,147,90,0.3))' }}>
+          <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--ritual-gold))" />
+          <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" />
+        </svg>
       </motion.div>
 
       {/* ── Title ── */}
