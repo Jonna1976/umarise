@@ -26,12 +26,11 @@ import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
 import { verifyFileHash } from '@/lib/originHash';
 import { toast } from 'sonner';
 import { 
-  registerPasskey, 
   signHash, 
   isWebAuthnSupported,
   type PasskeyCredential,
 } from '@/lib/webauthn';
-import { savePasskeyCredential } from '@/lib/passkeyStore';
+import { getPasskeyCredential } from '@/lib/passkeyStore';
 
 interface MarkDetailModalProps {
   mark: {
@@ -50,15 +49,12 @@ interface MarkDetailModalProps {
 export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [passkeyLinked, setPasskeyLinked] = useState(false);
-  const [passkeyLinking, setPasskeyLinking] = useState(false);
-  const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [proofLoaded, setProofLoaded] = useState(false);
   const [fetchingProof, setFetchingProof] = useState(false);
   const [verifyingFile, setVerifyingFile] = useState(false);
   
   // Store credential data for signing and ZIP inclusion
-  const credentialRef = useRef<PasskeyCredential | null>(null);
+  const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
   const signatureRef = useRef<string | null>(null);
   const otsProofRef = useRef<string | null>(null);
   const artifactFileRef = useRef<File | null>(null);
@@ -117,8 +113,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       setIsSaving(true);
       setVerifyingFile(false);
 
-      // Sign hash if passkey linked
-      if (passkeyLinked && credentialRef.current && !signatureRef.current) {
+      // Sign hash if stored passkey credential exists
+      if (credentialRef.current && !signatureRef.current) {
         try {
           const sig = await signHash(credentialRef.current.credentialId, mark.hash);
           signatureRef.current = sig.signature;
@@ -166,7 +162,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       setIsSaving(false);
       setVerifyingFile(false);
     }
-  }, [isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl, passkeyLinked]);
+  }, [isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl]);
 
   // Trigger file picker for ZIP save
   const handleSaveAsZip = useCallback(() => {
@@ -174,46 +170,6 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     fileInputRef.current?.click();
   }, [isSaving, verifyingFile]);
 
-  // Handle passkey link — real WebAuthn registration + signing
-  const handlePasskeyLink = useCallback(async () => {
-    if (passkeyLinked || passkeyLinking) return;
-    setPasskeyError(null);
-    setPasskeyLinking(true);
-
-    try {
-      // Step 1: Register a new passkey (Face ID / fingerprint / Windows Hello)
-      const credential = await registerPasskey(mark.originId);
-      credentialRef.current = credential;
-      // Persist credential for automatic signing in future captures
-      savePasskeyCredential(credential);
-
-      // Step 2: Immediately sign the origin hash with the new credential
-      const sig = await signHash(credential.credentialId, mark.hash);
-      signatureRef.current = sig.signature;
-
-      setPasskeyLinked(true);
-      console.info('[MarkDetailModal] Passkey linked:', {
-        credentialId: credential.credentialId.substring(0, 12) + '…',
-        algorithm: credential.publicKeyAlgorithm,
-        signed: true,
-      });
-    } catch (error) {
-      const err = error as Error;
-      // NotAllowedError = user cancelled the biometric prompt
-      if (err.name === 'NotAllowedError') {
-        console.info('[MarkDetailModal] Passkey cancelled by user');
-      } else {
-        console.error('[MarkDetailModal] Passkey error:', err);
-        setPasskeyError(
-          isWebAuthnSupported()
-            ? 'Passkey registration failed'
-            : 'Passkeys not supported on this device'
-        );
-      }
-    } finally {
-      setPasskeyLinking(false);
-    }
-  }, [passkeyLinked, passkeyLinking, mark.originId, mark.hash]);
 
   return (
     <AnimatePresence>
@@ -408,34 +364,13 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {saved ? '✓ Shared' : 'Upload and share'}
           </button>
 
-          {/* "+ link passkey" */}
-          <button
-            onClick={handlePasskeyLink}
-            disabled={passkeyLinked || passkeyLinking}
-            className="font-garamond text-[17px] tracking-[0.3px] transition-all mb-1.5"
-            style={{ 
-              color: passkeyLinked 
-                ? 'hsl(var(--ritual-gold))' 
-                : 'hsl(var(--ritual-gold-muted))',
-              opacity: passkeyLinked ? 0.6 : 0.35,
-              cursor: (passkeyLinked || passkeyLinking) ? 'default' : 'pointer',
-            }}
-          >
-            {passkeyLinking 
-              ? 'Authenticating…' 
-              : passkeyLinked 
-                ? '✓ passkey linked' 
-                : '+ link passkey'
-            }
-          </button>
-
-          {/* Passkey error message */}
-          {passkeyError && (
-            <p 
-              className="font-mono text-[13px] tracking-wide mb-1.5"
-              style={{ color: 'hsl(0 60% 60% / 0.6)' }}
+          {/* Device signed indicator (passive — registration is automatic at capture) */}
+          {credentialRef.current && (
+            <p
+              className="font-garamond text-[17px] tracking-[0.3px] mb-1.5"
+              style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.5 }}
             >
-              {passkeyError}
+              ✓ device signed
             </p>
           )}
 
