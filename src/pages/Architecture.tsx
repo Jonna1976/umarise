@@ -5,20 +5,20 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
 /**
  * Architecture Overview — Internal Document
  * 
- * Complete architecture overview of Umarise as of 9 Feb 2026.
+ * Complete architecture overview of Umarise as of 12 Feb 2026.
  * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
+ * Six-Layer Proof Model with Device Identity (v1.1).
  * 
  * Source: docs/architecture-week1-final.md
  * Access: PinGate protected
  */
 
 const b2cItems = [
-  
-  { name: 'S1 Capture', status: '✅ Camera + Photo Library', where: 'Device → Web Crypto → auto-hash + pages INSERT' },
-  { name: 'S2 Sealed', status: '✅ Museum label + artifact + file list + ZIP', where: 'Browser UI + Client-side JSZip' },
-  { name: 'S3 Origin Registry', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
-  { name: 'Passkey', status: '✅ Live', where: 'Client-side WebAuthn' },
-  { name: 'IndexedDB thumbnails', status: '✅ Live', where: 'Lokaal op device' },
+  { name: 'S1 Capture', status: '✅ File picker + auto-hash + passkey signing', where: 'Device → Web Crypto → WebAuthn → pages INSERT' },
+  { name: 'S2 Sealed', status: '✅ Receipt + file list + ZIP download', where: 'Browser UI + Client-side JSZip' },
+  { name: 'S3 Anchor Registry', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
+  { name: 'Passkey (v1.1)', status: '✅ Auto-register + best-effort signing', where: 'Client-side WebAuthn (never blocking)' },
+  { name: 'IndexedDB thumbnails', status: '✅ Live + remote fallback', where: 'Lokaal op device + Supabase storage' },
   { name: 'OTS status polling', status: '✅ Live', where: '/v1-core-resolve + /v1-core-proof via useProofPolling' },
 ];
 
@@ -97,9 +97,9 @@ const originMarkUsage = [
 ];
 
 const zipContents = [
-  { file: 'photo.jpg/png', always: false, desc: 'Origineel artifact' },
-  { file: 'certificate.json', always: true, desc: 'Origin ID, hash, timestamp, claimed_by, verify_url' },
-  { file: 'VERIFY.txt', always: true, desc: 'Menselijk leesbare verificatie-instructies + link' },
+  { file: 'artifact.{ext}', always: false, desc: 'Origineel artifact (jpg/png/mp4/pdf/...) — hash-verified' },
+  { file: 'certificate.json', always: true, desc: 'v1.1: origin_id, hash, timestamp, device_signature, device_public_key, proof_status' },
+  { file: 'VERIFY.txt', always: true, desc: 'Menselijk leesbare verificatie-instructies + link + device signed status' },
   { file: 'proof.ots', always: false, desc: 'OpenTimestamps binary bewijs (alleen bij anchored)' },
 ];
 
@@ -172,7 +172,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          9 February 2026 — Week 1 Final (updated)
+          12 February 2026 — Week 1 Final + Device Identity (v1.1)
         </p>
       </div>
 
@@ -241,11 +241,35 @@ const Architecture = () => {
           <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Consumer-only (raakt Core NIET)</p>
             <ul className="space-y-1 text-sm text-landing-cream/60">
-              <li>• Passkey/WebAuthn → <code className="text-xs bg-landing-cream/5 px-1 rounded">claimed_by</code> + <code className="text-xs bg-landing-cream/5 px-1 rounded">signature</code> in certificate.json</li>
-              <li>• Thumbnails in IndexedDB</li>
-              <li>• ZIP generatie met photo + certificate + VERIFY.txt</li>
+              <li>• Passkey/WebAuthn → auto-register bij eerste capture, best-effort signing (never blocking)</li>
+              <li>• <code className="text-xs bg-landing-cream/5 px-1 rounded">device_signature</code> + <code className="text-xs bg-landing-cream/5 px-1 rounded">device_public_key</code> in certificate.json v1.1</li>
+              <li>• Thumbnails in IndexedDB + remote fallback via Supabase storage</li>
+              <li>• ZIP generatie met artifact + certificate.json + VERIFY.txt + proof.ots</li>
               <li>• Alle UI/UX schermen (Museum Aesthetic design system)</li>
             </ul>
+          </div>
+
+          {/* Proof Layers */}
+          <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Proof Layers (12 feb 2026)</p>
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <span className="text-emerald-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 1</span>
+                <div>
+                  <p className="text-sm text-landing-cream/90 font-medium">WAT + WANNEER</p>
+                  <p className="text-xs text-landing-cream/50">SHA-256 hash + timestamp + OTS Bitcoin anchor</p>
+                  <p className="text-xs text-landing-muted/40 mt-1">Core primitive. Content-agnostic. Trustless.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-amber-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 2</span>
+                <div>
+                  <p className="text-sm text-landing-cream/90 font-medium">WELK APPARAAT</p>
+                  <p className="text-xs text-landing-cream/50">WebAuthn passkey → device_signature + device_public_key</p>
+                  <p className="text-xs text-landing-muted/40 mt-1">Best-effort. Auto-register. Never blocking. Companion-only.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -525,8 +549,19 @@ const Architecture = () => {
           <p className="text-landing-muted/40 text-xs mb-4">
             De grens is schoon.
           </p>
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 12 feb</p>
+            <ul className="space-y-1 text-xs text-landing-cream/50">
+              <li>• <strong className="text-landing-cream/70">Layer 2 — Device Identity (v1.1):</strong> WebAuthn passkey auto-registratie bij eerste capture</li>
+              <li>• certificate.json v1.1 met device_signature + device_public_key</li>
+              <li>• Best-effort signing: annuleren van Face ID/biometrie blokkeert anchor NIET</li>
+              <li>• ZIP artifact hernoemd naar artifact.&#123;ext&#125; (ondersteunt video, PDF, audio)</li>
+              <li>• VERIFY.txt bevat device signed status</li>
+              <li>• Passkey registratie UI verwijderd uit Wall (volledig automatisch)</li>
+            </ul>
+          </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Vandaag toegevoegd (9 feb)</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 9 feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
               <li>• Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Origin Registry deel-knop)</li>
               <li>• Origin Mark visueel systeem op alle site-pagina's (16px header, ghost/pending/anchored states)</li>
