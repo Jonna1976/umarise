@@ -1,24 +1,25 @@
-# B2C-Inventarisatie v0.7 — Umarise App
+# B2C-Inventarisatie v0.8 — Umarise App
 
 **Scope:** Uitsluitend de B2C-laag (Umarise App)  
 **Relatie tot Core:** Automatische propagatie via database trigger  
-**Datum:** 6 februari 2026  
+**Datum:** 12 februari 2026  
 **Status:** Formele systeemdefinitie  
-**Versie:** v0.7 — gecorrigeerd na database-verificatie
+**Versie:** v0.8 — Device Identity (passkey v1.1) + ZIP compositie update
 
 ---
 
-## Δ Wijzigingen t.o.v. v0.6
+## Δ Wijzigingen t.o.v. v0.7
 
-| Aspect | v0.6 | v0.7 |
+| Aspect | v0.7 | v0.8 |
 |--------|------|------|
-| `pages.origin_id` | Niet in schema | ✅ UUID kolom toegevoegd, teruggeschreven door bridge trigger |
-| OTS trigger chain | `on_ots_complete` trigger op `origin_attestations` | ✅ Gecorrigeerd: HTTP call vanuit OTS Worker (geen database trigger) |
-| Certificate bron `bitcoin_block_height` | `origin_attestations.bitcoin_block_height` | ✅ Gecorrigeerd: `core_ots_proofs.bitcoin_block_height` |
-| Trigger `on_ots_complete` | Beschreven als database trigger | ✅ Gecorrigeerd: bestaat niet als trigger |
-| `notify-ots-complete` lookup | Via `origin_hash_sha256` (fragiel) | ✅ Gecorrigeerd: via `pages.origin_id` (uniek) |
-| Immutability triggers | Aangenomen als actief | ✅ Geverifieerd en getest op 6 feb 2026 |
-| Privacy-by-Design Assessment | ✅ Sectie 16 | Ongewijzigd |
+| Passkey registratie | Handmatige UI in Wall | ✅ Auto-register bij eerste capture, UI verwijderd |
+| Passkey signing | Niet geïmplementeerd | ✅ Best-effort signing (never blocking, null bij annulering) |
+| certificate.json | v1.0 (geen device identity) | ✅ v1.1: device_signature + device_public_key |
+| ZIP artifact naming | `photo.jpg/png` | ✅ `artifact.{ext}` (ondersteunt video, PDF, audio) |
+| ZIP artifact inclusion | URL fetch | ✅ Hash-verified File re-selection + URL fallback |
+| VERIFY.txt | Basis instructies | ✅ Bevat device signed status |
+| Thumbnail fallback | Alleen IndexedDB | ✅ Remote fallback via Supabase storage (auto-repair) |
+| Capture flow stappen | 8 stappen | ✅ 10 stappen (passkey + thumbnail upload) |
 
 ---
 
@@ -208,23 +209,28 @@ CREATE TABLE witnesses (
 
 ---
 
-## 7. Capture Flow (Dual-Write)
+## 7. Capture Flow (Dual-Write + Device Signing)
 
 ### 7.1 Sequentie
 
 ```
-[1] User selecteert foto (file picker)
-[2] Client genereert thumbnail (~400px, JPEG 70%, <50KB)
-[3] Client berekent SHA-256 hash van ORIGINELE foto
-[4] Client genereert device fingerprint hash
+[1] User selecteert bestand (file picker — geen camera)
+[2] Client genereert thumbnail (~400px, JPEG 70%, <50KB) — alleen voor images
+[3] Client berekent SHA-256 hash van ORIGINEEL bestand
+[4] Client: best-effort passkey signing:
+    ├── Geen credential? → auto-register passkey (Face ID/fingerprint)
+    ├── Credential aanwezig? → signHash(credentialId, hash)
+    └── Signing faalt/geannuleerd? → deviceSignature = null (NIET blokkerend)
 [5] Client genereert origin_id (um-XXXXXXXX)
-[6] DUAL-WRITE:
+[6] Client genereert device fingerprint hash
+[7] DUAL-WRITE:
     ├── IndexedDB: thumbnail + metadata (syncStatus: 'queued')
     └── Supabase: hash + metadata (GEEN image data)
-[7] Supabase trigger: bridge_page_to_core → origin_attestations
-[8] Update IndexedDB: syncStatus: 'synced'
-[9] OTS worker (async, 1-12h): anchoring in Bitcoin
-[10] OTS complete → trigger → Edge Function → Resend notificatie
+[8] Client uploadt thumbnail naar Supabase storage (visual fallback)
+[9] Supabase trigger: bridge_page_to_core → origin_attestations
+[10] Update IndexedDB: syncStatus: 'synced'
+[11] OTS worker (async, 1-12h): anchoring in Bitcoin
+[12] OTS complete → trigger → Edge Function → Resend notificatie
 ```
 
 ### 7.2 Failure Modes
@@ -296,27 +302,29 @@ Gevolg: Anonymous users krijgen geen notificatie maar kunnen wel handmatig hun c
 | PDF rendering | jsPDF |
 | Thumbnail embedding | Uit IndexedDB |
 | Bundeling | JSZip |
-| Levering | Browser download |
+| Levering | Web Share API → native share sheet (iOS/Android), download fallback (desktop) |
 
-### 9.2 Certificaat Inhoud
+### 9.2 Certificate.json v1.1
 
-| Veld | Bron | Voorbeeld |
-|------|------|-----------|
-| Thumbnail | IndexedDB | Embedded JPEG |
-| Origin ID | pages.origin_id (UUID, teruggeschreven door bridge trigger) | ORIGIN 1916F13F |
-| Created | pages.created_at | 4 Feb 2026, 15:23 |
-| SHA-256 Hash | pages.origin_hash_sha256 | 884d5f17...553df0a3 |
-| Creator | auth.users.email (masked) of "[device only]" | m***r@email.com |
-| Device | pages.device_fingerprint_hash (truncated) | a7f3...b2c1 |
-| Bitcoin Block | core_ots_proofs.bitcoin_block_height | #879,241 |
-| Witness (optioneel) | witnesses.witness_email (masked) | j***n@example.com |
+| Veld | Type | Bron | Voorbeeld |
+|------|------|------|-----------|
+| version | string | Hardcoded | "1.1" |
+| origin_id | string | pages.origin_id | "1916F13F" |
+| hash | string | pages.origin_hash_sha256 | "884d5f17...553df0a3" |
+| captured_at | string | pages.created_at | "2026-02-12T15:23:00Z" |
+| device_signature | string\|null | WebAuthn signHash | base64url-encoded |
+| device_public_key | string\|null | WebAuthn credential | base64url SPKI |
+| proof_included | boolean | ots_proof presence | true/false |
+| proof_status | string | core_ots_proofs.status | "pending" \| "anchored" |
 
-### 9.3 Export Bundle
+### 9.3 Export Bundle (v0.8)
 
 ```
-umarise-1916F13F.zip
-├── certificate.pdf    ← Visueel, human-readable
-└── proof.ots          ← Technisch verificatiebestand
+origin-1916F13F.zip
+├── artifact.{ext}     ← Origineel artifact (hash-verified, conditioneel)
+├── certificate.json   ← v1.1 met device identity
+├── VERIFY.txt         ← Menselijk leesbaar + device signed status
+└── proof.ots          ← OTS binary (conditioneel, alleen bij anchored)
 ```
 
 ---
@@ -611,6 +619,7 @@ De v0.6 architectuur realiseert de claim "sealed on your device · only the proo
 
 **Document classification:** Formele systeemdefinitie + Privacy Assessment  
 **Scope:** B2C-laag exclusief  
-**Consistent met:** v4 User Flow (6 feb 2026)  
-**Supersedes:** B2C-Inventarisatie v0.4, v0.5, v0.6  
-**Geverifieerd tegen database:** 6 februari 2026
+**Consistent met:** v4 User Flow + Device Identity v1.1 (12 feb 2026)  
+**Supersedes:** B2C-Inventarisatie v0.4, v0.5, v0.6, v0.7  
+**Geverifieerd tegen database:** 6 februari 2026  
+**Code-verificatie passkey flow:** 12 februari 2026
