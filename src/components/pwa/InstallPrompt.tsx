@@ -64,11 +64,7 @@ export function InstallPrompt() {
     <div className="fixed bottom-4 left-4 right-4 z-50 bg-background/95 backdrop-blur border border-border rounded-lg p-4 shadow-lg animate-in slide-in-from-bottom-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1">
-          <h3 className="font-medium text-foreground flex items-center gap-2">
-            <svg viewBox="0 0 28 28" className="w-4 h-4">
-              <polygon points="14,2.5 24.5,8.5 24.5,20.5 14,26.5 3.5,20.5 3.5,8.5" fill="hsl(var(--ritual-gold))" />
-              <rect x="9.5" y="9.5" width="9" height="9" rx="1.2" fill="hsl(var(--ritual-surface))" />
-            </svg>
+          <h3 className="font-medium text-foreground">
             Install Umarise
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
