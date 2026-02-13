@@ -51,13 +51,13 @@ const OFFSET_PATTERN = ['high', 'low', 'middle', 'lower', 'highest'] as const;
 
 // Fallback mock artifacts for demo mode when no marks exist
 const MOCK_ARTIFACTS: WallArtifact[] = [
-  { id: '1', type: 'warm', date: '4 Feb 2026', hash: '884d5f17553df0a3884d5f17553df0a3884d5f17553df0a3', origin: 'ORIGIN 1916F13F', size: 'large-landscape', offset: 'high', otsStatus: 'anchored', timestamp: new Date('2026-02-04'), originId: 'UM-1916F13F' },
-  { id: '2', type: 'text', date: '28 Jan 2026', hash: 'f3d18ca291bb7e05f3d18ca291bb7e05f3d18ca291bb7e05', origin: 'ORIGIN 7B3E09A1', size: 'small-square', offset: 'low', otsStatus: 'pending', timestamp: new Date('2026-01-28'), originId: 'UM-7B3E09A1' },
-  { id: '3', type: 'text', date: '15 Jan 2026', hash: '6e0a44d7c28f1b936e0a44d7c28f1b936e0a44d7c28f1b93', origin: 'ORIGIN 4D2F88C6', size: 'portrait', offset: 'high', otsStatus: 'submitted', timestamp: new Date('2026-01-15'), originId: 'UM-4D2F88C6' },
-  { id: '4', type: 'sketch', date: '3 Jan 2026', hash: 'a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8', origin: 'ORIGIN E9A10B3C', size: 'landscape-small', offset: 'lower', otsStatus: 'anchored', timestamp: new Date('2026-01-03'), originId: 'UM-E9A10B3C' },
-  { id: '5', type: 'digital', date: '21 Dec 2025', hash: '7c9e2f310a4b8d567c9e2f310a4b8d567c9e2f310a4b8d56', origin: 'ORIGIN 5F7C2D88', size: 'medium-square', offset: 'highest', otsStatus: 'pending', timestamp: new Date('2025-12-21'), originId: 'UM-5F7C2D88' },
-  { id: '6', type: 'sound', date: '14 Dec 2025', hash: 'b2e7a91c4f0d3c88b2e7a91c4f0d3c88b2e7a91c4f0d3c88', origin: 'ORIGIN 0A8B4E17', size: 'tiny', offset: 'low', otsStatus: 'anchored', timestamp: new Date('2025-12-14'), originId: 'UM-0A8B4E17' },
-  { id: '7', type: 'organic', date: '1 Dec 2025', hash: 'd4c6b8a21e3f5079d4c6b8a21e3f5079d4c6b8a21e3f5079', origin: 'ORIGIN 3C6D9F42', size: 'panoramic', offset: 'middle', otsStatus: 'pending', timestamp: new Date('2025-12-01'), originId: 'UM-3C6D9F42' },
+  { id: '1', type: 'warm', date: '4 Feb 2026', hash: '884d5f17553df0a3884d5f17553df0a3884d5f17553df0a3', origin: '1916F13F', size: 'large-landscape', offset: 'high', otsStatus: 'anchored', timestamp: new Date('2026-02-04'), originId: 'UM-1916F13F' },
+  { id: '2', type: 'text', date: '28 Jan 2026', hash: 'f3d18ca291bb7e05f3d18ca291bb7e05f3d18ca291bb7e05', origin: '7B3E09A1', size: 'small-square', offset: 'low', otsStatus: 'pending', timestamp: new Date('2026-01-28'), originId: 'UM-7B3E09A1' },
+  { id: '3', type: 'text', date: '15 Jan 2026', hash: '6e0a44d7c28f1b936e0a44d7c28f1b936e0a44d7c28f1b93', origin: '4D2F88C6', size: 'portrait', offset: 'high', otsStatus: 'submitted', timestamp: new Date('2026-01-15'), originId: 'UM-4D2F88C6' },
+  { id: '4', type: 'sketch', date: '3 Jan 2026', hash: 'a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8', origin: 'E9A10B3C', size: 'landscape-small', offset: 'lower', otsStatus: 'anchored', timestamp: new Date('2026-01-03'), originId: 'UM-E9A10B3C' },
+  { id: '5', type: 'digital', date: '21 Dec 2025', hash: '7c9e2f310a4b8d567c9e2f310a4b8d567c9e2f310a4b8d56', origin: '5F7C2D88', size: 'medium-square', offset: 'highest', otsStatus: 'pending', timestamp: new Date('2025-12-21'), originId: 'UM-5F7C2D88' },
+  { id: '6', type: 'sound', date: '14 Dec 2025', hash: 'b2e7a91c4f0d3c88b2e7a91c4f0d3c88b2e7a91c4f0d3c88', origin: '0A8B4E17', size: 'tiny', offset: 'low', otsStatus: 'anchored', timestamp: new Date('2025-12-14'), originId: 'UM-0A8B4E17' },
+  { id: '7', type: 'organic', date: '1 Dec 2025', hash: 'd4c6b8a21e3f5079d4c6b8a21e3f5079d4c6b8a21e3f5079', origin: '3C6D9F42', size: 'panoramic', offset: 'middle', otsStatus: 'pending', timestamp: new Date('2025-12-01'), originId: 'UM-3C6D9F42' },
 ];
 
 export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps) {
@@ -115,7 +115,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       const hash = mark.hash 
         ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
         : 'pending...';
-      const origin = mark.originId.toUpperCase().replace('UM-', 'ORIGIN ');
+      const origin = mark.originId.toUpperCase().replace('UM-', '');
 
       let imageUrl: string | undefined;
       if (mark.thumbnailUrl) {
@@ -255,7 +255,7 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
         animate={{ opacity: showBackupHint ? 0.5 : 0 }}
         transition={{ duration: 0.6 }}
       >
-        long-press ⊙ to backup
+        long-press to backup
       </motion.p>
 
       {/* Scrolling artifact track */}
@@ -275,11 +275,12 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
               />
             </div>
           ) : (
-            artifacts.map((artifact) => (
+            artifacts.map((artifact, index) => (
               <ArtifactFrame
                 key={artifact.id}
                 artifact={artifact}
                 isFocused={focusedArtifacts.has(artifact.id)}
+                isNewest={index === 0 && marks.length > 0}
                 onClick={() => handleArtifactClick(artifact)}
               />
             ))

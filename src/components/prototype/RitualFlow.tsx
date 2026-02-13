@@ -33,6 +33,7 @@ const ANCHOR_COUNT_KEY = 'umarise-mark-count';
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('capture');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
+  const [showFirstAnchorReveal, setShowFirstAnchorReveal] = useState(false);
   const { createMark } = useMarks();
 
   // Determine first visit: 0 anchors in local storage
@@ -124,11 +125,22 @@ export function RitualFlow() {
 
   // Sealed → Wall (after Save → ✓ Owned → 0.8s)
   const handleSealedComplete = useCallback(() => {
+    const wasFirstVisit = isFirstVisit;
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
     isCreatingMark.current = false;
-    goToScreen('wall');
-  }, [goToScreen]);
+    
+    if (wasFirstVisit) {
+      // First anchor special: show V7 nav reveal, then auto-advance
+      setShowFirstAnchorReveal(true);
+      setTimeout(() => {
+        setShowFirstAnchorReveal(false);
+        goToScreen('wall');
+      }, 1400); // 0.6s fade-in + 0.8s hold
+    } else {
+      goToScreen('wall');
+    }
+  }, [goToScreen, isFirstVisit]);
 
   const handleOpenRegistry = useCallback(() => {
     goToScreen('wall');
@@ -159,6 +171,18 @@ export function RitualFlow() {
       {/* Origin Button — opens Origin Registry */}
       {showOriginButton && (
         <OriginButton onClick={handleOpenRegistry} className="absolute top-[40px] left-[18px] z-50" />
+      )}
+
+      {/* First anchor reveal — V7 appears after first save */}
+      {showFirstAnchorReveal && (
+        <motion.div
+          className="absolute top-[40px] left-[18px] z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <OriginButton onClick={() => {}} className="" />
+        </motion.div>
       )}
 
       {/* Screens */}

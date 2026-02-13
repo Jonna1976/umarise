@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sealed Screen v2 — The Nail</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300&family=EB+Garamond:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400&display=swap');
+    :root {
+      --bg: #050A05;
+      --surface: #0F1A0F;
+      --gold: #C5935A;
+      --gold-muted: #8B7355;
+      --cream: #F5F0E8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      font-family: 'EB Garamond', serif;
+      color: #ddd;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 300;
+      font-size: 28px;
+      color: var(--gold);
+      text-align: center;
+    }
+    .subtitle {
+      font-style: italic;
+      font-size: 16px;
+      color: rgba(197,147,90,0.4);
+      text-align: center;
+      margin-top: -32px;
+    }
+    .row {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .phone-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .phone-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-muted);
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+    .phone-frame {
+      width: 320px;
+      height: 640px;
+      border: 2px solid rgba(197,147,90,0.15);
+      border-radius: 28px;
+      overflow: hidden;
+    }
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 48px 24px 24px;
+      position: relative;
+    }
+
+    /* ═══ THE NAIL ═══ */
+    .anchor-point {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 0;
+    }
+    .anchor-wire {
+      width: 1px;
+      height: 16px;
+      background: linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15));
+    }
+
+    /* ═══ GOLDEN FRAME ═══ */
+    .golden-frame {
+      padding: 8px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, rgba(197,147,90,0.22), rgba(180,130,70,0.12) 30%, rgba(197,147,90,0.18) 70%, rgba(210,160,80,0.15));
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5), 0 0 20px rgba(197,147,90,0.08), inset 0 0 0 2px rgba(197,147,90,0.25), inset 0 0 0 3px rgba(15,26,15,0.5), inset 0 0 0 4px rgba(197,147,90,0.1);
+      margin-bottom: 20px;
+    }
+    .golden-mat {
+      padding: 4px;
+      border: 1px solid rgba(197,147,90,0.15);
+      background: rgba(12,20,12,0.95);
+    }
+    .photo-content {
+      background: linear-gradient(135deg, #2D1B0E, #1A2E1A, #1B1B2E);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-placeholder {
+      font-family: 'EB Garamond', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: rgba(197,147,90,0.2);
+    }
+
+    /* ═══ MUSEUM LABEL ═══ */
+    .museum-label {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(197,147,90,0.2);
+      margin-bottom: 16px;
+    }
+    .origin-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: rgba(197,147,90,0.5);
+      margin-bottom: 4px;
+    }
+    .date {
+      font-family: 'EB Garamond', serif;
+      font-size: 17px;
+      color: rgba(245,240,232,0.35);
+      margin-bottom: 10px;
+    }
+    .hash {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: var(--gold-muted);
+      opacity: 0.3;
+      margin-bottom: 14px;
+    }
+    .proof-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .proof-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(197,147,90,0.35);
+    }
+    .proof-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(197,147,90,0.2);
+    }
+
+    /* ═══ BUTTON ═══ */
+    .btn-save {
+      font-family: 'Playfair Display', serif;
+      font-weight: 300;
+      font-size: 17px;
+      padding: 11px 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(197,147,90,0.3);
+      background: rgba(197,147,90,0.08);
+      color: rgba(197,147,90,0.8);
+      cursor: pointer;
+    }
+
+    /* ═══ ANNOTATIONS ═══ */
+    .annotation {
+      background: rgba(197,147,90,0.04);
+      border: 1px solid rgba(197,147,90,0.1);
+      border-radius: 8px;
+      padding: 16px 20px;
+      max-width: 700px;
+    }
+    .annotation p {
+      font-size: 14px;
+      color: rgba(245,240,232,0.5);
+      margin-bottom: 6px;
+    }
+    .annotation p:last-child { margin-bottom: 0; }
+    .annotation strong {
+      color: var(--gold);
+    }
+
+    /* ═══ PENDING PULSE ═══ */
+    @keyframes v7-pending {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+    .v7-pending { animation: v7-pending 2.5s ease-in-out infinite; }
+
+    /* ═══ V7 STATUS SECTION ═══ */
+    .v7-row {
+      display: flex;
+      gap: 64px;
+      justify-content: center;
+      align-items: flex-start;
+      margin: 24px 0;
+    }
+    .v7-variant {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .v7-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-muted);
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sealed Screen v2</h1>
+  <p class="subtitle">V7 is the nail. The photo hangs from it.</p>
+
+  <!-- ═══ ANCHORED STATE ═══ -->
+  <div class="row">
+
+    <div class="phone-container">
+      <p class="phone-label">Anchored</p>
+      <div class="phone-frame">
+        <div class="screen">
+
+          <!-- V7 = THE NAIL -->
+          <div class="anchor-point">
+            <svg viewBox="0 0 48 48" width="36" height="36" style="filter: drop-shadow(0 0 10px rgba(197,147,90,0.35));">
+              <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#C5935A"/>
+              <rect x="17" y="17" width="14" height="14" rx="1.8" fill="#0F1A0F"/>
+            </svg>
+            <div class="anchor-wire"></div>
+          </div>
+
+          <!-- PHOTO IN GOLDEN FRAME -->
+          <div class="golden-frame">
+            <div class="golden-mat">
+              <div class="photo-content" style="width:220px; height:220px;">
+                <span class="photo-placeholder">[ photo ]</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MUSEUM LABEL -->
+          <div class="museum-label">
+            <div class="divider"></div>
+            <div class="origin-id">1916F13F</div>
+            <div class="date">4 February 2026 · 20:35</div>
+            <div class="hash">884d5f17553df0a3884d5f17553df0a3</div>
+
+            <!-- Proof components — one line, minimal -->
+            <div class="proof-line">
+              <span class="proof-item">certificate</span>
+              <span class="proof-dot"></span>
+              <span class="proof-item">hash</span>
+              <span class="proof-dot"></span>
+              <span class="proof-item">proof.ots</span>
+            </div>
+          </div>
+
+          <!-- SAVE -->
+          <button class="btn-save">Save</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PENDING STATE ═══ -->
+    <div class="phone-container">
+      <p class="phone-label">Pending</p>
+      <div class="phone-frame">
+        <div class="screen">
+
+          <!-- V7 = PENDING NAIL -->
+          <div class="anchor-point">
+            <svg viewBox="0 0 48 48" width="36" height="36" class="v7-pending">
+              <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
+                fill="none" stroke="rgba(197,147,90,0.4)" stroke-width="1.2"
+                stroke-dasharray="3 3"/>
+              <rect x="17" y="17" width="14" height="14" rx="1.8"
+                fill="rgba(197,147,90,0.15)"/>
+            </svg>
+            <div class="anchor-wire" style="background: linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08));"></div>
+          </div>
+
+          <!-- PHOTO -->
+          <div class="golden-frame" style="opacity:0.9;">
+            <div class="golden-mat">
+              <div class="photo-content" style="width:220px; height:220px;">
+                <span class="photo-placeholder">[ photo ]</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MUSEUM LABEL -->
+          <div class="museum-label">
+            <div class="divider"></div>
+            <div class="origin-id">7B3E09A1</div>
+            <div class="date">28 January 2026 · 14:22</div>
+            <div class="hash">f3d18ca291bb7e05f3d18ca291bb7e05</div>
+
+            <div class="proof-line">
+              <span class="proof-item">certificate</span>
+              <span class="proof-dot"></span>
+              <span class="proof-item">hash</span>
+              <span class="proof-dot" style="animation: v7-pending 2.5s ease-in-out infinite;"></span>
+              <span class="proof-item" style="opacity: 0.6;">proof.ots</span>
+            </div>
+          </div>
+
+          <button class="btn-save">Save</button>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ ANNOTATION: THE NAIL ═══ -->
+  <div class="annotation">
+    <p><strong>V7 is de spijker.</strong> 36px, met glow, bovenaan gecentreerd. Het schilderij hangt eraan via een gouden lijn (1px, 16px lang, gradient). Dit is niet decoratief. Dit is structureel. V7 houdt het bewijs op zijn plek.</p>
+    <p><strong>Anchored:</strong> Solid V7, volle glow, solid wire. Het hangt.</p>
+    <p><strong>Pending:</strong> Dashed V7, pulsend, ghost wire. Het wordt opgehangen.</p>
+    <p><strong>proof.ots bij pending:</strong> De dot naast proof.ots pulst mee. Zodra Bitcoin bevestigt: alles wordt solid.</p>
+  </div>
+
+  <!-- ═══ ANNOTATION: WHAT'S VISIBLE ═══ -->
+  <div class="annotation">
+    <p><strong>Alles zichtbaar. Niets uitgelegd.</strong></p>
+    <p>Hash: volledig, één regel, JetBrains Mono 11px, 30% opacity. Wie het kent herkent het. Wie het niet kent ziet een code die bij het plaatje hoort.</p>
+    <p>Proof components: certificate · hash · proof.ots — als één regel, punten ertussen, 10px, ghost. Dit is wat er in de ZIP zit. Geen file-iconen, geen hints, geen uitleg.</p>
+    <p><strong>Nul woorden uitleg.</strong> Geen "your file stays on your device." Geen "only the hash leaves." Als het interface dat moet zeggen, is het interface fout.</p>
+  </div>
+
+  <!-- ═══ ANNOTATION: SAVE ═══ -->
+  <div class="annotation">
+    <p><strong>Save.</strong> Niet Download (te technisch). Niet Keep (te emotioneel). Save is universeel. Save is wat je doet met iets dat je wilt bewaren. Het is het juiste woord.</p>
+    <p>States: "Save" → "Saving..." → "✓" → auto-advance Wall (0.8s)</p>
+    <p>Op mobiel: triggert native Share Sheet met ZIP. Op desktop: download ZIP direct.</p>
+  </div>
+
+  <!-- ═══ DETAIL MODAL ═══ -->
+  <h1 style="margin-top: 32px;">Detail Modal (S7)</h1>
+  <p class="subtitle">Tap artifact in Wall</p>
+
+  <div class="row">
+    <div class="phone-container">
+      <p class="phone-label">Detail · Anchored</p>
+      <div class="phone-frame">
+        <div class="screen" style="background: hsla(120,33%,3%,0.96); justify-content: flex-start; padding-top: 56px;">
+
+          <!-- Close -->
+          <div style="position:absolute; top:20px; right:20px; width:32px; height:32px; border-radius:50%; background:rgba(197,147,90,0.06); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+            <span style="font-family:'Inter',sans-serif; font-size:14px; color:var(--gold); opacity:0.4;">✕</span>
+          </div>
+
+          <!-- V7 nail + frame -->
+          <div class="anchor-point">
+            <svg viewBox="0 0 48 48" width="32" height="32" style="filter: drop-shadow(0 0 8px rgba(197,147,90,0.3));">
+              <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#C5935A"/>
+              <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(120,33%,3%)"/>
+            </svg>
+            <div class="anchor-wire" style="height:12px;"></div>
+          </div>
+
+          <!-- Photo larger in detail -->
+          <div class="golden-frame">
+            <div class="golden-mat">
+              <div class="photo-content" style="width:250px; height:190px;">
+                <span class="photo-placeholder">[ photo ]</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Full museum label -->
+          <div class="museum-label">
+            <div class="divider"></div>
+            <div class="origin-id">1916F13F</div>
+            <div class="date">4 February 2026 · 20:35</div>
+            <div class="hash">884d5f17553df0a3884d5f17553df0a3</div>
+
+            <div class="proof-line">
+              <span class="proof-item">certificate</span>
+              <span class="proof-dot"></span>
+              <span class="proof-item">hash</span>
+              <span class="proof-dot"></span>
+              <span class="proof-item">proof.ots</span>
+            </div>
+          </div>
+
+          <!-- Share button -->
+          <button class="btn-save" style="margin-bottom: 12px;">Share</button>
+
+          <!-- Device signed — not text, just a small checkmark -->
+          <div style="display:flex; align-items:center; gap:6px; margin-top: 4px;">
+            <svg width="12" height="12" viewBox="0 0 12 12">
+              <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; color:rgba(197,147,90,0.25);">device signed</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annotation">
+    <p><strong>Detail modal = uitgebreide versie van sealed screen.</strong> Zelfde visuele taal: V7 nail, wire, golden frame, museum label.</p>
+    <p><strong>Share:</strong> Deelt de ZIP direct (uit cache als beschikbaar, anders vraagt om selectie). Verify link in certificate.json wijst naar umarise.com/verify.</p>
+    <p><strong>Device signed:</strong> Klein vinkje + "device signed" in ghost opacity. Alleen zichtbaar als passkey gebruikt is. Geen uitleg wat het betekent.</p>
+  </div>
+
+</body>
+</html>
