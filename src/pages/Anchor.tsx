@@ -134,12 +134,9 @@ export default function Anchor() {
             <ul className="space-y-2 pl-4">
               <li><span className="text-landing-copper">hash</span>: identifying what existed</li>
               <li><span className="text-landing-copper">timestamp</span>: identifying when it existed</li>
-              <li><span className="text-landing-copper">anchor_id</span>: a stable external reference</li>
+              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
             </ul>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              In the Core API, the anchor_id is referenced as origin_id. This is a technical identifier that remains unchanged for backward compatibility with existing integrations and proof artifacts.
-            </p>
-            <p className="mt-2 text-landing-muted/50 text-sm">No additional fields are defined.</p>
+            <p className="mt-4 text-landing-muted/50 text-sm">No additional fields are defined.</p>
           </section>
 
           {/* Invariants */}
