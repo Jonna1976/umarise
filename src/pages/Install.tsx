@@ -60,9 +60,7 @@ export default function Install() {
       <div className="max-w-md w-full space-y-8 text-center">
         {/* Logo */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-landing-copper to-landing-copper/70 flex items-center justify-center">
-            <span className="text-3xl font-bold text-white">U</span>
-          </div>
+          <span className="text-3xl font-bold text-foreground">Umarise</span>
         </div>
 
         <div className="space-y-2">
