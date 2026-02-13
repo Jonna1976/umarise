@@ -188,16 +188,16 @@ export function SealedScreen({
         <div
           className="rounded-[4px] mb-5"
           style={{
-            padding: '14px',
-            background: 'linear-gradient(135deg, rgba(197,147,90,0.28), rgba(180,130,70,0.15) 30%, rgba(197,147,90,0.22) 70%, rgba(210,160,80,0.18))',
-            boxShadow: '0 6px 40px rgba(0,0,0,0.6), 0 0 24px rgba(197,147,90,0.1), inset 0 0 0 1px rgba(197,147,90,0.35), inset 0 0 0 3px rgba(15,26,15,0.6), inset 0 0 0 4px rgba(197,147,90,0.15)',
+            padding: '18px',
+            background: 'linear-gradient(135deg, rgba(197,147,90,0.4), rgba(180,130,70,0.22) 30%, rgba(197,147,90,0.35) 70%, rgba(210,160,80,0.28))',
+            boxShadow: '0 8px 48px rgba(0,0,0,0.65), 0 0 32px rgba(197,147,90,0.12), inset 0 0 0 1px rgba(197,147,90,0.5), inset 0 0 0 2px rgba(15,26,15,0.5), inset 0 0 0 3px rgba(197,147,90,0.25), inset 0 0 0 5px rgba(15,26,15,0.4), inset 0 0 0 6px rgba(197,147,90,0.12)',
           }}
         >
           <div
-            className="border border-[rgba(197,147,90,0.2)] bg-[rgba(12,20,12,0.95)]"
-            style={{ padding: '6px' }}
+            className="border-2 border-[rgba(197,147,90,0.3)] bg-[rgba(12,20,12,0.95)]"
+            style={{ padding: '8px' }}
           >
-            <div className="w-[240px] h-[240px] flex items-center justify-center overflow-hidden">
+            <div className="w-[220px] h-[220px] flex items-center justify-center overflow-hidden">
               {imageUrl && isImage ? (
                 <img src={imageUrl} alt="" className="w-full h-full object-cover" />
               ) : (
