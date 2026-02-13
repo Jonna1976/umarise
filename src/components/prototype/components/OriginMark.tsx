@@ -9,32 +9,29 @@ interface OriginMarkProps {
   size?: number;
   /** Visual state: anchored (solid), pending (dashed), ghost (empty) */
   state?: OriginMarkState;
-  /** Show glow filter — only for ceremonial use (S0, S4) */
+  /** Show glow filter — only for ceremonial use (sealed/detail nail) */
   glow?: boolean;
-  /** Pulse/breathe animation on the dot */
+  /** Pulse animation for pending state */
   animated?: boolean;
   /** Color variant */
   variant?: OriginMarkVariant;
-  /** S0 intro animation: dot appears → ring draws → dot pulses */
+  /** S0 intro animation: V7 appears → pulses */
   introAnimation?: boolean;
   className?: string;
 }
 
 /**
- * The Origin Mark — circumpunct (⊙)
+ * The Origin Mark — V7 Hexagon (⬡ with □ hole)
  * 
- * De stip is de bron. De cirkel is de verankering.
- * Samen: een origin. Het symbool claimt niets. Het markeert.
- * 
- * Proportions: dot:circle ratio ≈ 1:3 (always)
+ * V7 is de spijker. Het houdt het bewijs op zijn plek.
  * 
  * States:
- * - anchored: solid circle, full dot, optional glow
- * - pending: dashed circle, dimmed dot
- * - ghost: empty circle, no dot (opacity 0.15)
+ * - anchored: solid gold hexagon, dark square hole, optional glow
+ * - pending: dashed outline hexagon, ghost square, pulsing
+ * - ghost: faint outline hexagon only (placeholder)
  */
 export function OriginMark({
-  size = 14,
+  size = 20,
   state = 'anchored',
   glow = false,
   animated = false,
@@ -45,196 +42,124 @@ export function OriginMark({
   const filterId = useId();
   const glowId = `glow-${filterId.replace(/:/g, '')}`;
 
-  // Proportional scaling: viewBox is always 0 0 {size} {size}
-  const center = size / 2;
-  // Circle radius: ~83% of half-size for breathing room
-  const circleR = Math.round((size * 0.417) * 10) / 10;
-  // Dot radius: ~1/3 of circle radius
-  const dotR = Math.round((circleR / 3) * 10) / 10;
-  // Stroke width scales with size
-  const strokeWidth = size <= 14 ? 0.8 : size <= 28 ? 1.0 : 1.2;
-  // Circumference for stroke-dashoffset animation
-  const circumference = Math.round(2 * Math.PI * circleR);
+  // V7 uses a fixed viewBox of 48x48 for consistent proportions
+  // Hexagon points: 24,4 42,14 42,34 24,44 6,34 6,14
+  // Square hole: x=17 y=17 w=14 h=14 rx=1.8
 
-  // Colors per variant
-  const colors = variant === 'dark'
-    ? {
-        circleStroke: state === 'pending'
-          ? 'rgba(197,147,90,0.2)'
-          : 'rgba(197,147,90,0.3)',
-        dotFill: state === 'pending'
-          ? 'rgba(197,147,90,0.4)'
-          : '#C5935A',
-      }
-    : {
-        circleStroke: state === 'pending'
-          ? 'rgba(139,115,85,0.2)'
-          : 'rgba(139,115,85,0.3)',
-        dotFill: state === 'pending'
-          ? 'rgba(139,115,85,0.4)'
-          : '#8B7355',
-      };
+  const surfaceColor = variant === 'dark' ? 'hsl(var(--ritual-surface))' : '#0F1A0F';
+  const goldColor = '#C5935A';
 
-  // Dash pattern for pending state
-  const dashArray = state === 'pending'
-    ? `${Math.max(3, size * 0.08)} ${Math.max(3, size * 0.08)}`
-    : undefined;
-
-  // Animation controls for intro sequence
   const dotControls = useAnimation();
-  const ringControls = useAnimation();
 
   useEffect(() => {
     if (!introAnimation) return;
 
     const runIntro = async () => {
-      // Step 2: Dot appears (scale 0→1, 0.8s, delay 1.5s after text)
       await dotControls.start({
         opacity: 1,
         scale: 1,
         transition: { duration: 0.8, ease: 'easeOut', delay: 1.0 },
       });
-
-      // Step 3: Ring draws (stroke-dashoffset, 2s)
-      ringControls.start({
-        strokeDashoffset: 0,
-        transition: {
-          duration: 2,
-          ease: [0.4, 0, 0.2, 1],
-        },
-      });
-
-      // Step 4: Wait for ring to finish, then start pulse (delay ≈ 2s)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      dotControls.start({
-        opacity: [1, 0.6, 1],
-        scale: [1, 1.15, 1],
-        transition: {
-          duration: 3,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        },
-      });
     };
 
     runIntro();
-  }, [introAnimation, dotControls, ringControls]);
+  }, [introAnimation, dotControls]);
 
   if (state === 'ghost') {
     return (
       <svg
         width={size}
         height={size}
-        viewBox={`0 0 ${size} ${size}`}
+        viewBox="0 0 20 20"
         className={className}
         style={{ overflow: 'visible' }}
       >
-        <circle
-          cx={center}
-          cy={center}
-          r={circleR}
+        <polygon
+          points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5"
           fill="none"
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          opacity={0.15}
+          stroke="rgba(197,147,90,0.1)"
+          strokeWidth="0.6"
         />
       </svg>
     );
   }
 
+  if (state === 'pending') {
+    const pendingContent = (
+      <svg
+        width={size}
+        height={size}
+        viewBox={size >= 32 ? '0 0 48 48' : '0 0 20 20'}
+        className={className}
+        style={{ overflow: 'visible' }}
+      >
+        {size >= 32 ? (
+          <>
+            <polygon
+              points="24,4 42,14 42,34 24,44 6,34 6,14"
+              fill="none"
+              stroke="rgba(197,147,90,0.4)"
+              strokeWidth="1.2"
+              strokeDasharray="3 3"
+            />
+            <rect x="17" y="17" width="14" height="14" rx="1.8"
+              fill="rgba(197,147,90,0.15)"
+            />
+          </>
+        ) : (
+          <>
+            <polygon
+              points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5"
+              fill="none"
+              stroke="rgba(197,147,90,0.3)"
+              strokeWidth="0.8"
+              strokeDasharray="2 2"
+            />
+            <rect x="6.5" y="6.5" width="7" height="7" rx="0.9"
+              fill="rgba(197,147,90,0.25)"
+            />
+          </>
+        )}
+      </svg>
+    );
+
+    if (animated) {
+      return (
+        <motion.div
+          className={className}
+          animate={{ opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          {pendingContent}
+        </motion.div>
+      );
+    }
+
+    return pendingContent;
+  }
+
+  // Anchored state — solid gold hexagon with dark square hole
   return (
     <svg
       width={size}
       height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={size >= 32 ? '0 0 48 48' : '0 0 20 20'}
       className={className}
-      style={{ overflow: 'visible' }}
+      style={{
+        overflow: 'visible',
+        ...(glow ? { filter: `drop-shadow(0 0 ${size >= 32 ? '10' : '6'}px rgba(197,147,90,0.35))` } : {}),
+      }}
     >
-      {/* Glow filter — warm golden glow around the dot */}
-      {glow && (
-        <defs>
-          <filter id={glowId} x="-200%" y="-200%" width="500%" height="500%">
-            {/* Inner glow — tight bright halo */}
-            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(2, size * 0.15)} result="blur1" />
-            {/* Outer glow — wide soft aura */}
-            <feGaussianBlur in="SourceGraphic" stdDeviation={Math.max(4, size * 0.35)} result="blur2" />
-            {/* Color overlay — golden warmth */}
-            <feFlood floodColor="#C5935A" floodOpacity="0.6" result="goldColor" />
-            <feComposite in="goldColor" in2="blur2" operator="in" result="coloredGlow" />
-            <feMerge>
-              <feMergeNode in="coloredGlow" />
-              <feMergeNode in="blur2" />
-              <feMergeNode in="blur1" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-      )}
-
-      {/* Circle — ring */}
-      {introAnimation ? (
-        <motion.circle
-          cx={center}
-          cy={center}
-          r={circleR}
-          fill="none"
-          stroke={colors.circleStroke}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={ringControls}
-        />
+      {size >= 32 ? (
+        <>
+          <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill={goldColor} />
+          <rect x="17" y="17" width="14" height="14" rx="1.8" fill={surfaceColor} />
+        </>
       ) : (
-        <circle
-          cx={center}
-          cy={center}
-          r={circleR}
-          fill="none"
-          stroke={colors.circleStroke}
-          strokeWidth={strokeWidth}
-          strokeDasharray={dashArray}
-        />
-      )}
-
-      {/* Dot — the source */}
-      {introAnimation ? (
-        <motion.circle
-          cx={center}
-          cy={center}
-          r={dotR}
-          fill={colors.dotFill}
-          filter={glow ? `url(#${glowId})` : undefined}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={dotControls}
-          style={{ transformOrigin: `${center}px ${center}px` }}
-        />
-      ) : animated ? (
-        <motion.circle
-          cx={center}
-          cy={center}
-          r={dotR}
-          fill={colors.dotFill}
-          filter={glow ? `url(#${glowId})` : undefined}
-          animate={{
-            opacity: state === 'pending' ? [0.4, 0.9, 0.4] : [0.7, 1, 0.7],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          style={{ transformOrigin: `${center}px ${center}px` }}
-        />
-      ) : (
-        <circle
-          cx={center}
-          cy={center}
-          r={dotR}
-          fill={colors.dotFill}
-          filter={glow ? `url(#${glowId})` : undefined}
-        />
+        <>
+          <polygon points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5" fill={goldColor} />
+          <rect x="6.5" y="6.5" width="7" height="7" rx="0.9" fill={surfaceColor} />
+        </>
       )}
     </svg>
   );

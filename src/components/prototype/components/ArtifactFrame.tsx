@@ -18,6 +18,8 @@ interface ArtifactFrameProps {
     fileName?: string;
   };
   isFocused: boolean;
+  /** Newest artifact gets a 1.2s spotlight glow */
+  isNewest?: boolean;
   onClick?: () => void;
 }
 
@@ -45,7 +47,7 @@ const OFFSET_CLASSES: Record<string, string> = {
  * ArtifactFrame - Frame resonance based on artifact type
  * Each frame style matches its content type
  */
-export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFrameProps) {
+export function ArtifactFrame({ artifact, isFocused, isNewest = false, onClick }: ArtifactFrameProps) {
   const [imageError, setImageError] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -150,7 +152,20 @@ export function ArtifactFrame({ artifact, isFocused, onClick }: ArtifactFramePro
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
-      <div className={styles.frame} style={styles.frameStyle}>
+      <div className={styles.frame} style={{
+        ...styles.frameStyle,
+        ...(isNewest ? { boxShadow: `${styles.frameStyle?.boxShadow || ''}, 0 0 20px rgba(197,147,90,0.15)` } : {}),
+      }}>
+        {/* Spotlight glow — fades over 1.2s for newest artifact */}
+        {isNewest && (
+          <motion.div
+            className="absolute -inset-1 rounded-[6px] pointer-events-none z-0"
+            style={{ boxShadow: '0 0 20px rgba(197,147,90,0.15)' }}
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 1.2, delay: 0.2 }}
+          />
+        )}
         {/* Glass highlight overlay */}
         <div 
           className="absolute top-1.5 left-1.5 right-1.5 bottom-1.5 pointer-events-none z-10"

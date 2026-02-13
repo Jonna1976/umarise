@@ -1,22 +1,26 @@
 /**
- * SealedScreen — Production merged screen: Release + ZIP + Owned → one screen
+ * SealedScreen — "The Nail"
  * 
- * Flow: Mark → Sealed → Wall
- * After "Save your origin" → "✓ Owned" (0.8s) → auto-advance to Wall
+ * V7 is de spijker. Het schilderij hangt eraan.
  * 
  * Layout:
- * 1. "Your origin is ready" title
- * 2. Artifact in golden frame (photo preview or type icon)
- * 3. Museum label: Origin ID + date + hash
+ * 1. V7 (36px, glow) — the nail
+ * 2. Golden wire (1px, 16px) — connects nail to frame
+ * 3. Photo in golden museum frame (220px)
  * 4. Gold divider
- * 5. Three files (photo.jpg, certificate.json, proof.ots)
- * 6. "Save your origin" button → triggers ZIP share/download
+ * 5. Origin ID (no prefix)
+ * 6. Date
+ * 7. Hash (full, one line, 30% opacity)
+ * 8. Proof components: certificate · hash · proof.ots
+ * 9. Save button
+ * 
+ * No title. No explanation. No privacy whisper.
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
-
+import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
 
 /** Desktop-only download helper */
@@ -46,6 +50,8 @@ interface SealedScreenProps {
   artifactType?: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
   deviceSignature?: string | null;
   devicePublicKey?: string | null;
+  /** Whether Bitcoin proof is confirmed */
+  isAnchored?: boolean;
   onComplete: () => void;
 }
 
@@ -59,6 +65,7 @@ export function SealedScreen({
   artifactType = 'warm',
   deviceSignature = null,
   devicePublicKey = null,
+  isAnchored = false,
   onComplete,
 }: SealedScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
@@ -71,46 +78,25 @@ export function SealedScreen({
 
   // Derive display values
   const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
-  const hashLine1 = hash.slice(0, 32);
-  const hashLine2 = hash.slice(32);
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
     ' · ' +
     date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-  // Derive the file name shown in the list based on MIME type
-  const displayFileName = isImage ? 'photo.jpg'
-    : mimeType === 'application/pdf' ? 'document.pdf'
-    : mimeType.startsWith('audio/') ? 'audio.mp3'
-    : fileName || 'file';
-
-  const displayFileHint = isImage ? 'original bytes'
-    : mimeType === 'application/pdf' ? 'original document'
-    : mimeType.startsWith('audio/') ? 'original audio'
-    : 'original file';
-
   // Pre-build the ZIP on mount
   useEffect(() => {
-    console.log('[SealedScreen] ZIP build input:', {
-      originId,
-      hashPrefix: hash?.substring(0, 16),
-      hasImage: !!imageUrl,
-      deviceSignature: deviceSignature ? deviceSignature.substring(0, 20) + '…' : 'NULL',
-      devicePublicKey: devicePublicKey ? devicePublicKey.substring(0, 20) + '…' : 'NULL',
-    });
     const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
       const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
       prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
-      console.log('[SealedScreen] ZIP pre-built:', Math.round(blob.size / 1024), 'KB');
     }).catch(err => {
       console.warn('[SealedScreen] Failed to pre-build ZIP:', err);
     });
   }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey]);
 
-  // Save handler — identical logic to ZipScreen (share sheet or download)
+  // Save handler
   const handleSave = useCallback(() => {
     if (isSaving || saved) return;
     setIsSaving(true);
@@ -120,17 +106,14 @@ export function SealedScreen({
     if (file && navigator.share) {
       navigator.share({ files: [file] })
         .then(() => {
-          console.log('[SealedScreen] Share sheet completed!');
           setSaved(true);
           setTimeout(() => onComplete(), 800);
         })
         .catch((err: Error) => {
           if (err.name === 'AbortError') {
-            console.log('[SealedScreen] User cancelled share sheet');
             setIsSaving(false);
             return;
           }
-          console.warn('[SealedScreen] Share failed:', err.name, err.message);
           if (isMobile) {
             setSaved(true);
             setTimeout(() => onComplete(), 800);
@@ -160,7 +143,7 @@ export function SealedScreen({
         setTimeout(() => onComplete(), 800);
       });
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, deviceSignature, devicePublicKey]);
 
   return (
     <motion.div
@@ -171,199 +154,166 @@ export function SealedScreen({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* ── V7 Hexagon mark ── */}
+      {/* ── THE NAIL: V7 hexagon ── */}
       <motion.div
-        className="mb-5"
+        className="flex flex-col items-center"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <svg viewBox="0 0 48 48" width={48} height={48} style={{ filter: 'drop-shadow(0 0 12px rgba(197,147,90,0.3))' }}>
-          <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--ritual-gold))" />
-          <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" />
-        </svg>
+        <OriginMark
+          size={36}
+          state={isAnchored ? 'anchored' : 'pending'}
+          glow={isAnchored}
+          animated={!isAnchored}
+          variant="dark"
+        />
+        {/* Golden wire — connects nail to frame */}
+        <div
+          className="w-px h-4"
+          style={{
+            background: isAnchored
+              ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))'
+              : 'linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08))',
+          }}
+        />
       </motion.div>
 
-      {/* ── Title ── */}
-      <motion.h1
-        className="font-playfair text-[30px] text-ritual-gold mb-8"
-        style={{ fontWeight: 300 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        Your anchor is ready
-      </motion.h1>
-
-      {/* ── Artifact in golden frame ── */}
+      {/* ── PHOTO IN GOLDEN MUSEUM FRAME ── */}
       <motion.div
-        className="w-[200px] h-[200px] rounded-[3px] mb-6 flex items-center justify-center overflow-hidden"
-        style={{
-          border: '1px solid hsl(var(--ritual-gold) / 0.3)',
-          background: 'hsl(var(--ritual-gold) / 0.03)',
-        }}
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
       >
-        {imageUrl && isImage ? (
-          <img src={imageUrl} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <ArtifactDisplay type={artifactType} mimeType={mimeType} fileName={fileName} />
-        )}
+        <div
+          className="rounded-[3px] mb-5"
+          style={{
+            padding: '8px',
+            background: 'linear-gradient(135deg, rgba(197,147,90,0.22), rgba(180,130,70,0.12) 30%, rgba(197,147,90,0.18) 70%, rgba(210,160,80,0.15))',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px rgba(197,147,90,0.08), inset 0 0 0 2px rgba(197,147,90,0.25), inset 0 0 0 3px rgba(15,26,15,0.5), inset 0 0 0 4px rgba(197,147,90,0.1)',
+          }}
+        >
+          <div
+            className="border border-[rgba(197,147,90,0.15)] bg-[rgba(12,20,12,0.95)]"
+            style={{ padding: '4px' }}
+          >
+            <div className="w-[220px] h-[220px] flex items-center justify-center overflow-hidden">
+              {imageUrl && isImage ? (
+                <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <ArtifactDisplay type={artifactType} mimeType={mimeType} fileName={fileName} />
+              )}
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* ── Museum label: Origin ID + date + hash ── */}
+      {/* ── MUSEUM LABEL ── */}
       <motion.div
-        className="text-center mb-8"
+        className="flex flex-col items-center text-center"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
       >
+        {/* Gold divider */}
+        <div
+          className="w-10 h-px mb-4"
+          style={{ background: 'rgba(197,147,90,0.2)' }}
+        />
+
+        {/* Origin ID — no prefix */}
         <p
-          className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
-          style={{ color: 'hsl(var(--ritual-gold) / 0.45)' }}
+          className="font-mono text-[14px] tracking-[3px] mb-1"
+          style={{ color: 'rgba(197,147,90,0.5)' }}
         >
-          ANCHOR {shortId}
+          {shortId}
         </p>
+
+        {/* Date */}
         <p
-          className="font-garamond text-[17px] mb-3"
+          className="font-garamond text-[17px] mb-2.5"
           style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         >
           {formatDate(timestamp)}
         </p>
-        <div style={{ opacity: 0.35 }}>
-          <p
-            className="font-mono text-[12px] tracking-[0.5px] leading-relaxed"
-            style={{ color: 'hsl(var(--ritual-gold-muted))' }}
-          >
-            {hashLine1}
-          </p>
-          <p
-            className="font-mono text-[12px] tracking-[0.5px] leading-relaxed"
-            style={{ color: 'hsl(var(--ritual-gold-muted))' }}
-          >
-            {hashLine2}
-          </p>
+
+        {/* Hash — full, one line */}
+        <p
+          className="font-mono text-[11px] tracking-[0.5px] mb-3.5"
+          style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.3 }}
+        >
+          {hash}
+        </p>
+
+        {/* Proof components — one line */}
+        <div className="flex items-center gap-4 mb-5">
+          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+            certificate
+          </span>
+          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
+          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+            hash
+          </span>
+          {isAnchored ? (
+            <>
+              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+                proof.ots
+              </span>
+            </>
+          ) : (
+            <>
+              <motion.span
+                className="w-[3px] h-[3px] rounded-full"
+                style={{ background: 'rgba(197,147,90,0.2)' }}
+                animate={{ opacity: [0.3, 0.7, 0.3] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)', opacity: 0.6 }}>
+                proof.ots
+              </span>
+            </>
+          )}
         </div>
       </motion.div>
 
-      {/* ── Gold divider ── */}
-      <motion.div
-        className="w-[50px] h-px mb-8"
-        style={{ background: 'hsl(var(--ritual-gold) / 0.25)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 1.0 }}
-      />
-
-      {/* ── File list ── */}
-      <motion.div
-        className="w-full max-w-[280px] space-y-4 mb-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.2 }}
-      >
-        {/* Original file */}
-        <div className="flex items-center gap-3">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">
-            <rect x="1" y="1" width="16" height="16" rx="2"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.5" />
-            <circle cx="6" cy="6" r="1.5"
-              fill="hsl(var(--ritual-gold))" opacity="0.4" />
-            <path d="M1 13L5 9L8 12L11 8L17 14"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.4" />
-          </svg>
-          <span className="font-garamond text-[17px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
-            {displayFileName} <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· {displayFileHint}</span>
-          </span>
-        </div>
-
-        {/* certificate.json */}
-        <div className="flex items-center gap-3">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">
-            <rect x="2" y="1" width="14" height="16" rx="1.5"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.5" />
-            <line x1="5" y1="6" x2="13" y2="6"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
-            <line x1="5" y1="9" x2="13" y2="9"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
-            <line x1="5" y1="12" x2="10" y2="12"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
-          </svg>
-          <span className="font-garamond text-[17px]" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
-            certificate.json <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· hash · origin_id · timestamp</span>
-          </span>
-        </div>
-
-        {/* proof.ots */}
-        <div className="flex items-center gap-3">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">
-            <rect x="2" y="1" width="14" height="16" rx="1.5"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.5" />
-            <circle cx="9" cy="9" r="3"
-              stroke="hsl(var(--ritual-gold))" strokeWidth="0.6" opacity="0.3" />
-            <circle cx="9" cy="9" r="1"
-              fill="hsl(var(--ritual-gold))" opacity="0.4" />
-          </svg>
-          <span className="font-garamond text-[17px] flex items-center gap-1.5" style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}>
-            proof.ots <span className="italic" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>· anchoring</span>
-            <motion.span
-              className="inline-block w-[5px] h-[5px] rounded-full bg-ritual-gold"
-              animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          </span>
-        </div>
-      </motion.div>
-
-      {/* ── Save button ── */}
+      {/* ── SAVE BUTTON ── */}
       <motion.button
         onClick={handleSave}
         disabled={isSaving}
-        className="font-playfair text-[17px] px-8 py-3 rounded-full transition-all disabled:opacity-50"
+        className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-50"
         style={{
           fontWeight: 300,
           background: saved
             ? 'hsl(var(--ritual-gold) / 0.15)'
-            : 'hsl(var(--ritual-gold) / 0.12)',
-          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.35'})`,
-          color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
+            : 'hsl(var(--ritual-gold) / 0.08)',
+          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.3'})`,
+          color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.8'})`,
         }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 1.6 }}
+        transition={{ duration: 0.6, delay: 1.2 }}
         whileTap={!saved ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓ Owned' : isSaving ? 'Saving...' : 'Download'}
+        {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
       </motion.button>
 
-      {/* ── Passkey status ── */}
+      {/* ── Device signed (small checkmark, ghost, no explanation) ── */}
       {deviceSignature && (
-        <motion.p
-          className="font-garamond text-[15px] mt-3"
-          style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.6 }}
+        <motion.div
+          className="flex items-center gap-1.5 mt-3"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.6 }}
-          transition={{ duration: 0.6, delay: 1.8 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
         >
-          ✓ device signed
-        </motion.p>
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
+            device signed
+          </span>
+        </motion.div>
       )}
-
-      {/* ── Verify link (subtle, secondary) ── */}
-      <motion.a
-        href="/verify"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="font-garamond italic text-[15px] mt-4 transition-opacity hover:opacity-60"
-        style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.35 }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.35 }}
-        transition={{ duration: 0.6, delay: 2.0 }}
-      >
-        Verifieer je anchor
-      </motion.a>
     </motion.div>
   );
 }

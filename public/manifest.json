@@ -1,11 +1,11 @@
 {
-  "name": "Umarise — Anchoring",
-  "short_name": "Umarise",
+  "name": "Anchoring",
+  "short_name": "Anchor",
   "description": "Anchor what matters.",
   "start_url": "/app",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#050A05",
+  "theme_color": "#050A05",
   "orientation": "portrait",
   "icons": [
     {

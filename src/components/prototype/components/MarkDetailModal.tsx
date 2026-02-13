@@ -1,20 +1,10 @@
 /**
- * Mark Detail Modal. S7 detail view
+ * Mark Detail Modal — S7 detail view
  * 
- * Per V7 design specs:
- * - Overlay (96% opacity dark)
- * - Photo/artifact in golden frame
- * - "Origin marked" title (26px Playfair)
- * - Origin ID (JetBrains Mono 13px)
- * - Date (EB Garamond 20px)
- * - Hash (JetBrains Mono 13px, 0.5 opacity)
- * - Status: circumpunct + "PENDING" or "ANCHORED IN BITCOIN"
- * - "Save as ZIP" button (gold, pill-shaped, always available)
- * - "+ link passkey" subtle text link underneath
- * - Privacy note: "your file stays on your device. only the proof leaves"
- * - Close button top-right
- * 
- * Minimum font size: 17px body, 13px mono (per V7 scaling)
+ * Same visual language as SealedScreen:
+ * V7 nail (32px), wire, golden frame, museum label.
+ * Share button. Device signed indicator.
+ * No title. No privacy whisper. No explanation.
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -40,7 +30,6 @@ interface MarkDetailModalProps {
     timestamp: Date;
     otsStatus: 'pending' | 'submitted' | 'anchored';
     imageUrl?: string;
-    /** Real UUID from origin_attestations table (for OTS proof lookup) */
     originUuid?: string;
   };
   onClose: () => void;
@@ -53,47 +42,32 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [fetchingProof, setFetchingProof] = useState(false);
   const [verifyingFile, setVerifyingFile] = useState(false);
   
-  // Store credential data for signing and ZIP inclusion
   const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
   const signatureRef = useRef<string | null>(null);
   const otsProofRef = useRef<string | null>(null);
   const artifactFileRef = useRef<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Eagerly fetch OTS proof when origin has a real UUID
+  // Eagerly fetch OTS proof
   useEffect(() => {
     if (!mark.originUuid) return;
-
     fetchProofStatus(mark.originUuid).then(result => {
       if (result.status === 'anchored' && result.otsProofBytes) {
         otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
         setProofLoaded(true);
-        console.info('[MarkDetailModal] OTS proof loaded:', {
-          block: result.bitcoinBlockHeight,
-          anchoredAt: result.anchoredAt,
-        });
       }
     });
   }, [mark.originUuid]);
 
-  // Format date per briefing: "7 February 2026 · 20:35"
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric',
   });
   const formattedTime = mark.timestamp.toLocaleTimeString('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
+    hour: '2-digit', minute: '2-digit',
   });
 
-  // Clean origin ID for display
+  // Clean origin ID — no prefix
   const displayOriginId = mark.originId.toUpperCase().replace('UM-', '');
-
-  // Truncate hash for display
-  const shortHash = mark.hash 
-    ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
-    : '—';
 
   const isAnchored = mark.otsStatus === 'anchored';
 
@@ -109,11 +83,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       }
       artifactFileRef.current = file;
       
-      // Proceed with ZIP build
       setIsSaving(true);
       setVerifyingFile(false);
 
-      // Sign hash if stored passkey credential exists
       if (credentialRef.current && !signatureRef.current) {
         try {
           const sig = await signHash(credentialRef.current.credentialId, mark.hash);
@@ -123,7 +95,6 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         }
       }
 
-      // Fetch OTS proof if anchored
       if (isAnchored && !otsProofRef.current && mark.originUuid) {
         setFetchingProof(true);
         try {
@@ -164,12 +135,11 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     }
   }, [isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl]);
 
-  // Trigger file picker for ZIP save
-  const handleSaveAsZip = useCallback(() => {
-    if (isSaving || verifyingFile) return;
-    fileInputRef.current?.click();
-  }, [isSaving, verifyingFile]);
-
+  // Share flow: select ZIP → share via native sheet or clipboard fallback
+  const handleShare = useCallback(() => {
+    if (saved) return;
+    (window as any).__zipInputRef?.click();
+  }, [saved]);
 
   return (
     <AnimatePresence>
@@ -182,16 +152,16 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         transition={{ duration: 0.3 }}
         onClick={onClose}
       >
-        {/* Close button (✕) top-right */}
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 p-2 rounded-full transition-opacity hover:opacity-60"
-          style={{ background: 'hsl(var(--ritual-gold) / 0.08)' }}
+          className="absolute top-6 right-6 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-60"
+          style={{ background: 'rgba(197,147,90,0.06)' }}
         >
-          <X className="w-5 h-5 text-ritual-gold opacity-60" />
+          <X className="w-4 h-4" style={{ color: 'rgba(197,147,90,0.4)' }} />
         </button>
 
-        {/* Content card */}
+        {/* Content */}
         <motion.div
           className="w-full max-w-[340px] mx-4 flex flex-col items-center"
           initial={{ opacity: 0, y: 20 }}
@@ -200,105 +170,98 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           transition={{ duration: 0.4, delay: 0.1 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Photo/artifact in golden frame */}
+          {/* V7 nail + wire */}
+          <div className="flex flex-col items-center">
+            <OriginMark
+              size={32}
+              state={isAnchored ? 'anchored' : 'pending'}
+              glow={isAnchored}
+              animated={!isAnchored}
+              variant="dark"
+            />
+            <div
+              className="w-px h-3"
+              style={{
+                background: isAnchored
+                  ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))'
+                  : 'linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08))',
+              }}
+            />
+          </div>
+
+          {/* Photo in golden frame */}
           {mark.imageUrl && (
-            <div className="relative mb-6">
-              <div className="w-[250px] h-[190px] rounded-[4px] overflow-hidden">
-                <img 
-                  src={mark.imageUrl} 
-                  alt="" 
-                  className="w-full h-full object-cover"
-                />
+            <div
+              className="rounded-[3px] mb-5"
+              style={{
+                padding: '8px',
+                background: 'linear-gradient(135deg, rgba(197,147,90,0.22), rgba(180,130,70,0.12) 30%, rgba(197,147,90,0.18) 70%, rgba(210,160,80,0.15))',
+                boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px rgba(197,147,90,0.08), inset 0 0 0 2px rgba(197,147,90,0.25), inset 0 0 0 3px rgba(15,26,15,0.5), inset 0 0 0 4px rgba(197,147,90,0.1)',
+              }}
+            >
+              <div
+                className="border border-[rgba(197,147,90,0.15)] bg-[rgba(12,20,12,0.95)]"
+                style={{ padding: '4px' }}
+              >
+                <div className="w-[250px] h-[190px] overflow-hidden">
+                  <img src={mark.imageUrl} alt="" className="w-full h-full object-cover" />
+                </div>
               </div>
-              {/* Golden frame border */}
-              <div 
-                className="absolute -inset-[3px] rounded-[6px] pointer-events-none"
-                style={{ 
-                  border: '1.5px solid hsl(var(--ritual-gold) / 0.4)',
-                  boxShadow: '0 0 12px hsl(var(--ritual-gold) / 0.08)',
-                }}
-              />
             </div>
           )}
 
-          {/* Separator line */}
-          <div 
-            className="w-10 h-[1px] mb-3"
-            style={{ background: 'hsl(var(--ritual-gold) / 0.3)' }}
-          />
+          {/* Museum label */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-10 h-px mb-4" style={{ background: 'rgba(197,147,90,0.2)' }} />
 
-          {/* "Origin marked" title */}
-          <h2 
-            className="font-playfair text-[26px] text-ritual-gold mb-3"
-            style={{ fontWeight: 400 }}
-          >
-            Anchored
-          </h2>
+            <p className="font-mono text-[14px] tracking-[3px] mb-1" style={{ color: 'rgba(197,147,90,0.5)' }}>
+              {displayOriginId}
+            </p>
 
-          {/* Origin ID */}
-          <p 
-            className="font-mono text-[13px] tracking-[3px] uppercase mb-1.5"
-            style={{ color: 'hsl(var(--ritual-gold-muted))' }}
-          >
-            ANCHOR {displayOriginId}
-          </p>
+            <p className="font-garamond text-[17px] mb-2.5" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>
+              {formattedDate} · {formattedTime}
+            </p>
 
-          {/* Date */}
-          <p 
-            className="font-garamond text-[20px] mb-2"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
-          >
-            {formattedDate} · {formattedTime}
-          </p>
+            <p className="font-mono text-[11px] tracking-[0.5px] mb-3.5" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.3 }}>
+              {mark.hash}
+            </p>
 
-          {/* Hash */}
-          <p 
-            className="font-mono text-[13px] tracking-wide mb-3"
-            style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}
-          >
-            {shortHash}
-          </p>
-
-          {/* Status: circumpunct + text */}
-          <div className="flex items-center gap-2.5 mb-5">
-            {isAnchored ? (
-              <>
-                <OriginMark size={20} state="anchored" glow variant="dark" />
-                <p 
-                   className="font-mono text-[13px] tracking-[1.5px] uppercase"
-                   style={{ color: 'hsl(var(--ritual-gold))' }}
-                 >
-                   ANCHORED IN BITCOIN
-                 </p>
-               </>
-             ) : (
-               <>
-                 <OriginMark size={20} state="pending" glow animated variant="dark" />
-                 <p 
-                   className="font-mono text-[13px] tracking-[1.5px] uppercase"
-                  style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
-                >
-                  PENDING · BITCOIN CONFIRMATION
-                </p>
-              </>
-            )}
+            {/* Proof components */}
+            <div className="flex items-center gap-4 mb-5">
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>certificate</span>
+              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>hash</span>
+              {isAnchored ? (
+                <>
+                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
+                  <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>proof.ots</span>
+                </>
+              ) : (
+                <>
+                  <motion.span
+                    className="w-[3px] h-[3px] rounded-full"
+                    style={{ background: 'rgba(197,147,90,0.2)' }}
+                    animate={{ opacity: [0.3, 0.7, 0.3] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)', opacity: 0.6 }}>proof.ots</span>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Hidden file input for artifact re-selection */}
+          {/* Hidden file inputs */}
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*,audio/*,.pdf"
+            accept="image/*" // V2: expand to application/pdf, audio/*, video/*, text/*
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) handleFileSelected(file);
-              e.target.value = ''; // Reset for re-selection
+              e.target.value = '';
             }}
           />
-
-          {/* "Save as ZIP" button */}
-          {/* Hidden file input for ZIP selection */}
           <input
             ref={(el) => { (window as any).__zipInputRef = el; }}
             type="file"
@@ -310,32 +273,27 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               const verifyUrl = `https://umarise.com/verify?origin_id=${encodeURIComponent(mark.originId)}`;
               let shared = false;
 
-              // Try native Share Sheet with ZIP + verify link
               if (navigator.share) {
                 try {
                   await navigator.share({
                     files: [file],
-                    title: `Origin ${mark.originId.replace(/^um-/i, '').slice(0, 8).toUpperCase()}`,
-                    text: 'Verifieer mijn origin op umarise.com/verify',
+                    title: `Origin ${displayOriginId.slice(0, 8)}`,
                     url: verifyUrl,
                   });
                   shared = true;
                 } catch (err) {
                   if ((err as Error).name === 'AbortError') {
                     e.target.value = '';
-                    return; // User cancelled — do nothing
+                    return;
                   }
-                  console.warn('[MarkDetailModal] Share API failed, falling back:', err);
                 }
               }
 
-              // Fallback: copy verify link to clipboard
               if (!shared) {
                 try {
                   await navigator.clipboard.writeText(verifyUrl);
-                  toast.success('Verify link gekopieerd: ' + verifyUrl);
+                  toast.success('Verify link gekopieerd');
                 } catch {
-                  // Clipboard also blocked — show link in toast so user can copy manually
                   toast.info(verifyUrl, { duration: 8000 });
                 }
               }
@@ -345,42 +303,33 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               e.target.value = '';
             }}
           />
+
+          {/* Share button */}
           <button
-            onClick={() => {
-              if (saved) return;
-              (window as any).__zipInputRef?.click();
-            }}
+            onClick={handleShare}
             disabled={saved}
             className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
             style={{
               fontWeight: 300,
-              background: saved 
-                ? 'hsl(var(--ritual-gold) / 0.12)' 
-                : 'hsl(var(--ritual-gold) / 0.08)',
+              background: saved ? 'hsl(var(--ritual-gold) / 0.12)' : 'hsl(var(--ritual-gold) / 0.08)',
               border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.4' : '0.2'})`,
               color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
             }}
           >
-            {saved ? '✓ Shared' : 'Upload and share'}
+            {saved ? '✓ Shared' : 'Share'}
           </button>
 
-          {/* Device signed indicator (passive — registration is automatic at capture) */}
+          {/* Device signed — small checkmark, ghost */}
           {credentialRef.current && (
-            <p
-              className="font-garamond text-[17px] tracking-[0.3px] mb-1.5"
-              style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.5 }}
-            >
-              ✓ device signed
-            </p>
+            <div className="flex items-center gap-1.5 mt-1">
+              <svg width="12" height="12" viewBox="0 0 12 12">
+                <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
+                device signed
+              </span>
+            </div>
           )}
-
-          {/* Privacy note */}
-          <p 
-            className="font-garamond italic text-[17px] mt-3"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}
-          >
-            your file stays on your device. only the proof leaves
-          </p>
         </motion.div>
       </motion.div>
     </AnimatePresence>
