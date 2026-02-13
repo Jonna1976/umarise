@@ -1,6 +1,5 @@
  import { Link } from 'react-router-dom';
  import { ArrowLeft } from 'lucide-react';
- import { OriginMark } from '@/components/prototype/components/OriginMark';
  
  /**
   * Umarise: Why Anchor Attestation
@@ -19,8 +18,7 @@
              <ArrowLeft className="w-4 h-4" />
              <span className="text-sm">Back</span>
            </Link>
-            <span className="font-serif text-lg text-landing-cream/80 flex items-center gap-2">
-              <OriginMark size={16} state="anchored" variant="dark" />
+            <span className="font-serif text-lg text-landing-cream/80">
               Umarise
             </span>
          </div>

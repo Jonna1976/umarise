@@ -15,7 +15,6 @@ import { Copy, Check, Terminal, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ApiTester } from '@/components/codex/ApiTester';
 import { Button } from '@/components/ui/button';
-import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 const CORE_BASE_URL = 'https://core.umarise.com';
 
@@ -42,8 +41,7 @@ export default function ReviewKit() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.8)] flex items-center gap-2">
-            <OriginMark size={16} state="anchored" variant="dark" />
+          <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.8)]">
             Umarise
           </span>
         </div>
@@ -430,17 +428,10 @@ function ApiBlock({
   response?: string;
   note?: string;
 }) {
-  // Add inline OriginMark next to origin_id lines in response
   const renderResponse = (text: string) => {
-    return text.split('\n').map((line, i) => {
-      const hasOriginId = line.includes('"origin_id"');
-      return (
-        <div key={i} className="flex items-center gap-1.5">
-          {hasOriginId && <OriginMark size={12} state="anchored" variant="light" className="shrink-0" />}
-          <span>{line}</span>
-        </div>
-      );
-    });
+    return text.split('\n').map((line, i) => (
+      <div key={i}>{line}</div>
+    ));
   };
 
   return (

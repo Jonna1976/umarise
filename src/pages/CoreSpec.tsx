@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 /**
  * Umarise Core: Public Specification
@@ -21,8 +20,7 @@ export default function CoreSpec() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back</span>
           </Link>
-          <span className="font-serif text-lg text-landing-cream/80 flex items-center gap-2">
-            <OriginMark size={16} state="anchored" variant="dark" />
+          <span className="font-serif text-lg text-landing-cream/80">
             Umarise
           </span>
         </div>
@@ -86,9 +84,8 @@ export default function CoreSpec() {
             <div className="space-y-6 font-mono text-sm">
               {/* POST /v1-core-origins */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3 flex items-center gap-2">
-                  <OriginMark size={12} state="pending" variant="light" />
-                  <span>POST /v1-core-origins</span>
+                <div className="text-landing-copper mb-3">
+                  POST /v1-core-origins
                 </div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
@@ -99,9 +96,8 @@ export default function CoreSpec() {
 
               {/* GET /v1-core-resolve */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3 flex items-center gap-2">
-                  <OriginMark size={12} state="anchored" variant="light" />
-                  <span>GET /v1-core-resolve</span>
+                <div className="text-landing-copper mb-3">
+                  GET /v1-core-resolve
                 </div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id or hash</span></div>
@@ -112,9 +108,8 @@ export default function CoreSpec() {
 
               {/* POST /v1-core-verify */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3 flex items-center gap-2">
-                  <OriginMark size={12} state="anchored" variant="light" />
-                  <span>POST /v1-core-verify</span>
+                <div className="text-landing-copper mb-3">
+                  POST /v1-core-verify
                 </div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
@@ -125,9 +120,8 @@ export default function CoreSpec() {
 
               {/* GET /v1-core-proof */}
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3 flex items-center gap-2">
-                  <OriginMark size={12} state="anchored" variant="light" />
-                  <span>GET /v1-core-proof?origin_id=&#123;uuid&#125;</span>
+                <div className="text-landing-copper mb-3">
+                  GET /v1-core-proof?origin_id=&#123;uuid&#125;
                 </div>
                 <div className="space-y-2 text-landing-muted/70">
                   <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id (query parameter)</span></div>
