@@ -46,7 +46,7 @@ export function OriginMark({
   // Hexagon points: 24,4 42,14 42,34 24,44 6,34 6,14
   // Square hole: x=17 y=17 w=14 h=14 rx=1.8
 
-  const surfaceColor = variant === 'dark' ? 'hsl(var(--ritual-surface))' : '#0F1A0F';
+  const surfaceColor = '#0F1A0F';
   const goldColor = '#C5935A';
 
   const dotControls = useAnimation();
