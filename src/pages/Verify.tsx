@@ -461,7 +461,7 @@ export default function Verify() {
               {[
                 {
                   label: 'Drop',
-                  text: 'Drop the Anchor ZIP you received. It contains the original file, a certificate with the Anchor ID and hash, and optionally a Bitcoin proof. You can also drop just the file or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
+                  text: 'Drop the Anchor ZIP you received. It contains the original file, a certificate with the origin ID and hash, and optionally a Bitcoin proof. You can also drop just the file or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
                 },
                 {
                   label: 'Verify',

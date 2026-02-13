@@ -14,7 +14,7 @@ import { ArrowLeft } from 'lucide-react';
 const dataModel = [
   { field: 'hash', type: 'text', description: 'SHA-256 hash of the submitted bytes' },
   { field: 'hash_algorithm', type: 'text', description: 'Always "sha256"' },
-  { field: 'anchor_id', type: 'text', description: '8-character hexadecimal identifier' },
+  { field: 'origin_id', type: 'text', description: 'Stable external reference' },
   { field: 'created_at', type: 'timestamp', description: 'Server time when the hash was received' },
   { field: 'ots_proof', type: 'text', description: 'Base64-encoded .ots file (after Bitcoin confirmation)' },
   { field: 'ots_status', type: 'text', description: '"pending" or "anchored"' },
@@ -29,7 +29,7 @@ const chainSteps = [
   },
   {
     label: 'Server',
-    text: 'The hash is recorded with a timestamp and assigned an anchor_id. Status: "pending".',
+    text: 'The hash is recorded with a timestamp and assigned an origin_id. Status: "pending".',
   },
   {
     label: 'Batch aggregation',
@@ -64,7 +64,7 @@ const scopeNotEstablished = [
 ];
 
 const verificationEndpoints = [
-  { endpoint: '/v1-core-resolve', purpose: 'Look up an attestation by anchor_id' },
+  { endpoint: '/v1-core-resolve', purpose: 'Look up an attestation by origin_id' },
   { endpoint: '/v1-core-verify', purpose: 'Check whether a hash exists in the registry' },
   { endpoint: '/v1-core-proof', purpose: 'Retrieve the .ots proof file for a hash' },
 ];
@@ -314,9 +314,9 @@ export default function Legal() {
                   Anchor pending at time of sharing
                 </h3>
                 <p className="text-landing-muted/70">
-                   The .ots proof file is not yet available. The third party has the file and certificate containing the anchor_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
+                   The .ots proof file is not yet available. The third party has the file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
                   <code className="font-mono text-sm text-landing-copper">umarise.com/verify</code>{' '}
-                  using the anchor_id from the certificate, or directly via the{' '}
+                  using the origin_id from the certificate, or directly via the{' '}
                   <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
                   endpoint.
                 </p>

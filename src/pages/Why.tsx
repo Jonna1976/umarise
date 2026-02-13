@@ -108,28 +108,28 @@
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">How It Works</h2>
             <p className="text-landing-muted/70">
-              Data enters a system. A SHA-256 hash is computed at the moment of entry. The hash is submitted to Umarise Core. Umarise anchors the hash via OpenTimestamps to Bitcoin. The resulting proof is independently verifiable, forever.
+              Data enters a system. A SHA-256 hash is computed at the moment of entry. The hash is submitted to Core. The hash is anchored via OpenTimestamps to Bitcoin. The resulting proof is independently verifiable, forever.
             </p>
           </section>
 
           {/* Interoperability */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Interoperability</h2>
-            <p className="mb-4">
-              Umarise uses SHA-256, the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
-            </p>
+             <p className="mb-4">
+               Anchor attestation uses SHA-256, the same hash algorithm used by C2PA, Git, Bitcoin, and most content-addressable systems.
+             </p>
             <p className="text-landing-muted/60">
               This means an anchor attestation can serve as the root of a C2PA provenance chain, or as an independent anchor for any system that computes SHA-256 hashes.
             </p>
           </section>
 
           {/* What Umarise Is Not */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">What Umarise Is Not</h2>
-            <p className="text-landing-muted/70">
-              Umarise does not manage content, authenticate media, enforce governance, or replace internal logging. It is an anchor layer. It establishes what existed when, and nothing more.
-            </p>
-          </section>
+           <section>
+             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">What the Anchor Layer Is Not</h2>
+             <p className="text-landing-muted/70">
+               The anchor layer does not manage content, authenticate media, enforce governance, or replace internal logging. It establishes what existed when, and nothing more.
+             </p>
+           </section>
  
            {/* Reference */}
            <section className="border-t border-landing-muted/10 pt-12">
