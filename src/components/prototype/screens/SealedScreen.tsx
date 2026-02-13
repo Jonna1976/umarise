@@ -163,9 +163,9 @@ export function SealedScreen({
       >
         <OriginMark
           size={36}
-          state={isAnchored ? 'anchored' : 'pending'}
-          glow={isAnchored}
-          animated={!isAnchored}
+          state="anchored"
+          glow
+          animated={false}
           variant="dark"
         />
         {/* Golden wire — connects nail to frame */}
