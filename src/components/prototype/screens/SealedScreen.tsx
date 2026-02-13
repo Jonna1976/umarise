@@ -224,7 +224,7 @@ export function SealedScreen({
         {/* Origin ID — no prefix */}
         <p
           className="font-mono text-[14px] tracking-[3px] mb-1"
-          style={{ color: 'rgba(197,147,90,0.5)' }}
+          style={{ color: 'rgba(197,147,90,0.75)' }}
         >
           {shortId}
         </p>
@@ -232,7 +232,7 @@ export function SealedScreen({
         {/* Date */}
         <p
           className="font-garamond text-[17px] mb-2.5"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
         >
           {formatDate(timestamp)}
         </p>
@@ -240,24 +240,24 @@ export function SealedScreen({
         {/* Hash — full, one line */}
         <p
           className="font-mono text-[11px] tracking-[0.5px] mb-3.5"
-          style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.3 }}
+          style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
         </p>
 
         {/* Proof components — one line */}
         <div className="flex items-center gap-4 mb-5">
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             certificate
           </span>
-          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             hash
           </span>
           {isAnchored ? (
             <>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
                 proof.ots
               </span>
             </>
@@ -265,11 +265,11 @@ export function SealedScreen({
             <>
               <motion.span
                 className="w-[3px] h-[3px] rounded-full"
-                style={{ background: 'rgba(197,147,90,0.2)' }}
+                style={{ background: 'rgba(197,147,90,0.35)' }}
                 animate={{ opacity: [0.3, 0.7, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)', opacity: 0.6 }}>
+              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
                 proof.ots
               </span>
             </>
