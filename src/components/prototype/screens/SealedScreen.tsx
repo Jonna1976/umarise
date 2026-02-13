@@ -239,7 +239,7 @@ export function SealedScreen({
 
         {/* Hash — full, one line */}
         <p
-          className="font-mono text-[11px] tracking-[0.5px] mb-3.5"
+          className="font-mono text-[11px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
