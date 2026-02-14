@@ -102,13 +102,37 @@ node worker.js retry      # Herstart gefaalde proofs
 
 ---
 
+## E-mail Notificaties
+
+**Status:** ❌ Niet van toepassing
+
+De edge function `notify-ots-complete` bestaat in de codebase maar is effectief dode code.  
+De huidige architectuur volgt een strict **device-isolation posture**: er worden geen user accounts, e-mailadressen of `user_id`'s opgeslagen. Marks zijn gebonden aan een lokaal `device_user_id` (LocalStorage UUID) en IndexedDB.
+
+De notificatie-functie zoekt `pages.user_id → auth.users.email`, maar `user_id` is altijd `NULL` bij device-isolated marks. Elke aanroep eindigt op het pad: *"Anonymous mark — no notification"*.
+
+### Status-updates aan gebruikers
+
+In plaats van push-notificaties gebruikt de app een **pull-model**:
+
+- `useProofPolling` hook checkt proof status bij het openen van de Wall
+- Vergelijkt lokale `otsStatus` met `/v1-core-proof` response
+- Update IndexedDB wanneer status wijzigt naar `anchored`
+
+### Toekomstige overweging
+
+Mocht er ooit een opt-in e-mail flow komen (bijv. bij een vrijwillige account-registratie), dan kan `notify-ots-complete` geactiveerd worden. Tot die tijd blijft polling het enige mechanisme.
+
+---
+
 ## Frontend Implicaties
 
-- **Proof status is real-time.** Na een attestatie duurt het 1-12 uur voor `anchored`. UI kan `pending` / `anchored` tonen.
+- **Proof status is pull-based.** `useProofPolling` checkt bij het openen van de Wall. Geen push-notificaties.
 - **Download werkt.** `GET /v1-core-proof/:origin_id` retourneert het .ots bestand.
 - **Verificatie is extern.** Gebruikers verifiëren met de `ots` CLI tool of via opentimestamps.org.
 
 ---
 
-*Document versie: 1.0*  
+*Document versie: 1.1*  
+*Laatst bijgewerkt: 14 februari 2026*  
 *Status: Operationeel*
