@@ -1,20 +1,18 @@
 /**
  * useProofPolling — Background OTS proof status checker
  * 
- * When the Wall opens, checks all pending origins against the Core API.
+ * When the Wall opens, checks all pending origins against core_ots_proofs table directly.
  * Updates IndexedDB and display state when proofs become anchored.
  * 
- * Strategy (V1, per briefing):
+ * Strategy (V1.1, simplified):
  * - On mount: check all marks with otsStatus !== 'anchored'
  * - Fetch origin_id (UUID) from pages table for each
- * - Check /v1-core-proof for each → status + binary proof
- * - Store proof in IndexedDB, update otsStatus
- * - No push notifications; manual refresh via re-opening Wall
+ * - Query core_ots_proofs directly for anchored status
+ * - Update IndexedDB otsStatus accordingly
  */
 
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
 import { getMark, updateMark } from '@/lib/indexedDB';
 import { getDeviceId } from '@/lib/deviceId';
 import type { DisplayMark } from '@/hooks/useMarks';
@@ -32,7 +30,6 @@ interface ProofPollResult {
 export function useProofPolling() {
   /**
    * Fetch origin UUIDs for a set of mark IDs from the pages table.
-   * Returns a map of markId → originUuid.
    */
   const fetchOriginUuids = useCallback(async (
     markIds: string[]
@@ -59,6 +56,7 @@ export function useProofPolling() {
           map.set(row.id, row.origin_id);
         }
       }
+      console.info(`[useProofPolling] Found ${map.size} origin UUIDs for ${markIds.length} marks`);
       return map;
     } catch (e) {
       console.warn('[useProofPolling] Unexpected error:', e);
@@ -67,13 +65,15 @@ export function useProofPolling() {
   }, []);
 
   /**
-   * Poll proof status for all pending marks.
+   * Poll proof status for all pending marks using direct DB query.
    * Returns an array of marks that were updated to 'anchored'.
    */
   const pollPendingProofs = useCallback(async (
     pendingMarks: DisplayMark[]
   ): Promise<ProofPollResult[]> => {
     if (pendingMarks.length === 0) return [];
+
+    console.info(`[useProofPolling] Checking ${pendingMarks.length} pending marks...`);
 
     const markIds = pendingMarks.map(m => m.id);
     const uuidMap = await fetchOriginUuids(markIds);
@@ -83,48 +83,64 @@ export function useProofPolling() {
       return [];
     }
 
+    // Query core_ots_proofs directly for all origin_ids at once
+    const originIds = Array.from(uuidMap.values());
+    const { data: proofs, error } = await supabase
+      .from('core_ots_proofs')
+      .select('origin_id, status, bitcoin_block_height, anchored_at')
+      .in('origin_id', originIds)
+      .eq('status', 'anchored');
+
+    if (error) {
+      console.warn('[useProofPolling] Failed to query core_ots_proofs:', error);
+      return [];
+    }
+
+    if (!proofs || proofs.length === 0) {
+      console.info('[useProofPolling] No anchored proofs found yet');
+      return [];
+    }
+
+    // Build a set of anchored origin_ids for fast lookup
+    const anchoredMap = new Map(
+      proofs.map(p => [p.origin_id, p.bitcoin_block_height])
+    );
+
     const results: ProofPollResult[] = [];
 
-    // Check each pending mark in parallel
-    const checks = Array.from(uuidMap.entries()).map(async ([markId, originUuid]) => {
+    // Update IndexedDB for each anchored mark
+    const updates = Array.from(uuidMap.entries()).map(async ([markId, originUuid]) => {
+      if (!anchoredMap.has(originUuid)) return;
+
       try {
-        const result = await fetchProofStatus(originUuid);
+        const localMark = await getMark(markId);
+        if (localMark && localMark.otsStatus !== 'anchored') {
+          localMark.otsStatus = 'anchored';
+          await updateMark(localMark);
 
-        if (result.status === 'anchored' && result.otsProofBytes) {
-          // Update IndexedDB with the proof
-          const localMark = await getMark(markId);
-          if (localMark) {
-            localMark.otsStatus = 'anchored';
-            localMark.otsProof = new Uint8Array(result.otsProofBytes);
-            await updateMark(localMark);
-          }
-
+          const blockHeight = anchoredMap.get(originUuid) ?? null;
           results.push({
             markId,
             originUuid,
             newStatus: 'anchored',
-            bitcoinBlockHeight: result.bitcoinBlockHeight,
+            bitcoinBlockHeight: blockHeight,
           });
 
-          console.info(`[useProofPolling] ✓ Proof anchored: ${markId.substring(0, 8)}… (block ${result.bitcoinBlockHeight})`);
+          console.info(`[useProofPolling] ✓ Updated to anchored: ${markId.substring(0, 8)}… (block ${blockHeight})`);
         }
       } catch (e) {
-        console.warn(`[useProofPolling] Check failed for ${markId.substring(0, 8)}…:`, e);
+        console.warn(`[useProofPolling] Update failed for ${markId.substring(0, 8)}…:`, e);
       }
     });
 
-    await Promise.all(checks);
+    await Promise.all(updates);
 
-    if (results.length > 0) {
-      console.info(`[useProofPolling] ${results.length}/${uuidMap.size} proofs newly anchored`);
-    }
-
+    console.info(`[useProofPolling] ${results.length}/${uuidMap.size} proofs newly anchored`);
     return results;
   }, [fetchOriginUuids]);
 
   /**
    * Get the origin UUID for a specific mark from the pages table.
-   * Used by the detail view to enable proof fetching.
    */
   const getOriginUuid = useCallback(async (markId: string): Promise<string | null> => {
     const map = await fetchOriginUuids([markId]);
