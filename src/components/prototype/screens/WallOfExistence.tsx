@@ -89,17 +89,20 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
 
   // Background poll for pending proofs — runs once per mount
   useEffect(() => {
+    console.log('[Wall] Poll effect: isLoading=', isLoading, 'marks=', marks.length, 'hasPolled=', hasPolledRef.current);
     if (isLoading || marks.length === 0 || hasPolledRef.current) return;
     hasPolledRef.current = true;
 
     const pending = marks.filter(m => m.otsStatus !== 'anchored');
+    console.log('[Wall] Pending marks:', pending.length, 'of', marks.length);
     if (pending.length === 0) return;
 
     pollPendingProofs(pending).then(results => {
+      console.log('[Wall] Poll results:', results.length, 'newly anchored');
       if (results.length > 0) {
         refresh(); // Reload marks to reflect updated statuses
       }
-    });
+    }).catch(e => console.error('[Wall] Poll error:', e));
   }, [isLoading, marks, pollPendingProofs, refresh]);
 
   // Convert marks to artifact display format
