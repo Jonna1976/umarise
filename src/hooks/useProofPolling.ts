@@ -1,20 +1,17 @@
 /**
  * useProofPolling — Background OTS proof status checker
  * 
- * When the Wall opens, checks all pending origins against core_ots_proofs table directly.
- * Updates IndexedDB and display state when proofs become anchored.
+ * When the Wall opens, checks all pending origins against core_ots_proofs.
  * 
- * Strategy (V1.1, simplified):
- * - On mount: check all marks with otsStatus !== 'anchored'
- * - Fetch origin_id (UUID) from pages table for each
- * - Query core_ots_proofs directly for anchored status
- * - Update IndexedDB otsStatus accordingly
+ * Strategy (V1.2 — anon-compatible):
+ * - Uses hash from IndexedDB → origin_attestations (public) → origin_id
+ * - Then checks core_ots_proofs (public for anchored) for status
+ * - No dependency on pages table (blocked for anon role)
  */
 
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getMark, updateMark } from '@/lib/indexedDB';
-import { getDeviceId } from '@/lib/deviceId';
 import type { DisplayMark } from '@/hooks/useMarks';
 
 interface ProofPollResult {
@@ -24,49 +21,58 @@ interface ProofPollResult {
   bitcoinBlockHeight: number | null;
 }
 
-/**
- * Hook that provides proof polling functionality for the Wall.
- */
 export function useProofPolling() {
   /**
-   * Fetch origin UUIDs for a set of mark IDs from the pages table.
+   * Resolve origin UUIDs by looking up hashes in origin_attestations (public table).
+   * Returns a map of markId → originUuid.
    */
-  const fetchOriginUuids = useCallback(async (
-    markIds: string[]
+  const resolveOriginsByHash = useCallback(async (
+    marks: DisplayMark[]
   ): Promise<Map<string, string>> => {
-    const deviceUserId = getDeviceId();
-    if (!deviceUserId || markIds.length === 0) return new Map();
+    if (marks.length === 0) return new Map();
+
+    // Deduplicate hashes
+    const uniqueHashes = [...new Set(marks.map(m => m.hash).filter(Boolean))];
+    if (uniqueHashes.length === 0) return new Map();
 
     try {
       const { data, error } = await supabase
-        .from('pages')
-        .select('id, origin_id')
-        .in('id', markIds)
-        .eq('device_user_id', deviceUserId)
-        .not('origin_id', 'is', null);
+        .from('origin_attestations')
+        .select('origin_id, hash')
+        .in('hash', uniqueHashes);
 
       if (error || !data) {
-        console.warn('[useProofPolling] Failed to fetch origin UUIDs:', error);
+        console.warn('[useProofPolling] Failed to resolve origins by hash:', error);
         return new Map();
       }
 
-      const map = new Map<string, string>();
+      // Build hash → origin_id lookup (first-in-time, but any match works for status check)
+      const hashToOrigin = new Map<string, string>();
       for (const row of data) {
-        if (row.origin_id) {
-          map.set(row.id, row.origin_id);
+        if (!hashToOrigin.has(row.hash)) {
+          hashToOrigin.set(row.hash, row.origin_id);
         }
       }
-      console.info(`[useProofPolling] Found ${map.size} origin UUIDs for ${markIds.length} marks`);
-      return map;
+
+      // Map markId → originUuid via hash
+      const result = new Map<string, string>();
+      for (const mark of marks) {
+        const originId = hashToOrigin.get(mark.hash);
+        if (originId) {
+          result.set(mark.id, originId);
+        }
+      }
+
+      console.info(`[useProofPolling] Resolved ${result.size} origin UUIDs from ${uniqueHashes.length} unique hashes`);
+      return result;
     } catch (e) {
-      console.warn('[useProofPolling] Unexpected error:', e);
+      console.warn('[useProofPolling] Unexpected error resolving origins:', e);
       return new Map();
     }
   }, []);
 
   /**
-   * Poll proof status for all pending marks using direct DB query.
-   * Returns an array of marks that were updated to 'anchored'.
+   * Poll proof status for all pending marks.
    */
   const pollPendingProofs = useCallback(async (
     pendingMarks: DisplayMark[]
@@ -75,15 +81,14 @@ export function useProofPolling() {
 
     console.info(`[useProofPolling] Checking ${pendingMarks.length} pending marks...`);
 
-    const markIds = pendingMarks.map(m => m.id);
-    const uuidMap = await fetchOriginUuids(markIds);
+    const uuidMap = await resolveOriginsByHash(pendingMarks);
 
     if (uuidMap.size === 0) {
-      console.info('[useProofPolling] No origin UUIDs found for pending marks');
+      console.info('[useProofPolling] No origin UUIDs resolved for pending marks');
       return [];
     }
 
-    // Query core_ots_proofs directly for all origin_ids at once
+    // Query core_ots_proofs directly (public SELECT for anchored status)
     const originIds = Array.from(uuidMap.values());
     const { data: proofs, error } = await supabase
       .from('core_ots_proofs')
@@ -101,7 +106,7 @@ export function useProofPolling() {
       return [];
     }
 
-    // Build a set of anchored origin_ids for fast lookup
+    // Build anchored lookup
     const anchoredMap = new Map(
       proofs.map(p => [p.origin_id, p.bitcoin_block_height])
     );
@@ -134,18 +139,27 @@ export function useProofPolling() {
     });
 
     await Promise.all(updates);
-
     console.info(`[useProofPolling] ${results.length}/${uuidMap.size} proofs newly anchored`);
     return results;
-  }, [fetchOriginUuids]);
+  }, [resolveOriginsByHash]);
 
   /**
-   * Get the origin UUID for a specific mark from the pages table.
+   * Get the origin UUID for a specific mark by hash lookup.
    */
   const getOriginUuid = useCallback(async (markId: string): Promise<string | null> => {
-    const map = await fetchOriginUuids([markId]);
-    return map.get(markId) ?? null;
-  }, [fetchOriginUuids]);
+    const localMark = await getMark(markId);
+    if (!localMark?.hash) return null;
+
+    const { data, error } = await supabase
+      .from('origin_attestations')
+      .select('origin_id')
+      .eq('hash', localMark.hash)
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return data.origin_id;
+  }, []);
 
   return {
     pollPendingProofs,
