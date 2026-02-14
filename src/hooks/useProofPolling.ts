@@ -63,7 +63,7 @@ export function useProofPolling() {
         }
       }
 
-      console.info(`[useProofPolling] Resolved ${result.size} origin UUIDs from ${uniqueHashes.length} unique hashes`);
+      console.log(`[useProofPolling] Resolved ${result.size} origin UUIDs from ${uniqueHashes.length} unique hashes`);
       return result;
     } catch (e) {
       console.warn('[useProofPolling] Unexpected error resolving origins:', e);
@@ -79,12 +79,12 @@ export function useProofPolling() {
   ): Promise<ProofPollResult[]> => {
     if (pendingMarks.length === 0) return [];
 
-    console.info(`[useProofPolling] Checking ${pendingMarks.length} pending marks...`);
+    console.log(`[useProofPolling] Checking ${pendingMarks.length} pending marks...`);
 
     const uuidMap = await resolveOriginsByHash(pendingMarks);
 
     if (uuidMap.size === 0) {
-      console.info('[useProofPolling] No origin UUIDs resolved for pending marks');
+      console.log('[useProofPolling] No origin UUIDs resolved for pending marks');
       return [];
     }
 
@@ -102,7 +102,7 @@ export function useProofPolling() {
     }
 
     if (!proofs || proofs.length === 0) {
-      console.info('[useProofPolling] No anchored proofs found yet');
+      console.log('[useProofPolling] No anchored proofs found yet');
       return [];
     }
 
@@ -131,7 +131,7 @@ export function useProofPolling() {
             bitcoinBlockHeight: blockHeight,
           });
 
-          console.info(`[useProofPolling] ✓ Updated to anchored: ${markId.substring(0, 8)}… (block ${blockHeight})`);
+          console.log(`[useProofPolling] ✓ Updated to anchored: ${markId.substring(0, 8)}… (block ${blockHeight})`);
         }
       } catch (e) {
         console.warn(`[useProofPolling] Update failed for ${markId.substring(0, 8)}…:`, e);
@@ -139,7 +139,7 @@ export function useProofPolling() {
     });
 
     await Promise.all(updates);
-    console.info(`[useProofPolling] ${results.length}/${uuidMap.size} proofs newly anchored`);
+    console.log(`[useProofPolling] ${results.length}/${uuidMap.size} proofs newly anchored`);
     return results;
   }, [resolveOriginsByHash]);
 
