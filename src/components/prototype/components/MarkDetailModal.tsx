@@ -48,15 +48,19 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const artifactFileRef = useRef<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Eagerly fetch OTS proof
+  // Eagerly fetch OTS proof — silently ignore 404 for pending marks
   useEffect(() => {
     if (!mark.originUuid) return;
-    fetchProofStatus(mark.originUuid).then(result => {
-      if (result.status === 'anchored' && result.otsProofBytes) {
-        otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
-        setProofLoaded(true);
-      }
-    });
+    fetchProofStatus(mark.originUuid)
+      .then(result => {
+        if (result.status === 'anchored' && result.otsProofBytes) {
+          otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
+          setProofLoaded(true);
+        }
+      })
+      .catch(() => {
+        // Expected 404 for marks not yet anchored — no action needed
+      });
   }, [mark.originUuid]);
 
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
