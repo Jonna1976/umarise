@@ -1,9 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
 };
+
+const AI_RATE_LIMIT = 10;
 
 // Controlled vocabulary for topic labels (50-200 range)
 const TOPIC_LABELS = [
@@ -76,7 +79,14 @@ serve(async (req) => {
   }
 
   try {
-    const { image_base64, image_url } = await req.json();
+    const { image_base64, image_url, device_user_id } = await req.json();
+
+    // Rate limit (use device_user_id from payload or header)
+    const deviceId = device_user_id || req.headers.get('x-device-id') || 'anonymous';
+    const rl = await checkCompanionRateLimit(deviceId, 'analyze-page', AI_RATE_LIMIT);
+    if (!rl.allowed) {
+      return rateLimitResponse(corsHeaders, rl.resetInSeconds);
+    }
 
     if (!image_base64 && !image_url) {
       return new Response(

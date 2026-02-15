@@ -1,9 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
+
+const RATE_LIMIT_PER_MIN = 50
 
 const VALID_ACTIONS = [
   // personality_snapshots
@@ -49,6 +52,12 @@ Deno.serve(async (req) => {
     }
 
     const deviceUserId = validateDeviceUserId(device_user_id)
+
+    // Rate limit check
+    const rl = await checkCompanionRateLimit(deviceUserId, 'companion-data', RATE_LIMIT_PER_MIN)
+    if (!rl.allowed) {
+      return rateLimitResponse(corsHeaders, rl.resetInSeconds)
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,

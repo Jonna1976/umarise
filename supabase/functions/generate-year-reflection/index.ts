@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const AI_RATE_LIMIT = 5; // Year reflection is heavy
 
 interface PageData {
   id: string;
@@ -57,6 +60,12 @@ serve(async (req) => {
         JSON.stringify({ error: 'device_user_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Rate limit
+    const rl = await checkCompanionRateLimit(device_user_id, 'generate-year-reflection', AI_RATE_LIMIT);
+    if (!rl.allowed) {
+      return rateLimitResponse(corsHeaders, rl.resetInSeconds);
     }
 
     const targetYear = year || new Date().getFullYear();

@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
 };
+
+const SEARCH_RATE_LIMIT = 30;
 
 const DEVICE_HEADER = 'x-device-id';
 
@@ -172,6 +175,12 @@ serve(async (req) => {
         JSON.stringify({ error: 'device_user_id and query are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Rate limit
+    const rl = await checkCompanionRateLimit(validatedDeviceId, 'search-pages', SEARCH_RATE_LIMIT);
+    if (!rl.allowed) {
+      return rateLimitResponse(corsHeaders, rl.resetInSeconds);
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
