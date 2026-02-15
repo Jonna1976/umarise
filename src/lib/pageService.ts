@@ -12,7 +12,7 @@
 
 import { getStorageProvider } from './abstractions';
 import { getDeviceId } from './deviceId';
-import { supabase } from '@/integrations/supabase/client';
+import { lookupOriginHashProxy, batchLookupOriginHashes } from './companionProxy';
 import type { Page, Project, CapsulePages } from './abstractions/types';
 
 // Re-export types for backward compatibility
@@ -30,15 +30,10 @@ export async function lookupOriginHash(
   if (!deviceUserId) return null;
 
   try {
-    const { data, error } = await supabase
-      .from('page_origin_hashes')
-      .select('origin_hash_sha256, origin_hash_algo')
-      .eq('device_user_id', deviceUserId)
-      .eq('page_id', pageId)
-      .maybeSingle();
+    const { data, error } = await lookupOriginHashProxy(deviceUserId, pageId);
     
     if (error) {
-      console.warn('[Origin Hash] Sidecar lookup failed:', error.message);
+      console.warn('[Origin Hash] Sidecar lookup failed:', error);
       return null;
     }
     
@@ -110,11 +105,7 @@ export async function getPages(): Promise<Page[]> {
   if (pagesNeedingHash.length > 0) {
     try {
       const pageIds = pagesNeedingHash.map(p => p.id);
-      const { data: sidecarHashes } = await supabase
-        .from('page_origin_hashes')
-        .select('page_id, origin_hash_sha256, origin_hash_algo')
-        .eq('device_user_id', deviceUserId)
-        .in('page_id', pageIds);
+      const { data: sidecarHashes } = await batchLookupOriginHashes(deviceUserId, pageIds);
       
       if (sidecarHashes && sidecarHashes.length > 0) {
         const hashMap = new Map(sidecarHashes.map(h => [h.page_id, h]));
@@ -199,11 +190,7 @@ export async function getCapsulePages(capsuleId: string): Promise<Page[]> {
   
   try {
     const pageIds = pagesNeedingHash.map(p => p.id);
-    const { data: sidecarHashes } = await supabase
-      .from('page_origin_hashes')
-      .select('page_id, origin_hash_sha256, origin_hash_algo')
-      .eq('device_user_id', deviceUserId)
-      .in('page_id', pageIds);
+    const { data: sidecarHashes } = await batchLookupOriginHashes(deviceUserId, pageIds);
     
     if (sidecarHashes && sidecarHashes.length > 0) {
       const hashMap = new Map(sidecarHashes.map(h => [h.page_id, h]));

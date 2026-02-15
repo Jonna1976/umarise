@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { X, Download, Share2, Database, Sparkles, Layers, Users, Shield, TrendingUp, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { countPersonalitySnapshots } from "@/lib/companionProxy";
 import { getActiveDeviceId } from "@/lib/deviceId";
 
 interface OnePagerProps {
@@ -34,10 +35,7 @@ const OnePager = ({ onClose }: OnePagerProps) => {
           .select("created_at")
           .eq("device_user_id", deviceUserId)
           .order("created_at", { ascending: true }),
-        supabase
-          .from("personality_snapshots")
-          .select("id")
-          .eq("device_user_id", deviceUserId),
+        countPersonalitySnapshots(deviceUserId),
       ]);
 
       const pages = pagesRes.data || [];
@@ -47,7 +45,7 @@ const OnePager = ({ onClose }: OnePagerProps) => {
 
       setMetrics({
         pageCount: pages.length,
-        themeCount: snapshotsRes.data?.length || 0,
+        themeCount: snapshotsRes.data?.count || 0,
         uniqueDays,
         oldestPage: pages[0]?.created_at || null,
       });

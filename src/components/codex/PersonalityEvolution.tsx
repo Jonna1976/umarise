@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, ChevronDown, ChevronUp, ArrowRight, Plus, Minus, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { listPersonalitySnapshots } from '@/lib/companionProxy';
 import { getActiveDeviceId } from '@/lib/deviceId';
 import { format } from 'date-fns';
 
@@ -89,11 +89,9 @@ export function PersonalityEvolution({ currentTagline }: PersonalityEvolutionPro
   useEffect(() => {
     async function fetchSnapshots() {
       const deviceId = getActiveDeviceId();
-      const { data, error } = await supabase
-        .from('personality_snapshots')
-        .select('id, tagline, superpower, core_identity, growth_edge, page_count, created_at, drivers, tension_field')
-        .eq('device_user_id', deviceId)
-        .order('created_at', { ascending: true });
+      const { data, error } = await listPersonalitySnapshots(deviceId || '');
+      
+      // data is already filtered by device_user_id in the proxy
 
       if (!error && data) {
         // Parse JSON fields that come as strings

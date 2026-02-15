@@ -145,18 +145,15 @@ export function VerifyOriginButton({ pageId, imageUrl, originHashSha256, originH
         
         // Also persist to sidecar table so it's available for future loads
         try {
-          const { supabase } = await import('@/integrations/supabase/client');
+          const { upsertOriginHash } = await import('@/lib/companionProxy');
           const { getDeviceId } = await import('@/lib/deviceId');
           const deviceUserId = getDeviceId();
           if (deviceUserId) {
-            await supabase.from('page_origin_hashes').upsert({
-              device_user_id: deviceUserId,
+            await upsertOriginHash(deviceUserId, {
               page_id: pageId,
               image_url: imageUrl,
               origin_hash_sha256: verificationResult.actualHash,
               origin_hash_algo: 'sha256',
-            }, {
-              onConflict: 'page_id',
             });
             console.log('[VerifyOrigin] Persisted hash to sidecar table');
           }

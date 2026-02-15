@@ -15,6 +15,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { getDeviceId, getActiveDeviceId, setDeviceId, isDemoModeActive, DEMO_DEVICE_ID } from '../deviceId';
 import { decryptImage } from '../crypto';
+import { listProjects, createProject as createProjectProxy, listTrashedPageIds, trashPage, untrashPage, deleteTrashEntry } from '../companionProxy';
 import type { Page, Project, OCRToken, NamedEntity, FutureYouCuesSource } from './types';
 
 // ============= Storage Interface =============
@@ -382,18 +383,14 @@ export class LovableCloudStorage implements IStorageProvider {
     const deviceUserId = getActiveDeviceId();
     if (!deviceUserId) return [];
 
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('device_user_id', deviceUserId)
-      .order('created_at', { ascending: false });
+    const { data, error } = await listProjects(deviceUserId);
 
     if (error) {
       console.error('Fetch projects error:', error);
       return [];
     }
 
-    return data.map(row => ({
+    return (data || []).map(row => ({
       id: row.id,
       deviceUserId: row.device_user_id,
       name: row.name,
@@ -406,19 +403,14 @@ export class LovableCloudStorage implements IStorageProvider {
     const deviceUserId = getDeviceId();
     if (!deviceUserId) return null;
 
-    const { data, error } = await supabase
-      .from('projects')
-      .insert({
-        device_user_id: deviceUserId,
-        name: name.trim(),
-      })
-      .select()
-      .single();
+    const { data, error } = await createProjectProxy(deviceUserId, name.trim());
 
     if (error) {
       console.error('Create project error:', error);
       return null;
     }
+
+    if (!data) return null;
 
     return {
       id: data.id,
@@ -815,19 +807,14 @@ export class HetznerVaultStorage implements IStorageProvider {
   private async getTrashedPageIds(): Promise<Set<string>> {
     const deviceUserId = this.getDeviceUserId();
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
-      .from('hetzner_trash_index')
-      .select('page_id')
-      .eq('device_user_id', deviceUserId);
+    const { data, error } = await listTrashedPageIds(deviceUserId);
     
     if (error) {
       console.error('[HetznerVaultStorage] Failed to fetch trash index:', error);
       return new Set();
     }
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new Set((data || []).map((row: any) => row.page_id as string));
+    return new Set(data || []);
   }
 
   // uploadImage removed — legacy server-side upload no longer used.
@@ -1095,12 +1082,7 @@ export class HetznerVaultStorage implements IStorageProvider {
 
     if (shouldCleanupIndex) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any)
-          .from('hetzner_trash_index')
-          .delete()
-          .eq('device_user_id', deviceUserId)
-          .eq('page_id', id);
+        await deleteTrashEntry(deviceUserId, id);
         console.log('[HetznerVaultStorage] Removed page from trash index:', id);
       } catch (err) {
         console.warn('[HetznerVaultStorage] Failed to remove from trash index (non-critical):', err);
@@ -1295,14 +1277,7 @@ export class HetznerVaultStorage implements IStorageProvider {
 
     try {
       // 1. Insert into Cloud trash index (primary source of truth for cross-device sync)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: insertError } = await (supabase as any)
-        .from('hetzner_trash_index')
-        .upsert({
-          device_user_id: deviceUserId,
-          page_id: pageId,
-          trashed_at: new Date().toISOString(),
-        }, { onConflict: 'device_user_id,page_id' });
+      const { error: insertError } = await trashPage(deviceUserId, pageId);
 
       if (insertError) {
         console.error('[HetznerVaultStorage] Failed to insert trash index:', insertError);
@@ -1339,14 +1314,9 @@ export class HetznerVaultStorage implements IStorageProvider {
 
     try {
       // 1. Remove from Cloud trash index
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: deleteError, count } = await (supabase as any)
-        .from('hetzner_trash_index')
-        .delete({ count: 'exact' })
-        .eq('device_user_id', deviceUserId)
-        .eq('page_id', pageId);
+      const { data: untrashResult, error: deleteError } = await untrashPage(deviceUserId, pageId);
 
-      console.log('[HetznerVaultStorage] Trash index delete result:', { deleteError, count });
+      console.log('[HetznerVaultStorage] Trash index delete result:', { deleteError, count: untrashResult?.count });
 
       if (deleteError) {
         console.error('[HetznerVaultStorage] Failed to delete trash index:', deleteError);
