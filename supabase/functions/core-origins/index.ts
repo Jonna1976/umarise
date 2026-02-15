@@ -24,12 +24,9 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const EXTRA_HEADERS = 'x-api-key';
 
 // Deprecation headers for legacy endpoint
 const deprecationHeaders = {
@@ -138,9 +135,11 @@ async function validatePartnerApiKey(
 }
 
 Deno.serve(async (req: Request) => {
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   // Only allow POST
