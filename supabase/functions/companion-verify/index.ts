@@ -20,6 +20,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { crypto } from 'https://deno.land/std@0.208.0/crypto/mod.ts';
 import { encodeHex } from 'https://deno.land/std@0.208.0/encoding/hex.ts';
 import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
+import { checkPublicRateLimit, publicRateLimitResponse } from '../_shared/publicRateLimit.ts';
 
 interface VerifyRequest {
   origin_id: string;
@@ -53,6 +54,12 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({ error: 'Method not allowed. Use POST.' }),
       { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+  }
+
+  // Rate limit: 30 req/min per IP
+  const rl = await checkPublicRateLimit(req, 'companion-verify', 30);
+  if (!rl.allowed) {
+    return publicRateLimitResponse(corsHeaders, rl.resetInSeconds);
   }
 
   try {
