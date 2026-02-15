@@ -705,6 +705,137 @@ const Architecture = () => {
           </div>
         </section>
 
+        {/* 12. Load Test Results */}
+        <section>
+          <SectionHeader icon={Server} title="Stress Test Resultaten (k6)" num={12} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Empirische validatie van de Core API onder sustained load. Uitgevoerd op 15 februari 2026 vanaf een externe client (iMac, macOS). Alle thresholds gepasseerd.
+          </p>
+
+          {/* Public Endpoints Test */}
+          <div className="mb-8">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-landing-cream/30" />
+              Publieke Endpoints (load-test-core-api.js)
+            </h3>
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-3">
+              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profiel</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                {[
+                  ['8 min', 'Duur'],
+                  ['34', 'Max VUs'],
+                  ['6.073', 'Iteraties'],
+                  ['~14 req/s', 'Throughput'],
+                ].map(([num, label]) => (
+                  <div key={label} className="text-center p-3 bg-landing-cream/[0.03] rounded-lg">
+                    <p className="text-lg font-light text-landing-cream/90 font-mono">{num}</p>
+                    <p className="text-xs text-landing-muted/40">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                      <th className="pb-3 pr-4">Endpoint</th>
+                      <th className="pb-3 pr-4">Checks</th>
+                      <th className="pb-3 pr-4">P95</th>
+                      <th className="pb-3 pr-4">Error Rate</th>
+                      <th className="pb-3">Threshold</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-landing-cream/5">
+                    {[
+                      { endpoint: 'GET /v1-core-health', checks: '93% < 500ms', p95: '—', error: '6.01%', threshold: '✅' },
+                      { endpoint: 'GET /v1-core-resolve', checks: '99% < 2s', p95: '531ms', error: '0.94%', threshold: '✅' },
+                      { endpoint: 'POST /v1-core-verify', checks: '98% < 2s', p95: '621ms', error: '1.73%', threshold: '✅' },
+                      { endpoint: 'POST /v1-core-origins', checks: '99% rejects 401', p95: '362ms', error: '0.08%', threshold: '✅' },
+                    ].map((row) => (
+                      <tr key={row.endpoint} className="text-landing-cream/70">
+                        <td className="py-2 pr-4 font-mono text-xs">{row.endpoint}</td>
+                        <td className="py-2 pr-4 text-xs">{row.checks}</td>
+                        <td className="py-2 pr-4 font-mono text-xs text-landing-cream/90">{row.p95}</td>
+                        <td className="py-2 pr-4 text-xs">{row.error}</td>
+                        <td className="py-2 text-emerald-400/80 text-xs">{row.threshold}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+              <p className="text-xs text-emerald-400/60">
+                ✅ Overall: 99.41% checks passed. P95 overall 546ms. 6.563 requests verwerkt in 8 minuten. Alle 6 custom thresholds gepasseerd.
+              </p>
+            </div>
+          </div>
+
+          {/* Authenticated Round-Trip Test */}
+          <div className="mb-8">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Key className="w-4 h-4 text-landing-cream/30" />
+              B2B Round-Trip (load-test-authenticated.js)
+            </h3>
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-3">
+              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profiel — Create → Resolve → Verify</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                {[
+                  ['5.5 min', 'Duur'],
+                  ['10', 'Max VUs'],
+                  ['661', 'Iteraties'],
+                  ['646', 'Round-trips ✓'],
+                ].map(([num, label]) => (
+                  <div key={label} className="text-center p-3 bg-landing-cream/[0.03] rounded-lg">
+                    <p className="text-lg font-light text-landing-cream/90 font-mono">{num}</p>
+                    <p className="text-xs text-landing-muted/40">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                      <th className="pb-3 pr-4">Stap</th>
+                      <th className="pb-3 pr-4">Checks</th>
+                      <th className="pb-3 pr-4">P95</th>
+                      <th className="pb-3 pr-4">Error Rate</th>
+                      <th className="pb-3">Threshold</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-landing-cream/5">
+                    {[
+                      { step: 'POST /v1-core-origins', checks: '98% < 3s', p95: '788ms', error: '1.36%', threshold: '✅' },
+                      { step: 'GET /v1-core-resolve', checks: '98% < 2s', p95: '577ms', error: '1.38%', threshold: '✅' },
+                      { step: 'POST /v1-core-verify', checks: '99% < 2s', p95: '664ms', error: '0.92%', threshold: '✅' },
+                    ].map((row) => (
+                      <tr key={row.step} className="text-landing-cream/70">
+                        <td className="py-2 pr-4 font-mono text-xs">{row.step}</td>
+                        <td className="py-2 pr-4 text-xs">{row.checks}</td>
+                        <td className="py-2 pr-4 font-mono text-xs text-landing-cream/90">{row.p95}</td>
+                        <td className="py-2 pr-4 text-xs">{row.error}</td>
+                        <td className="py-2 text-emerald-400/80 text-xs">{row.threshold}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+              <p className="text-xs text-emerald-400/60">
+                ✅ Overall: 99.73% checks passed. 652 attestaties aangemaakt, 646 volledige round-trips (Create → Resolve → Verify). 0% HTTP failures. Alle 6 custom thresholds gepasseerd.
+              </p>
+            </div>
+          </div>
+
+          {/* Scalability Note */}
+          <div className="p-4 bg-amber-500/[0.03] border border-amber-500/10 rounded-lg">
+            <p className="text-xs text-amber-400/60 uppercase tracking-wider mb-2">Schaalbaarheid notitie</p>
+            <p className="text-xs text-landing-cream/50">
+              De DB-persistent rate limiter (core_check_rate_limit UPSERT) functioneert correct onder deze load (~14 req/s, ~820 req/min). Bij extreme schaal (&gt;100K concurrent users) kan de write-druk van de UPSERT een bottleneck worden. Monitoring van database IOPS is dan geadviseerd, eventueel met migratie naar een gedistribueerd rate-limit mechanisme.
+            </p>
+          </div>
+        </section>
+
         {/* Footer */}
         <div className="border-t border-landing-cream/10 pt-8 pb-16">
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
