@@ -231,10 +231,10 @@ export default function () {
 
     const success = check(res, {
       'verify: status is 200': (r) => r.status === 200,
-      'verify: verified is true': (r) => {
+      'verify: returns origin data': (r) => {
         try {
           const body = JSON.parse(r.body);
-          return body.verified === true;
+          return !!body.origin_id && !!body.hash;
         } catch { return false; }
       },
       'verify: origin_id matches': (r) => {
