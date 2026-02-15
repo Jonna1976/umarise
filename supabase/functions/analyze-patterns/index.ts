@@ -1,11 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
 const AI_RATE_LIMIT = 10;
 
@@ -46,9 +42,11 @@ Antwoord ALLEEN met valide JSON in dit exacte formaat:
 }`;
 
 serve(async (req) => {
+  const corsHeaders = getCompanionCorsHeaders(req);
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req);
   }
 
   try {

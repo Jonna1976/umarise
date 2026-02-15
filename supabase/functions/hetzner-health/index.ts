@@ -1,10 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
 // Production URL with valid SSL certificate
 const DEFAULT_BASE_URL = "https://vault.umarise.com";
@@ -40,10 +35,11 @@ async function checkService(url: string): Promise<HealthStatus> {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCompanionCorsHeaders(req);
   console.log(`hetzner-health called: ${req.method}`);
   
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req);
   }
 
   try {

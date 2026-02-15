@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
-};
+const EXTRA_HEADERS = 'x-device-id';
 
 const AI_RATE_LIMIT = 10;
 
@@ -31,8 +29,10 @@ Geef je antwoord als JSON array met dit formaat:
 Wees specifiek. Geen algemene bestsellers tenzij ze echt passen. Denk aan cult classics, indie films, essays van filosofen, vergeten meesterwerken.`;
 
 serve(async (req) => {
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   try {

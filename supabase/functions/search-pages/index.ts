@@ -1,11 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
-};
+const EXTRA_HEADERS = 'x-device-id';
 
 const SEARCH_RATE_LIMIT = 30;
 
@@ -145,8 +143,10 @@ function pageMatchesDate(page: any, dateQuery: { day: number; month: number }): 
 }
 
 serve(async (req) => {
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   try {
