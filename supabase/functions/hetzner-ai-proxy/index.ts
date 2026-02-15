@@ -1,4 +1,3 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
@@ -8,10 +7,9 @@ const EXTRA_HEADERS = 'x-device-user-id';
 const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 120000;
 
-// Service routing - determines which API path to use
 const SERVICE_ROUTES: Record<string, string> = {
-  '/ai/search': '/api/codex',      // Search is on codex service
-  'default': '/api/vision',         // Everything else on vision service
+  '/ai/search': '/api/codex',
+  'default': '/api/vision',
 };
 
 const RATE_LIMITS: Record<string, number> = {
@@ -30,7 +28,7 @@ async function logAudit(supabase: any, log: Record<string, unknown>) {
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   const requestId = crypto.randomUUID().slice(0, 8);
   const startTime = Date.now();
   const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
@@ -65,16 +63,16 @@ serve(async (req) => {
     deviceUserId = payload?.deviceUserId || req.headers.get('x-device-user-id') || 'anonymous';
     console.log(`[${requestId}] Device: ${deviceUserId.slice(0, 8)}..., Endpoint: ${endpoint}`);
 
-    const rateCheck = checkRateLimit(deviceUserId, endpoint);
+    // DB-persistent rate limiting (replaces in-memory Map)
+    const rateLimit = RATE_LIMITS[endpoint] || RATE_LIMITS['default'];
+    const rateCheck = await checkCompanionRateLimit(deviceUserId, `ai-proxy:${endpoint}`, rateLimit);
     if (!rateCheck.allowed) {
-      const retryAfter = Math.ceil((rateCheck.resetAt - Date.now()) / 1000);
       await logAudit(supabase, {
         request_id: requestId, device_user_id: deviceUserId, service: 'ai-proxy',
         endpoint, method: 'POST', status_code: 429, duration_ms: Date.now() - startTime,
         error_message: 'Rate limit exceeded', rate_limited: true, rate_limit_remaining: 0,
       });
-      return new Response(JSON.stringify({ error: "Rate limit exceeded", retryAfterSeconds: retryAfter }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": retryAfter.toString() } });
+      return rateLimitResponse(corsHeaders, rateCheck.resetInSeconds);
     }
 
     const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');
@@ -88,7 +86,6 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Determine the correct service route
     const serviceBase = SERVICE_ROUTES[endpoint] || SERVICE_ROUTES['default'];
     const targetUrl = `${HETZNER_BASE_URL}${serviceBase}${endpoint}`;
     console.log(`[${requestId}] Proxying to: ${targetUrl}`);
