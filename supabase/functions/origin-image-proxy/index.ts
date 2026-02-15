@@ -10,6 +10,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
+import { checkPublicRateLimit, publicRateLimitResponse } from '../_shared/publicRateLimit.ts';
 
 Deno.serve(async (req) => {
   const corsHeaders = getCompanionCorsHeaders(req);
@@ -24,6 +25,12 @@ Deno.serve(async (req) => {
       status: 405,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+  }
+
+  // Rate limit: 60 req/min per IP
+  const rl = await checkPublicRateLimit(req, 'origin-image-proxy', 60);
+  if (!rl.allowed) {
+    return publicRateLimitResponse(corsHeaders, rl.resetInSeconds);
   }
 
   try {

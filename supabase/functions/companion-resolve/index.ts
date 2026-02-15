@@ -13,6 +13,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
+import { checkPublicRateLimit, publicRateLimitResponse } from '../_shared/publicRateLimit.ts';
 
 interface OriginResponse {
   found: boolean;
@@ -44,6 +45,12 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({ error: 'Method not allowed. Use GET.' }),
       { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+  }
+
+  // Rate limit: 60 req/min per IP
+  const rl = await checkPublicRateLimit(req, 'companion-resolve', 60);
+  if (!rl.allowed) {
+    return publicRateLimitResponse(corsHeaders, rl.resetInSeconds);
   }
 
   try {
