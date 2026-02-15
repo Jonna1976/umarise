@@ -1,9 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-device-id",
 };
+
+const AI_RATE_LIMIT = 5; // Image generation is expensive
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -12,7 +15,14 @@ serve(async (req) => {
   }
 
   try {
-    const { profile, style } = await req.json();
+    const { profile, style, device_user_id } = await req.json();
+
+    // Rate limit
+    const deviceId = device_user_id || req.headers.get('x-device-id') || 'anonymous';
+    const rl = await checkCompanionRateLimit(deviceId, 'generate-personality-art', AI_RATE_LIMIT);
+    if (!rl.allowed) {
+      return rateLimitResponse(corsHeaders, rl.resetInSeconds);
+    }
 
     if (!profile) {
       return new Response(
