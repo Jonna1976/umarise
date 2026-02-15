@@ -1,5 +1,5 @@
 /**
- * UMARISE CORE: Resolve Origin Attestation
+ * UMARISE CORE: Resolve Origin Attestation (legacy wrapper)
  * 
  * Retrieve immutable facts. No artifact URLs, no semantics, no labels.
  * 
