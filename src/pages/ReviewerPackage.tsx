@@ -183,11 +183,115 @@ export default function ReviewerPackage() {
           </div>
         </motion.section>
 
-        {/* Five Review Layers */}
+        {/* Standalone Verification */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={fade(5)}
+        >
+          <h2 className="text-[hsl(var(--landing-cream))] text-2xl font-serif mb-5">Standalone Verification Script</h2>
+          <div className="space-y-4 text-[hsl(var(--landing-cream)/0.75)]">
+            <p>
+              Zero-dependency bash script. Requires only <code className="text-[hsl(var(--landing-copper))]">sha256sum</code>, <code className="text-[hsl(var(--landing-copper))]">unzip</code>, and <code className="text-[hsl(var(--landing-copper))]">jq</code>.
+            </p>
+            <div className="font-mono text-xs leading-relaxed p-4 rounded bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] overflow-x-auto">
+              <pre className="text-[hsl(var(--landing-cream)/0.8)]">{`#!/bin/bash
+# verify-anchor.sh — Independent Anchor ZIP verification
+# Usage: ./verify-anchor.sh <anchor.zip>
+
+set -euo pipefail
+
+ZIP="\${1:?Usage: ./verify-anchor.sh <anchor.zip>}"
+TMPDIR=$(mktemp -d)
+trap "rm -rf $TMPDIR" EXIT
+
+echo "→ Extracting ZIP..."
+unzip -q "$ZIP" -d "$TMPDIR"
+
+# Find artifact
+ARTIFACT=$(find "$TMPDIR" -name 'artifact.*' | head -1)
+[ -z "$ARTIFACT" ] && { echo "✗ No artifact found"; exit 1; }
+
+# Read expected hash from certificate.json
+CERT="$TMPDIR/certificate.json"
+[ -f "$CERT" ] || { echo "✗ No certificate.json"; exit 1; }
+
+EXPECTED=$(jq -r '.hash' "$CERT" | sed 's/^sha256://')
+ORIGIN_ID=$(jq -r '.origin_id' "$CERT")
+CAPTURED=$(jq -r '.captured_at' "$CERT")
+
+# Compute actual hash
+ACTUAL=$(sha256sum "$ARTIFACT" | cut -d' ' -f1)
+
+echo "  Origin ID:   $ORIGIN_ID"
+echo "  Captured at: $CAPTURED"
+echo "  Expected:    $EXPECTED"
+echo "  Computed:    $ACTUAL"
+echo ""
+
+if [ "$EXPECTED" = "$ACTUAL" ]; then
+  echo "✓ Hash matches — artifact is intact"
+else
+  echo "✗ HASH MISMATCH — artifact modified"
+  exit 1
+fi
+
+# Check for .ots proof
+OTS=$(find "$TMPDIR" -name '*.ots' | head -1)
+if [ -n "$OTS" ]; then
+  echo "✓ OTS proof found: $(basename $OTS)"
+  echo "  Verify with: ots verify $OTS"
+else
+  echo "⚠ No .ots proof (pending anchoring)"
+  echo "  Retrieve later: GET /v1-core-proof?origin_id=$ORIGIN_ID"
+fi`}</pre>
+            </div>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">
+              This script uses no Umarise infrastructure. It proves Layer 5: Verification Independence.
+            </p>
+          </div>
+        </motion.section>
+
+        {/* Sample Anchor ZIP */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={fade(6)}
+        >
+          <h2 className="text-[hsl(var(--landing-cream))] text-2xl font-serif mb-5">Sample Anchor ZIP</h2>
+          <div className="space-y-4 text-[hsl(var(--landing-cream)/0.75)]">
+            <p>
+              An Anchor ZIP is a self-contained evidence bundle. Its canonical structure:
+            </p>
+            <div className="font-mono text-sm p-4 rounded bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)]">
+              <pre className="text-[hsl(var(--landing-cream)/0.7)]">{`anchor-<origin_id>.zip
+├── artifact.jpg          # Original file (any format)
+├── certificate.json      # Origin record metadata
+│   ├── origin_id         # UUID
+│   ├── hash              # "sha256:<hex>"
+│   ├── captured_at       # ISO 8601 timestamp
+│   └── verify_url        # https://umarise.com/verify
+├── VERIFY.txt            # Human-readable instructions
+└── proof.ots             # OpenTimestamps binary (if anchored)`}</pre>
+            </div>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">
+              Request a sample ZIP via{' '}
+              <a href="mailto:partners@umarise.com?subject=Sample%20Anchor%20ZIP%20request" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-copper)/0.8)]">
+                partners@umarise.com
+              </a>
+              , or generate one using the{' '}
+              <Link to="/verify" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-copper)/0.8)]">
+                verification tool
+              </Link>.
+            </p>
+          </div>
+        </motion.section>
+
+        {/* Five Review Layers */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={fade(11)}
         >
           <h2 className="text-[hsl(var(--landing-cream))] text-2xl font-serif mb-5">Five Review Layers</h2>
           <div className="space-y-4">
@@ -267,7 +371,7 @@ export default function ReviewerPackage() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={fade(6)}
+          transition={fade(12)}
         >
           <h2 className="text-[hsl(var(--landing-cream))] text-2xl font-serif mb-5">Empirical Evidence</h2>
           <p className="text-[hsl(var(--landing-cream)/0.6)] mb-6">
