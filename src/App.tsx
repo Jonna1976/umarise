@@ -36,6 +36,7 @@ import Why from "./pages/Why";
 import SealedPreviewPage from "./pages/SealedPreview";
 import Install from "./pages/Install";
 import Architecture from "./pages/Architecture";
+import ReviewerPackage from "./pages/ReviewerPackage";
 
 import WitnessConfirmation from "./pages/WitnessConfirmation";
 import Verify from "./pages/Verify";
@@ -79,6 +80,7 @@ const App = () => (
             <Route path="/install" element={<Install />} />
             
             <Route path="/verify" element={<Verify />} />
+            <Route path="/reviewer" element={<ReviewerPackage />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             
