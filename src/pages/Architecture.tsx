@@ -66,11 +66,20 @@ const securityHardening = {
   corsPolicy: [
     { layer: 'Core API (v1-core-*)', policy: 'Access-Control-Allow-Origin: *', reason: 'B2B partner compatibiliteit — curl, SDKs, integraties' },
     { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked naar anchoring.app, umarise.com, *.lovable.app' },
+    { layer: 'Public Proxies', policy: 'Dynamic origin reflection', reason: 'companion-verify, companion-resolve, origin-image-proxy' },
     { layer: 'AI Functions', policy: 'Dynamic origin reflection', reason: 'Zelfde lock als App Layer' },
     { layer: 'Proxy Functions', policy: 'Dynamic origin reflection', reason: 'hetzner-storage-proxy, hetzner-ai-proxy' },
   ],
+  legacyCleanup: [
+    { item: 'core-origins (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-origins' },
+    { item: 'core-resolve (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-resolve' },
+    { item: 'core-verify (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-verify' },
+  ],
   rateLimits: [
     { fn: 'companion-data', limit: '50/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'companion-verify', limit: '30/min', type: 'DB-persistent', key: 'IP hash (SHA-256)' },
+    { fn: 'companion-resolve', limit: '60/min', type: 'DB-persistent', key: 'IP hash (SHA-256)' },
+    { fn: 'origin-image-proxy', limit: '60/min', type: 'DB-persistent', key: 'IP hash (SHA-256)' },
     { fn: 'analyze-page', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
     { fn: 'analyze-patterns', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
     { fn: 'analyze-personality', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
@@ -602,6 +611,28 @@ const Architecture = () => {
             </div>
           </div>
 
+          {/* Legacy Wrapper Cleanup */}
+          <div className="mb-8">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-landing-cream/30" />
+              Legacy Wrapper Cleanup
+            </h3>
+            <div className="space-y-2">
+              {securityHardening.legacyCleanup.map((row) => (
+                <div key={row.item} className="p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg flex items-center gap-3">
+                  <span className="text-sm text-landing-cream/90 font-medium w-48 shrink-0 font-mono">{row.item}</span>
+                  <span className="text-xs px-2 py-0.5 rounded bg-red-500/10 text-red-400/70 font-mono">{row.status}</span>
+                  <span className="text-xs text-landing-muted/40">{row.detail}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+              <p className="text-xs text-emerald-400/60">
+                ✅ Alle legacy wrappers verwijderd. Geen dubbele routes meer. Core API bereikbaar via v1-core-* endpoints.
+              </p>
+            </div>
+          </div>
+
           {/* Rate Limits */}
           <div className="mb-8">
             <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -634,7 +665,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Alle rate limits gemigreerd van in-memory Map naar DB-persistent (core_check_rate_limit RPC). Overleeft cold starts.
+                ✅ Alle rate limits DB-persistent (core_check_rate_limit RPC). Publieke endpoints (verify, resolve, image-proxy) gebruiken SHA-256 IP hashing. Authenticated endpoints gebruiken device_user_id. Overleeft cold starts.
               </p>
             </div>
           </div>
