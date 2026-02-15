@@ -12,12 +12,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-};
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
 interface OriginResponse {
   found: boolean;
@@ -38,12 +33,12 @@ interface OriginResponse {
 }
 
 Deno.serve(async (req: Request) => {
-  // Handle CORS preflight
+  const corsHeaders = getCompanionCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req);
   }
 
-  // Only allow GET
   if (req.method !== 'GET') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed. Use GET.' }),

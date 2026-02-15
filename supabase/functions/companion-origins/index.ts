@@ -28,12 +28,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import { crypto } from 'https://deno.land/std@0.208.0/crypto/mod.ts';
 import { encodeHex } from 'https://deno.land/std@0.208.0/encoding/hex.ts';
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const EXTRA_HEADERS = 'x-api-key';
 
 interface CreateOriginRequest {
   content: string; // base64 encoded
@@ -55,12 +52,12 @@ async function calculateSHA256(data: Uint8Array): Promise<string> {
 }
 
 Deno.serve(async (req: Request) => {
-  // Handle CORS preflight
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed. Use POST.' }),
