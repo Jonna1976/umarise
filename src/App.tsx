@@ -54,7 +54,12 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* PUBLIC ROUTES - No PinGate */}
-            <Route path="/" element={<Landing />} />
+            {/* anchoring.app → ritual flow directly; other domains → landing */}
+            <Route path="/" element={
+              typeof window !== 'undefined' && window.location.hostname === 'anchoring.app'
+                ? <Prototype />
+                : <Landing />
+            } />
             <Route path="/origin/:originId" element={<OriginView />} />
             <Route path="/review" element={<ReviewKit />} />
             <Route path="/docs-export" element={<DocsExport />} />
@@ -80,7 +85,7 @@ const App = () => (
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
             <Route path="/pilot-tracker" element={<InternalGate><PilotTracker /></InternalGate>} />
-            <Route path="/prototype" element={<InternalGate><Prototype /></InternalGate>} />
+            <Route path="/prototype" element={<Prototype />} />
             <Route path="/intake" element={<InternalGate><Intake /></InternalGate>} />
             <Route path="/spec" element={<InternalGate><Intake /></InternalGate>} />
             
