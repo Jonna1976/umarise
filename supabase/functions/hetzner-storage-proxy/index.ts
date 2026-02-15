@@ -1,15 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-device-user-id",
-};
+const EXTRA_HEADERS = 'x-device-user-id';
 
 const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 60000;
 
-const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMITS: Record<string, number> = {
   '/vault/images/upload': 20,
   '/vault/images/decrypt': 30,
@@ -18,41 +16,12 @@ const RATE_LIMITS: Record<string, number> = {
   'default': 40
 };
 
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
 function getPathCategory(path: string): string {
   if (path.includes('/images/upload')) return '/vault/images/upload';
   if (path.includes('/images/decrypt')) return '/vault/images/decrypt';
   if (path.includes('/search')) return '/vault/search';
   if (path.includes('/pages')) return '/vault/pages';
   return 'default';
-}
-
-function checkRateLimit(deviceUserId: string, path: string): { allowed: boolean; remaining: number; resetAt: number } {
-  const category = getPathCategory(path);
-  const key = `${deviceUserId}:${category}`;
-  const now = Date.now();
-  const limit = RATE_LIMITS[category] || RATE_LIMITS['default'];
-  const existing = rateLimitStore.get(key);
-  
-  if (!existing || now >= existing.resetAt) {
-    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, remaining: limit - 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
-  }
-  
-  if (existing.count >= limit) {
-    return { allowed: false, remaining: 0, resetAt: existing.resetAt };
-  }
-  
-  existing.count++;
-  return { allowed: true, remaining: limit - existing.count, resetAt: existing.resetAt };
-}
-
-function cleanupRateLimitStore() {
-  const now = Date.now();
-  for (const [key, value] of rateLimitStore.entries()) {
-    if (now >= value.resetAt) rateLimitStore.delete(key);
-  }
 }
 
 // deno-lint-ignore no-explicit-any
@@ -297,18 +266,17 @@ async function handleTelemetryRead(
 serve(async (req) => {
   const requestId = crypto.randomUUID().slice(0, 8);
   const startTime = Date.now();
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
   console.log(`[${requestId}] hetzner-storage-proxy called: ${req.method}`);
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
-
-  if (Math.random() < 0.1) cleanupRateLimitStore();
 
   let deviceUserId = 'anonymous';
   let path = 'unknown';
@@ -405,16 +373,16 @@ serve(async (req) => {
       }
     }
 
-    const rateCheck = checkRateLimit(deviceUserId, path);
+    const category = getPathCategory(path);
+    const limit = RATE_LIMITS[category] || RATE_LIMITS['default'];
+    const rateCheck = await checkCompanionRateLimit(deviceUserId, `storage-proxy:${category}`, limit);
     if (!rateCheck.allowed) {
-      const retryAfter = Math.ceil((rateCheck.resetAt - Date.now()) / 1000);
       await logAudit(supabase, {
         request_id: requestId, device_user_id: deviceUserId, service: 'storage-proxy',
         endpoint: path, method: methodUpper, status_code: 429, duration_ms: Date.now() - startTime,
         error_message: 'Rate limit exceeded', rate_limited: true, rate_limit_remaining: 0,
       });
-      return new Response(JSON.stringify({ error: "Rate limit exceeded", retryAfterSeconds: retryAfter }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": retryAfter.toString() } });
+      return rateLimitResponse(corsHeaders, rateCheck.resetInSeconds);
     }
 
     const hetznerToken = Deno.env.get('HETZNER_API_TOKEN');

@@ -1,10 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
+import { checkCompanionRateLimit, rateLimitResponse } from '../_shared/companionRateLimit.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-user-id',
-};
+const EXTRA_HEADERS = 'x-device-user-id';
 
 const HETZNER_BASE_URL = "https://vault.umarise.com";
 const TIMEOUT_MS = 120000;
@@ -15,41 +14,12 @@ const SERVICE_ROUTES: Record<string, string> = {
   'default': '/api/vision',         // Everything else on vision service
 };
 
-const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMITS: Record<string, number> = {
   '/ai/analyze-page': 10,
   '/ai/generate-embeddings': 20,
   '/ai/search': 30,
   'default': 15
 };
-
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(deviceUserId: string, endpoint: string): { allowed: boolean; remaining: number; resetAt: number } {
-  const key = `${deviceUserId}:${endpoint}`;
-  const now = Date.now();
-  const limit = RATE_LIMITS[endpoint] || RATE_LIMITS['default'];
-  const existing = rateLimitStore.get(key);
-  
-  if (!existing || now >= existing.resetAt) {
-    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, remaining: limit - 1, resetAt: now + RATE_LIMIT_WINDOW_MS };
-  }
-  
-  if (existing.count >= limit) {
-    return { allowed: false, remaining: 0, resetAt: existing.resetAt };
-  }
-  
-  existing.count++;
-  return { allowed: true, remaining: limit - existing.count, resetAt: existing.resetAt };
-}
-
-function cleanupRateLimitStore() {
-  const now = Date.now();
-  for (const [key, value] of rateLimitStore.entries()) {
-    if (now >= value.resetAt) rateLimitStore.delete(key);
-  }
-}
 
 // deno-lint-ignore no-explicit-any
 async function logAudit(supabase: any, log: Record<string, unknown>) {
@@ -63,18 +33,17 @@ async function logAudit(supabase: any, log: Record<string, unknown>) {
 serve(async (req) => {
   const requestId = crypto.randomUUID().slice(0, 8);
   const startTime = Date.now();
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
   console.log(`[${requestId}] hetzner-ai-proxy called: ${req.method}`);
   
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
-
-  if (Math.random() < 0.1) cleanupRateLimitStore();
 
   let deviceUserId = 'anonymous';
   let endpoint = 'unknown';

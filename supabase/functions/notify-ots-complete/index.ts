@@ -18,12 +18,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
 interface OtsCompletePayload {
   origin_id: string;
@@ -34,8 +29,9 @@ interface OtsCompletePayload {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req);
   }
+  const corsHeaders = getCompanionCorsHeaders(req);
 
   try {
     const resendKey = Deno.env.get("RESEND_API_KEY");

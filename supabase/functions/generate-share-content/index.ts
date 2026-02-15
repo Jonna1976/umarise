@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id',
-};
+const EXTRA_HEADERS = 'x-device-id';
 
 // Extract meaningful sentences from OCR text
 function extractSentences(ocrText: string): string[] {
@@ -82,8 +80,10 @@ function selectContent(sentences: string[], keywords: string[] = []) {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCompanionCorsHeaders(req, EXTRA_HEADERS);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return companionPreflightResponse(req, EXTRA_HEADERS);
   }
 
   try {
