@@ -73,7 +73,9 @@ export const options = {
     
     // Overall
     'http_req_duration': ['p(95)<3000'],
-    'http_req_failed': ['rate<0.10'],
+    // Note: http_req_failed counts 404s as failures, but our tests expect 404s
+    // (fake hashes) and 401/403s (no API key). Custom error metrics above are
+    // the real success criteria.
   },
 };
 
