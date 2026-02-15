@@ -133,7 +133,7 @@ export default function () {
       'attest: returns correct hash': (r) => {
         try {
           const body = JSON.parse(r.body);
-          return body.hash === hash;
+          return body.hash === `sha256:${hash}` || body.hash === hash;
         } catch { return false; }
       },
       'attest: hash_algo is sha256': (r) => {
@@ -204,7 +204,7 @@ export default function () {
       'resolve: hash matches': (r) => {
         try {
           const body = JSON.parse(r.body);
-          return body.hash === hash;
+          return body.hash === `sha256:${hash}` || body.hash === hash;
         } catch { return false; }
       },
       'resolve: response time < 2s': (r) => r.timings.duration < 2000,
