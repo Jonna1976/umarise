@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass } from 'lucide-react';
+import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass, ShieldCheck } from 'lucide-react';
 import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 /**
@@ -61,6 +61,38 @@ const dbIntegrity = [
   { table: 'partner_api_keys', protection: 'prevent_api_key_delete', purpose: 'Keys niet verwijderbaar' },
   { table: 'core_ddl_audit', protection: 'DDL event trigger', purpose: 'Schema-wijzigingen gelogd' },
 ];
+
+const securityHardening = {
+  corsPolicy: [
+    { layer: 'Core API (v1-core-*)', policy: 'Access-Control-Allow-Origin: *', reason: 'B2B partner compatibiliteit — curl, SDKs, integraties' },
+    { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked naar anchoring.app, umarise.com, *.lovable.app' },
+    { layer: 'AI Functions', policy: 'Dynamic origin reflection', reason: 'Zelfde lock als App Layer' },
+    { layer: 'Proxy Functions', policy: 'Dynamic origin reflection', reason: 'hetzner-storage-proxy, hetzner-ai-proxy' },
+  ],
+  rateLimits: [
+    { fn: 'companion-data', limit: '50/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'analyze-page', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'analyze-patterns', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'analyze-personality', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-embeddings', limit: '20/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-memory-summary', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-personality-art', limit: '5/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-recommendations', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-share-content', limit: '10/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'generate-year-reflection', limit: '5/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'search-pages', limit: '30/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'hetzner-storage-proxy', limit: '30-50/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'hetzner-ai-proxy', limit: '10-30/min', type: 'DB-persistent', key: 'device_user_id' },
+    { fn: 'Core API (alle endpoints)', limit: '1000/min', type: 'DB-persistent', key: 'IP hash (SHA-256)' },
+  ],
+  privacyArchitecture: [
+    { aspect: 'Request logging', detail: 'SHA-256 gehashte IPs — geen raw IP opslag' },
+    { aspect: 'Identiteit', detail: 'device_user_id (lokaal gegenereerd) — geen accounts, geen PII' },
+    { aspect: 'Content', detail: 'Core is content-agnostic — alleen hashes, nooit bytes' },
+    { aspect: 'Cross-device', detail: 'Geen synchronisatie — device-isolated by design' },
+    { aspect: 'Sensitive tables', detail: 'RLS USING(false) — toegang alleen via Edge Function proxy' },
+  ],
+};
 
 const publicRoutes = [
   { route: '/', purpose: 'Landing / infrastructuur positionering', audience: 'Iedereen', mark: '16px header' },
@@ -172,7 +204,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          12 February 2026 — Week 1 Final + Device Identity (v1.1)
+          15 February 2026 — Security Hardening + Stress Test Readiness
         </p>
       </div>
 
@@ -541,6 +573,107 @@ const Architecture = () => {
           </div>
         </section>
 
+        {/* 11. Security Hardening & Stress Test Readiness */}
+        <section>
+          <SectionHeader icon={ShieldCheck} title="Security Hardening & Stress Test Readiness" num={11} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Status per 15 februari 2026. Alle items afgerond voor External Review Program (milestone 1).
+          </p>
+
+          {/* CORS Policy */}
+          <div className="mb-8">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-landing-cream/30" />
+              CORS Policy
+            </h3>
+            <div className="space-y-2">
+              {securityHardening.corsPolicy.map((row) => (
+                <div key={row.layer} className="p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg flex items-start gap-3">
+                  <span className="text-sm text-landing-cream/90 font-medium w-48 shrink-0">{row.layer}</span>
+                  <code className="text-xs text-landing-cream/60 font-mono w-48 shrink-0">{row.policy}</code>
+                  <span className="text-xs text-landing-muted/40">{row.reason}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+              <p className="text-xs text-emerald-400/60">
+                ✅ Geen wildcard (*) meer op App Layer. Browsers blokkeren requests van onbekende domeinen. Gevalideerd met 5/5 CORS tests.
+              </p>
+            </div>
+          </div>
+
+          {/* Rate Limits */}
+          <div className="mb-8">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-landing-cream/30" />
+              DB-Persistent Rate Limiting
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                    <th className="pb-3 pr-4">Function</th>
+                    <th className="pb-3 pr-4">Limiet</th>
+                    <th className="pb-3 pr-4">Type</th>
+                    <th className="pb-3">Rate Key</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-landing-cream/5">
+                  {securityHardening.rateLimits.map((row) => (
+                    <tr key={row.fn} className="text-landing-cream/70">
+                      <td className="py-2 pr-4 font-mono text-xs text-landing-cream/80">{row.fn}</td>
+                      <td className="py-2 pr-4 font-mono text-xs">{row.limit}</td>
+                      <td className="py-2 pr-4">
+                        <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">{row.type}</span>
+                      </td>
+                      <td className="py-2 text-xs text-landing-muted/50">{row.key}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+              <p className="text-xs text-emerald-400/60">
+                ✅ Alle rate limits gemigreerd van in-memory Map naar DB-persistent (core_check_rate_limit RPC). Overleeft cold starts.
+              </p>
+            </div>
+          </div>
+
+          {/* Privacy Architecture */}
+          <div className="mb-6">
+            <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-landing-cream/30" />
+              Privacy Architectuur
+            </h3>
+            <div className="space-y-2">
+              {securityHardening.privacyArchitecture.map((row) => (
+                <div key={row.aspect} className="flex gap-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                  <span className="text-sm text-landing-cream/90 font-medium w-36 shrink-0">{row.aspect}</span>
+                  <span className="text-xs text-landing-cream/50">{row.detail}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg space-y-2">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Review-ready status</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                ['35', 'Edge functions'],
+                ['21', 'CORS locked'],
+                ['14', 'Rate limited (DB)'],
+                ['0', 'In-memory limits'],
+              ].map(([num, label]) => (
+                <div key={label} className="text-center p-3 bg-landing-cream/[0.03] rounded-lg">
+                  <p className="text-lg font-light text-landing-cream/90 font-mono">{num}</p>
+                  <p className="text-xs text-landing-muted/40">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Footer */}
         <div className="border-t border-landing-cream/10 pt-8 pb-16">
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
@@ -549,6 +682,16 @@ const Architecture = () => {
           <p className="text-landing-muted/40 text-xs mb-4">
             De grens is schoon.
           </p>
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 15 feb</p>
+            <ul className="space-y-1 text-xs text-landing-cream/50">
+              <li>• <strong className="text-landing-cream/70">CORS lock:</strong> Alle 21 App Layer functies gelocked naar anchoring.app + umarise.com + *.lovable.app</li>
+              <li>• <strong className="text-landing-cream/70">Rate limit migratie:</strong> Alle in-memory rate limits vervangen door DB-persistent (core_check_rate_limit)</li>
+              <li>• <strong className="text-landing-cream/70">Privacy architectuur:</strong> SHA-256 gehashte IPs, geen PII, device-isolated auth</li>
+              <li>• <strong className="text-landing-cream/70">Security matrix:</strong> Volledige edge function inventarisatie (35 functies, 14 rate limited)</li>
+              <li>• <strong className="text-landing-cream/70">CORS validatie:</strong> 5/5 geautomatiseerde tests (companion-verify/cors.test.ts)</li>
+            </ul>
+          </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 12 feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
