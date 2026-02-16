@@ -8,6 +8,7 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
  * Complete architecture overview of Umarise as of 16 Feb 2026.
  * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
  * Proof Model with Device Identity (v1.1). Verification Independence Tools.
+ * Developer Journey: Quick Start (zero-friction) + Integration Checklist v2 (24 steps) + SDKs + AI Support Bot.
  * 
  * Source: docs/architecture-week1-final.md
  * Access: PinGate protected
@@ -18,62 +19,62 @@ const b2cItems = [
   { name: 'S2 Sealed', status: '✅ Receipt + file list + ZIP download', where: 'Browser UI + Client-side JSZip' },
   { name: 'S3 Anchor Registry', status: '✅ Horizontal gallery + detail modal', where: 'Client + /v1-core-resolve' },
   { name: 'Passkey (v1.1)', status: '✅ Auto-register + best-effort signing', where: 'Client-side WebAuthn (never blocking)' },
-  { name: 'IndexedDB thumbnails', status: '✅ Live + remote fallback', where: 'Lokaal op device + Supabase storage' },
+  { name: 'IndexedDB thumbnails', status: '✅ Live + remote fallback', where: 'Local on device + Supabase storage' },
   { name: 'OTS status polling', status: '✅ Live', where: '/v1-core-resolve + /v1-core-proof via useProofPolling' },
 ];
 
 const publicEndpoints = [
-  { num: 1, method: 'GET', endpoint: '/v1-core-resolve', desc: 'Origin opzoeken (by ID of hash)' },
-  { num: 2, method: 'POST', endpoint: '/v1-core-verify', desc: 'Hash verificatie (match/no-match)' },
+  { num: 1, method: 'GET', endpoint: '/v1-core-resolve', desc: 'Origin lookup (by ID or hash)' },
+  { num: 2, method: 'POST', endpoint: '/v1-core-verify', desc: 'Hash verification (match/no-match)' },
   { num: 3, method: 'GET', endpoint: '/v1-core-proof', desc: 'Raw .ots binary download' },
   { num: 4, method: 'GET', endpoint: '/v1-core-health', desc: '{"status":"operational","version":"v1"}' },
 ];
 
 const partnerEndpoints = [
-  { num: 5, method: 'POST', endpoint: '/v1-core-origins', desc: 'Origin attestatie aanmaken' },
+  { num: 5, method: 'POST', endpoint: '/v1-core-origins', desc: 'Create origin attestation' },
   { num: 6, method: 'GET', endpoint: '/v1-core-origins-proof', desc: 'Proof data (JSON, base64)' },
   { num: 7, method: 'GET', endpoint: '/v1-core-proofs-export', desc: 'Bulk export (cursor-based)' },
 ];
 
 const internalEndpoints = [
-  { num: 8, method: 'POST', endpoint: '/v1-internal-partner-create', desc: 'API key generatie' },
-  { num: 9, method: 'GET', endpoint: '/v1-internal-metrics', desc: '24h operationele metrics' },
+  { num: 8, method: 'POST', endpoint: '/v1-internal-partner-create', desc: 'API key generation' },
+  { num: 9, method: 'GET', endpoint: '/v1-internal-metrics', desc: '24h operational metrics' },
 ];
 
 const bridgePoints = [
-  { dir: 'B2C → Core', mechanism: 'DB trigger bridge_page_to_core', what: 'Hash + timestamp propagatie naar origin_attestations' },
-  { dir: 'Core → B2C', mechanism: 'Async notification notify-ots-complete', what: 'Best-effort, in try/catch (geen hard dependency)' },
-  { dir: 'B2C leest Core', mechanism: 'GET /v1-core-resolve', what: 'Status ophalen (pending/anchored)' },
-  { dir: 'B2C leest Core', mechanism: 'GET /v1-core-proof', what: 'Raw .ots binary voor ZIP' },
+  { dir: 'B2C → Core', mechanism: 'DB trigger bridge_page_to_core', what: 'Hash + timestamp propagation to origin_attestations' },
+  { dir: 'Core → B2C', mechanism: 'Async notification notify-ots-complete', what: 'Best-effort, in try/catch (no hard dependency)' },
+  { dir: 'B2C reads Core', mechanism: 'GET /v1-core-resolve', what: 'Status retrieval (pending/anchored)' },
+  { dir: 'B2C reads Core', mechanism: 'GET /v1-core-proof', what: 'Raw .ots binary for ZIP' },
 ];
 
 const neverCrosses = [
-  'Foto bytes (nooit)',
-  'Thumbnails (lokaal)',
-  'Passkey credentials (niet in Core)',
-  'UI labels, schermnamen (App-domein)',
+  'Photo bytes (never)',
+  'Thumbnails (local only)',
+  'Passkey credentials (not in Core)',
+  'UI labels, screen names (App domain)',
   'device_user_id (Core is identity-agnostic)',
 ];
 
 const dbIntegrity = [
   { table: 'origin_attestations', protection: 'prevent_update + prevent_delete', purpose: 'Write-once, append-only' },
-  { table: 'core_ots_proofs', protection: 'prevent_anchored_proof_mutation + delete-trigger', purpose: 'Bewijs onwijzigbaar na anchoring' },
-  { table: 'partner_api_keys', protection: 'prevent_api_key_delete', purpose: 'Keys niet verwijderbaar' },
-  { table: 'core_ddl_audit', protection: 'DDL event trigger', purpose: 'Schema-wijzigingen gelogd' },
+  { table: 'core_ots_proofs', protection: 'prevent_anchored_proof_mutation + delete-trigger', purpose: 'Proof immutable after anchoring' },
+  { table: 'partner_api_keys', protection: 'prevent_api_key_delete', purpose: 'Keys cannot be deleted' },
+  { table: 'core_ddl_audit', protection: 'DDL event trigger', purpose: 'Schema changes logged' },
 ];
 
 const securityHardening = {
   corsPolicy: [
-    { layer: 'Core API (v1-core-*)', policy: 'Access-Control-Allow-Origin: *', reason: 'B2B partner compatibiliteit — curl, SDKs, integraties' },
-    { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked naar anchoring.app, umarise.com, *.lovable.app' },
+    { layer: 'Core API (v1-core-*)', policy: 'Access-Control-Allow-Origin: *', reason: 'B2B partner compatibility — curl, SDKs, integrations' },
+    { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked to anchoring.app, umarise.com, *.lovable.app' },
     { layer: 'Public Proxies', policy: 'Dynamic origin reflection', reason: 'companion-verify, companion-resolve, origin-image-proxy' },
-    { layer: 'AI Functions', policy: 'Dynamic origin reflection', reason: 'Zelfde lock als App Layer' },
+    { layer: 'AI Functions', policy: 'Dynamic origin reflection', reason: 'Same lock as App Layer' },
     { layer: 'Proxy Functions', policy: 'Dynamic origin reflection', reason: 'hetzner-storage-proxy, hetzner-ai-proxy' },
   ],
   legacyCleanup: [
-    { item: 'core-origins (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-origins' },
-    { item: 'core-resolve (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-resolve' },
-    { item: 'core-verify (wrapper)', status: 'Verwijderd', detail: 'Vervangen door v1-core-verify' },
+    { item: 'core-origins (wrapper)', status: 'Removed', detail: 'Replaced by v1-core-origins' },
+    { item: 'core-resolve (wrapper)', status: 'Removed', detail: 'Replaced by v1-core-resolve' },
+    { item: 'core-verify (wrapper)', status: 'Removed', detail: 'Replaced by v1-core-verify' },
   ],
   rateLimits: [
     { fn: 'companion-data', limit: '50/min', type: 'DB-persistent', key: 'device_user_id' },
@@ -95,67 +96,77 @@ const securityHardening = {
     { fn: 'Core API (alle endpoints)', limit: '1000/min', type: 'DB-persistent', key: 'IP hash (SHA-256)' },
   ],
   privacyArchitecture: [
-    { aspect: 'Request logging', detail: 'SHA-256 gehashte IPs — geen raw IP opslag' },
-    { aspect: 'Identiteit', detail: 'device_user_id (lokaal gegenereerd) — geen accounts, geen PII' },
-    { aspect: 'Content', detail: 'Core is content-agnostic — alleen hashes, nooit bytes' },
-    { aspect: 'Cross-device', detail: 'Geen synchronisatie — device-isolated by design' },
-    { aspect: 'Sensitive tables', detail: 'RLS USING(false) — toegang alleen via Edge Function proxy' },
+    { aspect: 'Request logging', detail: 'SHA-256 hashed IPs — no raw IP storage' },
+    { aspect: 'Identity', detail: 'device_user_id (locally generated) — no accounts, no PII' },
+    { aspect: 'Content', detail: 'Core is content-agnostic — hashes only, never bytes' },
+    { aspect: 'Cross-device', detail: 'No synchronization — device-isolated by design' },
+    { aspect: 'Sensitive tables', detail: 'RLS USING(false) — access only via Edge Function proxy' },
   ],
 };
 
 const publicRoutes = [
-  { route: '/', purpose: 'Landing / infrastructuur positionering', audience: 'Iedereen', mark: '16px header' },
-  { route: '/anchor', purpose: 'Wat is een anchor?', audience: 'Prospects', mark: '16px header' },
-  { route: '/why', purpose: 'Waarom anchors?', audience: 'Business', mark: '16px header' },
-  { route: '/core', purpose: 'Core API spec', audience: 'Technisch', mark: '16px header + 12px inline' },
+  { route: '/', purpose: 'Landing / infrastructure positioning', audience: 'Everyone', mark: '16px header' },
+  { route: '/anchor', purpose: 'What is an anchor?', audience: 'Prospects', mark: '16px header' },
+  { route: '/why', purpose: 'Why anchors?', audience: 'Business', mark: '16px header' },
+  { route: '/core', purpose: 'Core API spec', audience: 'Technical', mark: '16px header + 12px inline' },
+  { route: '/api-reference', purpose: 'Developer docs: Quick Start + Checklist + Live Demo + AI Support', audience: 'Developers / Partners', mark: '16px header' },
   { route: '/review', purpose: 'Technical Review Kit', audience: 'CTOs / integrators', mark: '16px header + 12px inline' },
   { route: '/reviewer', purpose: 'Reviewer Package (External Review)', audience: 'Reviewers', mark: '16px header' },
-  { route: '/verify', purpose: 'Verificatie tool', audience: 'Iedereen', mark: '16px header + 48px/28px' },
-  { route: '/legal', purpose: 'Technische Specificatie', audience: 'Juridisch / Technisch', mark: '16px header' },
-  { route: '/privacy + /terms', purpose: 'Privacy en voorwaarden', audience: 'Compliance', mark: '16px header' },
-  { route: '/install', purpose: 'PWA installatie', audience: 'Consumenten', mark: '16px header' },
+  { route: '/verify', purpose: 'Verification tool', audience: 'Everyone', mark: '16px header + 48px/28px' },
+  { route: '/legal', purpose: 'Technical Specification', audience: 'Legal / Technical', mark: '16px header' },
+  { route: '/privacy + /terms', purpose: 'Privacy and terms', audience: 'Compliance', mark: '16px header' },
+  { route: '/install', purpose: 'PWA installation', audience: 'Consumers', mark: '16px header' },
 ];
 
 const discoveryPath = [
-  { num: 1, contact: 'VERIFY.txt', where: 'In elke ZIP', mechanism: 'Origin ID, timestamp, hash, directe verificatielink' },
-  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canoniek)' },
-  { num: 3, contact: 'Verifieer-link', where: 'Sealed screen (S4)', mechanism: 'Subtiele link onder save-button' },
-  { num: 4, contact: 'Deel origin', where: 'Origin Registry detail modal (S3)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
+  { num: 1, contact: 'VERIFY.txt', where: 'In every ZIP', mechanism: 'Origin ID, timestamp, hash, direct verification link' },
+  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canonical)' },
+  { num: 3, contact: 'Verify link', where: 'Sealed screen (S4)', mechanism: 'Subtle link below save button' },
+  { num: 4, contact: 'Share origin', where: 'Origin Registry detail modal (S3)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
 ];
 
 const originMarkUsage = [
-  
-  { context: 'S1 Capture', size: '48px', state: 'anchored', detail: 'Breathing animatie' },
-  { context: 'Processing', size: '64px', state: 'anchored', detail: 'Breathing tijdens auto-hash' },
+  { context: 'S1 Capture', size: '48px', state: 'anchored', detail: 'Breathing animation' },
+  { context: 'Processing', size: '64px', state: 'anchored', detail: 'Breathing during auto-hash' },
   { context: 'S2 Sealed', size: '48px', state: 'anchored', detail: 'Glow' },
   { context: 'Wall status', size: '20px', state: 'anchored/pending', detail: 'Per-origin status' },
   { context: 'Navigation', size: '28px', state: 'anchored', detail: 'OriginButton' },
-  { context: 'Site header', size: '16px', state: 'anchored', detail: 'Alle pagina\'s' },
-  { context: '/verify upload', size: '48px', state: 'ghost', detail: 'Lege ring' },
-  { context: '/verify resultaat', size: '28px', state: 'anchored', detail: 'Glow' },
-  { context: '/core partner', size: '12px', state: 'pending', detail: 'Gestreepeld' },
+  { context: 'Site header', size: '16px', state: 'anchored', detail: 'All pages' },
+  { context: '/verify upload', size: '48px', state: 'ghost', detail: 'Empty ring' },
+  { context: '/verify result', size: '28px', state: 'anchored', detail: 'Glow' },
+  { context: '/core partner', size: '12px', state: 'pending', detail: 'Dashed' },
   { context: '/review properties', size: '12px', state: 'anchored', detail: 'Inline' },
 ];
 
 const zipContents = [
-  { file: 'artifact.{ext}', always: false, desc: 'Origineel artifact (jpg/png/mp4/pdf/...) — hash-verified' },
+  { file: 'artifact.{ext}', always: false, desc: 'Original artifact (jpg/png/mp4/pdf/...) — hash-verified' },
   { file: 'certificate.json', always: true, desc: 'v1.1: origin_id, hash, timestamp, device_signature, device_public_key, proof_status' },
-  { file: 'VERIFY.txt', always: true, desc: 'Menselijk leesbare verificatie-instructies + link + device signed status' },
-  { file: 'proof.ots', always: false, desc: 'OpenTimestamps binary bewijs (alleen bij anchored)' },
+  { file: 'VERIFY.txt', always: true, desc: 'Human-readable verification instructions + link + device signed status' },
+  { file: 'proof.ots', always: false, desc: 'OpenTimestamps binary proof (only when anchored)' },
 ];
 
 const onboardingSteps = [
-  { num: 1, step: 'Eerste contact', who: 'Partner', what: 'Mailt partners@umarise.com met use case' },
-  { num: 2, step: 'Suitability check', who: 'Umarise', what: 'Green flags: hoge frequentie data, regulatory druk, audit needs' },
-  { num: 3, step: 'Kwalificatie', who: 'Umarise', what: '4x JA + 4x OK framework' },
-  { num: 4, step: 'Intake', who: 'Partner', what: 'Vult systeemdetails in (intern /intake checklist)' },
-  { num: 5, step: 'Due diligence', who: 'Umarise', what: 'Technische evaluatie: artifacts, hashing capability, volume' },
-  { num: 6, step: 'Tier selectie', who: 'Samen', what: 'Op basis van volume en use case' },
-  { num: 7, step: 'API key generatie', who: 'Umarise', what: 'Via v1-internal-partner-create, 64-char hex key' },
-  { num: 8, step: 'Key overdracht', who: 'Umarise → Partner', what: 'Plaintext key eenmalig gedeeld, daarna nooit meer opvraagbaar' },
-  { num: 9, step: 'Integratie', who: 'Partner', what: 'POST /v1-core-origins met X-API-Key header' },
-  { num: 10, step: 'Verificatie', who: 'Samen', what: 'Eerste attestatie testen, resolve en proof checken' },
-  { num: 11, step: 'Live', who: 'Partner', what: 'Productie-traffic start' },
+  { num: 1, step: 'First contact', who: 'Partner', what: 'Emails partners@umarise.com with use case' },
+  { num: 2, step: 'Suitability check', who: 'Umarise', what: 'Green flags: high-frequency data, regulatory pressure, audit needs' },
+  { num: 3, step: 'Qualification', who: 'Umarise', what: '4x YES + 4x OK framework' },
+  { num: 4, step: 'Intake', who: 'Partner', what: 'Fills in system details (internal /intake checklist)' },
+  { num: 5, step: 'Due diligence', who: 'Umarise', what: 'Technical evaluation: artifacts, hashing capability, volume' },
+  { num: 6, step: 'Tier selection', who: 'Together', what: 'Based on volume and use case' },
+  { num: 7, step: 'API key generation', who: 'Umarise', what: 'Via v1-internal-partner-create, 64-char hex key' },
+  { num: 8, step: 'Key handoff', who: 'Umarise → Partner', what: 'Plaintext key shared once, never retrievable again' },
+  { num: 9, step: 'Integration', who: 'Partner', what: 'Quick Start (60s) → Integration Checklist (24 steps) → Production' },
+  { num: 10, step: 'Verification', who: 'Together', what: 'Test first attestation, resolve and proof check' },
+  { num: 11, step: 'Live', who: 'Partner', what: 'Production traffic starts' },
+];
+
+const developerJourney = [
+  { num: 1, component: 'Quick Start', location: '/api-reference (top)', detail: '4 curl commands. 60 seconds to first attestation. Copy-to-single-line logic prevents terminal errors.' },
+  { num: 2, component: 'Integration Checklist v2', location: '/api-reference', detail: '24 self-contained steps (Setup → Verification → SDK → Production). Each step includes inline instructions, commands, and code examples. Zero friction.' },
+  { num: 3, component: 'Try it Live Demo', location: '/api-reference', detail: '4-step interactive demo: client-side hashing → registry verification. Shows both "new hash" and "known match" scenarios.' },
+  { num: 4, component: 'SDKs (Node + Python)', location: 'GitHub + /api-reference', detail: 'Zero-dependency (~250 lines each). Full lifecycle: attest, resolve, verify, proof, health.' },
+  { num: 5, component: 'First-run scripts', location: '/api-reference download', detail: 'Bash script: automated 5-step validation (health → hash → attest → verify → resolve).' },
+  { num: 6, component: 'AI Support Bot', location: '/api-reference', detail: 'Guardian v5.0 compliant. Automatic language matching. Terminology-controlled. Out-of-scope redirect to partners@umarise.com.' },
+  { num: 7, component: 'Verification scripts', location: '/reviewer', detail: 'verify-anchor.sh + verify-anchor.py. Zero-dependency offline ZIP validation.' },
 ];
 
 const SectionHeader = ({ icon: Icon, title, num }: { icon: React.ElementType; title: string; num: number }) => (
@@ -213,7 +224,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          16 February 2026 — Verification Independence Tools + External Review Program
+          16 February 2026 — Developer Journey Complete + Integration Checklist v2
         </p>
       </div>
 
@@ -224,46 +235,48 @@ const Architecture = () => {
 {`┌─────────────────────────────────────────────────────┐
 │                  umarise.com                         │
 │                                                      │
-│  Publiek:  / /anchor /why /core /verify /reviewer ... │
+│  Public:   / /anchor /why /core /verify /reviewer ... │
+│  New:      /api-reference (Quick Start + Checklist    │
+│            + Live Demo + AI Support Bot)              │
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
 │            /architecture                              │
 │                                                      │
-│  Visueel:  Origin Mark (⊙) op alle headers (16px)   │
+│  Visual:   Origin Mark (⊙) on all headers (16px)    │
 │            Ghost/pending/anchored states per context  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │               core.umarise.com                       │
 │                                                      │
-│  Publiek:    resolve, verify, proof, health           │
+│  Public:     resolve, verify, proof, health           │
 │  Partner:    origins, origins-proof, proofs-export    │
-│  Intern:     partner-create, metrics                  │
-│  Status:     v1 bevroren (6 feb 2026)                │
+│  Internal:   partner-create, metrics                  │
+│  Status:     v1 frozen (6 Feb 2026)                  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │                  Hetzner                              │
 │                                                      │
 │  OTS Worker:  Merkle aggregation → Bitcoin            │
-│  (Node.js, onafhankelijk van Supabase)               │
+│  (Node.js, independent of Supabase)                  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │              Client Device                           │
 │                                                      │
 │  IndexedDB, Web Crypto, WebAuthn, JSZip              │
-│  Geen data verlaat het device zonder expliciete actie │
+│  No data leaves device without explicit action       │
 │  ZIP = artifact + certificate.json + VERIFY.txt+.ots │
 └─────────────────────────────────────────────────────┘`}
         </div>
 
         {/* 1. B2C App Layer */}
         <section>
-          <SectionHeader icon={Smartphone} title="B2C App-laag (/prototype)" num={1} />
+          <SectionHeader icon={Smartphone} title="B2C App Layer (/prototype)" num={1} />
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
-                  <th className="pb-3 pr-4">Onderdeel</th>
+                  <th className="pb-3 pr-4">Component</th>
                   <th className="pb-3 pr-4">Status</th>
-                  <th className="pb-3">Waar</th>
+                  <th className="pb-3">Where</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-landing-cream/5">
@@ -280,24 +293,24 @@ const Architecture = () => {
             </table>
           </div>
           <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Consumer-only (raakt Core NIET)</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Consumer-only (does NOT touch Core)</p>
             <ul className="space-y-1 text-sm text-landing-cream/60">
-              <li>• Passkey/WebAuthn → auto-register bij eerste capture, best-effort signing (never blocking)</li>
+              <li>• Passkey/WebAuthn → auto-register on first capture, best-effort signing (never blocking)</li>
               <li>• <code className="text-xs bg-landing-cream/5 px-1 rounded">device_signature</code> + <code className="text-xs bg-landing-cream/5 px-1 rounded">device_public_key</code> in certificate.json v1.1</li>
               <li>• Thumbnails in IndexedDB + remote fallback via Supabase storage</li>
-              <li>• ZIP generatie met artifact + certificate.json + VERIFY.txt + proof.ots</li>
-              <li>• Alle UI/UX schermen (Museum Aesthetic design system)</li>
+              <li>• ZIP generation with artifact + certificate.json + VERIFY.txt + proof.ots</li>
+              <li>• All UI/UX screens (Museum Aesthetic design system)</li>
             </ul>
           </div>
 
           {/* Proof Layers */}
           <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Proof Layers (12 feb 2026)</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Proof Layers (12 Feb 2026)</p>
             <div className="space-y-3">
               <div className="flex gap-3">
                 <span className="text-emerald-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 1</span>
                 <div>
-                  <p className="text-sm text-landing-cream/90 font-medium">WAT + WANNEER</p>
+                  <p className="text-sm text-landing-cream/90 font-medium">WHAT + WHEN</p>
                   <p className="text-xs text-landing-cream/50">SHA-256 hash + timestamp + OTS Bitcoin anchor</p>
                   <p className="text-xs text-landing-muted/40 mt-1">Core primitive. Content-agnostic. Trustless.</p>
                 </div>
@@ -305,7 +318,7 @@ const Architecture = () => {
               <div className="flex gap-3">
                 <span className="text-amber-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 2</span>
                 <div>
-                  <p className="text-sm text-landing-cream/90 font-medium">WELK APPARAAT</p>
+                  <p className="text-sm text-landing-cream/90 font-medium">WHICH DEVICE</p>
                   <p className="text-xs text-landing-cream/50">WebAuthn passkey → device_signature + device_public_key</p>
                   <p className="text-xs text-landing-muted/40 mt-1">Best-effort. Auto-register. Never blocking. Companion-only.</p>
                 </div>
@@ -316,7 +329,7 @@ const Architecture = () => {
 
         {/* 2. B2B Core Layer */}
         <section>
-          <SectionHeader icon={Server} title="B2B Core-laag (core.umarise.com)" num={2} />
+          <SectionHeader icon={Server} title="B2B Core Layer (core.umarise.com)" num={2} />
           
           {/* Public */}
           <div className="mb-8">
@@ -377,14 +390,14 @@ const Architecture = () => {
 
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
             <p className="text-xs text-landing-muted/40">
-              <strong className="text-landing-cream/60">Core v1 status:</strong> Technisch bevroren (6 feb 2026). Geen nieuwe features. Alleen bugfixes en security hardening.
+              <strong className="text-landing-cream/60">Core v1 status:</strong> Technically frozen (6 Feb 2026). No new features. Only bugfixes and security hardening.
             </p>
           </div>
         </section>
 
         {/* 3. Bridge */}
         <section>
-          <SectionHeader icon={GitBranch} title="Waar B2C en B2B elkaar raken" num={3} />
+          <SectionHeader icon={GitBranch} title="Where B2C and B2B Meet" num={3} />
           
           <div className="space-y-3 mb-8">
             {bridgePoints.map((bp, i) => (
@@ -399,7 +412,7 @@ const Architecture = () => {
           </div>
 
           <div className="p-4 bg-red-500/[0.02] border border-red-500/10 rounded-lg">
-            <p className="text-xs text-red-400/50 uppercase tracking-wider mb-3">Gaat NIET over de grens</p>
+            <p className="text-xs text-red-400/50 uppercase tracking-wider mb-3">Does NOT cross the boundary</p>
             <ul className="space-y-1">
               {neverCrosses.map((item, i) => (
                 <li key={i} className="text-sm text-landing-cream/50">✗ {item}</li>
@@ -412,7 +425,7 @@ const Architecture = () => {
         <section>
           <SectionHeader icon={Compass} title="Verify Discovery Path" num={4} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            Vier technische contactpunten die verkeer naar <code className="text-xs bg-landing-cream/5 px-1 rounded">/verify</code> leiden:
+            Four technical touchpoints that drive traffic to <code className="text-xs bg-landing-cream/5 px-1 rounded">/verify</code>:
           </p>
           <div className="space-y-2">
             {discoveryPath.map((dp) => (
@@ -432,16 +445,16 @@ const Architecture = () => {
 
         {/* 5. Origin Mark Visual System (NEW) */}
         <section>
-          <SectionHeader icon={Eye} title="Origin Mark Visueel Systeem" num={5} />
+          <SectionHeader icon={Eye} title="Origin Mark Visual System" num={5} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            De circumpunct (⊙) als universeel brand- en statussymbool:
+            The circumpunct (⊙) as universal brand and status symbol:
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
                   <th className="pb-3 pr-4">Context</th>
-                  <th className="pb-3 pr-4">Formaat</th>
+                  <th className="pb-3 pr-4">Size</th>
                   <th className="pb-3 pr-4">State</th>
                   <th className="pb-3">Detail</th>
                 </tr>
@@ -476,17 +489,17 @@ const Architecture = () => {
 
         {/* 6. /verify */}
         <section>
-          <SectionHeader icon={CheckCircle} title="/verify — Onafhankelijk Verificatie-instrument" num={6} />
+          <SectionHeader icon={CheckCircle} title="/verify — Independent Verification Instrument" num={6} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              ['Route', '/verify (publiek, geen PinGate)'],
-              ['Architectuur', 'Geïsoleerd van App-laag'],
-              ['Dependencies', 'Geen Auth, geen IndexedDB, geen pages tabel'],
+              ['Route', '/verify (public, no PinGate)'],
+              ['Architecture', 'Isolated from App layer'],
+              ['Dependencies', 'No Auth, no IndexedDB, no pages table'],
               ['Hashing', 'Client-side Web Crypto API'],
-              ['ZIP extractie', 'Client-side JSZip'],
-              ['API calls', 'POST /v1-core-verify (publiek)'],
-              ['Privacy', 'Bestanden verlaten device NIET'],
-              ['Origin Mark', 'Ghost (upload) → Anchored+glow (resultaat)'],
+              ['ZIP extraction', 'Client-side JSZip'],
+              ['API calls', 'POST /v1-core-verify (public)'],
+              ['Privacy', 'Files never leave device'],
+              ['Origin Mark', 'Ghost (upload) → Anchored+glow (result)'],
             ].map(([label, value]) => (
               <div key={label} className="p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
                 <p className="text-xs text-landing-muted/40 mb-1">{label}</p>
@@ -498,7 +511,7 @@ const Architecture = () => {
 
         {/* 7. Database Integrity */}
         <section>
-          <SectionHeader icon={Database} title="Database Integriteit" num={7} />
+          <SectionHeader icon={Database} title="Database Integrity" num={7} />
           <div className="space-y-2">
             {dbIntegrity.map((row) => (
               <div key={row.table} className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
@@ -514,14 +527,14 @@ const Architecture = () => {
 
         {/* 8. Public Routes */}
         <section>
-          <SectionHeader icon={Globe} title="Publieke Documentatie-routes" num={8} />
+          <SectionHeader icon={Globe} title="Public Documentation Routes" num={8} />
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
                   <th className="pb-3 pr-4">Route</th>
-                  <th className="pb-3 pr-4">Doel</th>
-                  <th className="pb-3 pr-4">Doelgroep</th>
+                  <th className="pb-3 pr-4">Purpose</th>
+                  <th className="pb-3 pr-4">Audience</th>
                   <th className="pb-3">Origin Mark</th>
                 </tr>
               </thead>
@@ -541,16 +554,16 @@ const Architecture = () => {
 
         {/* 9. ZIP Artifact Composition (NEW) */}
         <section>
-          <SectionHeader icon={FileArchive} title="ZIP Artifact Compositie" num={9} />
+          <SectionHeader icon={FileArchive} title="ZIP Artifact Composition" num={9} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            Elke origin produceert een zelfstandig bewijspakket:
+            Each origin produces a self-contained proof bundle:
           </p>
           <div className="space-y-2">
             {zipContents.map((z) => (
               <div key={z.file} className="flex items-center gap-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
                 <code className="text-sm text-landing-cream/80 w-40">{z.file}</code>
                 <span className={`text-xs px-2 py-0.5 rounded font-mono ${z.always ? 'bg-emerald-500/10 text-emerald-400/70' : 'bg-landing-cream/5 text-landing-cream/40'}`}>
-                  {z.always ? 'ALTIJD' : 'CONDITIONEEL'}
+                  {z.always ? 'ALWAYS' : 'CONDITIONAL'}
                 </span>
                 <span className="text-xs text-landing-muted/40 flex-1">{z.desc}</span>
               </div>
@@ -577,16 +590,43 @@ const Architecture = () => {
           </div>
           <div className="mt-4 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
             <p className="text-xs text-landing-muted/40">
-              <strong className="text-landing-cream/60">Kernprincipes:</strong> Geen self-service. Elke partner wordt handmatig gekwalificeerd. Key is eenmalig. Write-once en hash-only.
+              <strong className="text-landing-cream/60">Core principles:</strong> No self-service. Every partner is manually qualified. Key is one-time. Write-once and hash-only.
+            </p>
+          </div>
+        </section>
+
+        {/* 11. Developer Journey (NEW) */}
+        <section>
+          <SectionHeader icon={Compass} title="Developer Journey" num={11} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Seven components that together define the integration experience. Target: Quick Start in 60 seconds, full integration in {'<'}4 hours.
+          </p>
+          <div className="space-y-2">
+            {developerJourney.map((item) => (
+              <div key={item.num} className="flex gap-3 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                <span className="font-mono text-landing-muted/30 text-xs w-4 pt-0.5">{item.num}</span>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-landing-cream/90 font-medium">{item.component}</span>
+                    <span className="text-xs text-landing-muted/30 font-mono">— {item.location}</span>
+                  </div>
+                  <p className="text-xs text-landing-cream/50">{item.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+            <p className="text-xs text-emerald-400/60">
+              ✅ Developer Journey complete. All 7 components live. Zero-friction mandate enforced: every step is self-contained with inline instructions.
             </p>
           </div>
         </section>
 
         {/* 11. Security Hardening & Stress Test Readiness */}
         <section>
-          <SectionHeader icon={ShieldCheck} title="Security Hardening & Stress Test Readiness" num={11} />
+          <SectionHeader icon={ShieldCheck} title="Security Hardening & Stress Test Readiness" num={12} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            Status per 15 februari 2026. Alle items afgerond voor External Review Program (milestone 1).
+            Status as of 15 February 2026. All items completed for External Review Program (milestone 1).
           </p>
 
           {/* CORS Policy */}
@@ -606,7 +646,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Geen wildcard (*) meer op App Layer. Browsers blokkeren requests van onbekende domeinen. Gevalideerd met 5/5 CORS tests.
+                ✅ No wildcard (*) on App Layer. Browsers block requests from unknown domains. Validated with 5/5 CORS tests.
               </p>
             </div>
           </div>
@@ -628,7 +668,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Alle legacy wrappers verwijderd. Geen dubbele routes meer. Core API bereikbaar via v1-core-* endpoints.
+                ✅ All legacy wrappers removed. No duplicate routes. Core API accessible via v1-core-* endpoints only.
               </p>
             </div>
           </div>
@@ -643,9 +683,9 @@ const Architecture = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
-                    <th className="pb-3 pr-4">Function</th>
-                    <th className="pb-3 pr-4">Limiet</th>
-                    <th className="pb-3 pr-4">Type</th>
+                     <th className="pb-3 pr-4">Function</th>
+                     <th className="pb-3 pr-4">Limit</th>
+                     <th className="pb-3 pr-4">Type</th>
                     <th className="pb-3">Rate Key</th>
                   </tr>
                 </thead>
@@ -665,7 +705,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Alle rate limits DB-persistent (core_check_rate_limit RPC). Publieke endpoints (verify, resolve, image-proxy) gebruiken SHA-256 IP hashing. Authenticated endpoints gebruiken device_user_id. Overleeft cold starts.
+                ✅ All rate limits DB-persistent (core_check_rate_limit RPC). Public endpoints (verify, resolve, image-proxy) use SHA-256 IP hashing. Authenticated endpoints use device_user_id. Survives cold starts.
               </p>
             </div>
           </div>
@@ -674,7 +714,7 @@ const Architecture = () => {
           <div className="mb-6">
             <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Lock className="w-4 h-4 text-landing-cream/30" />
-              Privacy Architectuur
+              Privacy Architecture
             </h3>
             <div className="space-y-2">
               {securityHardening.privacyArchitecture.map((row) => (
@@ -707,24 +747,24 @@ const Architecture = () => {
 
         {/* 12. Load Test Results */}
         <section>
-          <SectionHeader icon={Server} title="Stress Test Resultaten (k6)" num={12} />
+          <SectionHeader icon={Server} title="Stress Test Results (k6)" num={13} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            Empirische validatie van de Core API onder sustained load. Uitgevoerd op 15 februari 2026 vanaf een externe client (iMac, macOS). Alle thresholds gepasseerd.
+            Empirical validation of the Core API under sustained load. Executed on 15 February 2026 from an external client (iMac, macOS). All thresholds passed.
           </p>
 
           {/* Public Endpoints Test */}
           <div className="mb-8">
             <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider mb-4 flex items-center gap-2">
               <Globe className="w-4 h-4 text-landing-cream/30" />
-              Publieke Endpoints (load-test-core-api.js)
+              Publc Endpoints (load-test-core-api.js)
             </h3>
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-3">
-              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profiel</p>
+              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profile</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 {[
-                  ['8 min', 'Duur'],
+                  ['8 min', 'Duration'],
                   ['34', 'Max VUs'],
-                  ['6.073', 'Iteraties'],
+                  ['6.073', 'Iterations'],
                   ['~14 req/s', 'Throughput'],
                 ].map(([num, label]) => (
                   <div key={label} className="text-center p-3 bg-landing-cream/[0.03] rounded-lg">
@@ -765,7 +805,7 @@ const Architecture = () => {
             </div>
             <div className="p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Overall: 99.41% checks passed. P95 overall 546ms. 6.563 requests verwerkt in 8 minuten. Alle 6 custom thresholds gepasseerd.
+                ✅ Overall: 99.41% checks passed. P95 overall 546ms. 6,563 requests processed in 8 minutes. All 6 custom thresholds passed.
               </p>
             </div>
           </div>
@@ -777,12 +817,12 @@ const Architecture = () => {
               B2B Round-Trip (load-test-authenticated.js)
             </h3>
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-3">
-              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profiel — Create → Resolve → Verify</p>
+              <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Test Profile — Create → Resolve → Verify</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                 {[
-                  ['5.5 min', 'Duur'],
+                  ['5.5 min', 'Duration'],
                   ['10', 'Max VUs'],
-                  ['661', 'Iteraties'],
+                  ['661', 'Iterations'],
                   ['646', 'Round-trips ✓'],
                 ].map(([num, label]) => (
                   <div key={label} className="text-center p-3 bg-landing-cream/[0.03] rounded-lg">
@@ -795,8 +835,8 @@ const Architecture = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
-                      <th className="pb-3 pr-4">Stap</th>
-                      <th className="pb-3 pr-4">Checks</th>
+                     <th className="pb-3 pr-4">Step</th>
+                     <th className="pb-3 pr-4">Checks</th>
                       <th className="pb-3 pr-4">P95</th>
                       <th className="pb-3 pr-4">Error Rate</th>
                       <th className="pb-3">Threshold</th>
@@ -822,25 +862,25 @@ const Architecture = () => {
             </div>
             <div className="p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
               <p className="text-xs text-emerald-400/60">
-                ✅ Overall: 99.73% checks passed. 652 attestaties aangemaakt, 646 volledige round-trips (Create → Resolve → Verify). 0% HTTP failures. Alle 6 custom thresholds gepasseerd.
+                ✅ Overall: 99.73% checks passed. 652 attestations created, 646 complete round-trips (Create → Resolve → Verify). 0% HTTP failures. All 6 custom thresholds passed.
               </p>
             </div>
           </div>
 
           {/* Scalability Note */}
           <div className="p-4 bg-amber-500/[0.03] border border-amber-500/10 rounded-lg">
-            <p className="text-xs text-amber-400/60 uppercase tracking-wider mb-2">Schaalbaarheid notitie</p>
+            <p className="text-xs text-amber-400/60 uppercase tracking-wider mb-2">Scalability note</p>
             <p className="text-xs text-landing-cream/50">
-              De DB-persistent rate limiter (core_check_rate_limit UPSERT) functioneert correct onder deze load (~14 req/s, ~820 req/min). Bij extreme schaal (&gt;100K concurrent users) kan de write-druk van de UPSERT een bottleneck worden. Monitoring van database IOPS is dan geadviseerd, eventueel met migratie naar een gedistribueerd rate-limit mechanisme.
+              The DB-persistent rate limiter (core_check_rate_limit UPSERT) functions correctly under this load (~14 req/s, ~820 req/min). At extreme scale (&gt;100K concurrent users) the write pressure of the UPSERT may become a bottleneck. Database IOPS monitoring is advised, potentially with migration to a distributed rate-limit mechanism.
             </p>
           </div>
         </section>
 
         {/* 13. Verification Independence Tools */}
         <section>
-          <SectionHeader icon={Terminal} title="Verification Independence Tools" num={13} />
+          <SectionHeader icon={Terminal} title="Verification Independence Tools" num={14} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            Twee platform-onafhankelijke scripts waarmee reviewers Anchor ZIP-pakketten onafhankelijk van Umarise-infrastructuur kunnen valideren. Bewijst <strong className="text-landing-cream/70">Layer 5: Verification Independence</strong>.
+            Two platform-independent scripts enabling reviewers to validate Anchor ZIP bundles independently of Umarise infrastructure. Proves <strong className="text-landing-cream/70">Layer 5: Verification Independence</strong>.
           </p>
 
           <div className="space-y-4">
@@ -850,10 +890,10 @@ const Architecture = () => {
                 <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">Bash</span>
               </div>
               <ul className="space-y-1 text-xs text-landing-cream/50">
-                <li>• Vereist alleen <code className="bg-landing-cream/5 px-1 rounded">shasum</code>, <code className="bg-landing-cream/5 px-1 rounded">unzip</code>, <code className="bg-landing-cream/5 px-1 rounded">python3</code> (standaard op macOS/Linux)</li>
-                <li>• Extraheert artifact + certificate.json uit ZIP</li>
-                <li>• Herberekent SHA-256 hash en vergelijkt met certificate</li>
-                <li>• Detecteert aanwezigheid .ots proof voor Bitcoin-level integriteit</li>
+                <li>• Requires only <code className="bg-landing-cream/5 px-1 rounded">shasum</code>, <code className="bg-landing-cream/5 px-1 rounded">unzip</code>, <code className="bg-landing-cream/5 px-1 rounded">python3</code> (standard on macOS/Linux)</li>
+                <li>• Extracts artifact + certificate.json from ZIP</li>
+                <li>• Recalculates SHA-256 hash and compares with certificate</li>
+                <li>• Detects presence of .ots proof for Bitcoin-level integrity</li>
               </ul>
             </div>
 
@@ -863,45 +903,45 @@ const Architecture = () => {
                 <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400/70 font-mono">Python</span>
               </div>
               <ul className="space-y-1 text-xs text-landing-cream/50">
-                <li>• Zero dependencies — alleen Python stdlib (<code className="bg-landing-cream/5 px-1 rounded">hashlib</code>, <code className="bg-landing-cream/5 px-1 rounded">zipfile</code>, <code className="bg-landing-cream/5 px-1 rounded">json</code>)</li>
-                <li>• Zelfde verificatielogica als Bash-variant</li>
+                <li>• Zero dependencies — Python stdlib only (<code className="bg-landing-cream/5 px-1 rounded">hashlib</code>, <code className="bg-landing-cream/5 px-1 rounded">zipfile</code>, <code className="bg-landing-cream/5 px-1 rounded">json</code>)</li>
+                <li>• Same verification logic as Bash variant</li>
                 <li>• Cross-platform: Windows, macOS, Linux</li>
-                <li>• Beide scripts ook beschikbaar op <code className="bg-landing-cream/5 px-1 rounded">/reviewer</code></li>
+                <li>• Both scripts also available on <code className="bg-landing-cream/5 px-1 rounded">/reviewer</code></li>
               </ul>
             </div>
           </div>
 
           <div className="mt-4 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
             <p className="text-xs text-emerald-400/60">
-              ✅ Beide scripts gebruiken geen Umarise-infrastructuur. Bewijs dat verificatie werkt met alleen lokale tools + het publieke Bitcoin-netwerk.
+              ✅ Both scripts use no Umarise infrastructure. Proof that verification works with local tools + the public Bitcoin network only.
             </p>
           </div>
         </section>
 
-        {/* 14. Domain Architecture */}
+        {/* 15. Domain Architecture */}
         <section>
-          <SectionHeader icon={Globe} title="Domeinarchitectuur" num={14} />
+          <SectionHeader icon={Globe} title="Domain Architecture" num={15} />
           <div className="space-y-3">
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <code className="text-sm text-landing-cream/90 font-mono">anchoring.app</code>
                 <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">B2C PWA</span>
               </div>
-              <p className="text-xs text-landing-cream/50">Primair domein voor de consumer-facing ritual experience (/prototype)</p>
+              <p className="text-xs text-landing-cream/50">Primary domain for the consumer-facing ritual experience (/prototype)</p>
             </div>
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <code className="text-sm text-landing-cream/90 font-mono">umarise.com</code>
                 <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400/70 font-mono">B2B Infra</span>
               </div>
-              <p className="text-xs text-landing-cream/50">Autoritatief hub voor B2B infrastructuur documentatie en Infra Canon</p>
+              <p className="text-xs text-landing-cream/50">Authoritative hub for B2B infrastructure documentation and Infra Canon</p>
             </div>
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <code className="text-sm text-landing-cream/90 font-mono">core.umarise.com</code>
                 <span className="text-xs px-2 py-0.5 rounded bg-red-500/10 text-red-400/70 font-mono">API</span>
               </div>
-              <p className="text-xs text-landing-cream/50">Publieke Core API (v1 bevroren) — resolve, verify, proof, health</p>
+              <p className="text-xs text-landing-cream/50">Public Core API (v1 frozen) — resolve, verify, proof, health</p>
             </div>
           </div>
         </section>
@@ -909,46 +949,50 @@ const Architecture = () => {
         {/* Footer */}
         <div className="border-t border-landing-cream/10 pt-8 pb-16">
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
-            Core weet niet dat de App bestaat. De App weet dat Core bestaat.
+            Core does not know the App exists. The App knows Core exists.
           </p>
           <p className="text-landing-muted/40 text-xs mb-4">
-            De grens is schoon.
+            The boundary is clean.
           </p>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 16 feb</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 16 Feb (latest)</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• <strong className="text-landing-cream/70">Verification Independence Tools:</strong> Bash + Python scripts voor offline ZIP-validatie</li>
-              <li>• <strong className="text-landing-cream/70">Domeinarchitectuur:</strong> anchoring.app (B2C) + umarise.com (B2B) + core.umarise.com (API)</li>
-              <li>• <strong className="text-landing-cream/70">Routes bijgewerkt:</strong> /anchor (was /origin), /reviewer toegevoegd, /legal → Technische Specificatie</li>
-              <li>• <strong className="text-landing-cream/70">ASCII diagram:</strong> Gesynchroniseerd met huidige Infra Canon navigatie</li>
+              <li>• <strong className="text-landing-cream/70">Developer Journey:</strong> 7 components — Quick Start (zero-friction), Integration Checklist v2 (24 steps), Live Demo, SDKs, first-run scripts, AI Support Bot, verification scripts</li>
+              <li>• <strong className="text-landing-cream/70">/api-reference:</strong> Consolidated developer docs location (replaces /docs)</li>
+              <li>• <strong className="text-landing-cream/70">Integration Checklist v2:</strong> 24 self-contained steps with inline instructions, code examples, and curl commands</li>
+              <li>• <strong className="text-landing-cream/70">Partner onboarding step 9:</strong> Updated to reflect Quick Start → Checklist → Production flow</li>
+              <li>• <strong className="text-landing-cream/70">Verification Independence Tools:</strong> Bash + Python scripts for offline ZIP validation</li>
+              <li>• <strong className="text-landing-cream/70">Domain Architecture:</strong> anchoring.app (B2C) + umarise.com (B2B) + core.umarise.com (API)</li>
+              <li>• <strong className="text-landing-cream/70">Routes updated:</strong> /anchor (was /origin), /reviewer added, /legal → Technical Specification</li>
+              <li>• <strong className="text-landing-cream/70">Full English translation</strong></li>
             </ul>
           </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 15 feb</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 15 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• <strong className="text-landing-cream/70">CORS lock:</strong> Alle 21 App Layer functies gelocked naar anchoring.app + umarise.com + *.lovable.app</li>
-              <li>• <strong className="text-landing-cream/70">Rate limit migratie:</strong> Alle in-memory rate limits vervangen door DB-persistent (core_check_rate_limit)</li>
-              <li>• <strong className="text-landing-cream/70">Privacy architectuur:</strong> SHA-256 gehashte IPs, geen PII, device-isolated auth</li>
-              <li>• <strong className="text-landing-cream/70">Security matrix:</strong> Volledige edge function inventarisatie (35 functies, 14 rate limited)</li>
-              <li>• <strong className="text-landing-cream/70">Stress tests:</strong> k6 load tests met empirische resultaten (P95 {'<'} 600ms)</li>
+              <li>• <strong className="text-landing-cream/70">CORS lock:</strong> All 21 App Layer functions locked to anchoring.app + umarise.com + *.lovable.app</li>
+              <li>• <strong className="text-landing-cream/70">Rate limit migration:</strong> All in-memory rate limits replaced by DB-persistent (core_check_rate_limit)</li>
+              <li>• <strong className="text-landing-cream/70">Privacy architecture:</strong> SHA-256 hashed IPs, no PII, device-isolated auth</li>
+              <li>• <strong className="text-landing-cream/70">Security matrix:</strong> Full edge function inventory (35 functions, 14 rate limited)</li>
+              <li>• <strong className="text-landing-cream/70">Stress tests:</strong> k6 load tests with empirical results (P95 {'<'} 600ms)</li>
             </ul>
           </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 12 feb</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 12 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• <strong className="text-landing-cream/70">Layer 2 — Device Identity (v1.1):</strong> WebAuthn passkey auto-registratie bij eerste capture</li>
-              <li>• certificate.json v1.1 met device_signature + device_public_key</li>
-              <li>• Best-effort signing: annuleren van Face ID/biometrie blokkeert anchor NIET</li>
-              <li>• ZIP artifact hernoemd naar artifact.&#123;ext&#125; (ondersteunt video, PDF, audio)</li>
-              <li>• VERIFY.txt bevat device signed status</li>
+              <li>• <strong className="text-landing-cream/70">Layer 2 — Device Identity (v1.1):</strong> WebAuthn passkey auto-registration on first capture</li>
+              <li>• certificate.json v1.1 with device_signature + device_public_key</li>
+              <li>• Best-effort signing: canceling Face ID/biometrics does NOT block anchor</li>
+              <li>• ZIP artifact renamed to artifact.&#123;ext&#125; (supports video, PDF, audio)</li>
+              <li>• VERIFY.txt includes device signed status</li>
             </ul>
           </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 9 feb</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 9 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• Verify Discovery Path (4 contactpunten: VERIFY.txt, certificate verify_url, Sealed link, Origin Registry deel-knop)</li>
-              <li>• Origin Mark visueel systeem op alle site-pagina's (16px header, ghost/pending/anchored states)</li>
-              <li>• ZIP bevat nu VERIFY.txt met menselijk leesbare verificatie-instructies</li>
+              <li>• Verify Discovery Path (4 touchpoints: VERIFY.txt, certificate verify_url, Sealed link, Origin Registry share button)</li>
+              <li>• Origin Mark visual system on all site pages (16px header, ghost/pending/anchored states)</li>
+              <li>• ZIP now includes VERIFY.txt with human-readable verification instructions</li>
             </ul>
           </div>
         </div>
