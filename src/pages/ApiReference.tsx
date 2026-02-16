@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import QuickStartSection from '@/components/api-reference/QuickStartSection';
 import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
 import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
+import LiveDemoFlow from '@/components/api-reference/LiveDemoFlow';
 
 const BASE_URL = 'https://core.umarise.com';
 
 const endpoints = [
   { id: 'quick-start', name: 'Quick Start', icon: Zap },
+  { id: 'live-demo', name: 'Try it Live', icon: PlayCircle },
   { id: 'health', name: 'Health', method: 'GET' },
   { id: 'origins', name: 'Attest', method: 'POST' },
   { id: 'resolve', name: 'Resolve', method: 'GET' },
@@ -58,6 +60,9 @@ export default function ApiReference() {
 
         {/* ─── QUICK START ─── */}
         <QuickStartSection />
+
+        {/* ─── LIVE DEMO ─── */}
+        <LiveDemoFlow />
 
         {/* ─── 1. HEALTH ─── */}
         <section id="health">
