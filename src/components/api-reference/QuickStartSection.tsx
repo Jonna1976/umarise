@@ -111,12 +111,17 @@ export default function QuickStartSection() {
           <span className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono ml-auto">60 seconden tot eerste attestatie</span>
         </div>
 
-        <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mb-1">
-          Vereisten: <code className="text-[hsl(var(--landing-copper))]">curl</code> (standaard op Mac/Linux), een API key.
-        </p>
-        <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mb-8">
-          Nog geen key? Mail <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — response binnen 24 uur.
-        </p>
+        <div className="flex items-start gap-3 p-3 rounded border border-[hsl(var(--landing-copper)/0.2)] bg-[hsl(var(--landing-copper)/0.05)] mb-8">
+          <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))] mt-0.5 shrink-0" />
+          <div className="text-sm">
+            <p className="text-[hsl(var(--landing-cream)/0.7)]">
+              Vereisten: <code className="text-[hsl(var(--landing-copper))]">curl</code> + een <strong className="text-[hsl(var(--landing-cream))]">API key</strong>.
+            </p>
+            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-1">
+              Nog geen key? Mail <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — response binnen 24 uur.
+            </p>
+          </div>
+        </div>
 
         <div className="space-y-8">
           {/* Step 1 */}
@@ -141,7 +146,7 @@ export default function QuickStartSection() {
   -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             singleLine={`curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: JOUW_KEY' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"pending"}`}
-            note='Dit is de SHA-256 hash van een leeg bestand — werkt als test. Eigen bestand hashen: sha256sum jouw-bestand.pdf (Linux) of shasum -a 256 jouw-bestand.pdf (macOS). Pending betekent: het bewijs wordt verankerd in Bitcoin. Duurt 10–20 minuten. Herhaal stap 3 na 10–20 min — je ziet proof_status veranderen van "pending" naar "anchored".'
+            note='Test-hash: SHA-256 van een leeg bestand. Eigen bestand hashen: sha256sum bestand.pdf (Linux) of shasum -a 256 bestand.pdf (macOS). Pending = bewijs wordt verankerd (10–20 min). Herhaal stap 3 daarna — proof_status verandert van "pending" naar "anchored".'
           />
 
           <div className="border-t border-[hsl(var(--landing-cream)/0.06)]" />
@@ -167,7 +172,7 @@ export default function QuickStartSection() {
   -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             singleLine={`curl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"anchored"}`}
-            note='Let op bij de test-hash: verify retourneert de eerste attestatie van die hash. Omdat de test-hash (leeg bestand) eerder is gebruikt, zie je een attestatie met een eerdere captured_at en mogelijk proof_status "anchored". Dat is correct gedrag — het bewijst dat deze hash al eerder bestond. Met een eigen bestand zie je je eigen attestatie.'
+            note='Verify retourneert de eerste attestatie voor deze hash (first-in-time resolutie). Bij de test-hash zie je mogelijk een eerdere captured_at met proof_status "anchored" — dat is correct: de hash bestond al. Met een eigen bestand zie je je eigen attestatie.'
           />
         </div>
 
