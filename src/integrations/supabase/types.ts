@@ -196,6 +196,39 @@ export type Database = {
         }
         Relationships: []
       }
+      health_checks: {
+        Row: {
+          alert_sent: boolean
+          checked_at: string
+          consecutive_failures: number
+          error_message: string | null
+          id: string
+          response_time_ms: number | null
+          status: string
+          status_code: number | null
+        }
+        Insert: {
+          alert_sent?: boolean
+          checked_at?: string
+          consecutive_failures?: number
+          error_message?: string | null
+          id?: string
+          response_time_ms?: number | null
+          status?: string
+          status_code?: number | null
+        }
+        Update: {
+          alert_sent?: boolean
+          checked_at?: string
+          consecutive_failures?: number
+          error_message?: string | null
+          id?: string
+          response_time_ms?: number | null
+          status?: string
+          status_code?: number | null
+        }
+        Relationships: []
+      }
       hetzner_trash_index: {
         Row: {
           created_at: string
@@ -659,6 +692,7 @@ export type Database = {
     }
     Functions: {
       cleanup_old_audit_logs: { Args: never; Returns: undefined }
+      cleanup_old_health_checks: { Args: never; Returns: undefined }
       core_check_rate_limit: {
         Args: { p_endpoint: string; p_limit: number; p_rate_key: string }
         Returns: Json
