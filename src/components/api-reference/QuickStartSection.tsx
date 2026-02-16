@@ -1,170 +1,35 @@
 import { useState } from 'react';
-import { Terminal, Download, Zap, CheckCircle2, ArrowRight } from 'lucide-react';
-import { CopyBlock, CodeTabs } from './shared';
+import { Zap, Copy, Check, Download, Terminal } from 'lucide-react';
+
+const BASE = 'https://core.umarise.com';
 
 const FIRST_RUN_BASH = `#!/bin/bash
 # Umarise Core — First Run
 # Usage: bash first-run.sh YOUR_API_KEY
-# Requires: curl, sha256sum (or shasum on macOS)
-
 set -e
-
 API_KEY="\${1:?Usage: bash first-run.sh YOUR_API_KEY}"
 BASE="https://core.umarise.com"
-
-echo ""
-echo "═══════════════════════════════════════════"
-echo "  Umarise Core — First Run"
-echo "═══════════════════════════════════════════"
-echo ""
-
-# Step 1: Health check
+echo ""; echo "═══════════════════════════════════════════"; echo "  Umarise Core — First Run"; echo "═══════════════════════════════════════════"; echo ""
 echo "1. Checking API health..."
 HEALTH=$(curl -s "$BASE/v1-core-health")
 STATUS=$(echo "$HEALTH" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
-
-if [ "$STATUS" = "operational" ]; then
-  echo "   ✓ API is operational"
-else
-  echo "   ✗ API returned: $HEALTH"
-  exit 1
-fi
-
-# Step 2: Create a test hash
-echo ""
-echo "2. Creating test hash..."
+if [ "$STATUS" = "operational" ]; then echo "   ✓ API is operational"; else echo "   ✗ API returned: $HEALTH"; exit 1; fi
+echo ""; echo "2. Creating test hash..."
 TEST_STRING="umarise-first-run-$(date +%s)"
-
-if command -v sha256sum &> /dev/null; then
-  HASH=$(echo -n "$TEST_STRING" | sha256sum | cut -d' ' -f1)
-elif command -v shasum &> /dev/null; then
-  HASH=$(echo -n "$TEST_STRING" | shasum -a 256 | cut -d' ' -f1)
-else
-  echo "   ✗ No sha256sum or shasum found"
-  exit 1
-fi
-
-echo "   Input:  \\"$TEST_STRING\\""
+if command -v sha256sum &> /dev/null; then HASH=$(echo -n "$TEST_STRING" | sha256sum | cut -d' ' -f1); elif command -v shasum &> /dev/null; then HASH=$(echo -n "$TEST_STRING" | shasum -a 256 | cut -d' ' -f1); else echo "   ✗ No sha256sum or shasum found"; exit 1; fi
 echo "   SHA-256: $HASH"
-
-# Step 3: Create attestation
-echo ""
-echo "3. Creating attestation..."
-RESULT=$(curl -s -X POST "$BASE/v1-core-origins" \\
-  -H "Content-Type: application/json" \\
-  -H "X-API-Key: $API_KEY" \\
-  -d "{\\"hash\\": \\"sha256:$HASH\\"}")
-
-if echo "$RESULT" | grep -q '"error"'; then
-  echo "   ✗ Error: $RESULT"
-  exit 1
-fi
-
+echo ""; echo "3. Creating attestation..."
+RESULT=$(curl -s -X POST "$BASE/v1-core-origins" -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" -d "{\\"hash\\": \\"sha256:$HASH\\"}")
+if echo "$RESULT" | grep -q '"error"'; then echo "   ✗ Error: $RESULT"; exit 1; fi
 ORIGIN_ID=$(echo "$RESULT" | grep -o '"origin_id":"[^"]*"' | cut -d'"' -f4)
-echo "   ✓ Attestation created"
-echo "   origin_id: $ORIGIN_ID"
-
-# Step 4: Verify
-echo ""
-echo "4. Verifying hash..."
-VERIFY=$(curl -s -X POST "$BASE/v1-core-verify" \\
-  -H "Content-Type: application/json" \\
-  -d "{\\"hash\\": \\"sha256:$HASH\\"}")
-
-if echo "$VERIFY" | grep -q '"origin_id"'; then
-  echo "   ✓ Hash verified — match found"
-else
-  echo "   ✗ Verification failed: $VERIFY"
-  exit 1
-fi
-
-# Step 5: Resolve
-echo ""
-echo "5. Resolving by origin_id..."
+echo "   ✓ origin_id: $ORIGIN_ID"
+echo ""; echo "4. Verifying hash..."
+VERIFY=$(curl -s -X POST "$BASE/v1-core-verify" -H "Content-Type: application/json" -d "{\\"hash\\": \\"sha256:$HASH\\"}")
+if echo "$VERIFY" | grep -q '"origin_id"'; then echo "   ✓ Hash verified"; else echo "   ✗ Verification failed: $VERIFY"; exit 1; fi
+echo ""; echo "5. Resolving..."
 RESOLVE=$(curl -s "$BASE/v1-core-resolve?origin_id=$ORIGIN_ID")
-
-if echo "$RESOLVE" | grep -q '"origin_id"'; then
-  echo "   ✓ Origin resolved successfully"
-else
-  echo "   ✗ Resolution failed: $RESOLVE"
-  exit 1
-fi
-
-echo ""
-echo "═══════════════════════════════════════════"
-echo "  ✓ All checks passed"
-echo "  Next: curl \\"$BASE/v1-core-proof?origin_id=$ORIGIN_ID\\" -o proof.ots"
-echo "═══════════════════════════════════════════"`;
-
-const FIRST_RUN_PYTHON = `#!/usr/bin/env python3
-"""Umarise Core — First Run
-Usage: python first-run.py YOUR_API_KEY
-Requires: Python 3.8+, no external dependencies
-"""
-
-import sys, hashlib, json, time
-from urllib.request import Request, urlopen
-
-BASE = "https://core.umarise.com"
-
-def api_get(path):
-    with urlopen(Request(f"{BASE}{path}"), timeout=15) as resp:
-        return json.loads(resp.read())
-
-def api_post(path, data, api_key=None):
-    body = json.dumps(data).encode()
-    req = Request(f"{BASE}{path}", data=body, method="POST")
-    req.add_header("Content-Type", "application/json")
-    if api_key:
-        req.add_header("X-API-Key", api_key)
-    with urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read())
-
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python first-run.py YOUR_API_KEY")
-        sys.exit(1)
-
-    api_key = sys.argv[1]
-    print("\\n" + "═" * 45)
-    print("  Umarise Core — First Run")
-    print("═" * 45 + "\\n")
-
-    # 1. Health
-    print("1. Checking API health...")
-    health = api_get("/v1-core-health")
-    assert health["status"] == "operational"
-    print("   ✓ API is operational")
-
-    # 2. Hash
-    print("\\n2. Creating test hash...")
-    test_string = f"umarise-first-run-{int(time.time())}"
-    hash_hex = hashlib.sha256(test_string.encode()).hexdigest()
-    print(f"   SHA-256: {hash_hex}")
-
-    # 3. Attest
-    print("\\n3. Creating attestation...")
-    result = api_post("/v1-core-origins", {"hash": f"sha256:{hash_hex}"}, api_key)
-    print(f"   ✓ origin_id: {result['origin_id']}")
-
-    # 4. Verify
-    print("\\n4. Verifying hash...")
-    verify = api_post("/v1-core-verify", {"hash": f"sha256:{hash_hex}"})
-    assert "origin_id" in verify
-    print("   ✓ Hash verified")
-
-    # 5. Resolve
-    print("\\n5. Resolving...")
-    resolve = api_get(f"/v1-core-resolve?origin_id={result['origin_id']}")
-    assert "origin_id" in resolve
-    print("   ✓ Origin resolved")
-
-    print("\\n" + "═" * 45)
-    print("  ✓ All checks passed. Integration ready.")
-    print("═" * 45 + "\\n")
-
-if __name__ == "__main__":
-    main()`;
+if echo "$RESOLVE" | grep -q '"origin_id"'; then echo "   ✓ Origin resolved"; else echo "   ✗ Resolution failed: $RESOLVE"; exit 1; fi
+echo ""; echo "═══════════════════════════════════════════"; echo "  ✓ All checks passed"; echo "═══════════════════════════════════════════"`;
 
 function downloadAsFile(content: string, filename: string) {
   const blob = new Blob([content], { type: 'text/plain' });
@@ -176,123 +41,168 @@ function downloadAsFile(content: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export default function QuickStartSection() {
-  const [showScripts, setShowScripts] = useState(false);
-
+/** Copy button: copies single-line version of a command */
+function CopyCmd({ singleLine }: { singleLine: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(singleLine);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   return (
-    <section id="quick-start" className="space-y-8">
-      {/* Quick Start Card */}
-      <div className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
-          <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Quick Start</h2>
-          <span className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono ml-auto">~5 min to first attestation</span>
-        </div>
+    <button
+      onClick={copy}
+      className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono border border-[hsl(var(--landing-cream)/0.12)] text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream)/0.8)] hover:border-[hsl(var(--landing-cream)/0.25)] transition-colors bg-[hsl(var(--landing-deep)/0.8)]"
+      title="Copy to clipboard"
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
 
-        <div className="space-y-3">
-          {[
-            { step: '1', label: 'Get API key', detail: 'partners@umarise.com · response within 24h' },
-            { step: '2', label: 'Run first-run script', detail: 'bash first-run.sh KEY' },
-            { step: '3', label: 'Install SDK', detail: 'copy umarise-core.ts' },
-            { step: '4', label: 'Integrate', detail: 'one SDK call per event' },
-            { step: '5', label: 'Verify', detail: 'umarise.com/verify' },
-          ].map(({ step, label, detail }) => (
-            <div key={step} className="flex items-center gap-3 text-sm">
-              <span className="w-5 h-5 rounded-full bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] flex items-center justify-center text-[10px] font-mono font-bold shrink-0">{step}</span>
-              <span className="text-[hsl(var(--landing-cream)/0.8)] font-medium">{label}</span>
-              <ArrowRight className="w-3 h-3 text-[hsl(var(--landing-cream)/0.2)]" />
-              <code className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono">{detail}</code>
-            </div>
-          ))}
-        </div>
+interface StepProps {
+  number: string;
+  title: string;
+  /** Displayed in the code block (multi-line for readability) */
+  display: string;
+  /** What the copy button actually copies (single-line, no backslashes) */
+  singleLine: string;
+  expected: string;
+  note?: string;
+}
 
-        <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs mt-4 font-mono">
-          Time to full integration: ~2–4 hours (measured during PoC)
-        </p>
+function Step({ number, title, display, singleLine, expected, note }: StepProps) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-3">
+        <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] flex items-center justify-center text-xs font-mono font-bold shrink-0">
+          {number}
+        </span>
+        <h4 className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-sm">{title}</h4>
       </div>
 
-      {/* First-Run Scripts */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-[hsl(var(--landing-cream)/0.5)]" />
-            <h3 className="text-lg font-serif text-[hsl(var(--landing-cream))]">First-Run Scripts</h3>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => downloadAsFile(FIRST_RUN_BASH, 'first-run.sh')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
-            >
-              <Download className="w-3 h-3" /> .sh
-            </button>
-            <button
-              onClick={() => downloadAsFile(FIRST_RUN_PYTHON, 'first-run.py')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
-            >
-              <Download className="w-3 h-3" /> .py
-            </button>
-          </div>
+      <div className="relative">
+        <CopyCmd singleLine={singleLine} />
+        <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre">
+{display}
+        </pre>
+      </div>
+
+      <div className="bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-3">
+        <p className="text-[10px] font-mono uppercase tracking-wider text-[hsl(var(--landing-cream)/0.35)] mb-1">Verwacht</p>
+        <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] whitespace-pre-wrap">{expected}</pre>
+      </div>
+
+      {note && (
+        <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs leading-relaxed pl-9">{note}</p>
+      )}
+    </div>
+  );
+}
+
+export default function QuickStartSection() {
+  return (
+    <section id="quick-start" className="space-y-8">
+      <div className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
+        <div className="flex items-center gap-2 mb-2">
+          <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
+          <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Quick Start</h2>
+          <span className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono ml-auto">60 seconden tot eerste attestatie</span>
         </div>
 
-        <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mb-4">
-          Copy, paste, run. No dependencies. See your first attestation in 60 seconds.
+        <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mb-1">
+          Vereisten: <code className="text-[hsl(var(--landing-copper))]">curl</code> (standaard op Mac/Linux), een API key.
+        </p>
+        <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mb-8">
+          Nog geen key? Mail <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — response binnen 24 uur.
         </p>
 
-        <CodeTabs examples={{
-          curl: `# One-liner: health check + attest + verify
-bash first-run.sh YOUR_API_KEY
+        <div className="space-y-8">
+          {/* Step 1 */}
+          <Step
+            number="1"
+            title="Check of de API draait"
+            display={`curl ${BASE}/v1-core-health`}
+            singleLine={`curl ${BASE}/v1-core-health`}
+            expected={`{"status":"operational","version":"v1","timestamp":"..."}`}
+          />
 
-# Expected output:
-# ═══════════════════════════════════════════
-#   Umarise Core — First Run
-# ═══════════════════════════════════════════
-# 1. Checking API health...   ✓ API is operational
-# 2. Creating test hash...    SHA-256: a1b2c3...
-# 3. Creating attestation...  ✓ origin_id: uuid
-# 4. Verifying hash...        ✓ Hash verified
-# 5. Resolving...             ✓ Origin resolved
-# ═══════════════════════════════════════════
-#   ✓ All checks passed`,
-          node: `// Or use Node.js directly:
-import { UmariseCore } from './umarise-core';
-import { createHash } from 'crypto';
+          {/* Divider */}
+          <div className="border-t border-[hsl(var(--landing-cream)/0.06)]" />
 
-const core = new UmariseCore({ apiKey: 'um_your_key' });
+          {/* Step 2 */}
+          <Step
+            number="2"
+            title="Maak je eerste attestatie aan"
+            display={`curl -X POST ${BASE}/v1-core-origins \\
+  -H 'Content-Type: application/json' \\
+  -H 'X-API-Key: JOUW_KEY' \\
+  -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+            singleLine={`curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: JOUW_KEY' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+            expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"pending"}`}
+            note='Dit is de SHA-256 hash van een leeg bestand — werkt als test. Eigen bestand hashen: sha256sum jouw-bestand.pdf (Linux) of shasum -a 256 jouw-bestand.pdf (macOS). Pending betekent: het bewijs wordt verankerd in Bitcoin. Duurt 10–20 minuten. Herhaal stap 3 na 10–20 min — je ziet proof_status veranderen van "pending" naar "anchored".'
+          />
 
-// 1. Health
-const health = await core.health();
-console.log('API:', health.status);
+          <div className="border-t border-[hsl(var(--landing-cream)/0.06)]" />
 
-// 2. Hash + Attest
-const hash = createHash('sha256').update('test-data').digest('hex');
-const origin = await core.attest(\`sha256:\${hash}\`);
-console.log('origin_id:', origin.origin_id);
+          {/* Step 3 */}
+          <Step
+            number="3"
+            title="Bekijk je attestatie"
+            display={`curl '${BASE}/v1-core-resolve?origin_id=PLAK_ORIGIN_ID'`}
+            singleLine={`curl '${BASE}/v1-core-resolve?origin_id=PLAK_ORIGIN_ID'`}
+            expected={`{"origin_id":"...","hash":"sha256:...","hash_algo":"sha256","captured_at":"...","proof_status":"pending|anchored"}`}
+            note="Gebruik de origin_id uit de response van stap 2."
+          />
 
-// 3. Verify round-trip
-const verified = await core.verify(\`sha256:\${hash}\`);
-console.log('Verified:', verified !== null);`,
-          python: `# Or use Python directly:
-python first-run.py YOUR_API_KEY
+          <div className="border-t border-[hsl(var(--landing-cream)/0.06)]" />
 
-# Or inline:
-from umarise_core import UmariseCore, hash_bytes
+          {/* Step 4 */}
+          <Step
+            number="4"
+            title="Verifieer een hash"
+            display={`curl -X POST ${BASE}/v1-core-verify \\
+  -H 'Content-Type: application/json' \\
+  -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+            singleLine={`curl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+            expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"anchored"}`}
+            note='Let op bij de test-hash: verify retourneert de eerste attestatie van die hash. Omdat de test-hash (leeg bestand) eerder is gebruikt, zie je een attestatie met een eerdere captured_at en mogelijk proof_status "anchored". Dat is correct gedrag — het bewijst dat deze hash al eerder bestond. Met een eigen bestand zie je je eigen attestatie.'
+          />
+        </div>
 
-core = UmariseCore(api_key="um_your_key")
+        {/* Done */}
+        <div className="mt-8 pt-6 border-t border-[hsl(var(--landing-cream)/0.08)]">
+          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm font-medium mb-3">
+            ✓ Klaar. Je eerste attestatie is aangemaakt.
+          </p>
+          <div className="space-y-2 text-xs text-[hsl(var(--landing-cream)/0.4)]">
+            <p className="font-mono">Volgende stappen:</p>
+            <div className="flex flex-wrap gap-3">
+              <a href="https://github.com/nickvth/umarise-core/tree/main/sdk/node" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Node.js</a>
+              <a href="https://github.com/nickvth/umarise-core/tree/main/sdk/python" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Python</a>
+              <a href="#health" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ Volledige API Reference ↓</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
-# 1. Health
-health = core.health()
-print("API:", health.status)
-
-# 2. Hash + Attest
-import hashlib
-h = hashlib.sha256(b"test-data").hexdigest()
-origin = core.attest(f"sha256:{h}")
-print("origin_id:", origin.origin_id)
-
-# 3. Verify round-trip
-verified = core.verify(f"sha256:{h}")
-print("Verified:", verified is not None)`,
-        }} />
+      {/* Secondary: first-run script download */}
+      <div className="flex items-center justify-between p-4 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.01)]">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-4 h-4 text-[hsl(var(--landing-cream)/0.4)]" />
+          <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono">
+            Alles in één keer testen? Download het first-run script.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => downloadAsFile(FIRST_RUN_BASH, 'first-run.sh')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
+          >
+            <Download className="w-3 h-3" /> first-run.sh
+          </button>
+        </div>
       </div>
     </section>
   );
