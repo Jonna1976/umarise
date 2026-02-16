@@ -130,23 +130,52 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     }
   }
 
-  // 4. Add VERIFY.txt (human-readable instructions for third parties)
-  const deviceSigned = input.deviceSignature ? 'yes' : 'no';
-  const verifyTxt = [
-    'Dit is een Anchor Record, geregistreerd via Umarise.',
-    '',
-    `Anchor ID: ${cleanId}`,
-    `Geregistreerd: ${input.timestamp.toISOString()}`,
-    `Hash: ${input.hash}`,
-    `Device signed: ${deviceSigned}`,
-    '',
-    'Verifieer dit bewijs: https://umarise.com/verify',
-    '',
-    'Upload deze ZIP op bovenstaande pagina om het bewijs onafhankelijk te',
-    'controleren. Geen account nodig.',
-    '',
-    'Meer informatie: https://umarise.com/anchor',
-  ].join('\n');
+  // 4. Add VERIFY.txt (Guardian C8 + C17: independent verification instructions)
+  const proofOtsSection = hasProof
+    ? '- proof.ots         : OpenTimestamps proof (anchored to Bitcoin)'
+    : '- proof.ots         : Not yet available. Anchoring in progress.\n' +
+      '                       Re-download ZIP after anchoring completes, or fetch\n' +
+      `                       proof separately:\n` +
+      `                       curl https://core.umarise.com/v1-core-proof?origin_id=${cleanId} -o proof.ots`;
+
+  const verifyTxt = `VERIFICATION INSTRUCTIONS
+=========================
+
+This ZIP contains an independently verifiable existence proof.
+
+Contents:
+- artifact.*        : The original file
+- certificate.json  : Origin metadata (origin_id, hash, captured_at)
+${proofOtsSection}
+
+VERIFY ONLINE:
+  https://umarise.com/verify
+  Upload this ZIP. No account needed.
+
+VERIFY INDEPENDENTLY (no Umarise needed):
+  1. Verify hash integrity:
+     sha256sum artifact.*
+     Compare output with "hash" field in certificate.json (without sha256: prefix)
+
+  2. Verify Bitcoin proof (requires ots-cli: https://github.com/opentimestamps/opentimestamps-client):
+     ots verify proof.ots
+
+  3. Or use the included verification scripts:
+     bash verify-anchor.sh this-file.zip
+     python verify-anchor.py this-file.zip
+
+Both scripts require only standard tools (sha256sum/unzip/jq for bash,
+Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
+
+Scripts available at: https://umarise.com/reviewer
+
+WHAT THIS PROVES:
+  The exact bytes of the artifact existed no later than the moment
+  of Bitcoin ledger inclusion. Nothing more, nothing less.
+
+WHAT THIS DOES NOT PROVE:
+  Authorship, ownership, accuracy, legality, or identity.
+`;
   zip.file('VERIFY.txt', verifyTxt);
 
   // Generate ZIP blob
