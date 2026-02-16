@@ -24,14 +24,14 @@ export default function Landing() {
           <p className="text-base text-landing-muted/60 leading-relaxed tracking-wide mb-8">
             When digital information matters,
             <br />
-            anchor it outside your system.
+            prove it existed outside your system.
           </p>
 
           {/* Protocol rule - lower contrast, separated */}
           <p className="text-base text-landing-muted/50 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
-            Anchored in Bitcoin. Independently verifiable.
+            Independently verifiable.
           </p>
 
           {/* Category descriptor */}
