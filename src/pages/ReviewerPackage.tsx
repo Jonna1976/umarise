@@ -246,8 +246,52 @@ else
   echo "  Retrieve later: GET /v1-core-proof?origin_id=$ORIGIN_ID"
 fi`}</pre>
             </div>
-            <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">
-              This script uses no Umarise infrastructure. It proves Layer 5: Verification Independence.
+            <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-sm mt-6 mb-3">
+              Python alternative <span className="text-[hsl(var(--landing-cream)/0.5)] font-normal">(zero dependencies, stdlib only)</span>
+            </p>
+            <div className="font-mono text-xs leading-relaxed p-4 rounded bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] overflow-x-auto">
+              <pre className="text-[hsl(var(--landing-cream)/0.8)]">{`#!/usr/bin/env python3
+# verify-anchor.py — Independent Anchor ZIP verification
+# Usage: python verify-anchor.py <anchor.zip>
+
+import sys, os, json, hashlib, zipfile, tempfile, shutil
+
+def main():
+    zip_path = sys.argv[1] if len(sys.argv) > 1 else sys.exit("Usage: python verify-anchor.py <anchor.zip>")
+    tmpdir = tempfile.mkdtemp()
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            zf.extractall(tmpdir)
+
+        artifact = next((os.path.join(tmpdir, f) for f in os.listdir(tmpdir) if f.startswith("artifact.")), None)
+        if not artifact: sys.exit("✗ No artifact found")
+
+        with open(os.path.join(tmpdir, "certificate.json")) as f:
+            cert = json.load(f)
+
+        expected = cert["hash"].removeprefix("sha256:")
+        sha = hashlib.sha256()
+        with open(artifact, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha.update(chunk)
+        actual = sha.hexdigest()
+
+        print(f"  Origin ID:   {cert['origin_id']}")
+        print(f"  Expected:    {expected}")
+        print(f"  Computed:    {actual}")
+        print("✓ Hash matches" if expected == actual else "✗ HASH MISMATCH")
+        if expected != actual: sys.exit(1)
+
+        ots = next((f for f in os.listdir(tmpdir) if f.endswith(".ots")), None)
+        print(f"✓ OTS proof: {ots}" if ots else "⚠ No .ots proof (pending)")
+    finally:
+        shutil.rmtree(tmpdir)
+
+if __name__ == "__main__":
+    main()`}</pre>
+            </div>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mt-4">
+              Both scripts use no Umarise infrastructure. They prove Layer 5: Verification Independence.
             </p>
           </div>
         </motion.section>
