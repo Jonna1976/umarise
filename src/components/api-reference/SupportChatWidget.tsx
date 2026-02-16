@@ -173,7 +173,7 @@ export default function SupportChatWidget() {
       const errorMsg = e instanceof Error ? e.message : 'Connection error';
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: `Connection error: ${errorMsg}. Contact support@umarise.com for help.` },
+        { role: 'assistant', content: `Connection error: ${errorMsg}. Contact partners@umarise.com for help.` },
       ]);
     } finally {
       setIsLoading(false);
@@ -297,10 +297,10 @@ export default function SupportChatWidget() {
               </form>
               <div className="px-3 pb-2 flex items-center gap-1">
                 <a
-                  href="mailto:support@umarise.com"
+                  href="mailto:partners@umarise.com"
                   className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.2)] hover:text-[hsl(var(--landing-cream)/0.4)] transition-colors flex items-center gap-1"
                 >
-                  <ExternalLink className="w-2.5 h-2.5" /> support@umarise.com
+                  <ExternalLink className="w-2.5 h-2.5" /> partners@umarise.com
                 </a>
               </div>
             </div>
