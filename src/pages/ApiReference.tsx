@@ -1,100 +1,22 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Copy, Check, Terminal, Shield, Globe, Key, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks } from 'lucide-react';
+import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
+import QuickStartSection from '@/components/api-reference/QuickStartSection';
+import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
 
 const BASE_URL = 'https://core.umarise.com';
 
-function CopyBlock({ code, lang = 'bash' }: { code: string; lang?: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <div className="relative group">
-      <pre className="bg-[hsl(220,10%,10%)] border border-[hsl(var(--landing-cream)/0.06)] rounded-md p-4 text-sm font-mono text-[hsl(var(--landing-cream)/0.8)] overflow-x-auto whitespace-pre">
-        {code}
-      </pre>
-      <button
-        onClick={copy}
-        className="absolute top-2 right-2 p-1.5 rounded bg-[hsl(var(--landing-cream)/0.05)] hover:bg-[hsl(var(--landing-cream)/0.1)] transition-colors"
-      >
-        {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.4)]" />}
-      </button>
-    </div>
-  );
-}
-
-const TAB_LABELS = ['curl', 'Node.js', 'Python'] as const;
-
-function CodeTabs({ examples }: { examples: { curl: string; node: string; python: string } }) {
-  const [tab, setTab] = useState<number>(0);
-  const code = [examples.curl, examples.node, examples.python][tab];
-  return (
-    <div>
-      <div className="flex gap-1 mb-2">
-        {TAB_LABELS.map((label, i) => (
-          <button
-            key={label}
-            onClick={() => setTab(i)}
-            className={`px-3 py-1 rounded text-xs font-mono transition-colors ${
-              tab === i
-                ? 'bg-[hsl(var(--landing-cream)/0.1)] text-[hsl(var(--landing-cream))]'
-                : 'text-[hsl(var(--landing-cream)/0.35)] hover:text-[hsl(var(--landing-cream)/0.6)]'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <CopyBlock code={code} />
-    </div>
-  );
-}
-
-function Param({ name, type, required, desc }: { name: string; type: string; required?: boolean; desc: string }) {
-  return (
-    <div className="flex gap-3 py-2 border-b border-[hsl(var(--landing-cream)/0.04)] last:border-0">
-      <code className="text-[hsl(var(--landing-copper))] text-sm font-mono shrink-0">{name}</code>
-      <span className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono shrink-0">{type}</span>
-      {required && <span className="text-amber-500/70 text-[10px] font-mono uppercase shrink-0">required</span>}
-      <span className="text-[hsl(var(--landing-cream)/0.6)] text-sm">{desc}</span>
-    </div>
-  );
-}
-
-function Badge({ children, variant = 'public' }: { children: React.ReactNode; variant?: 'public' | 'partner' }) {
-  return variant === 'public' ? (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-      <Globe className="w-3 h-3" />{children}
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
-      <Key className="w-3 h-3" />{children}
-    </span>
-  );
-}
-
-function MethodBadge({ method }: { method: string }) {
-  const colors: Record<string, string> = {
-    GET: 'bg-emerald-500/15 text-emerald-400',
-    POST: 'bg-blue-500/15 text-blue-400',
-  };
-  return (
-    <span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-bold ${colors[method] ?? 'bg-white/10 text-white/60'}`}>
-      {method}
-    </span>
-  );
-}
-
 const endpoints = [
-  { id: 'health', name: 'Health', method: 'GET', path: '/v1-core-health' },
-  { id: 'origins', name: 'Attest', method: 'POST', path: '/v1-core-origins' },
-  { id: 'resolve', name: 'Resolve', method: 'GET', path: '/v1-core-resolve' },
-  { id: 'verify', name: 'Verify', method: 'POST', path: '/v1-core-verify' },
-  { id: 'proof', name: 'Proof', method: 'GET', path: '/v1-core-proof' },
+  { id: 'quick-start', name: 'Quick Start', icon: Zap },
+  { id: 'health', name: 'Health', method: 'GET' },
+  { id: 'origins', name: 'Attest', method: 'POST' },
+  { id: 'resolve', name: 'Resolve', method: 'GET' },
+  { id: 'verify', name: 'Verify', method: 'POST' },
+  { id: 'proof', name: 'Proof', method: 'GET' },
+  { id: 'errors', name: 'Errors', icon: AlertTriangle },
+  { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
+  { id: 'checklist', name: 'Checklist', icon: ListChecks },
 ];
 
 export default function ApiReference() {
@@ -113,7 +35,7 @@ export default function ApiReference() {
             <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">Core API v1</p>
             <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">API Reference</h1>
             <p className="text-[hsl(var(--landing-cream)/0.5)] max-w-xl">
-              Complete technical reference for all Umarise Core endpoints. Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE_URL}</code>
+              Everything you need to integrate with Umarise Core. Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE_URL}</code>
             </p>
           </motion.div>
         </div>
@@ -124,20 +46,17 @@ export default function ApiReference() {
         <div className="max-w-4xl mx-auto px-6 py-3 flex gap-4 overflow-x-auto">
           {endpoints.map((ep) => (
             <a key={ep.id} href={`#${ep.id}`} className="flex items-center gap-2 text-sm text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] transition-colors shrink-0">
-              <MethodBadge method={ep.method} />
+              {'method' in ep && ep.method ? <MethodBadge method={ep.method} /> : ep.icon && <ep.icon className="w-3.5 h-3.5" />}
               <span className="font-mono text-xs">{ep.name}</span>
             </a>
           ))}
-          <a href="#errors" className="flex items-center gap-2 text-sm text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] transition-colors shrink-0">
-            <AlertTriangle className="w-3.5 h-3.5" /><span className="font-mono text-xs">Errors</span>
-          </a>
-          <a href="#rate-limits" className="flex items-center gap-2 text-sm text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] transition-colors shrink-0">
-            <Clock className="w-3.5 h-3.5" /><span className="font-mono text-xs">Rate Limits</span>
-          </a>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
+
+        {/* ─── QUICK START ─── */}
+        <QuickStartSection />
 
         {/* ─── 1. HEALTH ─── */}
         <section id="health">
@@ -503,6 +422,9 @@ if result.proof:
           <Note>IP addresses are never stored. Rate limiting uses SHA-256 hashed IPs for privacy-by-design.</Note>
         </section>
 
+        {/* ─── INTEGRATION CHECKLIST ─── */}
+        <IntegrationChecklist />
+
         {/* ─── FOOTER ─── */}
         <div className="pt-10 border-t border-[hsl(var(--landing-cream)/0.06)] text-center space-y-2">
           <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono">
@@ -511,42 +433,6 @@ if result.proof:
           <p className="text-[hsl(var(--landing-cream)/0.15)] text-xs font-mono">© Umarise</p>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SectionHeader({ method, path, title, badge }: { method: string; path: string; title: string; badge: React.ReactNode }) {
-  return (
-    <div className="mb-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.08)]">
-      <div className="flex items-center gap-3 mb-2 flex-wrap">
-        <MethodBadge method={method} />
-        <code className="text-[hsl(var(--landing-cream)/0.9)] font-mono text-base">{path}</code>
-        {badge}
-      </div>
-      <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">{title}</h2>
-    </div>
-  );
-}
-
-function ErrorList({ errors }: { errors: Array<{ code: number; error: string; desc: string }> }) {
-  return (
-    <div className="space-y-1">
-      {errors.map((e) => (
-        <div key={e.error} className="flex gap-3 py-1.5 text-sm">
-          <span className="text-[hsl(var(--landing-cream)/0.3)] font-mono shrink-0">{e.code}</span>
-          <code className="text-red-400/80 font-mono shrink-0">{e.error}</code>
-          <span className="text-[hsl(var(--landing-cream)/0.5)]">{e.desc}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Note({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mt-6 flex gap-3 items-start p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-      <Shield className="w-4 h-4 text-[hsl(var(--landing-copper))] shrink-0 mt-0.5" />
-      <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">{children}</p>
     </div>
   );
 }
