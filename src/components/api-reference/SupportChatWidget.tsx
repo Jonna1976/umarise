@@ -295,7 +295,10 @@ export default function SupportChatWidget() {
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-              <div className="px-3 pb-2 flex items-center gap-1">
+              <div className="px-3 pb-2 space-y-1">
+                <p className="text-[9px] text-[hsl(var(--landing-cream)/0.25)] italic">
+                  AI-generated — may contain errors. Always verify against the documentation above.
+                </p>
                 <a
                   href="mailto:partners@umarise.com"
                   className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.2)] hover:text-[hsl(var(--landing-cream)/0.4)] transition-colors flex items-center gap-1"
