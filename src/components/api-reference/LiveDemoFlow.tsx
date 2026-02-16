@@ -12,7 +12,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, CheckCircle2, XCircle, Loader2, ArrowRight, 
-  Hash, ShieldCheck, HeartPulse, RotateCcw, Mail 
+  Hash, ShieldCheck, HeartPulse, RotateCcw, Mail, Search 
 } from 'lucide-react';
 import { Badge } from '@/components/api-reference/shared';
 
@@ -24,6 +24,8 @@ interface StepState {
   duration?: number;
   error?: string;
 }
+
+const KNOWN_ORIGIN_ID = '1d004980-849c-4af4-b7f8-55fb2fb74307';
 
 const INTERNAL_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
@@ -37,15 +39,15 @@ async function sha256Hex(text: string): Promise<string> {
 
 export default function LiveDemoFlow() {
   const [step, setStep] = useState(0); // 0 = intro, 1-3 = steps
-  const [steps, setSteps] = useState<[StepState, StepState, StepState]>([
-    { status: 'idle' }, { status: 'idle' }, { status: 'idle' }
+  const [steps, setSteps] = useState<[StepState, StepState, StepState, StepState]>([
+    { status: 'idle' }, { status: 'idle' }, { status: 'idle' }, { status: 'idle' }
   ]);
   const [inputText, setInputText] = useState('');
   const [computedHash, setComputedHash] = useState('');
 
   const updateStep = useCallback((idx: number, patch: Partial<StepState>) => {
     setSteps(prev => {
-      const next = [...prev] as [StepState, StepState, StepState];
+      const next = [...prev] as [StepState, StepState, StepState, StepState];
       next[idx] = { ...next[idx], ...patch };
       return next;
     });
@@ -53,7 +55,7 @@ export default function LiveDemoFlow() {
 
   const reset = useCallback(() => {
     setStep(0);
-    setSteps([{ status: 'idle' }, { status: 'idle' }, { status: 'idle' }]);
+    setSteps([{ status: 'idle' }, { status: 'idle' }, { status: 'idle' }, { status: 'idle' }]);
     setInputText('');
     setComputedHash('');
   }, []);
@@ -118,10 +120,29 @@ export default function LiveDemoFlow() {
     }
   }, [computedHash, updateStep]);
 
+  // Step 4: Resolve a known origin
+  const runResolve = useCallback(async () => {
+    setStep(4);
+    updateStep(3, { status: 'running' });
+    const start = Date.now();
+    try {
+      const res = await fetch(`${INTERNAL_BASE}/v1-core-resolve?origin_id=${KNOWN_ORIGIN_ID}`);
+      const data = await res.json();
+      updateStep(3, { 
+        status: res.ok ? 'success' : 'error',
+        response: data,
+        duration: Date.now() - start 
+      });
+    } catch (e) {
+      updateStep(3, { status: 'error', error: e instanceof Error ? e.message : 'Network error', duration: Date.now() - start });
+    }
+  }, [updateStep]);
+
   const stepConfig = [
     { icon: HeartPulse, title: 'Health Check', desc: 'Verify the API is live', action: runHealth },
     { icon: Hash, title: 'Hash Your Input', desc: 'SHA-256 in your browser (Web Crypto)', action: runHash },
     { icon: ShieldCheck, title: 'Verify Against Registry', desc: 'Check if this hash has been attested', action: runVerify },
+    { icon: Search, title: 'Resolve Known Origin', desc: 'Retrieve a real attestation record', action: runResolve },
   ];
 
   const allDone = steps.every(s => s.status === 'success');
@@ -252,12 +273,34 @@ export default function LiveDemoFlow() {
                 <StepHeader num={3} title="Verify Against Registry" desc="POST /v1-core-verify" />
                 <StepResult state={steps[2]} />
                 {steps[2].status === 'success' && (
-                  <div className="mt-4 space-y-4">
-                    <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
+                    <div className="mt-4 space-y-4">
+                     <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
+                       <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">
+                         <strong className="text-[hsl(var(--landing-cream)/0.9)]">Result: Not found (404)</strong> — exactly right. 
+                         This hash was never attested, so the registry correctly reports it doesn't exist.
+                       </p>
+                     </div>
+                     <div className="flex justify-end">
+                       <button onClick={runResolve} className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--landing-copper))] hover:underline">
+                         Next: Resolve a real origin <ArrowRight className="w-3.5 h-3.5" />
+                       </button>
+                     </div>
+                   </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Step 4: Resolve */}
+            {step === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
+                <StepHeader num={4} title="Resolve Known Origin" desc={`GET /v1-core-resolve?origin_id=${KNOWN_ORIGIN_ID.slice(0, 8)}…`} />
+                <StepResult state={steps[3]} />
+                {steps[3].status === 'success' && (
+                  <div className="mt-4 space-y-3">
+                    <div className="p-3 rounded border border-[hsl(120,23%,45%,0.2)] bg-[hsl(120,23%,45%,0.04)]">
                       <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">
-                        <strong className="text-[hsl(var(--landing-cream)/0.9)]">Result: Not found (404)</strong> — exactly right. 
-                        This hash was never attested, so the registry correctly reports it doesn't exist. 
-                        With an API key, you could <em>create</em> an attestation, and subsequent verify calls would return the origin record.
+                        <strong className="text-[hsl(120,33%,65%)]">Found!</strong> — This is a real attestation from our registry. 
+                        The origin record contains the SHA-256 hash, timestamp, and origin_id — the three facts that constitute proof of existence.
                       </p>
                     </div>
                   </div>
