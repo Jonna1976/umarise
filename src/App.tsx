@@ -85,7 +85,6 @@ const App = () => (
             <Route path="/reviewer" element={<ReviewerPackage />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/status" element={<Status />} />
-            <Route path="/docs" element={<ApiReference />} />
             <Route path="/api-reference" element={<ApiReference />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             
