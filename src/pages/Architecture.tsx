@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass, ShieldCheck, Terminal } from 'lucide-react';
 import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 /**
  * Architecture Overview — Internal Document
  * 
- * Complete architecture overview of Umarise as of 12 Feb 2026.
+ * Complete architecture overview of Umarise as of 16 Feb 2026.
  * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
- * Six-Layer Proof Model with Device Identity (v1.1).
+ * Proof Model with Device Identity (v1.1). Verification Independence Tools.
  * 
  * Source: docs/architecture-week1-final.md
  * Access: PinGate protected
@@ -105,13 +105,13 @@ const securityHardening = {
 
 const publicRoutes = [
   { route: '/', purpose: 'Landing / infrastructuur positionering', audience: 'Iedereen', mark: '16px header' },
-  { route: '/origin', purpose: 'Wat is een origin?', audience: 'Prospects', mark: '16px header' },
+  { route: '/anchor', purpose: 'Wat is een anchor?', audience: 'Prospects', mark: '16px header' },
+  { route: '/why', purpose: 'Waarom anchors?', audience: 'Business', mark: '16px header' },
   { route: '/core', purpose: 'Core API spec', audience: 'Technisch', mark: '16px header + 12px inline' },
-  { route: '/why', purpose: 'Waarom origins?', audience: 'Business', mark: '16px header' },
   { route: '/review', purpose: 'Technical Review Kit', audience: 'CTOs / integrators', mark: '16px header + 12px inline' },
-  { route: '/proof', purpose: 'Proof uitleg', audience: 'Algemeen', mark: '16px header' },
+  { route: '/reviewer', purpose: 'Reviewer Package (External Review)', audience: 'Reviewers', mark: '16px header' },
   { route: '/verify', purpose: 'Verificatie tool', audience: 'Iedereen', mark: '16px header + 48px/28px' },
-  { route: '/legal', purpose: 'Juridisch kader', audience: 'Juridisch', mark: '16px header' },
+  { route: '/legal', purpose: 'Technische Specificatie', audience: 'Juridisch / Technisch', mark: '16px header' },
   { route: '/privacy + /terms', purpose: 'Privacy en voorwaarden', audience: 'Compliance', mark: '16px header' },
   { route: '/install', purpose: 'PWA installatie', audience: 'Consumenten', mark: '16px header' },
 ];
@@ -213,7 +213,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          15 February 2026 — Security Hardening + Stress Test Readiness
+          16 February 2026 — Verification Independence Tools + External Review Program
         </p>
       </div>
 
@@ -224,7 +224,7 @@ const Architecture = () => {
 {`┌─────────────────────────────────────────────────────┐
 │                  umarise.com                         │
 │                                                      │
-│  Publiek:  / /origin /core /why /verify /review ...  │
+│  Publiek:  / /anchor /why /core /verify /reviewer ... │
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
 │            /architecture                              │
 │                                                      │
@@ -250,7 +250,7 @@ const Architecture = () => {
 │                                                      │
 │  IndexedDB, Web Crypto, WebAuthn, JSZip              │
 │  Geen data verlaat het device zonder expliciete actie │
-│  ZIP = photo + certificate.json + VERIFY.txt + .ots  │
+│  ZIP = artifact + certificate.json + VERIFY.txt+.ots │
 └─────────────────────────────────────────────────────┘`}
         </div>
 
@@ -836,6 +836,76 @@ const Architecture = () => {
           </div>
         </section>
 
+        {/* 13. Verification Independence Tools */}
+        <section>
+          <SectionHeader icon={Terminal} title="Verification Independence Tools" num={13} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            Twee platform-onafhankelijke scripts waarmee reviewers Anchor ZIP-pakketten onafhankelijk van Umarise-infrastructuur kunnen valideren. Bewijst <strong className="text-landing-cream/70">Layer 5: Verification Independence</strong>.
+          </p>
+
+          <div className="space-y-4">
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <code className="text-sm text-landing-cream/90 font-mono">scripts/verify-anchor.sh</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">Bash</span>
+              </div>
+              <ul className="space-y-1 text-xs text-landing-cream/50">
+                <li>• Vereist alleen <code className="bg-landing-cream/5 px-1 rounded">shasum</code>, <code className="bg-landing-cream/5 px-1 rounded">unzip</code>, <code className="bg-landing-cream/5 px-1 rounded">python3</code> (standaard op macOS/Linux)</li>
+                <li>• Extraheert artifact + certificate.json uit ZIP</li>
+                <li>• Herberekent SHA-256 hash en vergelijkt met certificate</li>
+                <li>• Detecteert aanwezigheid .ots proof voor Bitcoin-level integriteit</li>
+              </ul>
+            </div>
+
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <code className="text-sm text-landing-cream/90 font-mono">scripts/verify-anchor.py</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400/70 font-mono">Python</span>
+              </div>
+              <ul className="space-y-1 text-xs text-landing-cream/50">
+                <li>• Zero dependencies — alleen Python stdlib (<code className="bg-landing-cream/5 px-1 rounded">hashlib</code>, <code className="bg-landing-cream/5 px-1 rounded">zipfile</code>, <code className="bg-landing-cream/5 px-1 rounded">json</code>)</li>
+                <li>• Zelfde verificatielogica als Bash-variant</li>
+                <li>• Cross-platform: Windows, macOS, Linux</li>
+                <li>• Beide scripts ook beschikbaar op <code className="bg-landing-cream/5 px-1 rounded">/reviewer</code></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+            <p className="text-xs text-emerald-400/60">
+              ✅ Beide scripts gebruiken geen Umarise-infrastructuur. Bewijs dat verificatie werkt met alleen lokale tools + het publieke Bitcoin-netwerk.
+            </p>
+          </div>
+        </section>
+
+        {/* 14. Domain Architecture */}
+        <section>
+          <SectionHeader icon={Globe} title="Domeinarchitectuur" num={14} />
+          <div className="space-y-3">
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <code className="text-sm text-landing-cream/90 font-mono">anchoring.app</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">B2C PWA</span>
+              </div>
+              <p className="text-xs text-landing-cream/50">Primair domein voor de consumer-facing ritual experience (/prototype)</p>
+            </div>
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <code className="text-sm text-landing-cream/90 font-mono">umarise.com</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400/70 font-mono">B2B Infra</span>
+              </div>
+              <p className="text-xs text-landing-cream/50">Autoritatief hub voor B2B infrastructuur documentatie en Infra Canon</p>
+            </div>
+            <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <code className="text-sm text-landing-cream/90 font-mono">core.umarise.com</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-red-500/10 text-red-400/70 font-mono">API</span>
+              </div>
+              <p className="text-xs text-landing-cream/50">Publieke Core API (v1 bevroren) — resolve, verify, proof, health</p>
+            </div>
+          </div>
+        </section>
+
         {/* Footer */}
         <div className="border-t border-landing-cream/10 pt-8 pb-16">
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
@@ -845,13 +915,22 @@ const Architecture = () => {
             De grens is schoon.
           </p>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 16 feb</p>
+            <ul className="space-y-1 text-xs text-landing-cream/50">
+              <li>• <strong className="text-landing-cream/70">Verification Independence Tools:</strong> Bash + Python scripts voor offline ZIP-validatie</li>
+              <li>• <strong className="text-landing-cream/70">Domeinarchitectuur:</strong> anchoring.app (B2C) + umarise.com (B2B) + core.umarise.com (API)</li>
+              <li>• <strong className="text-landing-cream/70">Routes bijgewerkt:</strong> /anchor (was /origin), /reviewer toegevoegd, /legal → Technische Specificatie</li>
+              <li>• <strong className="text-landing-cream/70">ASCII diagram:</strong> Gesynchroniseerd met huidige Infra Canon navigatie</li>
+            </ul>
+          </div>
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Toegevoegd 15 feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
               <li>• <strong className="text-landing-cream/70">CORS lock:</strong> Alle 21 App Layer functies gelocked naar anchoring.app + umarise.com + *.lovable.app</li>
               <li>• <strong className="text-landing-cream/70">Rate limit migratie:</strong> Alle in-memory rate limits vervangen door DB-persistent (core_check_rate_limit)</li>
               <li>• <strong className="text-landing-cream/70">Privacy architectuur:</strong> SHA-256 gehashte IPs, geen PII, device-isolated auth</li>
               <li>• <strong className="text-landing-cream/70">Security matrix:</strong> Volledige edge function inventarisatie (35 functies, 14 rate limited)</li>
-              <li>• <strong className="text-landing-cream/70">CORS validatie:</strong> 5/5 geautomatiseerde tests (companion-verify/cors.test.ts)</li>
+              <li>• <strong className="text-landing-cream/70">Stress tests:</strong> k6 load tests met empirische resultaten (P95 {'<'} 600ms)</li>
             </ul>
           </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
@@ -862,7 +941,6 @@ const Architecture = () => {
               <li>• Best-effort signing: annuleren van Face ID/biometrie blokkeert anchor NIET</li>
               <li>• ZIP artifact hernoemd naar artifact.&#123;ext&#125; (ondersteunt video, PDF, audio)</li>
               <li>• VERIFY.txt bevat device signed status</li>
-              <li>• Passkey registratie UI verwijderd uit Wall (volledig automatisch)</li>
             </ul>
           </div>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
