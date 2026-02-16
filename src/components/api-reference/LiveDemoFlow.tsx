@@ -104,10 +104,13 @@ export default function LiveDemoFlow() {
         body: JSON.stringify({ hash: `sha256:${computedHash}` }),
       });
       const data = await res.json();
-      // 404 is the expected result (hash not attested yet)
+      // 404 is the expected result (hash not attested yet) — show as success with clear labeling
+      const is404 = res.status === 404;
       updateStep(2, { 
-        status: res.status === 404 ? 'success' : (res.ok ? 'success' : 'error'),
-        response: { status: res.status, ...data },
+        status: is404 || res.ok ? 'success' : 'error',
+        response: is404 
+          ? { status: 404, result: 'NOT_FOUND (expected)', message: 'This hash was never attested — the registry correctly confirms it does not exist.' }
+          : { status: res.status, ...data },
         duration: Date.now() - start 
       });
     } catch (e) {
