@@ -112,6 +112,20 @@ RATE LIMITS:
 - GET /v1-core-health: no rate limit
 - IP addresses are never stored — rate limiting uses SHA-256 hashed IPs
 
+API KEY ONBOARDING:
+- Partners request an API key via partners@umarise.com
+- Response time: within 24 hours
+- Keys are delivered via a secure channel
+- Format: "um_" prefix followed by a hex string
+- Each key is scoped to a single partner organization
+
+POLLING PATTERN (no webhooks in v1):
+- After POST /v1-core-origins, proof_status is "pending"
+- Poll GET /v1-core-resolve?origin_id=<uuid> every 60 seconds
+- Average anchor time: 10-20 minutes (1-2 Bitcoin confirmations)
+- When proof_status changes to "anchored", the .ots proof is available via GET /v1-core-proof
+- Webhooks are not available in v1. Polling is the supported pattern.
+
 WHAT YOU ANSWER:
 - All questions about API endpoints, parameters, responses, error codes
 - Hash format, encoding, sha256: prefix normalization

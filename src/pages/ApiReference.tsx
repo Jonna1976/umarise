@@ -334,6 +334,18 @@ if result.proof:
           }} />
 
           <Note>The .ots file can be independently verified using the OpenTimestamps client (ots-cli) against any Bitcoin node. No Umarise dependency required.</Note>
+
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Polling for Anchor Status</h4>
+          <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mb-4">
+            After attestation, <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>. Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve</code> every 60 seconds until status changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Average anchor time: 10–20 minutes.
+          </p>
+          <CopyBlock code={`# Poll until anchored (typically 10-20 min)
+while true; do
+  STATUS=$(curl -s "$BASE/v1-core-resolve?origin_id=$ORIGIN_ID" | grep -o '"proof_status":"[^"]*"' | cut -d'"' -f4)
+  [ "$STATUS" = "anchored" ] && echo "Anchored!" && break
+  echo "Status: $STATUS — retrying in 60s..."
+  sleep 60
+done`} />
         </section>
 
         {/* ─── ERRORS ─── */}
