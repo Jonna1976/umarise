@@ -191,7 +191,7 @@ export default function QuickStartSection() {
 
         <div className="space-y-3">
           {[
-            { step: '1', label: 'Get API key', detail: 'partners@umarise.com' },
+            { step: '1', label: 'Get API key', detail: 'partners@umarise.com · response within 24h' },
             { step: '2', label: 'Run first-run script', detail: 'bash first-run.sh KEY' },
             { step: '3', label: 'Install SDK', detail: 'copy umarise-core.ts' },
             { step: '4', label: 'Integrate', detail: 'one SDK call per event' },
