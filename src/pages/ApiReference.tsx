@@ -27,6 +27,33 @@ function CopyBlock({ code, lang = 'bash' }: { code: string; lang?: string }) {
   );
 }
 
+const TAB_LABELS = ['curl', 'Node.js', 'Python'] as const;
+
+function CodeTabs({ examples }: { examples: { curl: string; node: string; python: string } }) {
+  const [tab, setTab] = useState<number>(0);
+  const code = [examples.curl, examples.node, examples.python][tab];
+  return (
+    <div>
+      <div className="flex gap-1 mb-2">
+        {TAB_LABELS.map((label, i) => (
+          <button
+            key={label}
+            onClick={() => setTab(i)}
+            className={`px-3 py-1 rounded text-xs font-mono transition-colors ${
+              tab === i
+                ? 'bg-[hsl(var(--landing-cream)/0.1)] text-[hsl(var(--landing-cream))]'
+                : 'text-[hsl(var(--landing-cream)/0.35)] hover:text-[hsl(var(--landing-cream)/0.6)]'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <CopyBlock code={code} />
+    </div>
+  );
+}
+
 function Param({ name, type, required, desc }: { name: string; type: string; required?: boolean; desc: string }) {
   return (
     <div className="flex gap-3 py-2 border-b border-[hsl(var(--landing-cream)/0.04)] last:border-0">
@@ -134,8 +161,20 @@ export default function ApiReference() {
   "timestamp": "2026-02-16T10:00:00.000Z"
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">curl</h4>
-          <CopyBlock code={`curl ${BASE_URL}/v1-core-health`} />
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
+          <CodeTabs examples={{
+            curl: `curl ${BASE_URL}/v1-core-health`,
+            node: `import { UmariseCore } from './umarise-core';
+
+const core = new UmariseCore();
+const health = await core.health();
+// → { status: "operational", version: "v1", timestamp: "..." }`,
+            python: `from umarise_core import UmariseCore
+
+core = UmariseCore()
+health = core.health()
+# → {"status": "operational", "version": "v1", "timestamp": "..."}`,
+          }} />
         </section>
 
         {/* ─── 2. ORIGINS (ATTEST) ─── */}
@@ -175,11 +214,27 @@ export default function ApiReference() {
             { code: 429, error: 'RATE_LIMIT_EXCEEDED', desc: 'Too many requests' },
           ]} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">curl</h4>
-          <CopyBlock code={`curl -X POST ${BASE_URL}/v1-core-origins \\
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
+          <CodeTabs examples={{
+            curl: `curl -X POST ${BASE_URL}/v1-core-origins \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: um_your_key" \\
-  -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`} />
+  -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`,
+            node: `import { UmariseCore } from './umarise-core';
+
+const core = new UmariseCore({ apiKey: 'um_your_key' });
+const origin = await core.attest(
+  'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+);
+// → { origin_id: "...", hash: "sha256:...", proof_status: "pending" }`,
+            python: `from umarise_core import UmariseCore
+
+core = UmariseCore(api_key="um_your_key")
+origin = core.attest(
+    "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+)
+# → {"origin_id": "...", "hash": "sha256:...", "proof_status": "pending"}`,
+          }} />
 
           <Note>Once created, an attestation is immutable. It cannot be modified or deleted.</Note>
         </section>
@@ -214,12 +269,36 @@ export default function ApiReference() {
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">curl</h4>
-          <CopyBlock code={`# By origin_id
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
+          <CodeTabs examples={{
+            curl: `# By origin_id
 curl "${BASE_URL}/v1-core-resolve?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 
 # By hash
-curl "${BASE_URL}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`} />
+curl "${BASE_URL}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`,
+            node: `import { UmariseCore } from './umarise-core';
+
+const core = new UmariseCore();
+
+// By origin_id
+const byId = await core.resolve({ originId: 'a1b2c3d4-...' });
+
+// By hash
+const byHash = await core.resolve({
+  hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+});`,
+            python: `from umarise_core import UmariseCore
+
+core = UmariseCore()
+
+# By origin_id
+by_id = core.resolve(origin_id="a1b2c3d4-...")
+
+# By hash
+by_hash = core.resolve(
+    hash="sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+)`,
+          }} />
 
           <Note>Hash lookup always returns the earliest known attestation (first-in-time policy).</Note>
         </section>
@@ -251,10 +330,26 @@ curl "${BASE_URL}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">curl</h4>
-          <CopyBlock code={`curl -X POST ${BASE_URL}/v1-core-verify \\
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
+          <CodeTabs examples={{
+            curl: `curl -X POST ${BASE_URL}/v1-core-verify \\
   -H "Content-Type: application/json" \\
-  -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`} />
+  -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`,
+            node: `import { UmariseCore } from './umarise-core';
+
+const core = new UmariseCore();
+const result = await core.verify(
+  'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+);
+// result is null if no match, or the origin record`,
+            python: `from umarise_core import UmariseCore
+
+core = UmariseCore()
+result = core.verify(
+    "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+)
+# result is None if no match, or the origin record`,
+          }} />
 
           <Note>Verification is public and requires no authentication. Anyone with a hash can verify.</Note>
         </section>
@@ -293,9 +388,30 @@ curl "${BASE_URL}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">curl</h4>
-          <CopyBlock code={`curl "${BASE_URL}/v1-core-proof?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890" \\
-  -o proof.ots`} />
+          <h4 className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
+          <CodeTabs examples={{
+            curl: `curl "${BASE_URL}/v1-core-proof?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890" \\
+  -o proof.ots`,
+            node: `import { UmariseCore } from './umarise-core';
+import { writeFileSync } from 'fs';
+
+const core = new UmariseCore();
+const result = await core.proof('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+
+if (result.proof) {
+  writeFileSync('proof.ots', result.proof);
+  console.log('Block height:', result.bitcoin_block_height);
+}`,
+            python: `from umarise_core import UmariseCore
+
+core = UmariseCore()
+result = core.proof("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+
+if result.proof:
+    with open("proof.ots", "wb") as f:
+        f.write(result.proof)
+    print("Block height:", result.bitcoin_block_height)`,
+          }} />
 
           <Note>The .ots file can be independently verified using the OpenTimestamps client (ots-cli) against any Bitcoin node. No Umarise dependency required.</Note>
         </section>
