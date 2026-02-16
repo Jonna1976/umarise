@@ -42,6 +42,7 @@ import WitnessConfirmation from "./pages/WitnessConfirmation";
 import Verify from "./pages/Verify";
 import Legal from "./pages/Legal";
 import Status from "./pages/Status";
+import ApiReference from "./pages/ApiReference";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,8 @@ const App = () => (
             <Route path="/reviewer" element={<ReviewerPackage />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/status" element={<Status />} />
+            <Route path="/docs" element={<ApiReference />} />
+            <Route path="/api-reference" element={<ApiReference />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
