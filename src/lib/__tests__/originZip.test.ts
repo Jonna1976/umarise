@@ -20,6 +20,16 @@ describe('buildOriginZip', () => {
 
     expect(files).toContain('certificate.json');
     expect(files).toContain('VERIFY.txt');
+
+    // Verify VERIFY.txt contains Guardian C8/C17 content
+    const verifyContent = await zip.file('VERIFY.txt')!.async('string');
+    expect(verifyContent).toContain('VERIFICATION INSTRUCTIONS');
+    expect(verifyContent).toContain('https://umarise.com/verify');
+    expect(verifyContent).toContain('sha256sum artifact.*');
+    expect(verifyContent).toContain('WHAT THIS PROVES');
+    expect(verifyContent).toContain('WHAT THIS DOES NOT PROVE');
+    // No proof.ots → should show pending message
+    expect(verifyContent).toContain('Not yet available');
     expect(files).not.toContain('photo.jpg');
 
     // Verify certificate.json content
