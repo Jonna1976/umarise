@@ -4,6 +4,7 @@ import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import QuickStartSection from '@/components/api-reference/QuickStartSection';
 import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
+import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
 
 const BASE_URL = 'https://core.umarise.com';
 
@@ -433,6 +434,8 @@ if result.proof:
           <p className="text-[hsl(var(--landing-cream)/0.15)] text-xs font-mono">© Umarise</p>
         </div>
       </div>
+
+      <SupportChatWidget />
     </div>
   );
 }
