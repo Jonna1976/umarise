@@ -83,13 +83,47 @@ export function useMarks() {
     };
   }, []);
 
-  // Load marks from IndexedDB
-  const loadMarks = useCallback(async () => {
+  // Load marks from IndexedDB, with automatic repair from server if empty
+  const loadMarks = useCallback(async (skipRepair = false) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const localMarks = await getAllMarks();
+      let localMarks = await getAllMarks();
+      
+      // Auto-repair: if IndexedDB is empty but server has marks, import them
+      if (!skipRepair && localMarks.length === 0) {
+        const deviceUserId = getDeviceId();
+        if (deviceUserId) {
+          console.log('[useMarks] IndexedDB empty — attempting server repair...');
+          const { data: serverPages } = await supabase
+            .from('pages')
+            .select('id, image_url, origin_hash_sha256, created_at, thumbnail_uri')
+            .eq('device_user_id', deviceUserId)
+            .eq('is_trashed', false)
+            .order('created_at', { ascending: false });
+          
+          if (serverPages && serverPages.length > 0) {
+            console.log(`[useMarks] Found ${serverPages.length} marks on server, restoring...`);
+            for (const page of serverPages) {
+              const hasThumbnail = page.thumbnail_uri && page.thumbnail_uri !== '';
+              const hasLegacyImage = page.image_url && page.image_url !== '';
+              const displayUrl = hasThumbnail ? page.thumbnail_uri! : (hasLegacyImage ? page.image_url : '');
+              
+              await importLegacyPage({
+                id: page.id,
+                imageUrl: displayUrl,
+                hash: page.origin_hash_sha256 || '',
+                createdAt: new Date(page.created_at),
+              });
+            }
+            // Re-read after import
+            localMarks = await getAllMarks();
+            console.log(`[useMarks] Restored ${localMarks.length} marks from server`);
+          }
+        }
+      }
+      
       const displayMarks = localMarks.map(toDisplayMark);
       setMarks(displayMarks);
     } catch (e) {
