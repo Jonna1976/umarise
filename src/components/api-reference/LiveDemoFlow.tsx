@@ -12,7 +12,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, CheckCircle2, XCircle, Loader2, ArrowRight, 
-  Hash, ShieldCheck, HeartPulse, RotateCcw, Mail, Search 
+  Hash, ShieldCheck, HeartPulse, RotateCcw, Mail, Search, Copy, Check 
 } from 'lucide-react';
 import { Badge } from '@/components/api-reference/shared';
 
@@ -358,6 +358,25 @@ function StepHeader({ num, title, desc }: { num: number; title: string; desc: st
   );
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={copy}
+      className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-mono border border-[hsl(var(--landing-cream)/0.12)] text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream)/0.8)] hover:border-[hsl(var(--landing-cream)/0.25)] transition-colors"
+      title="Copy to clipboard"
+    >
+      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
+
 function StepResult({ state }: { state: StepState }) {
   if (state.status === 'idle') return null;
   if (state.status === 'running') {
@@ -370,6 +389,7 @@ function StepResult({ state }: { state: StepState }) {
   }
 
   const isOk = state.status === 'success';
+  const jsonText = JSON.stringify(state.response || { error: state.error }, null, 2);
   return (
     <div className={`mt-3 p-3 rounded border text-xs font-mono ${
       isOk 
@@ -380,12 +400,15 @@ function StepResult({ state }: { state: StepState }) {
         <span className={isOk ? 'text-[hsl(120,33%,65%)]' : 'text-[hsl(14,60%,56%)]'}>
           {isOk ? '✓ Success' : '✗ Error'}
         </span>
-        {state.duration != null && (
-          <span className="text-[hsl(var(--landing-cream)/0.3)]">{state.duration}ms</span>
-        )}
+        <div className="flex items-center gap-2">
+          <CopyButton text={jsonText} />
+          {state.duration != null && (
+            <span className="text-[hsl(var(--landing-cream)/0.3)]">{state.duration}ms</span>
+          )}
+        </div>
       </div>
       <pre className="text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre-wrap">
-        {JSON.stringify(state.response || { error: state.error }, null, 2)}
+        {jsonText}
       </pre>
     </div>
   );
