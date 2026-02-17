@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Copy, Check, Code2, AlertTriangle } from 'lucide-react';
+import { Download, Copy, Check, Code2, AlertTriangle, Search, Clock, Hash, FileWarning } from 'lucide-react';
 
 type Lang = 'python' | 'node';
 
@@ -184,6 +184,241 @@ export default function IntegrationTemplates() {
           </div>
         </div>
       </div>
+
+      {/* ─── FRAMEWORK EXAMPLES ─── */}
+      <FrameworkExamples />
+
+      {/* ─── TROUBLESHOOTING ─── */}
+      <TroubleshootingSection />
     </section>
+  );
+}
+
+/* ── Framework tabs ── */
+type Framework = 'django' | 'flask' | 'express';
+
+const FRAMEWORK_CODE: Record<Framework, { label: string; lang: string; code: string }> = {
+  django: {
+    label: 'Django',
+    lang: 'python',
+    code: `# views.py
+import umarise_integration as umarise
+
+umarise.API_KEY = "um_jouw_key"
+
+def upload_thesis(request):
+    file = request.FILES["thesis"]
+    submission = Submission.objects.create(student=request.user, file=file)
+
+    # Attesteer — 1 regel
+    result = umarise.safe_attest(submission.file.path, str(submission.id))
+
+    if result:
+        umarise.track_anchor(result["origin_id"], str(submission.id))
+
+    return JsonResponse({"id": submission.id})`,
+  },
+  flask: {
+    label: 'Flask',
+    lang: 'python',
+    code: `# app.py
+from flask import Flask, request, jsonify
+import umarise_integration as umarise
+
+app = Flask(__name__)
+umarise.API_KEY = "um_jouw_key"
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    file = request.files["document"]
+    data = file.read()
+    record_id = save_to_database(file.filename, data)
+
+    # Attesteer — 1 regel
+    result = umarise.attest_bytes(data, record_id)
+
+    return jsonify({"record_id": record_id, "origin_id": result["origin_id"]})`,
+  },
+  express: {
+    label: 'Express',
+    lang: 'javascript',
+    code: `// routes/upload.js
+const um = require("./umarise-integration.js");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+
+um.API_KEY = "um_jouw_key";
+
+app.post("/upload", upload.single("document"), async (req, res) => {
+    const recordId = await db.documents.create({ file: req.file.path });
+
+    // Attesteer — 1 regel
+    const result = await um.safeAttest(req.file.path, String(recordId));
+
+    if (result) um.trackAnchor(result.origin_id, String(recordId));
+
+    res.json({ recordId, originId: result?.origin_id });
+});`,
+  },
+};
+
+function FrameworkExamples() {
+  const [fw, setFw] = useState<Framework>('django');
+  const current = FRAMEWORK_CODE[fw];
+
+  return (
+    <div id="frameworks" className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
+      <div className="flex items-center gap-2 mb-2">
+        <Code2 className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
+        <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Zo gebruik je dit in je app</h2>
+      </div>
+      <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mb-6">
+        Elk voorbeeld toont hetzelfde patroon in ~10 regels: ontvang bestand → sla op → <code className="text-[hsl(var(--landing-copper))]">safe_attest()</code> → klaar.
+      </p>
+
+      {/* Framework tabs */}
+      <div className="flex gap-2 mb-4">
+        {(Object.keys(FRAMEWORK_CODE) as Framework[]).map((key) => (
+          <button
+            key={key}
+            onClick={() => setFw(key)}
+            className={`px-4 py-2 rounded text-sm font-mono transition-colors ${
+              fw === key
+                ? 'bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]'
+                : 'bg-[hsl(var(--landing-cream)/0.04)] text-[hsl(var(--landing-cream)/0.5)] border border-[hsl(var(--landing-cream)/0.08)] hover:text-[hsl(var(--landing-cream)/0.8)]'
+            }`}
+          >
+            {FRAMEWORK_CODE[key].label}
+          </button>
+        ))}
+      </div>
+
+      <div className="relative">
+        <CopyCmd text={current.code} />
+        <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre">
+{current.code}
+        </pre>
+      </div>
+
+      <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-4 italic">
+        safe_attest() blokkeert je workflow nooit — als Umarise tijdelijk onbereikbaar is, logt het de fout en gaat je app gewoon door.
+      </p>
+    </div>
+  );
+}
+
+/* ── Troubleshooting ── */
+const FAILURE_MODES = [
+  {
+    icon: Search,
+    title: 'Hash niet gevonden',
+    code: 'NOT_FOUND',
+    description: 'Dit exacte bestand is niet geattesteerd. Veelvoorkomende oorzaken:',
+    bullets: [
+      'Bestand opnieuw opgeslagen (Word/PDF editor voegt metadata toe)',
+      'Bestand geconverteerd (.docx → .pdf)',
+      'Alleen inhoud gehasht i.p.v. het volledige bestand',
+    ],
+    fix: 'Hash het originele, ongewijzigde bestand. Check: sha256sum bestand.pdf moet exact dezelfde hash geven als bij attestatie.',
+  },
+  {
+    icon: Clock,
+    title: 'Proof is pending',
+    code: 'pending',
+    description: 'Attestatie is geregistreerd. Bitcoin-verankering loopt (10-20 minuten).',
+    bullets: [
+      'Poll via GET /v1-core-resolve?origin_id=... elke 60 seconden',
+      'Of gebruik track_anchor() uit de template',
+      'proof_status gaat van "pending" → "anchored"',
+    ],
+    fix: 'Wacht 10-20 minuten. Na "anchored" is het bewijs definitief en onafhankelijk verifieerbaar.',
+  },
+  {
+    icon: Hash,
+    title: 'Verkeerd hash-formaat',
+    code: 'INVALID_HASH_FORMAT',
+    description: 'Hash moet SHA-256 zijn: 64 hexadecimale karakters, optioneel met sha256: prefix.',
+    bullets: [
+      'Geen MD5 (32 chars), geen SHA-1 (40 chars), geen base64',
+    ],
+    fix: 'Gebruik hash_file() / hashFile() uit de template — die retourneert altijd het juiste formaat.',
+  },
+  {
+    icon: FileWarning,
+    title: 'Verify toont een oudere attestatie',
+    code: 'first-in-time',
+    description: 'Verify retourneert de eerste attestatie voor een hash (first-in-time).',
+    bullets: [
+      'Bij een veelgebruikte test-hash zie je mogelijk een eerdere captured_at',
+      'Dat is correct — het bewijst dat die hash al eerder bestond',
+      'Met een eigen, uniek bestand zie je altijd je eigen attestatie',
+    ],
+    fix: null,
+  },
+];
+
+function TroubleshootingSection() {
+  return (
+    <div id="troubleshooting" className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
+      <div className="flex items-center gap-2 mb-6">
+        <AlertTriangle className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
+        <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Veelvoorkomende situaties</h2>
+      </div>
+
+      <div className="space-y-4">
+        {FAILURE_MODES.map((mode) => (
+          <div key={mode.code} className="border border-[hsl(var(--landing-cream)/0.06)] rounded-lg p-4 bg-[hsl(var(--landing-cream)/0.02)]">
+            <div className="flex items-center gap-2 mb-2">
+              <mode.icon className="w-4 h-4 text-[hsl(var(--landing-copper))] shrink-0" />
+              <h3 className="text-sm font-medium text-[hsl(var(--landing-cream)/0.9)]">{mode.title}</h3>
+              <code className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.4)]">
+                {mode.code}
+              </code>
+            </div>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs mb-2">{mode.description}</p>
+            <ul className="space-y-1 ml-4 mb-2">
+              {mode.bullets.map((b, i) => (
+                <li key={i} className="text-[hsl(var(--landing-cream)/0.4)] text-xs list-disc">{b}</li>
+              ))}
+            </ul>
+            {mode.fix && (
+              <p className="text-xs text-[hsl(var(--landing-copper)/0.8)] mt-2">
+                → {mode.fix}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Summary table */}
+      <div className="mt-6 overflow-x-auto">
+        <table className="w-full text-xs font-mono">
+          <thead>
+            <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
+              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-medium">Situatie</th>
+              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-medium">Error</th>
+              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-medium">Actie</th>
+            </tr>
+          </thead>
+          <tbody className="text-[hsl(var(--landing-cream)/0.6)]">
+            <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+              <td className="py-2">Hash niet gevonden</td>
+              <td className="py-2 text-[hsl(var(--landing-copper))]">NOT_FOUND</td>
+              <td className="py-2">Hash het originele bestand</td>
+            </tr>
+            <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+              <td className="py-2">Proof nog niet klaar</td>
+              <td className="py-2 text-[hsl(var(--landing-copper))]">pending</td>
+              <td className="py-2">Wacht 10-20 min, poll resolve</td>
+            </tr>
+            <tr>
+              <td className="py-2">Verkeerd formaat</td>
+              <td className="py-2 text-[hsl(var(--landing-copper))]">INVALID_HASH_FORMAT</td>
+              <td className="py-2">Gebruik hash_file()/hashFile()</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
