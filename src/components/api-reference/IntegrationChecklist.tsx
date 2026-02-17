@@ -149,7 +149,7 @@ const TOTAL_ITEMS = CHECKLIST.reduce((sum, g) => sum + g.items.length, 0);
 
 function ItemDetail({ detail }: { detail: string }) {
   return (
-    <pre className="mt-2 ml-7 text-[11px] font-mono text-[hsl(var(--landing-cream)/0.4)] whitespace-pre-wrap leading-relaxed bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-3">
+    <pre className="mt-2 ml-7 text-[11px] font-mono text-[hsl(var(--landing-cream)/0.6)] whitespace-pre-wrap leading-relaxed bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-3">
       {detail}
     </pre>
   );
@@ -201,7 +201,7 @@ export default function IntegrationChecklist() {
           <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">Integratie Checklist</h2>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono">
+          <span className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono">
             {completedCount}/{TOTAL_ITEMS}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[hsl(var(--landing-cream)/0.06)] overflow-hidden">
@@ -210,14 +210,14 @@ export default function IntegrationChecklist() {
               style={{ width: `${percentage}%` }}
             />
           </div>
-          <span className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono">{percentage}%</span>
+          <span className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono">{percentage}%</span>
         </div>
       </div>
 
       <div className="space-y-8">
         {CHECKLIST.map((group) => (
           <div key={group.title}>
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-3">
+            <h4 className="text-[hsl(var(--landing-cream)/0.7)] text-xs font-mono uppercase tracking-wider mb-3">
               {group.title}
             </h4>
             <div className="space-y-1">
@@ -236,10 +236,10 @@ export default function IntegrationChecklist() {
                         {isChecked ? (
                           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                         ) : (
-                          <Circle className="w-4 h-4 text-[hsl(var(--landing-cream)/0.15)] group-hover:text-[hsl(var(--landing-cream)/0.3)] shrink-0 mt-0.5" />
+                          <Circle className="w-4 h-4 text-[hsl(var(--landing-cream)/0.25)] group-hover:text-[hsl(var(--landing-cream)/0.45)] shrink-0 mt-0.5" />
                         )}
-                        <span className={`text-sm ${isChecked ? 'text-[hsl(var(--landing-cream)/0.3)] line-through' : 'text-[hsl(var(--landing-cream)/0.7)]'}`}>
-                          <span className="text-[hsl(var(--landing-cream)/0.25)] font-mono text-xs mr-2">{stepNum}.</span>
+                        <span className={`text-sm ${isChecked ? 'text-[hsl(var(--landing-cream)/0.45)] line-through' : 'text-[hsl(var(--landing-cream)/0.85)]'}`}>
+                          <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-xs mr-2">{stepNum}.</span>
                           {item.label}
                           {item.quickStartDone && !isChecked && (
                             <span className="ml-2 text-[10px] font-mono text-emerald-400/60">✓ Gedaan tijdens Quick Start</span>
@@ -248,7 +248,7 @@ export default function IntegrationChecklist() {
                       </button>
                       <button
                         onClick={(e) => toggleExpand(item.label, e)}
-                        className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.25)] hover:text-[hsl(var(--landing-cream)/0.5)] transition-colors shrink-0 mt-0.5"
+                        className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)] transition-colors shrink-0 mt-0.5"
                         title={isExpanded ? 'Inklappen' : 'Toon instructies'}
                       >
                         {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
@@ -263,7 +263,7 @@ export default function IntegrationChecklist() {
         ))}
       </div>
 
-      <p className="text-[hsl(var(--landing-cream)/0.2)] text-xs font-mono mt-6">
+      <p className="text-[hsl(var(--landing-cream)/0.35)] text-xs font-mono mt-6">
         Voortgang wordt lokaal opgeslagen in je browser.
       </p>
     </section>

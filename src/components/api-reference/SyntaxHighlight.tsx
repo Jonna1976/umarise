@@ -67,11 +67,11 @@ function tokenize(code: string): Token[] {
 const TOKEN_COLORS: Record<Token['type'], string> = {
   keyword: 'text-[hsl(var(--landing-copper))]',
   string: 'text-[hsl(120,33%,65%)]',
-  comment: 'text-[hsl(var(--landing-cream)/0.3)] italic',
+  comment: 'text-[hsl(var(--landing-cream)/0.45)] italic',
   number: 'text-[hsl(280,60%,70%)]',
   function: 'text-[hsl(200,70%,70%)]',
-  flag: 'text-[hsl(var(--landing-cream)/0.6)]',
-  url: 'text-[hsl(var(--landing-cream)/0.5)]',
+  flag: 'text-[hsl(var(--landing-cream)/0.8)]',
+  url: 'text-[hsl(var(--landing-cream)/0.7)]',
   plain: '',
 };
 
