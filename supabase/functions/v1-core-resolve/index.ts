@@ -194,7 +194,7 @@ Deno.serve(async (req: Request) => {
 
     const proofStatus: 'pending' | 'anchored' = proofData?.status === 'anchored' ? 'anchored' : 'pending';
 
-    const proofBaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const proofBaseUrl = 'https://core.umarise.com';
 
     // Found - return Core response with proof status (consistent with verify)
     const origin: CoreOrigin = {

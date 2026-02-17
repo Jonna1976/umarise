@@ -224,7 +224,7 @@ Deno.serve(async (req: Request) => {
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
       proof_status: proofStatus,
-      proof_url: `/v1-core-origins-proof?origin_id=${data.origin_id}`,
+      proof_url: `https://core.umarise.com/v1-core-proof?origin_id=${data.origin_id}`,
     };
 
     logRequest(supabase, {
