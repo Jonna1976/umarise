@@ -41,8 +41,8 @@ interface CoreOrigin {
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
-  proof_status: 'pending' | 'anchored' | 'none';
-  proof_url: string | null;
+  proof_status: 'pending' | 'anchored';
+  proof_url: string;
   bitcoin_block_height: number | null;
   anchored_at: string | null;
 }
@@ -192,20 +192,18 @@ Deno.serve(async (req: Request) => {
       .eq('origin_id', data.origin_id)
       .maybeSingle();
 
-    const proofStatus = proofData?.status === 'anchored' ? 'anchored' 
-      : proofData ? 'pending' 
-      : 'none';
+    const proofStatus: 'pending' | 'anchored' = proofData?.status === 'anchored' ? 'anchored' : 'pending';
 
     const proofBaseUrl = Deno.env.get('SUPABASE_URL')!;
 
-    // Found - return Core response with proof status
+    // Found - return Core response with proof status (consistent with verify)
     const origin: CoreOrigin = {
       origin_id: data.origin_id,
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
       proof_status: proofStatus,
-      proof_url: proofStatus !== 'none' ? `${proofBaseUrl}/functions/v1/v1-core-proof?origin_id=${data.origin_id}` : null,
+      proof_url: `${proofBaseUrl}/functions/v1/v1-core-proof?origin_id=${data.origin_id}`,
       bitcoin_block_height: proofData?.bitcoin_block_height ?? null,
       anchored_at: proofData?.anchored_at ?? null,
     };
