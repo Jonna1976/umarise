@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle2, Circle, ListChecks, ChevronDown, ChevronRight } from 'lucide-react';
 
-const STORAGE_KEY = 'umarise-checklist-v2';
+const STORAGE_KEY = 'umarise-checklist-v3';
 
 const BASE = 'https://core.umarise.com';
 
@@ -23,123 +23,123 @@ const CHECKLIST: ChecklistGroup[] = [
     stepOffset: 1,
     items: [
       {
-        label: 'API key received from partners@umarise.com',
-        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. You will receive a key starting with um_...',
+        label: 'API key ontvangen van partners@umarise.com',
+        detail: 'Mail partners@umarise.com met je bedrijfsnaam en use case. Reactie binnen 24 uur. Je ontvangt een key die begint met um_...',
       },
       {
-        label: 'Quick Start completed: health, attest, resolve, verify',
-        detail: `Available at the top of this page. Four curl commands. 60 seconds.\n→ /api-reference → Quick Start`,
+        label: 'Quick Start doorlopen: health, attest, resolve, verify',
+        detail: `Beschikbaar bovenaan deze pagina. Vier curl-commando\'s. 60 seconden.\n→ /api-reference → Quick Start`,
         quickStartDone: true,
       },
       {
-        label: 'Health check returned "operational"',
-        detail: `Done during Quick Start step 1.\ncurl ${BASE}/v1-core-health`,
+        label: 'Health check gaf "operational"',
+        detail: `Gedaan tijdens Quick Start stap 1.\ncurl ${BASE}/v1-core-health`,
         quickStartDone: true,
       },
       {
-        label: 'First test attestation created, origin_id received',
-        detail: `Done during Quick Start step 2.\ncurl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:YOUR_HASH"}'`,
+        label: 'Eerste test-attestatie aangemaakt, origin_id ontvangen',
+        detail: `Gedaan tijdens Quick Start stap 2.\ncurl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:YOUR_HASH"}'`,
         quickStartDone: true,
       },
       {
-        label: 'Waited 10–20 minutes, proof_status changed from "pending" to "anchored"',
-        detail: `Repeat Quick Start step 3 after 10–20 minutes. Once proof_status is "anchored", the proof is independently verifiable via Bitcoin.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
+        label: '10–20 minuten gewacht, proof_status veranderd van "pending" naar "anchored"',
+        detail: `Herhaal Quick Start stap 3 na 10–20 minuten. Zodra proof_status "anchored" is, is het bewijs onafhankelijk verifieerbaar via Bitcoin.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
       },
     ],
   },
   {
-    title: 'Verification',
+    title: 'Verificatie',
     stepOffset: 6,
     items: [
       {
-        label: 'Hash verified via POST /v1-core-verify — match confirmed',
-        detail: `Done during Quick Start step 4.\ncurl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:YOUR_HASH"}'`,
+        label: 'Hash geverifieerd via POST /v1-core-verify — match bevestigd',
+        detail: `Gedaan tijdens Quick Start stap 4.\ncurl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:YOUR_HASH"}'`,
         quickStartDone: true,
       },
       {
-        label: 'Origin resolved via GET /v1-core-resolve — record retrieved',
-        detail: `Done during Quick Start step 3.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
+        label: 'Origin opgehaald via GET /v1-core-resolve — record ontvangen',
+        detail: `Gedaan tijdens Quick Start stap 3.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
         quickStartDone: true,
       },
       {
-        label: '.ots proof downloaded via GET /v1-core-proof',
-        detail: `curl '${BASE}/v1-core-origins-proof?origin_id=YOUR_ORIGIN_ID' -o proof.ots\nThis downloads the binary OpenTimestamps proof file for independent Bitcoin verification.`,
+        label: '.ots proof gedownload via GET /v1-core-proof',
+        detail: `curl '${BASE}/v1-core-origins-proof?origin_id=YOUR_ORIGIN_ID' -o proof.ots\nDit downloadt het binaire OpenTimestamps proof-bestand voor onafhankelijke Bitcoin-verificatie.`,
       },
       {
-        label: 'Verification tested via umarise.com/verify (online)',
-        detail: 'Upload a file or paste a SHA-256 hash. The page shows whether an attestation exists and its current status.\n→ https://umarise.com/verify',
+        label: 'Verificatie getest via umarise.com/verify (online)',
+        detail: 'Upload een bestand of plak een SHA-256 hash. De pagina toont of er een attestatie bestaat en de huidige status.\n→ https://umarise.com/verify',
       },
       {
-        label: 'Verification tested via CLI (verify-anchor.sh or .py)',
-        detail: 'Download: verify-anchor.sh or verify-anchor.py from /reviewer.\nRun: bash verify-anchor.sh proof.ots\nor: python verify-anchor.py proof.ots\nThese scripts verify the Bitcoin anchor independently, without relying on Umarise infrastructure.',
+        label: 'Verificatie getest via CLI (verify-anchor.sh of .py)',
+        detail: 'Download: verify-anchor.sh of verify-anchor.py vanuit /reviewer.\nRun: bash verify-anchor.sh proof.ots\nof: python verify-anchor.py proof.ots\nDeze scripts verifiëren het Bitcoin-anker onafhankelijk, zonder Umarise-infrastructuur.',
       },
       {
-        label: 'Own file verified (not the test hash)',
-        detail: 'Hash your own file:\n  sha256sum your-file.pdf (Linux)\n  shasum -a 256 your-file.pdf (macOS)\nCreate an attestation with that hash via Quick Start step 2. Wait for "anchored", download .ots, verify via CLI or /verify.',
+        label: 'Eigen bestand geverifieerd (niet de test-hash)',
+        detail: 'Hash je eigen bestand:\n  sha256sum your-file.pdf (Linux)\n  shasum -a 256 your-file.pdf (macOS)\nMaak een attestatie aan met die hash via Quick Start stap 2. Wacht op "anchored", download .ots, verifieer via CLI of /verify.',
       },
     ],
   },
   {
-    title: 'SDK Integration',
+    title: 'SDK Integratie',
     stepOffset: 12,
     items: [
       {
-        label: 'SDK downloaded and installed',
-        detail: 'Node.js: download umarise-core.ts from /docs or GitHub.\n  import { attest, verify, resolve } from \'./umarise-core\'\nPython: download umarise_core.py from /docs or GitHub.\n  from umarise_core import attest, verify, resolve',
+        label: 'SDK gedownload en geïnstalleerd',
+        detail: 'Node.js: download umarise-core.ts vanuit /docs of GitHub.\n  import { attest, verify, resolve } from \'./umarise-core\'\nPython: download umarise_core.py vanuit /docs of GitHub.\n  from umarise_core import attest, verify, resolve',
       },
       {
-        label: 'SDK health() call successful',
-        detail: 'Node: const status = await health()\nPython: status = health()\nExpected: { "status": "operational", "version": "v1" }',
+        label: 'SDK health() call succesvol',
+        detail: 'Node: const status = await health()\nPython: status = health()\nVerwacht: { "status": "operational", "version": "v1" }',
       },
       {
-        label: 'SDK attest() call successful with own file',
-        detail: 'Hash your file first:\n  Node: crypto.createHash(\'sha256\').update(buffer).digest(\'hex\')\n  Python: hashlib.sha256(data).hexdigest()\nThen: const result = await attest(hash)\nor: result = attest(hash)',
+        label: 'SDK attest() call succesvol met eigen bestand',
+        detail: 'Hash eerst je bestand:\n  Node: crypto.createHash(\'sha256\').update(buffer).digest(\'hex\')\n  Python: hashlib.sha256(data).hexdigest()\nDan: const result = await attest(hash)\nof: result = attest(hash)',
       },
       {
-        label: 'SDK verify() call successful — match confirmed',
-        detail: 'const result = await verify(hash)\nExpected: origin record with proof_status.',
+        label: 'SDK verify() call succesvol — match bevestigd',
+        detail: 'const result = await verify(hash)\nVerwacht: origin record met proof_status.',
       },
       {
-        label: 'SDK resolve() call successful — record retrieved',
-        detail: 'const result = await resolve(origin_id)\nExpected: full origin record.',
+        label: 'SDK resolve() call succesvol — record opgehaald',
+        detail: 'const result = await resolve(origin_id)\nVerwacht: volledig origin record.',
       },
       {
-        label: 'origin_id storage integrated in own system',
-        detail: 'Store origin_id alongside your own record. Example:\n  db.submissions.update(id, { origin_id: result.origin_id })\nor add an origin_id column to your submissions/uploads table.\nThis is the link between your system and the independent proof.',
+        label: 'origin_id opslag gekoppeld aan eigen systeem',
+        detail: 'Sla origin_id op naast je eigen record. Voorbeeld:\n  db.submissions.update(id, { origin_id: result.origin_id })\nof voeg een origin_id kolom toe aan je submissions/uploads tabel.\nDit is de link tussen jouw systeem en het onafhankelijke bewijs.',
       },
     ],
   },
   {
-    title: 'Production Readiness',
+    title: 'Productie-gereedheid',
     stepOffset: 18,
     items: [
       {
-        label: 'SHA-256 hash calculation integrated in submission workflow',
-        detail: 'Calculate the hash of the complete file (including metadata, not just content). Do this at the moment of upload/submit/ingest.',
+        label: 'SHA-256 hash-berekening geïntegreerd in submission workflow',
+        detail: 'Bereken de hash van het volledige bestand (inclusief metadata, niet alleen content). Doe dit op het moment van upload/submit/ingest.',
       },
       {
-        label: 'API call connected to own trigger (upload, submit, ingest)',
-        detail: 'One SDK call per event. After successful upload: attest(hash). Store origin_id with the record.',
+        label: 'API call gekoppeld aan eigen trigger (upload, submit, ingest)',
+        detail: 'Eén SDK call per event. Na succesvolle upload: attest(hash). Sla origin_id op bij het record.',
       },
       {
-        label: 'origin_id stored with own record (database field)',
-        detail: 'Verify: can you look up the corresponding origin_id for every record in your system? If yes: done.',
+        label: 'origin_id opgeslagen bij eigen record (database veld)',
+        detail: 'Controleer: kun je voor elk record in je systeem het bijbehorende origin_id opzoeken? Zo ja: klaar.',
       },
       {
-        label: 'Error handling implemented',
-        detail: 'Timeout: set 10 seconds. On timeout: retry after 60 seconds.\nRate limit (429): read retry_after_seconds from response, wait, retry.\nServer error (500): retry after 60 seconds, max 3 attempts.\nUnauthorized (401): check API key, contact partners@umarise.com.\nFull error codes and rate limits: /api-reference → Error Codes section.',
+        label: 'Foutafhandeling geïmplementeerd',
+        detail: 'Timeout: stel 10 seconden in. Bij timeout: retry na 60 seconden.\nRate limit (429): lees retry_after_seconds uit response, wacht, retry.\nServer error (500): retry na 60 seconden, max 3 pogingen.\nUnauthorized (401): controleer API key, neem contact op met partners@umarise.com.\nVolledige error codes en rate limits: /api-reference → Error Codes sectie.',
       },
       {
-        label: 'Fallback strategy defined: what if API is temporarily unavailable?',
-        detail: 'Option A: queue hash locally, retry automatically after 60 seconds (recommended — no attestation is lost).\nOption B: log the error, proceed without attestation, report missed attestations in a daily summary.\nChoose one and implement. Which fits depends on how critical attestation is in your workflow.',
+        label: 'Fallback-strategie bepaald: wat als API tijdelijk onbereikbaar is?',
+        detail: 'Optie A: hash lokaal in queue plaatsen, automatisch retry na 60 seconden (aanbevolen — geen attestatie gaat verloren).\nOptie B: log de fout, ga door zonder attestatie, rapporteer gemiste attestaties in een dagelijks overzicht.\nKies er één en implementeer. Welke past hangt af van hoe kritisch attestatie is in je workflow.',
       },
       {
-        label: 'Verification path tested with real file from own system',
-        detail: 'Take one real file from your production workflow. Complete the full path: hash → attest → wait for anchored → resolve → verify → download .ots → verify via CLI.\nIf this path works with a real file: your integration is correct.',
+        label: 'Verificatiepad getest met echt bestand uit eigen systeem',
+        detail: 'Neem één echt bestand uit je productie-workflow. Doorloop het volledige pad: hash → attest → wacht op anchored → resolve → verify → download .ots → verifieer via CLI.\nAls dit pad werkt met een echt bestand: je integratie is correct.',
       },
       {
-        label: 'Ready for production',
-        detail: 'At least one real file from your production workflow has completed the full path (hash → attest → anchored → verify → .ots download → CLI verification). All green? Production.',
+        label: 'Klaar voor productie',
+        detail: 'Minimaal één echt bestand uit je productie-workflow heeft het volledige pad doorlopen (hash → attest → anchored → verify → .ots download → CLI verificatie). Alles groen? Productie.',
       },
     ],
   },
@@ -198,7 +198,7 @@ export default function IntegrationChecklist() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <ListChecks className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
-          <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">Integration Checklist</h2>
+          <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">Integratie Checklist</h2>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono">
@@ -242,14 +242,14 @@ export default function IntegrationChecklist() {
                           <span className="text-[hsl(var(--landing-cream)/0.25)] font-mono text-xs mr-2">{stepNum}.</span>
                           {item.label}
                           {item.quickStartDone && !isChecked && (
-                            <span className="ml-2 text-[10px] font-mono text-emerald-400/60">✓ Done during Quick Start</span>
+                            <span className="ml-2 text-[10px] font-mono text-emerald-400/60">✓ Gedaan tijdens Quick Start</span>
                           )}
                         </span>
                       </button>
                       <button
                         onClick={(e) => toggleExpand(item.label, e)}
                         className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.25)] hover:text-[hsl(var(--landing-cream)/0.5)] transition-colors shrink-0 mt-0.5"
-                        title={isExpanded ? 'Collapse' : 'Show instructions'}
+                        title={isExpanded ? 'Inklappen' : 'Toon instructies'}
                       >
                         {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                       </button>
@@ -264,7 +264,7 @@ export default function IntegrationChecklist() {
       </div>
 
       <p className="text-[hsl(var(--landing-cream)/0.2)] text-xs font-mono mt-6">
-        Progress is saved locally in your browser.
+        Voortgang wordt lokaal opgeslagen in je browser.
       </p>
     </section>
   );
