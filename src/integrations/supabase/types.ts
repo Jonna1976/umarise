@@ -69,6 +69,7 @@ export type Database = {
           executed_at: string | null
           executed_by: string | null
           id: string
+          object_identity: string | null
           object_name: string | null
           object_type: string | null
           raw_command: string | null
@@ -79,6 +80,7 @@ export type Database = {
           executed_at?: string | null
           executed_by?: string | null
           id?: string
+          object_identity?: string | null
           object_name?: string | null
           object_type?: string | null
           raw_command?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           executed_at?: string | null
           executed_by?: string | null
           id?: string
+          object_identity?: string | null
           object_name?: string | null
           object_type?: string | null
           raw_command?: string | null
