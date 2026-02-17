@@ -33,7 +33,7 @@ export default function ApiReference() {
       <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
-            <ArrowLeft className="w-4 h-4" /><span className="text-sm">Terug</span>
+            <ArrowLeft className="w-4 h-4" /><span className="text-sm">Back</span>
           </Link>
           <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.9)]">Umarise</span>
         </div>
@@ -42,7 +42,7 @@ export default function ApiReference() {
             <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">Core API v1</p>
             <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">API Reference</h1>
             <p className="text-[hsl(var(--landing-cream)/0.7)] max-w-xl">
-              Alles wat je nodig hebt om te integreren met Umarise Core. Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE_URL}</code>
+              Everything you need to integrate with Umarise Core. Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE_URL}</code>
             </p>
           </motion.div>
         </div>
@@ -71,10 +71,10 @@ export default function ApiReference() {
         {/* ─── 1. HEALTH ─── */}
         <section id="health">
           <SectionHeader method="GET" path="/v1-core-health" title="Health Check" badge={<Badge variant="public">Public</Badge>} />
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Controleer of de API bereikbaar is. Gebruik voor monitoring en statuspagina's.</p>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Check if the API is reachable. Use for monitoring and status pages.</p>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Parameters</h4>
-          <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm italic mb-6">Geen</p>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Parameters</h4>
+           <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm italic mb-6">None</p>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Response · 200 OK</h4>
           <CopyBlock code={`{
@@ -91,7 +91,7 @@ export default function ApiReference() {
   "database": "unreachable"
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `curl ${BASE_URL}/v1-core-health`,
             node: `import { UmariseCore } from './umarise-core';
@@ -110,19 +110,19 @@ health = core.health()
         {/* ─── 2. ORIGINS (ATTEST) ─── */}
         <section id="origins">
           <SectionHeader method="POST" path="/v1-core-origins" title="Create Attestation" badge={<Badge variant="partner">API Key</Badge>} />
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Registreer een nieuwe origin-attestatie. Maakt een onwijzigbaar, getimestampt record aan voor een SHA-256 hash.</p>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Register a new origin attestation. Creates an immutable, timestamped record for a SHA-256 hash.</p>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Authenticatie</h4>
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">
-            Vereist <code className="text-[hsl(var(--landing-copper))]">X-API-Key</code> header met een geldige partner key.
-          </p>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Authentication</h4>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">
+             Requires <code className="text-[hsl(var(--landing-copper))]">X-API-Key</code> header with a valid partner key.
+           </p>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Request Body</h4>
           <div className="mb-6">
-            <Param name="hash" type="string" required desc="SHA-256 hash. Accepteert 'sha256:' prefix of raw 64-karakter hex. De API normaliseert beide formaten." />
+            <Param name="hash" type="string" required desc="SHA-256 hash. Accepts 'sha256:' prefix or raw 64-character hex. The API normalizes both formats." />
           </div>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Request voorbeeld</h4>
+          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Request Example</h4>
           <CopyBlock code={`{
   "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 }`} />
@@ -136,16 +136,16 @@ health = core.health()
   "proof_status": "pending"
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Foutmeldingen</h4>
-          <ErrorList errors={[
-            { code: 401, error: 'UNAUTHORIZED', desc: 'Ontbrekende of ongeldige API key' },
-            { code: 401, error: 'API_KEY_REVOKED', desc: 'API key is ingetrokken' },
-            { code: 400, error: 'INVALID_HASH_FORMAT', desc: 'Hash moet sha256: prefix + 64 hex karakters zijn, of raw 64-karakter hex' },
-            { code: 409, error: 'DUPLICATE_HASH', desc: 'Deze hash is al geattesteerd met deze API key' },
-            { code: 429, error: 'RATE_LIMIT_EXCEEDED', desc: 'Te veel requests' },
-          ]} />
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Errors</h4>
+           <ErrorList errors={[
+             { code: 401, error: 'UNAUTHORIZED', desc: 'Missing or invalid API key' },
+             { code: 401, error: 'API_KEY_REVOKED', desc: 'API key has been revoked' },
+             { code: 400, error: 'INVALID_HASH_FORMAT', desc: 'Hash must be sha256: prefix + 64 hex characters, or raw 64-character hex' },
+             { code: 409, error: 'DUPLICATE_HASH', desc: 'This hash has already been attested with this API key' },
+             { code: 429, error: 'RATE_LIMIT_EXCEEDED', desc: 'Too many requests' },
+           ]} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `curl -X POST ${BASE_URL}/v1-core-origins \\
   -H "Content-Type: application/json" \\
@@ -167,19 +167,19 @@ origin = core.attest(
 # → {"origin_id": "...", "hash": "sha256:...", "proof_status": "pending"}`,
           }} />
 
-          <Note>Eenmaal aangemaakt is een attestatie onwijzigbaar. Het kan niet worden aangepast of verwijderd.</Note>
+          <Note>Once created, an attestation is immutable. It cannot be modified or deleted.</Note>
         </section>
 
         {/* ─── 3. RESOLVE ─── */}
         <section id="resolve">
           <SectionHeader method="GET" path="/v1-core-resolve" title="Resolve Origin" badge={<Badge variant="public">Public</Badge>} />
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Zoek een origin record op via origin_id of hash. Bij hash-lookup wordt de vroegste attestatie (first-in-time) teruggegeven.</p>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Look up an origin record by origin_id or hash. Hash lookups return the earliest attestation (first-in-time).</p>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
-          <div className="mb-6">
-            <Param name="origin_id" type="uuid" desc="De origin identifier. Geef origin_id of hash mee." />
-            <Param name="hash" type="string" desc="SHA-256 hash (met of zonder sha256: prefix). Retourneert de vroegste attestatie." />
-          </div>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
+           <div className="mb-6">
+             <Param name="origin_id" type="uuid" desc="The origin identifier. Provide origin_id or hash." />
+             <Param name="hash" type="string" desc="SHA-256 hash (with or without sha256: prefix). Returns the earliest attestation." />
+           </div>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Response · 200 OK</h4>
           <CopyBlock code={`{
@@ -201,7 +201,7 @@ origin = core.attest(
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `# By origin_id
 curl "${BASE_URL}/v1-core-resolve?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -232,18 +232,18 @@ by_hash = core.resolve(
 )`,
           }} />
 
-          <Note>Hash-lookup retourneert altijd de vroegst bekende attestatie (first-in-time principe).</Note>
+          <Note>Hash lookup always returns the earliest known attestation (first-in-time principle).</Note>
         </section>
 
         {/* ─── 4. VERIFY ─── */}
         <section id="verify">
           <SectionHeader method="POST" path="/v1-core-verify" title="Verify Hash" badge={<Badge variant="public">Public</Badge>} />
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Controleer of een hash bestaat in de registry. Verificatie is binair: match of geen match. Bij een match wordt het volledige origin record teruggegeven.</p>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Check if a hash exists in the registry. Verification is binary: match or no match. On match, the full origin record is returned.</p>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Request Body</h4>
-          <div className="mb-6">
-            <Param name="hash" type="string" required desc="SHA-256 hash om te verifiëren. Accepteert sha256: prefix of raw 64-karakter hex." />
-          </div>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Request Body</h4>
+           <div className="mb-6">
+             <Param name="hash" type="string" required desc="SHA-256 hash to verify. Accepts sha256: prefix or raw 64-character hex." />
+           </div>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Response · 200 OK (Match)</h4>
           <CopyBlock code={`{
@@ -262,7 +262,7 @@ by_hash = core.resolve(
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `curl -X POST ${BASE_URL}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -283,28 +283,28 @@ result = core.verify(
 # result is None if no match, or the origin record`,
           }} />
 
-          <Note>Verificatie is publiek en vereist geen authenticatie. Iedereen met een hash kan verifiëren.</Note>
+          <Note>Verification is public and requires no authentication. Anyone with a hash can verify.</Note>
         </section>
 
         {/* ─── 5. PROOF ─── */}
         <section id="proof">
           <SectionHeader method="GET" path="/v1-core-proof" title="Download Proof" badge={<Badge variant="public">Public</Badge>} />
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Download het OpenTimestamps (.ots) proof-bestand voor een origin. Retourneert ruwe binaire data.</p>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">Download the OpenTimestamps (.ots) proof file for an origin. Returns raw binary data.</p>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
-          <div className="mb-6">
-            <Param name="origin_id" type="uuid" required desc="De origin identifier waarvoor het proof gedownload wordt." />
-          </div>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
+           <div className="mb-6">
+             <Param name="origin_id" type="uuid" required desc="The origin identifier to download the proof for." />
+           </div>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Response · 200 OK</h4>
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-2">
-            Binaire <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code> response met het .ots bestand.
-          </p>
-          <div className="mb-6">
-            <Param name="X-Bitcoin-Block-Height" type="header" desc="Bitcoin block height waar het proof is verankerd" />
-            <Param name="X-Anchored-At" type="header" desc="ISO 8601 timestamp van verankering" />
-            <Param name="Content-Disposition" type="header" desc='attachment; filename="proof-{origin_id}.ots"' />
-          </div>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-2">
+             Binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code> response with the .ots file.
+           </p>
+           <div className="mb-6">
+             <Param name="X-Bitcoin-Block-Height" type="header" desc="Bitcoin block height where the proof is anchored" />
+             <Param name="X-Anchored-At" type="header" desc="ISO 8601 timestamp of anchoring" />
+             <Param name="Content-Disposition" type="header" desc='attachment; filename="proof-{origin_id}.ots"' />
+           </div>
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Response · 202 Accepted</h4>
           <CopyBlock code={`{
@@ -320,7 +320,7 @@ result = core.verify(
   }
 }`} />
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
+          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `curl "${BASE_URL}/v1-core-proof?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890" \\
   -o proof.ots`,
@@ -345,12 +345,12 @@ if result.proof:
     print("Block height:", result.bitcoin_block_height)`,
           }} />
 
-          <Note>Het .ots bestand kan onafhankelijk worden geverifieerd met de OpenTimestamps client (ots-cli) tegen elke Bitcoin node. Geen Umarise-afhankelijkheid vereist.</Note>
+           <Note>The .ots file can be independently verified with the OpenTimestamps client (ots-cli) against any Bitcoin node. No Umarise dependency required.</Note>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Polling voor Anchor Status</h4>
-          <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-4">
-            Na attestatie is <code className="text-[hsl(var(--landing-copper))]">proof_status</code> <code className="text-[hsl(var(--landing-copper))]">"pending"</code>. Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve</code> elke 60 seconden tot de status verandert naar <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Gemiddelde ankertijd: 10–20 minuten.
-          </p>
+           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Polling for Anchor Status</h4>
+           <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-4">
+             After attestation, <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>. Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve</code> every 60 seconds until the status changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Average anchoring time: 10–20 minutes.
+           </p>
           <CopyBlock code={`# Poll until anchored (typically 10-20 min)
 while true; do
   STATUS=$(curl -s "$BASE/v1-core-resolve?origin_id=$ORIGIN_ID" | grep -o '"proof_status":"[^"]*"' | cut -d'"' -f4)
@@ -364,10 +364,10 @@ done`} />
         <section id="errors">
           <div className="mb-6">
             <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))] mb-2">Error Codes</h2>
-            <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Alle fouten volgen een consistent formaat.</p>
+            <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">All errors follow a consistent format.</p>
           </div>
 
-          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Error Response Formaat</h4>
+          <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-2">Error Response Format</h4>
           <CopyBlock code={`{
   "error": {
     "code": "RATE_LIMIT_EXCEEDED",
@@ -384,19 +384,19 @@ done`} />
                 <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
                   <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Code</th>
                   <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">HTTP</th>
-                  <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Beschrijving</th>
+                   <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Description</th>
                 </tr>
               </thead>
               <tbody className="text-[hsl(var(--landing-cream)/0.85)]">
                 {[
-                  ['UNAUTHORIZED', '401', 'Ontbrekende of ongeldige API key'],
-                  ['API_KEY_REVOKED', '401', 'API key is ingetrokken'],
-                  ['INVALID_HASH_FORMAT', '400', 'Hash niet in sha256: prefix + 64 hex karakters formaat'],
-                  ['INVALID_REQUEST_BODY', '400', 'Onjuist of ontbrekend request body'],
-                  ['DUPLICATE_HASH', '409', 'Deze hash is al geattesteerd met deze API key'],
-                  ['RATE_LIMIT_EXCEEDED', '429', 'Te veel requests. Retry na retry_after_seconds'],
-                  ['NOT_FOUND', '404', 'Origin of hash niet gevonden in de registry'],
-                  ['INTERNAL_ERROR', '500', 'Serverfout'],
+                  ['UNAUTHORIZED', '401', 'Missing or invalid API key'],
+                  ['API_KEY_REVOKED', '401', 'API key has been revoked'],
+                  ['INVALID_HASH_FORMAT', '400', 'Hash not in sha256: prefix + 64 hex characters format'],
+                  ['INVALID_REQUEST_BODY', '400', 'Invalid or missing request body'],
+                  ['DUPLICATE_HASH', '409', 'This hash has already been attested with this API key'],
+                  ['RATE_LIMIT_EXCEEDED', '429', 'Too many requests. Retry after retry_after_seconds'],
+                  ['NOT_FOUND', '404', 'Origin or hash not found in the registry'],
+                  ['INTERNAL_ERROR', '500', 'Server error'],
                 ].map(([code, http, desc]) => (
                   <tr key={code} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                     <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))]">{code}</td>
@@ -413,7 +413,7 @@ done`} />
         <section id="rate-limits">
           <div className="mb-6">
             <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))] mb-2">Rate Limits</h2>
-            <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Limieten gelden per API key (partner endpoints) of per IP-hash (publieke endpoints).</p>
+            <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Limits apply per API key (partner endpoints) or per IP hash (public endpoints).</p>
           </div>
 
           <div className="overflow-x-auto">
@@ -423,16 +423,16 @@ done`} />
                   <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Endpoint</th>
                   <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Scope</th>
                   <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Window</th>
-                  <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Opmerkingen</th>
+                  <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.6)] font-mono text-xs uppercase">Notes</th>
                 </tr>
               </thead>
               <tbody className="text-[hsl(var(--landing-cream)/0.85)]">
                 {[
-                  ['/v1-core-origins', 'Per API key', '100/min', 'Alleen partners'],
-                  ['/v1-core-verify', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
-                  ['/v1-core-resolve', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
-                  ['/v1-core-proof', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
-                  ['/v1-core-health', '—', '—', 'Geen rate limit'],
+                   ['/v1-core-origins', 'Per API key', '100/min', 'Partners only'],
+                   ['/v1-core-verify', 'Per IP (hashed)', '1,000/min', 'Public'],
+                   ['/v1-core-resolve', 'Per IP (hashed)', '1,000/min', 'Public'],
+                   ['/v1-core-proof', 'Per IP (hashed)', '1,000/min', 'Public'],
+                   ['/v1-core-health', '—', '—', 'No rate limit'],
                 ].map(([ep, scope, window, notes]) => (
                   <tr key={ep} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                     <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))]">{ep}</td>
@@ -445,12 +445,12 @@ done`} />
             </table>
           </div>
 
-          <Note>IP-adressen worden nooit opgeslagen. Rate limiting gebruikt SHA-256 gehashte IP's voor privacy-by-design.</Note>
+          <Note>IP addresses are never stored. Rate limiting uses SHA-256 hashed IPs for privacy-by-design.</Note>
 
           <div className="mt-6 p-4 rounded-lg bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)]">
-            <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm font-medium mb-2">Rate limit headers</p>
-            <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm">
-              Elke response bevat rate limit headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code> (Unix timestamp).
+             <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm font-medium mb-2">Rate limit headers</p>
+             <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm">
+               Every response includes rate limit headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code> (Unix timestamp).
             </p>
           </div>
         </section>

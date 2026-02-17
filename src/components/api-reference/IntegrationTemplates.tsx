@@ -50,7 +50,7 @@ const TEMPLATES = {
 cp ~/Downloads/umarise_integration.py ~/umarise-test/
 cp ~/Downloads/test_integration.py ~/umarise-test/
 cd ~/umarise-test
-python3 test_integration.py um_JOUW_API_KEY`,
+python3 test_integration.py um_YOUR_API_KEY`,
   },
   node: {
     sdk: { url: '/templates/umarise-integration.js', name: 'umarise-integration.js' },
@@ -59,7 +59,7 @@ python3 test_integration.py um_JOUW_API_KEY`,
 cp ~/Downloads/umarise-integration.js ~/umarise-test-node/
 cp ~/Downloads/test_integration_node.js ~/umarise-test-node/
 cd ~/umarise-test-node
-node test_integration_node.js um_JOUW_API_KEY`,
+node test_integration_node.js um_YOUR_API_KEY`,
   },
 } as const;
 
@@ -100,7 +100,7 @@ export default function IntegrationTemplates() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] flex items-center justify-center text-xs font-mono font-bold shrink-0">1</span>
-              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Download beide bestanden</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Download both files</h4>
             </div>
 
             <div className="flex flex-wrap gap-3 ml-9">
@@ -109,7 +109,7 @@ export default function IntegrationTemplates() {
             </div>
 
             <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs ml-9">
-              Dit zijn twee bestanden. Download ze allebei voordat je verdergaat.
+              These are two files. Download both before proceeding.
             </p>
           </div>
 
@@ -119,11 +119,11 @@ export default function IntegrationTemplates() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] flex items-center justify-center text-xs font-mono font-bold shrink-0">2</span>
-              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Kopieer naar een werkmap en draai de test</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Copy to a working directory and run the test</h4>
             </div>
 
             <p className="text-[hsl(var(--landing-cream)/0.7)] text-xs ml-9 mb-2">
-              Kopieer dit blok en plak het in je Terminal. Vervang <code className="text-[hsl(var(--landing-copper))]">um_JOUW_API_KEY</code> door je echte key.
+              Copy this block and paste it in your Terminal. Replace <code className="text-[hsl(var(--landing-copper))]">um_YOUR_API_KEY</code> with your actual key.
             </p>
 
             <div className="relative ml-9">
@@ -135,23 +135,23 @@ export default function IntegrationTemplates() {
 
             <div className="ml-9 space-y-2">
               <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs">
-                Je key begint met <code className="text-[hsl(var(--landing-copper))]">um_</code> — dezelfde key als bij de Quick Start curls.
+                Your key starts with <code className="text-[hsl(var(--landing-copper))]">um_</code> — the same key as used in the Quick Start curls.
               </p>
 
               {lang === 'python' && (
                 <div className="flex items-start gap-2 p-3 rounded border border-[hsl(var(--landing-copper)/0.15)] bg-[hsl(var(--landing-copper)/0.04)]">
                   <AlertTriangle className="w-3.5 h-3.5 text-[hsl(var(--landing-copper))] mt-0.5 shrink-0" />
                   <p className="text-[hsl(var(--landing-cream)/0.7)] text-xs">
-                    <strong className="text-[hsl(var(--landing-cream)/0.85)]">macOS SSL-fout?</strong> Draai eenmalig:{' '}
-                    <code className="text-[hsl(var(--landing-copper))]">/Applications/Python\ 3.xx/Install\ Certificates.command</code>{' '}
-                    (check je versie met <code className="text-[hsl(var(--landing-copper))]">python3 --version</code>)
+                     <strong className="text-[hsl(var(--landing-cream)/0.85)]">macOS SSL error?</strong> Run once:{' '}
+                     <code className="text-[hsl(var(--landing-copper))]">/Applications/Python\ 3.xx/Install\ Certificates.command</code>{' '}
+                     (check your version with <code className="text-[hsl(var(--landing-copper))]">python3 --version</code>)
                   </p>
                 </div>
               )}
 
               {lang === 'node' && (
                 <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs">
-                  Vereist Node 18+. Check met: <code className="text-[hsl(var(--landing-copper))]">node --version</code>
+                  Requires Node 18+. Check with: <code className="text-[hsl(var(--landing-copper))]">node --version</code>
                 </p>
               )}
             </div>
@@ -163,23 +163,23 @@ export default function IntegrationTemplates() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] flex items-center justify-center text-xs font-mono font-bold shrink-0">3</span>
-              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Verwacht resultaat</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.95)] font-medium text-sm">Expected result</h4>
             </div>
 
             <div className="ml-9 bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 space-y-2">
               <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm">
-                Je ziet 15 tests draaien (~30 seconden).
+                You will see 15 tests run (~30 seconds).
               </p>
-              <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm">
-                Elke test toont <code className="text-[hsl(120,33%,65%)]">OK</code> of <code className="text-red-400">FAIL</code>.
+               <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm">
+                 Each test shows <code className="text-[hsl(120,33%,65%)]">OK</code> or <code className="text-red-400">FAIL</code>.
               </p>
               <pre className="text-xs font-mono text-[hsl(120,33%,65%)] mt-2">
 {`═══════════════════════════════════════════
-  ✓ Alle 15 tests geslaagd. Template werkt.
+  ✓ All 15 tests passed. Template works.
 ═══════════════════════════════════════════`}
               </pre>
               <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs mt-2">
-                Als een test faalt: de foutmelding zegt precies wat er mis is.
+                If a test fails: the error message tells you exactly what went wrong.
               </p>
             </div>
           </div>
@@ -205,13 +205,13 @@ const FRAMEWORK_CODE: Record<Framework, { label: string; lang: string; code: str
     code: `# views.py
 import umarise_integration as umarise
 
-umarise.API_KEY = "um_jouw_key"
+umarise.API_KEY = "um_your_key"
 
 def upload_thesis(request):
     file = request.FILES["thesis"]
     submission = Submission.objects.create(student=request.user, file=file)
 
-    # Attesteer — 1 regel
+    # Attest — 1 line
     result = umarise.safe_attest(submission.file.path, str(submission.id))
 
     if result:
@@ -227,7 +227,7 @@ from flask import Flask, request, jsonify
 import umarise_integration as umarise
 
 app = Flask(__name__)
-umarise.API_KEY = "um_jouw_key"
+umarise.API_KEY = "um_your_key"
 
 @app.route("/upload", methods=["POST"])
 def upload():
@@ -235,7 +235,7 @@ def upload():
     data = file.read()
     record_id = save_to_database(file.filename, data)
 
-    # Attesteer — 1 regel
+    # Attest — 1 line
     result = umarise.attest_bytes(data, record_id)
 
     return jsonify({"record_id": record_id, "origin_id": result["origin_id"]})`,
@@ -248,12 +248,12 @@ const um = require("./umarise-integration.js");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-um.API_KEY = "um_jouw_key";
+um.API_KEY = "um_your_key";
 
 app.post("/upload", upload.single("document"), async (req, res) => {
     const recordId = await db.documents.create({ file: req.file.path });
 
-    // Attesteer — 1 regel
+    // Attest — 1 line
     const result = await um.safeAttest(req.file.path, String(recordId));
 
     if (result) um.trackAnchor(result.origin_id, String(recordId));
@@ -271,11 +271,11 @@ function FrameworkExamples() {
     <div id="frameworks" className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
       <div className="flex items-center gap-2 mb-2">
         <Code2 className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
-        <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Zo gebruik je dit in je app</h2>
-      </div>
-      <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">
-        Elk voorbeeld toont hetzelfde patroon in ~10 regels: ontvang bestand → sla op → <code className="text-[hsl(var(--landing-copper))]">safe_attest()</code> → klaar.
-      </p>
+         <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Using this in your app</h2>
+       </div>
+       <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-6">
+         Each example shows the same pattern in ~10 lines: receive file → save → <code className="text-[hsl(var(--landing-copper))]">safe_attest()</code> → done.
+       </p>
 
       {/* Framework tabs */}
       <div className="flex gap-2 mb-4">
@@ -302,7 +302,7 @@ function FrameworkExamples() {
       </div>
 
       <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs mt-4 italic">
-        safe_attest() blokkeert je workflow nooit — als Umarise tijdelijk onbereikbaar is, logt het de fout en gaat je app gewoon door.
+        safe_attest() never blocks your workflow — if Umarise is temporarily unreachable, it logs the error and your app continues.
       </p>
     </div>
   );
@@ -312,50 +312,50 @@ function FrameworkExamples() {
 const FAILURE_MODES = [
   {
     icon: Search,
-    title: 'Hash niet gevonden',
-    code: 'NOT_FOUND',
-    description: 'Dit exacte bestand is niet geattesteerd. Veelvoorkomende oorzaken:',
-    bullets: [
-      'Bestand opnieuw opgeslagen (Word/PDF editor voegt metadata toe)',
-      'Bestand geconverteerd (.docx → .pdf)',
-      'Alleen inhoud gehasht i.p.v. het volledige bestand',
-    ],
-    fix: 'Hash het originele, ongewijzigde bestand. Check: sha256sum bestand.pdf moet exact dezelfde hash geven als bij attestatie.',
-  },
+     title: 'Hash not found',
+     code: 'NOT_FOUND',
+     description: 'This exact file has not been attested. Common causes:',
+     bullets: [
+       'File re-saved (Word/PDF editor adds metadata)',
+       'File converted (.docx → .pdf)',
+       'Only content hashed instead of the full file',
+     ],
+     fix: 'Hash the original, unmodified file. Check: sha256sum file.pdf must return the exact same hash as at attestation.',
+   },
   {
     icon: Clock,
     title: 'Proof is pending',
     code: 'pending',
-    description: 'Attestatie is geregistreerd. Bitcoin-verankering loopt (10-20 minuten).',
-    bullets: [
-      'Poll via GET /v1-core-resolve?origin_id=... elke 60 seconden',
-      'Of gebruik track_anchor() uit de template',
-      'proof_status gaat van "pending" → "anchored"',
-    ],
-    fix: 'Wacht 10-20 minuten. Na "anchored" is het bewijs definitief en onafhankelijk verifieerbaar.',
-  },
-  {
+     description: 'Attestation is registered. Bitcoin anchoring is in progress (10-20 minutes).',
+     bullets: [
+       'Poll via GET /v1-core-resolve?origin_id=... every 60 seconds',
+       'Or use track_anchor() from the template',
+       'proof_status goes from "pending" → "anchored"',
+     ],
+     fix: 'Wait 10-20 minutes. After "anchored" the proof is final and independently verifiable.',
+   },
+   {
     icon: Hash,
-    title: 'Verkeerd hash-formaat',
-    code: 'INVALID_HASH_FORMAT',
-    description: 'Hash moet SHA-256 zijn: 64 hexadecimale karakters, optioneel met sha256: prefix.',
-    bullets: [
-      'Geen MD5 (32 chars), geen SHA-1 (40 chars), geen base64',
-    ],
-    fix: 'Gebruik hash_file() / hashFile() uit de template — die retourneert altijd het juiste formaat.',
-  },
+     title: 'Wrong hash format',
+     code: 'INVALID_HASH_FORMAT',
+     description: 'Hash must be SHA-256: 64 hexadecimal characters, optionally with sha256: prefix.',
+     bullets: [
+       'No MD5 (32 chars), no SHA-1 (40 chars), no base64',
+     ],
+     fix: 'Use hash_file() / hashFile() from the template — it always returns the correct format.',
+   },
   {
     icon: FileWarning,
-    title: 'Verify toont een oudere attestatie',
-    code: 'first-in-time',
-    description: 'Verify retourneert de eerste attestatie voor een hash (first-in-time).',
-    bullets: [
-      'Bij een veelgebruikte test-hash zie je mogelijk een eerdere captured_at',
-      'Dat is correct — het bewijst dat die hash al eerder bestond',
-      'Met een eigen, uniek bestand zie je altijd je eigen attestatie',
-    ],
-    fix: null,
-  },
+     title: 'Verify shows an older attestation',
+     code: 'first-in-time',
+     description: 'Verify returns the first attestation for a hash (first-in-time).',
+     bullets: [
+       'With a common test hash you may see an earlier captured_at',
+       'This is correct — it proves that hash already existed earlier',
+       'With your own unique file you will always see your own attestation',
+     ],
+     fix: null,
+   },
 ];
 
 function TroubleshootingSection() {
@@ -363,7 +363,7 @@ function TroubleshootingSection() {
     <div id="troubleshooting" className="border border-[hsl(var(--landing-cream)/0.1)] rounded-lg p-6 bg-[hsl(var(--landing-cream)/0.02)]">
       <div className="flex items-center gap-2 mb-6">
         <AlertTriangle className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
-        <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Veelvoorkomende situaties</h2>
+        <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Common Scenarios</h2>
       </div>
 
       <div className="space-y-4">
@@ -396,32 +396,32 @@ function TroubleshootingSection() {
         <table className="w-full text-xs font-mono">
           <thead>
             <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Situatie</th>
-              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Error</th>
-              <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Actie</th>
+               <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Scenario</th>
+               <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Error</th>
+               <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.7)] font-medium">Action</th>
             </tr>
           </thead>
           <tbody className="text-[hsl(var(--landing-cream)/0.8)]">
             <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
-              <td className="py-2">Hash niet gevonden</td>
-              <td className="py-2 text-[hsl(var(--landing-copper))]">NOT_FOUND</td>
-              <td className="py-2">Origineel bestand opnieuw hashen</td>
-            </tr>
-            <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
-              <td className="py-2">Proof nog niet klaar</td>
-              <td className="py-2 text-[hsl(var(--landing-copper))]">pending</td>
-              <td className="py-2">Wacht 10-20 min, poll resolve</td>
-            </tr>
-            <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
-              <td className="py-2">Verkeerde hash</td>
-              <td className="py-2 text-[hsl(var(--landing-copper))]">INVALID_HASH</td>
-              <td className="py-2">Gebruik SDK hash functie</td>
-            </tr>
-            <tr>
-              <td className="py-2">Oudere attestatie</td>
-              <td className="py-2 text-[hsl(var(--landing-copper))]">first-in-time</td>
-              <td className="py-2">Correct gedrag</td>
-            </tr>
+               <td className="py-2">Hash not found</td>
+               <td className="py-2 text-[hsl(var(--landing-copper))]">NOT_FOUND</td>
+               <td className="py-2">Re-hash original file</td>
+             </tr>
+             <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+               <td className="py-2">Proof not ready yet</td>
+               <td className="py-2 text-[hsl(var(--landing-copper))]">pending</td>
+               <td className="py-2">Wait 10-20 min, poll resolve</td>
+             </tr>
+             <tr className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+               <td className="py-2">Wrong hash</td>
+               <td className="py-2 text-[hsl(var(--landing-copper))]">INVALID_HASH</td>
+               <td className="py-2">Use SDK hash function</td>
+             </tr>
+             <tr>
+               <td className="py-2">Older attestation</td>
+               <td className="py-2 text-[hsl(var(--landing-copper))]">first-in-time</td>
+               <td className="py-2">Correct behavior</td>
+             </tr>
           </tbody>
         </table>
       </div>
