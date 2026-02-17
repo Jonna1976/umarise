@@ -374,7 +374,7 @@ done`} />
     "message": "Rate limit exceeded",
     "retry_after_seconds": 42,
     "limit": 100,
-    "window": "15m"
+    "window": "1m"
   }
 }`} />
 
