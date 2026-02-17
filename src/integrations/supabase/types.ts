@@ -255,6 +255,7 @@ export type Database = {
       }
       origin_attestations: {
         Row: {
+          api_key_prefix: string | null
           captured_at: string
           created_at: string
           hash: string
@@ -262,6 +263,7 @@ export type Database = {
           origin_id: string
         }
         Insert: {
+          api_key_prefix?: string | null
           captured_at?: string
           created_at?: string
           hash: string
@@ -269,6 +271,7 @@ export type Database = {
           origin_id?: string
         }
         Update: {
+          api_key_prefix?: string | null
           captured_at?: string
           created_at?: string
           hash?: string
