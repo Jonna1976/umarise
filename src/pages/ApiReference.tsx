@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, Code2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2 } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import QuickStartSection from '@/components/api-reference/QuickStartSection';
 import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
@@ -20,7 +20,7 @@ const endpoints = [
   { id: 'proof', name: 'Proof', method: 'GET' },
   { id: 'errors', name: 'Errors', icon: AlertTriangle },
   { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
-  { id: 'templates', name: 'Templates', icon: Code2 },
+  { id: 'templates', name: 'Templates', icon: FileCode2 },
   { id: 'checklist', name: 'Checklist', icon: ListChecks },
 ];
 
