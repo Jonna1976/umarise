@@ -87,7 +87,8 @@ export default function ApiReference() {
           <CopyBlock code={`{
   "status": "degraded",
   "version": "v1",
-  "timestamp": "2026-02-16T10:00:00.000Z"
+  "timestamp": "2026-02-16T10:00:00.000Z",
+  "database": "unreachable"
 }`} />
 
           <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Voorbeelden</h4>
@@ -427,10 +428,10 @@ done`} />
               </thead>
               <tbody className="text-[hsl(var(--landing-cream)/0.85)]">
                 {[
-                  ['/v1-core-origins', 'Per API key', '15 min', 'Alleen partners'],
-                  ['/v1-core-verify', 'Per IP (gehasht)', '15 min', 'Publiek'],
-                  ['/v1-core-resolve', 'Per IP (gehasht)', '15 min', 'Publiek'],
-                  ['/v1-core-proof', 'Per IP (gehasht)', '15 min', 'Publiek'],
+                  ['/v1-core-origins', 'Per API key', '100/min', 'Alleen partners'],
+                  ['/v1-core-verify', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
+                  ['/v1-core-resolve', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
+                  ['/v1-core-proof', 'Per IP (gehasht)', '1.000/min', 'Publiek'],
                   ['/v1-core-health', '—', '—', 'Geen rate limit'],
                 ].map(([ep, scope, window, notes]) => (
                   <tr key={ep} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
@@ -445,6 +446,13 @@ done`} />
           </div>
 
           <Note>IP-adressen worden nooit opgeslagen. Rate limiting gebruikt SHA-256 gehashte IP's voor privacy-by-design.</Note>
+
+          <div className="mt-6 p-4 rounded-lg bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)]">
+            <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm font-medium mb-2">Rate limit headers</p>
+            <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm">
+              Elke response bevat rate limit headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code> (Unix timestamp).
+            </p>
+          </div>
         </section>
 
         {/* ─── INTEGRATION TEMPLATES ─── */}
