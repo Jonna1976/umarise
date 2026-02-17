@@ -85,7 +85,7 @@ const CHECKLIST: ChecklistGroup[] = [
     items: [
       {
         label: 'SDK gedownload en geïnstalleerd',
-        detail: 'Node.js: download umarise-core.ts vanuit /docs of GitHub.\n  import { attest, verify, resolve } from \'./umarise-core\'\nPython: download umarise_core.py vanuit /docs of GitHub.\n  from umarise_core import attest, verify, resolve',
+        detail: 'Node.js: download umarise-integration.js vanuit /api-reference → Templates.\n  const um = require(\'./umarise-integration.js\')\nPython: download umarise_integration.py vanuit /api-reference → Templates.\n  import umarise_integration as umarise',
       },
       {
         label: 'SDK health() call succesvol',

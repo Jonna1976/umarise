@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Download, Copy, Check, Code2, AlertTriangle, Search, Clock, Hash, FileWarning } from 'lucide-react';
+import { HighlightedCode } from './SyntaxHighlight';
 
 type Lang = 'python' | 'node';
 
@@ -128,7 +129,7 @@ export default function IntegrationTemplates() {
             <div className="relative ml-9">
               <CopyCmd text={singleLineCommands} />
               <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre">
-{t.commands}
+<HighlightedCode code={t.commands} />
               </pre>
             </div>
 
@@ -296,7 +297,7 @@ function FrameworkExamples() {
       <div className="relative">
         <CopyCmd text={current.code} />
         <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre">
-{current.code}
+<HighlightedCode code={current.code} />
         </pre>
       </div>
 

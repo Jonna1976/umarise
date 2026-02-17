@@ -1,45 +1,10 @@
 import { useState } from 'react';
-import { Zap, Copy, Check, Download, Terminal } from 'lucide-react';
+import { Zap, Copy, Check, Terminal } from 'lucide-react';
+import { HighlightedCode } from './SyntaxHighlight';
 
 const BASE = 'https://core.umarise.com';
 
-const FIRST_RUN_BASH = `#!/bin/bash
-# Umarise Core — First Run
-# Usage: bash first-run.sh YOUR_API_KEY
-set -e
-API_KEY="\${1:?Usage: bash first-run.sh YOUR_API_KEY}"
-BASE="https://core.umarise.com"
-echo ""; echo "═══════════════════════════════════════════"; echo "  Umarise Core — First Run"; echo "═══════════════════════════════════════════"; echo ""
-echo "1. Checking API health..."
-HEALTH=$(curl -s "$BASE/v1-core-health")
-STATUS=$(echo "$HEALTH" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
-if [ "$STATUS" = "operational" ]; then echo "   ✓ API is operational"; else echo "   ✗ API returned: $HEALTH"; exit 1; fi
-echo ""; echo "2. Creating test hash..."
-TEST_STRING="umarise-first-run-$(date +%s)"
-if command -v sha256sum &> /dev/null; then HASH=$(echo -n "$TEST_STRING" | sha256sum | cut -d' ' -f1); elif command -v shasum &> /dev/null; then HASH=$(echo -n "$TEST_STRING" | shasum -a 256 | cut -d' ' -f1); else echo "   ✗ No sha256sum or shasum found"; exit 1; fi
-echo "   SHA-256: $HASH"
-echo ""; echo "3. Creating attestation..."
-RESULT=$(curl -s -X POST "$BASE/v1-core-origins" -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" -d "{\\"hash\\": \\"sha256:$HASH\\"}")
-if echo "$RESULT" | grep -q '"error"'; then echo "   ✗ Error: $RESULT"; exit 1; fi
-ORIGIN_ID=$(echo "$RESULT" | grep -o '"origin_id":"[^"]*"' | cut -d'"' -f4)
-echo "   ✓ origin_id: $ORIGIN_ID"
-echo ""; echo "4. Verifying hash..."
-VERIFY=$(curl -s -X POST "$BASE/v1-core-verify" -H "Content-Type: application/json" -d "{\\"hash\\": \\"sha256:$HASH\\"}")
-if echo "$VERIFY" | grep -q '"origin_id"'; then echo "   ✓ Hash verified"; else echo "   ✗ Verification failed: $VERIFY"; exit 1; fi
-echo ""; echo "5. Resolving..."
-RESOLVE=$(curl -s "$BASE/v1-core-resolve?origin_id=$ORIGIN_ID")
-if echo "$RESOLVE" | grep -q '"origin_id"'; then echo "   ✓ Origin resolved"; else echo "   ✗ Resolution failed: $RESOLVE"; exit 1; fi
-echo ""; echo "═══════════════════════════════════════════"; echo "  ✓ All checks passed"; echo "═══════════════════════════════════════════"`;
 
-function downloadAsFile(content: string, filename: string) {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 /** Copy button: copies single-line version of a command */
 function CopyCmd({ singleLine }: { singleLine: string }) {
@@ -85,7 +50,7 @@ function Step({ number, title, display, singleLine, expected, note }: StepProps)
       <div className="relative">
         <CopyCmd singleLine={singleLine} />
         <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] overflow-x-auto whitespace-pre">
-{display}
+<HighlightedCode code={display} />
         </pre>
       </div>
 
@@ -184,30 +149,28 @@ export default function QuickStartSection() {
           <div className="space-y-2 text-xs text-[hsl(var(--landing-cream)/0.4)]">
             <p className="font-mono">Volgende stappen:</p>
             <div className="flex flex-wrap gap-3">
-              <a href="https://github.com/nickvth/umarise-core/tree/main/sdk/node" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Node.js</a>
-              <a href="https://github.com/nickvth/umarise-core/tree/main/sdk/python" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Python</a>
+              <a href="#templates" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Node.js</a>
+              <a href="#templates" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Python</a>
               <a href="#health" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ Volledige API Reference ↓</a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Secondary: first-run script download */}
+      {/* Secondary: link to templates */}
       <div className="flex items-center justify-between p-4 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.01)]">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-[hsl(var(--landing-cream)/0.4)]" />
           <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono">
-            Alles in één keer testen? Download het first-run script.
+            Verder integreren? → Scroll naar Templates voor Python en Node.js SDK's met 15 automatische tests.
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => downloadAsFile(FIRST_RUN_BASH, 'first-run.sh')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
-          >
-            <Download className="w-3 h-3" /> first-run.sh
-          </button>
-        </div>
+        <a
+          href="#templates"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
+        >
+          → Templates
+        </a>
       </div>
     </section>
   );

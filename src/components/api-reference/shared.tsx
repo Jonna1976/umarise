@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Copy, Check, Shield, Globe, Key } from 'lucide-react';
+import { HighlightedCode } from './SyntaxHighlight';
 
 export function CopyBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -11,7 +12,7 @@ export function CopyBlock({ code }: { code: string }) {
   return (
     <div className="relative group">
       <pre className="bg-[hsl(220,10%,10%)] border border-[hsl(var(--landing-cream)/0.06)] rounded-md p-4 text-sm font-mono text-[hsl(var(--landing-cream)/0.8)] overflow-x-auto whitespace-pre">
-        {code}
+        <HighlightedCode code={code} />
       </pre>
       <button
         onClick={copy}
