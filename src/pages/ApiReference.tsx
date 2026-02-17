@@ -140,6 +140,7 @@ health = core.health()
             { code: 401, error: 'UNAUTHORIZED', desc: 'Ontbrekende of ongeldige API key' },
             { code: 401, error: 'API_KEY_REVOKED', desc: 'API key is ingetrokken' },
             { code: 400, error: 'INVALID_HASH_FORMAT', desc: 'Hash moet sha256: prefix + 64 hex karakters zijn, of raw 64-karakter hex' },
+            { code: 409, error: 'DUPLICATE_HASH', desc: 'Deze hash is al geattesteerd met deze API key' },
             { code: 429, error: 'RATE_LIMIT_EXCEEDED', desc: 'Te veel requests' },
           ]} />
 
@@ -391,6 +392,7 @@ done`} />
                   ['API_KEY_REVOKED', '401', 'API key is ingetrokken'],
                   ['INVALID_HASH_FORMAT', '400', 'Hash niet in sha256: prefix + 64 hex karakters formaat'],
                   ['INVALID_REQUEST_BODY', '400', 'Onjuist of ontbrekend request body'],
+                  ['DUPLICATE_HASH', '409', 'Deze hash is al geattesteerd met deze API key'],
                   ['RATE_LIMIT_EXCEEDED', '429', 'Te veel requests. Retry na retry_after_seconds'],
                   ['NOT_FOUND', '404', 'Origin of hash niet gevonden in de registry'],
                   ['INTERNAL_ERROR', '500', 'Serverfout'],

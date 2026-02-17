@@ -286,7 +286,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Create the attestation
+    // Create the attestation (includes api_key_prefix for duplicate detection)
     const capturedAt = new Date().toISOString();
     
     const { data, error: insertError } = await supabase
@@ -295,11 +295,29 @@ Deno.serve(async (req: Request) => {
         hash: normalized.hash,
         hash_algo: normalized.algo,
         captured_at: capturedAt,
+        api_key_prefix: apiKeyPrefix,
       })
       .select('origin_id, hash, hash_algo, captured_at')
       .single();
 
     if (insertError) {
+      // Check for unique constraint violation (duplicate hash per partner)
+      if (insertError.code === '23505') {
+        console.log('[v1-core-origins] Duplicate hash rejected:', {
+          hash: normalized.hash.substring(0, 20) + '...',
+          partner: authResult.partnerName,
+        });
+        logRequest(supabase, {
+          endpoint: '/v1/core/origins',
+          method: 'POST',
+          api_key_prefix: apiKeyPrefix,
+          status_code: 409,
+          response_time_ms: Date.now() - startTime,
+          error_code: 'DUPLICATE_HASH',
+        });
+        return errorResponse('DUPLICATE_HASH', 'This hash has already been attested with this API key', 409);
+      }
+
       console.error('[v1-core-origins] Insert error:', insertError);
       logRequest(supabase, {
         endpoint: '/v1/core/origins',
