@@ -379,7 +379,7 @@ if __name__ == "__main__":
                 'Concurrent writes',
                 'Proof-state consistency',
               ]}
-              note="652 load test attestations exist as verifiable evidence: records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
+              note="3,297 attestations in production (652 from load test, remainder from integration testing and self-tests). 131 duplicates removed via unique constraint enforcement. Duplicate hash prevention enforced: unique constraint on (hash, api_key_prefix), returns 409 DUPLICATE_HASH. Cross-partner attestations of the same hash remain allowed. Records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
             />
             <ReviewLayer
               number={4}
@@ -453,6 +453,26 @@ if __name__ == "__main__":
           <p className="text-[hsl(var(--landing-cream)/0.4)] text-sm mt-4">
             DB-persistent rate limiting active during all tests. All custom thresholds passed.
           </p>
+
+          {/* Self-Test Results */}
+          <div className="mt-8 p-5 rounded border border-[hsl(var(--landing-cream)/0.08)]">
+            <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-sm uppercase tracking-wider mb-4">
+              Self-Test Results (17 Feb 2026)
+            </p>
+            <div className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
+              <MetricRow label="Internal tests executed" value="32" />
+              <MetricRow label="Tests passed" value="31" />
+              <MetricRow label="Production attestations" value="3,297" />
+              <MetricRow label="Duplicates removed" value="131" />
+            </div>
+            <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)] space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
+              <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-xs uppercase tracking-wider mb-2">Findings</p>
+              <p>• Health endpoint DB check — resolved: 500ms timeout, returns <code className="text-[hsl(var(--landing-copper))]">"database": "unreachable"</code> on 503.</p>
+              <p>• Trigger bypass via superuser migration — documented, inherent to PostgreSQL. Write-once is application-layer enforcement, not cryptographic. OTS anchoring provides independent detection.</p>
+              <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-xs uppercase tracking-wider mt-4 mb-2">Independent Verification</p>
+              <p>OTS proof merkle root matches Bitcoin block 937057 merkle root — exact match via Blockstream API, zero Umarise involvement.</p>
+            </div>
+          </div>
         </motion.section>
 
         {/* Security Hardening */}
@@ -465,7 +485,7 @@ if __name__ == "__main__":
           <div className="space-y-2">
             <HardeningRow label="CORS lock" status="All App-layer functions locked to anchoring.app, umarise.com, *.lovable.app" />
             <HardeningRow label="Core API CORS" status="Wildcard (*) for B2B partner compatibility" />
-            <HardeningRow label="Rate limiting" status="DB-persistent on all endpoints, SHA-256 hashed IPs" />
+            <HardeningRow label="Rate limiting" status="DB-persistent on all endpoints. Origins: 100/window, Verify: 1,000/window, Resolve: 1,000/window. Headers in every response: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset." />
             <HardeningRow label="RLS lockdown" status="7 sensitive tables: USING(false), proxy-only access" />
             <HardeningRow label="Write-once triggers" status="origin_attestations, core_ots_proofs, partner_api_keys" />
             <HardeningRow label="DDL audit" status="Schema changes logged in append-only audit table" />
