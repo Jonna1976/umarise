@@ -13,7 +13,7 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="relative group my-2">
-      <pre className="bg-[hsl(220,10%,8%)] rounded p-3 text-xs font-mono text-[hsl(var(--landing-cream)/0.8)] overflow-x-auto whitespace-pre">
+      <pre className="bg-[hsl(220,10%,8%)] rounded p-3 text-xs font-mono text-[hsl(var(--landing-cream)/0.9)] overflow-x-auto whitespace-pre">
         {code}
       </pre>
       <button
@@ -24,7 +24,7 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
         }}
         className="absolute top-1.5 right-1.5 p-1 rounded bg-[hsl(var(--landing-cream)/0.05)] hover:bg-[hsl(var(--landing-cream)/0.1)] transition-colors opacity-0 group-hover:opacity-100"
       >
-        {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-[hsl(var(--landing-cream)/0.4)]" />}
+        {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-[hsl(var(--landing-cream)/0.6)]" />}
       </button>
     </div>
   );
@@ -63,14 +63,14 @@ function renderMarkdown(text: string) {
       // Bold
       return segment.split(/(\*\*[^*]+\*\*)/).map((seg, idx2) => {
         if (seg.startsWith('**') && seg.endsWith('**')) {
-          return <strong key={`${idx}-${idx2}`} className="font-semibold text-[hsl(var(--landing-cream)/0.9)]">{seg.slice(2, -2)}</strong>;
+          return <strong key={`${idx}-${idx2}`} className="font-semibold text-[hsl(var(--landing-cream)/0.95)]">{seg.slice(2, -2)}</strong>;
         }
         return seg;
       });
     });
 
     parts.push(
-      <p key={parts.length} className="text-[hsl(var(--landing-cream)/0.7)] text-sm leading-relaxed mb-1">
+      <p key={parts.length} className="text-[hsl(var(--landing-cream)/0.85)] text-sm leading-relaxed mb-1">
         {rendered}
       </p>
     );
@@ -212,9 +212,9 @@ export default function SupportChatWidget() {
             <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--landing-cream)/0.08)]">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-sm font-mono text-[hsl(var(--landing-cream)/0.8)]">API Support</span>
+                <span className="text-sm font-mono text-[hsl(var(--landing-cream)/0.9)]">API Support</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-[hsl(var(--landing-cream)/0.3)] hover:text-[hsl(var(--landing-cream))] transition-colors">
+              <button onClick={() => setIsOpen(false)} className="text-[hsl(var(--landing-cream)/0.45)] hover:text-[hsl(var(--landing-cream))] transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -223,7 +223,7 @@ export default function SupportChatWidget() {
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0" style={{ maxHeight: '380px' }}>
               {messages.length === 0 && (
                 <div className="text-center py-8 space-y-3">
-                  <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">Stel een vraag over de Umarise Core API.</p>
+                  <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Stel een vraag over de Umarise Core API.</p>
                   <div className="space-y-1.5">
                     {[
                       'Hoe maak ik een attestatie aan?',
@@ -233,7 +233,7 @@ export default function SupportChatWidget() {
                       <button
                         key={q}
                         onClick={() => { setInput(q); }}
-                        className="block w-full text-left px-3 py-1.5 rounded text-xs text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)] hover:bg-[hsl(var(--landing-cream)/0.03)] transition-colors font-mono"
+                        className="block w-full text-left px-3 py-1.5 rounded text-xs text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream)/0.85)] hover:bg-[hsl(var(--landing-cream)/0.03)] transition-colors font-mono"
                       >
                         → {q}
                       </button>
@@ -247,8 +247,8 @@ export default function SupportChatWidget() {
                   <div
                     className={`max-w-[85%] rounded-lg px-3 py-2 ${
                       msg.role === 'user'
-                        ? 'bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-cream)/0.9)]'
-                        : 'bg-[hsl(var(--landing-cream)/0.04)] text-[hsl(var(--landing-cream)/0.7)]'
+                        ? 'bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-cream)/0.95)]'
+                        : 'bg-[hsl(var(--landing-cream)/0.04)] text-[hsl(var(--landing-cream)/0.85)]'
                     }`}
                   >
                     {msg.role === 'assistant' ? (
@@ -284,24 +284,24 @@ export default function SupportChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Stel een vraag over de API..."
-                  className="flex-1 bg-transparent text-sm text-[hsl(var(--landing-cream))] placeholder:text-[hsl(var(--landing-cream)/0.25)] outline-none"
+                  className="flex-1 bg-transparent text-sm text-[hsl(var(--landing-cream))] placeholder:text-[hsl(var(--landing-cream)/0.35)] outline-none"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="p-1.5 rounded text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-copper))] disabled:opacity-30 transition-colors"
+                  className="p-1.5 rounded text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-copper))] disabled:opacity-30 transition-colors"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
               <div className="px-3 pb-2 space-y-1">
-                <p className="text-[9px] text-[hsl(var(--landing-cream)/0.25)] italic">
+                <p className="text-[9px] text-[hsl(var(--landing-cream)/0.4)] italic">
                   AI-gegenereerd — kan fouten bevatten. Controleer altijd tegen de documentatie hierboven.
                 </p>
                 <a
                   href="mailto:partners@umarise.com"
-                  className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.2)] hover:text-[hsl(var(--landing-cream)/0.4)] transition-colors flex items-center gap-1"
+                  className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)] hover:text-[hsl(var(--landing-cream)/0.6)] transition-colors flex items-center gap-1"
                 >
                   <ExternalLink className="w-2.5 h-2.5" /> partners@umarise.com
                 </a>

@@ -21,21 +21,21 @@ export default function Landing() {
           </h1>
 
           {/* Core axiom */}
-          <p className="text-base text-landing-muted/60 leading-relaxed tracking-wide mb-8">
+          <p className="text-base text-landing-muted/75 leading-relaxed tracking-wide mb-8">
             When digital information matters,
             <br />
             prove it existed outside your system.
           </p>
 
           {/* Protocol rule - lower contrast, separated */}
-          <p className="text-base text-landing-muted/50 tracking-wide">
+          <p className="text-base text-landing-muted/65 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
             Independently verifiable.
           </p>
 
           {/* Category descriptor */}
-          <p className="text-sm text-landing-muted/40 tracking-widest uppercase mt-6">
+          <p className="text-sm text-landing-muted/55 tracking-widest uppercase mt-6">
             Anchoring Infrastructure
           </p>
         </main>
@@ -46,27 +46,27 @@ export default function Landing() {
         {/* Navigation - documentary, not menu */}
         <nav className="py-6 md:py-8 flex flex-col gap-3">
           {/* Primary documents */}
-          <div className="flex items-center gap-6 text-base text-landing-muted/40">
-            <Link to="/anchor" className="hover:text-landing-muted/60 transition-colors">Anchor</Link>
-            <Link to="/why" className="hover:text-landing-muted/60 transition-colors">Why</Link>
-            <Link to="/core" className="hover:text-landing-muted/60 transition-colors">Core</Link>
+          <div className="flex items-center gap-6 text-base text-landing-muted/55">
+            <Link to="/anchor" className="hover:text-landing-muted/75 transition-colors">Anchor</Link>
+            <Link to="/why" className="hover:text-landing-muted/75 transition-colors">Why</Link>
+            <Link to="/core" className="hover:text-landing-muted/75 transition-colors">Core</Link>
           </div>
 
           {/* Verification & legal */}
-          <div className="flex items-center gap-6 text-base text-landing-muted/35">
-            <Link to="/verify" className="hover:text-landing-muted/55 transition-colors">Verify</Link>
-            <Link to="/legal" className="hover:text-landing-muted/55 transition-colors">Legal</Link>
-            <Link to="/privacy" className="hover:text-landing-muted/55 transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-landing-muted/55 transition-colors">Terms</Link>
+          <div className="flex items-center gap-6 text-base text-landing-muted/50">
+            <Link to="/verify" className="hover:text-landing-muted/70 transition-colors">Verify</Link>
+            <Link to="/legal" className="hover:text-landing-muted/70 transition-colors">Legal</Link>
+            <Link to="/privacy" className="hover:text-landing-muted/70 transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-landing-muted/70 transition-colors">Terms</Link>
           </div>
         </nav>
 
         {/* Footer - silent */}
-        <footer className="pb-6 md:pb-8 text-sm text-landing-muted/30 flex flex-col gap-1">
+        <footer className="pb-6 md:pb-8 text-sm text-landing-muted/45 flex flex-col gap-1">
           <span>© {new Date().getFullYear()} Umarise</span>
           <a 
             href="mailto:partners@umarise.com" 
-            className="hover:text-landing-muted/45 transition-colors"
+            className="hover:text-landing-muted/60 transition-colors"
           >
             partners@umarise.com
           </a>
