@@ -111,7 +111,7 @@ export default function LiveDemoFlow() {
       updateStep(2, { 
         status: is404 || res.ok ? 'success' : 'error',
         response: is404 
-          ? { status: 404, result: 'NOT_FOUND (expected)', message: 'This hash was never attested — the registry correctly confirms it does not exist.' }
+          ? { status: 404, result: 'NOT_FOUND (verwacht)', message: 'Deze hash is nooit geattesteerd — de registry bevestigt correct dat deze niet bestaat.' }
           : { status: res.status, ...data },
         duration: Date.now() - start 
       });
@@ -139,10 +139,10 @@ export default function LiveDemoFlow() {
   }, [updateStep]);
 
   const stepConfig = [
-    { icon: HeartPulse, title: 'Health Check', desc: 'Verify the API is live', action: runHealth },
-    { icon: Hash, title: 'Hash Your Input', desc: 'SHA-256 in your browser (Web Crypto)', action: runHash },
-    { icon: ShieldCheck, title: 'Verify Against Registry', desc: 'Check if this hash has been attested', action: runVerify },
-    { icon: Search, title: 'Resolve Known Origin', desc: 'Retrieve a real attestation record', action: runResolve },
+    { icon: HeartPulse, title: 'Health Check', desc: 'Controleer of de API draait', action: runHealth },
+    { icon: Hash, title: 'Hash je input', desc: 'SHA-256 in je browser (Web Crypto)', action: runHash },
+    { icon: ShieldCheck, title: 'Verifieer tegen registry', desc: 'Check of deze hash is geattesteerd', action: runVerify },
+    { icon: Search, title: 'Resolve bekend origin', desc: 'Haal een echt attestatie-record op', action: runResolve },
   ];
 
   const allDone = steps.every(s => s.status === 'success');
@@ -151,11 +151,11 @@ export default function LiveDemoFlow() {
     <section id="live-demo">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">Try it Live</h2>
-          <Badge variant="public">No API Key</Badge>
+          <h2 className="text-2xl font-serif text-[hsl(var(--landing-cream))]">Probeer het live</h2>
+          <Badge variant="public">Geen API Key nodig</Badge>
         </div>
         <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">
-          Experience the full verification flow in under 2 minutes. Three steps, zero setup.
+          Ervaar de volledige verificatie-flow in minder dan 2 minuten. Vier stappen, geen setup.
         </p>
       </div>
 
@@ -196,9 +196,9 @@ export default function LiveDemoFlow() {
             {step === 0 && (
               <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="text-center py-6 space-y-4">
-                  <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm max-w-md mx-auto">
-                    This demo uses only <strong className="text-[hsl(var(--landing-cream)/0.8)]">public endpoints</strong> — no API key, no account, no setup.
-                    You'll check our health, hash text in your browser, and verify it against the live registry.
+                   <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm max-w-md mx-auto">
+                    Deze demo gebruikt alleen <strong className="text-[hsl(var(--landing-cream)/0.8)]">publieke endpoints</strong> — geen API key, geen account, geen setup.
+                    Je controleert de health, hasht tekst in je browser, en verifieert het tegen de live registry.
                   </p>
                   <button
                     onClick={runHealth}
@@ -219,7 +219,7 @@ export default function LiveDemoFlow() {
                 {steps[0].status === 'success' && (
                   <div className="mt-4 flex justify-end">
                     <button onClick={() => setStep(2)} className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--landing-copper))] hover:underline">
-                      Next: Hash your input <ArrowRight className="w-3.5 h-3.5" />
+                      Volgende: Hash je input <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 )}
@@ -233,13 +233,13 @@ export default function LiveDemoFlow() {
                 {steps[1].status === 'idle' && (
                   <div className="space-y-3 mt-4">
                     <label className="block text-xs text-[hsl(var(--landing-cream)/0.4)] font-mono uppercase tracking-wider">
-                      Type anything — a name, a sentence, a contract clause
+                      Typ iets — een naam, een zin, een contractclausule
                     </label>
                     <input
                       type="text"
                       value={inputText}
                       onChange={e => setInputText(e.target.value)}
-                      placeholder="e.g. This document was signed on 2026-02-16"
+                      placeholder="bijv. Dit document is ondertekend op 2026-02-16"
                       className="w-full px-3 py-2 rounded border border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(var(--landing-deep))] text-[hsl(var(--landing-cream))] text-sm font-mono placeholder:text-[hsl(var(--landing-cream)/0.2)] focus:outline-none focus:border-[hsl(var(--landing-copper)/0.5)]"
                     />
                     <button
@@ -247,19 +247,19 @@ export default function LiveDemoFlow() {
                       className="inline-flex items-center gap-2 px-4 py-2 rounded bg-[hsl(var(--landing-copper))] text-[hsl(var(--landing-deep))] text-sm font-medium hover:bg-[hsl(var(--landing-copper)/0.85)] transition-colors"
                     >
                       <Hash className="w-3.5 h-3.5" />
-                      Compute SHA-256
+                      Bereken SHA-256
                     </button>
                   </div>
                 )}
                 <StepResult state={steps[1]} />
                 {steps[1].status === 'success' && (
                   <div className="mt-3 space-y-3">
-                    <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs italic">
-                      This hash was computed entirely in your browser. No data was sent to any server.
+                     <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs italic">
+                      Deze hash is volledig in je browser berekend. Er is geen data naar een server gestuurd.
                     </p>
                     <div className="flex justify-end">
                       <button onClick={runVerify} className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--landing-copper))] hover:underline">
-                        Next: Verify against registry <ArrowRight className="w-3.5 h-3.5" />
+                        Volgende: Verifieer tegen registry <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -270,19 +270,19 @@ export default function LiveDemoFlow() {
             {/* Step 3: Verify */}
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-                <StepHeader num={3} title="Verify Against Registry" desc="POST /v1-core-verify" />
+                <StepHeader num={3} title="Verifieer tegen registry" desc="POST /v1-core-verify" />
                 <StepResult state={steps[2]} />
                 {steps[2].status === 'success' && (
                     <div className="mt-4 space-y-4">
                      <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
                        <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">
-                         <strong className="text-[hsl(var(--landing-cream)/0.9)]">Result: Not found (404)</strong> — exactly right. 
-                         This hash was never attested, so the registry correctly reports it doesn't exist.
+                         <strong className="text-[hsl(var(--landing-cream)/0.9)]">Resultaat: Niet gevonden (404)</strong> — precies goed. 
+                         Deze hash is nooit geattesteerd, dus de registry bevestigt correct dat deze niet bestaat.
                        </p>
                      </div>
                      <div className="flex justify-end">
                        <button onClick={runResolve} className="inline-flex items-center gap-1.5 text-sm text-[hsl(var(--landing-copper))] hover:underline">
-                         Next: Resolve a real origin <ArrowRight className="w-3.5 h-3.5" />
+                         Volgende: Resolve een echt origin <ArrowRight className="w-3.5 h-3.5" />
                        </button>
                      </div>
                    </div>
@@ -293,15 +293,15 @@ export default function LiveDemoFlow() {
             {/* Step 4: Resolve */}
             {step === 4 && (
               <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-                <StepHeader num={4} title="Resolve Known Origin" desc={`GET /v1-core-resolve?origin_id=${KNOWN_ORIGIN_ID.slice(0, 8)}…`} />
+                <StepHeader num={4} title="Resolve bekend origin" desc={`GET /v1-core-resolve?origin_id=${KNOWN_ORIGIN_ID.slice(0, 8)}…`} />
                 <StepResult state={steps[3]} />
                 {steps[3].status === 'success' && (
                   <div className="mt-4 space-y-3">
                     <div className="p-3 rounded border border-[hsl(120,23%,45%,0.2)] bg-[hsl(120,23%,45%,0.04)]">
-                      <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">
-                        <strong className="text-[hsl(120,33%,65%)]">Found!</strong> — This is a real attestation from our registry. 
-                        The origin record contains the SHA-256 hash, timestamp, and origin_id — the three facts that constitute proof of existence.
-                      </p>
+                       <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">
+                         <strong className="text-[hsl(120,33%,65%)]">Gevonden!</strong> — Dit is een echte attestatie uit onze registry. 
+                         Het origin record bevat de SHA-256 hash, timestamp en origin_id — de drie feiten die bewijs van bestaan vormen.
+                       </p>
                     </div>
                   </div>
                 )}
@@ -317,12 +317,12 @@ export default function LiveDemoFlow() {
               className="mt-6 pt-5 border-t border-[hsl(var(--landing-cream)/0.08)] text-center space-y-4"
             >
               <div>
-                <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm font-medium mb-1">
-                  ✓ Demo complete — you've touched every public primitive
-                </p>
-                <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs">
-                  To create attestations and anchor to Bitcoin, you need a partner API key.
-                </p>
+                 <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm font-medium mb-1">
+                   ✓ Demo compleet — je hebt elke publieke primitive aangeraakt
+                 </p>
+                 <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs">
+                   Om attestaties aan te maken en te verankeren in Bitcoin heb je een partner API key nodig.
+                 </p>
               </div>
               <div className="flex items-center justify-center gap-3">
                 <a
@@ -330,14 +330,14 @@ export default function LiveDemoFlow() {
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded bg-[hsl(var(--landing-copper))] text-[hsl(var(--landing-deep))] font-medium text-sm hover:bg-[hsl(var(--landing-copper)/0.85)] transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  Request API Key
+                  API Key aanvragen
                 </a>
                 <button
                   onClick={reset}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded border border-[hsl(var(--landing-cream)/0.15)] text-[hsl(var(--landing-cream)/0.6)] text-sm hover:text-[hsl(var(--landing-cream))] transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  Run Again
+                  Opnieuw draaien
                 </button>
               </div>
             </motion.div>
@@ -351,7 +351,7 @@ export default function LiveDemoFlow() {
 function StepHeader({ num, title, desc }: { num: number; title: string; desc: string }) {
   return (
     <div className="flex items-baseline gap-3 mb-3">
-      <span className="text-[hsl(var(--landing-copper))] font-mono text-xs">Step {num}</span>
+      <span className="text-[hsl(var(--landing-copper))] font-mono text-xs">Stap {num}</span>
       <h3 className="text-[hsl(var(--landing-cream))] text-base font-medium">{title}</h3>
       <code className="text-[hsl(var(--landing-cream)/0.3)] text-xs">{desc}</code>
     </div>
@@ -372,7 +372,7 @@ function CopyButton({ text }: { text: string }) {
       title="Copy to clipboard"
     >
       {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? 'Gekopieerd' : 'Kopieer'}
     </button>
   );
 }
