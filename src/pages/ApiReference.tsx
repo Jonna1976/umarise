@@ -19,6 +19,8 @@ const endpoints = [
   { id: 'verify', name: 'Verify', method: 'POST' },
   { id: 'proof', name: 'Proof', method: 'GET' },
   { id: 'templates', name: 'Templates', icon: FileCode2 },
+  { id: 'frameworks', name: 'Frameworks', icon: FileCode2 },
+  { id: 'troubleshooting', name: 'Troubleshoot', icon: AlertTriangle },
   { id: 'checklist', name: 'Checklist', icon: ListChecks },
   { id: 'errors', name: 'Errors', icon: AlertTriangle },
   { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
