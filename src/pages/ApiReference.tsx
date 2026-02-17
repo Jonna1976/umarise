@@ -18,10 +18,10 @@ const endpoints = [
   { id: 'resolve', name: 'Resolve', method: 'GET' },
   { id: 'verify', name: 'Verify', method: 'POST' },
   { id: 'proof', name: 'Proof', method: 'GET' },
-  { id: 'errors', name: 'Errors', icon: AlertTriangle },
-  { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
   { id: 'templates', name: 'Templates', icon: FileCode2 },
   { id: 'checklist', name: 'Checklist', icon: ListChecks },
+  { id: 'errors', name: 'Errors', icon: AlertTriangle },
+  { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
 ];
 
 export default function ApiReference() {
