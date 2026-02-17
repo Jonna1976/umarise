@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, Code2 } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import QuickStartSection from '@/components/api-reference/QuickStartSection';
 import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
 import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
 import LiveDemoFlow from '@/components/api-reference/LiveDemoFlow';
+import IntegrationTemplates from '@/components/api-reference/IntegrationTemplates';
 
 const BASE_URL = 'https://core.umarise.com';
 
@@ -19,6 +20,7 @@ const endpoints = [
   { id: 'proof', name: 'Proof', method: 'GET' },
   { id: 'errors', name: 'Errors', icon: AlertTriangle },
   { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
+  { id: 'templates', name: 'Templates', icon: Code2 },
   { id: 'checklist', name: 'Checklist', icon: ListChecks },
 ];
 
@@ -440,6 +442,9 @@ done`} />
 
           <Note>IP addresses are never stored. Rate limiting uses SHA-256 hashed IPs for privacy-by-design.</Note>
         </section>
+
+        {/* ─── INTEGRATION TEMPLATES ─── */}
+        <IntegrationTemplates />
 
         {/* ─── INTEGRATION CHECKLIST ─── */}
         <IntegrationChecklist />
