@@ -203,7 +203,7 @@ Deno.serve(async (req: Request) => {
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
       proof_status: proofStatus,
-      proof_url: `${proofBaseUrl}/functions/v1/v1-core-proof?origin_id=${data.origin_id}`,
+      proof_url: `https://core.umarise.com/v1-core-proof?origin_id=${data.origin_id}`,
       bitcoin_block_height: proofData?.bitcoin_block_height ?? null,
       anchored_at: proofData?.anchored_at ?? null,
     };
