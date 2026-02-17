@@ -8,7 +8,9 @@
  * Authentication: Public (rate-limited by IP)
  * 
  * Response (200 OK):
- *   { "origin_id": "...", "hash": "sha256:...", "hash_algo": "sha256", "captured_at": "..." }
+ *   { "origin_id": "...", "hash": "sha256:...", "hash_algo": "sha256", "captured_at": "...",
+ *     "proof_status": "pending|anchored|none", "proof_url": "...|null",
+ *     "bitcoin_block_height": ...|null, "anchored_at": "...|null" }
  * 
  * Response (404 Not Found):
  *   { "error": { "code": "NOT_FOUND", "message": "No origin found for given identifier" } }
@@ -39,6 +41,10 @@ interface CoreOrigin {
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
+  proof_status: 'pending' | 'anchored' | 'none';
+  proof_url: string | null;
+  bitcoin_block_height: number | null;
+  anchored_at: string | null;
 }
 
 Deno.serve(async (req: Request) => {
@@ -179,12 +185,29 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Found - return minimal Core response (no wrapper)
+    // Look up proof status from core_ots_proofs
+    const { data: proofData } = await supabase
+      .from('core_ots_proofs')
+      .select('status, bitcoin_block_height, anchored_at')
+      .eq('origin_id', data.origin_id)
+      .maybeSingle();
+
+    const proofStatus = proofData?.status === 'anchored' ? 'anchored' 
+      : proofData ? 'pending' 
+      : 'none';
+
+    const proofBaseUrl = Deno.env.get('SUPABASE_URL')!;
+
+    // Found - return Core response with proof status
     const origin: CoreOrigin = {
       origin_id: data.origin_id,
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
+      proof_status: proofStatus,
+      proof_url: proofStatus !== 'none' ? `${proofBaseUrl}/functions/v1/v1-core-proof?origin_id=${data.origin_id}` : null,
+      bitcoin_block_height: proofData?.bitcoin_block_height ?? null,
+      anchored_at: proofData?.anchored_at ?? null,
     };
 
     console.log('[v1-core-resolve] Resolved:', {

@@ -182,6 +182,7 @@ origin = core.attest(
   "hash_algo": "sha256",
   "captured_at": "2026-02-16T10:00:00.000Z",
   "proof_status": "anchored",
+  "proof_url": "https://core.umarise.com/v1-core-proof?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "bitcoin_block_height": 880123,
   "anchored_at": "2026-02-17T14:30:00.000Z"
 }`} />
