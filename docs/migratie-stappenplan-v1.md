@@ -109,7 +109,7 @@ Voordat je iets aanraakt, sla de volgende secrets op in een **offline, versleute
 | `INTERNAL_API_SECRET` | Nieuwe waarde genereren (roteren!): `openssl rand -hex 32` |
 | `HETZNER_API_TOKEN` | Kopiëren |
 | `RESEND_API_KEY` | Kopiëren (indien aanwezig) |
-| `LOVABLE_API_KEY` | Kopiëren |
+| `LOVABLE_API_KEY` | ❌ **Niet meenemen** — dit is een Lovable Cloud interne connector key, niet van jullie eigendom. Werkt niet buiten Lovable Cloud. |
 
 > ⚠️ **NOOIT** de `CORE_API_SECRET` wijzigen. Dit breekt alle bestaande partner API keys.
 
@@ -293,21 +293,28 @@ console.log(`Gegenereerd: ${inserts.length} inserts`);
 
 ### Stap 2.4 — Companion data migreren (pages, etc.)
 
-> **Opmerking:** Pages data is user-specifiek en device-gebonden. Bij migratie naar zelfbeheerd Supabase kan deze data ook in het nieuwe project worden gezet, **maar de app werkt ook zonder** — gebruikers hebben hun data al in Hetzner Storage (images) en lokaal (IndexedDB).
+> ⚠️ **Gecorrigeerd:** `pg_dump` werkt **niet** voor het huidige Lovable Cloud project — er is geen directe database connection string beschikbaar voor de bestaande beheerde omgeving. De onderstaande pg_dump commando's zijn **uitsluitend** bedoeld voor gebruik op het nieuwe zelfbeheerde project.
 
-**Optie A (aanbevolen voor continuïteit):** Migreer alle pages via pg_dump/restore:
+**Optie A — Via Supabase dashboard export (aanbevolen als er een grace period is):**
+
+Als Lovable Support bevestigt dat er een grace period bestaat na "Disable Cloud":
+1. Ga naar het Supabase dashboard van het oude project (beschikbaar tijdens grace period)
+2. Table Editor → `pages` → Export to CSV
+3. Table Editor → `page_origin_hashes` → Export to CSV
+4. Table Editor → `witnesses` → Export to CSV
+5. Importeer CSVs via het nieuwe project's dashboard of via psql
+
+**Optie B — Schone start (aanbevolen als geen grace period of weinig gebruikers):**
+
+Pages data is device-gebonden. Gebruikers hersealen hun content na de migratie. Images staan al in Hetzner Storage en blijven bereikbaar. Dit is de veiligste aanpak als de data-volume beperkt is.
+
+**Optie C — pg_dump naar nieuw project (alleen voor toekomstig gebruik):**
 ```bash
-# Van oud project
-pg_dump "postgresql://postgres:[PASS]@db.[OUD-ID].supabase.co:5432/postgres" \
+# Dit werkt ALLEEN op het nieuwe zelfbeheerde project (na Fase 1)
+pg_dump "postgresql://postgres:[PASS]@db.[NIEUW-ID].supabase.co:5432/postgres" \
   --table=pages --table=page_origin_hashes --table=witnesses \
-  --data-only --no-owner -f backup/companion-data.sql
-
-# Naar nieuw project  
-psql "postgresql://postgres:[PASS]@db.[NIEUW-ID].supabase.co:5432/postgres" \
-  -f backup/companion-data.sql
+  --data-only --no-owner -f backup/companion-data-nieuw.sql
 ```
-
-**Optie B (minimaal):** Alleen Core tabellen migreren, companion data blijft voor gebruikers leeg (ze hersealen hun content).
 
 ---
 
@@ -398,43 +405,52 @@ done
 
 **Doel:** Hetzner OTS Worker laten schrijven naar het nieuwe Supabase project.
 
+> **Infrastructuurfeiten (gecorrigeerd):**
+> - SSH user is `jonna`, geen `root`. Bereikbaar via `ssh hetzner` (SSH config alias).
+> - `jonna` heeft geen sudo — voor `.env` (eigendom root) is sudo vereist. Vraag rootgebruiker of stel tijdelijk sudo in voor dit bestand.
+> - Worker draait via **root cron** (elke 30 min upgrade, elk uur stamp). Geen pm2 geïnstalleerd.
+> - Logs staan in `/var/log/umarise-ots.log`.
+
 ### Stap 5.1 — Worker configuratie updaten
 
-SSH naar Hetzner server (94.130.180.233):
-
 ```bash
-ssh root@94.130.180.233
+# Verbind via SSH alias
+ssh hetzner
+
+# Navigeer naar worker
 cd /opt/umarise/ots-worker/
 
-# Backup huidige config
-cp .env .env.backup.$(date +%Y%m%d)
+# Backup huidige config (vereist sudo, eigendom root)
+sudo cp .env .env.backup.$(date +%Y%m%d)
 
 # Update configuratie
-nano .env
-# Wijzig:
+sudo nano .env
+# Wijzig de volgende regels:
 # SUPABASE_URL=https://[NIEUW-PROJECT-ID].supabase.co
 # SUPABASE_SERVICE_ROLE_KEY=[NIEUWE SERVICE ROLE KEY]
 ```
 
-### Stap 5.2 — Worker testen
+### Stap 5.2 — Worker testen (optionele dry-run)
 
 ```bash
-# Test handmatige run (zonder cron)
-node worker.js --dry-run
+# Test handmatige run als root (zonder cron-scheduling)
+sudo -u root bash -c 'cd /opt/umarise/ots-worker && node worker.js --dry-run'
 
-# Controleer of worker verbinding maakt met nieuw project
-# Verwacht: "[OTS Worker] Connected to Supabase: [NIEUW-PROJECT-ID]"
+# Bekijk logs
+tail -f /var/log/umarise-ots.log
+# Verwacht: verbindingsbevestiging naar [NIEUW-PROJECT-ID]
 ```
 
-### Stap 5.3 — Worker herstarten
+### Stap 5.3 — Wacht op eerstvolgende cron-run
 
 ```bash
-# Herstart de worker service
-pm2 restart ots-worker
-# of: systemctl restart umarise-ots-worker
+# Geen pm2. De cron pikt de nieuwe .env automatisch op bij de volgende run.
+# Cron schema (root):
+#   - Elke 30 min: upgrade check
+#   - Elk uur: stamp run
 
-# Controleer logs
-pm2 logs ots-worker --lines 20
+# Monitor de logs tijdens de eerstvolgende verwachte run:
+tail -f /var/log/umarise-ots.log
 ```
 
 ---
@@ -496,12 +512,20 @@ Dit bestand is auto-gegenereerd. Na het updaten van de environment variabelen wo
 
 ## FASE 8 — Cleanup & Monitoring
 
-### Stap 8.1 — Oud project in "read-only" modus
+### Stap 8.1 — Disable Cloud (pas na voltooide DNS cutover)
 
-Na succesvolle migratie:
-1. Zet rate limits op oud project extreem laag
-2. Verwijder GEEN data uit oud project — laat het als fallback staan
-3. Stel een calendar reminder in: "oud project verwijderen over 30 dagen"
+> ⚠️ **Gecorrigeerd:** Het vorige plan beschreef het oude project als "read-only fallback" — dit is **niet mogelijk**. Na "Disable Cloud" verlies je beheer over de old managed omgeving. Je kunt geen rate limits instellen op iets wat je niet meer beheert.
+
+**De juiste volgorde:**
+1. ✅ Nieuwe omgeving volledig operationeel (Fase 1–4 voltooid)
+2. ✅ OTS Worker wijst naar nieuw project (Fase 5)
+3. ✅ DNS cutover geslaagd + post-cutover health check OK (Fase 6)
+4. ✅ Frontend werkt op nieuwe omgeving (Fase 7)
+5. **Dan pas:** Disable Cloud uitvoeren (na bevestiging Support over grace period)
+
+**Fallback na cutover = Cloudflare DNS rollback** (60 sec), niet het oude project.
+
+> Als Lovable Support een grace period bevestigt: gebruik die periode voor eventuele CSV-exports (zie Stap 2.4) **vóór** je Disable Cloud uitvoert.
 
 ### Stap 8.2 — Monitoring instellen
 
