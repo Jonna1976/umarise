@@ -119,24 +119,25 @@ Voordat je iets aanraakt, sla de volgende secrets op in een **offline, versleute
 
 **Doel:** Leeg nieuw Supabase Pro project met identiek schema en alle secrets.
 
-### Stap 1.1 — Nieuw project aanmaken
+### Stap 1.1 — Nieuw project aangemaakt ✅
 
-> ✅ **Bevestigd (18 feb 2026):** Project is aangemaakt met de volgende instellingen:
+> ✅ **Bevestigd (18 feb 2026):**
 > - **Organisatie:** Jonna1976's Organization (PRO)
 > - **Projectnaam:** Umarise Core 2026
-> - **Compute:** MICRO (1 GB RAM / 2-core ARM CPU) — opschalen mogelijk via dashboard
+> - **Project ID:** `ubcqdjaytlxjqtinlzhi`
+> - **Project URL:** `https://ubcqdjaytlxjqtinlzhi.supabase.co`
+> - **Anon key:** zie password manager
+> - **Compute:** MICRO (1 GB RAM / 2-core ARM CPU)
 > - **Regio:** Central EU (Frankfurt) ✅
 > - **Data API:** Enabled ✅
-> - **Extra kosten:** $10/m bovenop Pro plan
 
-> ⚠️ **Sla het database wachtwoord nu op** in je versleuteld password manager (1Password/Bitwarden). Dit wachtwoord is nodig voor `supabase db push` en directe psql-verbindingen. Supabase toont het daarna niet meer volledig.
+> ⚠️ **SECURITY — Service role key gecompromitteerd:** De service role key is in een chat bericht gedeeld. Roteer hem onmiddellijk:
+> 1. Ga naar Supabase dashboard → project `ubcqdjaytlxjqtinlzhi` → Settings → API
+> 2. Klik "Regenerate" naast service role key
+> 3. Sla de **nieuwe** waarde op in password manager (offline)
+> 4. Gebruik de nieuwe waarde in Stap 1.5
 
-Na aanmaken, noteer de nieuwe project credentials:
-- **Project URL:** `https://[NIEUW-PROJECT-ID].supabase.co`
-- **Project ref ID:** (zichtbaar in dashboard URL en Settings → General)
-- **Anon key** (Settings → API)
-- **Service role key** (Settings → API — bewaar offline, niet in git)
-- **Database URL** `postgresql://postgres:[PASS]@db.[ID].supabase.co:5432/postgres` (Settings → Database)
+> ⚠️ **Database wachtwoord:** nodig voor `supabase db push`. Te vinden via Settings → Database → Connection string. Bewaar offline.
 
 ### Stap 1.2 — Supabase CLI koppelen
 
@@ -144,11 +145,11 @@ Na aanmaken, noteer de nieuwe project credentials:
 # Installeer CLI indien nodig
 npm install -g supabase
 
-# Login
+# Login (opent browser)
 supabase login
 
-# Koppel aan nieuw project
-supabase link --project-ref [NIEUW-PROJECT-ID]
+# Koppel aan nieuw project (vraagt om database password)
+supabase link --project-ref ubcqdjaytlxjqtinlzhi
 
 # Verifieer
 supabase status
@@ -213,16 +214,17 @@ EXECUTE FUNCTION log_ddl_event();
 Ga naar nieuw Supabase project → Settings → Edge Functions → Secrets:
 
 ```bash
-# Via CLI (aanbevolen voor bulk)
-supabase secrets set CORE_API_SECRET="[IDENTIEK AAN HUIDIG]"
-supabase secrets set INTERNAL_API_SECRET="[NIEUWE GEGENEREERDE WAARDE]"
-supabase secrets set HETZNER_API_TOKEN="[KOPIEER UIT HUIDIG]"
-supabase secrets set LOVABLE_API_KEY="[KOPIEER UIT HUIDIG]"
-supabase secrets set RESEND_API_KEY="[KOPIEER UIT HUIDIG]"
+# Via CLI (aanbevolen voor bulk) — project ref is ubcqdjaytlxjqtinlzhi
+supabase secrets set CORE_API_SECRET="[IDENTIEK AAN HUIDIG — NOOIT WIJZIGEN]" --project-ref ubcqdjaytlxjqtinlzhi
+supabase secrets set INTERNAL_API_SECRET="$(openssl rand -hex 32)" --project-ref ubcqdjaytlxjqtinlzhi
+supabase secrets set HETZNER_API_TOKEN="[KOPIEER UIT HUIDIG PROJECT]" --project-ref ubcqdjaytlxjqtinlzhi
+supabase secrets set RESEND_API_KEY="[KOPIEER UIT HUIDIG PROJECT]" --project-ref ubcqdjaytlxjqtinlzhi
 
 # Verifieer
-supabase secrets list
+supabase secrets list --project-ref ubcqdjaytlxjqtinlzhi
 ```
+
+> ⚠️ `LOVABLE_API_KEY` **niet** meenemen — dit is een interne Lovable Cloud connector key, werkt niet buiten Lovable Cloud.
 
 ---
 
