@@ -119,3 +119,6 @@ verify_jwt = false
 [functions.notify-ots-complete]
 verify_jwt = false
 
+[functions.v1-core-origins-export]
+verify_jwt = false
+
