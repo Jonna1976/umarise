@@ -121,14 +121,22 @@ Voordat je iets aanraakt, sla de volgende secrets op in een **offline, versleute
 
 ### Stap 1.1 — Nieuw project aanmaken
 
-1. Ga naar [supabase.com/dashboard](https://supabase.com/dashboard)
-2. Klik "New project"
-3. Kies regio: **Frankfurt (eu-central-1)** — zelfde als Hetzner locatie
-4. Noteer de nieuwe project credentials:
-   - Project URL: `https://[NIEUW-PROJECT-ID].supabase.co`
-   - Anon key
-   - Service role key
-   - Database URL (voor `supabase db push`)
+> ✅ **Bevestigd (18 feb 2026):** Project is aangemaakt met de volgende instellingen:
+> - **Organisatie:** Jonna1976's Organization (PRO)
+> - **Projectnaam:** Umarise Core 2026
+> - **Compute:** MICRO (1 GB RAM / 2-core ARM CPU) — opschalen mogelijk via dashboard
+> - **Regio:** Central EU (Frankfurt) ✅
+> - **Data API:** Enabled ✅
+> - **Extra kosten:** $10/m bovenop Pro plan
+
+> ⚠️ **Sla het database wachtwoord nu op** in je versleuteld password manager (1Password/Bitwarden). Dit wachtwoord is nodig voor `supabase db push` en directe psql-verbindingen. Supabase toont het daarna niet meer volledig.
+
+Na aanmaken, noteer de nieuwe project credentials:
+- **Project URL:** `https://[NIEUW-PROJECT-ID].supabase.co`
+- **Project ref ID:** (zichtbaar in dashboard URL en Settings → General)
+- **Anon key** (Settings → API)
+- **Service role key** (Settings → API — bewaar offline, niet in git)
+- **Database URL** `postgresql://postgres:[PASS]@db.[ID].supabase.co:5432/postgres` (Settings → Database)
 
 ### Stap 1.2 — Supabase CLI koppelen
 
