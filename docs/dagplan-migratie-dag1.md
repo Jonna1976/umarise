@@ -112,7 +112,6 @@ Voer uit via Lovable Cloud → Run SQL (Live):
 ```sql
 SELECT 
   'origin_attestations' as tabel, COUNT(*) as aantal FROM origin_attestations
-UNION ALL SELECT 'partner_api_keys', COUNT(*) FROM partner_api_keys
 UNION ALL SELECT 'core_ots_proofs', COUNT(*) FROM core_ots_proofs
 UNION ALL SELECT 'pages', COUNT(*) FROM pages
 UNION ALL SELECT 'page_origin_hashes', COUNT(*) FROM page_origin_hashes
@@ -122,6 +121,8 @@ UNION ALL SELECT 'witnesses', COUNT(*) FROM witnesses;
 Sla output op als `backup/row-counts-dag1.txt` — dit is je verificatiebasis.
 
 ### 3B — Origin attestations exporteren
+
+> ℹ️ **Partner API keys:** Er zijn nog geen partners. De `partner_api_keys` tabel is leeg — geen migratie nodig. Nieuwe keys worden na de migratie aangemaakt via `v1-internal-partner-create` op het nieuwe project.
 
 In huidig project (Run SQL):
 
@@ -145,50 +146,20 @@ Plak in nieuw project (Run SQL op `ubcqdjaytlxjqtinlzhi`).
 SELECT COUNT(*) FROM origin_attestations;
 ```
 
-### 3C — Partner API keys exporteren
-
-In huidig project (Run SQL):
-
-```sql
-SELECT 
-  'INSERT INTO partner_api_keys (id, partner_name, key_prefix, key_hash, rate_limit_tier, issued_at, issued_by, revoked_at) VALUES (''' ||
-  id || ''', ''' || partner_name || ''', ''' || key_prefix || ''', ''' || key_hash || ''', ''' ||
-  rate_limit_tier || ''', ''' || issued_at::text || ''', ' ||
-  COALESCE('''' || issued_by || '''', 'NULL') || ', ' ||
-  COALESCE('''' || revoked_at::text || '''', 'NULL') || ');'
-FROM partner_api_keys
-ORDER BY issued_at;
-```
-
-Sla op als `backup/partner-keys-insert-dag1.sql`
-
-Plak in nieuw project.
-
-**Verificeer:**
-```sql
--- In NIEUW project — moet 3 actieve keys tonen
-SELECT key_prefix, partner_name, rate_limit_tier, revoked_at 
-FROM partner_api_keys 
-WHERE revoked_at IS NULL;
-```
-
-### 3D — OTS Proofs exporteren (via API — NIET via SQL voor bytea)
+### 3C — OTS Proofs exporteren (via API — NIET via SQL voor bytea)
 
 ```bash
-PARTNER_KEY="[EEN VAN DE 3 ACTIEVE KEYS]"
-
-curl -H "X-API-Key: $PARTNER_KEY" \
-  "https://core.umarise.com/functions/v1/v1-core-proofs-export?status=anchored&limit=1000" \
+# Gebruik een interne key of test key om de export te triggeren
+curl -s "https://core.umarise.com/functions/v1/v1-core-proofs-export?status=anchored&limit=1000" \
   > backup/ots-proofs-anchored-dag1.json
 
-curl -H "X-API-Key: $PARTNER_KEY" \
-  "https://core.umarise.com/functions/v1/v1-core-proofs-export?status=pending&limit=1000" \
+curl -s "https://core.umarise.com/functions/v1/v1-core-proofs-export?status=pending&limit=1000" \
   > backup/ots-proofs-pending-dag1.json
 ```
 
 > ℹ️ OTS proof import in nieuw project via import script — zie hoofddocument Stap 2.3.
 
-### 3E — Companion data (afhankelijk van support antwoord)
+### 3D — Companion data (afhankelijk van support antwoord)
 
 **Als grace period bevestigd:**  
 → Exporteer `pages`, `page_origin_hashes`, `witnesses` via Supabase dashboard CSV export na Disable Cloud.
@@ -336,10 +307,11 @@ curl -s "https://core.umarise.com/functions/v1/v1-core-health" | jq .
 ## BLOK 8 — Afronding
 
 - [ ] Disable Cloud uitvoeren (na bevestiging grace period aanpak)
-- [ ] Partners informeren: Acme Corp, Summer Corp — geen actie vereist, keys blijven geldig
+- [ ] ~~Partners informeren~~ — geen partners, overgeslagen
 - [ ] Interne communicatie: nieuwe `INTERNAL_API_SECRET` doorgeven aan teamleden
 - [ ] UptimeRobot instellen op `https://core.umarise.com/functions/v1/v1-core-health` (elke 5 min)
 - [ ] Row counts verifiëren in nieuw project vs `backup/row-counts-dag1.txt`
+- [ ] Eerste partner key aanmaken via `v1-internal-partner-create` op nieuw project (wanneer eerste partner klaar is)
 
 ---
 
