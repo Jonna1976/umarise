@@ -139,10 +139,13 @@ In huidig project (Run SQL):
 
 ```sql
 SELECT 
-  'INSERT INTO origin_attestations (origin_id, hash, hash_algo, captured_at, created_at, api_key_prefix) VALUES (''' ||
-  origin_id || ''', ''' || hash || ''', ''' || hash_algo || ''', ''' ||
-  captured_at::text || ''', ''' || created_at::text || ''', ' ||
-  COALESCE('''' || api_key_prefix || '''', 'NULL') || ');'
+  'INSERT INTO origin_attestations (origin_id, hash, hash_algo, captured_at, created_at, api_key_prefix) VALUES (' ||
+  quote_literal(origin_id) || ', ' ||
+  quote_literal(hash) || ', ' ||
+  quote_literal(hash_algo) || ', ' ||
+  quote_literal(captured_at) || ', ' ||
+  quote_literal(created_at) || ', ' ||
+  quote_nullable(api_key_prefix) || ');'
 FROM origin_attestations
 ORDER BY created_at;
 ```
@@ -165,11 +168,15 @@ In huidig project (Run SQL):
 
 ```sql
 SELECT 
-  'INSERT INTO partner_api_keys (id, partner_name, key_prefix, key_hash, rate_limit_tier, issued_at, issued_by, revoked_at) VALUES (''' ||
-  id || ''', ''' || partner_name || ''', ''' || key_prefix || ''', ''' || key_hash || ''', ''' ||
-  rate_limit_tier || ''', ''' || issued_at::text || ''', ' ||
-  COALESCE('''' || issued_by || '''', 'NULL') || ', ' ||
-  COALESCE('''' || revoked_at::text || '''', 'NULL') || ');'
+  'INSERT INTO partner_api_keys (id, partner_name, key_prefix, key_hash, rate_limit_tier, issued_at, issued_by, revoked_at) VALUES (' ||
+  quote_literal(id) || ', ' ||
+  quote_literal(partner_name) || ', ' ||
+  quote_literal(key_prefix) || ', ' ||
+  quote_literal(key_hash) || ', ' ||
+  quote_literal(rate_limit_tier) || ', ' ||
+  quote_literal(issued_at) || ', ' ||
+  quote_nullable(issued_by) || ', ' ||
+  quote_nullable(revoked_at) || ');'
 FROM partner_api_keys
 ORDER BY issued_at;
 ```
@@ -239,44 +246,46 @@ SELECT COUNT(*), status FROM core_ots_proofs GROUP BY status;
 -- Moet matchen met baseline
 ```
 
-### 3F — Restore test (echte backup-restore verificatie)
+### 3F — Restore test → zie Dag -1 Pre-flight
 
-> 🔒 **Doel:** Bewijzen dat daily backup + restore van het nieuwe project werkt vóór DNS cutover. Dit is een volledige create → backup → delete → restore → verify cyclus.
-
-**Stap 1: Maak test-record aan in NIEUW project**
-```sql
-INSERT INTO origin_attestations (hash, hash_algo, captured_at) 
-VALUES ('restore-test-' || extract(epoch from now()), 'sha256', now())
-RETURNING origin_id;
--- Noteer de origin_id
-```
-
-**Stap 2:** Wacht op daily backup — check via Dashboard → `ubcqdjaytlxjqtinlzhi` → Settings → Backups tot backup van ná aanmaken zichtbaar is.
-
-**Stap 3: Verwijder test-record (triggers tijdelijk disablen i.v.m. immutability guard)**
-```sql
-ALTER TABLE origin_attestations DISABLE TRIGGER ALL;
-DELETE FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
-ALTER TABLE origin_attestations ENABLE TRIGGER ALL;
-```
-
-**Stap 4:** Restore via Dashboard → Backups → selecteer backup van vóór de delete → Restore.
-
-**Stap 5: Verify**
-```sql
-SELECT * FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
--- Record moet terug zijn
-```
-
-✅ **Record terug** → restore werkt, productie-klaar.  
-❌ **Record niet terug** → restore werkt niet → **stop, los op voor DNS cutover.**
-
-> ℹ️ **PITR — bewuste keuze:** Point-in-Time Recovery wordt uitgesteld. Bij 323 records, geen betalende klanten, en dagelijkse onafhankelijke export naar Hetzner volstaat daily backup voor de testfase. PITR activeren zodra eerste echte partnervolume live gaat.
+> ℹ️ **Bewuste keuze:** De restore test vereist wachten op een daily backup (8–24 uur). Dit hoort thuis in de pre-flight voorbereiding, niet op migratiedag zelf.
+>
+> **Voer Blok 3F uit op Dag -1 (dag vóór de migratie):**
+>
+> **Stap 1:** Maak test-record aan in NIEUW project
+> ```sql
+> INSERT INTO origin_attestations (hash, hash_algo, captured_at) 
+> VALUES ('restore-test-' || extract(epoch from now()), 'sha256', now())
+> RETURNING origin_id;
+> -- Noteer de origin_id
+> ```
+>
+> **Stap 2:** Wacht op daily backup — check via dashboard → `ubcqdjaytlxjqtinlzhi` → Settings → Backups tot backup van ná aanmaken zichtbaar is.
+>
+> **Stap 3:** Verwijder test-record (triggers tijdelijk disablen i.v.m. immutability guard):
+> ```sql
+> ALTER TABLE origin_attestations DISABLE TRIGGER ALL;
+> DELETE FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
+> ALTER TABLE origin_attestations ENABLE TRIGGER ALL;
+> ```
+>
+> **Stap 4:** Restore via dashboard → Backups → selecteer backup van vóór de delete → Restore.
+>
+> **Stap 5:** Verify:
+> ```sql
+> SELECT * FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
+> -- Record moet terug zijn
+> ```
+>
+> ✅ **Record terug** → restore werkt → Dag 1 migratie is go.  
+> ❌ **Record niet terug** → restore werkt niet → **stop, los op voor DNS cutover.**
+>
+> > ℹ️ **PITR — bewuste keuze:** Point-in-Time Recovery wordt uitgesteld. Bij 323 records, geen betalende klanten, en dagelijkse onafhankelijke export naar Hetzner volstaat daily backup voor de testfase. PITR activeren zodra eerste echte partnervolume live gaat.
 
 ### 3G — Companion data (afhankelijk van support antwoord)
 
 **Als grace period bevestigd:**  
-→ Exporteer `pages`, `page_origin_hashes`, `witnesses` via Supabase dashboard CSV export ná Disable Cloud.
+→ Exporteer `pages`, `page_origin_hashes`, `witnesses` via dashboard CSV export **vóór** Disable Cloud — tijdens de grace period terwijl het dashboard nog toegankelijk is. **Nooit ná Disable Cloud**: dan is toegang onzeker.
 
 **Als geen grace period of bewust schone start:**  
 → Sla dit blok over. Pages zijn device-gebonden; gebruikers hersealen. Images staan in Hetzner Storage en blijven bereikbaar.
