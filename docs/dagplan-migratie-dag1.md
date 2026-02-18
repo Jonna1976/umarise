@@ -12,6 +12,7 @@
 - [ ] Support antwoord gelezen en grace period bevestigd (of bewust gekozen voor "geen grace period" aanpak)
 - [ ] Database wachtwoord `ubcqdjaytlxjqtinlzhi` bij de hand (offline password manager)
 - [ ] `INTERNAL_API_SECRET` wordt geroteerd in Blok 2 (was gecompromitteerd in chat — NIET de service role key)
+- [ ] Service role key: nieuw project heeft sowieso een eigen service role key — **geen rotatie nodig van het huidige project**
 - [ ] Supabase CLI geïnstalleerd (`supabase --version`)
 - [ ] Toegang tot huidige Lovable Cloud project (voor secret waarden)
 - [ ] Terminal open in project root (waar `supabase/` map staat)
@@ -238,24 +239,37 @@ SELECT COUNT(*), status FROM core_ots_proofs GROUP BY status;
 -- Moet matchen met baseline
 ```
 
-### 3F — Restore test (backup-restore verificatie)
+### 3F — Restore test (echte backup-restore verificatie)
 
-> 🔒 **Doel:** Bewijzen dat de daily backup + restore van het nieuwe project werkt vóór DNS cutover.
+> 🔒 **Doel:** Bewijzen dat daily backup + restore van het nieuwe project werkt vóór DNS cutover. Dit is een volledige create → backup → delete → restore → verify cyclus.
 
+**Stap 1: Maak test-record aan in NIEUW project**
 ```sql
--- Stap 1: Maak een test-record aan in NIEUW project
 INSERT INTO origin_attestations (hash, hash_algo, captured_at) 
-VALUES ('restore-test-sentinel-' || extract(epoch from now()), 'sha256', now())
+VALUES ('restore-test-' || extract(epoch from now()), 'sha256', now())
 RETURNING origin_id;
 -- Noteer de origin_id
-
--- Stap 2: Wacht op dagelijkse backup (of test via Supabase Dashboard → Backups)
--- Stap 3: Verwijder het test-record NIET — dit is alleen een smoke test
--- voor het backup schema, niet een echte delete+restore cyclus
-
--- Alternatief: verifieer via dashboard dat backups actief zijn
--- Supabase Dashboard → ubcqdjaytlxjqtinlzhi → Settings → Backups
 ```
+
+**Stap 2:** Wacht op daily backup — check via Dashboard → `ubcqdjaytlxjqtinlzhi` → Settings → Backups tot backup van ná aanmaken zichtbaar is.
+
+**Stap 3: Verwijder test-record (triggers tijdelijk disablen i.v.m. immutability guard)**
+```sql
+ALTER TABLE origin_attestations DISABLE TRIGGER ALL;
+DELETE FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
+ALTER TABLE origin_attestations ENABLE TRIGGER ALL;
+```
+
+**Stap 4:** Restore via Dashboard → Backups → selecteer backup van vóór de delete → Restore.
+
+**Stap 5: Verify**
+```sql
+SELECT * FROM origin_attestations WHERE origin_id = '[GENOTEERDE_ID]';
+-- Record moet terug zijn
+```
+
+✅ **Record terug** → restore werkt, productie-klaar.  
+❌ **Record niet terug** → restore werkt niet → **stop, los op voor DNS cutover.**
 
 > ℹ️ **PITR — bewuste keuze:** Point-in-Time Recovery wordt uitgesteld. Bij 323 records, geen betalende klanten, en dagelijkse onafhankelijke export naar Hetzner volstaat daily backup voor de testfase. PITR activeren zodra eerste echte partnervolume live gaat.
 
