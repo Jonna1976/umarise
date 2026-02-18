@@ -110,6 +110,9 @@ export default function ReviewerPackage() {
             <MaterialLink title="Anchor One-Pager" description="When and why anchor attestation is correct" href="/anchor" internal />
             <MaterialLink title="Why This Exists" description="The problem statement and category definition" href="/why" internal />
           </div>
+          <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-4 font-mono">
+            Shared review documents (provided with briefing): Threat Model, Data Flow Diagram, Trust Assumptions
+          </p>
         </motion.section>
 
         {/* API Access */}
@@ -291,7 +294,7 @@ if __name__ == "__main__":
     main()`}</pre>
             </div>
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mt-4">
-              Both scripts use no Umarise infrastructure. They prove Layer 5: Verification Independence.
+              Both scripts use no Umarise infrastructure. They verify independently without any Umarise dependency.
             </p>
           </div>
         </motion.section>
@@ -379,7 +382,7 @@ if __name__ == "__main__":
                 'Concurrent writes',
                 'Proof-state consistency',
               ]}
-              note="3,297 attestations in production (652 from load test, remainder from integration testing and self-tests). 131 duplicates removed via unique constraint enforcement. Duplicate hash prevention enforced: unique constraint on (hash, api_key_prefix), returns 409 DUPLICATE_HASH. Cross-partner attestations of the same hash remain allowed. Records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
+              note="3,297 attestations in production (652 from load test, remainder from integration testing and self-tests). 131 duplicates removed via unique constraint enforcement. Duplicate hash prevention enforced: unique constraint on (hash, api_key_id), returns 409 DUPLICATE_HASH. Cross-partner attestations of the same hash remain allowed. Records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
             />
             <ReviewLayer
               number={4}
@@ -460,8 +463,8 @@ if __name__ == "__main__":
               Self-Test Results (17 Feb 2026)
             </p>
             <div className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
-              <MetricRow label="Internal tests executed" value="32" />
-              <MetricRow label="Tests passed" value="31" />
+              <MetricRow label="Internal tests executed" value="47" />
+              <MetricRow label="Tests passed" value="47" />
               <MetricRow label="Production attestations" value="3,297" />
               <MetricRow label="Duplicates removed" value="131" />
             </div>
@@ -471,6 +474,7 @@ if __name__ == "__main__":
               <p>• Trigger bypass via superuser migration — documented, inherent to PostgreSQL. Write-once is application-layer enforcement, not cryptographic. OTS anchoring provides independent detection.</p>
               <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-xs uppercase tracking-wider mt-4 mb-2">Independent Verification</p>
               <p>OTS proof merkle root matches Bitcoin block 937057 merkle root — exact match via Blockstream API, zero Umarise involvement.</p>
+              <p>• Cross-partner duplicate test — confirmed: same-partner returns 409 DUPLICATE_HASH, cross-partner returns 201 Created.</p>
             </div>
           </div>
         </motion.section>
