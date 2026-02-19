@@ -139,4 +139,93 @@ describe('buildOriginZip', () => {
       expect(cert.origin_id).toBe(expected);
     }
   });
+
+  // --- Hash enforcement tests ---
+  // jsdom's File doesn't implement .arrayBuffer() natively.
+  // We patch the prototype once here for all enforcement tests.
+
+  function makeFile(content: Uint8Array, name: string, type: string): File {
+    // Use ArrayBuffer directly to avoid SharedArrayBuffer TS issue in jsdom
+    const buf = new ArrayBuffer(content.length);
+    new Uint8Array(buf).set(content);
+    const file = new File([buf], name, { type });
+    // Polyfill .arrayBuffer() — jsdom's File doesn't implement it
+    file.arrayBuffer = () => Promise.resolve(buf);
+    return file;
+  }
+
+  it('includes artifactFile in ZIP when hash matches', async () => {
+    // Create a small test file with known content
+    const content = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]); // "Hello"
+    const file = makeFile(content, 'test.jpg', 'image/jpeg');
+
+    // Compute the correct SHA-256 of "Hello"
+    const hashBuffer = await crypto.subtle.digest('SHA-256', content);
+    const hashHex = Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    const zipBlob = await buildOriginZip({
+      originId: 'um-AABBCCDD',
+      hash: hashHex,
+      timestamp: new Date('2026-02-19T12:00:00Z'),
+      imageUrl: null,
+      artifactFile: file,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    // artifact.jpg moet aanwezig zijn — hash matched
+    expect(files).toContain('artifact.jpg');
+    expect(files).toContain('certificate.json');
+
+    // Controleer dat de bytes exact kloppen
+    const artifactBytes = await zip.file('artifact.jpg')!.async('uint8array');
+    expect(artifactBytes).toEqual(content);
+  });
+
+  it('EXCLUDES artifactFile from ZIP when hash does NOT match (enforcement)', async () => {
+    // File met bekende inhoud
+    const content = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]); // "Hello"
+    const file = makeFile(content, 'test.jpg', 'image/jpeg');
+
+    // Geef een FOUTE hash mee → enforcement moet het bestand weigeren
+    const wrongHash = 'deadbeef'.repeat(8); // 64-char maar klopt niet
+
+    const zipBlob = await buildOriginZip({
+      originId: 'um-AABBCCDD',
+      hash: wrongHash,
+      timestamp: new Date('2026-02-19T12:00:00Z'),
+      imageUrl: null,
+      artifactFile: file,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    // artifact.jpg mag NIET in de ZIP zitten — hash mismatch
+    expect(files).not.toContain('artifact.jpg');
+    // certificate.json moet er wel zijn — ZIP blijft valide
+    expect(files).toContain('certificate.json');
+    expect(files).toContain('VERIFY.txt');
+  });
+
+  it('skips imageUrl fallback — does not pack thumbnail into ZIP', async () => {
+    // imageUrl (thumbnail) mag niet in de ZIP komen — zou hash-verificatie breken
+    const zipBlob = await buildOriginZip({
+      originId: 'um-AABBCCDD',
+      hash: 'a'.repeat(64),
+      timestamp: new Date('2026-02-19T12:00:00Z'),
+      imageUrl: 'https://example.com/thumbnail.jpg', // remote URL → fetch faalt in jsdom
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    // Geen artifact in de ZIP — imageUrl fallback is bewust uitgeschakeld
+    const artifactFiles = files.filter(f => f.startsWith('artifact.'));
+    expect(artifactFiles).toHaveLength(0);
+    expect(files).toContain('certificate.json');
+  });
 });
