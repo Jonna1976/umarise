@@ -18,6 +18,8 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+
+const POST_SEAL_HINT_KEY = 'umarise_post_seal_hint_shown';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginMark } from '../components/OriginMark';
@@ -70,6 +72,7 @@ export function SealedScreen({
 }: SealedScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -83,6 +86,28 @@ export function SealedScreen({
     date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
     ' · ' +
     date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  // Show post-seal hint once per device, auto-fade after 6s
+  useEffect(() => {
+    const alreadyShown = localStorage.getItem(POST_SEAL_HINT_KEY);
+    if (alreadyShown) return;
+    const showTimer = setTimeout(() => setShowHint(true), 1400); // after seal animation settles
+    return () => clearTimeout(showTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!showHint) return;
+    const fadeTimer = setTimeout(() => {
+      setShowHint(false);
+      localStorage.setItem(POST_SEAL_HINT_KEY, 'true');
+    }, 6000);
+    return () => clearTimeout(fadeTimer);
+  }, [showHint]);
+
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+    localStorage.setItem(POST_SEAL_HINT_KEY, 'true');
+  }, []);
 
   // Pre-build the ZIP on mount
   useEffect(() => {
@@ -297,6 +322,25 @@ export function SealedScreen({
       >
         {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
       </motion.button>
+
+      {/* ── POST-SEAL HINT — one-time, auto-fades 6s, tap to dismiss ── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showHint ? 1 : 0 }}
+        transition={{ duration: 0.8 }}
+        onClick={dismissHint}
+        className="mt-4 text-center cursor-default select-none"
+        style={{ pointerEvents: showHint ? 'auto' : 'none', minHeight: '2.5rem' }}
+        aria-hidden={!showHint}
+      >
+        <p
+          className="font-garamond italic text-[13px] leading-relaxed"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.38)' }}
+        >
+          ☑️ Anchored. Keep your original file safe —<br />
+          you'll need it to verify.
+        </p>
+      </motion.div>
 
       {/* ── Device signed (small checkmark, ghost, no explanation) ── */}
       {deviceSignature && (
