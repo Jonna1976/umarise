@@ -108,11 +108,17 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
       });
     }
   } else if (input.imageUrl) {
-    // Fallback: fetch from URL.
-    // WARNING: This is typically a compressed thumbnail — hash will NOT match.
-    // The artifact is intentionally omitted rather than including a corrupt file.
-    // The user can re-add the original file via MarkDetailModal.
-    console.info('[originZip] imageUrl fallback: skipping artifact (thumbnail ≠ original bytes)');
+    // Fallback: fetch artifact bytes from imageUrl (thumbnail/preview).
+    // NOTE: This may be a compressed thumbnail — the sha256 will NOT match the
+    // attested hash. The artifact is still included so anchoring.app and verifiers
+    // can open the ZIP and inspect it; the certificate.json hash remains authoritative.
+    const fetched = await fetchArtifactBytes(input.imageUrl);
+    if (fetched) {
+      zip.file(`artifact.${fetched.ext}`, fetched.blob);
+      console.info('[originZip] imageUrl fallback: artifact included (may be thumbnail — hash may differ)');
+    } else {
+      console.warn('[originZip] imageUrl fallback: could not fetch artifact, ZIP will have no artifact');
+    }
   }
 
   // 2. Add certificate.json (immutable schema from certificate.ts)
