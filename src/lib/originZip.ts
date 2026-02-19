@@ -13,7 +13,7 @@
 
 import JSZip from 'jszip';
 import { createCertificate, serializeCertificate } from '@/lib/certificate';
-import { calculateSHA256FromFile } from '@/lib/originHash';
+import { calculateSHA256, calculateSHA256FromFile } from '@/lib/originHash';
 
 export interface OriginZipInput {
   originId: string;
@@ -89,14 +89,30 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
   // 1. Add artifact — prefer verified File over URL fetch
   if (input.artifactFile) {
-    const ext = mimeToExtension(input.artifactFile.type);
-    zip.file(`artifact.${ext}`, input.artifactFile);
-  } else if (input.imageUrl) {
-    // Fallback: fetch from URL (works for images stored as blob/data URLs)
-    const artifact = await fetchArtifactBytes(input.imageUrl);
-    if (artifact) {
-      zip.file(`artifact.${artifact.ext}`, artifact.blob);
+    // ENFORCEMENT: verify hash before including — reject silently if mismatch
+    // This prevents packaging a wrong/modified file and breaking verification
+    const artifactBuffer = await input.artifactFile.arrayBuffer();
+    const artifactHash = await calculateSHA256(artifactBuffer);
+    const expectedHash = input.hash.toLowerCase().replace(/^sha256:/, '');
+
+    if (artifactHash === expectedHash) {
+      const ext = mimeToExtension(input.artifactFile.type);
+      zip.file(`artifact.${ext}`, input.artifactFile);
+      console.log('[originZip] Artifact included — hash verified ✓');
+    } else {
+      // Hash mismatch: do NOT include the file — ZIP remains valid without it
+      console.error('[originZip] ⚠ Artifact EXCLUDED — hash mismatch!', {
+        expected: expectedHash,
+        actual: artifactHash,
+        file: input.artifactFile.name,
+      });
     }
+  } else if (input.imageUrl) {
+    // Fallback: fetch from URL.
+    // WARNING: This is typically a compressed thumbnail — hash will NOT match.
+    // The artifact is intentionally omitted rather than including a corrupt file.
+    // The user can re-add the original file via MarkDetailModal.
+    console.info('[originZip] imageUrl fallback: skipping artifact (thumbnail ≠ original bytes)');
   }
 
   // 2. Add certificate.json (immutable schema from certificate.ts)
