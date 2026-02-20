@@ -68,17 +68,9 @@ async function verifyHash(hash: string, cert?: CertificateData, extraSteps: Veri
     steps.push({ label: 'Bitcoin anchor pending', status: 'warn' });
   }
 
-  // Step: device signature (only when cert was NOT pre-processed in handleFile)
-  // handleFile already adds this step for ZIP flows; only add here for raw hash flows
-  if (extraSteps.length === 0 && cert) {
-    if (cert.device_signature) {
-      steps.push({ label: 'Device signature present', status: 'ok' });
-    } else if (cert.claimed_by) {
-      steps.push({ label: 'Passkey claim present', status: 'ok' });
-    } else {
-      steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
-    }
-  }
+  // Layer 2 device identity: opt-in placeholder, only shown in ZIP flow (extraSteps pre-built)
+  // For raw file hash flow (no extraSteps), this slot is omitted — no cert context available
+
 
   let bitcoinBlockHeight: number | null = null;
   if (proofStatus === 'anchored') {
@@ -389,12 +381,9 @@ export default function Verify() {
           steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
         }
 
-        // Step 5: device signature
-        if (cert.device_signature) {
-          steps.push({ label: 'Device signature present', status: 'ok' });
-        } else {
-          steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
-        }
+        // Step 5: Layer 2 device identity (opt-in — passkey / EUDI wallet / C2PA)
+        // Not yet active; displayed as a placeholder so the slot is always visible
+        steps.push({ label: 'Layer 2 identity binding: not yet active', status: 'info' });
 
         const result = await verifyHash(rawHash, cert, steps);
         setState({ phase: 'result', result });
