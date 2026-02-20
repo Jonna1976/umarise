@@ -460,24 +460,22 @@ export default function Verify() {
           )}
         </AnimatePresence>
 
-        {/* Onafhankelijkheidsverklaring (altijd zichtbaar in idle) */}
-        {state.phase === 'idle' && (
-          <p
-            className="mt-10 font-garamond italic text-[12px] text-center leading-relaxed"
-            style={{ color: 'hsl(var(--landing-muted) / 0.22)' }}
+        {/* Onafhankelijkheidsverklaring — altijd zichtbaar, elke state */}
+        <p
+          className="mt-10 font-garamond italic text-[12px] text-center leading-relaxed"
+          style={{ color: 'hsl(var(--landing-muted) / 0.22)' }}
+        >
+          Dit bewijs is onafhankelijk verifieerbaar via{' '}
+          <a
+            href="https://opentimestamps.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 transition-opacity hover:opacity-70"
           >
-            Dit bewijs is onafhankelijk verifieerbaar.{' '}
-            <a
-              href="https://opentimestamps.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 transition-opacity hover:opacity-70"
-            >
-              opentimestamps.org
-            </a>{' '}
-            of met de <code className="font-mono text-[11px]">ots-cli</code> tool.
-          </p>
-        )}
+            opentimestamps.org
+          </a>{' '}
+          of met de <code className="font-mono text-[11px]">ots-cli</code> tool.
+        </p>
       </main>
 
       {/* Footer */}
