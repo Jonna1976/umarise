@@ -10,7 +10,7 @@ export default function ReviewerPackage() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText('https://umarise.com/reviewer');
+    await navigator.clipboard.writeText('https://anchoring.app/reviewer');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -56,7 +56,7 @@ export default function ReviewerPackage() {
         >
           <span className="text-[hsl(var(--landing-muted))] text-sm">Share:</span>
           <code className="text-[hsl(var(--landing-copper))] text-sm flex-1 truncate font-mono">
-            https://umarise.com/reviewer
+            https://anchoring.app/reviewer
           </code>
           <Button
             onClick={handleCopy}
@@ -163,7 +163,7 @@ export default function ReviewerPackage() {
                 </p>
                 <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm mb-2">
                   Upload an Anchor ZIP to{' '}
-                  <Link to="/verify" className="text-[hsl(var(--landing-copper))]">umarise.com/verify</Link>.
+                  <a href="https://anchoring.app/verify" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))]">anchoring.app/verify</a>.
                   Client-side hashing (Web Crypto API), no bytes leave the device.
                 </p>
               </div>
@@ -317,7 +317,7 @@ if __name__ == "__main__":
 │   ├── origin_id         # UUID
 │   ├── hash              # "sha256:<hex>"
 │   ├── captured_at       # ISO 8601 timestamp
-│   └── verify_url        # https://umarise.com/verify
+│   └── verify_url        # https://anchoring.app/verify
 ├── VERIFY.txt            # Human-readable instructions
 └── proof.ots             # OpenTimestamps binary (if anchored)`}</pre>
             </div>
@@ -405,7 +405,7 @@ if __name__ == "__main__":
               question="Can someone without any Umarise dependency verify a proof with only the ZIP and an OTS-compatible tool?"
               items={[
                 'Full verification without Umarise infrastructure',
-                'Full verification without umarise.com/verify',
+                'Full verification without anchoring.app/verify',
                 'Only ZIP + OTS tool + original artifact',
                 'CLI verification path documented and working',
               ]}

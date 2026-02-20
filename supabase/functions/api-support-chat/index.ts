@@ -102,7 +102,7 @@ PROOF LIFECYCLE:
 2. POST /v1-core-origins → origin_id + status "pending"
 3. Wait 10-20 minutes for Bitcoin anchoring (1-2 confirmations)
 4. GET /v1-core-proof → .ots binary when status is "anchored"
-5. Verification: ots verify proof.ots (CLI) or umarise.com/verify
+5. Verification: ots verify proof.ots (CLI) or anchoring.app/verify
 
 RATE LIMITS:
 - POST /v1-core-origins: per API key, 15 min window
@@ -194,7 +194,7 @@ C13: Verification split: .ots survives without Umarise; metadata requires API.
 C14: No monetization of proof verification. Verification is always free.
 C15: Primitive, not platform. No governance, no policy, no interpretation.
 C16: Proof of concept before scale. Validate before growing.
-C17: Two verification paths: online (umarise.com/verify) and CLI (ots verify).
+C17: Two verification paths: online (anchoring.app/verify) and CLI (ots verify).
 C18: Semantic ceiling. Claims never exceed what the math proves.
 
 FORBIDDEN LANGUAGE (never use these words/phrases):

@@ -376,7 +376,7 @@ No Umarise software required.`}
           </h2>
           <div className="space-y-0 rounded border border-[hsl(var(--landing-cream)/0.08)] divide-y divide-[hsl(var(--landing-cream)/0.08)]">
             <DocLink title="API Reference" url="umarise.com/core" />
-            <DocLink title="Verify Tool" url="umarise.com/verify" />
+            <DocLink title="Verify Tool" url="anchoring.app/verify" />
             <DocLink title="Technical Specification" url="umarise.com/legal" />
             <DocLink title="Anchor Registry" url="umarise.com/anchor" />
             <DocLink title="Why This Exists" url="umarise.com/why" />

@@ -274,7 +274,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              const verifyUrl = `https://umarise.com/verify?origin_id=${encodeURIComponent(mark.originId)}`;
+              const verifyUrl = `https://anchoring.app/verify?origin_id=${encodeURIComponent(mark.originId)}`;
               let shared = false;
 
               if (navigator.share) {
