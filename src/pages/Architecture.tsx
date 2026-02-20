@@ -931,9 +931,134 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 15. Domain Architecture */}
+        {/* 15. Continuity Guarantee */}
         <section>
-          <SectionHeader icon={Globe} title="Domain Architecture" num={15} />
+          <SectionHeader icon={ShieldCheck} title="Continuity Guarantee" num={15} />
+          <p className="text-sm text-landing-cream/50 mb-6">
+            What happens if Umarise goes offline — or ceases to exist entirely.
+          </p>
+
+          {/* Scenario table */}
+          <div className="space-y-3 mb-8">
+            {[
+              {
+                scenario: 'Umarise API offline',
+                impact: 'Partial',
+                detail: '/v1-core-resolve and /v1-core-verify become unreachable. No new lookups via the API.',
+                workaround: 'Anyone with the ZIP can verify locally using verify-anchor.sh or verify-anchor.py — no API needed.',
+              },
+              {
+                scenario: 'Umarise shuts down permanently',
+                impact: 'Partial',
+                detail: 'The umarise.com dashboard, API, and registry database become unavailable.',
+                workaround: 'Every downloaded ZIP is a self-contained proof bundle. Verification works as long as Bitcoin exists.',
+              },
+              {
+                scenario: 'Database deleted / data loss',
+                impact: 'Registry only',
+                detail: 'The registry (origin_attestations) can no longer resolve origin_id lookups.',
+                workaround: 'Hash integrity and Bitcoin timestamp remain independently verifiable. The SHA-256 match and .ots proof are not stored by Umarise.',
+              },
+              {
+                scenario: 'Bitcoin network unavailable',
+                impact: 'Negligible',
+                detail: 'Bitcoin has had 99.98% uptime since 2009. OTS proofs are static files — no live network needed to verify a pre-downloaded proof.',
+                workaround: 'Once a .ots proof is downloaded, verification is fully offline. No network access required.',
+              },
+            ].map((row) => (
+              <div key={row.scenario} className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <span className="text-sm text-landing-cream/90 font-medium">{row.scenario}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded font-mono shrink-0 ${
+                    row.impact === 'Partial' ? 'bg-amber-500/10 text-amber-400/70' :
+                    row.impact === 'Registry only' ? 'bg-amber-500/10 text-amber-400/70' :
+                    'bg-emerald-500/10 text-emerald-400/70'
+                  }`}>{row.impact}</span>
+                </div>
+                <p className="text-xs text-landing-muted/40 mb-2">{row.detail}</p>
+                <p className="text-xs text-emerald-400/60">→ {row.workaround}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* What survives */}
+          <div className="mb-6">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">What survives Umarise</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  title: 'SHA-256 hash',
+                  body: 'A standard algorithm. Any machine can recalculate the hash from the original file and compare it with the value in certificate.json.',
+                  status: 'Independent',
+                },
+                {
+                  title: 'Bitcoin timestamp',
+                  body: 'The .ots proof anchors the hash in the Bitcoin blockchain — a public ledger that exists independently of any company.',
+                  status: 'Independent',
+                },
+                {
+                  title: 'ZIP artifact bundle',
+                  body: 'artifact + certificate.json + VERIFY.txt + proof.ots. Everything needed for independent verification is inside.',
+                  status: 'Self-contained',
+                },
+              ].map((item) => (
+                <div key={item.title} className="p-4 bg-emerald-500/[0.02] border border-emerald-500/10 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-landing-cream/90 font-medium">{item.title}</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">{item.status}</span>
+                  </div>
+                  <p className="text-xs text-landing-cream/50 leading-relaxed">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* What does NOT survive */}
+          <div className="mb-6">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">What does NOT survive Umarise</p>
+            <div className="space-y-2">
+              {[
+                ['API resolution by origin_id', 'Requires the Umarise registry database — not reproducible without the original data'],
+                ['Dashboard & UI', 'The anchoring.app and umarise.com interfaces require live infrastructure'],
+                ['New attestations', 'Creating new origin records requires the Core API to be operational'],
+              ].map(([item, reason]) => (
+                <div key={item as string} className="flex items-start gap-3 p-3 bg-red-500/[0.02] border border-red-500/10 rounded-lg">
+                  <span className="text-red-400/50 text-xs mt-0.5">✗</span>
+                  <div>
+                    <p className="text-sm text-landing-cream/70">{item as string}</p>
+                    <p className="text-xs text-landing-muted/40">{reason as string}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Core guarantee */}
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/10 rounded-lg">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">The core guarantee</p>
+            <p className="text-sm text-landing-cream/70 leading-relaxed">
+              Every anchor ZIP is a <strong className="text-landing-cream/90">self-contained proof bundle</strong>. The claim "this file existed at this moment" is verifiable using only:
+            </p>
+            <div className="mt-3 space-y-1 font-mono text-xs text-landing-cream/50">
+              <p>1. The original file (in the ZIP)</p>
+              <p>2. A SHA-256 calculator (any device, offline)</p>
+              <p>3. The Bitcoin blockchain (public, decentralized)</p>
+            </div>
+            <p className="text-xs text-landing-muted/40 mt-3">
+              None of these three require Umarise. Verification is mathematically independent of platform availability or business continuity.
+            </p>
+          </div>
+
+          <div className="mt-4 p-3 bg-emerald-500/[0.03] border border-emerald-500/10 rounded-lg">
+            <p className="text-xs text-emerald-400/60">
+              ✅ Verification independence confirmed. verify-anchor.sh and verify-anchor.py require zero network calls to Umarise. Both use standard OS tools only.
+            </p>
+          </div>
+        </section>
+
+        {/* 16. Domain Architecture */}
+        <section>
+          <SectionHeader icon={Globe} title="Domain Architecture" num={16} />
           <div className="space-y-3">
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
