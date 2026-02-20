@@ -96,8 +96,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
     e.target.value = '';
   }, [onCapture, onCaptureFile]);
 
-  const circleSize = isFirstVisit ? 120 : 180;
-  const plusSize = isFirstVisit ? 26 : 32;
+  const circleSize = isFirstVisit ? 160 : 220;
+  const plusSize = isFirstVisit ? 42 : 52;
   const circleR = (circleSize / 2) - 10;
 
   return (
@@ -177,40 +177,23 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
       <div className="flex-1 flex flex-col items-center justify-center w-full px-6 pt-16 pb-8">
 
         {isFirstVisit && (
-          <>
-            <motion.div
-              className="mb-7"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            <h1
+              className="font-playfair font-light text-[20px] leading-[1.75]"
+              style={{ color: 'hsl(var(--ritual-cream))' }}
             >
-              <svg viewBox="0 0 48 48" width={42} height={42}>
-                <polygon
-                  points="24,3 42,13.5 42,34.5 24,45 6,34.5 6,13.5"
-                  fill="hsl(var(--ritual-gold))"
-                />
-                <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" />
-              </svg>
-            </motion.div>
-
-            <motion.div
-              className="text-center mb-12"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.6 }}
-            >
-              <h1
-                className="font-playfair font-light text-[19px] leading-[1.65]"
-                style={{ color: 'hsl(var(--ritual-cream))' }}
-              >
-                Digital things change.
-                <br />
-                This does not.
-                <br />
-                <span style={{ color: 'hsl(var(--ritual-gold))' }}>Anchor.</span>
-              </h1>
-            </motion.div>
-          </>
+              It exists.
+              <br />
+              Provable forever.
+              <br />
+              <span style={{ color: 'hsl(var(--ritual-gold))' }}>Anchor.</span>
+            </h1>
+          </motion.div>
         )}
 
         {/* Circle — tap to pick file */}
@@ -243,30 +226,13 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
 
           <motion.span
             className="relative z-10 select-none font-playfair font-light"
-            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: '#C5935A', opacity: 0.5 }}
-            animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.1, 1] }}
+            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: '#C5935A', opacity: 0.75 }}
+            animate={{ opacity: [0.55, 0.85, 0.55], scale: [1, 1.08, 1] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
           >
             +
           </motion.span>
         </motion.label>
-
-        {/* Divider */}
-        <motion.div
-          className="flex items-center gap-3 mt-10 w-full max-w-[240px]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: isFirstVisit ? 1.3 : 0.7 }}
-        >
-          <div className="flex-1 h-px" style={{ background: 'hsl(var(--ritual-gold) / 0.10)' }} />
-          <span
-            className="font-garamond italic text-[10px] tracking-[0.08em]"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.18)' }}
-          >
-            or drop a file
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'hsl(var(--ritual-gold) / 0.10)' }} />
-        </motion.div>
       </div>
 
       {/* ── Bottom hint ─────────────────────────────────────── */}
