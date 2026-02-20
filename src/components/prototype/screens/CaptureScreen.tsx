@@ -258,13 +258,13 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         )}
         <a
           href="/verify"
-          className="font-garamond text-[11px] text-center group"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.20)', textDecoration: 'none' }}
+          className="font-garamond text-[16px] text-center group leading-relaxed"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.55)', textDecoration: 'none' }}
         >
           Already have a proof?{' '}
           <span
-            className="transition-colors duration-200 group-hover:text-[hsl(var(--ritual-gold))]"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.30)' }}
+            className="transition-colors duration-200 group-hover:underline"
+            style={{ color: 'hsl(var(--ritual-gold))', fontStyle: 'italic' }}
           >
             Verify it here
           </span>
