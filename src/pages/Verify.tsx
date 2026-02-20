@@ -383,7 +383,7 @@ export default function Verify() {
 
         // Step 5: Layer 2 device identity (opt-in — passkey / EUDI wallet / C2PA)
         // Not yet active; displayed as a placeholder so the slot is always visible
-        steps.push({ label: 'Layer 2 identity binding: not yet active', status: 'info' });
+        steps.push({ label: 'Layer 2 identity binding', status: 'info' });
 
         const result = await verifyHash(rawHash, cert, steps);
         setState({ phase: 'result', result });
@@ -391,7 +391,7 @@ export default function Verify() {
       } else if (isOts) {
         setState({
           phase: 'error',
-          message: 'Direct .ots verification coming soon. Use opentimestamps.org to verify an .ots file.',
+          message: 'Direct .ots verification is not supported here. Use opentimestamps.org or the ots-cli tool to verify an .ots file.',
         });
 
       } else {
