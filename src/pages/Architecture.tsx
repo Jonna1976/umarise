@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass, ShieldCheck, Terminal } from 'lucide-react';
+import { ArrowLeft, Server, Smartphone, Shield, GitBranch, Globe, Lock, Key, Database, CheckCircle, Eye, FileArchive, Compass, ShieldCheck, Terminal, TrendingUp } from 'lucide-react';
 import { OriginMark } from '@/components/prototype/components/OriginMark';
 
 /**
@@ -167,6 +167,19 @@ const developerJourney = [
   { num: 5, component: 'First-run scripts', location: '/api-reference download', detail: 'Bash script: automated 5-step validation (health → hash → attest → verify → resolve).' },
   { num: 6, component: 'AI Support Bot', location: '/api-reference', detail: 'Guardian v5.0 compliant. Automatic language matching. Terminology-controlled. Out-of-scope redirect to partners@umarise.com.' },
   { num: 7, component: 'Verification scripts', location: '/reviewer', detail: 'verify-anchor.sh + verify-anchor.py. Zero-dependency offline ZIP validation.' },
+];
+
+const marketSegments = [
+  { segment: 'Digital Trust / eIDAS', tam: '~$18B (2030)', cagr: '22%', source: 'MarketsandMarkets' },
+  { segment: 'Content Authenticity (AI provenance)', tam: '~$6B (2028)', cagr: '—', source: 'IDC' },
+  { segment: 'Legal Tech / IP Evidence', tam: '~$4B (2028)', cagr: '—', source: 'Grand View Research' },
+];
+
+const marketDrivers = [
+  { trigger: 'EU AI Act Art. 50', timing: 'Aug 2026', effect: 'AI outputs must be detectable. Pre-AI existence proof becomes infrastructure.' },
+  { trigger: 'eIDAS 2.0', timing: '2026', effect: 'Electronic timestamps gain legal presumption of correctness across all EU jurisdictions.' },
+  { trigger: 'Marseille ruling', timing: 'Mar 2025', effect: 'French court accepted blockchain timestamp as primary evidence in IP case.' },
+  { trigger: 'AI content crisis', timing: 'Ongoing', effect: 'Deepfakes and synthetic media erode baseline trust. Origin proof becomes prerequisite.' },
 ];
 
 const SectionHeader = ({ icon: Icon, title, num }: { icon: React.ElementType; title: string; num: number }) => (
@@ -947,6 +960,63 @@ const Architecture = () => {
         </section>
 
         {/* Footer */}
+        {/* 12. Market Context */}
+        <section>
+          <SectionHeader icon={TrendingUp} title="Market Context" num={12} />
+          <p className="text-sm text-landing-muted/50 mb-6">
+            Umarise addresses the intersection of three converging regulatory and market segments.
+            Timing is structural — not speculative.
+          </p>
+
+          {/* TAM table */}
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                  <th className="pb-3 pr-4">Segment</th>
+                  <th className="pb-3 pr-4">TAM</th>
+                  <th className="pb-3 pr-4">CAGR</th>
+                  <th className="pb-3">Source</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-landing-cream/5">
+                {marketSegments.map((s) => (
+                  <tr key={s.segment} className="text-landing-cream/70">
+                    <td className="py-2.5 pr-4 font-medium text-landing-cream/90">{s.segment}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs text-emerald-400/80">{s.tam}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs text-landing-muted/50">{s.cagr}</td>
+                    <td className="py-2.5 text-xs text-landing-muted/40">{s.source}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* SAM */}
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-6">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">SAM — First 3 Years</p>
+            <p className="text-sm text-landing-cream/70">
+              B2B API: legal tech, media verification, compliance tooling in EU.
+              Estimated <span className="text-landing-cream/90 font-mono">€80–150M</span> addressable at
+              <span className="text-landing-cream/90 font-mono"> €0.01–0.05</span> per attestation at scale.
+              Unit economics: marginal cost per attestation near zero — Bitcoin anchoring batched via Merkle aggregation.
+            </p>
+          </div>
+
+          {/* Regulatory drivers */}
+          <div className="space-y-2">
+            {marketDrivers.map((d) => (
+              <div key={d.trigger} className="flex gap-4 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+                <div className="shrink-0 w-40">
+                  <p className="text-sm text-landing-cream/90 font-medium">{d.trigger}</p>
+                  <p className="text-xs font-mono text-amber-400/70">{d.timing}</p>
+                </div>
+                <p className="text-xs text-landing-muted/50 leading-relaxed">{d.effect}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <div className="border-t border-landing-cream/10 pt-8 pb-16">
           <p className="text-landing-cream/90 text-sm font-medium mb-2">
             Core does not know the App exists. The App knows Core exists.
