@@ -163,11 +163,11 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
               </svg>
             </motion.div>
 
-            <span
+              <span
               className="font-garamond text-[13px] tracking-[0.18em] uppercase"
               style={{ color: 'hsl(var(--ritual-gold) / 0.65)' }}
             >
-              Loslaten om te ankeren
+              Drop to anchor
             </span>
           </motion.div>
         )}
@@ -263,7 +263,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
             className="font-garamond italic text-[10px] tracking-[0.08em]"
             style={{ color: 'hsl(var(--ritual-cream) / 0.18)' }}
           >
-            of sleep een bestand
+            or drop a file
           </span>
           <div className="flex-1 h-px" style={{ background: 'hsl(var(--ritual-gold) / 0.10)' }} />
         </motion.div>
