@@ -113,7 +113,7 @@ export function createCertificate(
     hash,
     hash_algo: 'SHA-256',
     captured_at: capturedAt.toISOString(),
-    verify_url: 'https://umarise.com/verify',
+    verify_url: 'https://anchoring.app/verify',
     proof_included: proofIncluded,
     proof_status: proofStatus,
     claimed_by: claimedBy,

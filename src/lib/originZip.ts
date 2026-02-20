@@ -171,8 +171,8 @@ Contents:
 ${proofOtsSection}
 
 VERIFY ONLINE:
-  https://umarise.com/verify
-  Upload this ZIP. No account needed.
+  https://anchoring.app/verify
+  Upload this ZIP.
 
 VERIFY INDEPENDENTLY (no Umarise needed):
   1. Verify hash integrity:
