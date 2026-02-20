@@ -68,13 +68,16 @@ async function verifyHash(hash: string, cert?: CertificateData, extraSteps: Veri
     steps.push({ label: 'Bitcoin anchor pending', status: 'warn' });
   }
 
-  // Step: device signature
-  if (cert?.device_signature) {
-    steps.push({ label: 'Device signature found', status: 'ok' });
-  } else if (cert?.claimed_by) {
-    steps.push({ label: 'Passkey claim present', status: 'ok' });
-  } else if (cert) {
-    steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
+  // Step: device signature (only when cert was NOT pre-processed in handleFile)
+  // handleFile already adds this step for ZIP flows; only add here for raw hash flows
+  if (extraSteps.length === 0 && cert) {
+    if (cert.device_signature) {
+      steps.push({ label: 'Device signature present', status: 'ok' });
+    } else if (cert.claimed_by) {
+      steps.push({ label: 'Passkey claim present', status: 'ok' });
+    } else {
+      steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
+    }
   }
 
   let bitcoinBlockHeight: number | null = null;
@@ -149,7 +152,7 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
   return (
     <div
       role="button"
-      aria-label="Sleep een bestand hierheen of klik om te selecteren"
+      aria-label="Drop a file here or click to select"
       className="relative w-full rounded-sm cursor-pointer select-none transition-all duration-300"
       style={{
         minHeight: 160,
