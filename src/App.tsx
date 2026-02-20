@@ -34,6 +34,7 @@ import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import PrototypeB from "./pages/PrototypeB";
 import Why from "./pages/Why";
+import AnchoringWhy from "./pages/AnchoringWhy";
 import SealedPreviewPage from "./pages/SealedPreview";
 import Install from "./pages/Install";
 import Architecture from "./pages/Architecture";
@@ -80,7 +81,11 @@ const App = () => (
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/why" element={<Why />} />
+            <Route path="/why" element={
+              typeof window !== 'undefined' && window.location.hostname === 'anchoring.app'
+                ? <AnchoringWhy />
+                : <Why />
+            } />
             <Route path="/install" element={<Install />} />
             
             <Route path="/verify" element={<Verify />} />
