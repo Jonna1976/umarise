@@ -268,7 +268,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
           >
             Verify it here
           </span>
-          . No account needed.
+          .
         </a>
       </motion.div>
     </motion.div>
