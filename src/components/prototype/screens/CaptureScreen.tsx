@@ -258,8 +258,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         )}
         <a
           href="/verify"
-          className="font-garamond text-[16px] text-center group leading-relaxed"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.55)', textDecoration: 'none' }}
+          className="font-garamond text-[22px] text-center group leading-relaxed"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.65)', textDecoration: 'none' }}
         >
           Already have a proof?{' '}
           <span
