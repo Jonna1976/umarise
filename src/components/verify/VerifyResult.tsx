@@ -45,11 +45,11 @@ function formatDateTime(iso: string): string {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-baseline py-2 border-b border-landing-muted/10 last:border-b-0">
-      <span className="font-mono text-[10px] tracking-[2px] uppercase text-landing-muted/40 flex-shrink-0">
+    <div className="flex justify-between items-baseline py-2.5 border-b border-[hsl(var(--landing-cream)/0.08)] last:border-b-0">
+      <span className="font-mono text-[10px] tracking-[2px] uppercase flex-shrink-0" style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}>
         {label}
       </span>
-      <span className="font-mono text-[11px] font-light text-right break-all ml-5 text-landing-cream/50">
+      <span className="font-mono text-[12px] font-light text-right break-all ml-5" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>
         {value}
       </span>
     </div>
@@ -58,16 +58,16 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 function StepIcon({ status }: { status: VerifyStep['status'] }) {
   if (status === 'ok') return (
-    <span className="font-mono text-[12px]" style={{ color: 'hsl(142 50% 50%)' }}>✓</span>
+    <span className="font-mono text-[13px]" style={{ color: 'hsl(142 50% 55%)' }}>✓</span>
   );
   if (status === 'warn') return (
-    <span className="font-mono text-[12px]" style={{ color: 'hsl(38 65% 55%)' }}>!</span>
+    <span className="font-mono text-[13px]" style={{ color: 'hsl(38 65% 60%)' }}>!</span>
   );
   if (status === 'error') return (
-    <span className="font-mono text-[12px]" style={{ color: 'hsl(0 60% 55%)' }}>✗</span>
+    <span className="font-mono text-[13px]" style={{ color: 'hsl(0 60% 60%)' }}>✗</span>
   );
   return (
-    <span className="font-mono text-[12px]" style={{ color: 'hsl(0 0% 40%)' }}>·</span>
+    <span className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.3)' }}>·</span>
   );
 }
 
@@ -75,13 +75,13 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mt-6">
+    <div className="mt-7">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 font-mono text-[9px] tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
-        style={{ color: 'hsl(0 0% 38%)' }}
+        className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
+        style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}
       >
-        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         {open ? 'Hide verification steps' : 'Show verification steps'}
       </button>
 
@@ -95,10 +95,10 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
             className="overflow-hidden"
           >
             <div
-              className="mt-4 rounded-sm px-5 py-4 font-mono text-[12px] space-y-2"
+              className="mt-4 rounded-sm px-5 py-4 font-mono text-[12px] space-y-2.5"
               style={{
-                background: 'hsl(0 0% 5%)',
-                border: '1px solid hsl(0 0% 14% / 0.5)',
+                background: 'hsl(var(--landing-deep))',
+                border: '1px solid hsl(var(--landing-cream) / 0.08)',
               }}
             >
               {steps.map((step, i) => (
@@ -108,20 +108,20 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
                     <span
                       style={{
                         color: step.status === 'ok'
-                          ? 'hsl(142 30% 65%)'
+                          ? 'hsl(142 35% 70%)'
                           : step.status === 'warn'
-                          ? 'hsl(38 50% 60%)'
+                          ? 'hsl(38 55% 65%)'
                           : step.status === 'error'
-                          ? 'hsl(0 50% 60%)'
-                          : 'hsl(0 0% 45%)',
+                          ? 'hsl(0 55% 65%)'
+                          : 'hsl(var(--landing-cream) / 0.5)',
                       }}
                     >
                       {step.label}
                     </span>
                     {step.detail && (
                       <span
-                        className="ml-2 text-[10px] break-all"
-                        style={{ color: 'hsl(0 0% 32%)' }}
+                        className="ml-2 text-[11px] break-all"
+                        style={{ color: 'hsl(var(--landing-cream) / 0.35)' }}
                       >
                         {step.detail}
                       </span>
@@ -167,40 +167,40 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
         <div
           className="rounded-sm p-8"
           style={{
-            background: 'hsl(142 30% 8%)',
-            border: '1px solid hsl(142 40% 25% / 0.4)',
+            background: 'hsl(142 30% 7%)',
+            border: '1px solid hsl(142 40% 28% / 0.5)',
           }}
         >
-          <div className="flex items-center gap-3 mb-6">
-            <svg viewBox="0 0 20 20" width={16} height={16}>
-              <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(142 50% 45%)" strokeWidth="1.2" />
-              <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 45%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <div className="flex items-center gap-3 mb-5">
+            <svg viewBox="0 0 20 20" width={18} height={18}>
+              <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.3" />
+              <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-mono text-[10px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 45%)' }}>
+            <span className="font-mono text-[11px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>
               Verified
             </span>
           </div>
 
-          <p className="font-serif text-[22px] leading-[1.4] mb-2" style={{ color: 'hsl(142 20% 85%)' }}>
+          <p className="font-serif text-[24px] leading-[1.4] mb-3" style={{ color: 'hsl(142 20% 88%)' }}>
             This file demonstrably existed on{' '}
-            <span style={{ color: 'hsl(142 30% 75%)' }}>
+            <span style={{ color: 'hsl(142 30% 78%)' }}>
               {result.captured_at ? formatDateTime(result.captured_at) : '—'}
             </span>
             .
           </p>
 
           {result.bitcoin_block_height ? (
-            <div className="mt-5 flex items-center gap-3">
-              <span className="font-garamond text-[14px]" style={{ color: 'hsl(142 20% 60%)' }}>
-              Anchored in Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}
+            <div className="mt-5 flex items-center gap-3 flex-wrap">
+              <span className="font-garamond text-[16px]" style={{ color: 'hsl(142 20% 65%)' }}>
+                Anchored in Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}
               </span>
               {blockstreamUrl && (
                 <a
                   href={blockstreamUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[1.5px] uppercase transition-opacity hover:opacity-70"
-                  style={{ color: 'hsl(142 40% 50%)' }}
+                  className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase transition-opacity hover:opacity-70"
+                  style={{ color: 'hsl(142 40% 55%)' }}
                 >
                   View on blockstream.info
                   <ExternalLink className="w-3 h-3" />
@@ -208,7 +208,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               )}
             </div>
           ) : (
-            <p className="mt-3 font-garamond text-[13px]" style={{ color: 'hsl(142 15% 50%)' }}>
+            <p className="mt-3 font-garamond text-[15px]" style={{ color: 'hsl(142 15% 55%)' }}>
               Anchored in Bitcoin — block number loading.
             </p>
           )}
@@ -217,8 +217,8 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
             <button
               onClick={handleDownloadProof}
               disabled={downloading}
-              className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase px-4 py-2 rounded-sm transition-all disabled:opacity-50"
-              style={{ color: 'hsl(142 40% 50%)', border: '1px solid hsl(142 40% 25% / 0.5)', background: 'transparent' }}
+              className="mt-6 inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase px-5 py-2.5 rounded-sm transition-all disabled:opacity-50 hover:opacity-80"
+              style={{ color: 'hsl(142 40% 55%)', border: '1px solid hsl(142 40% 28% / 0.6)', background: 'transparent' }}
             >
               {downloading ? '↓  Downloading…' : '↓  Download proof.ots'}
             </button>
@@ -226,17 +226,17 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
           <button
             onClick={() => setShowDetails(v => !v)}
-            className="flex items-center gap-2 mt-6 font-mono text-[9px] tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
-            style={{ color: 'hsl(142 15% 45%)' }}
+            className="flex items-center gap-2 mt-6 font-mono text-[10px] tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
+            style={{ color: 'hsl(142 20% 50%)' }}
           >
-            {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {showDetails ? 'Hide technical details' : 'Show technical details'}
           </button>
 
           {showDetails && (
             <motion.div
               className="mt-4 pt-4"
-              style={{ borderTop: '1px solid hsl(142 20% 15%)' }}
+              style={{ borderTop: '1px solid hsl(142 20% 14%)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
@@ -263,28 +263,28 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       {result.status === 'pending' && (
         <div
           className="rounded-sm p-8"
-          style={{ background: 'hsl(38 25% 8%)', border: '1px solid hsl(38 40% 30% / 0.35)' }}
+          style={{ background: 'hsl(38 25% 7%)', border: '1px solid hsl(38 40% 32% / 0.45)' }}
         >
           <div className="flex items-center gap-3 mb-5">
-            <svg viewBox="0 0 20 20" width={16} height={16}>
-              <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(38 65% 55%)" strokeWidth="1.2" />
-              <line x1="10" y1="6" x2="10" y2="10.5" stroke="hsl(38 65% 55%)" strokeWidth="1.5" strokeLinecap="round" />
-              <circle cx="10" cy="13.5" r="0.8" fill="hsl(38 65% 55%)" />
+            <svg viewBox="0 0 20 20" width={18} height={18}>
+              <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(38 65% 60%)" strokeWidth="1.3" />
+              <line x1="10" y1="6" x2="10" y2="10.5" stroke="hsl(38 65% 60%)" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="10" cy="13.5" r="0.8" fill="hsl(38 65% 60%)" />
             </svg>
-            <span className="font-mono text-[10px] tracking-[3px] uppercase" style={{ color: 'hsl(38 65% 55%)' }}>
+            <span className="font-mono text-[11px] tracking-[3px] uppercase" style={{ color: 'hsl(38 65% 60%)' }}>
               Not yet anchored
             </span>
           </div>
 
-          <p className="font-serif text-[19px] leading-[1.45] mb-3" style={{ color: 'hsl(38 20% 80%)' }}>
+          <p className="font-serif text-[22px] leading-[1.45] mb-3" style={{ color: 'hsl(38 20% 85%)' }}>
             This hash is registered but not yet anchored in Bitcoin.
           </p>
-          <p className="font-garamond text-[14px] leading-relaxed" style={{ color: 'hsl(38 15% 55%)' }}>
+          <p className="font-garamond text-[16px] leading-relaxed" style={{ color: 'hsl(38 15% 60%)' }}>
             The anchoring process takes up to one hour. Please check back later.
           </p>
 
           {result.captured_at && (
-            <p className="font-garamond italic text-[12px] mt-4" style={{ color: 'hsl(38 15% 45%)' }}>
+            <p className="font-garamond italic text-[14px] mt-4" style={{ color: 'hsl(38 15% 50%)' }}>
               Registered on {formatDateTime(result.captured_at)}
             </p>
           )}
@@ -299,13 +299,16 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       {result.status === 'not_found' && (
         <div
           className="rounded-sm p-8"
-          style={{ background: 'hsl(0 0% 7%)', border: '1px solid hsl(0 0% 20% / 0.4)' }}
+          style={{ background: 'hsl(var(--landing-deep))', border: '1px solid hsl(var(--landing-cream) / 0.1)' }}
         >
-          <p className="font-mono text-[10px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(0 0% 45%)' }}>
+          <p className="font-mono text-[11px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}>
             Not found
           </p>
-          <p className="font-serif text-[19px] leading-[1.45]" style={{ color: 'hsl(0 0% 65%)' }}>
+          <p className="font-serif text-[22px] leading-[1.45]" style={{ color: 'hsl(var(--landing-cream) / 0.85)' }}>
             This hash was not found in the Umarise registry.
+          </p>
+          <p className="font-garamond text-[15px] mt-3 leading-relaxed" style={{ color: 'hsl(var(--landing-cream) / 0.5)' }}>
+            This file has not been anchored via Umarise, or was submitted with a different hash.
           </p>
 
           {result.steps && result.steps.length > 0 && (
@@ -318,15 +321,15 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       {result.status === 'mismatch' && (
         <div
           className="rounded-sm p-8"
-          style={{ background: 'hsl(0 25% 7%)', border: '1px solid hsl(0 50% 25% / 0.4)' }}
+          style={{ background: 'hsl(0 25% 7%)', border: '1px solid hsl(0 50% 28% / 0.5)' }}
         >
-          <p className="font-mono text-[10px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(0 60% 55%)' }}>
+          <p className="font-mono text-[11px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(0 60% 60%)' }}>
             Hash mismatch
           </p>
-          <p className="font-serif text-[19px] leading-[1.45] mb-3" style={{ color: 'hsl(0 15% 75%)' }}>
+          <p className="font-serif text-[22px] leading-[1.45] mb-3" style={{ color: 'hsl(0 15% 82%)' }}>
             The file in this ZIP does not match the hash in the certificate.
           </p>
-          <p className="font-garamond text-[13px]" style={{ color: 'hsl(0 15% 50%)' }}>
+          <p className="font-garamond text-[15px]" style={{ color: 'hsl(0 15% 58%)' }}>
             The file may have been modified after the anchor was created.
           </p>
 
@@ -340,12 +343,12 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       {result.status === 'error' && (
         <div
           className="rounded-sm p-8"
-          style={{ background: 'hsl(0 0% 7%)', border: '1px solid hsl(0 0% 20% / 0.4)' }}
+          style={{ background: 'hsl(var(--landing-deep))', border: '1px solid hsl(var(--landing-cream) / 0.1)' }}
         >
-          <p className="font-mono text-[10px] tracking-[3px] uppercase mb-4" style={{ color: 'hsl(0 0% 45%)' }}>
+          <p className="font-mono text-[11px] tracking-[3px] uppercase mb-4" style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}>
             Verification failed
           </p>
-          <p className="font-garamond text-[14px]" style={{ color: 'hsl(0 0% 55%)' }}>
+          <p className="font-garamond text-[16px]" style={{ color: 'hsl(var(--landing-cream) / 0.7)' }}>
             Something went wrong. Please try again.
           </p>
 
@@ -356,13 +359,13 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       )}
 
       {/* Verify another */}
-      <div className="text-center mt-5">
+      <div className="text-center mt-6">
         <button
           onClick={onReset}
           className="font-mono text-[10px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
-          style={{ color: 'hsl(var(--landing-muted) / 0.35)' }}
+          style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
         >
-          Verify another file
+          Verify another file →
         </button>
       </div>
     </motion.div>
