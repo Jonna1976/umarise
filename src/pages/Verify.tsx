@@ -22,7 +22,7 @@ import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
 import { verifyOriginByHash, fetchProofStatus } from '@/lib/coreApi';
-import { VerifyResult, type VerifyResultData } from '@/components/verify/VerifyResult';
+import { VerifyResult, type VerifyResultData, type VerifyStep } from '@/components/verify/VerifyResult';
 
 // ─── Helpers ───
 
@@ -44,21 +44,47 @@ interface CertificateData {
   device_public_key?: string | null;
 }
 
-async function verifyHash(hash: string, cert?: CertificateData): Promise<VerifyResultData> {
+async function verifyHash(hash: string, cert?: CertificateData, extraSteps: VerifyStep[] = []): Promise<VerifyResultData> {
+  const steps: VerifyStep[] = [...extraSteps];
+
+  // Step: registry lookup
+  steps.push({ label: 'Hash opgezocht in register', status: 'info' });
   const verifyResult = await verifyOriginByHash(hash);
 
   if (!verifyResult.found || !verifyResult.origin) {
-    return { status: 'not_found' };
+    steps[steps.length - 1] = { label: 'Hash niet gevonden in register', status: 'error' };
+    return { status: 'not_found', steps };
   }
+
+  steps[steps.length - 1] = { label: 'Hash gevonden in register', status: 'ok', detail: hash.substring(0, 16) + '…' };
 
   const origin = verifyResult.origin;
   const proofStatus: 'pending' | 'anchored' = origin.proof_status || 'pending';
+
+  // Step: Bitcoin anchor
+  if (proofStatus === 'anchored') {
+    steps.push({ label: 'Bitcoin-anker aanwezig', status: 'ok' });
+  } else {
+    steps.push({ label: 'Bitcoin-anker nog in behandeling', status: 'warn' });
+  }
+
+  // Step: device signature
+  if (cert?.device_signature) {
+    steps.push({ label: 'Device handtekening gevonden', status: 'ok' });
+  } else if (cert?.claimed_by) {
+    steps.push({ label: 'Passkey claim aanwezig', status: 'ok' });
+  } else if (cert) {
+    steps.push({ label: 'Geen device handtekening (anoniem anker)', status: 'info' });
+  }
 
   let bitcoinBlockHeight: number | null = null;
   if (proofStatus === 'anchored') {
     const proofResult = await fetchProofStatus(origin.origin_id);
     if (proofResult.status === 'anchored') {
       bitcoinBlockHeight = proofResult.bitcoinBlockHeight;
+      if (bitcoinBlockHeight) {
+        steps.push({ label: `Bitcoin block ${bitcoinBlockHeight.toLocaleString('nl-NL')}`, status: 'ok' });
+      }
     }
   }
 
@@ -73,6 +99,7 @@ async function verifyHash(hash: string, cert?: CertificateData): Promise<VerifyR
     signature: cert?.signature ?? null,
     device_signature: cert?.device_signature ?? null,
     device_public_key: cert?.device_public_key ?? null,
+    steps,
   };
 }
 
@@ -316,21 +343,27 @@ export default function Verify() {
       const isOts = name.endsWith('.ots');
 
       if (isZip) {
-        // ZIP: extract certificate.json, use hash from cert
+        const steps: VerifyStep[] = [];
+
+        // Step 1: open ZIP
         let zip: JSZip;
         try {
           zip = await JSZip.loadAsync(file);
+          steps.push({ label: `ZIP geopend: ${file.name}`, status: 'ok' });
         } catch {
           setState({ phase: 'error', message: 'Bestand kon niet geopend worden.' });
           return;
         }
 
+        // Step 2: certificate.json
         const certFile = zip.file('certificate.json');
         if (!certFile) {
           setState({ phase: 'error', message: 'Dit lijkt geen Umarise origin-ZIP. Verwacht: certificate.json.' });
           return;
         }
+        steps.push({ label: 'certificate.json gevonden', status: 'ok' });
 
+        // Step 3: parse cert
         let cert: CertificateData;
         try {
           const text = await certFile.async('text');
@@ -345,23 +378,38 @@ export default function Verify() {
           return;
         }
 
-        // Strip sha256: prefix if present
-        const hash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
-        const result = await verifyHash(hash, cert);
+        const rawHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
+        steps.push({ label: 'SHA-256 uit certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
+
+        // Step 4: origin ID
+        if (cert.origin_id) {
+          steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
+        }
+
+        // Step 5: device signature
+        if (cert.device_signature) {
+          steps.push({ label: 'Device handtekening aanwezig', status: 'ok' });
+        } else {
+          steps.push({ label: 'Geen device handtekening (anoniem anker)', status: 'info' });
+        }
+
+        const result = await verifyHash(rawHash, cert, steps);
         setState({ phase: 'result', result });
 
       } else if (isOts) {
-        // .ots: toekomstig — toon instructie
         setState({
           phase: 'error',
           message: 'Directe .ots verificatie komt binnenkort. Gebruik nu opentimestamps.org om een .ots bestand te verifiëren.',
         });
 
       } else {
-        // Willekeurig bestand: hash client-side en zoek op
+        // Willekeurig bestand: hash client-side
+        const steps: VerifyStep[] = [];
+        steps.push({ label: `Bestand gelezen: ${file.name}`, status: 'ok', detail: `${(file.size / 1024).toFixed(1)} KB` });
         const buffer = await file.arrayBuffer();
         const hash = await computeSHA256(buffer);
-        const result = await verifyHash(hash);
+        steps.push({ label: 'SHA-256 berekend', status: 'ok', detail: hash.substring(0, 20) + '…' });
+        const result = await verifyHash(hash, undefined, steps);
         setState({ phase: 'result', result });
       }
     } catch {
