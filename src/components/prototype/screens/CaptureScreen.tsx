@@ -1,5 +1,6 @@
 import { useCallback, useId } from 'react';
 import { motion } from 'framer-motion';
+import { UniversalDropZone } from '../components/UniversalDropZone';
 
 export interface CapturedFile {
   dataUrl: string;
@@ -8,11 +9,21 @@ export interface CapturedFile {
   fileSize: number;
 }
 
+export interface CapturedRawFile {
+  file: File;
+  mimeType: string;
+  fileName: string;
+  fileSize: number;
+  previewDataUrl: string | null;
+}
+
 interface CaptureScreenProps {
   onCapture: (file: CapturedFile) => void;
+  onCaptureFile: (rf: CapturedRawFile) => void;
   /** Whether this is the user's first visit (0 anchors) */
   isFirstVisit?: boolean;
 }
+
 
 /**
  * Screen 1: Capture — Two States
@@ -30,7 +41,7 @@ interface CaptureScreenProps {
  * - Whisper "You are the origin." at bottom
  * - No scroll
  */
-export function CaptureScreen({ onCapture, isFirstVisit = false }: CaptureScreenProps) {
+export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }: CaptureScreenProps) {
   const inputId = useId();
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,6 +195,27 @@ export function CaptureScreen({ onCapture, isFirstVisit = false }: CaptureScreen
           You are the origin.
         </motion.p>
       )}
+
+      {/* ── Universal File Drop Zone ─────────────────────────────────────── */}
+      {/* Appears below the camera circle. Does not replace it. */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 px-6 pb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, delay: isFirstVisit ? 1.4 : 0.6 }}
+      >
+        <UniversalDropZone
+          onFile={(uf) => {
+            onCaptureFile({
+              file: uf.file,
+              mimeType: uf.mimeType,
+              fileName: uf.fileName,
+              fileSize: uf.fileSize,
+              previewDataUrl: uf.previewUrl,
+            });
+          }}
+        />
+      </motion.div>
     </motion.div>
   );
 }
