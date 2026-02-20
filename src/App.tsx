@@ -32,6 +32,7 @@ import Anchor from "./pages/Anchor";
 import CoreSpec from "./pages/CoreSpec";
 import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
+import PrototypeB from "./pages/PrototypeB";
 import Why from "./pages/Why";
 import SealedPreviewPage from "./pages/SealedPreview";
 import Install from "./pages/Install";
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
             <Route path="/pilot-tracker" element={<InternalGate><PilotTracker /></InternalGate>} />
             <Route path="/prototype" element={<Prototype />} />
+            <Route path="/prototype-b" element={<PrototypeB />} />
             <Route path="/intake" element={<InternalGate><Intake /></InternalGate>} />
             <Route path="/spec" element={<InternalGate><Intake /></InternalGate>} />
             

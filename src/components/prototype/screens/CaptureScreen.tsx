@@ -105,7 +105,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
       className="min-h-screen flex flex-col items-center relative"
       style={{
         background: isFirstVisit
-          ? 'radial-gradient(ellipse at 50% 35%, hsl(120 25% 11%), hsl(var(--ritual-surface)) 65%)'
+          ? `radial-gradient(ellipse at 50% 35%, hsl(var(--ritual-surface-elevated)), hsl(var(--ritual-surface)) 65%)`
           : 'hsl(var(--ritual-surface))',
       }}
       initial={{ opacity: 0 }}
@@ -232,7 +232,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
 
           <motion.span
             className="relative z-10 select-none font-playfair font-light"
-            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: '#C5935A' }}
+            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: 'hsl(var(--ritual-gold))' }}
             animate={{ opacity: [0.6, 0.95, 0.6], scale: [1, 1.07, 1] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
@@ -241,21 +241,36 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         </motion.label>
       </div>
 
-      {!isFirstVisit && (
-        <motion.div
-          className="w-full px-6 pb-10 flex flex-col items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 1.5 }}
-        >
+      {/* ── Verify link ── */}
+      <motion.div
+        className="w-full px-6 pb-10 flex flex-col items-center gap-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: isFirstVisit ? 1.6 : 1.0 }}
+      >
+        {!isFirstVisit && (
           <p
             className="text-center font-garamond italic text-[10px]"
             style={{ color: 'hsl(var(--ritual-cream) / 0.10)' }}
           >
             You are the origin.
           </p>
-        </motion.div>
-      )}
+        )}
+        <a
+          href="/verify"
+          className="font-garamond text-[11px] text-center group"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.20)', textDecoration: 'none' }}
+        >
+          Already have a proof?{' '}
+          <span
+            className="transition-colors duration-200 group-hover:text-[hsl(var(--ritual-gold))]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.30)' }}
+          >
+            Verify it here
+          </span>
+          . No account needed.
+        </a>
+      </motion.div>
     </motion.div>
   );
 }

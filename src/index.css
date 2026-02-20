@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -115,6 +115,29 @@
     --verify-green: 120 23% 45%;
     --verify-green-bright: 120 33% 65%;
     --verify-red: 14 60% 56%;
+  }
+
+  /* === VERSION B — Ivory theme (anchoring.app light) === */
+  .theme-ivory {
+    /* Override ritual tokens with ivory palette */
+    /* #F7F4EE warm ivory */
+    --ritual-bg: 40 30% 96%;
+    /* #EEE9DF slightly darker ivory */
+    --ritual-surface: 38 28% 92%;
+    --ritual-surface-elevated: 37 25% 89%;
+    --ritual-surface-light: 36 22% 86%;
+    --ritual-border-subtle: 33 20% 82%;
+
+    /* Gold: #8B7355 — used sparingly */
+    --ritual-gold: 33 22% 44%;
+    --ritual-gold-glow: 33 22% 44% / 0.3;
+    --ritual-gold-muted: 33 18% 50%;
+
+    /* Ink: #1C1712 warm near-black */
+    --ritual-cream: 24 8% 9%;
+    --ritual-cream-70: 24 8% 9% / 0.7;
+    --ritual-cream-40: 24 8% 9% / 0.4;
+    --ritual-cream-20: 24 8% 9% / 0.2;
   }
 
   .dark {
