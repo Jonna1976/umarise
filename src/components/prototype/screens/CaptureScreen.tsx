@@ -89,10 +89,10 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* No accept filter — OS picker shows all file types (Excel, Word, Keynote, etc.) */}
       <input
         id={inputId}
         type="file"
-        accept="image/*,application/pdf,audio/*,video/*,text/*,application/zip,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,.zip,.7z,.rar"
         onChange={handleFileChange}
         className="sr-only"
       />
