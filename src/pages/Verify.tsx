@@ -415,49 +415,35 @@ export default function Verify() {
       style={{ background: 'hsl(var(--landing-deep))', color: 'hsl(var(--landing-cream))' }}
     >
       {/* Header */}
-      <header style={{ borderBottom: '1px solid hsl(var(--landing-cream) / 0.08)' }}>
-        <div className="max-w-2xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
           <a
             href="/"
-            className="font-garamond text-[14px] transition-opacity hover:opacity-70"
-            style={{ color: 'hsl(var(--landing-cream) / 0.55)' }}
+            className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm"
           >
             ← Back
           </a>
-          <span
-            className="font-mono text-[10px] tracking-[3px] uppercase"
-            style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
-          >
-            Umarise
-          </span>
         </div>
-      </header>
-
-      {/* Content */}
-      <main className="max-w-2xl mx-auto px-6 py-16 md:py-24">
-
-        {/* Title */}
-        <div className="mb-12">
-          <p className="font-mono text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: 'hsl(var(--landing-copper))' }}>
-            Umarise · Origin Verification
+        <div className="max-w-2xl mx-auto px-6 pb-10 pt-6">
+          <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">
+            Origin Verification
           </p>
-          <h1
-            className="font-serif text-[32px] md:text-[40px] font-light mb-4"
-            style={{ color: 'hsl(var(--landing-cream))' }}
-          >
+          <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">
             Verify a proof
           </h1>
-          <p
-            className="font-garamond text-[17px] leading-relaxed"
-            style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}
-          >
-            Upload a file, an origin ZIP, or an .ots proof
-            to check whether its existence has been recorded.
+          <p className="text-[hsl(var(--landing-cream)/0.7)] max-w-xl">
+            Upload a file, an origin ZIP, or an .ots proof to check whether its existence has been recorded.
           </p>
-          <p className="font-garamond text-[14px] mt-2" style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}>
+          <p className="text-sm mt-2 text-[hsl(var(--landing-cream)/0.5)]">
             The file never leaves your browser. Verification is performed client-side.
           </p>
         </div>
+      </div>
+
+      {/* Content */}
+      <main className="max-w-2xl mx-auto px-6 py-12">
+
+
 
         {/* Drop zone + result */}
         <AnimatePresence mode="wait">
@@ -512,8 +498,8 @@ export default function Verify() {
           style={{ border: '1px solid hsl(var(--landing-cream) / 0.06)', background: 'hsl(var(--landing-cream) / 0.02)' }}
         >
           <p
-            className="font-garamond italic text-[14px] leading-relaxed"
-            style={{ color: 'hsl(var(--landing-cream) / 0.55)' }}
+            className="text-[15px] leading-relaxed italic"
+            style={{ color: 'hsl(var(--landing-cream) / 0.6)' }}
           >
             This proof is independently verifiable via{' '}
             <a
@@ -525,25 +511,25 @@ export default function Verify() {
             >
               opentimestamps.org
             </a>{' '}
-            or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.7)' }}>ots-cli</code> tool.
-            <br />
-            <span className="text-[13px] not-italic" style={{ color: 'hsl(var(--landing-cream) / 0.35)' }}>
-              No contact with Umarise required.
-            </span>
+            or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>ots-cli</code> tool.
+          </p>
+          <p className="text-sm mt-1.5 not-italic" style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}>
+            No contact with Umarise required.
           </p>
         </div>
       </main>
 
       {/* Footer */}
       <footer
-        className="py-6 text-center font-mono text-[10px] tracking-[2px] uppercase"
+        className="py-6 text-center text-sm font-mono"
         style={{
           borderTop: '1px solid hsl(var(--landing-cream) / 0.07)',
           color: 'hsl(var(--landing-cream) / 0.3)',
         }}
       >
-        Umarise · {new Date().getFullYear()}
+        anchoring.app · {new Date().getFullYear()}
       </footer>
     </div>
   );
 }
+
