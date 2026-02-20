@@ -319,25 +319,6 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
         </div>
       )}
 
-      {/* ── Onafhankelijkheidsverklaring (altijd zichtbaar) ───── */}
-      <p
-        className="mt-8 font-garamond italic text-[12px] text-center leading-relaxed"
-        style={{ color: 'hsl(var(--landing-muted) / 0.3)' }}
-      >
-        Dit bewijs is onafhankelijk verifieerbaar.{' '}
-        <a
-          href="https://opentimestamps.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 transition-opacity hover:opacity-70"
-        >
-          opentimestamps.org
-        </a>{' '}
-        of met de{' '}
-        <code className="font-mono text-[11px]">ots-cli</code>{' '}
-        tool.
-      </p>
-
       {/* Verify another */}
       <div className="text-center mt-5">
         <button
