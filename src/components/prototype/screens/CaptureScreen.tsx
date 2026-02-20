@@ -184,7 +184,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
             transition={{ duration: 1, delay: 0.5 }}
           >
             <h1
-              className="font-playfair font-light text-[20px] leading-[1.75]"
+              className="font-playfair font-light text-[26px] leading-[1.6]"
               style={{ color: 'hsl(var(--ritual-cream))' }}
             >
               It exists.
