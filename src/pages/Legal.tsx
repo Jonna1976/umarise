@@ -315,7 +315,7 @@ export default function Legal() {
                 </h3>
                 <p className="text-landing-muted/70">
                    The .ots proof file is not yet available. The third party has the file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
-                  <code className="font-mono text-sm text-landing-copper">umarise.com/verify</code>{' '}
+                  <code className="font-mono text-sm text-landing-copper">anchoring.app/verify</code>{' '}
                   using the origin_id from the certificate, or directly via the{' '}
                   <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
                   endpoint.

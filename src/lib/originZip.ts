@@ -189,7 +189,7 @@ VERIFY INDEPENDENTLY (no Umarise needed):
 Both scripts require only standard tools (sha256sum/unzip/jq for bash,
 Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
 
-Scripts available at: https://umarise.com/reviewer
+Scripts available at: https://anchoring.app/reviewer
 
 WHAT THIS PROVES:
   The exact bytes of the artifact existed no later than the moment

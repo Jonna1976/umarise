@@ -24,7 +24,7 @@ describe('buildOriginZip', () => {
     // Verify VERIFY.txt contains Guardian C8/C17 content
     const verifyContent = await zip.file('VERIFY.txt')!.async('string');
     expect(verifyContent).toContain('VERIFICATION INSTRUCTIONS');
-    expect(verifyContent).toContain('https://umarise.com/verify');
+    expect(verifyContent).toContain('https://anchoring.app/verify');
     expect(verifyContent).toContain('sha256sum artifact.*');
     expect(verifyContent).toContain('WHAT THIS PROVES');
     expect(verifyContent).toContain('WHAT THIS DOES NOT PROVE');
@@ -41,7 +41,7 @@ describe('buildOriginZip', () => {
     expect(cert.hash).toBe('a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8');
     expect(cert.hash_algo).toBe('SHA-256');
     expect(cert.captured_at).toBe('2026-02-07T20:00:00.000Z');
-    expect(cert.verify_url).toBe('https://umarise.com/verify');
+    expect(cert.verify_url).toBe('https://anchoring.app/verify');
     expect(cert.proof_included).toBe(false);
     expect(cert.proof_status).toBe('pending');
     expect(cert.claimed_by).toBeNull();

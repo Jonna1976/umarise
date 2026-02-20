@@ -120,7 +120,7 @@ const publicRoutes = [
 
 const discoveryPath = [
   { num: 1, contact: 'VERIFY.txt', where: 'In every ZIP', mechanism: 'Origin ID, timestamp, hash, direct verification link' },
-  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canonical)' },
+  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://anchoring.app/verify (canonical)' },
   { num: 3, contact: 'Verify link', where: 'Sealed screen (S4)', mechanism: 'Subtle link below save button' },
   { num: 4, contact: 'Share origin', where: 'Origin Registry detail modal (S3)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
 ];
