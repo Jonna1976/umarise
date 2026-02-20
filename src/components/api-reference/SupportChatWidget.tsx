@@ -223,12 +223,12 @@ export default function SupportChatWidget() {
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0" style={{ maxHeight: '380px' }}>
               {messages.length === 0 && (
                 <div className="text-center py-8 space-y-3">
-                  <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Stel een vraag over de Umarise Core API.</p>
+                  <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm">Ask a question about the Umarise Core API.</p>
                   <div className="space-y-1.5">
                     {[
-                      'Hoe maak ik een attestatie aan?',
-                      'Welk hash-formaat accepteert de API?',
-                      'Hoe lang duurt het tot een proof is verankerd?',
+                      'How do I create an attestation?',
+                      'What hash format does the API accept?',
+                      'How long until a proof is anchored?',
                     ].map((q) => (
                       <button
                         key={q}
@@ -283,7 +283,7 @@ export default function SupportChatWidget() {
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Stel een vraag over de API..."
+                  placeholder="Ask a question about the API..."
                   className="flex-1 bg-transparent text-sm text-[hsl(var(--landing-cream))] placeholder:text-[hsl(var(--landing-cream)/0.35)] outline-none"
                   disabled={isLoading}
                 />
@@ -297,7 +297,7 @@ export default function SupportChatWidget() {
               </form>
               <div className="px-3 pb-2 space-y-1">
                 <p className="text-[9px] text-[hsl(var(--landing-cream)/0.4)] italic">
-                  AI-gegenereerd — kan fouten bevatten. Controleer altijd tegen de documentatie hierboven.
+                  AI-generated — may contain errors. Always verify against the documentation above.
                 </p>
                 <a
                   href="mailto:partners@umarise.com"
