@@ -151,9 +151,25 @@ export default function AnchoringWhy() {
        </div>
       </main>
 
-      {/* Simple Footer */}
-      <footer className="py-12 text-center text-[10px] text-ritual-cream/20 tracking-widest uppercase font-light">
-        <p>© 2026 anchoring.app</p>
+      {/* Footer with Continuity Badge */}
+      <footer className="py-12 text-center space-y-6">
+        {/* Continuity Badge */}
+        <div className="flex justify-center">
+          <a
+            href="/architecture#continuity-guarantee"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-ritual-copper/25 bg-ritual-copper/5 hover:bg-ritual-copper/10 hover:border-ritual-copper/40 transition-all duration-300 group"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-ritual-copper/60 group-hover:bg-ritual-copper transition-colors" />
+            <span className="text-[10px] tracking-[0.25em] uppercase font-light text-ritual-cream/40 group-hover:text-ritual-cream/60 transition-colors">
+              Continuity Guarantee
+            </span>
+            <span className="text-ritual-cream/20 group-hover:text-ritual-cream/40 text-[10px] transition-colors">→</span>
+          </a>
+        </div>
+
+        <p className="text-[10px] text-ritual-cream/20 tracking-widest uppercase font-light">
+          © 2026 anchoring.app
+        </p>
       </footer>
     </div>
   );
