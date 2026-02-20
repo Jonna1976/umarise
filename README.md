@@ -29,13 +29,16 @@ For the full architectural specification, see [`docs/core-vs-companion.md`](./do
 
 ## Current Status
 
-**Phase 1: Trusted Third Party (Production Ready)**
+**Production — both anchoring layers live**
 
-- Database-level immutability via PostgreSQL triggers
-- Write-once origin records
-- Public verification, permissioned attestation
+| Layer | Status |
+|-------|--------|
+| Database immutability (PostgreSQL write-once triggers) | ✓ Live |
+| Public verification, permissioned attestation | ✓ Live |
+| OpenTimestamps / Bitcoin anchoring | ✓ Live — Merkle-aggregation via external worker, OTS proofs stored per attestation |
+| Independent verification (ots-cli / opentimestamps.org) | ✓ Available — no Umarise infrastructure required |
 
-Phase 2 (OpenTimestamps/Bitcoin anchoring) is on the roadmap for trustless external verification.
+Every registered hash is anchored in Bitcoin via the OpenTimestamps protocol. Proofs are independently verifiable without contacting Umarise.
 
 ## Documentation
 
