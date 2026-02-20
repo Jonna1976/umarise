@@ -96,8 +96,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
     e.target.value = '';
   }, [onCapture, onCaptureFile]);
 
-  const circleSize = isFirstVisit ? 160 : 220;
-  const plusSize = isFirstVisit ? 42 : 52;
+  const circleSize = isFirstVisit ? 210 : 270;
+  const plusSize = isFirstVisit ? 56 : 68;
   const circleR = (circleSize / 2) - 10;
 
   return (
@@ -201,66 +201,61 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
           htmlFor={inputId}
           className="relative flex items-center justify-center cursor-pointer group"
           style={{ width: circleSize, height: circleSize }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           aria-label="Selecteer een bestand om te ankeren"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: isFirstVisit ? 1.0 : 0.3 }}
         >
-          <svg
-            viewBox={`0 0 ${circleSize} ${circleSize}`}
-            className="absolute inset-0 w-full h-full"
+          {/* Pulsing ring */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{ scale: [1, 1.06, 1], opacity: [0.35, 0.65, 0.35] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <circle
-              cx={circleSize / 2}
-              cy={circleSize / 2}
-              r={circleR}
-              fill="none"
-              stroke="hsl(var(--ritual-gold))"
-              strokeWidth="1"
-              strokeDasharray="4 10"
-              opacity="0.25"
-            />
-          </svg>
+            <svg
+              viewBox={`0 0 ${circleSize} ${circleSize}`}
+              className="w-full h-full"
+            >
+              <circle
+                cx={circleSize / 2}
+                cy={circleSize / 2}
+                r={circleR}
+                fill="none"
+                stroke="hsl(var(--ritual-gold))"
+                strokeWidth="1.5"
+                strokeDasharray="5 12"
+              />
+            </svg>
+          </motion.div>
 
           <motion.span
             className="relative z-10 select-none font-playfair font-light"
-            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: '#C5935A', opacity: 0.75 }}
-            animate={{ opacity: [0.55, 0.85, 0.55], scale: [1, 1.08, 1] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ fontSize: `${plusSize}px`, lineHeight: 1, color: '#C5935A' }}
+            animate={{ opacity: [0.6, 0.95, 0.6], scale: [1, 1.07, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
             +
           </motion.span>
         </motion.label>
       </div>
 
-      {/* ── Bottom hint ─────────────────────────────────────── */}
-      <motion.div
-        className="w-full px-6 pb-10 flex flex-col items-center gap-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2, delay: isFirstVisit ? 1.4 : 0.6 }}
-      >
-        <p
-          className="font-garamond italic text-[10px] text-center"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.12)' }}
+      {!isFirstVisit && (
+        <motion.div
+          className="w-full px-6 pb-10 flex flex-col items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 1.5 }}
         >
-          PDF, Excel, Word, Keynote, afbeelding, audio, video…
-        </p>
-
-        {!isFirstVisit && (
-          <motion.p
+          <p
             className="text-center font-garamond italic text-[10px]"
             style={{ color: 'hsl(var(--ritual-cream) / 0.10)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 1.5 }}
           >
             You are the origin.
-          </motion.p>
-        )}
-      </motion.div>
+          </p>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
