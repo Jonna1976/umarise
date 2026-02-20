@@ -1,18 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+/**
+ * /verify — Standalone verificatiepagina
+ * 
+ * Doelgroep: advocaat, rechter, platform-medewerker.
+ * Geen account vereist. Geen technische kennis vereist.
+ * 
+ * Drie input-typen (auto-detectie):
+ *   .zip  → leest certificate.json, verifieer via registry
+ *   .ots  → toekomstig: OTS-directe verificatie
+ *   *     → hash het bestand client-side, zoek op in registry
+ * 
+ * Drie resultaten:
+ *   verified   → datum + Bitcoin block + blockstream link
+ *   pending    → geregistreerd, nog niet verankerd
+ *   not_found  → niet gevonden
+ * 
+ * Alles client-side. Bestand verlaat de browser NIET.
+ */
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
 import { verifyOriginByHash, fetchProofStatus } from '@/lib/coreApi';
-import { VerifyDropZone } from '@/components/verify/VerifyDropZone';
-import { VerifyProcessLog, type StepState } from '@/components/verify/VerifyProcessLog';
-import { VerifyHashDisplay } from '@/components/verify/VerifyHashDisplay';
 import { VerifyResult, type VerifyResultData } from '@/components/verify/VerifyResult';
-import { VerifyManualForm } from '@/components/verify/VerifyManualForm';
-
 
 // ─── Helpers ───
-
-const delay = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 
 async function computeSHA256(buffer: ArrayBuffer): Promise<string> {
   const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
@@ -24,504 +36,459 @@ async function computeSHA256(buffer: ArrayBuffer): Promise<string> {
 interface CertificateData {
   origin_id: string;
   hash: string;
-  algorithm?: string;
-  timestamp?: string;
   captured_at?: string;
   proof_status?: string;
-  proof_included?: boolean;
   claimed_by?: string | null;
   signature?: string | null;
   device_signature?: string | null;
   device_public_key?: string | null;
 }
 
-// ─── Initial steps ───
+async function verifyHash(hash: string, cert?: CertificateData): Promise<VerifyResultData> {
+  const verifyResult = await verifyOriginByHash(hash);
 
-function createInitialSteps(): StepState[] {
-  return [
-    { id: 'read', status: 'waiting', label: 'Reading file...' },
-    { id: 'cert', status: 'waiting', label: 'Extracting certificate.json' },
-    { id: 'hash', status: 'waiting', label: 'Hashing photo...' },
-    { id: 'match', status: 'waiting', label: 'Comparing hash with certificate' },
-    { id: 'claim', status: 'waiting', label: 'Checking identity claim...' },
-    { id: 'api', status: 'waiting', label: 'Verifying with registry...' },
-  ];
+  if (!verifyResult.found || !verifyResult.origin) {
+    return { status: 'not_found' };
+  }
+
+  const origin = verifyResult.origin;
+  const proofStatus: 'pending' | 'anchored' = origin.proof_status || 'pending';
+
+  let bitcoinBlockHeight: number | null = null;
+  if (proofStatus === 'anchored') {
+    const proofResult = await fetchProofStatus(origin.origin_id);
+    if (proofResult.status === 'anchored') {
+      bitcoinBlockHeight = proofResult.bitcoinBlockHeight;
+    }
+  }
+
+  return {
+    status: proofStatus === 'anchored' ? 'verified' : 'pending',
+    origin_id: origin.origin_id,
+    hash: origin.hash,
+    captured_at: origin.captured_at,
+    proof_status: proofStatus,
+    bitcoin_block_height: bitcoinBlockHeight,
+    claimed_by: cert?.claimed_by ?? null,
+    signature: cert?.signature ?? null,
+    device_signature: cert?.device_signature ?? null,
+    device_public_key: cert?.device_public_key ?? null,
+  };
 }
 
-// ─── Page Component ───
+// ─── Drop zone ───
+
+type DropState = 'idle' | 'dragging';
+
+interface DropZoneProps {
+  onFile: (file: File) => void;
+  disabled: boolean;
+}
+
+function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
+  const [dropState, setDropState] = useState<DropState>('idle');
+  const dragCounter = useRef(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const prevent = (e: DragEvent) => e.preventDefault();
+    window.addEventListener('dragover', prevent, true);
+    window.addEventListener('drop', prevent, true);
+    return () => {
+      window.removeEventListener('dragover', prevent, true);
+      window.removeEventListener('drop', prevent, true);
+    };
+  }, []);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current++;
+    setDropState('dragging');
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current--;
+    if (dragCounter.current === 0) setDropState('idle');
+  };
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setDropState('idle');
+    const file = e.dataTransfer.files?.[0];
+    if (file && !disabled) onFile(file);
+  };
+
+  return (
+    <div
+      role="button"
+      aria-label="Sleep een bestand hierheen of klik om te selecteren"
+      className="relative w-full rounded-sm cursor-pointer select-none transition-all duration-300"
+      style={{
+        minHeight: 160,
+        border: dropState === 'dragging'
+          ? '1px solid hsl(var(--landing-copper) / 0.5)'
+          : '1px dashed hsl(var(--landing-muted) / 0.15)',
+        background: dropState === 'dragging'
+          ? 'hsl(var(--landing-copper) / 0.03)'
+          : 'transparent',
+      }}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onClick={() => !disabled && inputRef.current?.click()}
+    >
+      <input
+        ref={inputRef}
+        type="file"
+        className="sr-only"
+        disabled={disabled}
+        onChange={e => {
+          const file = e.target.files?.[0];
+          if (file && !disabled) onFile(file);
+          e.target.value = '';
+        }}
+      />
+
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+        {dropState === 'dragging' ? (
+          <span
+            className="font-mono text-[11px] tracking-[0.15em] uppercase"
+            style={{ color: 'hsl(var(--landing-copper) / 0.6)' }}
+          >
+            Loslaten om te verifiëren
+          </span>
+        ) : disabled ? (
+          <span
+            className="font-mono text-[11px] tracking-[0.12em] uppercase"
+            style={{ color: 'hsl(var(--landing-muted) / 0.3)' }}
+          >
+            Bezig…
+          </span>
+        ) : (
+          <>
+            <svg viewBox="0 0 40 40" width={28} height={28} style={{ opacity: 0.2 }}>
+              <rect x="6" y="4" width="20" height="26" rx="2" fill="none" stroke="hsl(var(--landing-cream))" strokeWidth="1.2" />
+              <path d="M22 4 L22 12 L30 12" fill="none" stroke="hsl(var(--landing-cream))" strokeWidth="1.2" />
+              <line x1="6" y1="18" x2="28" y2="18" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.5" />
+              <line x1="6" y1="22" x2="22" y2="22" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.5" />
+            </svg>
+            <div className="text-center">
+              <p
+                className="font-garamond text-[13px] tracking-[0.08em]"
+                style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
+              >
+                Sleep een bestand hierheen of klik om te selecteren
+              </p>
+              <p
+                className="font-garamond italic text-[11px] mt-1"
+                style={{ color: 'hsl(var(--landing-muted) / 0.2)' }}
+              >
+                ZIP, origineel bestand of .ots proof
+              </p>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Loading state ───
+
+function VerifyingState({ fileName }: { fileName: string }) {
+  return (
+    <motion.div
+      className="flex flex-col items-center gap-4 py-10"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+      >
+        <svg viewBox="0 0 48 48" width={32} height={32}>
+          <circle
+            cx="24" cy="24" r="20"
+            fill="none"
+            stroke="hsl(var(--landing-copper) / 0.15)"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M24 4 A20 20 0 0 1 44 24"
+            fill="none"
+            stroke="hsl(var(--landing-copper) / 0.5)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      </motion.div>
+      <div className="text-center">
+        <p
+          className="font-mono text-[10px] tracking-[2px] uppercase"
+          style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
+        >
+          Verifiëren…
+        </p>
+        <p
+          className="font-garamond italic text-[11px] mt-1 truncate max-w-[220px]"
+          style={{ color: 'hsl(var(--landing-muted) / 0.2)' }}
+        >
+          {fileName}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Error display ───
+
+function VerifyError({ message, onReset }: { message: string; onReset: () => void }) {
+  return (
+    <motion.div
+      className="mt-6 rounded-sm p-6"
+      style={{
+        background: 'hsl(0 0% 7%)',
+        border: '1px solid hsl(0 0% 20% / 0.4)',
+      }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <p
+        className="font-mono text-[10px] tracking-[3px] uppercase mb-3"
+        style={{ color: 'hsl(0 0% 45%)' }}
+      >
+        Fout
+      </p>
+      <p
+        className="font-garamond text-[14px]"
+        style={{ color: 'hsl(0 0% 60%)' }}
+      >
+        {message}
+      </p>
+      <button
+        onClick={onReset}
+        className="mt-4 font-mono text-[9px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+        style={{ color: 'hsl(0 0% 40%)' }}
+      >
+        Opnieuw proberen
+      </button>
+    </motion.div>
+  );
+}
+
+// ─── Main page ───
+
+
+
+type PageState =
+  | { phase: 'idle' }
+  | { phase: 'verifying'; fileName: string }
+  | { phase: 'result'; result: VerifyResultData }
+  | { phase: 'error'; message: string };
 
 export default function Verify() {
   const [searchParams] = useSearchParams();
+  const [state, setState] = useState<PageState>({ phase: 'idle' });
 
-  // State
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [steps, setSteps] = useState<StepState[]>(createInitialSteps());
-  const [showSteps, setShowSteps] = useState(false);
-  const [computedHash, setComputedHash] = useState<string | null>(null);
-  const [hashMatch, setHashMatch] = useState<'match' | 'mismatch' | null>(null);
-  const [result, setResult] = useState<VerifyResultData | null>(null);
-  const [manualOpen, setManualOpen] = useState(false);
-  const [manualOriginId, setManualOriginId] = useState('');
-  const [manualHash, setManualHash] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-
-  // URL pre-fill
+  // URL-param: ?hash= pre-triggers a hash lookup on mount
   useEffect(() => {
-    const oid = searchParams.get('origin_id');
-    const h = searchParams.get('hash');
-    if (oid || h) {
-      if (oid) setManualOriginId(oid);
-      if (h) setManualHash(h);
-      setManualOpen(true);
+    const hash = searchParams.get('hash');
+    if (hash && hash.length === 64) {
+      setState({ phase: 'verifying', fileName: 'hash uit URL' });
+      verifyHash(hash).then(result => {
+        setState({ phase: 'result', result });
+      }).catch(() => {
+        setState({ phase: 'error', message: 'Verificatie mislukt. Probeer het opnieuw.' });
+      });
     }
-  }, [searchParams]);
-
-  // Step helpers
-  const updateStep = useCallback((id: string, status: StepState['status'], label?: string) => {
-    setSteps(prev => prev.map(s => s.id === id ? { ...s, status, label: label ?? s.label } : s));
   }, []);
 
-  const hideStep = useCallback((id: string) => {
-    updateStep(id, 'hidden');
-  }, [updateStep]);
+  const reset = useCallback(() => setState({ phase: 'idle' }), []);
 
-  // ─── Reset ───
-  const resetAll = useCallback(() => {
-    setIsProcessing(false);
-    setSteps(createInitialSteps());
-    setShowSteps(false);
-    setComputedHash(null);
-    setHashMatch(null);
-    setResult(null);
-    setManualOriginId('');
-    setManualHash('');
-    setManualOpen(false);
-    setIsVerifying(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  // ─── API Verification ───
-  async function verifyWithApi(hash: string, certificate?: CertificateData) {
-    updateStep('api', 'active', 'Verifying with registry...');
-    
-    const verifyResult = await verifyOriginByHash(hash);
-    
-    if (!verifyResult.found || !verifyResult.origin) {
-      updateStep('api', 'fail', 'Not found in registry');
-      setResult({ status: 'not_found' });
-      return;
-    }
-
-    const origin = verifyResult.origin;
-    updateStep('api', 'done', 'Verified ✓');
-
-    // Fetch proof status to get block height
-    let bitcoinBlockHeight: number | null = null;
-    let proofStatus: 'pending' | 'anchored' = origin.proof_status || 'pending';
-
-    if (proofStatus === 'anchored') {
-      const proofResult = await fetchProofStatus(origin.origin_id);
-      if (proofResult.status === 'anchored') {
-        bitcoinBlockHeight = proofResult.bitcoinBlockHeight;
-      }
-    }
-
-    const resultData: VerifyResultData = {
-      status: proofStatus === 'anchored' ? 'verified' : 'pending',
-      origin_id: origin.origin_id,
-      hash: origin.hash,
-      captured_at: origin.captured_at,
-      proof_status: proofStatus,
-      bitcoin_block_height: bitcoinBlockHeight,
-      claimed_by: certificate?.claimed_by ?? null,
-      signature: certificate?.signature ?? null,
-      device_signature: certificate?.device_signature ?? null,
-      device_public_key: certificate?.device_public_key ?? null,
-    };
-
-    setResult(resultData);
-  }
-
-  // ─── Process ZIP ───
-  async function processZip(file: File) {
-    setIsProcessing(true);
-    setShowSteps(true);
-    setResult(null);
-    setComputedHash(null);
-    setHashMatch(null);
-
-    // Step 1: Read ZIP
-    updateStep('read', 'active', `Reading ${file.name}...`);
-    await delay(300);
-
-    let zip: JSZip;
-    try {
-      zip = await JSZip.loadAsync(file);
-    } catch {
-      updateStep('read', 'fail', 'Failed to read ZIP file');
-      setIsProcessing(false);
-      return;
-    }
-    updateStep('read', 'done', `Reading ${file.name}`);
-
-    // Step 2: Extract certificate.json
-    updateStep('cert', 'active', 'Extracting certificate.json');
-    await delay(300);
-
-    const certFile = zip.file('certificate.json');
-    if (!certFile) {
-      updateStep('cert', 'fail', 'No certificate.json found in ZIP');
-      setIsProcessing(false);
-      return;
-    }
-
-    let cert: CertificateData;
-    try {
-      const certText = await certFile.async('text');
-      cert = JSON.parse(certText);
-    } catch {
-      updateStep('cert', 'fail', 'Invalid certificate.json');
-      setIsProcessing(false);
-      return;
-    }
-    updateStep('cert', 'done', `Origin ID: ${cert.origin_id.substring(0, 8)}...`);
-
-    // Step 3: Hash photo
-    updateStep('hash', 'active', 'Hashing photo...');
-
-    // Find the artifact file in the ZIP (any format: image, video, audio, PDF)
-    const artifactFiles = zip.file(/^artifact\./i);
-    // Fallback: legacy ZIPs may contain photo.jpg or other image files
-    const legacyImageFiles = zip.file(/\.(jpg|jpeg|png|webp|heic)$/i);
-    // Also try video/audio/pdf files as fallback
-    const mediaFiles = zip.file(/\.(mp4|mov|webm|mp3|wav|m4a|pdf)$/i);
-    
-    const allCandidates = [
-      ...artifactFiles,
-      ...legacyImageFiles.filter(f => !artifactFiles.some(a => a.name === f.name)),
-      ...mediaFiles.filter(f => !artifactFiles.some(a => a.name === f.name)),
-    ].filter(f => f.name !== 'certificate.json' && f.name !== 'VERIFY.txt' && !f.name.endsWith('.ots'));
-
-    // Normalize cert hash — strip sha256: prefix if present
-    const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
-
-    if (allCandidates.length === 0) {
-      // Proof-only ZIP: no artifact included (by design for universal file anchors).
-      // Skip hash comparison — go straight to registry verification using the cert hash.
-      updateStep('hash', 'done', 'Proof-only ZIP — original file not included');
-      updateStep('match', 'done', 'Hash from certificate: ' + certHash.substring(0, 16) + '...');
-      setComputedHash(certHash);
-      setHashMatch(null); // no local comparison possible
-
-      // Step 5: Check identity claim
-      updateStep('claim', 'active', 'Checking identity claim...');
-      await delay(200);
-      if (cert.device_signature && cert.device_public_key) {
-        updateStep('claim', 'done', 'Device signature found ✓');
-      } else if (cert.claimed_by && cert.signature) {
-        updateStep('claim', 'done', 'Passkey claim found, signature present');
-      } else {
-        updateStep('claim', 'done', 'Anonymous anchor (no passkey)');
-      }
-
-      // Step 6: Verify registry using cert hash
-      await verifyWithApi(certHash, cert);
-      setIsProcessing(false);
-      return;
-    }
-
-    const artifactEntry = allCandidates[0];
-    const photoBuffer = await artifactEntry.async('arraybuffer');
-    const hash = await computeSHA256(photoBuffer);
-    setComputedHash(hash);
-    updateStep('hash', 'done', `SHA-256: ${hash.substring(0, 16)}...`);
-
-    // Step 4: Compare hashes
-    updateStep('match', 'active', 'Comparing hash with certificate...');
-    await delay(200);
-
-    const hashesMatch = hash === certHash;
-
-    if (!hashesMatch) {
-      updateStep('match', 'fail', 'Hash does NOT match certificate');
-      setHashMatch('mismatch');
-      setResult({ status: 'mismatch' });
-      setIsProcessing(false);
-      return;
-    }
-
-    updateStep('match', 'done', 'Hash matches certificate ✓');
-    setHashMatch('match');
-
-    // Step 5: Check identity claim + device signature
-    updateStep('claim', 'active', 'Checking identity claim...');
-    await delay(200);
-
-    if (cert.device_signature && cert.device_public_key) {
-      updateStep('claim', 'done', 'Device signature found ✓');
-    } else if (cert.claimed_by && cert.signature) {
-      updateStep('claim', 'done', 'Passkey claim found, signature present');
-    } else {
-      updateStep('claim', 'done', 'Anonymous anchor (no passkey)');
-    }
-
-    // Step 6: Verify with registry
-    await verifyWithApi(hash, cert);
-    setIsProcessing(false);
-  }
-
-  // ─── Process certificate.json ───
-  async function processCertificate(file: File) {
-    setIsProcessing(true);
-    setShowSteps(true);
-    setResult(null);
-
-    updateStep('read', 'active', 'Reading certificate.json...');
-    await delay(200);
-
-    let cert: CertificateData;
-    try {
-      const text = await file.text();
-      cert = JSON.parse(text);
-    } catch {
-      updateStep('read', 'fail', 'Invalid certificate.json');
-      setIsProcessing(false);
-      return;
-    }
-    updateStep('read', 'done', `Origin ID: ${cert.origin_id.substring(0, 8)}...`);
-
-    // Hide steps that don't apply
-    hideStep('cert');
-    hideStep('hash');
-    hideStep('match');
-
-    // Pre-fill manual form
-    setManualOriginId(cert.origin_id);
-    const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
-    setManualHash(certHash);
-
-    // Check identity claim + device signature
-    updateStep('claim', 'active', 'Checking identity claim...');
-    await delay(200);
-
-    if (cert.device_signature && cert.device_public_key) {
-      updateStep('claim', 'done', 'Device signature found ✓');
-    } else if (cert.claimed_by && cert.signature) {
-      updateStep('claim', 'done', 'Passkey claim found');
-    } else {
-      updateStep('claim', 'done', 'Anonymous anchor');
-    }
-
-    // Verify with registry
-    await verifyWithApi(certHash, cert);
-    setIsProcessing(false);
-  }
-
-  // ─── Process single file ───
-  async function processSingleFile(file: File) {
-    setIsProcessing(true);
-    setShowSteps(true);
-    setResult(null);
-
-    updateStep('read', 'active', `Reading ${file.name}...`);
-    await delay(200);
-    updateStep('read', 'done', `Reading ${file.name}`);
-
-    hideStep('cert');
-
-    updateStep('hash', 'active', 'Hashing file...');
-    const buffer = await file.arrayBuffer();
-    const hash = await computeSHA256(buffer);
-    setComputedHash(hash);
-    updateStep('hash', 'done', `SHA-256: ${hash.substring(0, 16)}...`);
-
-    // Hide remaining steps — user needs to enter origin_id
-    hideStep('match');
-    hideStep('claim');
-    hideStep('api');
-
-    // Pre-fill manual form and open it
-    setManualHash(hash);
-    setManualOpen(true);
-    setIsProcessing(false);
-  }
-
-  // ─── File handler ───
   const handleFile = useCallback(async (file: File) => {
-    setSteps(createInitialSteps());
-    setResult(null);
-    setComputedHash(null);
-    setHashMatch(null);
+    setState({ phase: 'verifying', fileName: file.name });
 
-    const name = file.name.toLowerCase();
-    const isZip = name.endsWith('.zip') || file.type === 'application/zip';
-    const isCert = name === 'certificate.json';
+    try {
+      const name = file.name.toLowerCase();
+      const isZip = name.endsWith('.zip') || file.type === 'application/zip';
+      const isOts = name.endsWith('.ots');
 
-    if (isZip) {
-      await processZip(file);
-    } else if (isCert) {
-      await processCertificate(file);
-    } else {
-      await processSingleFile(file);
+      if (isZip) {
+        // ZIP: extract certificate.json, use hash from cert
+        let zip: JSZip;
+        try {
+          zip = await JSZip.loadAsync(file);
+        } catch {
+          setState({ phase: 'error', message: 'Bestand kon niet geopend worden.' });
+          return;
+        }
+
+        const certFile = zip.file('certificate.json');
+        if (!certFile) {
+          setState({ phase: 'error', message: 'Dit lijkt geen Umarise origin-ZIP. Verwacht: certificate.json.' });
+          return;
+        }
+
+        let cert: CertificateData;
+        try {
+          const text = await certFile.async('text');
+          cert = JSON.parse(text);
+        } catch {
+          setState({ phase: 'error', message: 'Certificate onleesbaar.' });
+          return;
+        }
+
+        if (!cert.hash) {
+          setState({ phase: 'error', message: 'Certificate onleesbaar — geen hash gevonden.' });
+          return;
+        }
+
+        // Strip sha256: prefix if present
+        const hash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
+        const result = await verifyHash(hash, cert);
+        setState({ phase: 'result', result });
+
+      } else if (isOts) {
+        // .ots: toekomstig — toon instructie
+        setState({
+          phase: 'error',
+          message: 'Directe .ots verificatie komt binnenkort. Gebruik nu opentimestamps.org om een .ots bestand te verifiëren.',
+        });
+
+      } else {
+        // Willekeurig bestand: hash client-side en zoek op
+        const buffer = await file.arrayBuffer();
+        const hash = await computeSHA256(buffer);
+        const result = await verifyHash(hash);
+        setState({ phase: 'result', result });
+      }
+    } catch {
+      setState({ phase: 'error', message: 'Verificatie mislukt. Probeer het opnieuw.' });
     }
   }, []);
 
-  // ─── Manual verify ───
-  const handleManualVerify = useCallback(async () => {
-    if (manualHash.trim().length !== 64) return;
-
-    setIsVerifying(true);
-    setSteps(createInitialSteps());
-    setShowSteps(true);
-
-    hideStep('read');
-    hideStep('cert');
-    hideStep('hash');
-    hideStep('match');
-    hideStep('claim');
-
-    await verifyWithApi(manualHash.trim());
-    setIsVerifying(false);
-  }, [manualHash, manualOriginId]);
-
-  // ─── Render ───
   return (
-    <div className="min-h-screen bg-landing-deep text-landing-cream">
-      {/* Header */}
-      <header className="border-b border-landing-muted/10">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-landing-muted/50 hover:text-landing-cream transition-colors"
+    <div
+      className="min-h-screen"
+      style={{ background: 'hsl(var(--landing-deep))', color: 'hsl(var(--landing-cream))' }}
+    >
+      {/* Header — minimaal */}
+      <header style={{ borderBottom: '1px solid hsl(var(--landing-muted) / 0.08)' }}>
+        <div className="max-w-2xl mx-auto px-6 py-5 flex items-center justify-between">
+          <a
+            href="/"
+            className="font-garamond text-[13px] transition-opacity hover:opacity-60"
+            style={{ color: 'hsl(var(--landing-muted) / 0.35)' }}
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Back</span>
-          </Link>
-          <span className="font-serif text-lg text-landing-cream/80">
+            ← Terug
+          </a>
+          <span
+            className="font-mono text-[10px] tracking-[3px] uppercase"
+            style={{ color: 'hsl(var(--landing-muted) / 0.25)' }}
+          >
             Umarise
           </span>
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
-        {/* Title */}
-        <div className="mb-16">
-          <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-            Verify an Anchor
+      <main className="max-w-2xl mx-auto px-6 py-16 md:py-24">
+
+        {/* Titel */}
+        <div className="mb-12">
+          <h1
+            className="font-serif text-[28px] md:text-[34px] font-light mb-3"
+            style={{ color: 'hsl(var(--landing-cream))' }}
+          >
+            Verifieer een bewijs
           </h1>
-          <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
-            Verify the anchor, check when it was recorded, download the Bitcoin proof
+          <p
+            className="font-garamond text-[15px] leading-relaxed"
+            style={{ color: 'hsl(var(--landing-muted) / 0.45)' }}
+          >
+            Upload een bestand, een origin-ZIP, of een .ots proof
+            om te controleren of het bestaan ervan is vastgelegd.
           </p>
         </div>
 
-        {/* USP strip */}
-        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
-          <section>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {[
-                { title: 'Private', text: 'Your file stays in your browser. Only the hash is checked.' },
-                { title: 'Independent', text: 'The Bitcoin proof is yours. Verifiable without Umarise.' },
-                { title: 'One action', text: 'Drop the ZIP. The certificate is read and the anchor is verified.' },
-              ].map(usp => (
-                <div key={usp.title} className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                  <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-2">
-                    {usp.title}
-                  </h3>
-                  <p className="text-landing-muted/60 text-sm">{usp.text}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+        {/* Drop zone + resultaat */}
+        <AnimatePresence mode="wait">
+          {state.phase === 'idle' && (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <VerifyDropArea onFile={handleFile} disabled={false} />
+            </motion.div>
+          )}
 
-          {/* Drop zone */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Drop your file
-            </h2>
-            <div className="max-w-xl mx-auto">
-              <VerifyDropZone onFile={handleFile} isProcessing={isProcessing} />
+          {state.phase === 'verifying' && (
+            <motion.div
+              key="verifying"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <VerifyingState fileName={state.fileName} />
+            </motion.div>
+          )}
 
-              {/* Process log */}
-              <VerifyProcessLog steps={steps} visible={showSteps} />
+          {state.phase === 'result' && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <VerifyResult result={state.result} onReset={reset} />
+            </motion.div>
+          )}
 
-              {/* Hash display */}
-              {computedHash && (
-                <VerifyHashDisplay hash={computedHash} matchStatus={hashMatch} />
-              )}
+          {state.phase === 'error' && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <VerifyError message={state.message} onReset={reset} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* Result */}
-              {result && (
-                <VerifyResult result={result} onReset={resetAll} />
-              )}
-
-              {/* Manual form (hidden when result is shown) */}
-              {!result && (
-                <VerifyManualForm
-                  isOpen={manualOpen}
-                  onToggle={() => setManualOpen(o => !o)}
-                  originId={manualOriginId}
-                  hash={manualHash}
-                  onOriginIdChange={setManualOriginId}
-                  onHashChange={setManualHash}
-                  onVerify={handleManualVerify}
-                  isVerifying={isVerifying}
-                />
-              )}
-            </div>
-          </section>
-
-          {/* How it works */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              How it works
-            </h2>
-
-            <ul className="space-y-4 pl-4">
-              {[
-                {
-                  label: 'Drop',
-                  text: 'Drop the Anchor ZIP you received. It contains the original file, a certificate with the origin ID and hash, and optionally a Bitcoin proof. You can also drop just the file or the certificate.json separately. Everything is read in your browser. Nothing is uploaded.',
-                },
-                {
-                  label: 'Verify',
-                   text: 'The file is hashed in your browser and compared with the certificate. The hash is checked against the Umarise registry to confirm when the anchor was recorded. If a passkey claim is present, the signature is displayed.',
-                },
-                {
-                  label: 'Keep the proof',
-                  text: 'After verification, if the anchor is confirmed in Bitcoin, a button appears in the result to download the OpenTimestamps proof file. This .ots file is yours to keep forever. You can verify it independently against the Bitcoin blockchain with any OTS verifier or full node. No Umarise needed.',
-                },
-              ].map(step => (
-                <li key={step.label}>
-                  <span className="text-landing-copper">{step.label}</span>
-                  <span className="text-landing-muted/50 ml-2">:</span>
-                  <span className="ml-2">{step.text}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* What an origin proves */}
-          <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              What an Anchor proves
-            </h2>
-            <p className="text-landing-cream/90 mb-4">
-              This file existed at the registered time. That fact is anchored in the Bitcoin blockchain and independently verifiable.
-            </p>
-            <p className="text-landing-muted/60 mb-4">
-              If a passkey was used, it also proves someone claimed this Anchor with their device's secure enclave. A cryptographic signature, not a name or identity.
-            </p>
-            <p className="text-landing-muted/50 text-sm">
-              An Anchor does not prove first creation or exclusivity. The same file could be registered elsewhere. The .ots proof survives without Umarise. The Anchor metadata does not.
-            </p>
-          </section>
-        </div>
+        {/* Onafhankelijkheidsverklaring (altijd zichtbaar in idle) */}
+        {state.phase === 'idle' && (
+          <p
+            className="mt-10 font-garamond italic text-[12px] text-center leading-relaxed"
+            style={{ color: 'hsl(var(--landing-muted) / 0.22)' }}
+          >
+            Dit bewijs is onafhankelijk verifieerbaar.{' '}
+            <a
+              href="https://opentimestamps.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-opacity hover:opacity-70"
+            >
+              opentimestamps.org
+            </a>{' '}
+            of met de <code className="font-mono text-[11px]">ots-cli</code> tool.
+          </p>
+        )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
-        <p>© {new Date().getFullYear()} Umarise</p>
+      <footer
+        className="py-6 text-center font-mono text-[9px] tracking-[2px] uppercase"
+        style={{
+          borderTop: '1px solid hsl(var(--landing-muted) / 0.07)',
+          color: 'hsl(var(--landing-muted) / 0.2)',
+        }}
+      >
+        Umarise · {new Date().getFullYear()}
       </footer>
     </div>
   );
