@@ -47,24 +47,30 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const mimeType = file.type || 'application/octet-stream';
 
+    // Non-image files: route directly to createMarkFromFile (no dataUrl needed)
+    if (!mimeType.startsWith('image/')) {
+      console.log('[Capture] Non-image file → file path:', file.name, `(${mimeType}, ${(file.size / 1024).toFixed(1)}KB)`);
+      const previewDataUrl = null;
+      onCaptureFile({ file, mimeType, fileName: file.name, fileSize: file.size, previewDataUrl });
+      e.target.value = '';
+      return;
+    }
+
+    // Image: keep existing dataUrl path (thumbnail generation works fine)
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      console.log('[Capture] File loaded:', file.name, `(${file.type}, ${(file.size / 1024).toFixed(1)}KB)`);
-      onCapture({
-        dataUrl,
-        mimeType: file.type || 'application/octet-stream',
-        fileName: file.name,
-        fileSize: file.size,
-      });
+      console.log('[Capture] Image file loaded:', file.name, `(${mimeType}, ${(file.size / 1024).toFixed(1)}KB)`);
+      onCapture({ dataUrl, mimeType, fileName: file.name, fileSize: file.size });
     };
     reader.onerror = () => {
       console.error('[Capture] Failed to read file');
     };
     reader.readAsDataURL(file);
     e.target.value = '';
-  }, [onCapture]);
+  }, [onCapture, onCaptureFile]);
 
   const circleSize = isFirstVisit ? 120 : 180;
   const plusSize = isFirstVisit ? 26 : 32;
