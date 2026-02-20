@@ -78,10 +78,16 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
     <div className="mt-7">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 font-mono text-xs tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
-        style={{ color: 'hsl(var(--landing-cream) / 0.5)' }}
+        className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase cursor-pointer transition-all rounded-sm px-2.5 py-1.5"
+        style={{
+          color: open ? 'hsl(var(--landing-cream) / 0.75)' : 'hsl(var(--landing-cream) / 0.45)',
+          border: open
+            ? '1px solid hsl(var(--landing-cream) / 0.25)'
+            : '1px solid transparent',
+          background: 'transparent',
+        }}
       >
-        {open ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         {open ? 'Hide verification steps' : 'Show verification steps'}
       </button>
 
@@ -95,10 +101,10 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
             className="overflow-hidden"
           >
             <div
-              className="mt-4 rounded-sm px-5 py-4 font-mono text-sm space-y-2.5"
+              className="mt-3 rounded-sm px-5 py-5 font-mono text-[13px] space-y-3"
               style={{
-                background: 'hsl(var(--landing-deep))',
-                border: '1px solid hsl(var(--landing-cream) / 0.08)',
+                background: 'hsl(0 0% 4%)',
+                border: '1px solid hsl(var(--landing-cream) / 0.07)',
               }}
             >
               {steps.map((step, i) => (
@@ -113,15 +119,15 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
                           ? 'hsl(38 55% 68%)'
                           : step.status === 'error'
                           ? 'hsl(0 55% 68%)'
-                          : 'hsl(var(--landing-cream) / 0.55)',
+                          : 'hsl(var(--landing-cream) / 0.45)',
                       }}
                     >
                       {step.label}
                     </span>
                     {step.detail && (
                       <span
-                        className="ml-2 text-xs break-all"
-                        style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
+                        className="ml-2 text-[11px] break-all"
+                        style={{ color: 'hsl(var(--landing-cream) / 0.35)' }}
                       >
                         {step.detail}
                       </span>
@@ -165,23 +171,23 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
       {/* ── VERIFIED ──────────────────────────────────────────── */}
       {result.status === 'verified' && (
         <div
-          className="rounded-sm p-8"
+          className="rounded-sm px-8 py-9"
           style={{
             background: 'hsl(142 30% 7%)',
             border: '1px solid hsl(142 40% 28% / 0.5)',
           }}
         >
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-3 mb-6">
             <svg viewBox="0 0 20 20" width={18} height={18}>
               <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.3" />
               <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="font-mono text-xs tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>
+            <span className="font-mono text-[10px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>
               Verified
             </span>
           </div>
 
-          <p className="font-serif text-2xl leading-[1.4] mb-3" style={{ color: 'hsl(142 20% 88%)' }}>
+          <p className="font-serif leading-[1.35] mb-3" style={{ fontSize: '1.75rem', color: 'hsl(142 20% 88%)' }}>
             This file demonstrably existed on{' '}
             <span style={{ color: 'hsl(142 30% 78%)' }}>
               {result.captured_at ? formatDateTime(result.captured_at) : '—'}
@@ -190,8 +196,8 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           </p>
 
           {result.bitcoin_block_height ? (
-            <div className="mt-5 flex items-center gap-3 flex-wrap">
-              <span className="text-[16px]" style={{ color: 'hsl(142 20% 65%)' }}>
+            <div className="mt-4 flex items-center gap-3 flex-wrap">
+              <span className="text-[15px]" style={{ color: 'hsl(142 20% 65%)' }}>
                 Anchored in Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}
               </span>
               {blockstreamUrl && (
@@ -199,7 +205,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
                   href={blockstreamUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 font-mono text-xs tracking-[1.5px] uppercase transition-opacity hover:opacity-70"
+                  className="inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[1.5px] uppercase transition-opacity hover:opacity-70"
                   style={{ color: 'hsl(142 40% 55%)' }}
                 >
                   View on blockstream.info
@@ -208,7 +214,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               )}
             </div>
           ) : (
-            <p className="mt-3 text-[15px]" style={{ color: 'hsl(142 15% 55%)' }}>
+            <p className="mt-3 text-[14px] italic" style={{ color: 'hsl(142 15% 52%)' }}>
               Anchored in Bitcoin — block number loading.
             </p>
           )}
@@ -217,8 +223,12 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
             <button
               onClick={handleDownloadProof}
               disabled={downloading}
-              className="mt-6 inline-flex items-center gap-2 font-mono text-xs tracking-[2px] uppercase px-5 py-2.5 rounded-sm transition-all disabled:opacity-50 hover:opacity-80"
-              style={{ color: 'hsl(142 40% 55%)', border: '1px solid hsl(142 40% 28% / 0.6)', background: 'transparent' }}
+              className="mt-7 inline-flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase px-4 py-2.5 rounded-sm transition-all disabled:opacity-50 hover:opacity-80"
+              style={{
+                color: 'hsl(142 40% 55%)',
+                border: '1px solid hsl(142 40% 32% / 0.7)',
+                background: 'transparent',
+              }}
             >
               {downloading ? '↓  Downloading…' : '↓  Download proof.ots'}
             </button>
@@ -226,17 +236,23 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
 
           <button
             onClick={() => setShowDetails(v => !v)}
-            className="flex items-center gap-2 mt-6 font-mono text-xs tracking-[2px] uppercase transition-opacity hover:opacity-70 bg-transparent border-none cursor-pointer"
-            style={{ color: 'hsl(142 20% 50%)' }}
+            className="flex items-center gap-2 mt-5 font-mono text-[10px] tracking-[2px] uppercase cursor-pointer transition-all rounded-sm px-2.5 py-1.5"
+            style={{
+              color: showDetails ? 'hsl(142 25% 60%)' : 'hsl(142 15% 45%)',
+              border: showDetails
+                ? '1px solid hsl(142 25% 28% / 0.6)'
+                : '1px solid transparent',
+              background: 'transparent',
+            }}
           >
-            {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             {showDetails ? 'Hide technical details' : 'Show technical details'}
           </button>
 
           {showDetails && (
             <motion.div
               className="mt-4 pt-4"
-              style={{ borderTop: '1px solid hsl(142 20% 14%)' }}
+              style={{ borderTop: '1px solid hsl(142 20% 12%)' }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
