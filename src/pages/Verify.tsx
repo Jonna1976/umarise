@@ -513,9 +513,6 @@ export default function Verify() {
             </a>{' '}
             or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>ots-cli</code> tool.
           </p>
-          <p className="text-sm mt-1.5 not-italic" style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}>
-            No contact with Umarise required.
-          </p>
         </div>
       </main>
 
