@@ -47,19 +47,22 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
 
   /**
    * CRITICAL: Prevent the browser from navigating to / downloading dropped files.
-   * Without this, Safari and Chrome open/download the file instead of passing
-   * the drop event to our React handlers.
+   * 
+   * Must use:
+   * - window (not document) so it fires before any other listener
+   * - capture phase (3rd arg true) so it fires before React's bubble-phase handlers
+   * - ONLY preventDefault, NOT stopPropagation — React still needs to see the event
+   * 
+   * Without this, Safari and Chrome open/download the file instead of
+   * passing the drop event to our React onDrop handler.
    */
   useEffect(() => {
-    const preventBrowserDefault = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-    document.addEventListener('dragover', preventBrowserDefault);
-    document.addEventListener('drop', preventBrowserDefault);
+    const prevent = (e: DragEvent) => e.preventDefault();
+    window.addEventListener('dragover', prevent, true);  // capture phase
+    window.addEventListener('drop', prevent, true);      // capture phase
     return () => {
-      document.removeEventListener('dragover', preventBrowserDefault);
-      document.removeEventListener('drop', preventBrowserDefault);
+      window.removeEventListener('dragover', prevent, true);
+      window.removeEventListener('drop', prevent, true);
     };
   }, []);
 
@@ -105,7 +108,6 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     dragCounter.current = 0;
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
