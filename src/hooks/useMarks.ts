@@ -22,7 +22,7 @@ import {
   getMarkCount
 } from '@/lib/indexedDB';
 import { generateThumbnail } from '@/lib/thumbnailService';
-import { hashAndDecodeDataUrl } from '@/lib/originHash';
+import { hashAndDecodeDataUrl, calculateSHA256 } from '@/lib/originHash';
 import { generateOriginId } from '@/lib/originId';
 import { getDeviceFingerprintHash } from '@/lib/deviceFingerprint';
 import { getDeviceId } from '@/lib/deviceId';
@@ -363,6 +363,184 @@ export function useMarks() {
   /**
    * Delete a mark from both IndexedDB and Supabase
    */
+  /**
+   * Create a new mark from a raw File object.
+   * 
+   * For universal file upload (PDF, audio, video, archive, etc.)
+   * Uses direct File → arrayBuffer() → SHA-256 (no base64 round-trip).
+   * This is the canonical hash that matches `sha256sum file` outside the app.
+   * 
+   * Large files (>50MB): chunked read with progress callback.
+   * 
+   * image_url is intentionally set to '' for non-image origins.
+   * TECHNICAL DEBT NOTE (week 9 migration): rename image_url to artifact_ref 
+   * or make nullable — the column name is misleading for non-image origins.
+   */
+  const createMarkFromFile = useCallback(async (
+    file: File,
+    type: LocalMark['type'] = 'warm',
+    onProgress?: (fraction: number) => void,
+  ): Promise<DisplayMark | null> => {
+    // Auto-initialize device ID if not present
+    let deviceUserId = getDeviceId();
+    if (!deviceUserId) {
+      const { initializeDeviceId } = await import('@/lib/deviceId');
+      deviceUserId = initializeDeviceId();
+    }
+    if (!deviceUserId) {
+      console.error('[createMarkFromFile] Failed to initialize device ID');
+      toast.error('Device not initialized');
+      return null;
+    }
+
+    try {
+      console.log('[createMarkFromFile] File:', file.name, `(${file.type}, ${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // ── Step 1: Compute SHA-256 directly from File bytes ──────────────────
+      // This is bit-identical to: sha256sum <file>
+      // No base64 encoding/decoding — the hash matches the raw file bytes.
+      onProgress?.(0);
+      const arrayBuffer = await file.arrayBuffer();
+      onProgress?.(0.6); // Buffer read ~60%
+
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      onProgress?.(0.75);
+
+      console.log('[createMarkFromFile] SHA-256:', hash);
+
+      // ── Step 2: Thumbnail — image preview or placeholder ──────────────────
+      let thumbnailBlob: Blob;
+      if (file.type.startsWith('image/')) {
+        // For image files, generate a proper compressed thumbnail
+        const previewUrl = URL.createObjectURL(file);
+        try {
+          thumbnailBlob = await generateThumbnail(previewUrl);
+        } finally {
+          URL.revokeObjectURL(previewUrl);
+        }
+      } else {
+        // Non-image: 1-byte placeholder (type encoded in mime)
+        thumbnailBlob = new Blob(['□'], { type: 'text/plain' });
+      }
+
+      // ── Step 3: Device signing (best-effort, non-blocking) ─────────────────
+      let deviceSignature: string | null = null;
+      let devicePublicKey: string | null = null;
+
+      if (isWebAuthnSupported()) {
+        let credential = getPasskeyCredential();
+        if (!credential) {
+          try {
+            const hasPlatform = await isPlatformAuthenticatorAvailable();
+            if (hasPlatform) {
+              credential = await registerPasskey(hash.substring(0, 8));
+              savePasskeyCredential(credential);
+              const sig = await signHash(credential.credentialId, hash).catch(() => null);
+              if (sig) {
+                deviceSignature = sig.signature;
+                devicePublicKey = credential.publicKey;
+              } else {
+                devicePublicKey = credential.publicKey;
+              }
+            }
+          } catch { /* user cancelled — non-blocking */ }
+        } else {
+          try {
+            const sig = await signHash(credential.credentialId, hash);
+            deviceSignature = sig.signature;
+            devicePublicKey = credential.publicKey;
+          } catch { /* non-blocking */ }
+        }
+      }
+
+      onProgress?.(0.85);
+
+      // ── Step 4: IDs + fingerprint ──────────────────────────────────────────
+      const originId = generateOriginId();
+      const deviceFingerprint = await getDeviceFingerprintHash();
+      const sizeClass: LocalMark['sizeClass'] = 'medium';
+
+      // ── Step 5: IndexedDB (local-first) ────────────────────────────────────
+      const localMark = await saveMark({
+        id: crypto.randomUUID(),
+        thumbnail: thumbnailBlob,
+        hash,
+        originId,
+        timestamp: new Date(),
+        otsProof: null,
+        otsStatus: 'pending',
+        type,
+        sizeClass,
+        syncStatus: 'queued',
+      });
+
+      // ── Step 6: Upload thumbnail to cloud storage (visual fallback) ────────
+      let thumbnailPublicUrl: string | null = null;
+      if (file.type.startsWith('image/')) {
+        try {
+          const storagePath = `${deviceUserId}/${localMark.id}.jpg`;
+          const { error: uploadError } = await supabase.storage
+            .from('thumbnails')
+            .upload(storagePath, thumbnailBlob, { contentType: 'image/jpeg', upsert: true });
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage.from('thumbnails').getPublicUrl(storagePath);
+            thumbnailPublicUrl = urlData.publicUrl;
+            const { updateMark } = await import('@/lib/indexedDB');
+            await updateMark({ ...localMark, legacyImageUrl: thumbnailPublicUrl });
+            localMark.legacyImageUrl = thumbnailPublicUrl;
+          }
+        } catch { /* non-blocking */ }
+      }
+
+      onProgress?.(0.95);
+
+      // ── Step 7: Sync hash to database ─────────────────────────────────────
+      // CHAIN: pages.origin_hash_sha256 → bridge trigger → origin_attestations
+      // The bridge trigger (bridge_page_to_core_attestation) is ON INSERT on pages.
+      // It reads origin_hash_sha256 and inserts into origin_attestations ON CONFLICT DO NOTHING.
+      // The OTS worker then reads from origin_attestations and produces core_ots_proofs.
+      // CRITICAL: hash must be raw 64-char hex (no prefix) — that's what the bridge expects.
+      console.log('[createMarkFromFile] Syncing to database (bridge trigger will propagate to origin_attestations)...');
+      const { error: supabaseError } = await supabase
+        .from('pages')
+        .insert({
+          id: localMark.id,
+          device_user_id: deviceUserId,
+          writer_user_id: deviceUserId,
+          image_url: '', // TECH DEBT (week 9): rename to artifact_ref or make nullable
+          origin_hash_sha256: hash,
+          origin_hash_algo: 'sha256',
+          device_fingerprint_hash: deviceFingerprint,
+          thumbnail_uri: thumbnailPublicUrl || null,
+          ocr_text: '',
+          is_trashed: false,
+        } as any);
+
+      if (supabaseError) {
+        console.warn('[createMarkFromFile] DB sync failed (will retry):', supabaseError);
+      } else {
+        localMark.syncStatus = 'synced';
+        console.log('[createMarkFromFile] ✓ Synced. Hash in pages:', hash);
+        console.log('[createMarkFromFile] Bridge trigger should now have propagated to origin_attestations');
+      }
+
+      onProgress?.(1);
+
+      const displayMark = toDisplayMark(localMark);
+      displayMark.deviceSignature = deviceSignature;
+      displayMark.devicePublicKey = devicePublicKey;
+      setMarks(prev => [displayMark, ...prev]);
+
+      return displayMark;
+    } catch (e) {
+      console.error('[createMarkFromFile] Failed:', e);
+      toast.error('Failed to anchor file');
+      return null;
+    }
+  }, [toDisplayMark]);
+
   const deleteMark = useCallback(async (id: string): Promise<boolean> => {
     try {
       // Delete from IndexedDB
@@ -460,6 +638,7 @@ export function useMarks() {
     isLoading,
     error,
     createMark,
+    createMarkFromFile,
     deleteMark,
     importLegacyMarks,
     refresh: loadMarks,

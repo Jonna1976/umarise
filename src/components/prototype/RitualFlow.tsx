@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { CaptureScreen, type CapturedFile } from './screens/CaptureScreen';
+import { CaptureScreen, type CapturedFile, type CapturedRawFile } from './screens/CaptureScreen';
 import { SealedScreen } from './screens/SealedScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { WallOfExistence } from './screens/WallOfExistence';
 import { OriginButton } from './components/OriginButton';
+import { HashingProgress, fileTypeLabel } from './components/UniversalDropZone';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
 
@@ -34,7 +35,7 @@ export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('capture');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const [showFirstAnchorReveal, setShowFirstAnchorReveal] = useState(false);
-  const { createMark } = useMarks();
+  const { createMark, createMarkFromFile } = useMarks();
 
   // Determine first visit: 0 anchors in local storage
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
@@ -46,6 +47,9 @@ export function RitualFlow() {
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
   const [currentArtifact, setCurrentArtifact] = useState<Artifact | null>(null);
   const isCreatingMark = useRef(false);
+
+  // File hashing progress state (for large files in universal drop zone)
+  const [hashingFile, setHashingFile] = useState<{ fileName: string; fileSize: number; progress: number } | null>(null);
 
   const goToScreen = useCallback((target: RitualScreen) => {
     if (target !== 'wall') {
@@ -121,6 +125,66 @@ export function RitualFlow() {
     }
   }, [goToScreen, createMark]);
 
+  // Handle raw File from UniversalDropZone — directe File-hashing, geen base64
+  const handleCaptureFile = useCallback(async (rf: CapturedRawFile) => {
+    if (isCreatingMark.current) return;
+    isCreatingMark.current = true;
+
+    // Determine artifact type from MIME
+    const artifactType = rf.mimeType.startsWith('audio/') ? 'sound'
+      : rf.mimeType.startsWith('image/') ? 'warm'
+      : rf.mimeType.startsWith('video/') ? 'digital'
+      : 'text';
+
+    // Set preview image for sealed screen (only for images)
+    setCapturedImageUrl(rf.previewDataUrl);
+
+    // Show processing with hashing progress for large files
+    setHashingFile({ fileName: rf.fileName, fileSize: rf.fileSize, progress: 0 });
+    goToScreen('processing');
+
+    try {
+      console.log('[RitualFlow] createMarkFromFile:', rf.fileName, rf.mimeType);
+      const mark = await createMarkFromFile(
+        rf.file,
+        artifactType,
+        (fraction) => setHashingFile(prev => prev ? { ...prev, progress: fraction } : null),
+      );
+
+      setHashingFile(null);
+
+      if (mark) {
+        const realArtifact: Artifact = {
+          id: mark.id,
+          type: mark.type,
+          origin: mark.originId.toUpperCase().replace('UM-', 'ANCHOR '),
+          date: mark.timestamp,
+          hash: mark.hash,
+          imageUrl: rf.previewDataUrl || mark.thumbnailUrl || null,
+          mimeType: rf.mimeType,
+          fileName: rf.fileName,
+          deviceSignature: mark.deviceSignature ?? null,
+          devicePublicKey: mark.devicePublicKey ?? null,
+        };
+        setCurrentArtifact(realArtifact);
+        setIsFirstVisit(false);
+        goToScreen('sealed');
+        console.log('[RitualFlow] File mark created:', mark.id, 'hash:', mark.hash);
+        console.log('[RitualFlow] VERIFY: sha256sum of', rf.fileName, 'should equal:', mark.hash);
+      } else {
+        toast.error('Failed to anchor file');
+        goToScreen('capture');
+        isCreatingMark.current = false;
+      }
+    } catch (error) {
+      console.error('[RitualFlow] File mark creation failed:', error);
+      toast.error('Failed to anchor file');
+      setHashingFile(null);
+      goToScreen('capture');
+      isCreatingMark.current = false;
+    }
+  }, [goToScreen, createMarkFromFile]);
+
   // handleMarkComplete removed — mark creation now happens automatically in handleCapture
 
   // Sealed → Wall (after Save → ✓ Owned → 0.8s)
@@ -188,29 +252,42 @@ export function RitualFlow() {
       {/* Screens */}
       
       {screen === 'capture' && (
-        <CaptureScreen onCapture={handleCapture} isFirstVisit={isFirstVisit} />
+        <CaptureScreen
+          onCapture={handleCapture}
+          onCaptureFile={handleCaptureFile}
+          isFirstVisit={isFirstVisit}
+        />
       )}
       
-      {/* Processing state - brief visual during auto-hash + mark creation */}
+      {/* Processing state - hashing + mark creation */}
       {screen === 'processing' && (
         <motion.div
-          className="min-h-screen flex flex-col items-center justify-center"
+          className="min-h-screen flex flex-col items-center justify-center gap-8"
           style={{ background: 'hsl(var(--ritual-surface))' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Origin Mark breathing animation during processing */}
-          <motion.div
-            className="relative"
-            animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <svg viewBox="0 0 48 48" className="w-16 h-16">
-              <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--ritual-gold))" opacity="0.7" />
-              <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" opacity="0.9" />
-            </svg>
-          </motion.div>
+          {hashingFile ? (
+            // Universal file: show progress indicator
+            <HashingProgress
+              fileName={hashingFile.fileName}
+              fileSize={hashingFile.fileSize}
+              progress={hashingFile.progress}
+            />
+          ) : (
+            // Camera flow: breathing hex (original behavior)
+            <motion.div
+              className="relative"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <svg viewBox="0 0 48 48" className="w-16 h-16">
+                <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--ritual-gold))" opacity="0.7" />
+                <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" opacity="0.9" />
+              </svg>
+            </motion.div>
+          )}
         </motion.div>
       )}
       
@@ -239,3 +316,4 @@ export function RitualFlow() {
     </div>
   );
 }
+
