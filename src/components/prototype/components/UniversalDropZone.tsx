@@ -97,20 +97,27 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
 
   return (
     <div className="w-full">
+      {/* Hidden file input — no accept filter so ALL file types are selectable */}
       <input
         id={inputId}
         type="file"
-        accept="*/*"
         onChange={handleFileChange}
         className="sr-only"
         disabled={disabled}
+        tabIndex={-1}
       />
 
-      <motion.label
-        htmlFor={inputId}
-        className="relative flex flex-col items-center justify-center cursor-pointer w-full rounded-sm"
+      {/*
+        Drop zone is a <div> — NOT a <label>.
+        Labels don't reliably receive onDrop in all browsers.
+        A separate visible label triggers the file picker on tap/click.
+      */}
+      <div
+        role="button"
+        aria-label="Drop any file here, or tap to select"
+        className="relative w-full rounded-sm cursor-pointer select-none"
         style={{
-          minHeight: '160px',
+          minHeight: '148px',
           border: isDragging
             ? '1px solid hsl(var(--ritual-gold) / 0.6)'
             : '1px dashed hsl(var(--ritual-gold) / 0.18)',
@@ -123,20 +130,19 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        whileHover={{ scale: 1.005 }}
-        whileTap={{ scale: 0.995 }}
-        aria-label="Drop any file here, or click to select"
+        onClick={() => {
+          if (!disabled) document.getElementById(inputId)?.click();
+        }}
       >
         <AnimatePresence mode="wait">
           {isDragging ? (
             <motion.div
               key="dragging"
-              className="flex flex-col items-center gap-2 pointer-events-none"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none"
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
             >
-              {/* Drop target hexagon */}
               <svg viewBox="0 0 48 48" width={32} height={32}>
                 <polygon
                   points="24,4 42,14 42,34 24,44 6,34 6,14"
@@ -156,7 +162,7 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
           ) : (
             <motion.div
               key="idle"
-              className="flex flex-col items-center gap-3 pointer-events-none"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -194,13 +200,13 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
                   className="font-garamond italic text-[10px]"
                   style={{ color: 'hsl(var(--ritual-cream) / 0.15)' }}
                 >
-                  PDF, audio, video, archive, code…
+                  PDF, Excel, Word, Keynote, audio, video…
                 </span>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.label>
+      </div>
     </div>
   );
 }
