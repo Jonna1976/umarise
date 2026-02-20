@@ -5,7 +5,7 @@
  * For large files (>50MB), shows a hashing progress indicator.
  * Camera flow is completely untouched.
  */
-import { useCallback, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface UniversalFile {
@@ -44,6 +44,24 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
   const dragCounter = useRef(0);
+
+  /**
+   * CRITICAL: Prevent the browser from navigating to / downloading dropped files.
+   * Without this, Safari and Chrome open/download the file instead of passing
+   * the drop event to our React handlers.
+   */
+  useEffect(() => {
+    const preventBrowserDefault = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    document.addEventListener('dragover', preventBrowserDefault);
+    document.addEventListener('drop', preventBrowserDefault);
+    return () => {
+      document.removeEventListener('dragover', preventBrowserDefault);
+      document.removeEventListener('drop', preventBrowserDefault);
+    };
+  }, []);
 
   const processFile = useCallback((file: File) => {
     // For images, generate a preview URL for immediate display
@@ -87,6 +105,7 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     dragCounter.current = 0;
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
