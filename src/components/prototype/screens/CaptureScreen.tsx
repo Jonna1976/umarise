@@ -263,12 +263,21 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         >
           Already have a proof?{' '}
           <span
-            className="transition-colors duration-200 group-hover:underline"
-            style={{ color: 'hsl(var(--ritual-gold))', fontStyle: 'italic' }}
+            className="transition-all duration-300"
+            style={{
+              color: 'hsl(var(--ritual-gold))',
+              fontStyle: 'italic',
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.color = 'hsl(var(--ritual-gold))';
+              (e.currentTarget as HTMLElement).style.textShadow = '0 0 12px hsl(var(--ritual-gold) / 0.7), 0 0 24px hsl(var(--ritual-gold) / 0.35)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.textShadow = 'none';
+            }}
           >
-            Verify it here
+            Verify it here.
           </span>
-          .
         </a>
       </motion.div>
     </motion.div>
