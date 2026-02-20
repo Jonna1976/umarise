@@ -123,24 +123,7 @@
              </p>
            </section>
 
-           {/* We make the proof. Then we step away. */}
-           <section className="bg-landing-cream/[0.02] border border-landing-cream/5 p-8 rounded-sm">
-             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-6">We make the proof. Then we step away.</h2>
-             <p className="mb-4 text-landing-cream/90 italic">
-               This is the architectural difference from every other service in this space.
-             </p>
-             <p className="mb-4">
-               After the anchor is issued, Umarise has no further role in the validity of the proof. The .ots proof file uses an open format. Verification works against Bitcoin using any OTS verifier, without involving Umarise.
-             </p>
-             <p className="mb-4">
-               There is no content stored. No account required. No server-dependent validation. No revocation mechanism. If Umarise ceases to exist tomorrow, every anchor remains verifiable.
-             </p>
-             <p className="mb-4 text-landing-muted/60">
-               One honest boundary: Umarise must be trusted at intake, for one action: recording the correct hash at the correct moment. After that, the trust is transferred to Bitcoin.
-             </p>
-           </section>
- 
-           {/* Interoperability */}
+            {/* Interoperability */}
            <section>
              <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-6">Interoperability</h2>
               <p className="mb-4">
