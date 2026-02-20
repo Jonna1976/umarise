@@ -81,7 +81,7 @@ function VerificationSteps({ steps }: { steps: VerifyStep[] }) {
         style={{ color: 'hsl(0 0% 38%)' }}
       >
         {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-        {open ? 'Verberg verificatiestappen' : 'Toon verificatiestappen'}
+        {open ? 'Hide verification steps' : 'Show verification steps'}
       </button>
 
       <AnimatePresence>
@@ -176,12 +176,12 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 45%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <span className="font-mono text-[10px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 45%)' }}>
-              Geverifieerd
+              Verified
             </span>
           </div>
 
           <p className="font-serif text-[22px] leading-[1.4] mb-2" style={{ color: 'hsl(142 20% 85%)' }}>
-            Dit bestand bestond aantoonbaar op{' '}
+            This file demonstrably existed on{' '}
             <span style={{ color: 'hsl(142 30% 75%)' }}>
               {result.captured_at ? formatDateTime(result.captured_at) : '—'}
             </span>
@@ -191,7 +191,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           {result.bitcoin_block_height ? (
             <div className="mt-5 flex items-center gap-3">
               <span className="font-garamond text-[14px]" style={{ color: 'hsl(142 20% 60%)' }}>
-                Verankerd in Bitcoin block {result.bitcoin_block_height.toLocaleString('nl-NL')}
+              Anchored in Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}
               </span>
               {blockstreamUrl && (
                 <a
@@ -201,14 +201,14 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
                   className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[1.5px] uppercase transition-opacity hover:opacity-70"
                   style={{ color: 'hsl(142 40% 50%)' }}
                 >
-                  Bekijk op blockstream.info
+                  View on blockstream.info
                   <ExternalLink className="w-3 h-3" />
                 </a>
               )}
             </div>
           ) : (
             <p className="mt-3 font-garamond text-[13px]" style={{ color: 'hsl(142 15% 50%)' }}>
-              Verankerd in Bitcoin — blocknummer wordt opgehaald.
+              Anchored in Bitcoin — block number loading.
             </p>
           )}
 
@@ -229,7 +229,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
             style={{ color: 'hsl(142 15% 45%)' }}
           >
             {showDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            {showDetails ? 'Verberg technische details' : 'Toon technische details'}
+            {showDetails ? 'Hide technical details' : 'Show technical details'}
           </button>
 
           {showDetails && (
@@ -244,10 +244,10 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               {result.hash && <DetailRow label="SHA-256" value={result.hash} />}
               {result.bitcoin_block_height && <DetailRow label="Bitcoin block" value={result.bitcoin_block_height.toLocaleString()} />}
               {result.device_signature
-                ? <DetailRow label="Device handtekening" value="✓ Aanwezig" />
+                ? <DetailRow label="Device signature" value="✓ Present" />
                 : result.claimed_by
                 ? <DetailRow label="Passkey claim" value={result.claimed_by.substring(0, 32) + '…'} />
-                : <DetailRow label="Geclaimd door" value="Anoniem — geen passkey" />
+                : <DetailRow label="Claimed by" value="Anonymous — no passkey" />
               }
             </motion.div>
           )}
@@ -271,20 +271,20 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
               <circle cx="10" cy="13.5" r="0.8" fill="hsl(38 65% 55%)" />
             </svg>
             <span className="font-mono text-[10px] tracking-[3px] uppercase" style={{ color: 'hsl(38 65% 55%)' }}>
-              Nog niet verankerd
+              Not yet anchored
             </span>
           </div>
 
           <p className="font-serif text-[19px] leading-[1.45] mb-3" style={{ color: 'hsl(38 20% 80%)' }}>
-            Deze hash is geregistreerd maar nog niet verankerd in Bitcoin.
+            This hash is registered but not yet anchored in Bitcoin.
           </p>
           <p className="font-garamond text-[14px] leading-relaxed" style={{ color: 'hsl(38 15% 55%)' }}>
-            Het ankerproces duurt maximaal een uur. Probeer het later opnieuw.
+            The anchoring process takes up to one hour. Please check back later.
           </p>
 
           {result.captured_at && (
             <p className="font-garamond italic text-[12px] mt-4" style={{ color: 'hsl(38 15% 45%)' }}>
-              Geregistreerd op {formatDateTime(result.captured_at)}
+              Registered on {formatDateTime(result.captured_at)}
             </p>
           )}
 
@@ -301,10 +301,10 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           style={{ background: 'hsl(0 0% 7%)', border: '1px solid hsl(0 0% 20% / 0.4)' }}
         >
           <p className="font-mono text-[10px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(0 0% 45%)' }}>
-            Niet gevonden
+            Not found
           </p>
           <p className="font-serif text-[19px] leading-[1.45]" style={{ color: 'hsl(0 0% 65%)' }}>
-            Deze hash is niet gevonden in het Umarise-register.
+            This hash was not found in the Umarise registry.
           </p>
 
           {result.steps && result.steps.length > 0 && (
@@ -320,13 +320,13 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           style={{ background: 'hsl(0 25% 7%)', border: '1px solid hsl(0 50% 25% / 0.4)' }}
         >
           <p className="font-mono text-[10px] tracking-[3px] uppercase mb-5" style={{ color: 'hsl(0 60% 55%)' }}>
-            Hash komt niet overeen
+            Hash mismatch
           </p>
           <p className="font-serif text-[19px] leading-[1.45] mb-3" style={{ color: 'hsl(0 15% 75%)' }}>
-            Het bestand in deze ZIP komt niet overeen met de hash in het certificaat.
+            The file in this ZIP does not match the hash in the certificate.
           </p>
           <p className="font-garamond text-[13px]" style={{ color: 'hsl(0 15% 50%)' }}>
-            Het bestand is mogelijk gewijzigd na het aanmaken van het anker.
+            The file may have been modified after the anchor was created.
           </p>
 
           {result.steps && result.steps.length > 0 && (
@@ -342,10 +342,10 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           style={{ background: 'hsl(0 0% 7%)', border: '1px solid hsl(0 0% 20% / 0.4)' }}
         >
           <p className="font-mono text-[10px] tracking-[3px] uppercase mb-4" style={{ color: 'hsl(0 0% 45%)' }}>
-            Verificatie mislukt
+            Verification failed
           </p>
           <p className="font-garamond text-[14px]" style={{ color: 'hsl(0 0% 55%)' }}>
-            Er is iets misgegaan. Probeer het opnieuw.
+            Something went wrong. Please try again.
           </p>
 
           {result.steps && result.steps.length > 0 && (
@@ -361,7 +361,7 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
           className="font-mono text-[10px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
           style={{ color: 'hsl(var(--landing-muted) / 0.35)' }}
         >
-          Ander bestand verifiëren
+          Verify another file
         </button>
       </div>
     </motion.div>

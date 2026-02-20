@@ -48,33 +48,33 @@ async function verifyHash(hash: string, cert?: CertificateData, extraSteps: Veri
   const steps: VerifyStep[] = [...extraSteps];
 
   // Step: registry lookup
-  steps.push({ label: 'Hash opgezocht in register', status: 'info' });
+  steps.push({ label: 'Looking up hash in registry', status: 'info' });
   const verifyResult = await verifyOriginByHash(hash);
 
   if (!verifyResult.found || !verifyResult.origin) {
-    steps[steps.length - 1] = { label: 'Hash niet gevonden in register', status: 'error' };
+    steps[steps.length - 1] = { label: 'Hash not found in registry', status: 'error' };
     return { status: 'not_found', steps };
   }
 
-  steps[steps.length - 1] = { label: 'Hash gevonden in register', status: 'ok', detail: hash.substring(0, 16) + '…' };
+  steps[steps.length - 1] = { label: 'Hash found in registry', status: 'ok', detail: hash.substring(0, 16) + '…' };
 
   const origin = verifyResult.origin;
   const proofStatus: 'pending' | 'anchored' = origin.proof_status || 'pending';
 
   // Step: Bitcoin anchor
   if (proofStatus === 'anchored') {
-    steps.push({ label: 'Bitcoin-anker aanwezig', status: 'ok' });
+    steps.push({ label: 'Bitcoin anchor confirmed', status: 'ok' });
   } else {
-    steps.push({ label: 'Bitcoin-anker nog in behandeling', status: 'warn' });
+    steps.push({ label: 'Bitcoin anchor pending', status: 'warn' });
   }
 
   // Step: device signature
   if (cert?.device_signature) {
-    steps.push({ label: 'Device handtekening gevonden', status: 'ok' });
+    steps.push({ label: 'Device signature found', status: 'ok' });
   } else if (cert?.claimed_by) {
-    steps.push({ label: 'Passkey claim aanwezig', status: 'ok' });
+    steps.push({ label: 'Passkey claim present', status: 'ok' });
   } else if (cert) {
-    steps.push({ label: 'Geen device handtekening (anoniem anker)', status: 'info' });
+    steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
   }
 
   let bitcoinBlockHeight: number | null = null;
@@ -83,7 +83,7 @@ async function verifyHash(hash: string, cert?: CertificateData, extraSteps: Veri
     if (proofResult.status === 'anchored') {
       bitcoinBlockHeight = proofResult.bitcoinBlockHeight;
       if (bitcoinBlockHeight) {
-        steps.push({ label: `Bitcoin block ${bitcoinBlockHeight.toLocaleString('nl-NL')}`, status: 'ok' });
+        steps.push({ label: `Bitcoin block ${bitcoinBlockHeight.toLocaleString('en-US')}`, status: 'ok' });
       }
     }
   }
@@ -184,14 +184,14 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
             className="font-mono text-[11px] tracking-[0.15em] uppercase"
             style={{ color: 'hsl(var(--landing-copper) / 0.6)' }}
           >
-            Loslaten om te verifiëren
+            Drop to verify
           </span>
         ) : disabled ? (
           <span
             className="font-mono text-[11px] tracking-[0.12em] uppercase"
             style={{ color: 'hsl(var(--landing-muted) / 0.3)' }}
           >
-            Bezig…
+            Verifying…
           </span>
         ) : (
           <>
@@ -206,13 +206,13 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
                 className="font-garamond text-[13px] tracking-[0.08em]"
                 style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
               >
-                Sleep een bestand hierheen of klik om te selecteren
+                Drop a file here or click to select
               </p>
               <p
                 className="font-garamond italic text-[11px] mt-1"
                 style={{ color: 'hsl(var(--landing-muted) / 0.2)' }}
               >
-                ZIP, origineel bestand of .ots proof
+                ZIP, original file, or .ots proof
               </p>
             </div>
           </>
@@ -256,7 +256,7 @@ function VerifyingState({ fileName }: { fileName: string }) {
           className="font-mono text-[10px] tracking-[2px] uppercase"
           style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
         >
-          Verifiëren…
+          Verifying…
         </p>
         <p
           className="font-garamond italic text-[11px] mt-1 truncate max-w-[220px]"
@@ -286,7 +286,7 @@ function VerifyError({ message, onReset }: { message: string; onReset: () => voi
         className="font-mono text-[10px] tracking-[3px] uppercase mb-3"
         style={{ color: 'hsl(0 0% 45%)' }}
       >
-        Fout
+        Error
       </p>
       <p
         className="font-garamond text-[14px]"
@@ -299,7 +299,7 @@ function VerifyError({ message, onReset }: { message: string; onReset: () => voi
         className="mt-4 font-mono text-[9px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
         style={{ color: 'hsl(0 0% 40%)' }}
       >
-        Opnieuw proberen
+        Try again
       </button>
     </motion.div>
   );
@@ -323,11 +323,11 @@ export default function Verify() {
   useEffect(() => {
     const hash = searchParams.get('hash');
     if (hash && hash.length === 64) {
-      setState({ phase: 'verifying', fileName: 'hash uit URL' });
+      setState({ phase: 'verifying', fileName: 'hash from URL' });
       verifyHash(hash).then(result => {
         setState({ phase: 'result', result });
       }).catch(() => {
-        setState({ phase: 'error', message: 'Verificatie mislukt. Probeer het opnieuw.' });
+        setState({ phase: 'error', message: 'Verification failed. Please try again.' });
       });
     }
   }, []);
@@ -349,19 +349,19 @@ export default function Verify() {
         let zip: JSZip;
         try {
           zip = await JSZip.loadAsync(file);
-          steps.push({ label: `ZIP geopend: ${file.name}`, status: 'ok' });
+          steps.push({ label: `ZIP opened: ${file.name}`, status: 'ok' });
         } catch {
-          setState({ phase: 'error', message: 'Bestand kon niet geopend worden.' });
+          setState({ phase: 'error', message: 'Could not open file.' });
           return;
         }
 
         // Step 2: certificate.json
         const certFile = zip.file('certificate.json');
         if (!certFile) {
-          setState({ phase: 'error', message: 'Dit lijkt geen Umarise origin-ZIP. Verwacht: certificate.json.' });
+          setState({ phase: 'error', message: 'This does not appear to be an Umarise origin ZIP. Expected: certificate.json.' });
           return;
         }
-        steps.push({ label: 'certificate.json gevonden', status: 'ok' });
+        steps.push({ label: 'certificate.json found', status: 'ok' });
 
         // Step 3: parse cert
         let cert: CertificateData;
@@ -369,17 +369,17 @@ export default function Verify() {
           const text = await certFile.async('text');
           cert = JSON.parse(text);
         } catch {
-          setState({ phase: 'error', message: 'Certificate onleesbaar.' });
+          setState({ phase: 'error', message: 'Certificate could not be read.' });
           return;
         }
 
         if (!cert.hash) {
-          setState({ phase: 'error', message: 'Certificate onleesbaar — geen hash gevonden.' });
+          setState({ phase: 'error', message: 'Certificate unreadable — no hash found.' });
           return;
         }
 
         const rawHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
-        steps.push({ label: 'SHA-256 uit certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
+        steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
 
         // Step 4: origin ID
         if (cert.origin_id) {
@@ -388,9 +388,9 @@ export default function Verify() {
 
         // Step 5: device signature
         if (cert.device_signature) {
-          steps.push({ label: 'Device handtekening aanwezig', status: 'ok' });
+          steps.push({ label: 'Device signature present', status: 'ok' });
         } else {
-          steps.push({ label: 'Geen device handtekening (anoniem anker)', status: 'info' });
+          steps.push({ label: 'No device signature (anonymous anchor)', status: 'info' });
         }
 
         const result = await verifyHash(rawHash, cert, steps);
@@ -399,21 +399,21 @@ export default function Verify() {
       } else if (isOts) {
         setState({
           phase: 'error',
-          message: 'Directe .ots verificatie komt binnenkort. Gebruik nu opentimestamps.org om een .ots bestand te verifiëren.',
+          message: 'Direct .ots verification coming soon. Use opentimestamps.org to verify an .ots file.',
         });
 
       } else {
-        // Willekeurig bestand: hash client-side
+        // Any file: hash client-side
         const steps: VerifyStep[] = [];
-        steps.push({ label: `Bestand gelezen: ${file.name}`, status: 'ok', detail: `${(file.size / 1024).toFixed(1)} KB` });
+        steps.push({ label: `File read: ${file.name}`, status: 'ok', detail: `${(file.size / 1024).toFixed(1)} KB` });
         const buffer = await file.arrayBuffer();
         const hash = await computeSHA256(buffer);
-        steps.push({ label: 'SHA-256 berekend', status: 'ok', detail: hash.substring(0, 20) + '…' });
+        steps.push({ label: 'SHA-256 computed', status: 'ok', detail: hash.substring(0, 20) + '…' });
         const result = await verifyHash(hash, undefined, steps);
         setState({ phase: 'result', result });
       }
     } catch {
-      setState({ phase: 'error', message: 'Verificatie mislukt. Probeer het opnieuw.' });
+      setState({ phase: 'error', message: 'Verification failed. Please try again.' });
     }
   }, []);
 
@@ -422,7 +422,7 @@ export default function Verify() {
       className="min-h-screen"
       style={{ background: 'hsl(var(--landing-deep))', color: 'hsl(var(--landing-cream))' }}
     >
-      {/* Header — minimaal */}
+      {/* Header */}
       <header style={{ borderBottom: '1px solid hsl(var(--landing-muted) / 0.08)' }}>
         <div className="max-w-2xl mx-auto px-6 py-5 flex items-center justify-between">
           <a
@@ -430,7 +430,7 @@ export default function Verify() {
             className="font-garamond text-[13px] transition-opacity hover:opacity-60"
             style={{ color: 'hsl(var(--landing-muted) / 0.35)' }}
           >
-            ← Terug
+            ← Back
           </a>
           <span
             className="font-mono text-[10px] tracking-[3px] uppercase"
@@ -444,24 +444,24 @@ export default function Verify() {
       {/* Content */}
       <main className="max-w-2xl mx-auto px-6 py-16 md:py-24">
 
-        {/* Titel */}
+        {/* Title */}
         <div className="mb-12">
           <h1
             className="font-serif text-[28px] md:text-[34px] font-light mb-3"
             style={{ color: 'hsl(var(--landing-cream))' }}
           >
-            Verifieer een bewijs
+            Verify a proof
           </h1>
           <p
             className="font-garamond text-[15px] leading-relaxed"
             style={{ color: 'hsl(var(--landing-muted) / 0.45)' }}
           >
-            Upload een bestand, een origin-ZIP, of een .ots proof
-            om te controleren of het bestaan ervan is vastgelegd.
+            Upload a file, an origin ZIP, or an .ots proof
+            to check whether its existence has been recorded.
           </p>
         </div>
 
-        {/* Drop zone + resultaat */}
+        {/* Drop zone + result */}
         <AnimatePresence mode="wait">
           {state.phase === 'idle' && (
             <motion.div
@@ -508,12 +508,12 @@ export default function Verify() {
           )}
         </AnimatePresence>
 
-        {/* Onafhankelijkheidsverklaring — altijd zichtbaar, elke state */}
+        {/* Independence statement — always visible */}
         <p
           className="mt-10 font-garamond italic text-[12px] text-center leading-relaxed"
           style={{ color: 'hsl(var(--landing-muted) / 0.22)' }}
         >
-          Dit bewijs is onafhankelijk verifieerbaar via{' '}
+          This proof is independently verifiable via{' '}
           <a
             href="https://opentimestamps.org"
             target="_blank"
@@ -522,7 +522,7 @@ export default function Verify() {
           >
             opentimestamps.org
           </a>{' '}
-          of met de <code className="font-mono text-[11px]">ots-cli</code> tool.
+          or with the <code className="font-mono text-[11px]">ots-cli</code> tool.
         </p>
       </main>
 
