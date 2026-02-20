@@ -48,6 +48,7 @@ function routeFile(
 export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }: CaptureScreenProps) {
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
+  const [verifyHovered, setVerifyHovered] = useState(false);
   const dragCounter = useRef(0);
 
   // ── Prevent browser from downloading/opening dropped files ──
@@ -258,22 +259,20 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         )}
         <a
           href="/verify"
-          className="font-garamond text-[22px] text-center group leading-relaxed"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.65)', textDecoration: 'none' }}
+          className="font-garamond text-[22px] text-center leading-relaxed"
+          style={{ textDecoration: 'none', color: 'hsl(var(--ritual-cream) / 0.65)' }}
+          onMouseEnter={() => setVerifyHovered(true)}
+          onMouseLeave={() => setVerifyHovered(false)}
         >
           Already have a proof?{' '}
           <span
-            className="transition-all duration-300"
             style={{
               color: 'hsl(var(--ritual-gold))',
               fontStyle: 'italic',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.color = 'hsl(var(--ritual-gold))';
-              (e.currentTarget as HTMLElement).style.textShadow = '0 0 12px hsl(var(--ritual-gold) / 0.7), 0 0 24px hsl(var(--ritual-gold) / 0.35)';
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.textShadow = 'none';
+              transition: 'text-shadow 0.3s ease',
+              textShadow: verifyHovered
+                ? '0 0 10px hsl(var(--ritual-gold) / 0.8), 0 0 22px hsl(var(--ritual-gold) / 0.4)'
+                : 'none',
             }}
           >
             Verify it here.
