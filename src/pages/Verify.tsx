@@ -147,13 +147,13 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
       aria-label="Drop a file here or click to select"
       className="relative w-full rounded-sm cursor-pointer select-none transition-all duration-300"
       style={{
-        minHeight: 160,
+        minHeight: 200,
         border: dropState === 'dragging'
-          ? '1px solid hsl(var(--landing-copper) / 0.5)'
-          : '1px dashed hsl(var(--landing-muted) / 0.15)',
+          ? '1px solid hsl(var(--landing-copper) / 0.6)'
+          : '1px dashed hsl(var(--landing-cream) / 0.18)',
         background: dropState === 'dragging'
-          ? 'hsl(var(--landing-copper) / 0.03)'
-          : 'transparent',
+          ? 'hsl(var(--landing-copper) / 0.05)'
+          : 'hsl(var(--landing-cream) / 0.02)',
       }}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -173,39 +173,39 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
         }}
       />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pointer-events-none">
         {dropState === 'dragging' ? (
           <span
-            className="font-mono text-[11px] tracking-[0.15em] uppercase"
-            style={{ color: 'hsl(var(--landing-copper) / 0.6)' }}
+            className="font-mono text-[13px] tracking-[0.15em] uppercase"
+            style={{ color: 'hsl(var(--landing-copper))' }}
           >
             Drop to verify
           </span>
         ) : disabled ? (
           <span
-            className="font-mono text-[11px] tracking-[0.12em] uppercase"
-            style={{ color: 'hsl(var(--landing-muted) / 0.3)' }}
+            className="font-mono text-[12px] tracking-[0.12em] uppercase"
+            style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
           >
             Verifying…
           </span>
         ) : (
           <>
-            <svg viewBox="0 0 40 40" width={28} height={28} style={{ opacity: 0.2 }}>
+            <svg viewBox="0 0 40 40" width={32} height={32} style={{ opacity: 0.45 }}>
               <rect x="6" y="4" width="20" height="26" rx="2" fill="none" stroke="hsl(var(--landing-cream))" strokeWidth="1.2" />
               <path d="M22 4 L22 12 L30 12" fill="none" stroke="hsl(var(--landing-cream))" strokeWidth="1.2" />
-              <line x1="6" y1="18" x2="28" y2="18" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.5" />
-              <line x1="6" y1="22" x2="22" y2="22" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.5" />
+              <line x1="6" y1="18" x2="28" y2="18" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.6" />
+              <line x1="6" y1="22" x2="22" y2="22" stroke="hsl(var(--landing-cream))" strokeWidth="0.8" opacity="0.6" />
             </svg>
             <div className="text-center">
               <p
-                className="font-garamond text-[13px] tracking-[0.08em]"
-                style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
+                className="font-garamond text-[17px] tracking-[0.04em]"
+                style={{ color: 'hsl(var(--landing-cream) / 0.85)' }}
               >
                 Drop a file here or click to select
               </p>
               <p
-                className="font-garamond italic text-[11px] mt-1"
-                style={{ color: 'hsl(var(--landing-muted) / 0.2)' }}
+                className="font-garamond italic text-[14px] mt-1.5"
+                style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}
               >
                 ZIP, original file, or .ots proof
               </p>
@@ -222,7 +222,7 @@ function VerifyDropArea({ onFile, disabled }: DropZoneProps) {
 function VerifyingState({ fileName }: { fileName: string }) {
   return (
     <motion.div
-      className="flex flex-col items-center gap-4 py-10"
+      className="flex flex-col items-center gap-5 py-14"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -230,17 +230,17 @@ function VerifyingState({ fileName }: { fileName: string }) {
         animate={{ rotate: 360 }}
         transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
       >
-        <svg viewBox="0 0 48 48" width={32} height={32}>
+        <svg viewBox="0 0 48 48" width={36} height={36}>
           <circle
             cx="24" cy="24" r="20"
             fill="none"
-            stroke="hsl(var(--landing-copper) / 0.15)"
+            stroke="hsl(var(--landing-copper) / 0.2)"
             strokeWidth="1.5"
           />
           <path
             d="M24 4 A20 20 0 0 1 44 24"
             fill="none"
-            stroke="hsl(var(--landing-copper) / 0.5)"
+            stroke="hsl(var(--landing-copper) / 0.75)"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
@@ -248,14 +248,14 @@ function VerifyingState({ fileName }: { fileName: string }) {
       </motion.div>
       <div className="text-center">
         <p
-          className="font-mono text-[10px] tracking-[2px] uppercase"
-          style={{ color: 'hsl(var(--landing-muted) / 0.4)' }}
+          className="font-mono text-[11px] tracking-[2px] uppercase"
+          style={{ color: 'hsl(var(--landing-cream) / 0.7)' }}
         >
           Verifying…
         </p>
         <p
-          className="font-garamond italic text-[11px] mt-1 truncate max-w-[220px]"
-          style={{ color: 'hsl(var(--landing-muted) / 0.2)' }}
+          className="font-garamond italic text-[14px] mt-1.5 truncate max-w-[240px]"
+          style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
         >
           {fileName}
         </p>
@@ -269,32 +269,32 @@ function VerifyingState({ fileName }: { fileName: string }) {
 function VerifyError({ message, onReset }: { message: string; onReset: () => void }) {
   return (
     <motion.div
-      className="mt-6 rounded-sm p-6"
+      className="mt-6 rounded-sm p-7"
       style={{
-        background: 'hsl(0 0% 7%)',
-        border: '1px solid hsl(0 0% 20% / 0.4)',
+        background: 'hsl(0 15% 8%)',
+        border: '1px solid hsl(0 40% 35% / 0.35)',
       }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
     >
       <p
         className="font-mono text-[10px] tracking-[3px] uppercase mb-3"
-        style={{ color: 'hsl(0 0% 45%)' }}
+        style={{ color: 'hsl(0 60% 55%)' }}
       >
         Error
       </p>
       <p
-        className="font-garamond text-[14px]"
-        style={{ color: 'hsl(0 0% 60%)' }}
+        className="font-garamond text-[16px]"
+        style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}
       >
         {message}
       </p>
       <button
         onClick={onReset}
-        className="mt-4 font-mono text-[9px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
-        style={{ color: 'hsl(0 0% 40%)' }}
+        className="mt-5 font-mono text-[10px] tracking-[2px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+        style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}
       >
-        Try again
+        Try again →
       </button>
     </motion.div>
   );
@@ -415,18 +415,18 @@ export default function Verify() {
       style={{ background: 'hsl(var(--landing-deep))', color: 'hsl(var(--landing-cream))' }}
     >
       {/* Header */}
-      <header style={{ borderBottom: '1px solid hsl(var(--landing-muted) / 0.08)' }}>
+      <header style={{ borderBottom: '1px solid hsl(var(--landing-cream) / 0.08)' }}>
         <div className="max-w-2xl mx-auto px-6 py-5 flex items-center justify-between">
           <a
             href="/"
-            className="font-garamond text-[13px] transition-opacity hover:opacity-60"
-            style={{ color: 'hsl(var(--landing-muted) / 0.35)' }}
+            className="font-garamond text-[14px] transition-opacity hover:opacity-70"
+            style={{ color: 'hsl(var(--landing-cream) / 0.55)' }}
           >
             ← Back
           </a>
           <span
             className="font-mono text-[10px] tracking-[3px] uppercase"
-            style={{ color: 'hsl(var(--landing-muted) / 0.25)' }}
+            style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
           >
             Umarise
           </span>
@@ -438,18 +438,24 @@ export default function Verify() {
 
         {/* Title */}
         <div className="mb-12">
+          <p className="font-mono text-[10px] tracking-[0.2em] uppercase mb-3" style={{ color: 'hsl(var(--landing-copper))' }}>
+            Umarise · Origin Verification
+          </p>
           <h1
-            className="font-serif text-[28px] md:text-[34px] font-light mb-3"
+            className="font-serif text-[32px] md:text-[40px] font-light mb-4"
             style={{ color: 'hsl(var(--landing-cream))' }}
           >
             Verify a proof
           </h1>
           <p
-            className="font-garamond text-[15px] leading-relaxed"
-            style={{ color: 'hsl(var(--landing-muted) / 0.45)' }}
+            className="font-garamond text-[17px] leading-relaxed"
+            style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}
           >
             Upload a file, an origin ZIP, or an .ots proof
             to check whether its existence has been recorded.
+          </p>
+          <p className="font-garamond text-[14px] mt-2" style={{ color: 'hsl(var(--landing-cream) / 0.45)' }}>
+            The file never leaves your browser. Verification is performed client-side.
           </p>
         </div>
 
@@ -501,29 +507,39 @@ export default function Verify() {
         </AnimatePresence>
 
         {/* Independence statement — always visible */}
-        <p
-          className="mt-10 font-garamond italic text-[12px] text-center leading-relaxed"
-          style={{ color: 'hsl(var(--landing-muted) / 0.22)' }}
+        <div
+          className="mt-10 py-5 px-6 rounded-sm text-center"
+          style={{ border: '1px solid hsl(var(--landing-cream) / 0.06)', background: 'hsl(var(--landing-cream) / 0.02)' }}
         >
-          This proof is independently verifiable via{' '}
-          <a
-            href="https://opentimestamps.org"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 transition-opacity hover:opacity-70"
+          <p
+            className="font-garamond italic text-[14px] leading-relaxed"
+            style={{ color: 'hsl(var(--landing-cream) / 0.55)' }}
           >
-            opentimestamps.org
-          </a>{' '}
-          or with the <code className="font-mono text-[11px]">ots-cli</code> tool.
-        </p>
+            This proof is independently verifiable via{' '}
+            <a
+              href="https://opentimestamps.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-opacity hover:opacity-70"
+              style={{ color: 'hsl(var(--landing-copper))' }}
+            >
+              opentimestamps.org
+            </a>{' '}
+            or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.7)' }}>ots-cli</code> tool.
+            <br />
+            <span className="text-[13px] not-italic" style={{ color: 'hsl(var(--landing-cream) / 0.35)' }}>
+              No contact with Umarise required.
+            </span>
+          </p>
+        </div>
       </main>
 
       {/* Footer */}
       <footer
-        className="py-6 text-center font-mono text-[9px] tracking-[2px] uppercase"
+        className="py-6 text-center font-mono text-[10px] tracking-[2px] uppercase"
         style={{
-          borderTop: '1px solid hsl(var(--landing-muted) / 0.07)',
-          color: 'hsl(var(--landing-muted) / 0.2)',
+          borderTop: '1px solid hsl(var(--landing-cream) / 0.07)',
+          color: 'hsl(var(--landing-cream) / 0.3)',
         }}
       >
         Umarise · {new Date().getFullYear()}
