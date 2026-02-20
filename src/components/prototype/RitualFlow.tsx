@@ -276,15 +276,20 @@ export function RitualFlow() {
               progress={hashingFile.progress}
             />
           ) : (
-            // Camera flow: breathing hex (original behavior)
+            // Camera flow: breathing ring (no hex)
             <motion.div
               className="relative"
-              animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+              animate={{ scale: [1, 1.15, 1], opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <svg viewBox="0 0 48 48" className="w-16 h-16">
-                <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--ritual-gold))" opacity="0.7" />
-                <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--ritual-surface))" opacity="0.9" />
+              <svg viewBox="0 0 48 48" className="w-14 h-14">
+                <circle
+                  cx="24" cy="24" r="18"
+                  fill="none"
+                  stroke="hsl(var(--ritual-gold))"
+                  strokeWidth="1"
+                  opacity="0.5"
+                />
               </svg>
             </motion.div>
           )}
