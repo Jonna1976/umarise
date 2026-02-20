@@ -202,8 +202,30 @@ export default function Verify() {
       ...mediaFiles.filter(f => !artifactFiles.some(a => a.name === f.name)),
     ].filter(f => f.name !== 'certificate.json' && f.name !== 'VERIFY.txt' && !f.name.endsWith('.ots'));
 
+    // Normalize cert hash — strip sha256: prefix if present
+    const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
+
     if (allCandidates.length === 0) {
-      updateStep('hash', 'fail', 'No artifact file found in ZIP');
+      // Proof-only ZIP: no artifact included (by design for universal file anchors).
+      // Skip hash comparison — go straight to registry verification using the cert hash.
+      updateStep('hash', 'done', 'Proof-only ZIP — original file not included');
+      updateStep('match', 'done', 'Hash from certificate: ' + certHash.substring(0, 16) + '...');
+      setComputedHash(certHash);
+      setHashMatch(null); // no local comparison possible
+
+      // Step 5: Check identity claim
+      updateStep('claim', 'active', 'Checking identity claim...');
+      await delay(200);
+      if (cert.device_signature && cert.device_public_key) {
+        updateStep('claim', 'done', 'Device signature found ✓');
+      } else if (cert.claimed_by && cert.signature) {
+        updateStep('claim', 'done', 'Passkey claim found, signature present');
+      } else {
+        updateStep('claim', 'done', 'Anonymous anchor (no passkey)');
+      }
+
+      // Step 6: Verify registry using cert hash
+      await verifyWithApi(certHash, cert);
       setIsProcessing(false);
       return;
     }
@@ -218,8 +240,6 @@ export default function Verify() {
     updateStep('match', 'active', 'Comparing hash with certificate...');
     await delay(200);
 
-    // Normalize cert hash — strip sha256: prefix if present
-    const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
     const hashesMatch = hash === certHash;
 
     if (!hashesMatch) {
