@@ -30,14 +30,15 @@ interface VerifyResultProps {
 
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString('nl-NL', {
+  return d.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC',
-  }) + ' om ' + d.toLocaleTimeString('nl-NL', {
+  }) + ' at ' + d.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
     timeZone: 'UTC',
   }) + ' UTC';
 }
