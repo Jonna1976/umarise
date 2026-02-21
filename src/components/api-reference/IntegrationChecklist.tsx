@@ -1,151 +1,154 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Circle, ListChecks, ChevronDown, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Circle, ListChecks, ChevronDown, ChevronRight, Bot, Wrench } from 'lucide-react';
 
-const STORAGE_KEY = 'umarise-checklist-v3';
+const STORAGE_KEY = 'umarise-checklist-v4';
 
 const BASE = 'https://core.umarise.com';
 
 interface ChecklistItem {
   label: string;
   detail: string;
-  quickStartDone?: boolean;
 }
 
+/* ── AI-Assisted Checklist (6 items) ── */
+const AI_CHECKLIST: ChecklistItem[] = [
+  {
+    label: 'AI prompt copied with your existing code, integration written',
+    detail: 'Copy the prompt from the "Integrate with AI" section above. Paste it into Claude, ChatGPT, or your preferred AI assistant along with your existing code. The AI will write the integration.',
+  },
+  {
+    label: 'API key received from partners@umarise.com and configured',
+    detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Configure the key in your integration code.',
+  },
+  {
+    label: 'origin_id stored in your database',
+    detail: 'After each attestation, store the returned origin_id alongside your own record. This is the link between your system and the independent proof.',
+  },
+  {
+    label: 'Error handling confirmed (non-blocking)',
+    detail: 'Verify that your integration handles failures gracefully. safe_attest() should never block your workflow — if Core is temporarily unreachable, it logs the error and your app continues.',
+  },
+  {
+    label: 'Proof status confirmed anchored after 10-20 minutes',
+    detail: `Poll GET ${BASE}/v1-core-resolve?origin_id=... every 60 seconds. After 10-20 minutes, proof_status changes from "pending" to "anchored". Once anchored, the proof is final and independently verifiable.`,
+  },
+  {
+    label: 'Ready for production',
+    detail: 'All checks above are green. Your integration is production-ready.',
+  },
+];
+
+/* ── Full Checklist (19 items in 4 groups) ── */
 interface ChecklistGroup {
   title: string;
   stepOffset: number;
   items: ChecklistItem[];
 }
 
-const CHECKLIST: ChecklistGroup[] = [
+const FULL_CHECKLIST: ChecklistGroup[] = [
   {
-    title: 'Setup',
+    title: 'No key needed — start here',
     stepOffset: 1,
     items: [
       {
-        label: 'API key received from partners@umarise.com',
-        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. You will receive a key starting with um_...',
-      },
-      {
-        label: 'Quick Start completed: health, attest, resolve, verify',
-        detail: `Available at the top of this page. Four curl commands. 60 seconds.\n→ /api-reference → Quick Start`,
-        quickStartDone: true,
-      },
-      {
         label: 'Health check returned "operational"',
-        detail: `Done during Quick Start step 1.\ncurl ${BASE}/v1-core-health`,
-        quickStartDone: true,
+        detail: `curl ${BASE}/v1-core-health\nExpected: {"status":"operational","version":"v1","timestamp":"..."}`,
       },
       {
-        label: 'First test attestation created, origin_id received',
-        detail: `Done during Quick Start step 2.\ncurl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:YOUR_HASH"}'`,
-        quickStartDone: true,
+        label: 'Test hash verified via POST /v1-core-verify',
+        detail: `curl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`,
       },
       {
-        label: 'Waited 10–20 minutes, proof_status changed from "pending" to "anchored"',
-        detail: `Repeat Quick Start step 3 after 10–20 minutes. Once proof_status is "anchored", the proof is independently verifiable via Bitcoin.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
+        label: 'Origin retrieved via GET /v1-core-resolve',
+        detail: `curl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
+      },
+      {
+        label: '.ots proof downloaded via GET /v1-core-proof',
+        detail: `curl '${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID' -o proof.ots\nThis downloads the binary OpenTimestamps proof file.`,
+      },
+      {
+        label: 'Try it Live demo completed',
+        detail: 'Use the interactive demo above to walk through the full verification flow.',
       },
     ],
   },
   {
-    title: 'Verification',
+    title: 'API key required',
     stepOffset: 6,
     items: [
       {
-        label: 'Hash verified via POST /v1-core-verify — match confirmed',
-        detail: `Done during Quick Start step 4.\ncurl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:YOUR_HASH"}'`,
-        quickStartDone: true,
+        label: 'Key received from partners@umarise.com',
+        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...',
       },
       {
-        label: 'Origin retrieved via GET /v1-core-resolve — record received',
-        detail: `Done during Quick Start step 3.\ncurl '${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID'`,
-        quickStartDone: true,
+        label: 'First attestation created, origin_id received',
+        detail: `curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:YOUR_HASH"}'`,
       },
       {
-        label: '.ots proof downloaded via GET /v1-core-proof',
-        detail: `curl '${BASE}/v1-core-origins-proof?origin_id=YOUR_ORIGIN_ID' -o proof.ots\nThis downloads the binary OpenTimestamps proof file for independent Bitcoin verification.`,
+        label: 'Waited 10-20 minutes, proof_status changed to "anchored"',
+        detail: `Repeat resolve after 10-20 minutes. Once proof_status is "anchored", the proof is independently verifiable via Bitcoin.`,
       },
       {
-        label: 'Verification tested via umarise.com/verify (online)',
-        detail: 'Upload a file or paste a SHA-256 hash. The page shows whether an attestation exists and its current status.\n→ https://umarise.com/verify',
-      },
-      {
-        label: 'Verification tested via CLI (verify-anchor.sh or .py)',
-        detail: 'Download: verify-anchor.sh or verify-anchor.py from /reviewer.\nRun: bash verify-anchor.sh proof.ots\nor: python verify-anchor.py proof.ots\nThese scripts verify the Bitcoin anchor independently, without Umarise infrastructure.',
-      },
-      {
-        label: 'Own file verified (not the test hash)',
-        detail: 'Hash your own file:\n  sha256sum your-file.pdf (Linux)\n  shasum -a 256 your-file.pdf (macOS)\nCreate an attestation with that hash via Quick Start step 2. Wait for "anchored", download .ots, verify via CLI or /verify.',
+        label: 'Own file attested (not the test hash)',
+        detail: 'Hash your own file:\n  sha256sum your-file.pdf (Linux)\n  shasum -a 256 your-file.pdf (macOS)\nCreate an attestation with that hash.',
       },
     ],
   },
   {
     title: 'SDK Integration',
-    stepOffset: 12,
+    stepOffset: 10,
     items: [
       {
         label: 'SDK downloaded and installed',
-        detail: 'Node.js: download umarise-integration.js from /api-reference → Templates.\n  const um = require(\'./umarise-integration.js\')\nPython: download umarise_integration.py from /api-reference → Templates.\n  import umarise_integration as umarise',
+        detail: 'Download from Templates section above. Python: umarise_integration.py. Node.js: umarise-integration.js.',
       },
       {
-        label: 'SDK health() call successful',
-        detail: 'Node: const status = await health()\nPython: status = health()\nExpected: { "status": "operational", "version": "v1" }',
+        label: 'health(), attest(), verify(), resolve() calls successful',
+        detail: 'Run the test suite: python3 test_integration.py um_YOUR_KEY or node test_integration_node.js um_YOUR_KEY. All 15 tests should pass.',
       },
       {
-        label: 'SDK attest() call successful with own file',
-        detail: 'Hash your file first:\n  Node: crypto.createHash(\'sha256\').update(buffer).digest(\'hex\')\n  Python: hashlib.sha256(data).hexdigest()\nThen: const result = await attest(hash)\nor: result = attest(hash)',
-      },
-      {
-        label: 'SDK verify() call successful — match confirmed',
-        detail: 'const result = await verify(hash)\nExpected: origin record with proof_status.',
-      },
-      {
-        label: 'SDK resolve() call successful — record retrieved',
-        detail: 'const result = await resolve(origin_id)\nExpected: full origin record.',
-      },
-      {
-        label: 'origin_id storage linked to own system',
-        detail: 'Store origin_id alongside your own record. Example:\n  db.submissions.update(id, { origin_id: result.origin_id })\nor add an origin_id column to your submissions/uploads table.\nThis is the link between your system and the independent proof.',
+        label: 'origin_id linked to own system',
+        detail: 'Store origin_id alongside your own record. Example:\n  db.submissions.update(id, { origin_id: result.origin_id })',
       },
     ],
   },
   {
     title: 'Production Readiness',
-    stepOffset: 18,
+    stepOffset: 13,
     items: [
       {
-        label: 'SHA-256 hash calculation integrated into submission workflow',
-        detail: 'Calculate the hash of the complete file (including metadata, not just content). Do this at the moment of upload/submit/ingest.',
+        label: 'SHA-256 hash integrated into submission workflow',
+        detail: 'Calculate hash of the complete file at the moment of upload/submit/ingest.',
       },
       {
         label: 'API call linked to own trigger (upload, submit, ingest)',
         detail: 'One SDK call per event. After successful upload: attest(hash). Store origin_id with the record.',
       },
       {
-        label: 'origin_id stored with own record (database field)',
+        label: 'origin_id stored with own record',
         detail: 'Check: can you look up the corresponding origin_id for every record in your system? If yes: done.',
       },
       {
         label: 'Error handling implemented',
-        detail: 'Timeout: set to 10 seconds. On timeout: retry after 60 seconds.\nRate limit (429): read retry_after_seconds from response, wait, retry.\nServer error (500): retry after 60 seconds, max 3 attempts.\nUnauthorized (401): check API key, contact partners@umarise.com.\nFull error codes and rate limits: /api-reference → Error Codes section.',
+        detail: 'Timeout: 10 seconds. Rate limit (429): read retry_after_seconds, wait, retry. Server error (500): retry after 60s, max 3 attempts.',
       },
       {
-        label: 'Fallback strategy defined: what if API is temporarily unreachable?',
-        detail: 'Option A: queue hash locally, automatic retry after 60 seconds (recommended — no attestation is lost).\nOption B: log the error, continue without attestation, report missed attestations in a daily overview.\nChoose one and implement. Which fits depends on how critical attestation is in your workflow.',
+        label: 'Fallback strategy defined',
+        detail: 'Option A: queue hash locally, automatic retry after 60 seconds (recommended).\nOption B: log the error, continue without attestation.',
       },
       {
-        label: 'Verification path tested with real file from own system',
-        detail: 'Take one real file from your production workflow. Walk through the full path: hash → attest → wait for anchored → resolve → verify → download .ots → verify via CLI.\nIf this path works with a real file: your integration is correct.',
+        label: 'Verification path tested with real file',
+        detail: 'Full path: hash → attest → wait for anchored → resolve → verify → download .ots → verify via CLI.',
       },
       {
         label: 'Ready for production',
-        detail: 'At least one real file from your production workflow has completed the full path (hash → attest → anchored → verify → .ots download → CLI verification). All green? Production.',
+        detail: 'At least one real file from your production workflow has completed the full path. All green? Production.',
       },
     ],
   },
 ];
 
-const TOTAL_ITEMS = CHECKLIST.reduce((sum, g) => sum + g.items.length, 0);
+const FULL_TOTAL = FULL_CHECKLIST.reduce((sum, g) => sum + g.items.length, 0);
 
 function ItemDetail({ detail }: { detail: string }) {
   return (
@@ -155,7 +158,11 @@ function ItemDetail({ detail }: { detail: string }) {
   );
 }
 
+type Track = 'ai' | 'full';
+
 export default function IntegrationChecklist() {
+  const [track, setTrack] = useState<Track>('ai');
+
   const [checked, setChecked] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -190,8 +197,11 @@ export default function IntegrationChecklist() {
     });
   };
 
-  const completedCount = checked.size;
-  const percentage = Math.round((completedCount / TOTAL_ITEMS) * 100);
+  // Calculate progress
+  const currentItems = track === 'ai' ? AI_CHECKLIST : FULL_CHECKLIST.flatMap(g => g.items);
+  const totalItems = currentItems.length;
+  const completedCount = currentItems.filter(i => checked.has(i.label)).length;
+  const percentage = Math.round((completedCount / totalItems) * 100);
 
   return (
     <section id="checklist">
@@ -202,7 +212,7 @@ export default function IntegrationChecklist() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono">
-            {completedCount}/{TOTAL_ITEMS}
+            {completedCount}/{totalItems}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[hsl(var(--landing-cream)/0.06)] overflow-hidden">
             <div
@@ -214,54 +224,116 @@ export default function IntegrationChecklist() {
         </div>
       </div>
 
-      <div className="space-y-8">
-        {CHECKLIST.map((group) => (
-          <div key={group.title}>
-            <h4 className="text-[hsl(var(--landing-cream)/0.7)] text-xs font-mono uppercase tracking-wider mb-3">
-              {group.title}
-            </h4>
-            <div className="space-y-1">
-              {group.items.map((item, idx) => {
-                const isChecked = checked.has(item.label);
-                const isExpanded = expanded.has(item.label);
-                const stepNum = group.stepOffset + idx;
-
-                return (
-                  <div key={item.label}>
-                    <div className="flex items-start gap-2">
-                      <button
-                        onClick={() => toggle(item.label)}
-                        className="flex items-start gap-3 flex-1 text-left py-1.5 px-2 -mx-2 rounded hover:bg-[hsl(var(--landing-cream)/0.03)] transition-colors group"
-                      >
-                        {isChecked ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-[hsl(var(--landing-cream)/0.25)] group-hover:text-[hsl(var(--landing-cream)/0.45)] shrink-0 mt-0.5" />
-                        )}
-                        <span className={`text-sm ${isChecked ? 'text-[hsl(var(--landing-cream)/0.45)] line-through' : 'text-[hsl(var(--landing-cream)/0.85)]'}`}>
-                          <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-xs mr-2">{stepNum}.</span>
-                          {item.label}
-                          {item.quickStartDone && !isChecked && (
-                            <span className="ml-2 text-[10px] font-mono text-emerald-400/60">✓ Done during Quick Start</span>
-                          )}
-                        </span>
-                      </button>
-                      <button
-                        onClick={(e) => toggleExpand(item.label, e)}
-                        className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)] transition-colors shrink-0 mt-0.5"
-                        title={isExpanded ? 'Collapse' : 'Show instructions'}
-                      >
-                        {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                    {isExpanded && <ItemDetail detail={item.detail} />}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Track selector */}
+      <div className="flex gap-2 mb-8">
+        <button
+          onClick={() => setTrack('ai')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-colors ${
+            track === 'ai'
+              ? 'bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]'
+              : 'bg-[hsl(var(--landing-cream)/0.04)] text-[hsl(var(--landing-cream)/0.7)] border border-[hsl(var(--landing-cream)/0.08)] hover:text-[hsl(var(--landing-cream)/0.9)]'
+          }`}
+        >
+          <Bot className="w-3.5 h-3.5" />
+          With AI assistance
+        </button>
+        <button
+          onClick={() => setTrack('full')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-mono transition-colors ${
+            track === 'full'
+              ? 'bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]'
+              : 'bg-[hsl(var(--landing-cream)/0.04)] text-[hsl(var(--landing-cream)/0.7)] border border-[hsl(var(--landing-cream)/0.08)] hover:text-[hsl(var(--landing-cream)/0.9)]'
+          }`}
+        >
+          <Wrench className="w-3.5 h-3.5" />
+          Full checklist
+        </button>
       </div>
+
+      {/* AI track */}
+      {track === 'ai' && (
+        <div className="space-y-1">
+          {AI_CHECKLIST.map((item, idx) => {
+            const isChecked = checked.has(item.label);
+            const isExpanded = expanded.has(item.label);
+            return (
+              <div key={item.label}>
+                <div className="flex items-start gap-2">
+                  <button
+                    onClick={() => toggle(item.label)}
+                    className="flex items-start gap-3 flex-1 text-left py-1.5 px-2 -mx-2 rounded hover:bg-[hsl(var(--landing-cream)/0.03)] transition-colors group"
+                  >
+                    {isChecked ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    ) : (
+                      <Circle className="w-4 h-4 text-[hsl(var(--landing-cream)/0.25)] group-hover:text-[hsl(var(--landing-cream)/0.45)] shrink-0 mt-0.5" />
+                    )}
+                    <span className={`text-sm ${isChecked ? 'text-[hsl(var(--landing-cream)/0.45)] line-through' : 'text-[hsl(var(--landing-cream)/0.85)]'}`}>
+                      <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-xs mr-2">{idx + 1}.</span>
+                      {item.label}
+                    </span>
+                  </button>
+                  <button
+                    onClick={(e) => toggleExpand(item.label, e)}
+                    className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)] transition-colors shrink-0 mt-0.5"
+                  >
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+                {isExpanded && <ItemDetail detail={item.detail} />}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Full track */}
+      {track === 'full' && (
+        <div className="space-y-8">
+          {FULL_CHECKLIST.map((group) => (
+            <div key={group.title}>
+              <h4 className="text-[hsl(var(--landing-cream)/0.7)] text-xs font-mono uppercase tracking-wider mb-3">
+                {group.title}
+              </h4>
+              <div className="space-y-1">
+                {group.items.map((item, idx) => {
+                  const isChecked = checked.has(item.label);
+                  const isExpanded = expanded.has(item.label);
+                  const stepNum = group.stepOffset + idx;
+
+                  return (
+                    <div key={item.label}>
+                      <div className="flex items-start gap-2">
+                        <button
+                          onClick={() => toggle(item.label)}
+                          className="flex items-start gap-3 flex-1 text-left py-1.5 px-2 -mx-2 rounded hover:bg-[hsl(var(--landing-cream)/0.03)] transition-colors group"
+                        >
+                          {isChecked ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-[hsl(var(--landing-cream)/0.25)] group-hover:text-[hsl(var(--landing-cream)/0.45)] shrink-0 mt-0.5" />
+                          )}
+                          <span className={`text-sm ${isChecked ? 'text-[hsl(var(--landing-cream)/0.45)] line-through' : 'text-[hsl(var(--landing-cream)/0.85)]'}`}>
+                            <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-xs mr-2">{stepNum}.</span>
+                            {item.label}
+                          </span>
+                        </button>
+                        <button
+                          onClick={(e) => toggleExpand(item.label, e)}
+                          className="p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.05)] text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)] transition-colors shrink-0 mt-0.5"
+                        >
+                          {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                      {isExpanded && <ItemDetail detail={item.detail} />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <p className="text-[hsl(var(--landing-cream)/0.35)] text-xs font-mono mt-6">
         Progress is saved locally in your browser.

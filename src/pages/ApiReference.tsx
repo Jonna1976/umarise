@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
+import ApiKeySection from '@/components/api-reference/ApiKeySection';
+import AIIntegrationSection from '@/components/api-reference/AIIntegrationSection';
 import QuickStartSection from '@/components/api-reference/QuickStartSection';
 import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
 import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
@@ -11,6 +13,8 @@ import IntegrationTemplates from '@/components/api-reference/IntegrationTemplate
 const BASE_URL = 'https://core.umarise.com';
 
 const endpoints = [
+  { id: 'api-key', name: 'API Key', icon: Key },
+  { id: 'ai-integration', name: 'AI Integration', icon: Bot },
   { id: 'quick-start', name: 'Quick Start', icon: Zap },
   { id: 'live-demo', name: 'Try it Live', icon: PlayCircle },
   { id: 'health', name: 'Health', method: 'GET' },
@@ -18,12 +22,11 @@ const endpoints = [
   { id: 'resolve', name: 'Resolve', method: 'GET' },
   { id: 'verify', name: 'Verify', method: 'POST' },
   { id: 'proof', name: 'Proof', method: 'GET' },
-  { id: 'templates', name: 'Templates', icon: FileCode2 },
-  { id: 'frameworks', name: 'Frameworks', icon: FileCode2 },
-  { id: 'troubleshooting', name: 'Troubleshoot', icon: AlertTriangle },
-  { id: 'checklist', name: 'Checklist', icon: ListChecks },
   { id: 'errors', name: 'Errors', icon: AlertTriangle },
   { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
+  { id: 'templates', name: 'Templates', icon: FileCode2 },
+  { id: 'troubleshooting', name: 'Troubleshoot', icon: AlertTriangle },
+  { id: 'checklist', name: 'Checklist', icon: ListChecks },
 ];
 
 export default function ApiReference() {
@@ -62,11 +65,24 @@ export default function ApiReference() {
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
 
+        {/* ─── API KEY ─── */}
+        <ApiKeySection />
+
+        {/* ─── AI INTEGRATION ─── */}
+        <AIIntegrationSection />
+
         {/* ─── QUICK START ─── */}
         <QuickStartSection />
 
         {/* ─── LIVE DEMO ─── */}
         <LiveDemoFlow />
+
+        {/* ─── DIVIDER ─── */}
+        <div className="text-center py-4 border-y border-[hsl(var(--landing-cream)/0.08)]">
+          <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm italic">
+            The sections above are everything most integrations need. What follows is the complete technical reference — endpoints, parameters, response formats, error codes, and rate limits.
+          </p>
+        </div>
 
         {/* ─── 1. HEALTH ─── */}
         <section id="health">
@@ -455,7 +471,7 @@ done`} />
           </div>
         </section>
 
-        {/* ─── INTEGRATION TEMPLATES ─── */}
+        {/* ─── INTEGRATION TEMPLATES (includes Frameworks + Troubleshooting) ─── */}
         <IntegrationTemplates />
 
         {/* ─── INTEGRATION CHECKLIST ─── */}
