@@ -931,9 +931,9 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 15. Continuity Guarantee */}
+        {/* 15. Verification Independence */}
         <section>
-          <SectionHeader icon={ShieldCheck} title="Continuity Guarantee" num={15} />
+          <SectionHeader icon={ShieldCheck} title="Verification Independence" num={15} />
           <p className="text-sm text-landing-cream/50 mb-6">
             What happens if Umarise goes offline — or ceases to exist entirely.
           </p>
@@ -1033,9 +1033,9 @@ const Architecture = () => {
             </div>
           </div>
 
-          {/* Core guarantee */}
+          {/* Core property */}
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/10 rounded-lg">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">The core guarantee</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">The core property</p>
             <p className="text-sm text-landing-cream/70 leading-relaxed">
               Every anchor ZIP is a <strong className="text-landing-cream/90">self-contained proof bundle</strong>. The claim "this file existed at this moment" is verifiable using only:
             </p>
@@ -1045,7 +1045,7 @@ const Architecture = () => {
               <p>3. The Bitcoin blockchain (public, decentralized)</p>
             </div>
             <p className="text-xs text-landing-muted/40 mt-3">
-              None of these three require Umarise. Verification is mathematically independent of platform availability or business continuity.
+              None of these three require Umarise. Verification is mathematically independent of platform availability.
             </p>
           </div>
 
