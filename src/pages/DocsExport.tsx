@@ -852,7 +852,7 @@ GET /resolve?hash={sha256}`}</pre>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Continuity & Resilience</h2>
+          <h2 className="text-xl font-bold mb-4 border-b border-gray-200 pb-2">Verification Independence</h2>
           <p className="text-gray-700 mb-4 italic">"What if Umarise goes offline, gets hacked, or goes out of business?"</p>
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -869,7 +869,7 @@ GET /resolve?hash={sha256}`}</pre>
             </tbody>
           </table>
           <div className="bg-gray-50 p-4 rounded mt-4">
-            <p className="font-semibold">The fundamental guarantee:</p>
+            <p className="font-semibold">The fundamental property:</p>
             <p className="text-sm text-gray-700 mt-1">Your ability to prove origin never depends on Umarise availability. The cryptography is yours.</p>
           </div>
         </section>
