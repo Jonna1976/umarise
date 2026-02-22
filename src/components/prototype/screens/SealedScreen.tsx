@@ -18,6 +18,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 const POST_SEAL_HINT_KEY = 'umarise_post_seal_hint_shown';
 import { motion } from 'framer-motion';
@@ -369,6 +370,24 @@ export function SealedScreen({
           </span>
         </motion.div>
       )}
+
+      {/* ── Why link — footnote, post-seal only ── */}
+      <motion.div
+        className="mt-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 2.0 }}
+      >
+        <Link
+          to="/why"
+          className="font-garamond text-[0.85rem] tracking-[0.05em] no-underline transition-opacity"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'hsl(var(--ritual-cream) / 0.7)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'hsl(var(--ritual-cream) / 0.4)')}
+        >
+          Why this exists →
+        </Link>
+      </motion.div>
     </motion.div>
   );
 }
