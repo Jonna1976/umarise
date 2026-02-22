@@ -91,6 +91,14 @@ export default {
           cream: "hsl(var(--landing-cream))",
           muted: "hsl(var(--landing-muted))",
         },
+        // Why pages — museum aesthetic
+        why: {
+          bg: "hsl(var(--why-bg))",
+          cream: "hsl(var(--why-cream))",
+          gold: "hsl(var(--why-gold))",
+          code: "hsl(var(--why-code))",
+          separator: "hsl(var(--why-separator))",
+        },
         // Ritual V6 colors
         ritual: {
           bg: "hsl(var(--ritual-bg))",

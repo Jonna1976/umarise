@@ -14,6 +14,18 @@
     --landing-cream: 40 15% 88%;
     --landing-muted: 30 8% 55%;
 
+    /* === WHY PAGES — Museum aesthetic === */
+    /* #08080f cool near-black */
+    --why-bg: 230 30% 5%;
+    /* #e8e3d8 warm off-white */
+    --why-cream: 40 18% 88%;
+    /* #b8955a antique gold */
+    --why-gold: 35 37% 54%;
+    /* #0f0f1a code background */
+    --why-code: 240 28% 8%;
+    /* Separator: warm muted line */
+    --why-separator: 38 15% 68%;
+
     /* === STYLE MANUAL SYNCHRONIZED === */
     /* Lichte achtergrond (Cream) */
     --background: 42 35% 94%;
