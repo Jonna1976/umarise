@@ -63,13 +63,13 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
   const [saved, setSaved] = useState(false);
 
   const handleShare = useCallback(async () => {
-    const verifyUrl = `https://anchoring.app/verify?origin_id=${encodeURIComponent(originId)}`;
-    if (navigator.share) {
+    // Try native share with the ZIP file itself
+    if (navigator.share && navigator.canShare?.({ files: [zipFile] })) {
       try {
         await navigator.share({
           files: [zipFile],
           title: `Origin ${displayOriginId.slice(0, 8)}`,
-          url: verifyUrl,
+          text: `Anchor proof — verify at anchoring.app/verify`,
         });
         setSaved(true);
         setTimeout(() => setSaved(false), 4000);
@@ -78,15 +78,20 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
         if ((err as Error).name === 'AbortError') return;
       }
     }
-    try {
-      await navigator.clipboard.writeText(verifyUrl);
-      toast.success('Verify link copied');
-    } catch {
-      toast.info(verifyUrl, { duration: 8000 });
-    }
+    // Fallback: download the ZIP directly
+    const url = URL.createObjectURL(zipFile);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = zipFile.name;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast.success('ZIP downloaded — share it with your recipient');
     setSaved(true);
     setTimeout(() => setSaved(false), 4000);
-  }, [zipFile, originId, displayOriginId]);
+  }, [zipFile, displayOriginId]);
 
   return (
     <motion.div
