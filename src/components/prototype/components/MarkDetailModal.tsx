@@ -41,6 +41,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [proofLoaded, setProofLoaded] = useState(false);
   const [fetchingProof, setFetchingProof] = useState(false);
   const [verifyingFile, setVerifyingFile] = useState(false);
+  const [imgError, setImgError] = useState(false);
   
   const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
   const signatureRef = useRef<string | null>(null);
@@ -149,7 +150,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-[100] flex items-center justify-center"
-        style={{ background: 'hsl(var(--ritual-bg) / 0.96)' }}
+        style={{ background: 'hsl(var(--ritual-surface))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -193,8 +194,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             />
           </div>
 
-          {/* Photo in golden frame */}
-          {mark.imageUrl && (
+          {/* Photo in golden frame — hide if image fails to load */}
+          {mark.imageUrl && !imgError && (
             <div
               className="rounded-[3px] mb-5"
               style={{
@@ -208,7 +209,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 style={{ padding: '4px' }}
               >
                 <div className="w-[250px] h-[190px] overflow-hidden">
-                  <img src={mark.imageUrl} alt="" className="w-full h-full object-cover" />
+                  <img src={mark.imageUrl} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
                 </div>
               </div>
             </div>
@@ -218,37 +219,37 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           <div className="flex flex-col items-center text-center">
             <div className="w-10 h-px mb-4" style={{ background: 'rgba(197,147,90,0.2)' }} />
 
-            <p className="font-mono text-[14px] tracking-[3px] mb-1" style={{ color: 'rgba(197,147,90,0.5)' }}>
+            <p className="font-mono text-[18px] tracking-[3px] mb-1.5" style={{ color: 'rgba(197,147,90,0.7)' }}>
               {displayOriginId}
             </p>
 
-            <p className="font-garamond text-[17px] mb-2.5" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>
+            <p className="font-garamond text-[20px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}>
               {formattedDate} · {formattedTime}
             </p>
 
-            <p className="font-mono text-[11px] tracking-[0.5px] mb-3.5" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.3 }}>
+            <p className="font-mono text-[13px] tracking-[0.5px] mb-4 max-w-[300px] break-all leading-[1.6] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}>
               {mark.hash}
             </p>
 
             {/* Proof components */}
-            <div className="flex items-center gap-4 mb-5">
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>certificate</span>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>hash</span>
+            <div className="flex items-center gap-4 mb-6">
+              <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>certificate</span>
+              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.3)' }} />
+              <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>hash</span>
               {isAnchored ? (
                 <>
-                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.2)' }} />
-                  <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>proof.ots</span>
+                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.3)' }} />
+                  <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>proof.ots</span>
                 </>
               ) : (
                 <>
                   <motion.span
                     className="w-[3px] h-[3px] rounded-full"
-                    style={{ background: 'rgba(197,147,90,0.2)' }}
+                    style={{ background: 'rgba(197,147,90,0.3)' }}
                     animate={{ opacity: [0.3, 0.7, 0.3] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)', opacity: 0.6 }}>proof.ots</span>
+                  <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)', opacity: 0.6 }}>proof.ots</span>
                 </>
               )}
             </div>
@@ -309,22 +310,22 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           />
 
           {/* Verify + Share — inline text links */}
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-4 mb-5">
             <a
               href={`/verify?origin_id=${encodeURIComponent(mark.originId)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-mono text-[9px] tracking-[3px] uppercase no-underline transition-opacity hover:opacity-80"
-              style={{ color: 'rgba(245,240,232,0.4)' }}
+              className="font-mono text-[11px] tracking-[2px] uppercase no-underline transition-opacity hover:opacity-80"
+              style={{ color: 'rgba(245,240,232,0.5)' }}
             >
               Verify this proof
             </a>
-            <span className="font-mono text-[9px]" style={{ color: 'rgba(197,147,90,0.2)' }}>·</span>
+            <span className="font-mono text-[11px]" style={{ color: 'rgba(197,147,90,0.25)' }}>·</span>
             <button
               onClick={handleShare}
               disabled={saved}
-              className="font-mono text-[9px] tracking-[3px] uppercase transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent border-none cursor-pointer"
-              style={{ color: 'rgba(245,240,232,0.4)' }}
+              className="font-mono text-[11px] tracking-[2px] uppercase transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent border-none cursor-pointer"
+              style={{ color: 'rgba(245,240,232,0.5)' }}
             >
               {saved ? '✓ Shared' : 'Share'}
             </button>
