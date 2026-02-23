@@ -371,25 +371,6 @@ export function SealedScreen({
         </motion.div>
       )}
 
-      {/* ── Why link — footnote, post-seal only ── */}
-      <motion.div
-        className="mt-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 2.0 }}
-      >
-        <a
-          href="/why"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-garamond text-[0.85rem] tracking-[0.05em] no-underline transition-opacity"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'hsl(var(--ritual-cream) / 0.7)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'hsl(var(--ritual-cream) / 0.4)')}
-        >
-          Why this exists →
-        </a>
-      </motion.div>
     </motion.div>
   );
 }

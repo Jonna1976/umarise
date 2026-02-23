@@ -48,7 +48,7 @@ function routeFile(
 export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }: CaptureScreenProps) {
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
-  const [verifyHovered, setVerifyHovered] = useState(false);
+  
   const dragCounter = useRef(0);
 
   // ── Prevent browser from downloading/opening dropped files ──
@@ -242,49 +242,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         </motion.label>
       </div>
 
-      {/* ── Verify section ── */}
-      <motion.div
-        className="w-full px-8 pb-12 flex flex-col items-center gap-5"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, delay: isFirstVisit ? 1.6 : 1.0 }}
-      >
-        {/* Divider */}
-        <div
-          className="w-16 h-px"
-          style={{ background: 'hsl(var(--ritual-gold) / 0.18)' }}
-        />
-
-        {/* Label */}
-        <p
-          className="font-garamond text-[13px] tracking-[0.14em] uppercase text-center"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.35)', letterSpacing: '0.16em' }}
-        >
-          Already have a proof?
-        </p>
-
-        {/* CTA button */}
-        <a
-          href="/verify"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-playfair text-[20px] px-8 py-3 rounded-full text-center"
-          style={{
-            textDecoration: 'none',
-            fontStyle: 'italic',
-            fontWeight: 300,
-            color: verifyHovered ? 'hsl(var(--ritual-gold))' : 'hsl(var(--ritual-gold) / 0.8)',
-            border: `1px solid hsl(var(--ritual-gold) / ${verifyHovered ? '0.55' : '0.28'})`,
-            background: verifyHovered ? 'hsl(var(--ritual-gold) / 0.07)' : 'transparent',
-            boxShadow: verifyHovered ? '0 0 18px hsl(var(--ritual-gold) / 0.15)' : 'none',
-            transition: 'all 0.3s ease',
-          }}
-          onMouseEnter={() => setVerifyHovered(true)}
-          onMouseLeave={() => setVerifyHovered(false)}
-        >
-          Verify it here
-        </a>
-      </motion.div>
+      {/* Bottom spacer */}
+      <div className="pb-12" />
     </motion.div>
   );
 }
