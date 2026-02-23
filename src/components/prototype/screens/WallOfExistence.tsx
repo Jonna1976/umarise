@@ -306,8 +306,8 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       {/* Permanence statement */}
       <div className="absolute bottom-[env(safe-area-inset-bottom,16px)] left-0 right-0 z-20 flex justify-center pb-4 pointer-events-none">
         <p
-          className="font-garamond italic text-[12px] text-center"
-          style={{ color: 'rgba(245,240,232,0.4)' }}
+          className="font-garamond italic text-[18px] text-center"
+          style={{ color: 'rgba(245,240,232,0.45)' }}
         >
           The proof exists forever. Independent of this service.
         </p>

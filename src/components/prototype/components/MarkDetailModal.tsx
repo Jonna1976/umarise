@@ -190,6 +190,11 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
         {saved ? '✓ Shared' : 'Share'}
       </button>
 
+      {/* Reminder: send original file separately */}
+      <p className="font-garamond italic text-[14px] text-center max-w-[300px] mb-4 leading-[1.6]" style={{ color: 'rgba(245,240,232,0.35)' }}>
+        Send your original file separately via a secure channel — bytes must stay intact for verification.
+      </p>
+
       <button
         onClick={onReset}
         className="font-mono text-[13px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
