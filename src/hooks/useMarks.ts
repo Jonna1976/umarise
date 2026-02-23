@@ -353,9 +353,10 @@ export function useMarks() {
       setMarks(prev => [displayMark, ...prev]);
       
       return displayMark;
-    } catch (e) {
-      console.error('[createMark] Failed:', e);
-      toast.error('Failed to create mark');
+    } catch (e: any) {
+      const msg = e?.message || e?.toString?.() || 'Unknown error';
+      console.error('[createMark] Failed:', msg, e);
+      toast.error(`Failed to create mark: ${msg.substring(0, 80)}`);
       return null;
     }
   }, [toDisplayMark]);
