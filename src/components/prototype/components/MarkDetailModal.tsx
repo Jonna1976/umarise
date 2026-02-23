@@ -308,20 +308,27 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             }}
           />
 
-          {/* Share button */}
-          <button
-            onClick={handleShare}
-            disabled={saved}
-            className="font-playfair text-[17px] px-7 py-3 rounded-full transition-all disabled:opacity-50 mb-3"
-            style={{
-              fontWeight: 300,
-              background: saved ? 'hsl(var(--ritual-gold) / 0.12)' : 'hsl(var(--ritual-gold) / 0.08)',
-              border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.4' : '0.2'})`,
-              color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
-            }}
-          >
-            {saved ? '✓ Shared' : 'Share'}
-          </button>
+          {/* Verify + Share — inline text links */}
+          <div className="flex items-center gap-3 mb-4">
+            <a
+              href={`/verify?origin_id=${encodeURIComponent(mark.originId)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-[9px] tracking-[3px] uppercase no-underline transition-opacity hover:opacity-80"
+              style={{ color: 'rgba(245,240,232,0.4)' }}
+            >
+              Verify this proof
+            </a>
+            <span className="font-mono text-[9px]" style={{ color: 'rgba(197,147,90,0.2)' }}>·</span>
+            <button
+              onClick={handleShare}
+              disabled={saved}
+              className="font-mono text-[9px] tracking-[3px] uppercase transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent border-none cursor-pointer"
+              style={{ color: 'rgba(245,240,232,0.4)' }}
+            >
+              {saved ? '✓ Shared' : 'Share'}
+            </button>
+          </div>
 
           {/* Device signed — small checkmark, ghost */}
           {credentialRef.current && (
