@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      attestants: {
+        Row: {
+          active: boolean
+          certified_at: string | null
+          created_at: string
+          id: string
+          name: string
+          public_key: string
+          type: string
+        }
+        Insert: {
+          active?: boolean
+          certified_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          public_key: string
+          type: string
+        }
+        Update: {
+          active?: boolean
+          certified_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          public_key?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      attestation_requests: {
+        Row: {
+          attestant_certificate: string | null
+          attestant_certificate_url: string | null
+          attestant_name: string | null
+          attestant_public_key: string | null
+          completed_at: string | null
+          created_at: string
+          device_user_id: string
+          id: string
+          origin_id: string
+          requested_at: string
+          signature: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attestant_certificate?: string | null
+          attestant_certificate_url?: string | null
+          attestant_name?: string | null
+          attestant_public_key?: string | null
+          completed_at?: string | null
+          created_at?: string
+          device_user_id: string
+          id?: string
+          origin_id: string
+          requested_at?: string
+          signature?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attestant_certificate?: string | null
+          attestant_certificate_url?: string | null
+          attestant_name?: string | null
+          attestant_public_key?: string | null
+          completed_at?: string | null
+          created_at?: string
+          device_user_id?: string
+          id?: string
+          origin_id?: string
+          requested_at?: string
+          signature?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_origin"
+            columns: ["origin_id"]
+            isOneToOne: false
+            referencedRelation: "origin_attestations"
+            referencedColumns: ["origin_id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           created_at: string
