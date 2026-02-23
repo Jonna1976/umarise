@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CaptureScreen, type CapturedFile, type CapturedRawFile } from './screens/CaptureScreen';
 import { SealedScreen } from './screens/SealedScreen';
@@ -8,6 +8,7 @@ import { OriginButton } from './components/OriginButton';
 import { HashingProgress, fileTypeLabel } from './components/UniversalDropZone';
 import { useMarks } from '@/hooks/useMarks';
 import { toast } from 'sonner';
+import { runPreflightCheck } from '@/lib/preflightCheck';
 
 export type RitualScreen = 'capture' | 'processing' | 'sealed' | 'home' | 'wall';
 
@@ -36,6 +37,16 @@ export function RitualFlow() {
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
   const [showFirstAnchorReveal, setShowFirstAnchorReveal] = useState(false);
   const { createMark, createMarkFromFile } = useMarks();
+
+  // Pre-flight: check browser capabilities once on mount
+  useEffect(() => {
+    runPreflightCheck().then(result => {
+      if (!result.ok) {
+        console.error('[RitualFlow] Pre-flight failed:', result.failures);
+        toast.error(result.failures[0], { duration: 10000 });
+      }
+    });
+  }, []);
 
   // Determine first visit: 0 anchors in local storage
   const [isFirstVisit, setIsFirstVisit] = useState(() => {
