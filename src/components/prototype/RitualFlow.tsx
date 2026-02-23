@@ -47,6 +47,25 @@ export function RitualFlow() {
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
   const [currentArtifact, setCurrentArtifact] = useState<Artifact | null>(null);
   const isCreatingMark = useRef(false);
+  const markCreationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Safety: auto-reset isCreatingMark after 45s to prevent permanent lock
+  const setCreatingMark = useCallback((value: boolean) => {
+    isCreatingMark.current = value;
+    if (markCreationTimer.current) {
+      clearTimeout(markCreationTimer.current);
+      markCreationTimer.current = null;
+    }
+    if (value) {
+      markCreationTimer.current = setTimeout(() => {
+        if (isCreatingMark.current) {
+          console.warn('[RitualFlow] isCreatingMark safety timeout — resetting');
+          isCreatingMark.current = false;
+          markCreationTimer.current = null;
+        }
+      }, 45_000);
+    }
+  }, []);
 
   // File hashing progress state (for large files in universal drop zone)
   const [hashingFile, setHashingFile] = useState<{ fileName: string; fileSize: number; progress: number } | null>(null);
@@ -62,7 +81,10 @@ export function RitualFlow() {
 
   // Handle file capture - auto-hash + create mark, then go to sealed
   const handleCapture = useCallback(async (file: CapturedFile) => {
-    if (isCreatingMark.current) return;
+    if (isCreatingMark.current) {
+      console.warn('[RitualFlow] handleCapture blocked — already creating mark');
+      return;
+    }
     
     setCapturedImageUrl(file.dataUrl);
     
@@ -88,7 +110,7 @@ export function RitualFlow() {
     goToScreen('processing');
     
     // Auto-create mark (hash + DB insert)
-    isCreatingMark.current = true;
+    setCreatingMark(true);
     try {
       console.log('[RitualFlow] Auto-creating mark after capture...');
       const mark = await createMark(file.dataUrl, 'warm');
@@ -115,20 +137,23 @@ export function RitualFlow() {
         console.error('[RitualFlow] Mark creation returned null');
         toast.error('Failed to seal mark');
         goToScreen('capture');
-        isCreatingMark.current = false;
+        setCreatingMark(false);
       }
     } catch (error) {
       console.error('[RitualFlow] Mark creation failed:', error);
       toast.error('Failed to seal mark');
       goToScreen('capture');
-      isCreatingMark.current = false;
+      setCreatingMark(false);
     }
-  }, [goToScreen, createMark]);
+  }, [goToScreen, createMark, setCreatingMark]);
 
   // Handle raw File from UniversalDropZone — directe File-hashing, geen base64
   const handleCaptureFile = useCallback(async (rf: CapturedRawFile) => {
-    if (isCreatingMark.current) return;
-    isCreatingMark.current = true;
+    if (isCreatingMark.current) {
+      console.warn('[RitualFlow] handleCaptureFile blocked — already creating mark');
+      return;
+    }
+    setCreatingMark(true);
 
     // Determine artifact type from MIME
     const artifactType = rf.mimeType.startsWith('audio/') ? 'sound'
@@ -174,16 +199,16 @@ export function RitualFlow() {
       } else {
         toast.error('Failed to anchor file');
         goToScreen('capture');
-        isCreatingMark.current = false;
+        setCreatingMark(false);
       }
     } catch (error) {
       console.error('[RitualFlow] File mark creation failed:', error);
       toast.error('Failed to anchor file');
       setHashingFile(null);
       goToScreen('capture');
-      isCreatingMark.current = false;
+      setCreatingMark(false);
     }
-  }, [goToScreen, createMarkFromFile]);
+  }, [goToScreen, createMarkFromFile, setCreatingMark]);
 
   // handleMarkComplete removed — mark creation now happens automatically in handleCapture
 
@@ -192,7 +217,7 @@ export function RitualFlow() {
     const wasFirstVisit = isFirstVisit;
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
-    isCreatingMark.current = false;
+    setCreatingMark(false);
     
     if (wasFirstVisit) {
       // First anchor special: show V7 nav reveal, then auto-advance
