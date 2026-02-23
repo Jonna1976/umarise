@@ -99,6 +99,63 @@ describe('buildOriginZip', () => {
     expect(files).not.toContain('proof.ots');
   });
 
+  it('includes attestation.json when attestation data is provided', async () => {
+    const attestation = {
+      attestation_id: 'a43ef0e2-7ed7-48e9-87e0-f6cb5e64515b',
+      origin_id: '001f133c-dec5-46f5-8ed4-bcfb139c2adb',
+      attested_by: 'Test Notaris',
+      attested_at: '2026-02-23T19:46:36.41+00:00',
+      signature: 'test-sig-laag3',
+      attestant_public_key: 'test-pubkey-001',
+      attestant_certificate: 'Test Certificate v1',
+      verify_url: 'https://core.umarise.com/v1-attestation-verify?id=a43ef0e2-7ed7-48e9-87e0-f6cb5e64515b',
+    };
+
+    const zipBlob = await buildOriginZip({
+      originId: 'um-AABB1122',
+      hash: 'deadbeef'.repeat(8),
+      timestamp: new Date('2026-02-23T12:00:00Z'),
+      imageUrl: null,
+      attestation,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    const files = Object.keys(zip.files);
+
+    // attestation.json must be present
+    expect(files).toContain('attestation.json');
+
+    // Parse and verify contents
+    const attJson = JSON.parse(await zip.files['attestation.json'].async('text'));
+    expect(attJson.attestation_id).toBe(attestation.attestation_id);
+    expect(attJson.attested_by).toBe('Test Notaris');
+    expect(attJson.signature).toBe('test-sig-laag3');
+    expect(attJson.attestant_public_key).toBe('test-pubkey-001');
+    expect(attJson.verify_url).toContain('v1-attestation-verify');
+
+    // certificate.json should be v1.2 with attestation_included
+    const certJson = JSON.parse(await zip.files['certificate.json'].async('text'));
+    expect(certJson.version).toBe('1.2');
+    expect(certJson.attestation_included).toBe(true);
+
+    // VERIFY.txt should mention attestation
+    const verifyTxt = await zip.files['VERIFY.txt'].async('text');
+    expect(verifyTxt).toContain('attestation.json');
+    expect(verifyTxt).toContain('Layer 3');
+  });
+
+  it('omits attestation.json when no attestation data', async () => {
+    const zipBlob = await buildOriginZip({
+      originId: 'um-CCDD0011',
+      hash: 'abcd1234'.repeat(8),
+      timestamp: new Date('2026-02-07T12:00:00Z'),
+      imageUrl: null,
+    });
+
+    const zip = await JSZip.loadAsync(zipBlob);
+    expect(Object.keys(zip.files)).not.toContain('attestation.json');
+  });
+
   it('includes passkey fields when provided', async () => {
     const zipBlob = await buildOriginZip({
       originId: 'um-11223344',

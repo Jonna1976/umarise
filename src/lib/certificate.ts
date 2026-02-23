@@ -23,8 +23,8 @@
  */
 
 export interface OriginCertificate {
-  /** Schema version — "1.0" for legacy, "1.1" for device-signed certificates */
-  version: '1.0' | '1.1';
+  /** Schema version — "1.0" legacy, "1.1" device-signed, "1.2" with attestation */
+  version: '1.0' | '1.1' | '1.2';
 
   /** 8-character hex identifier (without prefix), e.g. "1916F13F" */
   origin_id: string;
@@ -47,34 +47,20 @@ export interface OriginCertificate {
   /** Current proof status: pending (not yet anchored), anchored (Bitcoin-verified) */
   proof_status: 'pending' | 'anchored';
 
-  /** 
-   * Public key of the passkey credential (optional).
-   * Only populated when the user enables the passkey toggle.
-   * Used by verifiers to check the signature without a server lookup.
-   */
+  /** Public key of the passkey credential (optional) */
   claimed_by: string | null;
 
-  /**
-   * Cryptographic signature of the hash, signed by the private key
-   * corresponding to `claimed_by` (optional).
-   * Verifiable client-side using the public key in `claimed_by`.
-   */
+  /** Cryptographic signature of the hash (optional) */
   signature: string | null;
 
-  /**
-   * WebAuthn signature over the SHA-256 hash of the artifact (v1.1).
-   * Base64url-encoded. Produced by navigator.credentials.get() with
-   * the hash as challenge. Verifiable with device_public_key.
-   * null if no passkey is available or signing failed.
-   */
+  /** WebAuthn signature over the SHA-256 hash (v1.1+) */
   device_signature: string | null;
 
-  /**
-   * SPKI public key of the device passkey that produced device_signature (v1.1).
-   * Base64url-encoded. Same key across all anchors from this device.
-   * null if no passkey is available or signing failed.
-   */
+  /** SPKI public key of the device passkey (v1.1+) */
   device_public_key: string | null;
+
+  /** Whether an attestation.json file is included in this ZIP (v1.2+) */
+  attestation_included?: boolean;
 }
 
 /**
@@ -100,12 +86,15 @@ export function createCertificate(
   proofStatus: 'pending' | 'anchored' = 'pending',
   deviceSignature: string | null = null,
   devicePublicKey: string | null = null,
+  attestationIncluded: boolean = false,
 ): OriginCertificate {
   // Strip prefix if present (um- → raw hex)
   const cleanId = originId.toUpperCase().replace(/^UM-/i, '');
 
-  // Version bump: 1.1 if device signature fields are present
-  const version = (deviceSignature || devicePublicKey) ? '1.1' : '1.0';
+  // Version bump: 1.2 if attestation, 1.1 if device signature, 1.0 otherwise
+  const version = attestationIncluded ? '1.2'
+    : (deviceSignature || devicePublicKey) ? '1.1'
+    : '1.0';
 
   return {
     version,
@@ -120,6 +109,7 @@ export function createCertificate(
     signature,
     device_signature: deviceSignature,
     device_public_key: devicePublicKey,
+    attestation_included: attestationIncluded || undefined,
   };
 }
 
