@@ -132,3 +132,10 @@ verify_jwt = false
 [functions.v1-attestation-verify]
 verify_jwt = false
 
+# Stripe payment endpoints
+[functions.v1-attestation-checkout]
+verify_jwt = false
+
+[functions.v1-attestation-webhook]
+verify_jwt = false
+
