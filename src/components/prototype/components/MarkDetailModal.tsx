@@ -3,7 +3,7 @@
  * 
  * Same visual language as SealedScreen:
  * V7 nail (32px), wire, golden frame, museum label.
- * Share button. Device signed indicator.
+ * Inline verify + share via ZIP upload/drop.
  * No title. No privacy whisper. No explanation.
  */
 
@@ -11,13 +11,9 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { OriginMark } from './OriginMark';
-import { buildOriginZip, saveOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
-import { verifyFileHash } from '@/lib/originHash';
 import { toast } from 'sonner';
 import { 
-  signHash, 
-  isWebAuthnSupported,
   type PasskeyCredential,
 } from '@/lib/webauthn';
 import { getPasskeyCredential } from '@/lib/passkeyStore';
@@ -35,33 +31,45 @@ interface MarkDetailModalProps {
   onClose: () => void;
 }
 
-export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [proofLoaded, setProofLoaded] = useState(false);
-  const [fetchingProof, setFetchingProof] = useState(false);
-  const [verifyingFile, setVerifyingFile] = useState(false);
-  const [imgError, setImgError] = useState(false);
-  
-  const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
-  const signatureRef = useRef<string | null>(null);
-  const otsProofRef = useRef<string | null>(null);
-  const artifactFileRef = useRef<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+/** Document placeholder SVG — lines pattern */
+function DocumentPlaceholder() {
+  return (
+    <div className="w-full h-full flex items-center justify-center"
+      style={{ background: 'linear-gradient(135deg, rgba(15,26,15,0.95), rgba(20,30,30,0.95))' }}
+    >
+      <svg width="100" height="100" viewBox="0 0 80 80">
+        <line x1="14" y1="18" x2="66" y2="18" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.25"/>
+        <line x1="14" y1="27" x2="58" y2="27" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.2"/>
+        <line x1="14" y1="36" x2="63" y2="36" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.25"/>
+        <line x1="14" y1="45" x2="42" y2="45" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.18"/>
+        <line x1="14" y1="56" x2="60" y2="56" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.22"/>
+        <line x1="14" y1="65" x2="48" y2="65" stroke="hsl(var(--ritual-gold))" strokeWidth="0.8" opacity="0.18"/>
+      </svg>
+    </div>
+  );
+}
 
-  // Eagerly fetch OTS proof — silently ignore 404 for pending marks
+export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
+  const [saved, setSaved] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [zipFile, setZipFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const zipInputRef = useRef<HTMLInputElement | null>(null);
+  const dragCounter = useRef(0);
+
+  const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
+  const otsProofRef = useRef<string | null>(null);
+
+  // Eagerly fetch OTS proof
   useEffect(() => {
     if (!mark.originUuid) return;
     fetchProofStatus(mark.originUuid)
       .then(result => {
         if (result.status === 'anchored' && result.otsProofBytes) {
           otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
-          setProofLoaded(true);
         }
       })
-      .catch(() => {
-        // Expected 404 for marks not yet anchored — no action needed
-      });
+      .catch(() => {});
   }, [mark.originUuid]);
 
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
@@ -71,104 +79,97 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     hour: '2-digit', minute: '2-digit',
   });
 
-  // Clean origin ID — no prefix
   const displayOriginId = mark.originId.toUpperCase().replace('UM-', '');
-
   const isAnchored = mark.otsStatus === 'anchored';
+  const isImage = mark.imageUrl && !imgError;
 
-  // Handle file selection → verify hash → build ZIP
-  const handleFileSelected = useCallback(async (file: File) => {
-    setVerifyingFile(true);
-    try {
-      const match = await verifyFileHash(file, mark.hash);
-      if (!match) {
-        toast.error('Hash mismatch — dit is niet het originele bestand');
-        setVerifyingFile(false);
-        return;
-      }
-      artifactFileRef.current = file;
-      
-      setIsSaving(true);
-      setVerifyingFile(false);
-
-      if (credentialRef.current && !signatureRef.current) {
-        try {
-          const sig = await signHash(credentialRef.current.credentialId, mark.hash);
-          signatureRef.current = sig.signature;
-        } catch (e) {
-          console.warn('[MarkDetailModal] Hash signing skipped:', e);
-        }
-      }
-
-      if (isAnchored && !otsProofRef.current && mark.originUuid) {
-        setFetchingProof(true);
-        try {
-          const result = await fetchProofStatus(mark.originUuid);
-          if (result.status === 'anchored' && result.otsProofBytes) {
-            otsProofRef.current = arrayBufferToBase64(result.otsProofBytes);
-            setProofLoaded(true);
-          }
-        } catch (e) {
-          console.warn('[MarkDetailModal] Proof fetch failed:', e);
-        } finally {
-          setFetchingProof(false);
-        }
-      }
-
-      const success = await saveOriginZip({
-        originId: mark.originId,
-        hash: mark.hash,
-        timestamp: mark.timestamp,
-        imageUrl: mark.imageUrl ?? null,
-        claimedBy: credentialRef.current?.publicKey ?? null,
-        signature: signatureRef.current ?? null,
-        deviceSignature: signatureRef.current ?? null,
-        devicePublicKey: credentialRef.current?.publicKey ?? null,
-        otsProof: otsProofRef.current,
-        artifactFile: artifactFileRef.current,
-      });
-
-      if (success) {
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
-      }
-    } catch (error) {
-      console.error('[MarkDetailModal] Save error:', error);
-    } finally {
-      setIsSaving(false);
-      setVerifyingFile(false);
+  // ── ZIP drop/upload handlers ──
+  const handleZipFile = useCallback((file: File) => {
+    if (!file.name.endsWith('.zip') && file.type !== 'application/zip') {
+      toast.error('Please drop a ZIP file');
+      return;
     }
-  }, [isAnchored, mark.originId, mark.originUuid, mark.hash, mark.timestamp, mark.imageUrl]);
+    setZipFile(file);
+  }, []);
 
-  // Share flow: select ZIP → share via native sheet or clipboard fallback
-  const handleShare = useCallback(() => {
-    if (saved) return;
-    (window as any).__zipInputRef?.click();
-  }, [saved]);
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current++;
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current--;
+    if (dragCounter.current === 0) setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleZipFile(file);
+  }, [handleZipFile]);
+
+  // ── Share ZIP via native share or clipboard fallback ──
+  const handleShareZip = useCallback(async () => {
+    if (!zipFile) return;
+    const verifyUrl = `https://anchoring.app/verify?origin_id=${encodeURIComponent(mark.originId)}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          files: [zipFile],
+          title: `Origin ${displayOriginId.slice(0, 8)}`,
+          url: verifyUrl,
+        });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 4000);
+        return;
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: copy verify link
+    try {
+      await navigator.clipboard.writeText(verifyUrl);
+      toast.success('Verify link copied');
+    } catch {
+      toast.info(verifyUrl, { duration: 8000 });
+    }
+    setSaved(true);
+    setTimeout(() => setSaved(false), 4000);
+  }, [zipFile, mark.originId, displayOriginId]);
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[100] flex items-center justify-center"
+        className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto"
         style={{ background: 'hsl(var(--ritual-surface))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
         onClick={onClose}
+        onDragOver={(e) => e.preventDefault()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-60"
+          className="absolute top-6 right-6 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-opacity hover:opacity-60"
           style={{ background: 'rgba(197,147,90,0.06)' }}
         >
-          <X className="w-4 h-4" style={{ color: 'rgba(197,147,90,0.4)' }} />
+          <X className="w-5 h-5" style={{ color: 'rgba(197,147,90,0.5)' }} />
         </button>
 
         {/* Content */}
         <motion.div
-          className="w-full max-w-[340px] mx-4 flex flex-col items-center"
+          className="w-full max-w-[380px] mx-4 flex flex-col items-center py-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
@@ -178,14 +179,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           {/* V7 nail + wire */}
           <div className="flex flex-col items-center">
             <OriginMark
-              size={32}
+              size={36}
               state={isAnchored ? 'anchored' : 'pending'}
               glow={isAnchored}
               animated={!isAnchored}
               variant="dark"
             />
             <div
-              className="w-px h-3"
+              className="w-px h-4"
               style={{
                 background: isAnchored
                   ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))'
@@ -194,150 +195,151 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             />
           </div>
 
-          {/* Photo in golden frame — hide if image fails to load */}
-          {mark.imageUrl && !imgError && (
+          {/* Photo in golden frame — show placeholder on error */}
+          <div
+            className="rounded-[4px] mb-6"
+            style={{
+              padding: '12px',
+              background: 'linear-gradient(135deg, rgba(197,147,90,0.3), rgba(180,130,70,0.15) 30%, rgba(197,147,90,0.25) 70%, rgba(210,160,80,0.2))',
+              boxShadow: '0 6px 40px rgba(0,0,0,0.55), 0 0 24px rgba(197,147,90,0.1), inset 0 0 0 1px rgba(197,147,90,0.4), inset 0 0 0 2px rgba(15,26,15,0.5), inset 0 0 0 3px rgba(197,147,90,0.2)',
+            }}
+          >
             <div
-              className="rounded-[3px] mb-5"
-              style={{
-                padding: '8px',
-                background: 'linear-gradient(135deg, rgba(197,147,90,0.22), rgba(180,130,70,0.12) 30%, rgba(197,147,90,0.18) 70%, rgba(210,160,80,0.15))',
-                boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px rgba(197,147,90,0.08), inset 0 0 0 2px rgba(197,147,90,0.25), inset 0 0 0 3px rgba(15,26,15,0.5), inset 0 0 0 4px rgba(197,147,90,0.1)',
-              }}
+              className="border border-[rgba(197,147,90,0.2)] bg-[rgba(12,20,12,0.95)]"
+              style={{ padding: '6px' }}
             >
-              <div
-                className="border border-[rgba(197,147,90,0.15)] bg-[rgba(12,20,12,0.95)]"
-                style={{ padding: '4px' }}
-              >
-                <div className="w-[250px] h-[190px] overflow-hidden">
+              <div className="w-[260px] h-[200px] overflow-hidden">
+                {isImage ? (
                   <img src={mark.imageUrl} alt="" className="w-full h-full object-cover" onError={() => setImgError(true)} />
-                </div>
+                ) : (
+                  <DocumentPlaceholder />
+                )}
               </div>
             </div>
-          )}
+          </div>
 
           {/* Museum label */}
           <div className="flex flex-col items-center text-center">
-            <div className="w-10 h-px mb-4" style={{ background: 'rgba(197,147,90,0.2)' }} />
+            <div className="w-12 h-px mb-5" style={{ background: 'rgba(197,147,90,0.25)' }} />
 
-            <p className="font-mono text-[18px] tracking-[3px] mb-1.5" style={{ color: 'rgba(197,147,90,0.7)' }}>
+            <p className="font-mono text-[20px] tracking-[4px] mb-2" style={{ color: 'rgba(197,147,90,0.75)' }}>
               {displayOriginId}
             </p>
 
-            <p className="font-garamond text-[20px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}>
+            <p className="font-garamond text-[22px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
               {formattedDate} · {formattedTime}
             </p>
 
-            <p className="font-mono text-[13px] tracking-[0.5px] mb-4 max-w-[300px] break-all leading-[1.6] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}>
+            <p className="font-mono text-[14px] tracking-[0.5px] mb-5 max-w-[320px] break-all leading-[1.7] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}>
               {mark.hash}
             </p>
 
             {/* Proof components */}
-            <div className="flex items-center gap-4 mb-6">
-              <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>certificate</span>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.3)' }} />
-              <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>hash</span>
+            <div className="flex items-center gap-5 mb-8">
+              <span className="font-mono text-[13px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>certificate</span>
+              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+              <span className="font-mono text-[13px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>hash</span>
               {isAnchored ? (
                 <>
-                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.3)' }} />
-                  <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)' }}>proof.ots</span>
+                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+                  <span className="font-mono text-[13px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>proof.ots</span>
                 </>
               ) : (
                 <>
                   <motion.span
                     className="w-[3px] h-[3px] rounded-full"
-                    style={{ background: 'rgba(197,147,90,0.3)' }}
+                    style={{ background: 'rgba(197,147,90,0.35)' }}
                     animate={{ opacity: [0.3, 0.7, 0.3] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  <span className="font-mono text-[12px] tracking-[1.5px]" style={{ color: 'rgba(197,147,90,0.5)', opacity: 0.6 }}>proof.ots</span>
+                  <span className="font-mono text-[13px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.6 }}>proof.ots</span>
                 </>
               )}
             </div>
           </div>
 
-          {/* Hidden file inputs */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*" // V2: expand to application/pdf, audio/*, video/*, text/*
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleFileSelected(file);
-              e.target.value = '';
-            }}
-          />
-          <input
-            ref={(el) => { (window as any).__zipInputRef = el; }}
-            type="file"
-            accept=".zip,application/zip"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              const verifyUrl = `https://anchoring.app/verify?origin_id=${encodeURIComponent(mark.originId)}`;
-              let shared = false;
+          {/* ── Inline Verify + Share zone ── */}
+          <div className="w-full flex flex-col items-center">
+            {!zipFile ? (
+              /* Drop zone for ZIP */
+              <div
+                className="w-full max-w-[320px] flex flex-col items-center gap-3 py-6 px-4 rounded-lg cursor-pointer transition-all"
+                style={{
+                  border: `1px dashed rgba(197,147,90,${isDragging ? '0.5' : '0.2'})`,
+                  background: isDragging ? 'rgba(197,147,90,0.04)' : 'transparent',
+                }}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+                onClick={() => zipInputRef.current?.click()}
+              >
+                <p className="font-garamond text-[16px] text-center" style={{ color: 'rgba(245,240,232,0.5)' }}>
+                  {isDragging ? 'Drop your ZIP here' : 'Drop or select your proof ZIP'}
+                </p>
+                <p className="font-mono text-[12px] tracking-[1px] text-center" style={{ color: 'rgba(197,147,90,0.35)' }}>
+                  to verify and share
+                </p>
+              </div>
+            ) : (
+              /* ZIP loaded — verify + share actions */
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path d="M3 8L7 12L13 4" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="font-mono text-[13px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.6)' }}>
+                    {zipFile.name}
+                  </span>
+                </div>
 
-              if (navigator.share) {
-                try {
-                  await navigator.share({
-                    files: [file],
-                    title: `Origin ${displayOriginId.slice(0, 8)}`,
-                    url: verifyUrl,
-                  });
-                  shared = true;
-                } catch (err) {
-                  if ((err as Error).name === 'AbortError') {
-                    e.target.value = '';
-                    return;
-                  }
-                }
-              }
+                <div className="flex items-center gap-5">
+                  <button
+                    onClick={handleShareZip}
+                    disabled={saved}
+                    className="font-playfair text-[18px] px-8 py-3 rounded-full transition-all disabled:opacity-50"
+                    style={{
+                      fontWeight: 300,
+                      background: saved ? 'hsl(var(--ritual-gold) / 0.15)' : 'hsl(var(--ritual-gold) / 0.08)',
+                      border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.25'})`,
+                      color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
+                    }}
+                  >
+                    {saved ? '✓ Shared' : 'Share'}
+                  </button>
+                </div>
 
-              if (!shared) {
-                try {
-                  await navigator.clipboard.writeText(verifyUrl);
-                  toast.success('Verify link gekopieerd');
-                } catch {
-                  toast.info(verifyUrl, { duration: 8000 });
-                }
-              }
+                <button
+                  onClick={() => setZipFile(null)}
+                  className="font-mono text-[11px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
+                  style={{ color: 'rgba(245,240,232,0.3)' }}
+                >
+                  choose different file
+                </button>
+              </div>
+            )}
 
-              setSaved(true);
-              setTimeout(() => setSaved(false), 4000);
-              e.target.value = '';
-            }}
-          />
-
-          {/* Verify + Share — inline text links */}
-          <div className="flex items-center gap-4 mb-5">
-            <a
-              href={`/verify?origin_id=${encodeURIComponent(mark.originId)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-[11px] tracking-[2px] uppercase no-underline transition-opacity hover:opacity-80"
-              style={{ color: 'rgba(245,240,232,0.5)' }}
-            >
-              Verify this proof
-            </a>
-            <span className="font-mono text-[11px]" style={{ color: 'rgba(197,147,90,0.25)' }}>·</span>
-            <button
-              onClick={handleShare}
-              disabled={saved}
-              className="font-mono text-[11px] tracking-[2px] uppercase transition-opacity hover:opacity-80 disabled:opacity-50 bg-transparent border-none cursor-pointer"
-              style={{ color: 'rgba(245,240,232,0.5)' }}
-            >
-              {saved ? '✓ Shared' : 'Share'}
-            </button>
+            {/* Hidden ZIP input */}
+            <input
+              ref={zipInputRef}
+              type="file"
+              accept=".zip,application/zip"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleZipFile(file);
+                e.target.value = '';
+              }}
+            />
           </div>
 
           {/* Device signed — small checkmark, ghost */}
           {credentialRef.current && (
-            <div className="flex items-center gap-1.5 mt-1">
-              <svg width="12" height="12" viewBox="0 0 12 12">
+            <div className="flex items-center gap-2 mt-6">
+              <svg width="14" height="14" viewBox="0 0 12 12">
                 <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
+              <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.3)' }}>
                 device signed
               </span>
             </div>
