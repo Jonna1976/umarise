@@ -515,14 +515,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
             {/* Attestation status (Layer 3) */}
             {attestationStatus === 'pending' && (
-              <p className="font-garamond italic text-[12px] mb-4" style={{ color: 'rgba(245,240,232,0.4)' }}>
-                Attestation requested — within 24 hours
+              <p className="font-garamond italic text-[15px] mb-4" style={{ color: 'rgba(245,240,232,0.5)' }}>
+                Attestation requested. You will be notified when complete.
               </p>
             )}
             {attestationStatus === 'attested' && (
               <button
                 onClick={() => {/* TODO: open attestant details modal */}}
-                className="font-garamond italic text-[12px] mb-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                className="font-garamond italic text-[15px] mb-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
                 style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
               >
                 Attested ✓
@@ -533,7 +533,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {isAnchored && attestationStatus === 'none' && (
               <button
                 onClick={() => setShowAttestationModal(true)}
-                className="font-mono text-[9px] tracking-[3px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70 mb-4"
+                className="font-mono text-[13px] tracking-[3px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70 mb-4"
                 style={{ color: 'rgba(245,240,232,0.4)' }}
               >
                 Request attestation
