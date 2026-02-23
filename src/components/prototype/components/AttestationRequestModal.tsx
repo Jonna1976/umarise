@@ -53,7 +53,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
         >
           {/* Title */}
           <p
-            className="font-mono text-[9px] tracking-[3px] uppercase mb-8"
+            className="font-mono text-[13px] tracking-[3px] uppercase mb-8"
             style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
           >
             ATTESTATION
@@ -64,7 +64,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             className="font-garamond text-[15px] leading-[1.7] text-center mb-6"
             style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
           >
-            A certified third party will confirm that you — the holder of this passkey — set this anchor at this moment.
+            A certified third party will confirm that you, the holder of this passkey, set this anchor at this moment.
           </p>
           <p
             className="font-garamond text-[15px] leading-[1.7] text-center mb-8"
@@ -81,7 +81,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             € 4,95
           </p>
           <p
-            className="font-mono text-[11px] tracking-[1px] mb-10"
+            className="font-mono text-[13px] tracking-[1px] mb-10"
             style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
           >
             One-time. No subscription. No surprises.
@@ -91,7 +91,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
           <button
             onClick={handleConfirm}
             disabled={confirming}
-            className="font-mono text-[9px] tracking-[4px] uppercase mb-5 px-8 py-3 rounded-full transition-all disabled:opacity-50"
+            className="font-mono text-[13px] tracking-[4px] uppercase mb-5 px-8 py-3 rounded-full transition-all disabled:opacity-50"
             style={{
               color: 'hsl(var(--ritual-gold))',
               background: 'rgba(197,147,90,0.08)',
@@ -104,7 +104,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
           {/* Cancel */}
           <button
             onClick={onClose}
-            className="font-mono text-[11px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-60"
+            className="font-mono text-[13px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-60"
             style={{ color: 'rgba(245,240,232,0.3)' }}
           >
             Cancel
