@@ -58,6 +58,7 @@ export type Database = {
           requested_at: string
           signature: string | null
           status: string
+          stripe_session_id: string | null
           updated_at: string
         }
         Insert: {
@@ -73,6 +74,7 @@ export type Database = {
           requested_at?: string
           signature?: string | null
           status?: string
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -88,6 +90,7 @@ export type Database = {
           requested_at?: string
           signature?: string | null
           status?: string
+          stripe_session_id?: string | null
           updated_at?: string
         }
         Relationships: [
