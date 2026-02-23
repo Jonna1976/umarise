@@ -122,3 +122,13 @@ verify_jwt = false
 [functions.v1-core-origins-export]
 verify_jwt = false
 
+# Layer 3 Attestation endpoints
+[functions.v1-attestation-request]
+verify_jwt = false
+
+[functions.v1-attestation-confirm]
+verify_jwt = false
+
+[functions.v1-attestation-verify]
+verify_jwt = false
+
