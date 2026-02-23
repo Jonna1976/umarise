@@ -28,10 +28,23 @@ function routeFile(
   onCaptureFile: CaptureScreenProps['onCaptureFile'],
 ) {
   const mimeType = file.type || 'application/octet-stream';
+  const sizeMB = file.size / 1024 / 1024;
+
+  // Guard: reject files > 500MB to prevent OOM on mobile
+  if (sizeMB > 500) {
+    console.error('[Capture] File too large:', sizeMB.toFixed(1), 'MB');
+    import('sonner').then(({ toast }) => toast.error(`File too large (${sizeMB.toFixed(0)}MB). Max 500MB.`));
+    return;
+  }
 
   if (!mimeType.startsWith('image/')) {
     console.log('[Capture] Non-image file → file path:', file.name, `(${mimeType}, ${(file.size / 1024).toFixed(1)}KB)`);
-    onCaptureFile({ file, mimeType, fileName: file.name, fileSize: file.size, previewDataUrl: null });
+    try {
+      onCaptureFile({ file, mimeType, fileName: file.name, fileSize: file.size, previewDataUrl: null });
+    } catch (e) {
+      console.error('[Capture] onCaptureFile threw:', e);
+      import('sonner').then(({ toast }) => toast.error('Failed to process file'));
+    }
     return;
   }
 
@@ -41,8 +54,16 @@ function routeFile(
     console.log('[Capture] Image file loaded:', file.name, `(${mimeType}, ${(file.size / 1024).toFixed(1)}KB)`);
     onCapture({ dataUrl, mimeType, fileName: file.name, fileSize: file.size });
   };
-  reader.onerror = () => console.error('[Capture] Failed to read file');
-  reader.readAsDataURL(file);
+  reader.onerror = () => {
+    console.error('[Capture] FileReader failed:', reader.error);
+    import('sonner').then(({ toast }) => toast.error('Could not read file. Try a smaller file or different format.'));
+  };
+  try {
+    reader.readAsDataURL(file);
+  } catch (e) {
+    console.error('[Capture] readAsDataURL threw:', e);
+    import('sonner').then(({ toast }) => toast.error('Could not read file'));
+  }
 }
 
 export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }: CaptureScreenProps) {
