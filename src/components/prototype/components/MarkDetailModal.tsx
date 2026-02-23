@@ -315,9 +315,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
   const otsProofRef = useRef<string | null>(null);
 
-  // Eagerly fetch OTS proof
+  // Eagerly fetch OTS proof (only when anchored — pending/not_found are expected)
   useEffect(() => {
-    if (!mark.originUuid) return;
+    if (!mark.originUuid || mark.otsStatus !== 'anchored') return;
     fetchProofStatus(mark.originUuid)
       .then(result => {
         if (result.status === 'anchored' && result.otsProofBytes) {
@@ -325,7 +325,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         }
       })
       .catch(() => {});
-  }, [mark.originUuid]);
+  }, [mark.originUuid, mark.otsStatus]);
 
   const formattedDate = mark.timestamp.toLocaleDateString('en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
