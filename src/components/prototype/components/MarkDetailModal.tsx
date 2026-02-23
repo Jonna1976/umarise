@@ -19,6 +19,7 @@ import {
   type PasskeyCredential,
 } from '@/lib/webauthn';
 import { getPasskeyCredential } from '@/lib/passkeyStore';
+import { AttestationRequestModal } from './AttestationRequestModal';
 
 interface MarkDetailModalProps {
   mark: {
@@ -325,6 +326,11 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const credentialRef = useRef<PasskeyCredential | null>(getPasskeyCredential());
   const otsProofRef = useRef<string | null>(null);
 
+  // Attestation state (Layer 3)
+  const [showAttestationModal, setShowAttestationModal] = useState(false);
+  const [attestationStatus, setAttestationStatus] = useState<'none' | 'pending' | 'attested'>('none');
+  const [attestantInfo, setAttestantInfo] = useState<{ name: string; date: string } | null>(null);
+
   // Eagerly fetch OTS proof (only when anchored — pending/not_found are expected)
   useEffect(() => {
     if (!mark.originUuid || mark.otsStatus !== 'anchored') return;
@@ -506,6 +512,33 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 </>
               )}
             </div>
+
+            {/* Attestation status (Layer 3) */}
+            {attestationStatus === 'pending' && (
+              <p className="font-garamond italic text-[12px] mb-4" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                Attestation requested — within 24 hours
+              </p>
+            )}
+            {attestationStatus === 'attested' && (
+              <button
+                onClick={() => {/* TODO: open attestant details modal */}}
+                className="font-garamond italic text-[12px] mb-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
+              >
+                Attested ✓
+              </button>
+            )}
+
+            {/* Request attestation link — only when Bitcoin-confirmed and no attestation yet */}
+            {isAnchored && attestationStatus === 'none' && (
+              <button
+                onClick={() => setShowAttestationModal(true)}
+                className="font-mono text-[9px] tracking-[3px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70 mb-4"
+                style={{ color: 'rgba(245,240,232,0.4)' }}
+              >
+                Request attestation
+              </button>
+            )}
           </div>
 
           {/* ── Inline Verify + Share zone ── */}
@@ -585,6 +618,18 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           )}
         </motion.div>
       </motion.div>
+
+      {/* Attestation request modal (Layer 3) */}
+      {showAttestationModal && (
+        <AttestationRequestModal
+          originId={mark.originId}
+          onClose={() => setShowAttestationModal(false)}
+          onConfirm={() => {
+            setShowAttestationModal(false);
+            setAttestationStatus('pending');
+          }}
+        />
+      )}
     </AnimatePresence>
   );
 }
