@@ -15,6 +15,25 @@ import JSZip from 'jszip';
 import { createCertificate, serializeCertificate } from '@/lib/certificate';
 import { calculateSHA256, calculateSHA256FromFile } from '@/lib/originHash';
 
+export interface AttestationData {
+  /** Attestation ID (UUID) */
+  attestation_id: string;
+  /** Origin ID this attestation belongs to */
+  origin_id: string;
+  /** Name of the certified attestant */
+  attested_by: string;
+  /** ISO 8601 timestamp of attestation confirmation */
+  attested_at: string;
+  /** Cryptographic signature by the attestant */
+  signature: string;
+  /** Public key of the attestant (for independent verification) */
+  attestant_public_key: string;
+  /** Optional certificate identifier or description */
+  attestant_certificate?: string | null;
+  /** Public verification URL */
+  verify_url: string;
+}
+
 export interface OriginZipInput {
   originId: string;
   hash: string;
@@ -30,6 +49,8 @@ export interface OriginZipInput {
   otsProof?: string | null;
   /** Original artifact File object (user re-selected). Hash is verified before inclusion. */
   artifactFile?: File | null;
+  /** Layer 3 attestation data (included when attestation is confirmed) */
+  attestation?: AttestationData | null;
 }
 
 /**
@@ -123,7 +144,8 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
   // 2. Add certificate.json (immutable schema from certificate.ts)
   const hasProof = !!input.otsProof;
-  console.log('[originZip] Building certificate with deviceSignature:', !!input.deviceSignature, 'devicePublicKey:', !!input.devicePublicKey);
+  const hasAttestation = !!input.attestation;
+  console.log('[originZip] Building certificate with deviceSignature:', !!input.deviceSignature, 'devicePublicKey:', !!input.devicePublicKey, 'attestation:', hasAttestation);
   const cert = createCertificate(
     cleanId,
     input.hash,
@@ -134,8 +156,9 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     hasProof ? 'anchored' : 'pending',
     input.deviceSignature ?? null,
     input.devicePublicKey ?? null,
+    hasAttestation,
   );
-  console.log('[originZip] Certificate version:', cert.version, 'device_signature present:', !!cert.device_signature);
+  console.log('[originZip] Certificate version:', cert.version, 'attestation_included:', cert.attestation_included);
   zip.file('certificate.json', serializeCertificate(cert));
 
   // 3. Add proof.ots (OpenTimestamps binary, when anchored)
@@ -152,13 +175,48 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     }
   }
 
-  // 4. Add VERIFY.txt (Guardian C8 + C17: independent verification instructions)
+  // 4. Add attestation.json (Layer 3 — when confirmed)
+  if (input.attestation) {
+    const attestationJson = JSON.stringify({
+      schema_version: '1.0',
+      attestation_id: input.attestation.attestation_id,
+      origin_id: input.attestation.origin_id,
+      attested_by: input.attestation.attested_by,
+      attested_at: input.attestation.attested_at,
+      signature: input.attestation.signature,
+      attestant_public_key: input.attestation.attestant_public_key,
+      attestant_certificate: input.attestation.attestant_certificate ?? null,
+      verify_url: input.attestation.verify_url,
+      verification_note: 'Verify the signature using attestant_public_key against: attestation_id + origin_id + hash + attested_at',
+    }, null, 2);
+    zip.file('attestation.json', attestationJson);
+    console.log('[originZip] attestation.json included ✓');
+  }
+
+  // 5. Add VERIFY.txt (Guardian C8 + C17: independent verification instructions)
   const proofOtsSection = hasProof
     ? '- proof.ots         : OpenTimestamps proof (anchored to Bitcoin)'
     : '- proof.ots         : Not yet available. Anchoring in progress.\n' +
       '                       Re-download ZIP after anchoring completes, or fetch\n' +
       `                       proof separately:\n` +
       `                       curl https://core.umarise.com/v1-core-proof?origin_id=${cleanId} -o proof.ots`;
+
+  const attestationSection = hasAttestation
+    ? '- attestation.json  : Layer 3 attestation — third-party confirmation of human action'
+    : '';
+
+  const attestationVerifySection = hasAttestation
+    ? `
+VERIFY ATTESTATION (Layer 3):
+   The attestation.json file contains a cryptographic signature from a
+   certified third-party attestant confirming the human action behind this anchor.
+
+   To verify independently:
+   1. Extract attestant_public_key from attestation.json
+   2. Verify the signature against: attestation_id + origin_id + hash + attested_at
+   3. Or verify online: ${input.attestation!.verify_url}
+`
+    : '';
 
   const verifyTxt = `VERIFICATION INSTRUCTIONS
 =========================
@@ -169,6 +227,7 @@ Contents:
 - artifact.*        : The original file
 - certificate.json  : Origin metadata (origin_id, hash, captured_at)
 ${proofOtsSection}
+${attestationSection}
 
 VERIFY ONLINE:
   https://anchoring.app/verify
@@ -190,11 +249,11 @@ Both scripts require only standard tools (sha256sum/unzip/jq for bash,
 Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
 
 Scripts available at: https://anchoring.app/reviewer
-
+${attestationVerifySection}
 WHAT THIS PROVES:
   The exact bytes of the artifact existed no later than the moment
   of Bitcoin ledger inclusion. Nothing more, nothing less.
-
+${hasAttestation ? '\n  Layer 3: A certified third party confirmed the human action behind this anchor.\n' : ''}
 WHAT THIS DOES NOT PROVE:
   Authorship, ownership, accuracy, legality, or identity.
 `;
