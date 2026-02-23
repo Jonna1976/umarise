@@ -266,6 +266,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         {/* CTA button */}
         <a
           href="/verify"
+          target="_blank"
+          rel="noopener noreferrer"
           className="font-playfair text-[20px] px-8 py-3 rounded-full text-center"
           style={{
             textDecoration: 'none',
