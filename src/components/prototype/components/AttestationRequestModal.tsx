@@ -3,12 +3,13 @@
  * 
  * Opened from MarkDetailModal when user taps "Request attestation".
  * Shows explanation, price, confirm/cancel.
- * Pure UI — no backend integration yet.
+ * Confirm triggers Stripe Checkout via v1-attestation-checkout.
  */
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { getActiveDeviceId } from '@/lib/deviceId';
 
 interface AttestationRequestModalProps {
   originId: string;
@@ -21,11 +22,48 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
 
   const handleConfirm = useCallback(async () => {
     setConfirming(true);
-    // TODO: call attestation API when backend is ready
-    await new Promise(r => setTimeout(r, 800));
-    onConfirm();
-    toast.success('Attestation requested');
-  }, [onConfirm]);
+    try {
+      const deviceUserId = getActiveDeviceId();
+      if (!deviceUserId) {
+        toast.error('No device ID available');
+        setConfirming(false);
+        return;
+      }
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/v1-attestation-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({ origin_id: originId, device_user_id: deviceUserId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          toast.info('Attestation already requested');
+          onConfirm();
+          return;
+        }
+        throw new Error(data.error || 'Checkout failed');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+      setConfirming(false);
+    }
+  }, [originId, onConfirm]);
 
   return (
     <AnimatePresence>
@@ -51,7 +89,6 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
           transition={{ duration: 0.3 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Title */}
           <p
             className="font-mono text-[13px] tracking-[3px] uppercase mb-8"
             style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
@@ -59,7 +96,6 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             ATTESTATION
           </p>
 
-          {/* Body */}
           <p
             className="font-garamond text-[15px] leading-[1.7] text-center mb-6"
             style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
@@ -73,7 +109,6 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             You will receive an updated ZIP within 24 hours containing your anchor and the attestation certificate.
           </p>
 
-          {/* Price block */}
           <p
             className="font-mono text-[20px] tracking-[2px] mb-1"
             style={{ color: 'hsl(var(--ritual-cream) / 0.8)' }}
@@ -87,7 +122,6 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             One-time. No subscription. No surprises.
           </p>
 
-          {/* Confirm button */}
           <button
             onClick={handleConfirm}
             disabled={confirming}
@@ -98,10 +132,9 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
               border: '1px solid rgba(197,147,90,0.25)',
             }}
           >
-            {confirming ? 'Requesting…' : 'Confirm attestation →'}
+            {confirming ? 'Redirecting…' : 'Confirm attestation →'}
           </button>
 
-          {/* Cancel */}
           <button
             onClick={onClose}
             className="font-mono text-[13px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-60"

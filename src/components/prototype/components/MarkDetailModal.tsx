@@ -620,9 +620,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       </motion.div>
 
       {/* Attestation request modal (Layer 3) */}
-      {showAttestationModal && (
+      {showAttestationModal && mark.originUuid && (
         <AttestationRequestModal
-          originId={mark.originId}
+          originId={mark.originUuid}
           onClose={() => setShowAttestationModal(false)}
           onConfirm={() => {
             setShowAttestationModal(false);
