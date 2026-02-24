@@ -382,7 +382,7 @@ if __name__ == "__main__":
                 'Concurrent writes',
                 'Proof-state consistency',
               ]}
-              note="3,297 attestations in production (652 from load test, remainder from integration testing and self-tests). 131 duplicates removed via unique constraint enforcement. Duplicate hash prevention enforced: unique constraint on (hash, api_key_id), returns 409 DUPLICATE_HASH. Cross-partner attestations of the same hash remain allowed. Records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
+              note="3,624+ attestations in production (652 from load test, remainder from integration testing and self-tests). 131 duplicates removed via unique constraint enforcement. Duplicate hash prevention enforced: unique constraint on (hash, api_key_id), returns 409 DUPLICATE_HASH. Cross-partner attestations of the same hash remain allowed. Records created under sustained pressure (14 req/sec, 34 max VUs), not deleted, not mutated, not overwritten. Reviewers can verify this independently."
             />
             <ReviewLayer
               number={4}
@@ -465,7 +465,7 @@ if __name__ == "__main__":
             <div className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
               <MetricRow label="Internal tests executed" value="47" />
               <MetricRow label="Tests passed" value="47" />
-              <MetricRow label="Production attestations" value="3,297" />
+              <MetricRow label="Production attestations" value="3,624+" />
               <MetricRow label="Duplicates removed" value="131" />
             </div>
             <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)] space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
