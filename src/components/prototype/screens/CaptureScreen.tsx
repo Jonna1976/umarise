@@ -16,6 +16,15 @@ export interface CapturedRawFile {
   previewDataUrl: string | null;
 }
 
+type SizeWarning = 'none' | 'large' | 'blocked';
+
+function classifyFileSize(size: number): SizeWarning {
+  const mb = size / (1024 * 1024);
+  if (mb > 200) return 'blocked';
+  if (mb >= 50) return 'large';
+  return 'none';
+}
+
 interface CaptureScreenProps {
   onCapture: (file: CapturedFile) => void;
   onCaptureFile: (rf: CapturedRawFile) => void;
@@ -26,14 +35,14 @@ function routeFile(
   file: File,
   onCapture: CaptureScreenProps['onCapture'],
   onCaptureFile: CaptureScreenProps['onCaptureFile'],
+  setSizeWarning: (w: SizeWarning) => void,
 ) {
   const mimeType = file.type || 'application/octet-stream';
-  const sizeMB = file.size / 1024 / 1024;
+  const warning = classifyFileSize(file.size);
+  setSizeWarning(warning);
 
-  // Guard: reject files > 500MB to prevent OOM on mobile
-  if (sizeMB > 500) {
-    console.error('[Capture] File too large:', sizeMB.toFixed(1), 'MB');
-    import('sonner').then(({ toast }) => toast.error(`File too large (${sizeMB.toFixed(0)}MB). Max 500MB.`));
+  if (warning === 'blocked') {
+    console.warn('[Capture] File blocked:', (file.size / 1024 / 1024).toFixed(1), 'MB (max 200MB)');
     return;
   }
 
@@ -69,6 +78,7 @@ function routeFile(
 export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }: CaptureScreenProps) {
   const inputId = useId();
   const [isDragging, setIsDragging] = useState(false);
+  const [sizeWarning, setSizeWarning] = useState<SizeWarning>('none');
   
   const dragCounter = useRef(0);
 
@@ -104,17 +114,19 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
     e.preventDefault();
     dragCounter.current = 0;
     setIsDragging(false);
+    setSizeWarning('none');
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
     console.log('[Capture] Drop:', file.name, `(${file.type}, ${(file.size / 1024).toFixed(1)}KB)`);
-    routeFile(file, onCapture, onCaptureFile);
+    routeFile(file, onCapture, onCaptureFile, setSizeWarning);
   }, [onCapture, onCaptureFile]);
 
   // ── File picker handler ──
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    routeFile(file, onCapture, onCaptureFile);
+    setSizeWarning('none');
+    routeFile(file, onCapture, onCaptureFile, setSizeWarning);
     e.target.value = '';
   }, [onCapture, onCaptureFile]);
 
@@ -261,6 +273,34 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
             +
           </motion.span>
         </motion.label>
+
+        {/* Size warning messages */}
+        <AnimatePresence>
+          {sizeWarning === 'large' && (
+            <motion.p
+              className="mt-6 font-garamond italic text-[13px] text-center"
+              style={{ color: 'hsl(var(--ritual-cream-dim, var(--ritual-cream) / 0.45))' }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              Large file — hashing may take a moment.
+            </motion.p>
+          )}
+          {sizeWarning === 'blocked' && (
+            <motion.p
+              className="mt-6 font-mono text-[11px] tracking-[2px] text-center"
+              style={{ color: 'hsl(var(--ritual-cream-dim, var(--ritual-cream) / 0.45))' }}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              File too large. Maximum 200MB.
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Bottom spacer */}
