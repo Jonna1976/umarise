@@ -6,7 +6,7 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
  * Architecture Overview — Internal Document
  * 
  * Complete architecture overview of Umarise as of 24 Feb 2026.
- * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
+ * B2C App + B2B Core + Bridge + Verify + Discovery Path + Anchor Mark — fully split.
  * Proof Model with Device Identity (v1.1). Layer 3 Attestation + Stripe Checkout.
  * Developer Journey: Quick Start (zero-friction) + Integration Checklist v2 (24 steps) + SDKs + AI Support Bot.
  * 
@@ -265,7 +265,7 @@ const Architecture = () => {
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
 │            /architecture                              │
 │                                                      │
-│  Visual:   Origin Mark (⊙) on all headers (16px)    │
+│  Visual:   Anchor Mark on all headers (16px)         │
 │            Ghost/pending/anchored states per context  │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
@@ -501,11 +501,11 @@ const Architecture = () => {
           </div>
         </section>
 
-        {/* 5. Origin Mark Visual System (NEW) */}
+        {/* 5. Anchor Mark Visual System */}
         <section>
-          <SectionHeader icon={Eye} title="Origin Mark Visual System" num={5} />
+          <SectionHeader icon={Eye} title="Anchor Mark Visual System" num={5} />
           <p className="text-sm text-landing-cream/50 mb-6">
-            The circumpunct (⊙) as universal brand and status symbol:
+            Status indicator for anchor state across all contexts:
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -557,7 +557,7 @@ const Architecture = () => {
               ['ZIP extraction', 'Client-side JSZip'],
               ['API calls', 'POST /v1-core-verify (public)'],
               ['Privacy', 'Files never leave device'],
-              ['Origin Mark', 'Ghost (upload) → Anchored+glow (result)'],
+              ['Anchor Mark', 'Ghost (upload) → Anchored+glow (result)'],
             ].map(([label, value]) => (
               <div key={label} className="p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
                 <p className="text-xs text-landing-muted/40 mb-1">{label}</p>
@@ -593,7 +593,7 @@ const Architecture = () => {
                   <th className="pb-3 pr-4">Route</th>
                   <th className="pb-3 pr-4">Purpose</th>
                   <th className="pb-3 pr-4">Audience</th>
-                  <th className="pb-3">Origin Mark</th>
+                  <th className="pb-3">Anchor Mark</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-landing-cream/5">
@@ -1242,7 +1242,7 @@ const Architecture = () => {
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 9 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
               <li>• Verify Discovery Path (4 touchpoints: VERIFY.txt, certificate verify_url, Sealed link, Origin Registry share button)</li>
-              <li>• Origin Mark visual system on all site pages (16px header, ghost/pending/anchored states)</li>
+              <li>• Anchor Mark visual system on all site pages (16px header, ghost/pending/anchored states)</li>
               <li>• ZIP now includes VERIFY.txt with human-readable verification instructions</li>
             </ul>
           </div>
