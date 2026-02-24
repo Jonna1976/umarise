@@ -86,6 +86,7 @@ export function SealedScreen({
     const file = prebuiltFileRef.current;
     const shareText = 'Anchor proof — verify at anchoring.app/verify\n\nSend your original file separately via a secure channel because bytes must stay intact for verification.';
 
+    // Try Web Share API first (only works on real devices, not iframes)
     try {
       if (file && navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
@@ -93,20 +94,28 @@ export function SealedScreen({
           text: shareText,
           files: [file],
         });
-        return;
+        return; // Success — done
       } else if (navigator.share) {
         await navigator.share({ title: 'Anchor share', text: shareText });
-        return;
+        return; // Success — done
       }
     } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
-        console.warn('[SealedScreen] Share failed:', err);
-      }
-      return;
+      if ((err as Error).name === 'AbortError') return; // User cancelled
+      console.warn('[SealedScreen] Web Share unavailable, falling back to email:', err);
+      // Fall through to mailto
     }
 
-    // Fallback: open email client
-    const subject = encodeURIComponent('Anchor share');
+    // Fallback: download ZIP + open email client
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    const subject = encodeURIComponent('Anchor proof');
     const body = encodeURIComponent(shareText);
     window.open(`mailto:?subject=${subject}&body=${body}`, '_self');
   }, []);
