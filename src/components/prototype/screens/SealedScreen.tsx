@@ -326,16 +326,6 @@ export function SealedScreen({
         </div>
       </motion.div>
 
-      {/* ── Footer disclaimer ── */}
-      <motion.p
-        className="mt-8 font-garamond italic text-[13px] text-center leading-relaxed max-w-[280px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.0 }}
-      >
-        Send your original file separately via a secure channel because bytes must stay intact for verification.
-      </motion.p>
 
       {/* ── Attestation Modal ── */}
       {showAttestationModal && (
