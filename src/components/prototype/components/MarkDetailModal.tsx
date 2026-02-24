@@ -222,7 +222,7 @@ interface CertificateData {
   device_public_key?: string | null;
 }
 
-async function verifyZipFile(file: File, expectedOriginId?: string): Promise<VerifyResultData> {
+async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyResultData> {
   const steps: VerifyStep[] = [];
 
   // Step 1: open ZIP
@@ -265,12 +265,16 @@ async function verifyZipFile(file: File, expectedOriginId?: string): Promise<Ver
   const rawHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
   steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
 
-  if (cert.origin_id) {
-    // Critical: verify the ZIP belongs to this specific mark
-    if (expectedOriginId && cert.origin_id !== expectedOriginId) {
-      steps.push({ label: 'Origin ID mismatch', status: 'error', detail: `Expected ${expectedOriginId.substring(0, 8)}… got ${cert.origin_id.substring(0, 8)}…` });
+  // Critical: verify the ZIP's hash matches this specific mark's hash
+  if (expectedHash) {
+    const normalizedExpected = expectedHash.startsWith('sha256:') ? expectedHash.slice(7) : expectedHash;
+    if (rawHash.toLowerCase() !== normalizedExpected.toLowerCase()) {
+      steps.push({ label: 'Wrong proof file', status: 'error', detail: `This ZIP belongs to a different origin` });
       return { status: 'error', steps };
     }
+  }
+
+  if (cert.origin_id) {
     steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
   }
 
@@ -411,14 +415,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     setVerifying(true);
     setVerifyResult(null);
     try {
-      const result = await verifyZipFile(file, mark.originUuid || undefined);
+      const result = await verifyZipFile(file, mark.hash);
       setVerifyResult(result);
     } catch {
       setVerifyResult({ status: 'error', steps: [{ label: 'Verification failed', status: 'error' }] });
     } finally {
       setVerifying(false);
     }
-  }, [mark.originUuid]);
+  }, [mark.hash]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
