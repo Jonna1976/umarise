@@ -10,7 +10,7 @@ export default function ReviewerPackage() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText('https://anchoring.app/reviewer');
+    await navigator.clipboard.writeText('https://umarise.com/reviewer');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -56,7 +56,7 @@ export default function ReviewerPackage() {
         >
           <span className="text-[hsl(var(--landing-muted))] text-sm">Share:</span>
           <code className="text-[hsl(var(--landing-copper))] text-sm flex-1 truncate font-mono">
-            https://anchoring.app/reviewer
+            https://umarise.com/reviewer
           </code>
           <Button
             onClick={handleCopy}
