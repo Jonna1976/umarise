@@ -251,7 +251,6 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
   }
 
   const rawHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
-  steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
 
   // Critical: verify the ZIP's hash matches this specific mark's hash
   if (expectedHash) {
@@ -263,11 +262,15 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
       expectedHashLength: normalizedExpected.length,
       match: rawHash.toLowerCase() === normalizedExpected.toLowerCase(),
     });
-    if (rawHash.toLowerCase() !== normalizedExpected.toLowerCase()) {
+    const hashesMatch = rawHash.toLowerCase() === normalizedExpected.toLowerCase();
+    steps.push({ label: 'SHA-256 from certificate', status: hashesMatch ? 'ok' : 'error', detail: rawHash.substring(0, 20) + '…' });
+    if (!hashesMatch) {
       steps.push({ label: 'Wrong proof file', status: 'error', detail: `This ZIP belongs to a different origin` });
       return { status: 'error', steps };
     }
     steps.push({ label: 'Hash matches this origin', status: 'ok' });
+  } else {
+    steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
   }
 
   if (cert.origin_id) {
