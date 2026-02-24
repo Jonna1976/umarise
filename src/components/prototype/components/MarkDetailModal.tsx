@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { OriginMark } from './OriginMark';
 import { fetchProofStatus, arrayBufferToBase64, verifyOriginByHash } from '@/lib/coreApi';
+import { supabase } from '@/integrations/supabase/client';
+import { getActiveDeviceId } from '@/lib/deviceId';
 import { toast } from 'sonner';
 import { type VerifyStep, type VerifyResultData } from '@/components/verify/VerifyResult';
 import JSZip from 'jszip';
@@ -336,6 +338,41 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [attestationStatus, setAttestationStatus] = useState<'none' | 'pending' | 'attested'>('none');
   const [attestantInfo, setAttestantInfo] = useState<{ name: string; date: string } | null>(null);
 
+  // Poll attestation status on open
+  useEffect(() => {
+    if (!mark.originUuid) return;
+    const deviceUserId = getActiveDeviceId();
+    if (!deviceUserId) return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('attestation_requests')
+          .select('status, attestant_name, completed_at')
+          .eq('origin_id', mark.originUuid!)
+          .eq('device_user_id', deviceUserId)
+          .order('requested_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!data) return;
+        if (data.status === 'confirmed') {
+          setAttestationStatus('attested');
+          setAttestantInfo({
+            name: data.attestant_name || 'Attestant',
+            date: data.completed_at
+              ? new Date(data.completed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+              : '',
+          });
+        } else if (data.status === 'pending') {
+          setAttestationStatus('pending');
+        }
+      } catch {
+        // silent
+      }
+    })();
+  }, [mark.originUuid]);
+
   // Eagerly fetch OTS proof (only when anchored — pending/not_found are expected)
   useEffect(() => {
     if (!mark.originUuid || mark.otsStatus !== 'anchored') return;
@@ -524,7 +561,23 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 Attestation requested. You will be notified when complete.
               </p>
             )}
-            {attestationStatus === 'attested' && (
+            {attestationStatus === 'attested' && attestantInfo && (
+              <div className="flex flex-col items-center mb-4">
+                <button
+                  onClick={() => {/* TODO: open attestant details modal */}}
+                  className="font-garamond italic text-[15px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                  style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
+                >
+                  Attested by {attestantInfo.name} ✓
+                </button>
+                {attestantInfo.date && (
+                  <span className="font-mono text-[12px] tracking-[1px] mt-1" style={{ color: 'rgba(197,147,90,0.35)' }}>
+                    {attestantInfo.date}
+                  </span>
+                )}
+              </div>
+            )}
+            {attestationStatus === 'attested' && !attestantInfo && (
               <button
                 onClick={() => {/* TODO: open attestant details modal */}}
                 className="font-garamond italic text-[15px] mb-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
