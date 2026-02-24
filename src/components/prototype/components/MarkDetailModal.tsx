@@ -268,10 +268,18 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
   // Critical: verify the ZIP's hash matches this specific mark's hash
   if (expectedHash) {
     const normalizedExpected = expectedHash.startsWith('sha256:') ? expectedHash.slice(7) : expectedHash;
+    console.log('[Verify] Hash comparison:', {
+      certHash: rawHash.substring(0, 16),
+      expectedHash: normalizedExpected.substring(0, 16),
+      certHashLength: rawHash.length,
+      expectedHashLength: normalizedExpected.length,
+      match: rawHash.toLowerCase() === normalizedExpected.toLowerCase(),
+    });
     if (rawHash.toLowerCase() !== normalizedExpected.toLowerCase()) {
       steps.push({ label: 'Wrong proof file', status: 'error', detail: `This ZIP belongs to a different origin` });
       return { status: 'error', steps };
     }
+    steps.push({ label: 'Hash matches this origin', status: 'ok' });
   }
 
   if (cert.origin_id) {
