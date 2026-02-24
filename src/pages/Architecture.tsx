@@ -353,7 +353,7 @@ const Architecture = () => {
                 <span className="text-red-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 3</span>
                 <div>
                   <p className="text-sm text-landing-cream/90 font-medium">THIRD-PARTY ATTESTATION</p>
-                  <p className="text-xs text-landing-cream/50">Certified attestant confirms anchor. Signature + public key + certificate stored on-chain.</p>
+                  <p className="text-xs text-landing-cream/50">Certified independent attestant confirms anchor. Signature + public key + certificate stored on-chain.</p>
                   <p className="text-xs text-landing-muted/40 mt-1">Payment via Stripe Checkout (€4.95). Cryptographically verifiable. Immutable once confirmed.</p>
                 </div>
               </div>
@@ -422,7 +422,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <p className="text-xs text-landing-muted/40">
-                <strong className="text-landing-cream/60">Flow:</strong> User requests attestation → Stripe Checkout (€4.95) → webhook creates pending request → attestant confirms with cryptographic signature → publicly verifiable via /v1-attestation-verify.
+                <strong className="text-landing-cream/60">Flow:</strong> User requests attestation → Stripe Checkout (€4.95) → webhook creates pending request → certified independent attestant confirms with cryptographic signature → publicly verifiable via /v1-attestation-verify.
               </p>
             </div>
           </div>

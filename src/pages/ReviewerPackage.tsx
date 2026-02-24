@@ -393,8 +393,8 @@ if __name__ == "__main__":
               title="Semantic Boundary"
               question='Do public statements exceed what the primitive formally proves?'
               items={[
-                '"Existed at or before" formulation',
-                'Economic finality language',
+                '"No later than Bitcoin block inclusion" formulation',
+                'Block confirmation finality language',
                 'Ledger qualification phrasing',
                 'Non-goals formulation',
                 'Absence of implicit legal or identity claims',
