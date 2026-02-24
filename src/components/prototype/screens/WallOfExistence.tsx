@@ -8,6 +8,8 @@
  */
 
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { OriginButton } from '../components/OriginButton';
 import { ArtifactFrame } from '../components/ArtifactFrame';
@@ -68,6 +70,17 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const [selectedMark, setSelectedMark] = useState<WallArtifact | null>(null);
   const [originUuidMap, setOriginUuidMap] = useState<Map<string, string>>(new Map());
   const hasPolledRef = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Handle Stripe return URL — show confirmation toast
+  useEffect(() => {
+    if (searchParams.get('attestation') === 'requested') {
+      toast.success('Attestation requested. You will be notified when complete.', { duration: 6000 });
+      searchParams.delete('attestation');
+      searchParams.delete('origin_id');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
   const { marks, isLoading, importLegacyMarks, refresh } = useMarks();
   const { pollPendingProofs, getOriginUuid } = useProofPolling();
