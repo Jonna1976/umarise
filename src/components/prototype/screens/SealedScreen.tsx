@@ -18,7 +18,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
-import { AttestationRequestModal } from '../components/AttestationRequestModal';
+import { OriginButton } from '../components/OriginButton';
 import { buildOriginZip } from '@/lib/originZip';
 
 interface SealedScreenProps {
@@ -50,7 +50,6 @@ export function SealedScreen({
   onComplete,
 }: SealedScreenProps) {
   const [verificationOpen, setVerificationOpen] = useState(false);
-  const [showAttestationModal, setShowAttestationModal] = useState(false);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -110,13 +109,15 @@ export function SealedScreen({
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center px-6 pt-12 pb-16"
+      className="min-h-screen flex flex-col items-center px-6 pt-12 pb-16 relative"
       style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* ── Gallery nav (top-left) ── */}
+      <OriginButton onClick={onComplete} className="absolute top-[40px] left-[18px] z-50" />
       {/* ── THUMBNAIL ── */}
       <motion.div
         className="rounded-[4px] mb-7 overflow-hidden relative"
@@ -291,51 +292,8 @@ export function SealedScreen({
             Continue →
           </button>
 
-          {/* Attestation block */}
-          {isAnchored && (
-            <div
-              className="w-full max-w-[320px] rounded-[4px] flex flex-col items-center gap-2.5 px-6 py-5"
-              style={{
-                background: 'rgba(201,169,110,0.04)',
-                border: '1px solid rgba(201,169,110,0.15)',
-              }}
-            >
-              <span
-                className="font-mono text-[11px] tracking-[5px] uppercase"
-                style={{ color: 'rgba(201,169,110,0.4)' }}
-              >
-                Attestation
-              </span>
-              <p
-                className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]"
-                style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
-              >
-                A certified third party confirms it was you. €4,95. One-time.
-              </p>
-              <button
-                onClick={() => setShowAttestationModal(true)}
-                className="mt-1 bg-transparent cursor-pointer font-mono text-[11px] tracking-[4px] uppercase rounded-full px-6 py-2.5 transition-all hover:bg-[rgba(201,169,110,0.15)] hover:border-[rgba(201,169,110,1)]"
-                style={{
-                  color: 'hsl(var(--ritual-gold))',
-                  border: '1px solid rgba(201,169,110,0.4)',
-                }}
-              >
-                Request attestation →
-              </button>
-            </div>
-          )}
         </div>
       </motion.div>
-
-
-      {/* ── Attestation Modal ── */}
-      {showAttestationModal && (
-        <AttestationRequestModal
-          originId={originId}
-          onClose={() => setShowAttestationModal(false)}
-          onConfirm={() => setShowAttestationModal(false)}
-        />
-      )}
     </motion.div>
   );
 }
