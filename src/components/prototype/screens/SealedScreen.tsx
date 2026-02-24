@@ -81,43 +81,19 @@ export function SealedScreen({
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Share handler — Web Share API with ZIP, email fallback
-  const handleShare = useCallback(async () => {
+  // Save handler — download ZIP directly
+  const handleSave = useCallback(() => {
     const file = prebuiltFileRef.current;
-    const shareText = 'Anchor proof — verify at anchoring.app/verify\n\nSend your original file separately via a secure channel because bytes must stay intact for verification.';
-
-    // Try Web Share API first (only works on real devices, not iframes)
-    try {
-      if (file && navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: 'Anchor share',
-          text: shareText,
-          files: [file],
-        });
-        return; // Success — done
-      } else if (navigator.share) {
-        await navigator.share({ title: 'Anchor share', text: shareText });
-        return; // Success — done
-      }
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') return; // User cancelled
-      console.warn('[SealedScreen] Web Share unavailable, falling back to email:', err);
-      // Fall through to mailto
+    if (!file) {
+      console.warn('[SealedScreen] ZIP not ready yet');
+      return;
     }
-
-    // Fallback: download ZIP + open email client
-    if (file) {
-      const url = URL.createObjectURL(file);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    const subject = encodeURIComponent('Anchor proof');
-    const body = encodeURIComponent(shareText);
-    window.open(`mailto:?subject=${subject}&body=${body}`, '_self');
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
   }, []);
 
   // Verification items
@@ -297,13 +273,13 @@ export function SealedScreen({
 
         {/* ── Actions: Share + Attestation ── */}
         <div className="w-full flex flex-col items-center gap-4">
-          {/* Share — text link style */}
+          {/* Save — download ZIP */}
           <button
-            onClick={handleShare}
+            onClick={handleSave}
             className="bg-transparent border-none cursor-pointer font-mono text-[13px] tracking-[5px] uppercase py-1.5 transition-all hover:tracking-[6px]"
             style={{ color: 'hsl(var(--ritual-cream) / 0.85)' }}
           >
-            Share
+            Save
           </button>
 
           {/* Attestation block */}
