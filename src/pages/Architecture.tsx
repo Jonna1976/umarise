@@ -69,6 +69,7 @@ const dbIntegrity = [
   { table: 'core_ots_proofs', protection: 'prevent_anchored_proof_mutation + delete-trigger', purpose: 'Proof immutable after anchoring' },
   { table: 'attestation_requests', protection: 'prevent_confirmed_attestation_update', purpose: 'Confirmed attestations immutable' },
   { table: 'partner_api_keys', protection: 'prevent_api_key_delete', purpose: 'Keys cannot be deleted' },
+  { table: 'attestants', protection: 'Public read (active only), service_role write', purpose: 'Certified attestant registry' },
   { table: 'core_ddl_audit', protection: 'DDL event trigger', purpose: 'Schema changes logged' },
 ];
 
@@ -148,10 +149,11 @@ const originMarkUsage = [
 ];
 
 const zipContents = [
-  { file: 'artifact.{ext}', always: false, desc: 'Original artifact (jpg/png/mp4/pdf/...) — hash-verified' },
-  { file: 'certificate.json', always: true, desc: 'v1.1: origin_id, hash, timestamp, device_signature, device_public_key, proof_status' },
-  { file: 'VERIFY.txt', always: true, desc: 'Human-readable verification instructions + link + device signed status' },
+  { file: 'artifact.{ext}', always: false, desc: 'Original artifact (hash-verified)' },
+  { file: 'certificate.json', always: true, desc: 'v1.2: origin_id, hash, timestamp, device_signature, device_public_key, proof_status, attestation_included' },
+  { file: 'VERIFY.txt', always: true, desc: 'Human-readable verification instructions + Layer 3 attestation verification' },
   { file: 'proof.ots', always: false, desc: 'OpenTimestamps binary proof (only when anchored)' },
+  { file: 'attestation.json', always: false, desc: 'Layer 3: attestation_id, attested_by, attested_at, signature, attestant_public_key, attestant_certificate, verify_url (only when attestation confirmed)' },
 ];
 
 const onboardingSteps = [
