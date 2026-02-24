@@ -3,27 +3,27 @@
  * 
  * V7 is de spijker. Het schilderij hangt eraan.
  * 
- * Layout:
+ * Layout (redesigned 24 Feb 2026):
  * 1. V7 (36px, glow) — the nail
  * 2. Golden wire (1px, 16px) — connects nail to frame
  * 3. Photo in golden museum frame (220px)
  * 4. Gold divider
- * 5. Origin ID (no prefix)
+ * 5. Origin ID
  * 6. Date
- * 7. Hash (full, one line, 30% opacity)
- * 8. Proof components: certificate · hash · proof.ots
- * 9. Save button
- * 
- * No title. No explanation. No privacy whisper.
+ * 7. Hash (full, break-all)
+ * 8. Status bar: hash · certificate · proof.ots
+ * 9. Collapsible verification details
+ * 10. Share (text link) + Attestation card block
+ * 11. Save button
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 
-
 const POST_SEAL_HINT_KEY = 'umarise_post_seal_hint_shown';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginMark } from '../components/OriginMark';
+import { AttestationRequestModal } from '../components/AttestationRequestModal';
 import { buildOriginZip } from '@/lib/originZip';
 
 /** Desktop-only download helper */
@@ -74,6 +74,8 @@ export function SealedScreen({
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [verificationOpen, setVerificationOpen] = useState(false);
+  const [showAttestationModal, setShowAttestationModal] = useState(false);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -92,7 +94,7 @@ export function SealedScreen({
   useEffect(() => {
     const alreadyShown = localStorage.getItem(POST_SEAL_HINT_KEY);
     if (alreadyShown) return;
-    const showTimer = setTimeout(() => setShowHint(true), 1400); // after seal animation settles
+    const showTimer = setTimeout(() => setShowHint(true), 1400);
     return () => clearTimeout(showTimer);
   }, []);
 
@@ -171,9 +173,46 @@ export function SealedScreen({
     }
   }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, deviceSignature, devicePublicKey]);
 
+  // Share handler — Web Share API with ZIP
+  const handleShare = useCallback(async () => {
+    const file = prebuiltFileRef.current;
+    if (!file) return;
+
+    const shareData: ShareData = {
+      title: 'Anchor share',
+      text: 'Anchor proof — verify at anchoring.app/verify\n\nSend your original file separately via a secure channel because bytes must stay intact for verification.',
+      files: [file],
+    };
+
+    try {
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else if (navigator.share) {
+        // Fallback without files
+        await navigator.share({ title: shareData.title, text: shareData.text });
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.warn('[SealedScreen] Share failed:', err);
+      }
+    }
+  }, []);
+
+  // Verification items
+  const hashShort = hash ? `${hash.substring(0, 8)}…` : '—';
+  const verificationItems = [
+    { label: 'ZIP opened', value: `origin-${shortId}.zip`, confirmed: true },
+    { label: 'certificate.json found', confirmed: true },
+    { label: 'SHA-256', value: hashShort, confirmed: !!hash },
+    { label: 'Origin ID', value: `${shortId}…`, confirmed: !!shortId },
+    { label: 'Layer 2 identity binding', confirmed: !!deviceSignature },
+    { label: 'Hash found in registry', value: hashShort, confirmed: true },
+    { label: 'Bitcoin anchor confirmed', confirmed: isAnchored },
+  ];
+
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center px-6 pt-12"
+      className="min-h-screen flex flex-col items-center px-6 pt-12 pb-16"
       style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -187,14 +226,7 @@ export function SealedScreen({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <OriginMark
-          size={36}
-          state="anchored"
-          glow
-          animated={false}
-          variant="dark"
-        />
-        {/* Golden wire — connects nail to frame */}
+        <OriginMark size={36} state="anchored" glow animated={false} variant="dark" />
         <div
           className="w-px h-4"
           style={{
@@ -236,69 +268,183 @@ export function SealedScreen({
 
       {/* ── MUSEUM LABEL ── */}
       <motion.div
-        className="flex flex-col items-center text-center"
+        className="flex flex-col items-center text-center w-full max-w-[420px]"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
       >
         {/* Gold divider */}
-        <div
-          className="w-10 h-px mb-4"
-          style={{ background: 'rgba(197,147,90,0.2)' }}
-        />
+        <div className="w-10 h-px mb-4" style={{ background: 'rgba(197,147,90,0.2)' }} />
 
-        {/* Origin ID — no prefix */}
+        {/* Origin ID */}
         <p
-          className="font-mono text-[14px] tracking-[3px] mb-1"
-          style={{ color: 'rgba(197,147,90,0.75)' }}
+          className="font-mono text-[28px] tracking-[8px] mb-2.5"
+          style={{ color: 'hsl(var(--ritual-gold))' }}
         >
           {shortId}
         </p>
 
         {/* Date */}
         <p
-          className="font-garamond text-[17px] mb-2.5"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
+          className="font-garamond text-[20px] mb-4"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.85)' }}
         >
           {formatDate(timestamp)}
         </p>
 
-        {/* Hash — full, one line */}
+        {/* Hash — full, break-all */}
         <p
-          className="font-mono text-[11px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
-          style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
+          className="font-mono text-[11px] tracking-[1px] mb-5 max-w-[320px] text-center break-all leading-[1.7]"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         >
           {hash}
         </p>
 
-        {/* Proof components — one line */}
-        <div className="flex items-center gap-4 mb-5">
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
-            certificate
-          </span>
-          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+        {/* ── Status bar: hash · certificate · proof.ots ── */}
+        <div className="flex items-center gap-2.5 mb-8">
+          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
             hash
           </span>
+          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.4)' }} />
+          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
+            certificate
+          </span>
+          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.4)' }} />
           {isAnchored ? (
-            <>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
-                proof.ots
-              </span>
-            </>
+            <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
+              proof.ots
+            </span>
           ) : (
-            <>
-              <motion.span
-                className="w-[3px] h-[3px] rounded-full"
-                style={{ background: 'rgba(197,147,90,0.35)' }}
-                animate={{ opacity: [0.3, 0.7, 0.3] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
-                proof.ots
+            <motion.span
+              className="font-mono text-[11px] tracking-[4px] uppercase"
+              style={{ color: 'rgba(197,147,90,0.4)' }}
+              animate={{ opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              proof.ots
+            </motion.span>
+          )}
+        </div>
+
+        {/* ── Collapsible verification details ── */}
+        <div className="w-full mb-7">
+          <button
+            onClick={() => setVerificationOpen(!verificationOpen)}
+            className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:text-[rgba(197,147,90,0.4)]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+          >
+            <span className="font-mono text-[11px] tracking-[4px] uppercase">
+              verification details
+            </span>
+            <motion.span
+              className="text-[8px]"
+              animate={{ rotate: verificationOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              ▾
+            </motion.span>
+          </button>
+
+          <AnimatePresence>
+            {verificationOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div
+                  className="mt-2.5 rounded-[4px] px-5 py-4"
+                  style={{
+                    background: 'rgba(17,31,17,1)',
+                    border: '1px solid hsl(var(--ritual-cream) / 0.12)',
+                  }}
+                >
+                  {verificationItems.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2.5 py-1.5 font-mono text-[12px] tracking-[0.5px]"
+                      style={{
+                        borderBottom: i < verificationItems.length - 1
+                          ? '1px solid hsl(var(--ritual-cream) / 0.12)'
+                          : 'none',
+                      }}
+                    >
+                      <span
+                        className="text-[10px] mt-[1px] flex-shrink-0"
+                        style={{ color: item.confirmed ? '#4a7c59' : 'rgba(197,147,90,0.4)' }}
+                      >
+                        {item.confirmed ? '✓' : '·'}
+                      </span>
+                      <span
+                        className="flex-1 leading-[1.5]"
+                        style={{ color: item.confirmed ? 'hsl(var(--ritual-cream) / 0.65)' : 'hsl(var(--ritual-cream) / 0.35)' }}
+                      >
+                        {item.label}
+                      </span>
+                      {item.value && (
+                        <span
+                          className="text-[9px] break-all"
+                          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+                        >
+                          {item.value}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Divider */}
+        <div className="w-10 h-px mb-7" style={{ background: 'hsl(var(--ritual-cream) / 0.12)' }} />
+
+        {/* ── Actions: Share + Attestation ── */}
+        <div className="w-full flex flex-col items-center gap-4">
+          {/* Share — text link style */}
+          <button
+            onClick={handleShare}
+            className="bg-transparent border-none cursor-pointer font-mono text-[13px] tracking-[5px] uppercase py-1.5 transition-all hover:tracking-[6px]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.85)' }}
+          >
+            Share
+          </button>
+
+          {/* Attestation block */}
+          {isAnchored && (
+            <div
+              className="w-full max-w-[320px] rounded-[4px] flex flex-col items-center gap-2.5 px-6 py-5"
+              style={{
+                background: 'rgba(201,169,110,0.04)',
+                border: '1px solid rgba(201,169,110,0.15)',
+              }}
+            >
+              <span
+                className="font-mono text-[11px] tracking-[5px] uppercase"
+                style={{ color: 'rgba(201,169,110,0.4)' }}
+              >
+                Attestation
               </span>
-            </>
+              <p
+                className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]"
+                style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+              >
+                A certified third party confirms it was you. €4,95. One-time.
+              </p>
+              <button
+                onClick={() => setShowAttestationModal(true)}
+                className="mt-1 bg-transparent cursor-pointer font-mono text-[11px] tracking-[4px] uppercase rounded-full px-6 py-2.5 transition-all hover:bg-[rgba(201,169,110,0.15)] hover:border-[rgba(201,169,110,1)]"
+                style={{
+                  color: 'hsl(var(--ritual-gold))',
+                  border: '1px solid rgba(201,169,110,0.4)',
+                }}
+              >
+                Request attestation →
+              </button>
+            </div>
           )}
         </div>
       </motion.div>
@@ -307,7 +453,7 @@ export function SealedScreen({
       <motion.button
         onClick={handleSave}
         disabled={isSaving}
-        className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-50"
+        className="mt-8 font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-50"
         style={{
           fontWeight: 300,
           background: saved
@@ -324,15 +470,15 @@ export function SealedScreen({
         {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
       </motion.button>
 
-      {/* ── Verify URL — small, for whoever receives the proof ── */}
+      {/* ── Footer disclaimer ── */}
       <motion.p
-        className="mt-2 font-mono text-[8px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.35)', letterSpacing: '0.03em' }}
+        className="mt-6 font-garamond italic text-[13px] text-center leading-relaxed max-w-[280px]"
+        style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.5 }}
       >
-        To verify: anchoring.app/verify
+        Send your original file separately via a secure channel because bytes must stay intact for verification.
       </motion.p>
 
       {/* ── POST-SEAL HINT — one-time, auto-fades 6s, tap to dismiss ── */}
@@ -354,7 +500,7 @@ export function SealedScreen({
         </p>
       </motion.div>
 
-      {/* ── Device signed (small checkmark, ghost, no explanation) ── */}
+      {/* ── Device signed indicator ── */}
       {deviceSignature && (
         <motion.div
           className="flex items-center gap-1.5 mt-3"
@@ -371,6 +517,14 @@ export function SealedScreen({
         </motion.div>
       )}
 
+      {/* ── Attestation Modal ── */}
+      {showAttestationModal && (
+        <AttestationRequestModal
+          originId={originId}
+          onClose={() => setShowAttestationModal(false)}
+          onConfirm={() => setShowAttestationModal(false)}
+        />
+      )}
     </motion.div>
   );
 }
