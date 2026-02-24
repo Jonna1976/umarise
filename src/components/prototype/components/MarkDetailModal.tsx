@@ -116,42 +116,6 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Steps log */}
-      {result.steps && result.steps.length > 0 && (
-        <div className="w-full rounded-lg px-5 py-5 mb-5 space-y-3" style={{
-          background: 'rgba(0,0,0,0.35)',
-          border: '1px solid rgba(197,147,90,0.12)',
-        }}>
-          {result.steps.map((step, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <span className="font-mono text-[15px] flex-shrink-0" style={{
-                color: step.status === 'ok' ? 'hsl(142 50% 55%)'
-                  : step.status === 'warn' ? 'hsl(38 65% 60%)'
-                  : step.status === 'error' ? 'hsl(0 60% 60%)'
-                  : 'rgba(197,147,90,0.35)',
-              }}>
-                {step.status === 'ok' ? '✓' : step.status === 'warn' ? '!' : step.status === 'error' ? '✗' : '·'}
-              </span>
-              <div>
-                <span className="font-mono text-[14px]" style={{
-                  color: step.status === 'ok' ? 'hsl(142 35% 72%)'
-                    : step.status === 'warn' ? 'hsl(38 55% 68%)'
-                    : step.status === 'error' ? 'hsl(0 55% 68%)'
-                    : 'rgba(245,240,232,0.45)',
-                }}>
-                  {step.label}
-                </span>
-                {step.detail && (
-                  <span className="ml-2 font-mono text-[12px] break-all" style={{ color: 'rgba(245,240,232,0.3)' }}>
-                    {step.detail}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Status badge */}
       {result.status === 'verified' && (
         <div className="flex items-center gap-3 mb-4">
@@ -179,21 +143,21 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
         </p>
       )}
 
-      {/* Share button */}
+      {/* Share — text-only */}
       <button
         onClick={handleShare}
         disabled={saved}
-        className="font-playfair text-[20px] px-10 py-3.5 rounded-full transition-all disabled:opacity-50 mb-3"
+        className="bg-transparent border-none cursor-pointer transition-all disabled:opacity-50 mb-3 hover:tracking-[6px]"
         style={{
-          fontWeight: 300,
-          background: saved ? 'hsl(var(--ritual-gold) / 0.15)' : 'hsl(var(--ritual-gold) / 0.08)',
-          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.25'})`,
-          color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.85'})`,
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '13px',
+          letterSpacing: '5px',
+          textTransform: 'uppercase' as const,
+          color: saved ? 'rgba(240,234,214,0.5)' : 'rgba(240,234,214,0.85)',
         }}
       >
         {saved ? '✓ Shared' : 'Share'}
       </button>
-
 
       <button
         onClick={onReset}
@@ -344,6 +308,7 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
 export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [imgError, setImgError] = useState(false);
   const [zipFile, setZipFile] = useState<File | null>(null);
+  const [verificationOpen, setVerificationOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<VerifyResultData | null>(null);
@@ -553,147 +518,240 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             </p>
 
             {/* Proof components */}
-            <div className="flex items-center gap-5 mb-8">
-              <span className="font-mono text-[15px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>certificate</span>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[15px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>hash</span>
+            <div className="flex items-center gap-5 mb-6">
+              <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>hash</span>
+              <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+              <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>certificate</span>
               {isAnchored ? (
                 <>
-                  <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-                  <span className="font-mono text-[15px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)' }}>proof.ots</span>
+                  <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+                  <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>proof.ots</span>
                 </>
               ) : (
                 <>
                   <motion.span
-                    className="w-[3px] h-[3px] rounded-full"
+                    className="w-[2px] h-[2px] rounded-full"
                     style={{ background: 'rgba(197,147,90,0.35)' }}
                     animate={{ opacity: [0.3, 0.7, 0.3] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                  <span className="font-mono text-[15px] tracking-[2px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.6 }}>proof.ots</span>
+                  <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)', opacity: 0.6 }}>proof.ots</span>
                 </>
               )}
             </div>
 
-            {/* Attestation status (Layer 3) */}
-            {attestationStatus === 'pending' && (
-              <p className="font-garamond italic text-[15px] mb-4" style={{ color: 'rgba(245,240,232,0.5)' }}>
-                Attestation requested. You will be notified when complete.
-              </p>
-            )}
-            {attestationStatus === 'attested' && attestantInfo && (
-              <div className="flex flex-col items-center mb-4">
+            {/* Collapsible verification details */}
+            <div className="w-full max-w-[340px] mb-6">
+              <button
+                onClick={() => setVerificationOpen(!verificationOpen)}
+                className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70"
+              >
+                <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                  verification details
+                </span>
+                <motion.span
+                  className="text-[8px]"
+                  style={{ color: 'rgba(240,234,214,0.35)' }}
+                  animate={{ rotate: verificationOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  ▾
+                </motion.span>
+              </button>
+
+              <AnimatePresence>
+                {verificationOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-2 rounded px-5 py-4 space-y-2" style={{
+                      background: 'rgba(17,31,17,0.9)',
+                      border: '1px solid rgba(240,234,214,0.08)',
+                    }}>
+                      {/* If ZIP was verified, show steps */}
+                      {verifyResult && verifyResult.steps?.length > 0 ? (
+                        verifyResult.steps.map((step, i) => (
+                          <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[12px]" style={{
+                            borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none',
+                          }}>
+                            <span className="flex-shrink-0 text-[10px] mt-0.5" style={{
+                              color: step.status === 'ok' ? '#4a7c59'
+                                : step.status === 'error' ? 'hsl(0 60% 60%)'
+                                : step.status === 'warn' ? 'hsl(38 65% 60%)'
+                                : 'rgba(240,234,214,0.35)',
+                            }}>
+                              {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
+                            </span>
+                            <span className="flex-1 leading-[1.5]" style={{
+                              color: step.status === 'ok' ? 'rgba(240,234,214,0.6)'
+                                : step.status === 'error' ? 'hsl(0 60% 60%)'
+                                : 'rgba(240,234,214,0.35)',
+                            }}>
+                              {step.label}
+                              {step.detail && (
+                                <span className="text-[9px] ml-1.5" style={{ color: 'rgba(240,234,214,0.35)', wordBreak: 'break-all' }}>
+                                  {step.detail}
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        /* Default: show what's known without ZIP */
+                        <>
+                          <div className="flex items-start gap-2.5 py-1 font-mono text-[12px]" style={{ borderBottom: '1px solid rgba(240,234,214,0.06)' }}>
+                            <span className="flex-shrink-0 text-[10px] mt-0.5" style={{ color: 'rgba(240,234,214,0.35)' }}>·</span>
+                            <span style={{ color: 'rgba(240,234,214,0.35)' }}>Drop ZIP to verify</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Divider */}
+            <div className="w-10 h-px mb-7" style={{ background: 'rgba(240,234,214,0.08)' }} />
+
+            {/* Share — text-only button */}
+            <div className="w-full flex flex-col items-center mb-6">
+              {!zipFile ? (
                 <button
-                  onClick={() => {/* TODO: open attestant details modal */}}
-                  className="font-garamond italic text-[15px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                  onClick={() => zipInputRef.current?.click()}
+                  className="bg-transparent border-none cursor-pointer transition-all hover:tracking-[6px] mb-3"
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '13px',
+                    letterSpacing: '5px',
+                    textTransform: 'uppercase' as const,
+                    color: 'rgba(240,234,214,0.85)',
+                  }}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  Share
+                </button>
+              ) : verifying ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <svg viewBox="0 0 48 48" width={32} height={32}>
+                      <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.2)" strokeWidth="1.5" />
+                      <path d="M24 4 A20 20 0 0 1 44 24" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </motion.div>
+                  <span className="font-mono text-[14px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.6)' }}>
+                    Verifying…
+                  </span>
+                </div>
+              ) : verifyResult ? (
+                <InlineVerifyResult
+                  result={verifyResult}
+                  zipFile={zipFile}
+                  onReset={resetZip}
+                  originId={mark.originId}
+                  displayOriginId={displayOriginId}
+                />
+              ) : null}
+
+              {/* Hidden ZIP input */}
+              <input
+                ref={zipInputRef}
+                type="file"
+                accept=".zip,application/zip"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleZipFile(file);
+                  e.target.value = '';
+                }}
+              />
+            </div>
+
+            {/* Attestation block (Layer 3) — styled card */}
+            {attestationStatus === 'pending' && (
+              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{
+                border: '1px solid rgba(201,169,110,0.15)',
+                background: 'rgba(201,169,110,0.04)',
+              }}>
+                <span className="font-mono text-[11px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>
+                  Attestation
+                </span>
+                <p className="font-garamond text-[15px] italic text-center" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                  Requested. You will be notified when complete.
+                </p>
+              </div>
+            )}
+
+            {attestationStatus === 'attested' && (
+              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{
+                border: '1px solid rgba(201,169,110,0.15)',
+                background: 'rgba(201,169,110,0.04)',
+              }}>
+                <span className="font-mono text-[11px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>
+                  Attestation
+                </span>
+                <button
+                  onClick={() => {/* TODO: open attestant details */}}
+                  className="font-garamond italic text-[16px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
                   style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
                 >
-                  Attested by {attestantInfo.name} ✓
+                  Attested by {attestantInfo?.name || 'Attestant'} ✓
                 </button>
-                {attestantInfo.date && (
-                  <span className="font-mono text-[12px] tracking-[1px] mt-1" style={{ color: 'rgba(197,147,90,0.35)' }}>
+                {attestantInfo?.date && (
+                  <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
                     {attestantInfo.date}
                   </span>
                 )}
               </div>
             )}
-            {attestationStatus === 'attested' && !attestantInfo && (
-              <button
-                onClick={() => {/* TODO: open attestant details modal */}}
-                className="font-garamond italic text-[15px] mb-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
-                style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
-              >
-                Attested ✓
-              </button>
-            )}
 
-            {/* Request attestation link — only when Bitcoin-confirmed and no attestation yet */}
             {isAnchored && attestationStatus === 'none' && (
-              <button
-                onClick={() => setShowAttestationModal(true)}
-                className="font-mono text-[13px] tracking-[3px] uppercase bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70 mb-4"
-                style={{ color: 'rgba(245,240,232,0.4)' }}
-              >
-                Request attestation
-              </button>
-            )}
-          </div>
-
-          {/* ── Inline Verify + Share zone ── */}
-          <div className="w-full flex flex-col items-center">
-            {!zipFile ? (
-              /* Drop zone for ZIP */
-              <div
-                className="w-full max-w-[340px] flex flex-col items-center gap-3 py-8 px-4 rounded-lg cursor-pointer transition-all"
-                style={{
-                  border: `1px dashed rgba(197,147,90,${isDragging ? '0.5' : '0.2'})`,
-                  background: isDragging ? 'rgba(197,147,90,0.04)' : 'transparent',
-                }}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleDrop}
-                onClick={() => zipInputRef.current?.click()}
-              >
-                <p className="font-garamond text-[20px] text-center" style={{ color: 'rgba(245,240,232,0.55)' }}>
-                  {isDragging ? 'Drop your ZIP here' : 'Drop or select your proof ZIP'}
+              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{
+                border: '1px solid rgba(201,169,110,0.15)',
+                background: 'rgba(201,169,110,0.04)',
+              }}>
+                <span className="font-mono text-[11px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>
+                  Attestation
+                </span>
+                <p className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                  A certified third party confirms it was you. €4,95. One-time.
                 </p>
-                <p className="font-mono text-[14px] tracking-[1px] text-center" style={{ color: 'rgba(197,147,90,0.4)' }}>
-                  to verify and share
-                </p>
-              </div>
-            ) : verifying ? (
-              /* Verifying spinner */
-              <div className="flex flex-col items-center gap-4 py-6">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                <button
+                  onClick={() => setShowAttestationModal(true)}
+                  className="font-mono text-[11px] tracking-[4px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
+                  style={{
+                    border: '1px solid rgba(201,169,110,0.4)',
+                    color: 'hsl(var(--ritual-gold))',
+                    marginTop: '4px',
+                  }}
                 >
-                  <svg viewBox="0 0 48 48" width={32} height={32}>
-                    <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.2)" strokeWidth="1.5" />
-                    <path d="M24 4 A20 20 0 0 1 44 24" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </motion.div>
-                <span className="font-mono text-[14px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.6)' }}>
-                  Verifying…
+                  Request attestation →
+                </button>
+              </div>
+            )}
+
+            {/* Device signed */}
+            {credentialRef.current && (
+              <div className="flex items-center gap-2 mt-4">
+                <svg width="16" height="16" viewBox="0 0 12 12">
+                  <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span className="font-mono text-[14px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
+                  device signed
                 </span>
               </div>
-            ) : verifyResult ? (
-              /* Verification result + share */
-              <InlineVerifyResult
-                result={verifyResult}
-                zipFile={zipFile}
-                onReset={resetZip}
-                originId={mark.originId}
-                displayOriginId={displayOriginId}
-              />
-            ) : null}
-
-            {/* Hidden ZIP input */}
-            <input
-              ref={zipInputRef}
-              type="file"
-              accept=".zip,application/zip"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleZipFile(file);
-                e.target.value = '';
-              }}
-            />
+            )}
           </div>
-
-          {/* Device signed */}
-          {credentialRef.current && (
-            <div className="flex items-center gap-2 mt-6">
-              <svg width="16" height="16" viewBox="0 0 12 12">
-                <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="font-mono text-[14px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>
-                device signed
-              </span>
-            </div>
-          )}
         </motion.div>
       </motion.div>
 
