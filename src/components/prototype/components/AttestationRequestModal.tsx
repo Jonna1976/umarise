@@ -20,8 +20,21 @@ interface AttestationRequestModalProps {
 export function AttestationRequestModal({ originId, onClose, onConfirm }: AttestationRequestModalProps) {
   const [confirming, setConfirming] = useState(false);
 
+  const isDemo = originId.startsWith('UM-') && originId.includes('A7F3B2E1');
+
   const handleConfirm = useCallback(async () => {
     setConfirming(true);
+
+    // Demo/preview mode — don't call real checkout
+    if (isDemo) {
+      toast.success('Demo mode: attestation request would be sent here');
+      setTimeout(() => {
+        setConfirming(false);
+        onConfirm();
+      }, 1200);
+      return;
+    }
+
     try {
       const deviceUserId = getActiveDeviceId();
       if (!deviceUserId) {
@@ -63,7 +76,7 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
       toast.error(err instanceof Error ? err.message : 'Something went wrong');
       setConfirming(false);
     }
-  }, [originId, onConfirm]);
+  }, [originId, onConfirm, isDemo]);
 
   return (
     <AnimatePresence>
