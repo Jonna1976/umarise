@@ -324,16 +324,6 @@ export function SealedScreen({
         {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
       </motion.button>
 
-      {/* ── Verify URL — small, for whoever receives the proof ── */}
-      <motion.p
-        className="mt-2 font-mono text-[8px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.35)', letterSpacing: '0.03em' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.5 }}
-      >
-        To verify: anchoring.app/verify
-      </motion.p>
 
       {/* ── POST-SEAL HINT — one-time, auto-fades 6s, tap to dismiss ── */}
       <motion.div
