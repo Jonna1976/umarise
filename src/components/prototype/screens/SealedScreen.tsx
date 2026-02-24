@@ -244,8 +244,8 @@ export function SealedScreen({
                 <div
                   className="mt-3 rounded-sm px-5 py-5 font-mono text-[13px] space-y-3"
                   style={{
-                    background: 'hsl(0 0% 4%)',
-                    border: '1px solid hsl(var(--ritual-cream) / 0.07)',
+                    background: 'hsl(var(--ritual-surface) / 0.6)',
+                    border: '1px solid hsl(var(--ritual-cream) / 0.08)',
                   }}
                 >
                   {verificationItems.map((item, i) => (
