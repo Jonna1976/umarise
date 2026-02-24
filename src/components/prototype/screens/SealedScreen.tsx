@@ -164,7 +164,7 @@ export function SealedScreen({
         {/* Date */}
         <p
           className="font-garamond text-[20px] mb-4"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.85)' }}
+          style={{ color: 'hsl(var(--ritual-cream) / 0.9)' }}
         >
           {formatDate(timestamp)}
         </p>
@@ -172,29 +172,29 @@ export function SealedScreen({
         {/* Hash — full, break-all */}
         <p
           className="font-mono text-[11px] tracking-[1px] mb-5 max-w-[320px] text-center break-all leading-[1.7]"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
         >
           {hash}
         </p>
 
         {/* ── Status bar: hash · certificate · proof.ots ── */}
         <div className="flex items-center gap-2.5 mb-8">
-          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
+          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.65)' }}>
             hash
           </span>
-          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.4)' }} />
-          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
+          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.65)' }} />
+          <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.65)' }}>
             certificate
           </span>
-          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.4)' }} />
+          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.65)' }} />
           {isAnchored ? (
-            <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>
+            <span className="font-mono text-[11px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.65)' }}>
               proof.ots
             </span>
           ) : (
             <motion.span
               className="font-mono text-[11px] tracking-[4px] uppercase"
-              style={{ color: 'rgba(197,147,90,0.4)' }}
+              style={{ color: 'rgba(197,147,90,0.65)' }}
               animate={{ opacity: [0.3, 0.7, 0.3] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             >
@@ -208,7 +208,7 @@ export function SealedScreen({
           <button
             onClick={() => setVerificationOpen(!verificationOpen)}
             className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:text-[rgba(197,147,90,0.4)]"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+            style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
           >
             <span className="font-mono text-[11px] tracking-[4px] uppercase">
               verification details
@@ -256,14 +256,14 @@ export function SealedScreen({
                       </span>
                       <span
                         className="flex-1 leading-[1.5]"
-                        style={{ color: item.confirmed ? 'hsl(var(--ritual-cream) / 0.65)' : 'hsl(var(--ritual-cream) / 0.35)' }}
+                        style={{ color: item.confirmed ? 'hsl(var(--ritual-cream) / 0.8)' : 'hsl(var(--ritual-cream) / 0.5)' }}
                       >
                         {item.label}
                       </span>
                       {item.value && (
                         <span
                           className="text-[9px] break-all"
-                          style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+                          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
                         >
                           {item.value}
                         </span>
@@ -307,7 +307,7 @@ export function SealedScreen({
               </span>
               <p
                 className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]"
-                style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+                style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
               >
                 A certified third party confirms it was you. €4,95. One-time.
               </p>
@@ -329,7 +329,7 @@ export function SealedScreen({
       {/* ── Footer disclaimer ── */}
       <motion.p
         className="mt-8 font-garamond italic text-[13px] text-center leading-relaxed max-w-[280px]"
-        style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+        style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.0 }}
