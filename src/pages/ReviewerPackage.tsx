@@ -422,7 +422,7 @@ if __name__ == "__main__":
         >
           <h2 className="text-[hsl(var(--landing-cream))] text-2xl font-serif mb-5">Empirical Evidence</h2>
           <p className="text-[hsl(var(--landing-cream)/0.6)] mb-6">
-            k6 load test results. Not architectural claims — measured data.
+            k6 load test results. Not architectural claims, measured data.
           </p>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="p-5 rounded border border-[hsl(var(--landing-cream)/0.08)]">
@@ -470,11 +470,11 @@ if __name__ == "__main__":
             </div>
             <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)] space-y-2 text-sm text-[hsl(var(--landing-cream)/0.6)]">
               <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-xs uppercase tracking-wider mb-2">Findings</p>
-              <p>• Health endpoint DB check — resolved: 500ms timeout, returns <code className="text-[hsl(var(--landing-copper))]">"database": "unreachable"</code> on 503.</p>
-              <p>• Trigger bypass via superuser migration — documented, inherent to PostgreSQL. Write-once is application-layer enforcement, not cryptographic. OTS anchoring provides independent detection.</p>
+              <p>• Health endpoint DB check resolved: 500ms timeout, returns <code className="text-[hsl(var(--landing-copper))]">"database": "unreachable"</code> on 503.</p>
+              <p>• Trigger bypass via superuser migration: documented, inherent to PostgreSQL. Write-once is application-layer enforcement, not cryptographic. OTS anchoring provides independent detection.</p>
               <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium text-xs uppercase tracking-wider mt-4 mb-2">Independent Verification</p>
-              <p>OTS proof merkle root matches Bitcoin block 937057 merkle root — exact match via Blockstream API, zero Umarise involvement.</p>
-              <p>• Cross-partner duplicate test — confirmed: same-partner returns 409 DUPLICATE_HASH, cross-partner returns 201 Created.</p>
+              <p>• OTS proof merkle root matches Bitcoin block 937057 merkle root. Exact match via Blockstream API, zero Umarise involvement.</p>
+              <p>• Cross-partner duplicate test confirmed: same-partner returns 409 DUPLICATE_HASH, cross-partner returns 201 Created.</p>
             </div>
           </div>
         </motion.section>
@@ -508,11 +508,11 @@ if __name__ == "__main__":
           <div className="space-y-3 text-[hsl(var(--landing-cream)/0.7)]">
             <div className="flex gap-4 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)]">
               <span className="text-[hsl(var(--landing-copper))] font-mono text-sm shrink-0">→</span>
-              <p>Reviewer can verify independently → primitive + tooling are clear.</p>
+              <p>Reviewer can verify independently: primitive and tooling are clear.</p>
             </div>
             <div className="flex gap-4 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)]">
               <span className="text-[hsl(var(--landing-copper))] font-mono text-sm shrink-0">→</span>
-              <p>Reviewer needs explanation → friction is in documentation or UX.</p>
+              <p>Reviewer needs explanation: friction is in documentation or UX.</p>
             </div>
           </div>
         </motion.section>
@@ -544,7 +544,7 @@ if __name__ == "__main__":
           className="pt-10 border-t border-[hsl(var(--landing-cream)/0.08)] text-center space-y-2"
         >
           <p className="text-[hsl(var(--landing-muted))] text-sm">
-            Umarise Core v1 — Stable, Immutable Interface
+            Umarise Core v1. Stable, Immutable Interface.
           </p>
           <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs">
             Contact:{' '}
