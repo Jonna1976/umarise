@@ -222,7 +222,7 @@ interface CertificateData {
   device_public_key?: string | null;
 }
 
-async function verifyZipFile(file: File): Promise<VerifyResultData> {
+async function verifyZipFile(file: File, expectedOriginId?: string): Promise<VerifyResultData> {
   const steps: VerifyStep[] = [];
 
   // Step 1: open ZIP
@@ -266,6 +266,11 @@ async function verifyZipFile(file: File): Promise<VerifyResultData> {
   steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
 
   if (cert.origin_id) {
+    // Critical: verify the ZIP belongs to this specific mark
+    if (expectedOriginId && cert.origin_id !== expectedOriginId) {
+      steps.push({ label: 'Origin ID mismatch', status: 'error', detail: `Expected ${expectedOriginId.substring(0, 8)}… got ${cert.origin_id.substring(0, 8)}…` });
+      return { status: 'error', steps };
+    }
     steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
   }
 
@@ -406,14 +411,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
     setVerifying(true);
     setVerifyResult(null);
     try {
-      const result = await verifyZipFile(file);
+      const result = await verifyZipFile(file, mark.originUuid || undefined);
       setVerifyResult(result);
     } catch {
       setVerifyResult({ status: 'error', steps: [{ label: 'Verification failed', status: 'error' }] });
     } finally {
       setVerifying(false);
     }
-  }, []);
+  }, [mark.originUuid]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
