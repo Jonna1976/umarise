@@ -242,7 +242,7 @@ export function SealedScreen({
                 className="overflow-hidden"
               >
                 <div
-                  className="mt-3 rounded-sm px-5 py-5 font-mono text-[13px] space-y-3"
+                  className="mt-3 rounded-sm px-5 py-5 font-mono text-[13px] space-y-3 max-w-[320px] mx-auto"
                   style={{
                     background: 'hsl(var(--ritual-surface) / 0.6)',
                     border: '1px solid hsl(var(--ritual-cream) / 0.08)',
