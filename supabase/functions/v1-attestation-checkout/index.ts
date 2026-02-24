@@ -85,8 +85,8 @@ serve(async (req) => {
       payment_intent_data: {
         description: `Attestation for anchor ${origin_id}`,
       },
-      success_url: `https://umarise.com/gallery?attestation=requested&origin_id=${origin_id}`,
-      cancel_url: `https://umarise.com/gallery`,
+      success_url: `https://anchoring.app/gallery?attestation=requested&origin_id=${origin_id}`,
+      cancel_url: `https://anchoring.app/gallery`,
       metadata: {
         origin_id,
         device_user_id,
