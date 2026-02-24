@@ -81,28 +81,34 @@ export function SealedScreen({
     return () => clearTimeout(timer);
   }, [onComplete]);
 
-  // Share handler — Web Share API with ZIP
+  // Share handler — Web Share API with ZIP, email fallback
   const handleShare = useCallback(async () => {
     const file = prebuiltFileRef.current;
-    if (!file) return;
-
-    const shareData: ShareData = {
-      title: 'Anchor share',
-      text: 'Anchor proof — verify at anchoring.app/verify\n\nSend your original file separately via a secure channel because bytes must stay intact for verification.',
-      files: [file],
-    };
+    const shareText = 'Anchor proof — verify at anchoring.app/verify\n\nSend your original file separately via a secure channel because bytes must stay intact for verification.';
 
     try {
-      if (navigator.share && navigator.canShare?.(shareData)) {
-        await navigator.share(shareData);
+      if (file && navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: 'Anchor share',
+          text: shareText,
+          files: [file],
+        });
+        return;
       } else if (navigator.share) {
-        await navigator.share({ title: shareData.title, text: shareData.text });
+        await navigator.share({ title: 'Anchor share', text: shareText });
+        return;
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
         console.warn('[SealedScreen] Share failed:', err);
       }
+      return;
     }
+
+    // Fallback: open email client
+    const subject = encodeURIComponent('Anchor share');
+    const body = encodeURIComponent(shareText);
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_self');
   }, []);
 
   // Verification items
