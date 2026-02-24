@@ -66,13 +66,21 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
   const [saved, setSaved] = useState(false);
 
   const handleShare = useCallback(async () => {
+    const shareText = [
+      `Anchor proof for origin ${displayOriginId.slice(0, 8)}`,
+      '',
+      'Verify this proof at: https://anchoring.app/verify',
+      '',
+      'Important: Send your original file separately via a secure channel, because bytes must stay intact for verification.',
+    ].join('\n');
+
     // Try native share with the ZIP file itself
     if (navigator.share && navigator.canShare?.({ files: [zipFile] })) {
       try {
         await navigator.share({
           files: [zipFile],
-          title: `Origin ${displayOriginId.slice(0, 8)}`,
-          text: `Anchor proof — verify at anchoring.app/verify`,
+          title: `Anchor proof — ${displayOriginId.slice(0, 8)}`,
+          text: shareText,
         });
         setSaved(true);
         setTimeout(() => setSaved(false), 4000);
@@ -81,7 +89,12 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
         if ((err as Error).name === 'AbortError') return;
       }
     }
-    // Fallback: download the ZIP directly
+
+    // Fallback: open mailto with instructions, then download ZIP
+    const subject = encodeURIComponent(`Anchor proof — ${displayOriginId.slice(0, 8)}`);
+    const body = encodeURIComponent(shareText + '\n\nThe proof ZIP is attached separately (downloaded to your device).');
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+
     const url = URL.createObjectURL(zipFile);
     const a = document.createElement('a');
     a.href = url;
@@ -91,7 +104,7 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 5000);
-    toast.success('ZIP downloaded — share it with your recipient');
+    toast.success('ZIP downloaded — attach it to the email');
     setSaved(true);
     setTimeout(() => setSaved(false), 4000);
   }, [zipFile, displayOriginId]);
