@@ -5,9 +5,9 @@ import { OriginMark } from '@/components/prototype/components/OriginMark';
 /**
  * Architecture Overview — Internal Document
  * 
- * Complete architecture overview of Umarise as of 16 Feb 2026.
+ * Complete architecture overview of Umarise as of 24 Feb 2026.
  * B2C App + B2B Core + Bridge + Verify + Discovery Path + Origin Mark — fully split.
- * Proof Model with Device Identity (v1.1). Verification Independence Tools.
+ * Proof Model with Device Identity (v1.1). Layer 3 Attestation + Stripe Checkout.
  * Developer Journey: Quick Start (zero-friction) + Integration Checklist v2 (24 steps) + SDKs + AI Support Bot.
  * 
  * Source: docs/architecture-week1-final.md
@@ -36,9 +36,17 @@ const partnerEndpoints = [
   { num: 7, method: 'GET', endpoint: '/v1-core-proofs-export', desc: 'Bulk export (cursor-based)' },
 ];
 
+const attestationEndpoints = [
+  { num: 8, method: 'POST', endpoint: '/v1-attestation-request', desc: 'Create attestation request (manual)' },
+  { num: 9, method: 'POST', endpoint: '/v1-attestation-checkout', desc: 'Stripe Checkout session (€4.95)' },
+  { num: 10, method: 'POST', endpoint: '/v1-attestation-webhook', desc: 'Stripe webhook (payment → pending request)' },
+  { num: 11, method: 'POST', endpoint: '/v1-attestation-confirm', desc: 'Confirm attestation with signature (internal)' },
+  { num: 12, method: 'GET', endpoint: '/v1-attestation-verify', desc: 'Public attestation verification' },
+];
+
 const internalEndpoints = [
-  { num: 8, method: 'POST', endpoint: '/v1-internal-partner-create', desc: 'API key generation' },
-  { num: 9, method: 'GET', endpoint: '/v1-internal-metrics', desc: '24h operational metrics' },
+  { num: 13, method: 'POST', endpoint: '/v1-internal-partner-create', desc: 'API key generation' },
+  { num: 14, method: 'GET', endpoint: '/v1-internal-metrics', desc: '24h operational metrics' },
 ];
 
 const bridgePoints = [
@@ -59,6 +67,7 @@ const neverCrosses = [
 const dbIntegrity = [
   { table: 'origin_attestations', protection: 'prevent_update + prevent_delete', purpose: 'Write-once, append-only' },
   { table: 'core_ots_proofs', protection: 'prevent_anchored_proof_mutation + delete-trigger', purpose: 'Proof immutable after anchoring' },
+  { table: 'attestation_requests', protection: 'prevent_confirmed_attestation_update', purpose: 'Confirmed attestations immutable' },
   { table: 'partner_api_keys', protection: 'prevent_api_key_delete', purpose: 'Keys cannot be deleted' },
   { table: 'core_ddl_audit', protection: 'DDL event trigger', purpose: 'Schema changes logged' },
 ];
@@ -120,7 +129,7 @@ const publicRoutes = [
 
 const discoveryPath = [
   { num: 1, contact: 'VERIFY.txt', where: 'In every ZIP', mechanism: 'Origin ID, timestamp, hash, direct verification link' },
-  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://anchoring.app/verify (canonical)' },
+  { num: 2, contact: 'verify_url', where: 'In certificate.json', mechanism: 'https://umarise.com/verify (canonical)' },
   { num: 3, contact: 'Verify link', where: 'Sealed screen (S4)', mechanism: 'Subtle link below save button' },
   { num: 4, contact: 'Share origin', where: 'Origin Registry detail modal (S3)', mechanism: 'Web Share API → ZIP / clipboard fallback' },
 ];
@@ -237,7 +246,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          16 February 2026 — Developer Journey Complete + Integration Checklist v2
+          24 February 2026 — Layer 3 Attestation + Stripe Checkout Live
         </p>
       </div>
 
@@ -249,7 +258,7 @@ const Architecture = () => {
 │                  umarise.com                         │
 │                                                      │
 │  Public:   / /anchor /why /core /verify /reviewer ... │
-│  New:      /api-reference (Quick Start + Checklist    │
+│  Docs:     /api-reference (Quick Start + Checklist    │
 │            + Live Demo + AI Support Bot)              │
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
 │            /architecture                              │
@@ -262,8 +271,10 @@ const Architecture = () => {
 │                                                      │
 │  Public:     resolve, verify, proof, health           │
 │  Partner:    origins, origins-proof, proofs-export    │
-│  Internal:   partner-create, metrics                  │
+│  Attestation: request, checkout, webhook, verify     │
+│  Internal:   partner-create, metrics, confirm         │
 │  Status:     v1 frozen (6 Feb 2026)                  │
+│              Layer 3 live (24 Feb 2026)               │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │                  Hetzner                              │
@@ -336,6 +347,14 @@ const Architecture = () => {
                   <p className="text-xs text-landing-muted/40 mt-1">Best-effort. Auto-register. Never blocking. Companion-only.</p>
                 </div>
               </div>
+              <div className="flex gap-3">
+                <span className="text-red-400/80 font-mono text-xs w-16 shrink-0 pt-0.5">Layer 3</span>
+                <div>
+                  <p className="text-sm text-landing-cream/90 font-medium">THIRD-PARTY ATTESTATION</p>
+                  <p className="text-xs text-landing-cream/50">Certified attestant confirms anchor. Signature + public key + certificate stored on-chain.</p>
+                  <p className="text-xs text-landing-muted/40 mt-1">Payment via Stripe Checkout (€4.95). Cryptographically verifiable. Immutable once confirmed.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -382,6 +401,30 @@ const Architecture = () => {
             </div>
           </div>
 
+          {/* Layer 3 Attestation */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-4 h-4 text-red-400/50" />
+              <h3 className="text-sm text-landing-cream/60 uppercase tracking-wider">Layer 3: Attestation Endpoints</h3>
+              <span className="text-xs px-2 py-0.5 rounded font-mono bg-red-500/10 text-red-400/70">MIXED ACCESS</span>
+            </div>
+            <div className="space-y-2">
+              {attestationEndpoints.map((ep) => (
+                <div key={ep.num} className="flex items-center gap-3 p-3 bg-red-500/[0.02] border border-red-500/10 rounded-lg">
+                  <span className="text-landing-muted/30 font-mono text-xs w-4">{ep.num}</span>
+                  <MethodBadge method={ep.method} />
+                  <code className="text-sm text-landing-cream/80 flex-1">{ep.endpoint}</code>
+                  <span className="text-xs text-landing-muted/40 hidden sm:inline">{ep.desc}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+              <p className="text-xs text-landing-muted/40">
+                <strong className="text-landing-cream/60">Flow:</strong> User requests attestation → Stripe Checkout (€4.95) → webhook creates pending request → attestant confirms with cryptographic signature → publicly verifiable via /v1-attestation-verify.
+              </p>
+            </div>
+          </div>
+
           {/* Internal */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
@@ -403,7 +446,7 @@ const Architecture = () => {
 
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
             <p className="text-xs text-landing-muted/40">
-              <strong className="text-landing-cream/60">Core v1 status:</strong> Technically frozen (6 Feb 2026). No new features. Only bugfixes and security hardening.
+              <strong className="text-landing-cream/60">Core v1 status:</strong> Technically frozen (6 Feb 2026). Layer 3 (Attestation) added 24 Feb 2026. No changes to Core endpoints. Only bugfixes and security hardening.
             </p>
           </div>
         </section>
@@ -1150,7 +1193,18 @@ const Architecture = () => {
             The boundary is clean.
           </p>
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
-            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 16 Feb (latest)</p>
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 24 Feb (latest)</p>
+            <ul className="space-y-1 text-xs text-landing-cream/50">
+              <li>• <strong className="text-landing-cream/70">Layer 3 Attestation:</strong> Five edge functions live — request, checkout, webhook, confirm, verify</li>
+              <li>• <strong className="text-landing-cream/70">Stripe Checkout:</strong> €4.95 per attestation, iDEAL + card, idempotent webhook processing</li>
+              <li>• <strong className="text-landing-cream/70">Attestation immutability:</strong> prevent_confirmed_attestation_update trigger protects confirmed records</li>
+              <li>• <strong className="text-landing-cream/70">Bitcoin disclaimer:</strong> Added to all public pages (Technical, Legal, Reviewer, Origin, Anchor, Why, Core)</li>
+              <li>• <strong className="text-landing-cream/70">Domain consolidation:</strong> All URLs updated to umarise.com (was anchoring.app)</li>
+              <li>• <strong className="text-landing-cream/70">VERIFY.txt:</strong> Updated template with hash-enforced artifact reference and umarise.com/reviewer link</li>
+            </ul>
+          </div>
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 16 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
               <li>• <strong className="text-landing-cream/70">Developer Journey:</strong> 7 components — Quick Start (zero-friction), Integration Checklist v2 (24 steps), Live Demo, SDKs, first-run scripts, AI Support Bot, verification scripts</li>
               <li>• <strong className="text-landing-cream/70">/api-reference:</strong> Consolidated developer docs location (replaces /docs)</li>
