@@ -9,8 +9,9 @@
  * Zone 3 — Disclaimer
  */
 
-import { useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginButton } from '../components/OriginButton';
 import { buildOriginZip } from '@/lib/originZip';
@@ -27,6 +28,92 @@ interface SealedScreenProps {
   devicePublicKey?: string | null;
   isAnchored?: boolean;
   onComplete: () => void;
+}
+
+function StatusDot({ active }: { active: boolean }) {
+  return (
+    <span
+      className="inline-block w-[6px] h-[6px] rounded-full mr-2"
+      style={{
+        background: active
+          ? 'hsl(var(--ritual-gold))'
+          : 'hsl(var(--ritual-cream) / 0.2)',
+      }}
+    />
+  );
+}
+
+function StatusAccordion({ isAnchored }: { isAnchored?: boolean }) {
+  const [open, setOpen] = useState(false);
+
+  const items = [
+    { label: 'SHA-256 hash', done: true, detail: 'Fingerprint van je bestand — onmiddellijk berekend.' },
+    { label: 'Certificate', done: true, detail: 'Umarise Origin Certificate — direct gegenereerd.' },
+    { label: 'Bitcoin proof (OTS)', done: !!isAnchored, detail: isAnchored ? 'Verankerd in de Bitcoin blockchain.' : 'Wacht op Bitcoin-bevestiging — dit duurt enkele uren.' },
+  ];
+
+  return (
+    <div className="w-full max-w-[320px] mb-10">
+      {/* Collapsed summary */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-center gap-2.5 w-full bg-transparent border-none cursor-pointer py-1"
+      >
+        {items.map((item, i) => (
+          <span key={i} className="flex items-center">
+            {i > 0 && <span className="w-[2px] h-[2px] rounded-full mr-2.5" style={{ background: 'hsl(var(--ritual-gold) / 0.5)' }} />}
+            {!item.done ? (
+              <motion.span
+                className="font-mono text-[9px] tracking-[4px] uppercase"
+                style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
+                animate={{ opacity: [0.3, 0.7, 0.3] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                {item.label.split(' ')[0].toLowerCase()}
+              </motion.span>
+            ) : (
+              <span className="font-mono text-[9px] tracking-[4px] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>
+                {item.label.split(' ')[0].toLowerCase()}
+              </span>
+            )}
+          </span>
+        ))}
+        <ChevronDown
+          className="w-3 h-3 ml-1 transition-transform duration-300"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.4)', transform: open ? 'rotate(180deg)' : 'rotate(0)' }}
+        />
+      </button>
+
+      {/* Expanded detail */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-4 space-y-3">
+              {items.map((item, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <StatusDot active={item.done} />
+                  <div>
+                    <p className="font-mono text-[11px] tracking-[2px] uppercase m-0" style={{ color: item.done ? 'hsl(var(--ritual-gold) / 0.8)' : 'hsl(var(--ritual-cream) / 0.5)' }}>
+                      {item.label}
+                    </p>
+                    <p className="font-garamond text-[11px] leading-[1.5] mt-0.5 m-0" style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}>
+                      {item.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export function SealedScreen({
@@ -161,31 +248,8 @@ export function SealedScreen({
           {hash}
         </p>
 
-        {/* ── ZONE 2: Status ── */}
-        <div className="flex items-center gap-2.5 mb-10">
-          <span className="font-mono text-[9px] tracking-[4px] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>
-            certificate
-          </span>
-          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'hsl(var(--ritual-gold) / 0.5)' }} />
-          {isAnchored ? (
-            <span className="font-mono text-[9px] tracking-[4px] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>
-              proof.ots
-            </span>
-          ) : (
-            <motion.span
-              className="font-mono text-[9px] tracking-[4px] uppercase"
-              style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}
-              animate={{ opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              proof.ots
-            </motion.span>
-          )}
-          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'hsl(var(--ritual-gold) / 0.5)' }} />
-          <span className="font-mono text-[9px] tracking-[4px] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>
-            hash
-          </span>
-        </div>
+        {/* ── ZONE 2: Status (expandable) ── */}
+        <StatusAccordion isAnchored={isAnchored} />
 
         {/* Save — ZIP download */}
         <button
