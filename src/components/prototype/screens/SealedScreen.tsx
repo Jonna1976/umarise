@@ -282,6 +282,15 @@ export function SealedScreen({
             Save
           </button>
 
+          {/* Continue to gallery */}
+          <button
+            onClick={onComplete}
+            className="bg-transparent border-none cursor-pointer font-mono text-[11px] tracking-[3px] uppercase py-1 transition-all hover:tracking-[4px]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
+          >
+            Continue →
+          </button>
+
           {/* Attestation block */}
           {isAnchored && (
             <div
