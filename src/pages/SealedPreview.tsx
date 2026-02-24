@@ -11,7 +11,7 @@ export default function SealedPreviewPage() {
       hash="a7f3b2e1d9c4f6a8b3e7d1c5f9a2b6e4d8c3f7a1b5e9d2c6f0a4b8e3d7c1f5"
       timestamp={new Date('2026-02-09T09:41:00')}
       imageUrl={null}
-      isAnchored={false}
+      isAnchored={true}
       onComplete={() => {}}
     />
   );
