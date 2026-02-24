@@ -53,7 +53,7 @@ function StatusAccordion({ isAnchored }: { isAnchored?: boolean }) {
   ];
 
   return (
-    <div className="w-full max-w-[320px] mb-10">
+    <div className="w-full max-w-[320px] mb-6">
       {/* Collapsed summary */}
       <button
         onClick={() => setOpen(!open)}
@@ -188,7 +188,7 @@ export function SealedScreen({
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center px-6 pt-12 pb-16 relative"
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-8 relative"
       style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -200,10 +200,10 @@ export function SealedScreen({
 
       {/* ── ZONE 1: Het moment ── */}
       <motion.div
-        className="rounded-[4px] mb-7 overflow-hidden relative"
+        className="rounded-[4px] mb-5 overflow-hidden relative"
         style={{
-          width: 180,
-          height: 220,
+          width: 140,
+          height: 170,
           background: 'hsl(var(--ritual-surface))',
           border: '1px solid rgba(201,169,110,0.12)',
         }}
@@ -226,7 +226,7 @@ export function SealedScreen({
       >
         {/* Origin ID */}
         <p
-          className="font-mono text-[28px] tracking-[8px] mb-2.5"
+          className="font-mono text-[22px] tracking-[6px] mb-2"
           style={{ color: 'hsl(var(--ritual-gold))' }}
         >
           {shortId}
@@ -234,7 +234,7 @@ export function SealedScreen({
 
         {/* Date */}
         <p
-          className="font-garamond text-[20px] mb-4"
+          className="font-garamond text-[17px] mb-3"
           style={{ color: 'hsl(var(--ritual-cream) / 0.9)' }}
         >
           {formatDate(timestamp)}
@@ -242,7 +242,7 @@ export function SealedScreen({
 
         {/* Hash — full, break-all, two lines */}
         <p
-          className="font-mono text-[11px] tracking-[1px] mb-6 max-w-[320px] text-center break-all leading-[1.7]"
+          className="font-mono text-[10px] tracking-[1px] mb-4 max-w-[320px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
         >
           {hash}
@@ -262,14 +262,14 @@ export function SealedScreen({
 
         {/* ── ZONE 3: Disclaimer ── */}
         <p
-          className="font-garamond italic text-[11px] leading-[1.6] max-w-[280px] text-center mt-8"
+          className="font-garamond italic text-[11px] leading-[1.6] max-w-[280px] text-center mt-5"
           style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
         >
           Send your original file separately via a secure channel because bytes must stay intact for verification.
         </p>
         <button
           onClick={onComplete}
-          className="mt-10 bg-transparent border-none cursor-pointer font-mono text-[11px] tracking-[4px] uppercase transition-opacity hover:opacity-70"
+          className="mt-6 bg-transparent border-none cursor-pointer font-mono text-[11px] tracking-[4px] uppercase transition-opacity hover:opacity-70"
           style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
         >
           Continue →
