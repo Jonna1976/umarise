@@ -238,7 +238,10 @@ export default function Anchor() {
               <li>the externally anchored record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to Bitcoin. The immutable record is independent of application-layer policy.
+              Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to the Bitcoin blockchain — our current ledger. The architecture is ledger-agnostic by design. The immutable record is independent of application-layer policy.
+            </p>
+            <p className="mt-2 text-landing-muted/50 text-sm">
+              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
             </p>
           </section>
 
