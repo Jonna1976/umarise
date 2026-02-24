@@ -161,10 +161,10 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
 
       <button
         onClick={onReset}
-        className="font-mono text-[13px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
-        style={{ color: 'rgba(245,240,232,0.35)' }}
+        className="font-mono text-[11px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
+        style={{ color: 'rgba(245,240,232,0.3)' }}
       >
-        choose different file
+        verify different file
       </button>
     </motion.div>
   );
@@ -572,88 +572,107 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                       background: 'rgba(17,31,17,0.9)',
                       border: '1px solid rgba(240,234,214,0.08)',
                     }}>
-                      {/* If ZIP was verified, show steps */}
-                      {verifyResult && verifyResult.steps?.length > 0 ? (
-                        verifyResult.steps.map((step, i) => (
-                          <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[12px]" style={{
-                            borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none',
-                          }}>
-                            <span className="flex-shrink-0 text-[10px] mt-0.5" style={{
-                              color: step.status === 'ok' ? '#4a7c59'
-                                : step.status === 'error' ? 'hsl(0 60% 60%)'
-                                : step.status === 'warn' ? 'hsl(38 65% 60%)'
-                                : 'rgba(240,234,214,0.35)',
-                            }}>
-                              {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
-                            </span>
-                            <span className="flex-1 leading-[1.5]" style={{
-                              color: step.status === 'ok' ? 'rgba(240,234,214,0.6)'
-                                : step.status === 'error' ? 'hsl(0 60% 60%)'
-                                : 'rgba(240,234,214,0.35)',
-                            }}>
-                              {step.label}
-                              {step.detail && (
-                                <span className="text-[9px] ml-1.5" style={{ color: 'rgba(240,234,214,0.35)', wordBreak: 'break-all' }}>
-                                  {step.detail}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        /* Default: show what's known without ZIP */
-                        <>
-                          <div className="flex items-start gap-2.5 py-1 font-mono text-[12px]" style={{ borderBottom: '1px solid rgba(240,234,214,0.06)' }}>
-                            <span className="flex-shrink-0 text-[10px] mt-0.5" style={{ color: 'rgba(240,234,214,0.35)' }}>·</span>
-                            <span style={{ color: 'rgba(240,234,214,0.35)' }}>Drop ZIP to verify</span>
-                          </div>
-                        </>
+                      {/* If verifying, show spinner */}
+                      {verifying && (
+                        <div className="flex flex-col items-center gap-3 py-3">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                          >
+                            <svg viewBox="0 0 48 48" width={28} height={28}>
+                              <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.2)" strokeWidth="1.5" />
+                              <path d="M24 4 A20 20 0 0 1 44 24" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
+                          </motion.div>
+                          <span className="font-mono text-[12px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>
+                            Verifying…
+                          </span>
+                        </div>
                       )}
+
+                      {/* If ZIP was verified, show steps */}
+                      {!verifying && verifyResult && verifyResult.steps?.length > 0 ? (
+                        <>
+                          {verifyResult.steps.map((step, i) => (
+                            <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[12px]" style={{
+                              borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none',
+                            }}>
+                              <span className="flex-shrink-0 text-[10px] mt-0.5" style={{
+                                color: step.status === 'ok' ? '#4a7c59'
+                                  : step.status === 'error' ? 'hsl(0 60% 60%)'
+                                  : step.status === 'warn' ? 'hsl(38 65% 60%)'
+                                  : 'rgba(240,234,214,0.35)',
+                              }}>
+                                {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
+                              </span>
+                              <span className="flex-1 leading-[1.5]" style={{
+                                color: step.status === 'ok' ? 'rgba(240,234,214,0.6)'
+                                  : step.status === 'error' ? 'hsl(0 60% 60%)'
+                                  : 'rgba(240,234,214,0.35)',
+                              }}>
+                                {step.label}
+                                {step.detail && (
+                                  <span className="text-[9px] ml-1.5" style={{ color: 'rgba(240,234,214,0.35)', wordBreak: 'break-all' }}>
+                                    {step.detail}
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); resetZip(); }}
+                            className="font-mono text-[11px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80 mt-2"
+                            style={{ color: 'rgba(245,240,232,0.3)' }}
+                          >
+                            choose different file
+                          </button>
+                        </>
+                      ) : !verifying ? (
+                        /* Default: drop zone / file picker */
+                        <div
+                          className="flex flex-col items-center gap-2 py-2 cursor-pointer rounded transition-colors"
+                          style={{
+                            background: isDragging ? 'rgba(197,147,90,0.08)' : 'transparent',
+                          }}
+                          onClick={(e) => { e.stopPropagation(); zipInputRef.current?.click(); }}
+                          onDragEnter={handleDragEnter}
+                          onDragLeave={handleDragLeave}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={handleDrop}
+                        >
+                          <span className="font-mono text-[12px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                            {isDragging ? 'Drop ZIP here' : 'Drop ZIP to verify'}
+                          </span>
+                          <span className="font-mono text-[10px]" style={{ color: 'rgba(240,234,214,0.2)' }}>
+                            or tap to select file
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
+            {/* Hidden ZIP input */}
+            <input
+              ref={zipInputRef}
+              type="file"
+              accept=".zip,application/zip"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleZipFile(file);
+                e.target.value = '';
+              }}
+            />
+
             {/* Divider */}
             <div className="w-10 h-px mb-7" style={{ background: 'rgba(240,234,214,0.08)' }} />
 
-            {/* Share — text-only button */}
-            <div className="w-full flex flex-col items-center mb-6">
-              {!zipFile ? (
-                <button
-                  onClick={() => zipInputRef.current?.click()}
-                  className="bg-transparent border-none cursor-pointer transition-all hover:tracking-[6px] mb-3"
-                  style={{
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: '13px',
-                    letterSpacing: '5px',
-                    textTransform: 'uppercase' as const,
-                    color: 'rgba(240,234,214,0.85)',
-                  }}
-                  onDragEnter={handleDragEnter}
-                  onDragLeave={handleDragLeave}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleDrop}
-                >
-                  Share
-                </button>
-              ) : verifying ? (
-                <div className="flex flex-col items-center gap-4 py-4">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  >
-                    <svg viewBox="0 0 48 48" width={32} height={32}>
-                      <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(197,147,90,0.2)" strokeWidth="1.5" />
-                      <path d="M24 4 A20 20 0 0 1 44 24" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  </motion.div>
-                  <span className="font-mono text-[14px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.6)' }}>
-                    Verifying…
-                  </span>
-                </div>
-              ) : verifyResult ? (
+            {/* Share — only after successful verification */}
+            {verifyResult && zipFile && !verifying && (
+              <div className="w-full flex flex-col items-center mb-6">
                 <InlineVerifyResult
                   result={verifyResult}
                   zipFile={zipFile}
@@ -661,21 +680,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   originId={mark.originId}
                   displayOriginId={displayOriginId}
                 />
-              ) : null}
-
-              {/* Hidden ZIP input */}
-              <input
-                ref={zipInputRef}
-                type="file"
-                accept=".zip,application/zip"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleZipFile(file);
-                  e.target.value = '';
-                }}
-              />
-            </div>
+              </div>
+            )}
 
             {/* Attestation block (Layer 3) — styled card */}
             {attestationStatus === 'pending' && (
