@@ -730,7 +730,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   Attestation
                 </span>
                 <p className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
-                  A certified third party confirms it was you. €4,95. One-time.
+                  A certified independent attestant confirms it was you. €4,95. One-time.
                 </p>
                 <button
                   onClick={() => setShowAttestationModal(true)}

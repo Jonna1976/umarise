@@ -209,7 +209,7 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
     ? `
 VERIFY ATTESTATION (Layer 3):
    The attestation.json file contains a cryptographic signature from a
-   certified third-party attestant confirming the human action behind this anchor.
+   certified independent attestant confirming the human action behind this anchor.
 
    To verify independently:
    1. Extract attestant_public_key from attestation.json
@@ -258,7 +258,7 @@ ARTIFACT INTEGRITY:
 WHAT THIS PROVES:
    The exact bytes of the artifact existed no later than the moment
    of Bitcoin ledger inclusion. Nothing more, nothing less.
-${hasAttestation ? '\n  Layer 3: A certified third party confirmed the human action behind this anchor.\n' : ''}
+${hasAttestation ? '\n  Layer 3: A certified independent attestant confirmed the human action behind this anchor.\n' : ''}
 WHAT THIS DOES NOT PROVE:
   Authorship, ownership, accuracy, legality, or identity.
 `;

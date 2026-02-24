@@ -100,7 +100,13 @@ export function AttestationRequestModal({ originId, onClose, onConfirm }: Attest
             className="font-garamond text-[15px] leading-[1.7] text-center mb-6"
             style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
           >
-            A certified third party will confirm that you, the holder of this passkey, set this anchor at this moment.
+            A certified independent attestant (notary, IP lawyer, or qualified reviewer) confirms via a signed digital statement that a specific human performed a specific anchoring action at a specific moment.
+          </p>
+          <p
+            className="font-garamond text-[15px] leading-[1.7] text-center mb-4"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.7)' }}
+          >
+            Based on the cryptographic evidence presented via the anchoring.app attestation interface, the attestant confirms that an anchoring action was recorded at the stated time. The attestant has not independently verified the identity of the person, the content of the file, or the legal significance of this action.
           </p>
           <p
             className="font-garamond text-[15px] leading-[1.7] text-center mb-8"

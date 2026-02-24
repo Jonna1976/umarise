@@ -364,6 +364,64 @@ export default function Legal() {
             </p>
           </section>
 
+          {/* Trust Gradient */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Trust Gradient
+            </h2>
+            <p className="text-landing-muted/60 mb-6">
+              Not all properties of an Anchor Record are independently verifiable. The following table specifies which properties require trust in Umarise and which do not.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-landing-muted/20">
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Property</th>
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Independently verifiable?</th>
+                    <th className="text-left py-2 text-landing-muted/50 font-medium">Trust required?</th>
+                  </tr>
+                </thead>
+                <tbody className="text-landing-muted/70">
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-2 pr-4">Hash is anchored in Bitcoin</td>
+                    <td className="py-2 pr-4 text-landing-copper">Yes (by anyone, forever)</td>
+                    <td className="py-2">None</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-2 pr-4">File matches hash</td>
+                    <td className="py-2 pr-4 text-landing-copper">Yes (recompute SHA-256)</td>
+                    <td className="py-2">None</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-2 pr-4">Hash submitted at claimed time</td>
+                    <td className="py-2 pr-4">No</td>
+                    <td className="py-2">Trust Umarise (Bitcoin constrains to ±2h)</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-2 pr-4">Hash submitted by claimed party</td>
+                    <td className="py-2 pr-4">No</td>
+                    <td className="py-2">Trust API key authentication</td>
+                  </tr>
+                  <tr className="border-b border-landing-muted/10">
+                    <td className="py-2 pr-4">Records not deleted</td>
+                    <td className="py-2 pr-4">No</td>
+                    <td className="py-2">Trust write-once triggers + DDL audit</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Legal Weight */}
+          <section className="border-t border-landing-muted/10 pt-12">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Legal Weight
+            </h2>
+            <p className="text-landing-muted/70 leading-relaxed">
+              An anchored proof with Layer 3 attestation constitutes strong documentary evidence of chronology. Its weight in legal proceedings is assessed by the court on the basis of all available evidence. It does not carry the statutory presumption of an authentic deed under Dutch law, but provides independently verifiable chronological proof that is mathematically resistant to backdating.
+            </p>
+          </section>
+
           {/* Disclaimer */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
