@@ -9,10 +9,11 @@
  * Zone 3 — Disclaimer
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginButton } from '../components/OriginButton';
+import { buildOriginZip } from '@/lib/originZip';
 
 interface SealedScreenProps {
   originId: string;
@@ -36,11 +37,56 @@ export function SealedScreen({
   mimeType = 'image/jpeg',
   fileName = 'photo.jpg',
   artifactType = 'warm',
+  deviceSignature = null,
+  devicePublicKey = null,
   isAnchored = false,
   onComplete,
 }: SealedScreenProps) {
   const isImage = mimeType.startsWith('image/');
   const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
+  const prebuiltZipRef = useRef<Blob | null>(null);
+  const prebuiltFileRef = useRef<File | null>(null);
+
+  // Pre-build ZIP on mount
+  useEffect(() => {
+    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
+    buildOriginZip(input).then(blob => {
+      prebuiltZipRef.current = blob;
+      prebuiltFileRef.current = new File([blob], `origin-${shortId}.zip`, { type: 'application/zip' });
+    }).catch(err => {
+      console.warn('[SealedScreen] Failed to pre-build ZIP:', err);
+    });
+  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, shortId]);
+
+  // Save handler — native share with ZIP, fallback to download
+  const handleSave = useCallback(async () => {
+    const file = prebuiltFileRef.current;
+    if (!file) {
+      console.warn('[SealedScreen] ZIP not ready yet');
+      return;
+    }
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: `Origin ${shortId}`,
+          text: `Proof of existence — ${shortId}`,
+          files: [file],
+        });
+        return;
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.warn('[SealedScreen] Share failed, falling back to download:', err);
+        }
+      }
+    }
+    // Fallback: download
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [shortId]);
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
@@ -141,15 +187,22 @@ export function SealedScreen({
           </span>
         </div>
 
+        {/* Save — ZIP download */}
+        <button
+          onClick={handleSave}
+          className="bg-transparent border-none cursor-pointer font-mono text-[13px] tracking-[5px] uppercase transition-all hover:tracking-[6px]"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
+        >
+          Save
+        </button>
+
         {/* ── ZONE 3: Disclaimer ── */}
         <p
-          className="font-garamond italic text-[11px] leading-[1.6] max-w-[280px] text-center mt-4"
+          className="font-garamond italic text-[11px] leading-[1.6] max-w-[280px] text-center mt-8"
           style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}
         >
           Send your original file separately via a secure channel because bytes must stay intact for verification.
         </p>
-
-        {/* Continue to gallery */}
         <button
           onClick={onComplete}
           className="mt-10 bg-transparent border-none cursor-pointer font-mono text-[11px] tracking-[4px] uppercase transition-opacity hover:opacity-70"
