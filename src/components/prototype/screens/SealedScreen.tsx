@@ -213,12 +213,15 @@ export function SealedScreen({
         <div className="w-full mb-7">
           <button
             onClick={() => setVerificationOpen(!verificationOpen)}
-            className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:text-[rgba(197,147,90,0.4)]"
-            style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}
+            className="flex items-center gap-2 font-mono text-[10px] tracking-[2px] uppercase cursor-pointer transition-all rounded-sm px-2.5 py-1.5 mx-auto"
+            style={{
+              color: verificationOpen ? 'hsl(var(--ritual-cream) / 0.75)' : 'hsl(var(--ritual-cream) / 0.45)',
+              border: verificationOpen
+                ? '1px solid hsl(var(--ritual-cream) / 0.25)'
+                : '1px solid transparent',
+              background: 'transparent',
+            }}
           >
-            <span className="font-mono text-[11px] tracking-[4px] uppercase">
-              verification details
-            </span>
             <motion.span
               className="text-[8px]"
               animate={{ rotate: verificationOpen ? 180 : 0 }}
@@ -226,6 +229,7 @@ export function SealedScreen({
             >
               ▾
             </motion.span>
+            {verificationOpen ? 'Hide verification steps' : 'Show verification steps'}
           </button>
 
           <AnimatePresence>
@@ -234,46 +238,43 @@ export function SealedScreen({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
                 <div
-                  className="mt-2.5 rounded-[4px] px-5 py-4"
+                  className="mt-3 rounded-sm px-5 py-5 font-mono text-[13px] space-y-3"
                   style={{
-                    background: 'rgba(17,31,17,1)',
-                    border: '1px solid hsl(var(--ritual-cream) / 0.12)',
+                    background: 'hsl(0 0% 4%)',
+                    border: '1px solid hsl(var(--ritual-cream) / 0.07)',
                   }}
                 >
                   {verificationItems.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-2.5 py-1.5 font-mono text-[12px] tracking-[0.5px]"
-                      style={{
-                        borderBottom: i < verificationItems.length - 1
-                          ? '1px solid hsl(var(--ritual-cream) / 0.12)'
-                          : 'none',
-                      }}
-                    >
+                    <div key={i} className="flex items-start gap-3">
                       <span
-                        className="text-[10px] mt-[1px] flex-shrink-0"
-                        style={{ color: item.confirmed ? '#4a7c59' : 'rgba(197,147,90,0.4)' }}
+                        className="font-mono text-[13px]"
+                        style={{ color: item.confirmed ? 'hsl(142 50% 55%)' : 'hsl(var(--ritual-cream) / 0.3)' }}
                       >
                         {item.confirmed ? '✓' : '·'}
                       </span>
-                      <span
-                        className="flex-1 leading-[1.5]"
-                        style={{ color: item.confirmed ? 'hsl(var(--ritual-cream) / 0.8)' : 'hsl(var(--ritual-cream) / 0.5)' }}
-                      >
-                        {item.label}
-                      </span>
-                      {item.value && (
+                      <div>
                         <span
-                          className="text-[9px] break-all"
-                          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
+                          style={{
+                            color: item.confirmed
+                              ? 'hsl(142 35% 72%)'
+                              : 'hsl(var(--ritual-cream) / 0.45)',
+                          }}
                         >
-                          {item.value}
+                          {item.label}
                         </span>
-                      )}
+                        {item.value && (
+                          <span
+                            className="ml-2 text-[11px] break-all"
+                            style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
+                          >
+                            {item.value}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
