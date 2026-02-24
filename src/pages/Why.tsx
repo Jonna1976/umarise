@@ -179,9 +179,12 @@ export default function Why() {
             <p>
               Data enters a system. A SHA-256 hash is computed at the moment of
               entry. The hash is submitted to Core via a single API call. The hash
-              is anchored via OpenTimestamps to Bitcoin. The resulting proof is
-              independently verifiable against Bitcoin - without Umarise, without
+              is anchored via OpenTimestamps to Bitcoin — our current ledger. The architecture is ledger-agnostic by design. The resulting proof is
+              independently verifiable against Bitcoin — without Umarise, without
               an account, without an expiry.
+            </p>
+            <p className="text-why-cream/50 text-sm mt-2">
+              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
             </p>
           </div>
 

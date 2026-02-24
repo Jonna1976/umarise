@@ -172,7 +172,10 @@ export default function CoreSpec() {
               <li>Verification is binary (match / no-match)</li>
             </ul>
              <p className="text-landing-muted/60 mb-4">
-               Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain.
+               Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain — our current ledger. The architecture is ledger-agnostic by design.
+             </p>
+             <p className="text-landing-muted/50 text-sm mb-4">
+               Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
              </p>
              <p className="text-landing-muted/60 mb-6">
                The .ots proof file is independently verifiable against the Bitcoin blockchain without Umarise infrastructure. Verification depends on mathematics and a public ledger, not on this service.

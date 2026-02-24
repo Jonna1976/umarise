@@ -183,6 +183,9 @@ export default function ReviewerPackage() {
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm">
               Path 2 requires zero Umarise infrastructure. Only the ZIP, the original artifact, and an OTS-compatible tool.
             </p>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm mt-2">
+              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
+            </p>
           </div>
         </motion.section>
 

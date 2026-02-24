@@ -109,7 +109,10 @@ export default function Legal() {
               What an Anchor Record Is
             </h2>
             <p className="text-landing-cream/90 mb-4">
-              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The result is a cryptographic proof that specific bytes existed at a specific moment.
+              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain — our current ledger. The architecture is ledger-agnostic by design. The result is a cryptographic proof that specific bytes existed at a specific moment.
+            </p>
+            <p className="text-landing-muted/60 text-sm mt-2">
+              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
             </p>
             <p>
               An Anchor Record does not contain the original file. It contains only the hash.

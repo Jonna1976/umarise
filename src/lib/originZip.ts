@@ -248,11 +248,16 @@ VERIFY INDEPENDENTLY (no Umarise needed):
 Both scripts require only standard tools (sha256sum/unzip/jq for bash,
 Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
 
-Scripts available at: https://anchoring.app/reviewer
+Scripts available at: https://umarise.com/reviewer
 ${attestationVerifySection}
+ARTIFACT INTEGRITY:
+   The artifact in this ZIP is hash-enforced: if the file does not match
+   the hash in certificate.json, it is excluded automatically. A present
+   artifact is always the exact original.
+
 WHAT THIS PROVES:
-  The exact bytes of the artifact existed no later than the moment
-  of Bitcoin ledger inclusion. Nothing more, nothing less.
+   The exact bytes of the artifact existed no later than the moment
+   of Bitcoin ledger inclusion. Nothing more, nothing less.
 ${hasAttestation ? '\n  Layer 3: A certified third party confirmed the human action behind this anchor.\n' : ''}
 WHAT THIS DOES NOT PROVE:
   Authorship, ownership, accuracy, legality, or identity.
