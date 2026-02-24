@@ -226,10 +226,15 @@ async function verifyZipFile(file: File): Promise<VerifyResultData> {
   // Step 1: open ZIP
   let zip: JSZip;
   try {
-    zip = await JSZip.loadAsync(file);
+    console.log('[Verify] Opening ZIP:', file.name, 'size:', file.size, 'type:', file.type);
+    const arrayBuffer = await file.arrayBuffer();
+    console.log('[Verify] ArrayBuffer loaded, size:', arrayBuffer.byteLength);
+    zip = await JSZip.loadAsync(arrayBuffer);
     steps.push({ label: `ZIP opened: ${file.name}`, status: 'ok' });
-  } catch {
-    return { status: 'error', steps: [{ label: 'Could not open ZIP', status: 'error' }] };
+  } catch (err) {
+    console.error('[Verify] ZIP open failed:', err);
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    return { status: 'error', steps: [{ label: `Could not open ZIP: ${msg}`, status: 'error' }] };
   }
 
   // Step 2: certificate.json
