@@ -151,18 +151,6 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
           </span>
         </div>
       )}
-      {result.status === 'pending' && (
-        <div className="flex items-center gap-3 mb-4">
-          <svg viewBox="0 0 20 20" width={20} height={20}>
-            <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(38 65% 60%)" strokeWidth="1.3" />
-            <line x1="10" y1="6" x2="10" y2="10.5" stroke="hsl(38 65% 60%)" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="10" cy="13.5" r="0.8" fill="hsl(38 65% 60%)" />
-          </svg>
-          <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'hsl(38 65% 60%)' }}>
-            Pending
-          </span>
-        </div>
-      )}
       {result.status === 'not_found' && (
         <div className="flex items-center gap-3 mb-4">
           <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>
