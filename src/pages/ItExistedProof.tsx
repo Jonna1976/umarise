@@ -246,7 +246,7 @@ export default function ItExistedProof() {
           {/* ── REMEMBER NOTE ── */}
           <p className="font-garamond italic text-[20px] mb-8"
             style={{
-              color: 'rgba(240,234,214,0.45)',
+              color: anchored ? 'rgba(240,234,214,0.85)' : 'rgba(240,234,214,0.45)',
               lineHeight: 1.65,
               maxWidth: 380,
               opacity: !anchored ? 0.65 : 1,
