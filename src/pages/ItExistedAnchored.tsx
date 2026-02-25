@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Copy, Check } from 'lucide-react';
 
 interface AnchoredState {
   originId: string;
@@ -27,6 +28,24 @@ function V7Pending() {
       <rect x="17" y="17" width="14" height="14" rx="1.8"
         fill="hsl(var(--itx-gold) / 0.15)" />
     </motion.svg>
+  );
+}
+
+function CopyUrlButton({ url, token }: { url: string; token: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => undefined);
+  };
+  return (
+    <button onClick={handleCopy}
+      className="flex items-center gap-2 font-mono text-[10px] tracking-[1px] transition-colors"
+      style={{ color: copied ? 'hsl(var(--itx-gold) / 0.7)' : 'hsl(var(--itx-cream) / 0.3)' }}>
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      <span>itexisted.app/{token}</span>
+    </button>
   );
 }
 
@@ -120,24 +139,20 @@ export default function ItExistedAnchored() {
             style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>proof.ots</span>
         </div>
 
-        {/* Save / Open proof */}
+        {/* Share proof link — primary action */}
         <button
           onClick={() => navigate(`/itexisted/proof/${state.shortToken}`)}
-          className="px-10 py-[11px] rounded-full font-playfair text-[17px] font-light mb-3"
+          className="px-10 py-[11px] rounded-full font-playfair text-[17px] font-light mb-4"
           style={{
             border: '1px solid hsl(var(--itx-gold) / 0.3)',
             background: 'hsl(var(--itx-gold) / 0.08)',
             color: 'hsl(var(--itx-gold) / 0.8)',
           }}>
-          Save
+          View proof
         </button>
 
-        <button
-          onClick={() => navigator.clipboard?.writeText(proofUrl).catch(() => undefined)}
-          className="font-mono text-[9px] tracking-[1px]"
-          style={{ color: 'hsl(var(--itx-cream) / 0.25)' }}>
-          itexisted.app/{state.shortToken}
-        </button>
+        {/* Copy URL with visible icon */}
+        <CopyUrlButton url={proofUrl} token={state.shortToken} />
       </motion.section>
     </main>
   );
