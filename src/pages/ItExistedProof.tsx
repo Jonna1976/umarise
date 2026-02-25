@@ -156,10 +156,29 @@ export default function ItExistedProof() {
         )}
 
         {/* ── TITLE ── */}
-        <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
+        <h1 className="font-garamond text-[36px] font-normal text-center mb-4"
           style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
           {anchored ? 'Your proof is ready.' : 'Pending.'}
         </h1>
+
+        {/* ── ESTIMATED TIME (pending only) ── */}
+        {!anchored && (() => {
+          const expectedAt = new Date(captured.getTime() + 2 * 60 * 60 * 1000);
+          const now = new Date();
+          const diffMs = expectedAt.getTime() - now.getTime();
+          const diffMin = Math.max(0, Math.round(diffMs / 60000));
+          const label = diffMin <= 0
+            ? 'Any moment now.'
+            : diffMin < 60
+              ? `~${diffMin} min remaining`
+              : `~${Math.ceil(diffMin / 60)}h remaining`;
+          return (
+            <p className="font-mono text-[14px] tracking-[1px] text-center mb-12"
+              style={{ color: 'rgba(201,169,110,0.4)' }}>
+              {label}
+            </p>
+          );
+        })()}
 
         {/* ── DIVIDER 1 (only when ready) ── */}
         {anchored && (
