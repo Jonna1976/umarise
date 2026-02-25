@@ -154,21 +154,21 @@ export default function ItExistedProof() {
         ══════════════════════════════════════════════ */}
         <div className="w-full flex flex-col items-center mb-12">
           {/* TITLE */}
-          <h1 className="font-garamond text-[36px] font-normal text-center mb-8"
+          <h1 className="font-garamond text-[48px] font-normal text-center mb-10"
             style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
           </h1>
 
           {/* ORIGIN ID */}
-          <p className="font-mono text-[22px] tracking-[6px] text-center mb-3"
+          <p className="font-mono text-[26px] tracking-[6px] text-center mb-4"
             style={{ color: '#c9a96e' }}>
             {state.shortToken}
           </p>
 
           {/* DATE */}
-          <p className="font-garamond text-[20px] text-center"
+          <p className="font-garamond text-[24px] text-center"
             style={{ color: 'rgba(240,234,214,0.85)' }}>
-            {date} · {time}
+            {date} - {time}
           </p>
 
           {/* PENDING STATUS */}
