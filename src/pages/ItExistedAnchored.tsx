@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Copy, Check } from 'lucide-react';
 
 interface AnchoredState {
   originId: string;
@@ -16,63 +15,39 @@ function getFallbackState(): AnchoredState | null {
   try { return JSON.parse(raw) as AnchoredState; } catch { return null; }
 }
 
-/** V7 Pending nail with pulse */
-function V7Pending() {
-  return (
-    <motion.svg viewBox="0 0 48 48" width="36" height="36"
-      animate={{ opacity: [0.3, 0.7, 0.3] }}
-      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-      <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
-        fill="none" stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2"
-        strokeDasharray="3 3" />
-      <rect x="17" y="17" width="14" height="14" rx="1.8"
-        fill="hsl(var(--itx-gold) / 0.15)" />
-    </motion.svg>
-  );
-}
-
-function CopyUrlButton({ url, token }: { url: string; token: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => undefined);
-  };
-  return (
-    <button onClick={handleCopy}
-      className="flex items-center gap-2 font-mono text-[10px] tracking-[1px] transition-colors"
-      style={{ color: copied ? 'hsl(var(--itx-gold) / 0.7)' : 'hsl(var(--itx-cream) / 0.3)' }}>
-      {copied ? <Check size={12} /> : <Copy size={12} />}
-      <span>itexisted.app/{token}</span>
-    </button>
-  );
-}
-
 export default function ItExistedAnchored() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state as AnchoredState | null) ?? getFallbackState();
+  const [copied, setCopied] = useState(false);
 
   const captured = useMemo(() => (state?.capturedAt ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
-  const proofUrl = state ? `${window.location.origin}/itexisted/proof/${state.shortToken}` : '';
+  const proofUrl = state ? `itexisted.app/${state.shortToken}` : '';
+  const fullProofUrl = state ? `${window.location.origin}/itexisted/proof/${state.shortToken}` : '';
 
   useEffect(() => {
-    if (proofUrl && navigator.clipboard) {
-      navigator.clipboard.writeText(proofUrl).catch(() => undefined);
+    if (fullProofUrl && navigator.clipboard) {
+      navigator.clipboard.writeText(fullProofUrl).catch(() => undefined);
     }
-  }, [proofUrl]);
+  }, [fullProofUrl]);
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(fullProofUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => undefined);
+  };
 
   if (!state) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6"
-        style={{ background: 'hsl(var(--itx-bg))' }}>
+      <main className="min-h-screen flex items-center justify-center px-8"
+        style={{ background: '#0a0f0a' }}>
         <div className="text-center">
           <p className="font-garamond text-[16px] mb-4"
-            style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>No anchor found.</p>
+            style={{ color: 'rgba(240,234,214,0.35)' }}>No anchor found.</p>
           <button onClick={() => navigate('/itexisted')}
-            className="font-mono text-[9px] tracking-[2px] uppercase"
-            style={{ color: 'hsl(var(--itx-gold))' }}>
+            className="font-mono text-[9px] tracking-[5px] uppercase transition-colors"
+            style={{ color: 'rgba(240,234,214,0.35)' }}>
             Start anchoring
           </button>
         </div>
@@ -84,83 +59,100 @@ export default function ItExistedAnchored() {
   const time = `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6"
-      style={{ background: 'hsl(var(--itx-bg))' }}>
-      <motion.section
-        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center text-center"
-        style={{ maxWidth: 340 }}>
+    <main className="min-h-screen flex items-center justify-center px-8"
+      style={{ background: '#0a0f0a', WebkitFontSmoothing: 'antialiased' }}>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="w-full flex flex-col items-center"
+        style={{ maxWidth: 390 }}>
 
-        {/* Confirmation */}
-        <svg viewBox="0 0 48 48" width="40" height="40" className="mb-4">
-          <circle cx="24" cy="24" r="20" fill="none" stroke="hsl(var(--itx-gold) / 0.3)" strokeWidth="1.2" />
-          <path d="M15 24L22 31L34 17" fill="none" stroke="hsl(var(--itx-gold) / 0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        {/* ── CHECKMARK ── */}
+        <div className="flex items-center justify-center rounded-full mb-7"
+          style={{ width: 48, height: 48, border: '1px solid rgba(201,169,110,0.4)' }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <polyline points="3,9 7,13 15,5" stroke="#c9a96e" strokeWidth="1.2"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
 
-        <h1 className="font-playfair text-[22px] font-light mb-1"
-          style={{ color: 'hsl(var(--itx-cream))' }}>
+        {/* ── TITLE ── */}
+        <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
+          style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
           Anchored.
         </h1>
 
-        <p className="font-garamond text-[15px] mb-6 max-w-[280px] leading-relaxed"
-          style={{ color: 'hsl(var(--itx-cream) / 0.45)' }}>
-          Your file is registered. The Bitcoin proof takes ~2 hours to complete.
+        {/* ── DIVIDER 1 ── */}
+        <div className="mb-9" style={{ width: 32, height: 1, background: 'rgba(201,169,110,0.4)' }} />
+
+        {/* ── ORIGIN ID LABEL ── */}
+        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
+          style={{ color: 'rgba(201,169,110,0.4)' }}>
+          Origin ID
         </p>
 
-        {/* Divider */}
-        <div className="w-10 h-px mb-5" style={{ background: 'hsl(var(--itx-gold) / 0.15)' }} />
+        {/* ── ORIGIN ID ── */}
+        <p className="font-mono text-[22px] tracking-[6px] text-center mb-2.5"
+          style={{ color: '#c9a96e' }}>
+          {state.shortToken}
+        </p>
 
-        {/* Token + date */}
-        <p className="font-mono text-[14px] tracking-[3px] mb-1"
-          style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>{state.shortToken}</p>
-        <p className="font-garamond text-[15px] mb-2"
-          style={{ color: 'hsl(var(--itx-cream) / 0.3)' }}>{date} · {time}</p>
-        <p className="font-mono text-[9px] tracking-[0.5px] mb-6 max-w-[280px] break-all"
-          style={{ color: 'hsl(var(--itx-gold-muted) / 0.2)' }}>{state.hash}</p>
+        {/* ── DATE ── */}
+        <p className="font-garamond text-[16px] text-center mb-4"
+          style={{ color: 'rgba(240,234,214,0.35)' }}>
+          {date} · {time}
+        </p>
 
-        {/* What happens next — key clarity */}
-        <div className="w-full rounded-lg p-4 mb-6"
-          style={{ background: 'hsl(var(--itx-surface))', border: '1px solid hsl(var(--itx-gold) / 0.1)' }}>
-          <p className="font-mono text-[9px] tracking-[2px] uppercase mb-3"
-            style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>What happens next</p>
-          
-          <div className="flex flex-col gap-3 text-left">
-            <div className="flex items-start gap-3">
-              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>1.</span>
-              <p className="font-garamond text-[13px] leading-snug"
-                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
-                Your file's hash is being anchored to the Bitcoin blockchain (~2 hours)
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>2.</span>
-              <p className="font-garamond text-[13px] leading-snug"
-                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
-                Come back to your proof URL to download the complete proof bundle
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>3.</span>
-              <p className="font-garamond text-[13px] leading-snug"
-                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
-                Keep your original file — you'll need the exact bytes to verify
-              </p>
-            </div>
-          </div>
+        {/* ── HASH LABEL ── */}
+        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
+          style={{ color: 'rgba(201,169,110,0.4)', marginTop: 4 }}>
+          Hash
+        </p>
+
+        {/* ── HASH ── */}
+        <p className="font-mono text-[9px] text-center break-all mb-12"
+          style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.5px', lineHeight: 1.8, maxWidth: 320 }}>
+          {state.hash}
+        </p>
+
+        {/* ── DIVIDER 2 ── */}
+        <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
+
+        {/* ── URL INSTRUCTION ── */}
+        <p className="font-garamond text-[18px] text-center mb-5"
+          style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 300 }}>
+          Copy and go to this URL in ~2 hours to download your proof.
+        </p>
+
+        {/* ── URL ROW ── */}
+        <div className="flex items-center gap-2.5 mb-12">
+          <span className="font-mono text-[16px]"
+            style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
+            {proofUrl}
+          </span>
+          <svg className="cursor-pointer flex-shrink-0 transition-opacity"
+            style={{ opacity: copied ? 1 : 0.5 }}
+            onClick={handleCopy}
+            width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="5" y="5" width="9" height="9" rx="1" stroke="#c9a96e" strokeWidth="1" />
+            <path d="M3 11V3a1 1 0 011-1h8" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+          </svg>
         </div>
 
-        {/* Proof URL — the thing to bookmark */}
-        <p className="font-mono text-[8px] tracking-[2px] uppercase mb-2"
-          style={{ color: 'hsl(var(--itx-gold) / 0.3)' }}>Your proof URL</p>
-        <CopyUrlButton url={proofUrl} token={state.shortToken} />
+        {/* ── KEEP FILE ── */}
+        <p className="font-garamond italic text-[14px] text-center mb-12"
+          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 280 }}>
+          Keep your original file. You'll need the exact bytes to verify.
+        </p>
 
-        {/* Anchor another */}
+        {/* ── ANCHOR ANOTHER ── */}
         <button onClick={() => navigate('/itexisted')}
-          className="mt-8 font-mono text-[9px] tracking-[1px] uppercase"
-          style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>
+          className="font-mono text-[9px] tracking-[5px] uppercase transition-colors hover:text-white/60"
+          style={{ color: 'rgba(240,234,214,0.35)' }}>
           Anchor another file
         </button>
-      </motion.section>
+
+      </motion.div>
     </main>
   );
 }
