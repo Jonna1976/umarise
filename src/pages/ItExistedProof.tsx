@@ -3,8 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { buildOriginZip } from '@/lib/originZip';
-import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus, startAttestationCheckout } from '@/lib/coreApi';
-import { getActiveDeviceId } from '@/lib/deviceId';
+import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus } from '@/lib/coreApi';
+import InlineVerify from '@/components/itexisted/InlineVerify';
+import InlineAttestation from '@/components/itexisted/InlineAttestation';
 
 interface ProofState {
   originId: string;
@@ -116,13 +117,7 @@ export default function ItExistedProof() {
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
-  const onAttestation = async () => {
-    const deviceId = getActiveDeviceId();
-    if (!deviceId) { navigate(`/itexisted/attestation/${state.shortToken}`); return; }
-    const checkout = await startAttestationCheckout(state.originId, deviceId);
-    if (!checkout) { navigate(`/itexisted/attestation/${state.shortToken}`); return; }
-    window.location.href = checkout.url;
-  };
+  /* attestation is now handled inline via InlineAttestation component */
 
   /* ── STATUS LINE ── */
   const statusParts = [
@@ -256,22 +251,18 @@ export default function ItExistedProof() {
             style={{ color: anchored ? 'rgba(240,234,214,0.35)' : 'rgba(240,234,214,0.15)' }}>
             {anchored ? 'Download ZIP' : 'Download (pending)'}
           </button>
-          <span style={{ color: 'rgba(240,234,214,0.1)' }}>·</span>
-          <button onClick={() => navigate('/itexisted/verify')}
-            className="font-mono text-[9px] tracking-[3px] uppercase transition-colors"
-            style={{ color: 'rgba(240,234,214,0.35)' }}>
-            Verify
-          </button>
         </div>
 
-        {/* ── ATTESTATION ── */}
+        {/* ── INLINE VERIFY ── */}
+        <div className="w-full flex flex-col items-center mb-8">
+          <InlineVerify />
+        </div>
+
+        {/* ── INLINE ATTESTATION ── */}
         {anchored && (
-          <button onClick={onAttestation}
-            className="font-garamond italic text-[14px] mb-8 transition-colors"
-            style={{ color: 'rgba(201,169,110,0.4)' }}>
-            Add attestation → <span className="font-mono text-[10px] not-italic"
-              style={{ color: 'rgba(201,169,110,0.3)' }}>€4.95</span>
-          </button>
+          <div className="w-full flex flex-col items-center mb-8">
+            <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
+          </div>
         )}
 
         {/* ── KEEP FILE ── */}
