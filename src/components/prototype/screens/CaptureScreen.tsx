@@ -130,8 +130,8 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
     e.target.value = '';
   }, [onCapture, onCaptureFile]);
 
-  const circleSize = isFirstVisit ? 210 : 270;
-  const plusSize = isFirstVisit ? 56 : 68;
+  const circleSize = isFirstVisit ? 150 : 170;
+  const plusSize = isFirstVisit ? 40 : 48;
   const circleR = (circleSize / 2) - 10;
 
   return (
