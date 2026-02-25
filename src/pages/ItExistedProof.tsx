@@ -45,7 +45,11 @@ export default function ItExistedProof() {
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProofState | null>(null);
 
+  // Validate token format: must be 8 hex characters
+  const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
+
   const load = async () => {
+    if (!isValidToken) { setState(null); setLoading(false); return; }
     const resolved = await fetchOriginByToken(token);
     if (!resolved) { setState(null); setLoading(false); return; }
     const proof = await fetchProofStatus(resolved.origin_id);
