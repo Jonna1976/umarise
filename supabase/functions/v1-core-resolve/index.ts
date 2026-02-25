@@ -162,7 +162,9 @@ Deno.serve(async (req: Request) => {
       query = query.eq('origin_id', originId);
     } else if (hashParam) {
       const normalized = normalizeHash(hashParam)!;
-      query = query.eq('hash', normalized.hash);
+      const rawHex = normalized.hash.startsWith('sha256:') ? normalized.hash.slice(7) : normalized.hash;
+      const prefixedHash = `sha256:${rawHex}`;
+      query = query.or(`hash.eq.${prefixedHash},hash.eq.${rawHex}`);
     } else if (tokenParam) {
       query = query.eq('short_token', tokenParam.toUpperCase());
     }
