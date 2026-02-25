@@ -23,6 +23,13 @@ export default function ItExistedProof() {
   const [state, setState] = useState<ProofState | null>(null);
   const [openStep, setOpenStep] = useState<string | null>(null);
 
+  // When proof becomes anchored, auto-open verify step
+  useEffect(() => {
+    if (state?.proofStatus === 'anchored') {
+      setOpenStep('verify');
+    }
+  }, [state?.proofStatus]);
+
   const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
 
   const handleCopy = async () => {
