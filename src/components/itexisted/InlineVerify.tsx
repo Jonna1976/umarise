@@ -36,7 +36,6 @@ interface InlineVerifyProps {
 }
 
 export default function InlineVerify({ expectedOriginId, expectedShortToken }: InlineVerifyProps = {}) {
-  const [expanded, setExpanded] = useState(false);
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
@@ -61,12 +60,11 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
     const foundOriginId = verify.origin.origin_id;
     const foundToken = foundOriginId.slice(0, 8).toUpperCase();
     
-    // Cross-check: does this origin match the page we're on?
     const originMatch = expectedOriginId
       ? foundOriginId === expectedOriginId
       : expectedShortToken
         ? foundToken === expectedShortToken.toUpperCase()
-        : true; // no expected value = standalone verify, always ok
+        : true;
 
     const meta = await fetchOriginMetadata(foundOriginId);
     const proof = await fetchProofStatus(foundOriginId);
@@ -100,19 +98,8 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
 
   const onDragLeave = useCallback(() => setDragOver(false), []);
 
-  if (!expanded) {
-    return (
-      <button onClick={() => setExpanded(true)}
-        className="font-mono text-[9px] tracking-[3px] uppercase transition-colors"
-        style={{ color: 'rgba(240,234,214,0.35)' }}>
-        Verify
-      </button>
-    );
-  }
-
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Drop zone with real drag & drop */}
       <label
         className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer mb-3 transition-all"
         style={{
@@ -170,12 +157,6 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
           <Row label="Bitcoin" value={result.bitcoin} ok={result.bitcoinOk} last />
         </div>
       )}
-
-      <button onClick={() => { setExpanded(false); setResult(null); setNotFound(false); setFileName(null); }}
-        className="font-mono text-[8px] tracking-[2px] uppercase mt-3 transition-colors"
-        style={{ color: 'rgba(240,234,214,0.2)' }}>
-        Close
-      </button>
     </div>
   );
 }
