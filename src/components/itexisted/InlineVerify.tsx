@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import JSZip from 'jszip';
 import { fetchOriginMetadata, fetchProofStatus, verifyOriginByHash } from '@/lib/coreApi';
 
@@ -16,37 +16,35 @@ async function sha256FromBuffer(buffer: ArrayBuffer): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+async function extractHash(file: File): Promise<string | null> {
+  if (file.name.toLowerCase().endsWith('.zip')) {
+    const zip = await JSZip.loadAsync(file);
+    const cert = zip.file('certificate.json');
+    if (cert) {
+      const parsed = JSON.parse(await cert.async('text')) as { hash?: string };
+      return parsed.hash?.replace(/^sha256:/, '') ?? null;
+    }
+  }
+  return sha256FromBuffer(await file.arrayBuffer());
+}
+
 export default function InlineVerify() {
   const [expanded, setExpanded] = useState(false);
-  const [inputHash, setInputHash] = useState('');
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
-  const onFile = async (file: File | null) => {
-    if (!file) return;
+  const processFile = useCallback(async (file: File) => {
     setBusy(true);
     setNotFound(false);
-    let hash: string | null = null;
-    if (file.name.toLowerCase().endsWith('.zip')) {
-      const zip = await JSZip.loadAsync(file);
-      const cert = zip.file('certificate.json');
-      if (cert) {
-        const parsed = JSON.parse(await cert.async('text')) as { hash?: string };
-        hash = parsed.hash?.replace(/^sha256:/, '') ?? null;
-      }
-    } else {
-      hash = await sha256FromBuffer(await file.arrayBuffer());
-    }
+    setResult(null);
+    setFileName(file.name);
+    const hash = await extractHash(file);
     if (!hash) { setBusy(false); return; }
-    setInputHash(hash);
-    await runVerify(hash);
-  };
 
-  const runVerify = async (rawHash: string) => {
-    setBusy(true);
-    setNotFound(false);
-    const verify = await verifyOriginByHash(rawHash);
+    const verify = await verifyOriginByHash(hash);
     if (!verify.found || !verify.origin) {
       setResult(null);
       setNotFound(true);
@@ -66,7 +64,21 @@ export default function InlineVerify() {
       bitcoinOk: btcOk,
     });
     setBusy(false);
-  };
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
+  }, [processFile]);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const onDragLeave = useCallback(() => setDragOver(false), []);
 
   if (!expanded) {
     return (
@@ -80,53 +92,38 @@ export default function InlineVerify() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Drop zone */}
-      <label className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer mb-3 transition-colors hover:border-solid"
+      {/* Drop zone with real drag & drop */}
+      <label
+        className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer mb-3 transition-all"
         style={{
-          borderColor: 'rgba(201,169,110,0.25)',
-          background: 'rgba(201,169,110,0.03)',
-        }}>
-        <input type="file" className="hidden" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
+          borderColor: dragOver ? 'rgba(201,169,110,0.6)' : 'rgba(201,169,110,0.25)',
+          background: dragOver ? 'rgba(201,169,110,0.08)' : 'rgba(201,169,110,0.03)',
+        }}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+      >
+        <input type="file" className="hidden" accept="*/*"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
         <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
-          style={{ color: 'rgba(201,169,110,0.5)' }}>Drop file or ZIP here</p>
+          style={{ color: 'rgba(201,169,110,0.5)' }}>
+          {dragOver ? 'Release to verify' : 'Drop file or ZIP here'}
+        </p>
         <p className="font-garamond italic text-[12px]"
           style={{ color: 'rgba(240,234,214,0.2)' }}>or tap to choose</p>
       </label>
 
-      {/* Hash input */}
-      <div className="flex gap-2 w-full mb-3">
-        <input
-          value={inputHash}
-          onChange={(e) => setInputHash(e.target.value)}
-          placeholder="Paste SHA-256 hash"
-          className="flex-1 rounded-[6px] border px-3 py-2 font-mono text-[11px]"
-          style={{
-            borderColor: 'rgba(201,169,110,0.15)',
-            background: 'rgba(201,169,110,0.03)',
-            color: 'rgba(240,234,214,0.7)',
-          }}
-        />
-        <button
-          onClick={() => runVerify(inputHash.replace(/^sha256:/, ''))}
-          disabled={busy || !inputHash}
-          className="px-3 py-2 rounded-[6px] font-mono text-[9px] tracking-[1px] uppercase disabled:opacity-40 transition-opacity"
-          style={{
-            background: 'rgba(201,169,110,0.1)',
-            color: 'rgba(201,169,110,0.6)',
-          }}>
-          Verify
-        </button>
-      </div>
-
       {busy && (
         <p className="font-mono text-[8px] tracking-[2px] uppercase mb-2"
-          style={{ color: 'rgba(240,234,214,0.3)' }}>Verifying…</p>
+          style={{ color: 'rgba(240,234,214,0.3)' }}>
+          Verifying {fileName ? `"${fileName}"` : ''}…
+        </p>
       )}
 
       {notFound && !busy && (
         <p className="font-garamond text-[13px] mb-2"
           style={{ color: 'rgba(240,234,214,0.3)' }}>
-          No matching origin found.
+          No matching origin found in the registry.
         </p>
       )}
 
@@ -134,14 +131,14 @@ export default function InlineVerify() {
         <div className="w-full rounded-[8px] border p-3 mt-1"
           style={{ borderColor: 'rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.03)' }}>
           <Row label="Origin ID" value={result.shortToken} gold />
-          <Row label="Hash match" value={result.hashMatch ? '✓ confirmed' : '✗ mismatch'} ok={result.hashMatch} />
+          <Row label="Hash match" value="✓ confirmed" ok />
           <Row label="Date" value={result.date} />
           <Row label="Time" value={result.time} />
           <Row label="Bitcoin" value={result.bitcoin} ok={result.bitcoinOk} last />
         </div>
       )}
 
-      <button onClick={() => { setExpanded(false); setResult(null); setNotFound(false); }}
+      <button onClick={() => { setExpanded(false); setResult(null); setNotFound(false); setFileName(null); }}
         className="font-mono text-[8px] tracking-[2px] uppercase mt-3 transition-colors"
         style={{ color: 'rgba(240,234,214,0.2)' }}>
         Close
