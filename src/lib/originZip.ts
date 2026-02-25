@@ -51,6 +51,32 @@ export interface OriginZipInput {
   artifactFile?: File | null;
   /** Layer 3 attestation data (included when attestation is confirmed) */
   attestation?: AttestationData | null;
+  /** Original filename for enriched ZIP naming (e.g. "contract.pdf") */
+  originalFileName?: string | null;
+}
+
+/**
+ * Build a descriptive ZIP filename for easy retrieval in Downloads.
+ * Format: origin-{TOKEN}-{sanitized-name}-{YYYYMMDD}.zip
+ */
+export function buildZipFileName(originId: string, timestamp: Date, originalFileName?: string | null): string {
+  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim().slice(0, 8);
+  const dateStr = timestamp.toISOString().slice(0, 10).replace(/-/g, '');
+
+  if (originalFileName) {
+    // Strip extension + sanitize: only keep alphanumeric, dash, underscore
+    const nameWithoutExt = originalFileName.replace(/\.[^/.]+$/, '');
+    const sanitized = nameWithoutExt
+      .replace(/[^a-zA-Z0-9_\-\s]/g, '')
+      .replace(/\s+/g, '-')
+      .toLowerCase()
+      .slice(0, 40); // cap length
+    if (sanitized) {
+      return `origin-${cleanId}-${sanitized}-${dateStr}.zip`;
+    }
+  }
+
+  return `origin-${cleanId}-${dateStr}.zip`;
 }
 
 /**
@@ -284,8 +310,7 @@ export async function saveOriginZip(
   prebuiltZipBlob?: Blob,
 ): Promise<boolean> {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const cleanId = input.originId.toUpperCase().replace(/^(ORIGIN\s+|UM-)/i, '').trim();
-  const zipFileName = `origin-${cleanId}.zip`;
+  const zipFileName = buildZipFileName(input.originId, input.timestamp, input.originalFileName);
   
   // Use pre-built blob if provided (preserves iOS gesture context), otherwise build now
   const zipBlob = prebuiltZipBlob || await buildOriginZip(input);

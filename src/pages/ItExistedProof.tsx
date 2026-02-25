@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { buildOriginZip } from '@/lib/originZip';
+import { buildOriginZip, buildZipFileName } from '@/lib/originZip';
 import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus } from '@/lib/coreApi';
+import { calculateSHA256 } from '@/lib/originHash';
 import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
 
@@ -23,6 +24,11 @@ export default function ItExistedProof() {
   const [state, setState] = useState<ProofState | null>(null);
   const [openStep, setOpenStep] = useState<string | null>(null);
 
+  // Artifact file state (user-provided for ZIP inclusion)
+  const [artifactFile, setArtifactFile] = useState<File | null>(null);
+  const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>('idle');
+  const [dragOver, setDragOver] = useState(false);
+
   // When proof becomes anchored, auto-open verify step
   useEffect(() => {
     if (state?.proofStatus === 'anchored') {
@@ -31,11 +37,6 @@ export default function ItExistedProof() {
   }, [state?.proofStatus]);
 
   const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
-
-  const handleCopy = async () => {
-    await navigator.clipboard?.writeText(shareUrl).catch(() => undefined);
-    toast.success('Proof URL copied.');
-  };
 
   const load = async () => {
     if (!isValidToken) { setState(null); setLoading(false); return; }
@@ -62,6 +63,29 @@ export default function ItExistedProof() {
 
   const captured = useMemo(() => (state ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
   const shareUrl = `${window.location.origin}/itexisted/proof/${token.toUpperCase()}`;
+
+  // ── Artifact file handler: hash-verify before accepting ──
+  const onArtifactFile = useCallback(async (file: File) => {
+    if (!state) return;
+    setArtifactStatus('checking');
+    try {
+      const buffer = await file.arrayBuffer();
+      const fileHash = await calculateSHA256(buffer);
+      const expectedHash = state.hash.toLowerCase().replace(/^sha256:/, '');
+      if (fileHash === expectedHash) {
+        setArtifactFile(file);
+        setArtifactStatus('matched');
+        toast.success('File verified — will be included in your ZIP.');
+      } else {
+        setArtifactFile(null);
+        setArtifactStatus('mismatch');
+        toast.error('Hash mismatch — this is not the original file.');
+      }
+    } catch {
+      setArtifactStatus('mismatch');
+      toast.error('Could not read file.');
+    }
+  }, [state]);
 
   /* ── LOADING ── */
   if (loading) {
@@ -126,10 +150,13 @@ export default function ItExistedProof() {
       originId: state.originId, hash: state.hash,
       timestamp: new Date(state.capturedAt), imageUrl: null,
       otsProof: arrayBufferToBase64(proof.otsProofBytes),
+      artifactFile: artifactFile,
+      originalFileName: artifactFile?.name ?? null,
     });
+    const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name);
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
-    a.href = url; a.download = `origin-${state.shortToken}.zip`; a.click();
+    a.href = url; a.download = fileName; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
@@ -149,29 +176,20 @@ export default function ItExistedProof() {
         className="w-full flex flex-col items-start"
         style={{ maxWidth: 420 }}>
 
-        {/* ══════════════════════════════════════════════
-            TOP BLOCK — centered
-        ══════════════════════════════════════════════ */}
+        {/* TOP BLOCK */}
         <div className="w-full flex flex-col items-center mb-12">
-          {/* TITLE */}
           <h1 className="font-garamond text-[48px] font-normal text-center mb-10"
             style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
           </h1>
-
-          {/* ORIGIN ID */}
           <p className="font-mono text-[26px] tracking-[6px] text-center mb-4"
             style={{ color: '#c9a96e' }}>
             {state.shortToken}
           </p>
-
-          {/* DATE */}
           <p className="font-garamond text-[24px] text-center"
             style={{ color: 'rgba(240,234,214,0.85)' }}>
             {date} - {time}
           </p>
-
-          {/* PENDING STATUS */}
           {!anchored && (
             <div className="flex items-center gap-3 mt-5">
               <motion.div
@@ -194,34 +212,103 @@ export default function ItExistedProof() {
         {/* DIVIDER */}
         <div className="w-full mb-10" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
-        {/* ══════════════════════════════════════════════
-            NUMBERED STEPS — left-aligned
-        ══════════════════════════════════════════════ */}
+        {/* STEPS */}
         <div className="w-full flex flex-col">
 
-          {/* ── STEP 1: DOWNLOAD ── */}
+          {/* ── STEP 1: ADD YOUR FILE ── */}
+          <div className="w-full mb-8" style={lockedStyle}>
+            <div className="flex items-baseline w-full mb-3">
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
+              <span className="font-mono text-[17px] tracking-[4px] uppercase"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Add your original file</span>
+              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(recommended)</span>
+            </div>
+            <div className="pl-[23px]">
+              {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
+                <label
+                  className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all"
+                  style={{
+                    borderColor: dragOver ? 'rgba(201,169,110,0.6)' : 'rgba(201,169,110,0.2)',
+                    background: dragOver ? 'rgba(201,169,110,0.08)' : 'rgba(201,169,110,0.02)',
+                  }}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) onArtifactFile(f); }}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                >
+                  <input type="file" className="hidden" accept="*/*"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
+                  <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+                    style={{ color: 'rgba(201,169,110,0.5)' }}>
+                    {dragOver ? 'Release to verify' : 'Drop your original file here'}
+                  </p>
+                  <p className="font-garamond italic text-[14px]"
+                    style={{ color: 'rgba(240,234,214,0.25)' }}>
+                    Hash-verified client-side — nothing is uploaded
+                  </p>
+                  {artifactStatus === 'mismatch' && (
+                    <p className="font-mono text-[10px] mt-2"
+                      style={{ color: 'rgba(220,80,60,0.7)' }}>
+                      ✗ Last file did not match — try the original
+                    </p>
+                  )}
+                </label>
+              ) : artifactStatus === 'checking' ? (
+                <div className="flex items-center gap-2 py-3">
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
+                    <svg viewBox="0 0 24 24" width={16} height={16}>
+                      <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(201,169,110,0.15)" strokeWidth="1.5" />
+                      <path d="M12 3 A9 9 0 0 1 21 12" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </motion.div>
+                  <span className="font-mono text-[11px] tracking-[2px] uppercase"
+                    style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 py-2">
+                  <span className="font-mono text-[12px]" style={{ color: '#7fba6a' }}>✓</span>
+                  <span className="font-mono text-[11px] tracking-[1px]"
+                    style={{ color: 'rgba(240,234,214,0.65)' }}>
+                    {artifactFile?.name}
+                  </span>
+                  <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
+                    className="font-mono text-[9px] tracking-[1px] uppercase ml-auto"
+                    style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Change
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── STEP 2: DOWNLOAD ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={onDownload}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
+                style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Download your proof</span>
+              {artifactFile && (
+                <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1"
+                  style={{ color: 'rgba(127,186,106,0.6)', whiteSpace: 'nowrap' }}>incl. original</span>
+              )}
               <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
           </div>
 
-          {/* ── STEP 2: VERIFY ── */}
+          {/* ── STEP 3: VERIFY ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={() => !lockedStyle.opacity && toggleStep('verify')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
+                style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify it</span>
               <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
@@ -230,7 +317,6 @@ export default function ItExistedProof() {
                   transform: openStep === 'verify' ? 'rotate(180deg)' : 'none',
                 }}>▾</span>
             </button>
-            {/* Expandable body */}
             <div style={{
               maxHeight: openStep === 'verify' ? 800 : 0,
               overflow: 'hidden',
@@ -243,7 +329,7 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── REMEMBER NOTE ── */}
+          {/* ── CONTEXTUAL NOTE ── */}
           <p className="font-garamond italic text-[20px] mb-8"
             style={{
               color: anchored ? 'rgba(240,234,214,0.85)' : 'rgba(240,234,214,0.45)',
@@ -251,17 +337,20 @@ export default function ItExistedProof() {
               maxWidth: 380,
               opacity: !anchored ? 0.65 : 1,
             }}>
-            Remember: the ZIP you've downloaded does not contain your original file. Keep your original file and your ZIP together on your device. You will need it to verify.
+            {artifactFile
+              ? 'Your original file will be included in the ZIP. One file, one proof — keep it safe.'
+              : 'Tip: add your original file in step 1 so your ZIP contains everything needed for verification.'
+            }
           </p>
 
-          {/* ── STEP 3: SHARE ── */}
+          {/* ── STEP 4: SHARE ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={onShare}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
+                style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
               <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
@@ -269,14 +358,14 @@ export default function ItExistedProof() {
             </button>
           </div>
 
-          {/* ── STEP 4: ATTESTATION ── */}
+          {/* ── STEP 5: ATTESTATION ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
+                style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
               <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
@@ -287,7 +376,6 @@ export default function ItExistedProof() {
                   transform: openStep === 'attest' ? 'rotate(180deg)' : 'none',
                 }}>▾</span>
             </button>
-            {/* Expandable body */}
             <div style={{
               maxHeight: openStep === 'attest' ? 800 : 0,
               overflow: 'hidden',
@@ -300,14 +388,14 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── STEP 5: ANCHOR ANOTHER ── */}
+          {/* ── STEP 6: ANCHOR ANOTHER ── */}
           <div className="w-full mb-8" style={!anchored ? { opacity: 0.45 } : {}}>
             <button
               onClick={() => navigate('/itexisted')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
+                style={{ color: 'rgba(201,169,110,0.4)' }}>6.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
               <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
@@ -318,9 +406,7 @@ export default function ItExistedProof() {
           </div>
 
         </div>
-
       </motion.div>
     </main>
   );
 }
-
