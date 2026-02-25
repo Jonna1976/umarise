@@ -63,7 +63,7 @@ export default function ItExistedProof() {
     return (
       <main className="min-h-screen flex items-center justify-center"
         style={{ background: '#0a0f0a' }}>
-        <span className="font-mono text-[9px] tracking-[2px] uppercase"
+        <span className="font-mono text-[14px] tracking-[2px] uppercase"
           style={{ color: 'rgba(240,234,214,0.35)' }}>Loading…</span>
       </main>
     );
@@ -75,10 +75,10 @@ export default function ItExistedProof() {
       <main className="min-h-screen flex items-center justify-center px-8"
         style={{ background: '#0a0f0a' }}>
         <div className="text-center">
-          <p className="font-garamond text-[16px] mb-4"
+          <p className="font-garamond text-[24px] mb-4"
             style={{ color: 'rgba(240,234,214,0.35)' }}>Proof not found.</p>
           <button onClick={() => navigate('/itexisted')}
-            className="font-mono text-[9px] tracking-[5px] uppercase transition-colors"
+            className="font-mono text-[14px] tracking-[5px] uppercase transition-colors"
             style={{ color: 'rgba(240,234,214,0.35)' }}>
             Anchor a file
           </button>
@@ -167,7 +167,7 @@ export default function ItExistedProof() {
         )}
 
         {/* ── ORIGIN ID LABEL ── */}
-        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
+        <p className="font-mono text-[14px] tracking-[5px] uppercase text-center mb-2"
           style={{ color: 'rgba(201,169,110,0.4)' }}>
           Origin ID
         </p>
@@ -179,19 +179,19 @@ export default function ItExistedProof() {
         </p>
 
         {/* ── DATE ── */}
-        <p className="font-garamond text-[16px] text-center mb-4"
+        <p className="font-garamond text-[24px] text-center mb-4"
           style={{ color: 'rgba(240,234,214,0.35)' }}>
           {date} · {time}
         </p>
 
         {/* ── HASH LABEL ── */}
-        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
+        <p className="font-mono text-[14px] tracking-[5px] uppercase text-center mb-2"
           style={{ color: 'rgba(201,169,110,0.4)', marginTop: 4 }}>
           Hash
         </p>
 
         {/* ── HASH ── */}
-        <p className="font-mono text-[9px] text-center break-all mb-4"
+        <p className="font-mono text-[14px] text-center break-all mb-4"
           style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.5px', lineHeight: 1.8, maxWidth: 320 }}>
           {state.hash}
         </p>
@@ -206,14 +206,14 @@ export default function ItExistedProof() {
               )}
               {part.pulse ? (
                 <motion.span
-                  className="font-mono text-[9px] tracking-[1px] uppercase"
+                  className="font-mono text-[14px] tracking-[1px] uppercase"
                   style={{ color: 'rgba(201,169,110,0.5)' }}
                   animate={{ opacity: [0.3, 0.7, 0.3] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
                   {part.label}
                 </motion.span>
               ) : (
-                <span className="font-mono text-[9px] tracking-[1px] uppercase"
+                <span className="font-mono text-[14px] tracking-[1px] uppercase"
                   style={{ color: 'rgba(201,169,110,0.5)' }}>
                   {part.label}
                 </span>
@@ -230,7 +230,7 @@ export default function ItExistedProof() {
 
             {/* ── 1. Download ── */}
             <button onClick={onDownload}
-              className="font-garamond text-[18px] text-center mb-5 transition-colors"
+              className="font-garamond text-[26px] text-center mb-5 transition-colors"
               style={{ color: 'rgba(240,234,214,0.85)' }}>
               Download proof
             </button>
@@ -242,13 +242,13 @@ export default function ItExistedProof() {
 
             {/* ── 3. Share (optional) ── */}
             <button onClick={onShare}
-              className="font-mono text-[9px] tracking-[3px] uppercase transition-colors mb-2"
+              className="font-mono text-[14px] tracking-[3px] uppercase transition-colors mb-2"
               style={{ color: 'rgba(240,234,214,0.35)' }}>
               Share this proof
             </button>
             <a href={shareUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2.5 mb-8 group">
-              <span className="font-mono text-[14px] transition-opacity group-hover:opacity-80"
+              <span className="font-mono text-[20px] transition-opacity group-hover:opacity-80"
                 style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
                 itexisted.app/{state.shortToken}
               </span>
@@ -269,7 +269,7 @@ export default function ItExistedProof() {
 
         {/* ── ANCHOR ANOTHER ── */}
         <button onClick={() => navigate('/itexisted')}
-          className="font-mono text-[9px] tracking-[5px] uppercase transition-colors hover:text-white/60"
+          className="font-mono text-[14px] tracking-[5px] uppercase transition-colors hover:text-white/60"
           style={{ color: 'rgba(240,234,214,0.35)' }}>
           Anchor another file
         </button>
