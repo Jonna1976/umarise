@@ -158,11 +158,13 @@ export default function ItExistedProof() {
         {/* ── TITLE ── */}
         <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
           style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-          {anchored ? 'Anchored.' : 'Pending.'}
+          {anchored ? 'Your proof is ready.' : 'Pending.'}
         </h1>
 
-        {/* ── DIVIDER 1 ── */}
-        <div className="mb-9" style={{ width: 32, height: 1, background: 'rgba(201,169,110,0.4)' }} />
+        {/* ── DIVIDER 1 (only when ready) ── */}
+        {anchored && (
+          <div className="mb-9" style={{ width: 32, height: 1, background: 'rgba(201,169,110,0.4)' }} />
+        )}
 
         {/* ── ORIGIN ID LABEL ── */}
         <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
@@ -220,56 +222,50 @@ export default function ItExistedProof() {
           ))}
         </div>
 
-        {/* ── DIVIDER 2 ── */}
-        <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
-
-        {/* ── PRIMARY ACTION: Share ── */}
-        <button onClick={onShare}
-          className="font-garamond text-[18px] text-center mb-5 transition-colors"
-          style={{ color: 'rgba(240,234,214,0.85)' }}>
-          Share this proof
-        </button>
-
-        <a href={shareUrl} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2.5 mb-10 group">
-          <span className="font-mono text-[16px] transition-opacity group-hover:opacity-80"
-            style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
-            itexisted.app/{state.shortToken}
-          </span>
-          <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
-            width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M11 7.5V11a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1h3.5" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
-            <path d="M8 2h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M6 8L12 2" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
-          </svg>
-        </a>
-
-        {/* ── SECONDARY ACTIONS ── */}
-        <div className="flex items-center gap-5 mb-8">
-          <button onClick={onDownload}
-            className="font-mono text-[9px] tracking-[3px] uppercase transition-colors"
-            style={{ color: anchored ? 'rgba(240,234,214,0.35)' : 'rgba(240,234,214,0.15)' }}>
-            {anchored ? 'Download ZIP' : 'Download (pending)'}
-          </button>
-        </div>
-
-        {/* ── INLINE VERIFY ── */}
-        <div className="w-full flex flex-col items-center mb-8">
-          <InlineVerify />
-        </div>
-
-        {/* ── INLINE ATTESTATION ── */}
+        {/* ── ACTIONS (only when ready) ── */}
         {anchored && (
-          <div className="w-full flex flex-col items-center mb-8">
-            <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
-          </div>
-        )}
+          <>
+            {/* ── DIVIDER 2 ── */}
+            <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
-        {/* ── KEEP FILE ── */}
-        <p className="font-garamond italic text-[14px] text-center mb-12"
-          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 280 }}>
-          Keep your original file. You'll need the exact bytes to verify.
-        </p>
+            {/* ── 1. Download ── */}
+            <button onClick={onDownload}
+              className="font-garamond text-[18px] text-center mb-5 transition-colors"
+              style={{ color: 'rgba(240,234,214,0.85)' }}>
+              Download proof
+            </button>
+
+            {/* ── 2. Verify ── */}
+            <div className="w-full flex flex-col items-center mb-8">
+              <InlineVerify />
+            </div>
+
+            {/* ── 3. Share (optional) ── */}
+            <button onClick={onShare}
+              className="font-mono text-[9px] tracking-[3px] uppercase transition-colors mb-2"
+              style={{ color: 'rgba(240,234,214,0.35)' }}>
+              Share this proof
+            </button>
+            <a href={shareUrl} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2.5 mb-8 group">
+              <span className="font-mono text-[14px] transition-opacity group-hover:opacity-80"
+                style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
+                itexisted.app/{state.shortToken}
+              </span>
+              <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
+                width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M11 7.5V11a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1h3.5" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+                <path d="M8 2h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 8L12 2" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+              </svg>
+            </a>
+
+            {/* ── 4. Attestation (optional) ── */}
+            <div className="w-full flex flex-col items-center mb-8">
+              <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
+            </div>
+          </>
+        )}
 
         {/* ── ANCHOR ANOTHER ── */}
         <button onClick={() => navigate('/itexisted')}
