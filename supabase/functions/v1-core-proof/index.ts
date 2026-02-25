@@ -230,8 +230,57 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Not found
+    // No proof row yet: check whether the origin itself exists.
+    // If origin exists, this means proof generation is still pending.
     if (!proof) {
+      const { data: origin, error: originError } = await supabase
+        .from('origin_attestations')
+        .select('origin_id')
+        .eq('origin_id', originId)
+        .maybeSingle();
+
+      if (originError) {
+        console.error('[v1-core-proof] Origin lookup error:', originError);
+        await logRequest(supabase, {
+          endpoint,
+          method: 'GET',
+          statusCode: 500,
+          responseTimeMs: Date.now() - startTime,
+          ipHash,
+          errorCode: 'INTERNAL_ERROR',
+        });
+
+        return new Response(
+          JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
+          }
+        );
+      }
+
+      if (origin) {
+        await logRequest(supabase, {
+          endpoint,
+          method: 'GET',
+          statusCode: 202,
+          responseTimeMs: Date.now() - startTime,
+          ipHash,
+        });
+
+        return new Response(
+          JSON.stringify({
+            status: 'pending',
+            message: 'Proof is awaiting Bitcoin confirmation',
+            origin_id: originId,
+          }),
+          {
+            status: 202,
+            headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
+          }
+        );
+      }
+
       await logRequest(supabase, {
         endpoint,
         method: 'GET',
