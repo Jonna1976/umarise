@@ -127,6 +127,32 @@
     --verify-green: 120 23% 45%;
     --verify-green-bright: 120 33% 65%;
     --verify-red: 14 60% 56%;
+
+    /* === ITEXISTED TOKENS (sealed-screen-v2 briefing) === */
+    /* #050A05 body bg */
+    --itx-bg: 120 33% 3%;
+    /* #0F1A0F surface/screen */
+    --itx-surface: 120 27% 8%;
+    /* #C5935A antique gold */
+    --itx-gold: 32 55% 55%;
+    /* #8B7355 muted gold */
+    --itx-gold-muted: 33 24% 44%;
+    /* #F5F0E8 cream text */
+    --itx-cream: 40 33% 93%;
+    /* muted text */
+    --itx-muted: 33 24% 44%;
+    /* borders */
+    --itx-border: 120 15% 15%;
+    /* success green */
+    --itx-success: 120 40% 50%;
+    /* verify page: light mode */
+    --itx-verify-bg: 40 30% 96%;
+    --itx-verify-surface: 0 0% 100%;
+    --itx-verify-border: 30 10% 88%;
+    --itx-verify-ink: 24 8% 15%;
+    --itx-verify-muted: 30 8% 50%;
+    --itx-verify-accent: 220 60% 50%;
+    --itx-verify-success: 120 50% 38%;
   }
 
   /* === VERSION B — Ivory theme (anchoring.app light) === */

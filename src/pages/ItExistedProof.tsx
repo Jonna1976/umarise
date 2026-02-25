@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { buildOriginZip } from '@/lib/originZip';
 import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus, startAttestationCheckout } from '@/lib/coreApi';
@@ -14,6 +15,30 @@ interface ProofState {
   bitcoinBlockHeight: number | null;
 }
 
+/** V7 Hexagonal nail */
+function V7Nail({ anchored }: { anchored: boolean }) {
+  if (!anchored) {
+    return (
+      <motion.svg viewBox="0 0 48 48" width="36" height="36"
+        animate={{ opacity: [0.3, 0.7, 0.3] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
+          fill="none" stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2"
+          strokeDasharray="3 3" />
+        <rect x="17" y="17" width="14" height="14" rx="1.8"
+          fill="hsl(var(--itx-gold) / 0.15)" />
+      </motion.svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 48 48" width="36" height="36"
+      style={{ filter: 'drop-shadow(0 0 10px hsl(var(--itx-gold) / 0.35))' }}>
+      <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(var(--itx-gold))" />
+      <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(var(--itx-surface))" />
+    </svg>
+  );
+}
+
 export default function ItExistedProof() {
   const { token = '' } = useParams();
   const navigate = useNavigate();
@@ -22,12 +47,7 @@ export default function ItExistedProof() {
 
   const load = async () => {
     const resolved = await fetchOriginByToken(token);
-    if (!resolved) {
-      setState(null);
-      setLoading(false);
-      return;
-    }
-
+    if (!resolved) { setState(null); setLoading(false); return; }
     const proof = await fetchProofStatus(resolved.origin_id);
     setState({
       originId: resolved.origin_id,
@@ -40,54 +60,37 @@ export default function ItExistedProof() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, [token]);
-
+  useEffect(() => { load(); }, [token]);
   useEffect(() => {
     if (!state || state.proofStatus === 'anchored') return;
-    const timer = setInterval(load, 20000);
-    return () => clearInterval(timer);
+    const t = setInterval(load, 20000);
+    return () => clearInterval(t);
   }, [state?.proofStatus, token]);
 
   const createdAt = useMemo(() => (state ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
   const shareUrl = `${window.location.origin}/itexisted/proof/${token.toUpperCase()}`;
 
   if (loading) {
-    return <main className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(var(--itx-bg))', color: 'hsl(var(--itx-cream) / 0.7)' }}>Loading proof…</main>;
+    return (
+      <main className="min-h-screen flex items-center justify-center"
+        style={{ background: 'hsl(var(--itx-bg))', color: 'hsl(var(--itx-cream) / 0.5)' }}>
+        <span className="font-mono text-[9px] tracking-[2px] uppercase">Loading…</span>
+      </main>
+    );
   }
 
   if (!state) {
-    return <main className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(var(--itx-bg))', color: 'hsl(var(--itx-cream) / 0.7)' }}>Proof not found.</main>;
+    return (
+      <main className="min-h-screen flex items-center justify-center"
+        style={{ background: 'hsl(var(--itx-bg))', color: 'hsl(var(--itx-cream) / 0.5)' }}>
+        <span className="font-garamond text-[16px]">Proof not found.</span>
+      </main>
+    );
   }
 
-  const onDownload = async () => {
-    if (state.proofStatus !== 'anchored') {
-      toast.info('Proof is still pending.');
-      return;
-    }
-
-    const proof = await fetchProofStatus(state.originId);
-    if (proof.status !== 'anchored' || !proof.otsProofBytes) {
-      toast.error('Proof download is not ready yet.');
-      return;
-    }
-
-    const zip = await buildOriginZip({
-      originId: state.originId,
-      hash: state.hash,
-      timestamp: new Date(state.capturedAt),
-      imageUrl: null,
-      otsProof: arrayBufferToBase64(proof.otsProofBytes),
-    });
-
-    const url = URL.createObjectURL(zip);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `origin-${state.shortToken}.zip`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  };
+  const anchored = state.proofStatus === 'anchored';
+  const date = createdAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const time = createdAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
   const onShare = async () => {
     if (navigator.share) {
@@ -98,55 +101,134 @@ export default function ItExistedProof() {
     toast.success('Proof URL copied.');
   };
 
-  const onAttestation = async () => {
-    if (state.proofStatus !== 'anchored') return;
-    const deviceId = getActiveDeviceId();
-    if (!deviceId) {
-      toast.error('Device ID unavailable.');
-      return;
-    }
-
-    const checkout = await startAttestationCheckout(state.originId, deviceId);
-    if (!checkout) {
-      toast.error('Could not start attestation checkout.');
-      return;
-    }
-
-    window.location.href = checkout.url;
+  const onDownload = async () => {
+    if (!anchored) { toast.info('Proof is still pending.'); return; }
+    const proof = await fetchProofStatus(state.originId);
+    if (proof.status !== 'anchored' || !proof.otsProofBytes) { toast.error('Not ready yet.'); return; }
+    const zip = await buildOriginZip({
+      originId: state.originId, hash: state.hash,
+      timestamp: new Date(state.capturedAt), imageUrl: null,
+      otsProof: arrayBufferToBase64(proof.otsProofBytes),
+    });
+    const url = URL.createObjectURL(zip);
+    const a = document.createElement('a');
+    a.href = url; a.download = `origin-${state.shortToken}.zip`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
-  const expiry = new Date(createdAt.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const onAttestation = () => navigate(`/itexisted/attestation/${state.shortToken}`);
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6" style={{ background: 'hsl(var(--itx-bg))' }}>
-      <section className="w-full max-w-sm rounded-[28px] border px-5 py-8" style={{ background: 'hsl(var(--itx-surface))', borderColor: 'hsl(var(--itx-border))' }}>
-        <p className="font-mono text-[7px] tracking-[3px] uppercase" style={{ color: 'hsl(var(--itx-muted))' }}>Origin ID</p>
-        <p className="font-mono text-[13px] tracking-[4px] mb-1" style={{ color: 'hsl(var(--itx-gold))' }}>{state.shortToken}</p>
-        <p className="font-garamond text-[12px] mb-3" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>
-          {createdAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {createdAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-        </p>
+    <main className="min-h-screen flex items-center justify-center px-6"
+      style={{ background: 'hsl(var(--itx-bg))' }}>
+      <motion.section
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        className="flex flex-col items-center text-center"
+        style={{ maxWidth: 320 }}>
 
-        <div className="h-px mb-3" style={{ background: 'hsl(var(--itx-border))' }} />
+        {/* V7 nail */}
+        <V7Nail anchored={anchored} />
 
-        <div className="flex items-center gap-2 mb-5">
-          <span className="w-[6px] h-[6px] rounded-full" style={{ background: state.proofStatus === 'anchored' ? 'hsl(var(--itx-success))' : 'hsl(var(--itx-gold))', boxShadow: state.proofStatus === 'anchored' ? 'none' : '0 0 12px hsl(var(--itx-gold) / 0.35)' }} />
-          <span className="font-mono text-[8px] tracking-[2px] uppercase flex-1" style={{ color: state.proofStatus === 'anchored' ? 'hsl(var(--itx-success))' : 'hsl(var(--itx-gold))' }}>
-            {state.proofStatus === 'anchored' ? 'Anchored in Bitcoin' : 'Proof pending'}
-          </span>
-          <span className="font-mono text-[8px]" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>{state.bitcoinBlockHeight ? state.bitcoinBlockHeight.toLocaleString('en-US') : '—'}</span>
+        {/* Anchor wire */}
+        <div className="w-px h-4"
+          style={{
+            background: anchored
+              ? 'linear-gradient(to bottom, hsl(var(--itx-gold) / 0.5), hsl(var(--itx-gold) / 0.15))'
+              : 'linear-gradient(to bottom, hsl(var(--itx-gold) / 0.25), hsl(var(--itx-gold) / 0.08))',
+          }} />
+
+        {/* Golden frame */}
+        <div className="mb-5 p-2 rounded-[3px]"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--itx-gold) / 0.22), hsl(var(--itx-gold) / 0.12) 30%, hsl(var(--itx-gold) / 0.18) 70%, hsl(var(--itx-gold) / 0.15))',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px hsl(var(--itx-gold) / 0.08), inset 0 0 0 2px hsl(var(--itx-gold) / 0.25), inset 0 0 0 3px hsl(var(--itx-surface) / 0.5), inset 0 0 0 4px hsl(var(--itx-gold) / 0.1)',
+            opacity: anchored ? 1 : 0.9,
+          }}>
+          <div className="p-1 border"
+            style={{ borderColor: 'hsl(var(--itx-gold) / 0.15)', background: 'hsl(var(--itx-surface) / 0.95)' }}>
+            <div className="w-[220px] h-[180px] flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #2D1B0E, #1A2E1A, #1B1B2E)' }}>
+              <span className="font-garamond italic text-[13px]"
+                style={{ color: 'hsl(var(--itx-gold) / 0.2)' }}>[ origin ]</span>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-0">
-          <button onClick={onDownload} className="w-full py-2 border-b flex justify-between" style={{ borderColor: 'hsl(var(--itx-border))' }}><span className="font-playfair text-[14px]" style={{ color: 'hsl(var(--itx-cream))' }}>Download</span><span className="font-mono text-[7px] tracking-[1px] uppercase" style={{ color: 'hsl(var(--itx-muted))' }}>→ Files</span></button>
-          <button onClick={onShare} className="w-full py-2 border-b flex justify-between" style={{ borderColor: 'hsl(var(--itx-border))' }}><span className="font-playfair text-[14px]" style={{ color: 'hsl(var(--itx-cream))' }}>Share</span><span className="font-mono text-[7px] tracking-[1px] uppercase" style={{ color: 'hsl(var(--itx-muted))' }}>→ Mail · Messages</span></button>
-          <button onClick={() => navigate('/itexisted/verify')} className="w-full py-2 border-b flex justify-between" style={{ borderColor: 'hsl(var(--itx-border))' }}><span className="font-playfair text-[14px]" style={{ color: 'hsl(var(--itx-cream))' }}>Verify</span><span className="font-mono text-[7px] tracking-[1px] uppercase" style={{ color: 'hsl(var(--itx-muted))' }}>→ /verify</span></button>
-          <button onClick={onAttestation} disabled={state.proofStatus !== 'anchored'} className="w-full py-2 flex justify-between disabled:opacity-40"><span className="font-playfair text-[14px]" style={{ color: 'hsl(var(--itx-gold))' }}>Request attestation</span><span className="font-mono text-[7px] tracking-[1px] uppercase" style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>→ Stripe · €4.95</span></button>
+        {/* Museum label */}
+        <div className="w-10 h-px mb-4" style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
+        <p className="font-mono text-[14px] tracking-[3px] mb-1"
+          style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>{state.shortToken}</p>
+        <p className="font-garamond text-[17px] mb-2"
+          style={{ color: 'hsl(var(--itx-cream) / 0.35)' }}>{date} · {time}</p>
+        <p className="font-mono text-[11px] tracking-[0.5px] mb-4 max-w-[280px] break-all"
+          style={{ color: 'hsl(var(--itx-gold-muted) / 0.3)' }}>{state.hash}</p>
+
+        {/* Proof components line */}
+        <div className="flex items-center gap-4 mb-6">
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>certificate</span>
+          <span className="w-[3px] h-[3px] rounded-full"
+            style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>hash</span>
+          {anchored ? (
+            <span className="w-[3px] h-[3px] rounded-full"
+              style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
+          ) : (
+            <motion.span className="w-[3px] h-[3px] rounded-full"
+              animate={{ opacity: [0.2, 0.7, 0.2] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+              style={{ background: 'hsl(var(--itx-gold) / 0.4)' }} />
+          )}
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)', opacity: anchored ? 1 : 0.6 }}>proof.ots</span>
         </div>
 
-        <p className="font-garamond italic text-[9px] mt-4" style={{ color: 'hsl(var(--itx-cream) / 0.12)' }}>
-          Download link expires {expiry.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. The Bitcoin anchor is permanent.
-        </p>
-      </section>
+        {/* Primary action: Share */}
+        <button onClick={onShare}
+          className="px-10 py-[11px] rounded-full font-playfair text-[17px] font-light mb-3"
+          style={{
+            border: '1px solid hsl(var(--itx-gold) / 0.3)',
+            background: 'hsl(var(--itx-gold) / 0.08)',
+            color: 'hsl(var(--itx-gold) / 0.8)',
+          }}>
+          Share
+        </button>
+
+        {/* Secondary actions */}
+        <div className="flex items-center gap-4 mt-2">
+          <button onClick={onDownload}
+            className="font-mono text-[9px] tracking-[1px] uppercase"
+            style={{ color: 'hsl(var(--itx-cream) / 0.25)' }}>
+            Download
+          </button>
+          <span style={{ color: 'hsl(var(--itx-cream) / 0.1)' }}>·</span>
+          <button onClick={() => navigate('/itexisted/verify')}
+            className="font-mono text-[9px] tracking-[1px] uppercase"
+            style={{ color: 'hsl(var(--itx-cream) / 0.25)' }}>
+            Verify
+          </button>
+        </div>
+
+        {/* Attestation link — only when anchored */}
+        {anchored && (
+          <button onClick={onAttestation}
+            className="mt-6 font-garamond italic text-[13px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>
+            Add attestation →
+          </button>
+        )}
+
+        {/* Device signed indicator */}
+        <div className="flex items-center gap-[6px] mt-4">
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M2 6L5 9L10 3" fill="none" stroke="hsl(var(--itx-gold) / 0.35)"
+              strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.25)' }}>device signed</span>
+        </div>
+      </motion.section>
     </main>
   );
 }
