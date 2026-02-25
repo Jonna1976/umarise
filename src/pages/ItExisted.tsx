@@ -1,12 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useMarks } from '@/hooks/useMarks';
 import { fetchOriginByHash } from '@/lib/coreApi';
 import { toast } from 'sonner';
 
 type ItExistedState = 'capture' | 'passkey' | 'processing';
-
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
 
 function mapFileType(mimeType: string): MarkType {
@@ -14,6 +13,30 @@ function mapFileType(mimeType: string): MarkType {
   if (mimeType.startsWith('audio/')) return 'sound';
   if (mimeType.startsWith('video/')) return 'digital';
   return 'text';
+}
+
+/** V7 Hexagonal nail — the anchor point */
+function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: number }) {
+  if (pending) {
+    return (
+      <motion.svg viewBox="0 0 48 48" width={size} height={size}
+        animate={{ opacity: [0.3, 0.7, 0.3] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
+          fill="none" stroke="hsl(32 55% 55% / 0.4)" strokeWidth="1.2"
+          strokeDasharray="3 3" />
+        <rect x="17" y="17" width="14" height="14" rx="1.8"
+          fill="hsl(32 55% 55% / 0.15)" />
+      </motion.svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 48 48" width={size} height={size}
+      style={{ filter: 'drop-shadow(0 0 10px hsl(32 55% 55% / 0.35))' }}>
+      <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(32 55% 55%)" />
+      <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(120 27% 8%)" />
+    </svg>
+  );
 }
 
 export default function ItExisted() {
@@ -33,7 +56,6 @@ export default function ItExisted() {
 
   const handleAnchor = async () => {
     if (!selectedFile) return;
-
     setState('processing');
     const mark = await createMarkFromFile(selectedFile, mapFileType(selectedFile.type));
 
@@ -44,8 +66,6 @@ export default function ItExisted() {
       return;
     }
 
-    // Resolve by hash — the bridge trigger creates the origin_attestation with a real UUID
-    // We poll briefly because the trigger is async on INSERT
     let resolved = null;
     for (let i = 0; i < 5; i++) {
       resolved = await fetchOriginByHash(mark.hash);
@@ -65,65 +85,91 @@ export default function ItExisted() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6" style={{ background: 'hsl(var(--itx-bg))' }}>
-      <div className="w-full max-w-sm rounded-[28px] border p-8" style={{ background: 'hsl(var(--itx-surface))', borderColor: 'hsl(var(--itx-border))' }}>
+    <main className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ background: 'hsl(var(--itx-bg))' }}>
+
+      <AnimatePresence mode="wait">
         {state === 'capture' && (
-          <div className="min-h-[480px] flex flex-col items-center justify-center relative">
+          <motion.div key="capture"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex flex-col items-center text-center gap-0"
+            style={{ lineHeight: '2.2' }}>
+
+            {/* Branding copy */}
+            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream))' }}>
+              It existed.
+            </p>
+            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream))' }}>
+              Now it's provable.
+            </p>
+            <p className="font-garamond italic text-[16px]" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>
+              Your file stays yours.
+            </p>
+            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-gold))' }}>
+              Anchor what matters.
+            </p>
+
+            {/* Circle + plus — proportional to text block */}
             <button
               onClick={() => inputRef.current?.click()}
-              className="w-[148px] h-[148px] rounded-full border-[1.5px] border-dashed flex items-center justify-center"
-              style={{ borderColor: 'hsl(var(--itx-gold) / 0.2)' }}
-            >
-              <span className="font-playfair text-[40px] leading-none" style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>+</span>
+              className="mt-10 w-[150px] h-[150px] rounded-full border-[1.5px] border-dashed flex items-center justify-center transition-all hover:border-solid"
+              style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
+              <span className="font-playfair text-[42px] leading-none" style={{ color: 'hsl(var(--itx-cream) / 0.18)' }}>+</span>
             </button>
-            <span className="absolute bottom-2 font-mono text-[7px] tracking-[3px] uppercase" style={{ color: 'hsl(var(--itx-gold) / 0.15)' }}>
+
+            <span className="mt-8 font-mono text-[7px] tracking-[3px] uppercase"
+              style={{ color: 'hsl(var(--itx-gold) / 0.12)' }}>
               itexisted.app
             </span>
-          </div>
+          </motion.div>
         )}
 
         {state === 'passkey' && (
-          <div className="min-h-[480px] flex flex-col items-center justify-center text-center px-4">
-            <svg viewBox="0 0 48 48" width="40" height="40" className="mb-5" aria-hidden>
-              <rect x="10" y="20" width="28" height="20" rx="4" fill="none" stroke="hsl(var(--itx-gold) / 0.5)" strokeWidth="1.5" />
-              <path d="M16 20v-6a8 8 0 0116 0v6" fill="none" stroke="hsl(var(--itx-gold) / 0.5)" strokeWidth="1.5" />
-              <circle cx="24" cy="30" r="3" fill="hsl(var(--itx-gold) / 0.6)" />
+          <motion.div key="passkey"
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="flex flex-col items-center text-center">
+            <svg viewBox="0 0 48 48" width="36" height="36" className="mb-5" aria-hidden>
+              <rect x="10" y="20" width="28" height="20" rx="4" fill="none"
+                stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2" />
+              <path d="M16 20v-6a8 8 0 0116 0v6" fill="none"
+                stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2" />
+              <circle cx="24" cy="30" r="2.5" fill="hsl(var(--itx-gold) / 0.5)" />
             </svg>
-            <h1 className="font-playfair text-[16px] mb-2" style={{ color: 'hsl(var(--itx-cream))' }}>Confirm with Face ID</h1>
-            <p className="font-garamond text-[12px] mb-7" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>to anchor this file to your device</p>
-            <button
-              onClick={handleAnchor}
-              className="px-7 py-2.5 rounded-full font-garamond text-[14px]"
-              style={{ background: 'hsl(var(--itx-gold) / 0.08)', color: 'hsl(var(--itx-gold))', border: '1px solid hsl(var(--itx-gold) / 0.3)' }}
-            >
+            <h1 className="font-playfair text-[17px] font-light mb-1"
+              style={{ color: 'hsl(var(--itx-cream))' }}>Confirm with Face ID</h1>
+            <p className="font-garamond text-[13px] mb-8"
+              style={{ color: 'hsl(var(--itx-cream) / 0.35)' }}>to anchor this file to your device</p>
+            <button onClick={handleAnchor}
+              className="px-8 py-2.5 rounded-full font-playfair text-[17px] font-light"
+              style={{
+                background: 'hsl(var(--itx-gold) / 0.08)',
+                color: 'hsl(var(--itx-gold) / 0.8)',
+                border: '1px solid hsl(var(--itx-gold) / 0.3)',
+              }}>
               Use Face ID
             </button>
-          </div>
+          </motion.div>
         )}
 
         {state === 'processing' && (
-          <div className="min-h-[480px] flex flex-col items-center justify-center gap-3">
-            <motion.div animate={{ scale: [1, 1.12, 1], opacity: [0.85, 0.45, 0.85] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
-              <svg viewBox="0 0 42 42" width="42" height="42" aria-hidden>
-                <circle cx="21" cy="21" r="17" fill="none" stroke="hsl(var(--itx-gold) / 0.3)" strokeWidth="0.8" />
-                <circle cx="21" cy="21" r="5" fill="hsl(var(--itx-gold))" />
-              </svg>
+          <motion.div key="processing"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex flex-col items-center gap-4">
+            <motion.div
+              animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+              <V7Nail pending size={40} />
             </motion.div>
-            <p className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: 'hsl(var(--itx-muted))' }}>anchoring…</p>
-            <p className="font-garamond text-[11px] text-center max-w-[180px]" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>{fileName}</p>
-          </div>
+            <p className="font-mono text-[8px] tracking-[3px] uppercase"
+              style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
+            <p className="font-garamond italic text-[12px] text-center max-w-[200px]"
+              style={{ color: 'hsl(var(--itx-cream) / 0.3)' }}>{fileName}</p>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
-      <input
-        ref={inputRef}
-        type="file"
-        className="hidden"
-        onChange={(e) => {
-          handlePick(e.target.files?.[0] ?? null);
-          e.target.value = '';
-        }}
-      />
+      <input ref={inputRef} type="file" className="hidden"
+        onChange={(e) => { handlePick(e.target.files?.[0] ?? null); e.target.value = ''; }} />
     </main>
   );
 }

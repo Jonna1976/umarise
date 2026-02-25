@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 interface AnchoredState {
   originId: string;
@@ -11,11 +12,22 @@ interface AnchoredState {
 function getFallbackState(): AnchoredState | null {
   const raw = localStorage.getItem('itexisted_last_anchor');
   if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AnchoredState;
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(raw) as AnchoredState; } catch { return null; }
+}
+
+/** V7 Pending nail with pulse */
+function V7Pending() {
+  return (
+    <motion.svg viewBox="0 0 48 48" width="36" height="36"
+      animate={{ opacity: [0.3, 0.7, 0.3] }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+      <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
+        fill="none" stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2"
+        strokeDasharray="3 3" />
+      <rect x="17" y="17" width="14" height="14" rx="1.8"
+        fill="hsl(var(--itx-gold) / 0.15)" />
+    </motion.svg>
+  );
 }
 
 export default function ItExistedAnchored() {
@@ -34,10 +46,14 @@ export default function ItExistedAnchored() {
 
   if (!state) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6" style={{ background: 'hsl(var(--itx-bg))' }}>
+      <main className="min-h-screen flex items-center justify-center px-6"
+        style={{ background: 'hsl(var(--itx-bg))' }}>
         <div className="text-center">
-          <p className="font-garamond text-lg mb-4" style={{ color: 'hsl(var(--itx-cream) / 0.7)' }}>No anchor found.</p>
-          <button onClick={() => navigate('/itexisted')} className="font-mono text-xs tracking-[2px] uppercase" style={{ color: 'hsl(var(--itx-gold))' }}>
+          <p className="font-garamond text-[16px] mb-4"
+            style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>No anchor found.</p>
+          <button onClick={() => navigate('/itexisted')}
+            className="font-mono text-[9px] tracking-[2px] uppercase"
+            style={{ color: 'hsl(var(--itx-gold))' }}>
             Start anchoring
           </button>
         </div>
@@ -49,44 +65,80 @@ export default function ItExistedAnchored() {
   const time = `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6" style={{ background: 'hsl(var(--itx-bg))' }}>
-      <section className="w-full max-w-sm rounded-[28px] border px-6 py-10 text-center" style={{ background: 'hsl(var(--itx-surface))', borderColor: 'hsl(var(--itx-border))' }}>
-        <p className="font-mono text-[7px] tracking-[3px] uppercase mb-1" style={{ color: 'hsl(var(--itx-muted))' }}>Origin ID</p>
-        <p className="font-mono text-[16px] tracking-[6px] mb-4" style={{ color: 'hsl(var(--itx-gold))' }}>{state.shortToken}</p>
+    <main className="min-h-screen flex items-center justify-center px-6"
+      style={{ background: 'hsl(var(--itx-bg))' }}>
+      <motion.section
+        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col items-center text-center"
+        style={{ maxWidth: 320 }}>
 
-        <p className="font-playfair text-[16px]" style={{ color: 'hsl(var(--itx-cream))' }}>{date}</p>
-        <p className="font-garamond text-[12px] mb-4" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>{time}</p>
+        {/* V7 pending nail */}
+        <V7Pending />
 
-        <p className="font-mono text-[7px] tracking-[3px] uppercase mb-1" style={{ color: 'hsl(var(--itx-muted))' }}>Hash</p>
-        <p className="font-mono text-[8px] leading-6 break-all mb-5" style={{ color: 'hsl(var(--itx-muted))' }}>{state.hash}</p>
+        {/* Anchor wire */}
+        <div className="w-px h-4"
+          style={{ background: 'linear-gradient(to bottom, hsl(var(--itx-gold) / 0.25), hsl(var(--itx-gold) / 0.08))' }} />
 
-        <div className="h-px mb-4" style={{ background: 'hsl(var(--itx-border))' }} />
+        {/* Golden frame placeholder */}
+        <div className="mb-5 p-2 rounded-[3px]"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--itx-gold) / 0.22), hsl(var(--itx-gold) / 0.12) 30%, hsl(var(--itx-gold) / 0.18) 70%, hsl(var(--itx-gold) / 0.15))',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px hsl(var(--itx-gold) / 0.08), inset 0 0 0 2px hsl(var(--itx-gold) / 0.25), inset 0 0 0 3px hsl(var(--itx-surface) / 0.5), inset 0 0 0 4px hsl(var(--itx-gold) / 0.1)',
+          }}>
+          <div className="p-1 border"
+            style={{ borderColor: 'hsl(var(--itx-gold) / 0.15)', background: 'hsl(var(--itx-surface) / 0.95)' }}>
+            <div className="w-[220px] h-[140px] flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #2D1B0E, #1A2E1A, #1B1B2E)' }}>
+              <span className="font-garamond italic text-[13px]"
+                style={{ color: 'hsl(var(--itx-gold) / 0.2)' }}>anchoring…</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Museum label */}
+        <div className="w-10 h-px mb-4" style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
+
+        <p className="font-mono text-[14px] tracking-[3px] mb-1"
+          style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>{state.shortToken}</p>
+        <p className="font-garamond text-[17px] mb-2"
+          style={{ color: 'hsl(var(--itx-cream) / 0.35)' }}>{date} · {time}</p>
+        <p className="font-mono text-[11px] tracking-[0.5px] mb-4 max-w-[280px] break-all"
+          style={{ color: 'hsl(var(--itx-gold-muted) / 0.3)' }}>{state.hash}</p>
+
+        {/* Proof components — pending */}
+        <div className="flex items-center gap-4 mb-6">
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>certificate</span>
+          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
+          <span className="font-mono text-[10px] tracking-[1px]"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>hash</span>
+          <motion.span className="w-[3px] h-[3px] rounded-full"
+            animate={{ opacity: [0.2, 0.7, 0.2] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+            style={{ background: 'hsl(var(--itx-gold) / 0.4)' }} />
+          <span className="font-mono text-[10px] tracking-[1px] opacity-60"
+            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>proof.ots</span>
+        </div>
+
+        {/* Save / Open proof */}
+        <button
+          onClick={() => navigate(`/itexisted/proof/${state.shortToken}`)}
+          className="px-10 py-[11px] rounded-full font-playfair text-[17px] font-light mb-3"
+          style={{
+            border: '1px solid hsl(var(--itx-gold) / 0.3)',
+            background: 'hsl(var(--itx-gold) / 0.08)',
+            color: 'hsl(var(--itx-gold) / 0.8)',
+          }}>
+          Save
+        </button>
 
         <button
           onClick={() => navigator.clipboard?.writeText(proofUrl).catch(() => undefined)}
-          className="font-mono text-[9px] tracking-[1px] mb-1"
-          style={{ color: 'hsl(var(--itx-cream) / 0.7)' }}
-        >
+          className="font-mono text-[9px] tracking-[1px]"
+          style={{ color: 'hsl(var(--itx-cream) / 0.25)' }}>
           itexisted.app/{state.shortToken}
         </button>
-
-        <p className="font-garamond italic text-[10px] leading-5 mb-4" style={{ color: 'hsl(var(--itx-cream) / 0.12)' }}>
-          Your anchor will be ready at this URL within 2 hours
-        </p>
-
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span className="w-[7px] h-[7px] rounded-full animate-pulse" style={{ background: 'hsl(var(--itx-gold))', boxShadow: '0 0 14px hsl(var(--itx-gold) / 0.35)' }} />
-          <span className="font-mono text-[8px] tracking-[2px] uppercase" style={{ color: 'hsl(var(--itx-gold))' }}>proof pending</span>
-        </div>
-
-        <button
-          onClick={() => navigate(`/itexisted/proof/${state.shortToken}`)}
-          className="px-6 py-2 rounded-full font-garamond text-[14px]"
-          style={{ background: 'hsl(var(--itx-gold) / 0.08)', color: 'hsl(var(--itx-gold))', border: '1px solid hsl(var(--itx-gold) / 0.3)' }}
-        >
-          Open proof page
-        </button>
-      </section>
+      </motion.section>
     </main>
   );
 }
