@@ -21,9 +21,14 @@ export default function ItExistedProof() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProofState | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [openStep, setOpenStep] = useState<string | null>(null);
 
   const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
+
+  const handleCopy = async () => {
+    await navigator.clipboard?.writeText(shareUrl).catch(() => undefined);
+    toast.success('Proof URL copied.');
+  };
 
   const load = async () => {
     if (!isValidToken) { setState(null); setLoading(false); return; }
@@ -50,13 +55,6 @@ export default function ItExistedProof() {
 
   const captured = useMemo(() => (state ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
   const shareUrl = `${window.location.origin}/itexisted/proof/${token.toUpperCase()}`;
-
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(shareUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => undefined);
-  };
 
   /* ── LOADING ── */
   if (loading) {
@@ -91,6 +89,17 @@ export default function ItExistedProof() {
   const date = captured.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const time = `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
 
+  /* ── Countdown for pending ── */
+  const pendingLabel = (() => {
+    const expectedAt = new Date(captured.getTime() + 2 * 60 * 60 * 1000);
+    const now = new Date();
+    const diffMs = expectedAt.getTime() - now.getTime();
+    const diffMin = Math.max(0, Math.round(diffMs / 60000));
+    if (diffMin <= 0) return 'Bitcoin proof in progress, any moment now';
+    if (diffMin < 60) return `Bitcoin proof in progress, ready in ~${diffMin} min`;
+    return `Bitcoin proof in progress, ready in ~${Math.ceil(diffMin / 60)} hours`;
+  })();
+
   /* ── ACTIONS ── */
   const onShare = async () => {
     if (navigator.share) {
@@ -117,183 +126,186 @@ export default function ItExistedProof() {
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
-  /* attestation is now handled inline via InlineAttestation component */
+  const toggleStep = (id: string) => {
+    setOpenStep(prev => prev === id ? null : id);
+  };
 
-  /* ── STATUS LINE ── */
-  const statusParts = [
-    { label: anchored ? 'ANCHORED' : 'PENDING', pulse: !anchored },
-    { label: 'certificate', pulse: false },
-    { label: 'proof.ots', pulse: !anchored },
-    { label: 'hash', pulse: false },
-  ];
+  /* locked class styles */
+  const lockedStyle = !anchored ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-8"
-      style={{ background: '#0a0f0a', WebkitFontSmoothing: 'antialiased' }}>
+    <main className="min-h-screen flex items-center justify-center px-6"
+      style={{ background: '#0a0f0a', WebkitFontSmoothing: 'antialiased', padding: '60px 24px' }}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="w-full flex flex-col items-center"
-        style={{ maxWidth: 390 }}>
+        className="w-full flex flex-col items-start"
+        style={{ maxWidth: 420 }}>
 
-        {/* ── STATUS INDICATOR ── */}
-        {anchored ? (
-          <div className="flex items-center justify-center rounded-full mb-7"
-            style={{ width: 48, height: 48, border: '1px solid rgba(201,169,110,0.4)' }}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <polyline points="3,9 7,13 15,5" stroke="#c9a96e" strokeWidth="1.2"
-                strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-        ) : (
-          <motion.div
-            className="flex items-center justify-center rounded-full mb-7"
-            style={{ width: 48, height: 48, border: '1px solid rgba(201,169,110,0.25)' }}
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: 'rgba(201,169,110,0.4)' }} />
-          </motion.div>
-        )}
+        {/* ══════════════════════════════════════════════
+            TOP BLOCK — centered
+        ══════════════════════════════════════════════ */}
+        <div className="w-full flex flex-col items-center mb-12">
+          {/* TITLE */}
+          <h1 className="font-garamond text-[36px] font-normal text-center mb-8"
+            style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
+            {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
+          </h1>
 
-        {/* ── TITLE ── */}
-        <h1 className="font-garamond text-[36px] font-normal text-center mb-4"
-          style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-          {anchored ? 'Your proof is ready.' : 'Pending.'}
-        </h1>
+          {/* ORIGIN ID */}
+          <p className="font-mono text-[22px] tracking-[6px] text-center mb-3"
+            style={{ color: '#c9a96e' }}>
+            {state.shortToken}
+          </p>
 
-        {/* ── ESTIMATED TIME (pending only) ── */}
-        {!anchored && (() => {
-          const expectedAt = new Date(captured.getTime() + 2 * 60 * 60 * 1000);
-          const now = new Date();
-          const diffMs = expectedAt.getTime() - now.getTime();
-          const diffMin = Math.max(0, Math.round(diffMs / 60000));
-          const label = diffMin <= 0
-            ? 'Any moment now.'
-            : diffMin < 60
-              ? `~${diffMin} min remaining`
-              : `~${Math.ceil(diffMin / 60)}h remaining`;
-          return (
-            <p className="font-mono text-[14px] tracking-[1px] text-center mb-12"
-              style={{ color: 'rgba(201,169,110,0.4)' }}>
-              {label}
-            </p>
-          );
-        })()}
+          {/* DATE */}
+          <p className="font-garamond text-[20px] text-center"
+            style={{ color: 'rgba(240,234,214,0.85)' }}>
+            {date} · {time}
+          </p>
 
-        {/* ── DIVIDER 1 (only when ready) ── */}
-        {anchored && (
-          <div className="mb-9" style={{ width: 32, height: 1, background: 'rgba(201,169,110,0.4)' }} />
-        )}
-
-        {/* ── ORIGIN ID LABEL ── */}
-        <p className="font-mono text-[14px] tracking-[5px] uppercase text-center mb-2"
-          style={{ color: 'rgba(201,169,110,0.4)' }}>
-          Origin ID
-        </p>
-
-        {/* ── ORIGIN ID ── */}
-        <p className="font-mono text-[22px] tracking-[6px] text-center mb-2.5"
-          style={{ color: '#c9a96e' }}>
-          {state.shortToken}
-        </p>
-
-        {/* ── DATE ── */}
-        <p className="font-garamond text-[24px] text-center mb-4"
-          style={{ color: 'rgba(240,234,214,0.35)' }}>
-          {date} · {time}
-        </p>
-
-        {/* ── HASH LABEL ── */}
-        <p className="font-mono text-[14px] tracking-[5px] uppercase text-center mb-2"
-          style={{ color: 'rgba(201,169,110,0.4)', marginTop: 4 }}>
-          Hash
-        </p>
-
-        {/* ── HASH ── */}
-        <p className="font-mono text-[14px] text-center break-all mb-4"
-          style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.5px', lineHeight: 1.8, maxWidth: 320 }}>
-          {state.hash}
-        </p>
-
-        {/* ── STATUS BAR ── */}
-        <div className="flex items-center gap-2.5 mb-10">
-          {statusParts.map((part, i) => (
-            <span key={i} className="flex items-center gap-2.5">
-              {i > 0 && (
-                <span className="w-[3px] h-[3px] rounded-full"
-                  style={{ background: 'rgba(201,169,110,0.2)' }} />
-              )}
-              {part.pulse ? (
-                <motion.span
-                  className="font-mono text-[14px] tracking-[1px] uppercase"
-                  style={{ color: 'rgba(201,169,110,0.5)' }}
-                  animate={{ opacity: [0.3, 0.7, 0.3] }}
-                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-                  {part.label}
-                </motion.span>
-              ) : (
-                <span className="font-mono text-[14px] tracking-[1px] uppercase"
-                  style={{ color: 'rgba(201,169,110,0.5)' }}>
-                  {part.label}
-                </span>
-              )}
-            </span>
-          ))}
+          {/* PENDING STATUS */}
+          {!anchored && (
+            <motion.p
+              className="font-mono text-[9px] tracking-[4px] uppercase text-center mt-4"
+              style={{ color: 'rgba(201,169,110,0.4)' }}
+              animate={{ opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+              {pendingLabel}
+            </motion.p>
+          )}
         </div>
 
-        {/* ── ACTIONS (only when ready) ── */}
-        {anchored && (
-          <>
-            {/* ── DIVIDER 2 ── */}
-            <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
+        {/* DIVIDER */}
+        <div className="w-full mb-10" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
-            {/* ── 1. Download ── */}
-            <button onClick={onDownload}
-              className="font-garamond text-[26px] text-center mb-5 transition-colors"
-              style={{ color: 'rgba(240,234,214,0.85)' }}>
-              Download proof
+        {/* ══════════════════════════════════════════════
+            NUMBERED STEPS — left-aligned
+        ══════════════════════════════════════════════ */}
+        <div className="w-full flex flex-col">
+
+          {/* ── STEP 1: DOWNLOAD ── */}
+          <div className="w-full mb-8" style={lockedStyle}>
+            <button
+              onClick={onDownload}
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
+              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Download your proof</span>
+              <span className="ml-auto text-[8px] flex-shrink-0"
+                style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
+          </div>
 
-            {/* ── 2. Verify ── */}
-            <div className="w-full flex flex-col items-center mb-8">
-              <InlineVerify />
-            </div>
-
-            {/* ── 3. Share (optional) ── */}
-            <button onClick={onShare}
-              className="font-mono text-[14px] tracking-[3px] uppercase transition-colors mb-2"
-              style={{ color: 'rgba(240,234,214,0.35)' }}>
-              Share this proof
+          {/* ── STEP 2: VERIFY ── */}
+          <div className="w-full mb-8" style={lockedStyle}>
+            <button
+              onClick={() => !lockedStyle.opacity && toggleStep('verify')}
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
+              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Verify it</span>
+              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
+                style={{
+                  color: 'rgba(240,234,214,0.35)',
+                  transform: openStep === 'verify' ? 'rotate(180deg)' : 'none',
+                }}>▾</span>
             </button>
-            <a href={shareUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2.5 mb-8 group">
-              <span className="font-mono text-[20px] transition-opacity group-hover:opacity-80"
-                style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
-                itexisted.app/{state.shortToken}
-              </span>
-              <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
-                width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M11 7.5V11a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1h3.5" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
-                <path d="M8 2h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M6 8L12 2" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
-              </svg>
-            </a>
-
-            {/* ── 4. Attestation (optional) ── */}
-            <div className="w-full flex flex-col items-center mb-8">
-              <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
+            {/* Expandable body */}
+            <div style={{
+              maxHeight: openStep === 'verify' ? 500 : 0,
+              overflow: 'hidden',
+              opacity: openStep === 'verify' ? 1 : 0,
+              transition: 'max-height 0.4s ease, opacity 0.3s ease',
+            }}>
+              <div className="pt-4 pl-[23px]">
+                <InlineVerify />
+              </div>
             </div>
-          </>
-        )}
+          </div>
 
-        {/* ── ANCHOR ANOTHER ── */}
-        <button onClick={() => navigate('/itexisted')}
-          className="font-mono text-[14px] tracking-[5px] uppercase transition-colors hover:text-white/60"
-          style={{ color: 'rgba(240,234,214,0.35)' }}>
-          Anchor another file
-        </button>
+          {/* ── REMEMBER NOTE ── */}
+          <p className="font-garamond italic text-[16px] mb-8"
+            style={{
+              color: !anchored ? 'rgba(240,234,214,0.35)' : 'rgba(240,234,214,0.85)',
+              lineHeight: 1.65,
+              maxWidth: 340,
+              opacity: !anchored ? 0.45 : 1,
+            }}>
+            Remember: the ZIP you've downloaded does not contain your original file. Keep your original file and your ZIP together on your device. You will need it to verify.
+          </p>
+
+          {/* ── STEP 3: SHARE ── */}
+          <div className="w-full mb-8" style={lockedStyle}>
+            <button
+              onClick={onShare}
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
+              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
+              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+            </button>
+          </div>
+
+          {/* ── STEP 4: ATTESTATION ── */}
+          <div className="w-full mb-8" style={lockedStyle}>
+            <button
+              onClick={() => !lockedStyle.opacity && toggleStep('attest')}
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
+              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
+              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
+                style={{
+                  color: 'rgba(240,234,214,0.35)',
+                  transform: openStep === 'attest' ? 'rotate(180deg)' : 'none',
+                }}>▾</span>
+            </button>
+            {/* Expandable body */}
+            <div style={{
+              maxHeight: openStep === 'attest' ? 500 : 0,
+              overflow: 'hidden',
+              opacity: openStep === 'attest' ? 1 : 0,
+              transition: 'max-height 0.4s ease, opacity 0.3s ease',
+            }}>
+              <div className="pt-4 pl-[23px]">
+                <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── STEP 5: ANCHOR ANOTHER ── */}
+          <div className="w-full mb-8" style={!anchored ? { opacity: 0.45 } : {}}>
+            <button
+              onClick={() => navigate('/itexisted')}
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
+              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
+              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+              <span className="ml-auto text-[8px] flex-shrink-0"
+                style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
+            </button>
+          </div>
+
+        </div>
 
       </motion.div>
     </main>
   );
 }
+
