@@ -48,7 +48,7 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
       </motion.div>
 
       <motion.p
-        className="mt-5 font-garamond text-[28px] italic pointer-events-none"
+        className="mt-5 font-garamond text-[21px] italic pointer-events-none"
         style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

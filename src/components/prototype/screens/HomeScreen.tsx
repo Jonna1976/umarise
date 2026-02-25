@@ -19,7 +19,7 @@ export function HomeScreen() {
       </motion.h1>
 
       <motion.p
-        className="font-garamond italic text-[26px] text-ritual-gold-muted"
+        className="font-garamond italic text-[20px] text-ritual-gold-muted"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 3 }}

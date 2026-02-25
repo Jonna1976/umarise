@@ -111,24 +111,24 @@ export function SealConfirmationScreen({
 
         <div className="space-y-3 text-center">
           <div>
-            <p className="font-mono text-[18px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>ORIGIN</p>
+            <p className="font-mono text-[14px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>ORIGIN</p>
             <p className="font-mono text-sm tracking-wide text-ritual-cream">{originId}</p>
           </div>
           <div>
-            <p className="font-mono text-[18px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>SEALED</p>
+            <p className="font-mono text-[14px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>SEALED</p>
             <p className="font-garamond text-sm" style={{ color: 'hsl(var(--ritual-cream) / 0.8)' }}>{formattedDate} at {formattedTime}</p>
           </div>
           <div>
-            <p className="font-mono text-[18px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>FINGERPRINT</p>
-            <p className="font-mono text-[20px] break-all" style={{ color: 'hsl(var(--ritual-cream) / 0.5)' }}>{shortHash}</p>
+            <p className="font-mono text-[14px] tracking-[2px] uppercase mb-1 opacity-[0.45]" style={{ color: 'hsl(var(--ritual-gold-muted))' }}>FINGERPRINT</p>
+            <p className="font-mono text-[15px] break-all" style={{ color: 'hsl(var(--ritual-cream) / 0.5)' }}>{shortHash}</p>
           </div>
         </div>
 
         <div className="mt-5 pt-4 text-center" style={{ borderTop: '1px solid hsl(var(--ritual-gold) / 0.1)' }}>
-          <p className="font-mono text-[18px] tracking-wide" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>⏳ Pending Bitcoin anchor</p>
+          <p className="font-mono text-[14px] tracking-wide" style={{ color: 'hsl(var(--ritual-gold) / 0.5)' }}>⏳ Pending Bitcoin anchor</p>
         </div>
 
-        <p className="mt-4 font-garamond italic text-[18px] text-center" style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}>
+        <p className="mt-4 font-garamond italic text-[14px] text-center" style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}>
           sealed on your device · only the proof leaves
         </p>
       </motion.div>
@@ -148,13 +148,13 @@ export function SealConfirmationScreen({
             {isSharing ? 'Sharing...' : 'Share'}
           </button>
         </div>
-        <button onClick={onComplete} className="font-garamond text-[24px] transition-opacity hover:opacity-60" style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}>
+        <button onClick={onComplete} className="font-garamond text-[18px] transition-opacity hover:opacity-60" style={{ color: 'hsl(var(--ritual-cream) / 0.4)' }}>
           continue to Wall
         </button>
       </motion.div>
 
       <motion.p
-        className="absolute bottom-6 font-garamond italic text-[20px]"
+        className="absolute bottom-6 font-garamond italic text-[15px]"
         style={{ color: 'hsl(var(--ritual-cream) / 0.15)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

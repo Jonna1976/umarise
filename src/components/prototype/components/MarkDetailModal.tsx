@@ -85,24 +85,24 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
             <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.3" />
             <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="font-mono text-[28px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>Verified</span>
+          <span className="font-mono text-[21px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>Verified</span>
         </div>
       )}
       {result.status === 'not_found' && (
         <div className="flex items-center gap-3 mb-4">
-          <span className="font-mono text-[28px] tracking-[3px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Not found in registry</span>
+          <span className="font-mono text-[21px] tracking-[3px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Not found in registry</span>
         </div>
       )}
       {result.bitcoin_block_height && (
-        <p className="font-mono text-[26px] mb-4" style={{ color: 'hsl(142 20% 65%)' }}>Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}</p>
+        <p className="font-mono text-[20px] mb-4" style={{ color: 'hsl(142 20% 65%)' }}>Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}</p>
       )}
       <button onClick={handleShare} disabled={saved}
         className="bg-transparent border-none cursor-pointer transition-all disabled:opacity-50 mb-3 hover:tracking-[6px]"
-        style={{ fontFamily: "'DM Mono', monospace", fontSize: '26px', letterSpacing: '5px', textTransform: 'uppercase', color: saved ? 'rgba(240,234,214,0.5)' : 'rgba(240,234,214,0.85)' }}>
+        style={{ fontFamily: "'DM Mono', monospace", fontSize: '20px', letterSpacing: '5px', textTransform: 'uppercase', color: saved ? 'rgba(240,234,214,0.5)' : 'rgba(240,234,214,0.85)' }}>
         {saved ? '✓ Shared' : 'Share'}
       </button>
       <button onClick={onReset}
-        className="font-mono text-[22px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
+        className="font-mono text-[17px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
         style={{ color: 'rgba(245,240,232,0.3)' }}>
         verify different file
       </button>
@@ -287,25 +287,25 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           <div className="flex flex-col items-center text-center">
             <div className="w-12 h-px mb-5" style={{ background: 'rgba(197,147,90,0.25)' }} />
 
-            <p className="font-mono text-[24px] tracking-[5px] mb-2" style={{ color: 'rgba(197,147,90,0.75)' }}>{displayOriginId}</p>
-            <p className="font-garamond text-[26px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>{formattedDate} · {formattedTime}</p>
+            <p className="font-mono text-[18px] tracking-[5px] mb-2" style={{ color: 'rgba(197,147,90,0.75)' }}>{displayOriginId}</p>
+            <p className="font-garamond text-[20px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>{formattedDate} · {formattedTime}</p>
             <p className="font-mono text-[15px] tracking-[0.5px] mb-5 max-w-[340px] break-all leading-[1.7] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}>{mark.hash}</p>
 
             {/* Proof components */}
             <div className="flex items-center gap-5 mb-6">
-              <span className="font-mono text-[22px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>hash</span>
+              <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>hash</span>
               <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[22px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>certificate</span>
+              <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>certificate</span>
               {isAnchored ? (
                 <>
                   <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-                  <span className="font-mono text-[22px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>proof.ots</span>
+                  <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>proof.ots</span>
                 </>
               ) : (
                 <>
                   <motion.span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }}
                     animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
-                  <span className="font-mono text-[22px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)', opacity: 0.6 }}>proof.ots</span>
+                  <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)', opacity: 0.6 }}>proof.ots</span>
                 </>
               )}
             </div>
@@ -314,7 +314,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             <div className="w-full max-w-[340px] mb-6">
               <button onClick={() => setVerificationOpen(!verificationOpen)}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
-                <span className="font-mono text-[22px] tracking-[4px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>verification details</span>
+                <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>verification details</span>
                 <motion.span className="text-[16px]" style={{ color: 'rgba(240,234,214,0.35)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
               </button>
 
@@ -330,27 +330,27 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                               <path d="M24 4 A20 20 0 0 1 44 24" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
                           </motion.div>
-                          <span className="font-mono text-[24px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Verifying…</span>
+                          <span className="font-mono text-[18px] tracking-[2px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Verifying…</span>
                         </div>
                       )}
 
                       {!verifying && verifyResult && verifyResult.steps?.length > 0 ? (
                         <>
                           {verifyResult.steps.map((step, i) => (
-                            <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[24px]" style={{ borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none' }}>
-                              <span className="flex-shrink-0 text-[20px] mt-0.5" style={{
+                            <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[18px]" style={{ borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none' }}>
+                              <span className="flex-shrink-0 text-[15px] mt-0.5" style={{
                                 color: step.status === 'ok' ? '#4a7c59' : step.status === 'error' ? 'hsl(0 60% 60%)' : step.status === 'warn' ? 'hsl(38 65% 60%)' : 'rgba(240,234,214,0.35)',
                               }}>
                                 {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
                               </span>
                               <span className="flex-1 leading-[1.5]" style={{ color: step.status === 'ok' ? 'rgba(240,234,214,0.6)' : step.status === 'error' ? 'hsl(0 60% 60%)' : 'rgba(240,234,214,0.35)' }}>
                                 {step.label}
-                                {step.detail && <span className="text-[18px] ml-1.5" style={{ color: 'rgba(240,234,214,0.35)', wordBreak: 'break-all' }}>{step.detail}</span>}
+                                {step.detail && <span className="text-[14px] ml-1.5" style={{ color: 'rgba(240,234,214,0.35)', wordBreak: 'break-all' }}>{step.detail}</span>}
                               </span>
                             </div>
                           ))}
                           <button onClick={(e) => { e.stopPropagation(); resetZip(); }}
-                            className="font-mono text-[22px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80 mt-2"
+                            className="font-mono text-[17px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80 mt-2"
                             style={{ color: 'rgba(245,240,232,0.3)' }}>choose different file</button>
                         </>
                       ) : !verifying ? (
@@ -358,8 +358,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                           style={{ background: isDragging ? 'rgba(197,147,90,0.08)' : 'transparent' }}
                           onClick={(e) => { e.stopPropagation(); zipInputRef.current?.click(); }}
                           onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-                          <span className="font-mono text-[24px]" style={{ color: 'rgba(240,234,214,0.35)' }}>{isDragging ? 'Drop ZIP here' : 'Drop ZIP to verify'}</span>
-                          <span className="font-mono text-[20px]" style={{ color: 'rgba(240,234,214,0.2)' }}>or tap to select file</span>
+                          <span className="font-mono text-[18px]" style={{ color: 'rgba(240,234,214,0.35)' }}>{isDragging ? 'Drop ZIP here' : 'Drop ZIP to verify'}</span>
+                          <span className="font-mono text-[15px]" style={{ color: 'rgba(240,234,214,0.2)' }}>or tap to select file</span>
                         </div>
                       ) : null}
                     </div>
@@ -382,29 +382,29 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {/* Attestation blocks */}
             {attestationStatus === 'pending' && (
               <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[22px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <p className="font-garamond text-[26px] italic text-center" style={{ color: 'rgba(240,234,214,0.35)' }}>Requested. You will be notified when complete.</p>
+                <span className="font-mono text-[17px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
+                <p className="font-garamond text-[20px] italic text-center" style={{ color: 'rgba(240,234,214,0.35)' }}>Requested. You will be notified when complete.</p>
               </div>
             )}
 
             {attestationStatus === 'attested' && (
               <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[22px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <button onClick={() => {}} className="font-garamond italic text-[28px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70" style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}>
+                <span className="font-mono text-[17px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
+                <button onClick={() => {}} className="font-garamond italic text-[21px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70" style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}>
                   Attested by {attestantInfo?.name || 'Attestant'} ✓
                 </button>
-                {attestantInfo?.date && <span className="font-mono text-[24px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>{attestantInfo.date}</span>}
+                {attestantInfo?.date && <span className="font-mono text-[18px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>{attestantInfo.date}</span>}
               </div>
             )}
 
             {isAnchored && attestationStatus === 'none' && (
               <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[22px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <p className="font-garamond text-[28px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                <span className="font-mono text-[17px] tracking-[5px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
+                <p className="font-garamond text-[21px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
                   A certified independent attestant confirms it was you. €4,95. One-time.
                 </p>
                 <button onClick={() => setShowAttestationModal(true)}
-                  className="font-mono text-[22px] tracking-[4px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
+                  className="font-mono text-[17px] tracking-[4px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
                   style={{ border: '1px solid rgba(201,169,110,0.4)', color: 'hsl(var(--ritual-gold))', marginTop: '4px' }}>
                   Request attestation →
                 </button>
@@ -417,7 +417,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 <svg width="16" height="16" viewBox="0 0 12 12">
                   <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span className="font-mono text-[28px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>device signed</span>
+                <span className="font-mono text-[21px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>device signed</span>
               </div>
             )}
           </div>

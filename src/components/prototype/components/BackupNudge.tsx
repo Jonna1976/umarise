@@ -38,7 +38,7 @@ export function BackupNudge({ onDismiss, onExport }: BackupNudgeProps) {
             <div className="absolute inset-0 rounded-xl pointer-events-none"
               style={{ background: 'radial-gradient(ellipse at center top, hsl(var(--ritual-gold) / 0.04), transparent 60%)' }} />
 
-            <p className="font-garamond italic text-[26px] text-ritual-cream-70 text-center leading-relaxed mb-3 relative">
+            <p className="font-garamond italic text-[20px] text-ritual-cream-70 text-center leading-relaxed mb-3 relative">
               your memories live in your browser
               <br />
               <span className="text-ritual-gold-muted">back them up to keep them safe</span>
@@ -46,13 +46,13 @@ export function BackupNudge({ onDismiss, onExport }: BackupNudgeProps) {
 
             <div className="flex justify-center gap-3 relative">
               <button onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-ritual-gold font-garamond text-[24px] tracking-wide transition-all duration-300 hover:bg-ritual-gold/10"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-ritual-gold font-garamond text-[18px] tracking-wide transition-all duration-300 hover:bg-ritual-gold/10"
                 style={{ border: '1px solid hsl(var(--ritual-gold) / 0.3)' }}>
                 <Download className="w-3.5 h-3.5" />
                 export all
               </button>
               <button onClick={handleDismiss}
-                className="px-4 py-2 rounded-lg text-ritual-cream-40 font-garamond italic text-[24px] transition-all duration-300 hover:text-ritual-cream-70">
+                className="px-4 py-2 rounded-lg text-ritual-cream-40 font-garamond italic text-[18px] transition-all duration-300 hover:text-ritual-cream-70">
                 later
               </button>
             </div>

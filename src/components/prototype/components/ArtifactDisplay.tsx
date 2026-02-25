@@ -57,7 +57,7 @@ function DocumentArtifactIcon({ fileName }: { fileName?: string }) {
         </svg>
       </div>
       {fileName && (
-        <p className="font-mono text-[22px] tracking-[1px] max-w-[180px] truncate text-center" style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}>
+        <p className="font-mono text-[17px] tracking-[1px] max-w-[180px] truncate text-center" style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}>
           {fileName}
         </p>
       )}
@@ -76,7 +76,7 @@ function AudioArtifactIcon({ fileName }: { fileName?: string }) {
         ))}
       </div>
       {fileName && (
-        <p className="font-mono text-[22px] tracking-[1px] max-w-[180px] truncate text-center" style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}>
+        <p className="font-mono text-[17px] tracking-[1px] max-w-[180px] truncate text-center" style={{ color: 'hsl(var(--ritual-gold))', opacity: 0.35 }}>
           {fileName}
         </p>
       )}
