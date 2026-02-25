@@ -5,7 +5,7 @@ import { useMarks } from '@/hooks/useMarks';
 import { fetchOriginByHash } from '@/lib/coreApi';
 import { toast } from 'sonner';
 
-type ItExistedState = 'capture' | 'passkey' | 'processing';
+type ItExistedState = 'capture' | 'processing';
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
 
 function mapFileType(mimeType: string): MarkType {
@@ -51,13 +51,13 @@ export default function ItExisted() {
   const handlePick = (file: File | null) => {
     if (!file) return;
     setSelectedFile(file);
-    setState('passkey');
+    setState('processing');
+    // Anchor immediately — no fake passkey step
+    anchorFile(file);
   };
 
-  const handleAnchor = async () => {
-    if (!selectedFile) return;
-    setState('processing');
-    const mark = await createMarkFromFile(selectedFile, mapFileType(selectedFile.type));
+  const anchorFile = async (file: File) => {
+    const mark = await createMarkFromFile(file, mapFileType(file.type));
 
     if (!mark) {
       toast.error('Anchoring failed. Try again.');
@@ -84,6 +84,8 @@ export default function ItExisted() {
     navigate('/itexisted/anchored', { state: payload });
   };
 
+  // handleAnchor removed — anchoring now happens directly in handlePick
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6"
       style={{ background: 'hsl(var(--itx-bg))' }}>
@@ -102,7 +104,7 @@ export default function ItExisted() {
             <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream))' }}>
               Now it's provable.
             </p>
-            <p className="font-garamond italic text-[16px]" style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>
+            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
               Your file stays yours.
             </p>
             <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-gold))' }}>
@@ -121,33 +123,6 @@ export default function ItExisted() {
               style={{ color: 'hsl(var(--itx-gold) / 0.12)' }}>
               itexisted.app
             </span>
-          </motion.div>
-        )}
-
-        {state === 'passkey' && (
-          <motion.div key="passkey"
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="flex flex-col items-center text-center">
-            <svg viewBox="0 0 48 48" width="36" height="36" className="mb-5" aria-hidden>
-              <rect x="10" y="20" width="28" height="20" rx="4" fill="none"
-                stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2" />
-              <path d="M16 20v-6a8 8 0 0116 0v6" fill="none"
-                stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2" />
-              <circle cx="24" cy="30" r="2.5" fill="hsl(var(--itx-gold) / 0.5)" />
-            </svg>
-            <h1 className="font-playfair text-[17px] font-light mb-1"
-              style={{ color: 'hsl(var(--itx-cream))' }}>Confirm with Face ID</h1>
-            <p className="font-garamond text-[13px] mb-8"
-              style={{ color: 'hsl(var(--itx-cream) / 0.35)' }}>to anchor this file to your device</p>
-            <button onClick={handleAnchor}
-              className="px-8 py-2.5 rounded-full font-playfair text-[17px] font-light"
-              style={{
-                background: 'hsl(var(--itx-gold) / 0.08)',
-                color: 'hsl(var(--itx-gold) / 0.8)',
-                border: '1px solid hsl(var(--itx-gold) / 0.3)',
-              }}>
-              Use Face ID
-            </button>
           </motion.div>
         )}
 
