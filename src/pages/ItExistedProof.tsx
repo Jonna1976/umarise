@@ -254,10 +254,10 @@ export default function ItExistedProof() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
-              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
-                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
             </button>
           </div>
 
@@ -269,10 +269,10 @@ export default function ItExistedProof() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
-              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
-                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
               <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
                 style={{
                   color: 'rgba(240,234,214,0.35)',
@@ -300,10 +300,10 @@ export default function ItExistedProof() {
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
-              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
-                style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
+              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
               <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
