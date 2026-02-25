@@ -289,7 +289,7 @@ export default function ItExistedProof() {
             </button>
             {/* Expandable body */}
             <div style={{
-              maxHeight: openStep === 'attest' ? 500 : 0,
+              maxHeight: openStep === 'attest' ? 800 : 0,
               overflow: 'hidden',
               opacity: openStep === 'attest' ? 1 : 0,
               transition: 'max-height 0.4s ease, opacity 0.3s ease',
