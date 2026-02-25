@@ -21,8 +21,7 @@ export function HomeScreen() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.5 }}
       >
-        When it begins,<br />
-        hold on.
+        Anchor what matters.
       </motion.h1>
 
       {/* Install hint - appears after delay */}
