@@ -221,7 +221,11 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
               className="font-playfair font-light text-[26px] leading-[1.6]"
               style={{ color: 'hsl(var(--ritual-cream))' }}
             >
-              Anchor what matters.
+              It exists.
+              <br />
+              Provable forever.
+              <br />
+              <span style={{ color: 'hsl(var(--ritual-gold))' }}>Anchor what matters.</span>
             </h1>
           </motion.div>
         )}
