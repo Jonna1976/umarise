@@ -66,11 +66,13 @@ export default function ItExisted() {
       return;
     }
 
+    // Bridge trigger runs synchronously in the same transaction as pages INSERT,
+    // but edge function cold starts may cause initial 404. Poll with backoff.
     let resolved = null;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
+      await new Promise(r => setTimeout(r, i === 0 ? 500 : 1500));
       resolved = await fetchOriginByHash(mark.hash);
       if (resolved) break;
-      await new Promise(r => setTimeout(r, 1000));
     }
     const shortToken = resolved?.short_token ?? mark.hash.slice(0, 8).toUpperCase();
     const payload = {
