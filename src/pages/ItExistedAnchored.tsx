@@ -121,23 +121,23 @@ export default function ItExistedAnchored() {
         {/* ── URL INSTRUCTION ── */}
         <p className="font-garamond text-[18px] text-center mb-5"
           style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 300 }}>
-          Copy and go to this URL in ~2 hours to download your proof.
+          Your proof is being anchored to the Bitcoin blockchain. Check back in ~2 hours.
         </p>
 
-        {/* ── URL ROW ── */}
-        <div className="flex items-center gap-2.5 mb-12">
-          <span className="font-mono text-[16px]"
+        {/* ── URL LINK ── */}
+        <a href={fullProofUrl} 
+          className="flex items-center gap-2.5 mb-12 group"
+          onClick={(e) => { e.preventDefault(); navigate(`/itexisted/proof/${state.shortToken}`); }}>
+          <span className="font-mono text-[16px] transition-opacity group-hover:opacity-80"
             style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
             {proofUrl}
           </span>
-          <svg className="cursor-pointer flex-shrink-0 transition-opacity"
-            style={{ opacity: copied ? 1 : 0.5 }}
-            onClick={handleCopy}
-            width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="5" y="5" width="9" height="9" rx="1" stroke="#c9a96e" strokeWidth="1" />
-            <path d="M3 11V3a1 1 0 011-1h8" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+          <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
+            width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 9l4-4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+            <path d="M5 5h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </div>
+        </a>
 
         {/* ── KEEP FILE ── */}
         <p className="font-garamond italic text-[14px] text-center mb-12"
