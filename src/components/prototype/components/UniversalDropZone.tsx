@@ -96,7 +96,7 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
               <svg viewBox="0 0 48 48" width={32} height={32}>
                 <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="1.2" opacity="0.7" />
               </svg>
-              <span className="font-garamond text-[22px] tracking-[0.14em] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.7)' }}>
+              <span className="font-garamond text-[17px] tracking-[0.14em] uppercase" style={{ color: 'hsl(var(--ritual-gold) / 0.7)' }}>
                 Release to anchor
               </span>
             </motion.div>
@@ -109,10 +109,10 @@ export function UniversalDropZone({ onFile, disabled }: UniversalDropZoneProps) 
                 <svg viewBox="0 0 18 22" width={12} height={15}><path d="M2,1 L12,1 L17,6 L17,21 L2,21 Z" fill="none" stroke="hsl(var(--ritual-cream))" strokeWidth="1"/><path d="M12,1 L12,6 L17,6" fill="none" stroke="hsl(var(--ritual-cream))" strokeWidth="1"/></svg>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <span className="font-garamond text-[24px] tracking-[0.10em] uppercase" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>
+                <span className="font-garamond text-[18px] tracking-[0.10em] uppercase" style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}>
                   Any file · Drop or tap
                 </span>
-                <span className="font-garamond italic text-[20px]" style={{ color: 'hsl(var(--ritual-cream) / 0.15)' }}>
+                <span className="font-garamond italic text-[15px]" style={{ color: 'hsl(var(--ritual-cream) / 0.15)' }}>
                   PDF, Excel, Word, Keynote, audio, video…
                 </span>
               </div>
@@ -146,10 +146,10 @@ export function HashingProgress({ fileName, fileSize, progress }: HashingProgres
       </motion.div>
 
       <div className="text-center">
-        <p className="font-garamond text-[24px] tracking-[0.08em] uppercase truncate max-w-[200px]" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
+        <p className="font-garamond text-[18px] tracking-[0.08em] uppercase truncate max-w-[200px]" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>
           {fileName}
         </p>
-        <p className="font-garamond italic text-[20px] mt-0.5" style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}>
+        <p className="font-garamond italic text-[15px] mt-0.5" style={{ color: 'hsl(var(--ritual-cream) / 0.25)' }}>
           {formatBytes(fileSize)}
         </p>
       </div>
@@ -159,14 +159,14 @@ export function HashingProgress({ fileName, fileSize, progress }: HashingProgres
           <div className="w-full rounded-full overflow-hidden" style={{ height: '1px', background: 'hsl(var(--ritual-gold) / 0.12)' }}>
             <motion.div className="h-full rounded-full" style={{ background: 'hsl(var(--ritual-gold) / 0.55)' }} initial={{ width: '0%' }} animate={{ width: `${pct}%` }} transition={{ ease: 'linear' }} />
           </div>
-          <p className="text-center font-garamond text-[20px] mt-1.5" style={{ color: 'hsl(var(--ritual-gold) / 0.4)' }}>
+          <p className="text-center font-garamond text-[15px] mt-1.5" style={{ color: 'hsl(var(--ritual-gold) / 0.4)' }}>
             {pct < 100 ? `Computing fingerprint… ${pct}%` : 'Sealing…'}
           </p>
         </div>
       )}
 
       {!isLarge && (
-        <p className="font-garamond text-[20px] tracking-[0.08em]" style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}>
+        <p className="font-garamond text-[15px] tracking-[0.08em]" style={{ color: 'hsl(var(--ritual-cream) / 0.2)' }}>
           Computing fingerprint…
         </p>
       )}

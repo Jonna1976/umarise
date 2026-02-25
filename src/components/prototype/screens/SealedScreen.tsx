@@ -221,7 +221,7 @@ export function SealedScreen({
 
         {/* Origin ID */}
         <p
-          className="font-mono text-[28px] tracking-[3px] mb-1"
+          className="font-mono text-[21px] tracking-[3px] mb-1"
           style={{ color: 'rgba(197,147,90,0.75)' }}
         >
           {shortId}
@@ -237,7 +237,7 @@ export function SealedScreen({
 
         {/* Hash — full, one line */}
         <p
-          className="font-mono text-[22px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
+          className="font-mono text-[17px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
@@ -245,17 +245,17 @@ export function SealedScreen({
 
         {/* Proof components — one line */}
         <div className="flex items-center gap-4 mb-5">
-          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+          <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             certificate
           </span>
           <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+          <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             hash
           </span>
           {isAnchored ? (
             <>
               <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+              <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
                 proof.ots
               </span>
             </>
@@ -267,7 +267,7 @@ export function SealedScreen({
                 animate={{ opacity: [0.3, 0.7, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
+              <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
                 proof.ots
               </span>
             </>
@@ -324,7 +324,7 @@ export function SealedScreen({
           <svg width="12" height="12" viewBox="0 0 12 12">
             <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
+          <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
             device signed
           </span>
         </motion.div>

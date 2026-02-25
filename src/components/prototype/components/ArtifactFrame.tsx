@@ -101,7 +101,7 @@ export function ArtifactFrame({ artifact, isFocused, isNewest = false, onClick }
 
       {/* Date label */}
       <motion.p
-        className="font-mono text-[20px] tracking-[2px] whitespace-nowrap mt-2"
+        className="font-mono text-[15px] tracking-[2px] whitespace-nowrap mt-2"
         animate={{ color: isFocused ? 'hsl(var(--ritual-gold-muted))' : 'hsl(var(--ritual-gold-muted))', opacity: isFocused ? 0.6 : 0.35 }}
         transition={{ duration: 0.4 }}
       >
@@ -120,7 +120,7 @@ export function ArtifactFrame({ artifact, isFocused, isNewest = false, onClick }
         <AnimatePresence>
           {showTooltip && artifact.otsStatus !== 'anchored' && (
             <motion.p
-              className="absolute top-7 whitespace-nowrap font-garamond italic text-[26px]"
+              className="absolute top-7 whitespace-nowrap font-garamond italic text-[20px]"
               style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
