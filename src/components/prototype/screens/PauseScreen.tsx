@@ -17,17 +17,6 @@ interface PauseScreenProps {
   onComplete: () => void;
 }
 
-/**
- * Screen 2: Pause
- * 
- * Per briefing sectie 4 (S2):
- * - "Your artifact" — 22px Playfair 300, gold
- * - Foto in native oriëntatie (object-fit: contain)
- * - "✓ saved to your device" — italic, bevestiging (NIET een knop)
- * - Tap anywhere to continue to S3
- * 
- * No auto-advance — waits for user to tap to continue.
- */
 export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
   return (
     <motion.div
@@ -39,7 +28,6 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
       transition={{ duration: 0.6 }}
       onClick={onComplete}
     >
-      {/* Title — per briefing sectie 10: 22px Playfair 300, #C5935A */}
       <motion.h1
         className="font-playfair text-[26px] text-ritual-gold mb-6 pointer-events-none"
         style={{ fontWeight: 300 }}
@@ -50,7 +38,6 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         Your artifact
       </motion.h1>
 
-      {/* Artifact container — tap anywhere to continue */}
       <motion.div
         className="w-[250px] h-[190px] rounded-[4px] overflow-hidden"
         initial={{ opacity: 0, scale: 0.96, y: 6 }}
@@ -60,9 +47,8 @@ export function PauseScreen({ artifact, onComplete }: PauseScreenProps) {
         <ArtifactDisplay type={artifact.type} imageUrl={artifact.imageUrl || undefined} mimeType={artifact.mimeType} fileName={artifact.fileName} />
       </motion.div>
 
-      {/* Save confirmation — per briefing: "✓ saved to your device" is a static confirmation, NOT a button */}
       <motion.p
-        className="mt-5 font-garamond text-[14px] italic pointer-events-none"
+        className="mt-5 font-garamond text-[28px] italic pointer-events-none"
         style={{ color: 'hsl(var(--ritual-cream) / 0.35)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
