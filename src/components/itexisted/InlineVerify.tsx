@@ -54,13 +54,14 @@ export default function InlineVerify() {
     const meta = await fetchOriginMetadata(verify.origin.origin_id);
     const proof = await fetchProofStatus(verify.origin.origin_id);
     const captured = new Date(verify.origin.captured_at);
-    const btcOk = proof.status === 'anchored' && !!proof.bitcoinBlockHeight;
+    const btcOk = proof.status === 'anchored';
+    const blockHeight = proof.bitcoinBlockHeight;
     setResult({
       shortToken: meta?.short_token ?? verify.origin.origin_id.slice(0, 8).toUpperCase(),
       hashMatch: true,
       date: captured.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       time: `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`,
-      bitcoin: btcOk ? `✓ block ${proof.bitcoinBlockHeight!.toLocaleString('en-US')}` : 'pending',
+      bitcoin: btcOk ? (blockHeight ? `✓ block ${blockHeight.toLocaleString('en-US')}` : '✓ anchored') : 'pending',
       bitcoinOk: btcOk,
     });
     setBusy(false);
