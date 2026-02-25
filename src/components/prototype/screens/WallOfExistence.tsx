@@ -1,10 +1,5 @@
 /**
- * S3: Origin Registry (formerly "Wall of Existence" / "Marked Origins")
- * 
- * Horizontal scrolling gallery of sealed origins, museum-style.
- * Each origin in its own frame with date below.
- * Detail view on tap (handled by MarkDetailModal).
- * Origin button top-left for close.
+ * S3: Origin Registry
  */
 
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
@@ -39,7 +34,6 @@ interface WallOfExistenceProps {
   onBulkExport?: () => void;
 }
 
-// Size mapping based on aspect ratio
 function getSizeFromMark(mark: DisplayMark): string {
   switch (mark.sizeClass) {
     case 'large': return 'large-landscape';
@@ -48,10 +42,8 @@ function getSizeFromMark(mark: DisplayMark): string {
   }
 }
 
-// Offset pattern for visual variety
 const OFFSET_PATTERN = ['high', 'low', 'middle', 'lower', 'highest'] as const;
 
-// Fallback mock artifacts for demo mode when no marks exist
 const MOCK_ARTIFACTS: WallArtifact[] = [
   { id: '1', type: 'warm', date: '4 Feb 2026', hash: '884d5f17553df0a3884d5f17553df0a3884d5f17553df0a3', origin: '1916F13F', size: 'large-landscape', offset: 'high', otsStatus: 'anchored', timestamp: new Date('2026-02-04'), originId: 'UM-1916F13F' },
   { id: '2', type: 'text', date: '28 Jan 2026', hash: 'f3d18ca291bb7e05f3d18ca291bb7e05f3d18ca291bb7e05', origin: '7B3E09A1', size: 'small-square', offset: 'low', otsStatus: 'pending', timestamp: new Date('2026-01-28'), originId: 'UM-7B3E09A1' },
@@ -72,7 +64,6 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
   const hasPolledRef = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Handle Stripe return URL — show confirmation toast
   useEffect(() => {
     if (searchParams.get('attestation') === 'requested') {
       toast.success('Attestation requested. You will be notified when complete.', { duration: 6000 });
@@ -81,120 +72,71 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       setSearchParams(searchParams, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
   const { shouldShowBackupNudge, markBackupNudgeShown } = useMarkCount();
   const { marks, isLoading, importLegacyMarks, refresh } = useMarks();
   const { pollPendingProofs, getOriginUuid } = useProofPolling();
+
   const handleArtifactClick = useCallback(async (artifact: WallArtifact) => {
-    // Fetch origin UUID for detail view if not cached
     if (!originUuidMap.has(artifact.id)) {
       const uuid = await getOriginUuid(artifact.id);
-      if (uuid) {
-        setOriginUuidMap(prev => new Map(prev).set(artifact.id, uuid));
-      }
+      if (uuid) setOriginUuidMap(prev => new Map(prev).set(artifact.id, uuid));
     }
     setSelectedMark(artifact);
   }, [originUuidMap, getOriginUuid]);
 
-  // Import legacy marks and poll pending proofs on first load
-  useEffect(() => {
-    importLegacyMarks();
-  }, [importLegacyMarks]);
+  useEffect(() => { importLegacyMarks(); }, [importLegacyMarks]);
 
-  // Background poll for pending proofs — runs once per mount
   useEffect(() => {
-    console.log('[Wall] Poll effect: isLoading=', isLoading, 'marks=', marks.length, 'hasPolled=', hasPolledRef.current);
     if (isLoading || marks.length === 0 || hasPolledRef.current) return;
     hasPolledRef.current = true;
-
     const pending = marks.filter(m => m.otsStatus !== 'anchored');
-    console.log('[Wall] Pending marks:', pending.length, 'of', marks.length);
     if (pending.length === 0) return;
-
     pollPendingProofs(pending).then(results => {
-      console.log('[Wall] Poll results:', results.length, 'newly anchored');
-      if (results.length > 0) {
-        refresh(); // Reload marks to reflect updated statuses
-      }
+      if (results.length > 0) refresh();
     }).catch(e => console.error('[Wall] Poll error:', e));
   }, [isLoading, marks, pollPendingProofs, refresh]);
 
-  // Convert marks to artifact display format
   const artifacts = useMemo(() => {
-    if (marks.length === 0 && !isLoading) {
-      return MOCK_ARTIFACTS;
-    }
-
+    if (marks.length === 0 && !isLoading) return MOCK_ARTIFACTS;
     return marks.map((mark, index) => {
-      const date = mark.timestamp.toLocaleDateString('en-GB', { 
-        day: 'numeric', month: 'short', year: 'numeric' 
-      });
-      const hash = mark.hash 
-        ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}`
-        : 'pending...';
+      const date = mark.timestamp.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      const hash = mark.hash ? `${mark.hash.substring(0, 8)}...${mark.hash.substring(mark.hash.length - 8)}` : 'pending...';
       const origin = mark.originId.toUpperCase().replace('UM-', '');
-
       let imageUrl: string | undefined;
-      if (mark.thumbnailUrl) {
-        imageUrl = mark.thumbnailUrl;
-      } else if (mark.legacyImageUrl) {
-        imageUrl = getDisplayImageUrl(mark.legacyImageUrl);
-      }
-
-      return {
-        id: mark.id,
-        type: mark.type,
-        date,
-        hash,
-        origin,
-        size: getSizeFromMark(mark),
-        offset: OFFSET_PATTERN[index % OFFSET_PATTERN.length],
-        imageUrl,
-        otsStatus: mark.otsStatus,
-        timestamp: mark.timestamp,
-        originId: mark.originId,
-      } as WallArtifact;
+      if (mark.thumbnailUrl) imageUrl = mark.thumbnailUrl;
+      else if (mark.legacyImageUrl) imageUrl = getDisplayImageUrl(mark.legacyImageUrl);
+      return { id: mark.id, type: mark.type, date, hash, origin, size: getSizeFromMark(mark), offset: OFFSET_PATTERN[index % OFFSET_PATTERN.length], imageUrl, otsStatus: mark.otsStatus, timestamp: mark.timestamp, originId: mark.originId } as WallArtifact;
     });
   }, [marks, isLoading]);
 
-  // Scroll hint and backup hint
   useEffect(() => {
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
-
     setTimeout(() => {
       scrollEl.scrollTo({ left: 45, behavior: 'smooth' });
       setTimeout(() => scrollEl.scrollTo({ left: 0, behavior: 'smooth' }), 600);
     }, 800);
-
     setTimeout(() => {
       setShowBackupHint(true);
       setTimeout(() => setShowBackupHint(false), 3000);
     }, 2000);
   }, []);
 
-  // Scroll handler for parallax and focus effects
   const handleScroll = () => {
     const scrollEl = scrollRef.current;
     const lightEl = lightRef.current;
     if (!scrollEl || !lightEl) return;
-
     lightEl.style.transform = `translateX(calc(-50% + ${-scrollEl.scrollLeft * 0.15}px))`;
-
     const artifactEls = scrollEl.querySelectorAll('[data-artifact-id]');
     const scrollRect = scrollEl.getBoundingClientRect();
     const newFocused = new Set<string>();
-
     artifactEls.forEach((artifact) => {
       const rect = artifact.getBoundingClientRect();
       const center = rect.left + rect.width / 2 - scrollRect.left;
       const distance = Math.abs(center - scrollRect.width / 2);
-      const maxDistance = scrollRect.width * 0.6;
-
-      if (distance < maxDistance) {
-        newFocused.add(artifact.getAttribute('data-artifact-id') || '');
-      }
+      if (distance < scrollRect.width * 0.6) newFocused.add(artifact.getAttribute('data-artifact-id') || '');
     });
-
     setFocusedArtifacts(newFocused);
   };
 
@@ -209,63 +151,25 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
     >
       {/* Atmospheric layers */}
       <div className="absolute inset-0 pointer-events-none">
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: 'repeating-linear-gradient(90deg, transparent, hsl(var(--ritual-gold) / 0.006) 1px, transparent 2px, transparent 40px)',
-          }}
-        />
-        <div
-          ref={lightRef}
-          className="absolute -top-[10%] left-1/2 w-[200px] h-[200px] transition-transform duration-[600ms] ease-out"
-          style={{
-            transform: 'translateX(-50%)',
-            background: 'radial-gradient(ellipse, hsl(var(--ritual-gold) / 0.06), transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute top-0 left-0 right-0 h-[15%]"
-          style={{ background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent)' }}
-        />
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-[35%]"
-          style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1) 40%, transparent)' }}
-        />
-        <div 
-          className="absolute inset-0"
-          style={{ boxShadow: 'inset 0 0 120px rgba(0, 0, 0, 0.5)' }}
-        />
+        <div className="absolute inset-0" style={{ background: 'repeating-linear-gradient(90deg, transparent, hsl(var(--ritual-gold) / 0.006) 1px, transparent 2px, transparent 40px)' }} />
+        <div ref={lightRef} className="absolute -top-[10%] left-1/2 w-[200px] h-[200px] transition-transform duration-[600ms] ease-out" style={{ transform: 'translateX(-50%)', background: 'radial-gradient(ellipse, hsl(var(--ritual-gold) / 0.06), transparent 70%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-[15%]" style={{ background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[35%]" style={{ background: 'linear-gradient(to top, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1) 40%, transparent)' }} />
+        <div className="absolute inset-0" style={{ boxShadow: 'inset 0 0 120px rgba(0, 0, 0, 0.5)' }} />
         {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-[2px] h-[2px] rounded-full pointer-events-none"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${35 + Math.random() * 40}%`,
-              background: 'hsl(var(--ritual-gold) / 0.12)',
-            }}
+          <motion.div key={i} className="absolute w-[2px] h-[2px] rounded-full pointer-events-none"
+            style={{ left: `${Math.random() * 100}%`, top: `${35 + Math.random() * 40}%`, background: 'hsl(var(--ritual-gold) / 0.12)' }}
             animate={{ y: -80, x: 18, opacity: [0, 0.35, 0.15, 0] }}
-            transition={{
-              duration: 6 + Math.random() * 8,
-              delay: Math.random() * 5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 6 + Math.random() * 8, delay: Math.random() * 5, repeat: Infinity, ease: "easeInOut" }}
           />
         ))}
       </div>
 
-      {/* Origin button — close registry */}
-      <OriginButton 
-        onClick={onClose} 
-        className="absolute top-[38px] left-[16px] z-50 opacity-100" 
-      />
-
-      {/* Title and subtitle removed — the artifacts speak for themselves */}
+      <OriginButton onClick={onClose} className="absolute top-[38px] left-[16px] z-50 opacity-100" />
 
       {/* Backup hint */}
       <motion.p
-        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[12px] pointer-events-none"
+        className="absolute top-[86px] left-4 z-50 font-garamond italic text-[24px] pointer-events-none"
         style={{ color: 'hsl(var(--ritual-gold-muted))' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: showBackupHint ? 0.5 : 0 }}
@@ -275,70 +179,38 @@ export function WallOfExistence({ onClose, onBulkExport }: WallOfExistenceProps)
       </motion.p>
 
       {/* Scrolling artifact track */}
-      <div
-        ref={scrollRef}
-        className="absolute inset-0 overflow-x-auto overflow-y-hidden z-10 scrollbar-hide"
-        onScroll={handleScroll}
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
+      <div ref={scrollRef} className="absolute inset-0 overflow-x-auto overflow-y-hidden z-10 scrollbar-hide" onScroll={handleScroll} style={{ WebkitOverflowScrolling: 'touch' }}>
         <div className="flex items-center h-full px-[60px] min-w-max gap-[50px]">
           {isLoading ? (
             <div className="flex items-center justify-center w-full">
-              <motion.div
-                className="w-3 h-3 rounded-full bg-ritual-gold"
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
+              <motion.div className="w-3 h-3 rounded-full bg-ritual-gold" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} />
             </div>
           ) : (
             artifacts.map((artifact, index) => (
-              <ArtifactFrame
-                key={artifact.id}
-                artifact={artifact}
-                isFocused={focusedArtifacts.has(artifact.id)}
-                isNewest={index === 0 && marks.length > 0}
-                onClick={() => handleArtifactClick(artifact)}
-              />
+              <ArtifactFrame key={artifact.id} artifact={artifact} isFocused={focusedArtifacts.has(artifact.id)} isNewest={index === 0 && marks.length > 0} onClick={() => handleArtifactClick(artifact)} />
             ))
           )}
           <div className="w-[100px] flex-shrink-0" />
         </div>
       </div>
 
-      {/* Backup nudge - appears once after 3rd mark */}
       {shouldShowBackupNudge && (
-        <BackupNudge
-          onDismiss={markBackupNudgeShown}
-          onExport={() => {
-            onBulkExport?.();
-            markBackupNudgeShown();
-          }}
-        />
+        <BackupNudge onDismiss={markBackupNudgeShown} onExport={() => { onBulkExport?.(); markBackupNudgeShown(); }} />
       )}
 
       {/* Permanence statement */}
       <div className="absolute bottom-[env(safe-area-inset-bottom,16px)] left-0 right-0 z-20 flex justify-center pb-4 pointer-events-none">
-        <p
-          className="font-garamond italic text-[18px] text-center"
-          style={{ color: 'rgba(245,240,232,0.45)' }}
-        >
+        <p className="font-garamond italic text-[18px] text-center" style={{ color: 'rgba(245,240,232,0.45)' }}>
           The proof exists forever. Independent of this service.
         </p>
       </div>
 
-      {/* Mark detail modal */}
       {selectedMark && (
         <MarkDetailModal
           mark={{
-            id: selectedMark.id,
-            originId: selectedMark.originId,
-            hash: selectedMark.hash.includes('...') 
-              ? marks.find(m => m.id === selectedMark.id)?.hash || selectedMark.hash
-              : selectedMark.hash,
-            timestamp: selectedMark.timestamp,
-            otsStatus: selectedMark.otsStatus,
-            imageUrl: selectedMark.imageUrl,
-            originUuid: originUuidMap.get(selectedMark.id),
+            id: selectedMark.id, originId: selectedMark.originId,
+            hash: selectedMark.hash.includes('...') ? marks.find(m => m.id === selectedMark.id)?.hash || selectedMark.hash : selectedMark.hash,
+            timestamp: selectedMark.timestamp, otsStatus: selectedMark.otsStatus, imageUrl: selectedMark.imageUrl, originUuid: originUuidMap.get(selectedMark.id),
           }}
           onClose={() => setSelectedMark(null)}
         />

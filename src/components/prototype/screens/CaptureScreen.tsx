@@ -146,7 +146,6 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
-      // Drop zone covers the full screen
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -198,7 +197,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
             </motion.div>
 
               <span
-              className="font-garamond text-[13px] tracking-[0.18em] uppercase"
+              className="font-garamond text-[26px] tracking-[0.18em] uppercase"
               style={{ color: 'hsl(var(--ritual-gold) / 0.65)' }}
             >
               Drop to anchor
@@ -280,7 +279,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
         <AnimatePresence>
           {sizeWarning === 'large' && (
             <motion.p
-              className="mt-6 font-garamond italic text-[13px] text-center"
+              className="mt-6 font-garamond italic text-[26px] text-center"
               style={{ color: 'hsl(var(--ritual-cream-dim, var(--ritual-cream) / 0.45))' }}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -292,7 +291,7 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
           )}
           {sizeWarning === 'blocked' && (
             <motion.p
-              className="mt-6 font-mono text-[11px] tracking-[2px] text-center"
+              className="mt-6 font-mono text-[22px] tracking-[2px] text-center"
               style={{ color: 'hsl(var(--ritual-cream-dim, var(--ritual-cream) / 0.45))' }}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}

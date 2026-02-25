@@ -2,19 +2,6 @@
  * SealedScreen — "The Nail"
  * 
  * V7 is de spijker. Het schilderij hangt eraan.
- * 
- * Layout:
- * 1. V7 (36px, glow) — the nail
- * 2. Golden wire (1px, 16px) — connects nail to frame
- * 3. Photo in golden museum frame (220px)
- * 4. Gold divider
- * 5. Origin ID (no prefix)
- * 6. Date
- * 7. Hash (full, one line, 30% opacity)
- * 8. Proof components: certificate · hash · proof.ots
- * 9. Save button
- * 
- * No title. No explanation. No privacy whisper.
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
@@ -53,7 +40,6 @@ interface SealedScreenProps {
   artifactType?: 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
   deviceSignature?: string | null;
   devicePublicKey?: string | null;
-  /** Whether Bitcoin proof is confirmed */
   isAnchored?: boolean;
   onComplete: () => void;
 }
@@ -80,7 +66,6 @@ export function SealedScreen({
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const isImage = mimeType.startsWith('image/');
 
-  // Derive display values
   const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
 
   const formatDate = (date: Date) =>
@@ -88,11 +73,10 @@ export function SealedScreen({
     ' · ' +
     date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-  // Show post-seal hint once per device, auto-fade after 6s
   useEffect(() => {
     const alreadyShown = localStorage.getItem(POST_SEAL_HINT_KEY);
     if (alreadyShown) return;
-    const showTimer = setTimeout(() => setShowHint(true), 1400); // after seal animation settles
+    const showTimer = setTimeout(() => setShowHint(true), 1400);
     return () => clearTimeout(showTimer);
   }, []);
 
@@ -110,7 +94,6 @@ export function SealedScreen({
     localStorage.setItem(POST_SEAL_HINT_KEY, 'true');
   }, []);
 
-  // Pre-build the ZIP on mount
   useEffect(() => {
     const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
     buildOriginZip(input).then(blob => {
@@ -122,7 +105,6 @@ export function SealedScreen({
     });
   }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey]);
 
-  // Save handler
   const handleSave = useCallback(() => {
     if (isSaving || saved) return;
     setIsSaving(true);
@@ -187,14 +169,7 @@ export function SealedScreen({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 0.1 }}
       >
-        <OriginMark
-          size={36}
-          state="anchored"
-          glow
-          animated={false}
-          variant="dark"
-        />
-        {/* Golden wire — connects nail to frame */}
+        <OriginMark size={36} state="anchored" glow animated={false} variant="dark" />
         <div
           className="w-px h-4"
           style={{
@@ -242,14 +217,11 @@ export function SealedScreen({
         transition={{ duration: 0.6, delay: 0.8 }}
       >
         {/* Gold divider */}
-        <div
-          className="w-10 h-px mb-4"
-          style={{ background: 'rgba(197,147,90,0.2)' }}
-        />
+        <div className="w-10 h-px mb-4" style={{ background: 'rgba(197,147,90,0.2)' }} />
 
-        {/* Origin ID — no prefix */}
+        {/* Origin ID */}
         <p
-          className="font-mono text-[14px] tracking-[3px] mb-1"
+          className="font-mono text-[28px] tracking-[3px] mb-1"
           style={{ color: 'rgba(197,147,90,0.75)' }}
         >
           {shortId}
@@ -265,7 +237,7 @@ export function SealedScreen({
 
         {/* Hash — full, one line */}
         <p
-          className="font-mono text-[11px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
+          className="font-mono text-[22px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
@@ -273,17 +245,17 @@ export function SealedScreen({
 
         {/* Proof components — one line */}
         <div className="flex items-center gap-4 mb-5">
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             certificate
           </span>
           <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             hash
           </span>
           {isAnchored ? (
             <>
               <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+              <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
                 proof.ots
               </span>
             </>
@@ -295,7 +267,7 @@ export function SealedScreen({
                 animate={{ opacity: [0.3, 0.7, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
+              <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
                 proof.ots
               </span>
             </>
@@ -310,9 +282,7 @@ export function SealedScreen({
         className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-50"
         style={{
           fontWeight: 300,
-          background: saved
-            ? 'hsl(var(--ritual-gold) / 0.15)'
-            : 'hsl(var(--ritual-gold) / 0.08)',
+          background: saved ? 'hsl(var(--ritual-gold) / 0.15)' : 'hsl(var(--ritual-gold) / 0.08)',
           border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.3'})`,
           color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.8'})`,
         }}
@@ -324,8 +294,7 @@ export function SealedScreen({
         {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
       </motion.button>
 
-
-      {/* ── POST-SEAL HINT — one-time, auto-fades 6s, tap to dismiss ── */}
+      {/* ── POST-SEAL HINT ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: showHint ? 1 : 0 }}
@@ -336,7 +305,7 @@ export function SealedScreen({
         aria-hidden={!showHint}
       >
         <p
-          className="font-garamond italic text-[13px] leading-relaxed"
+          className="font-garamond italic text-[26px] leading-relaxed"
           style={{ color: 'hsl(var(--ritual-cream) / 0.38)' }}
         >
           ☑️ Anchored. Keep your original file safe —<br />
@@ -344,7 +313,7 @@ export function SealedScreen({
         </p>
       </motion.div>
 
-      {/* ── Device signed (small checkmark, ghost, no explanation) ── */}
+      {/* ── Device signed ── */}
       {deviceSignature && (
         <motion.div
           className="flex items-center gap-1.5 mt-3"
@@ -355,7 +324,7 @@ export function SealedScreen({
           <svg width="12" height="12" viewBox="0 0 12 12">
             <path d="M2 6L5 9L10 3" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="font-mono text-[10px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
+          <span className="font-mono text-[20px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.25)' }}>
             device signed
           </span>
         </motion.div>
