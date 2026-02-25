@@ -9,7 +9,6 @@ interface Props {
 }
 
 export default function InlineAttestation({ originId, shortToken }: Props) {
-  const [expanded, setExpanded] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
 
   const onPay = async () => {
@@ -20,17 +19,6 @@ export default function InlineAttestation({ originId, shortToken }: Props) {
     if (!checkout) { toast.error('Could not open payment.'); setRedirecting(false); return; }
     window.location.href = checkout.url;
   };
-
-  if (!expanded) {
-    return (
-      <button onClick={() => setExpanded(true)}
-        className="font-garamond italic text-[14px] transition-colors"
-        style={{ color: 'rgba(201,169,110,0.4)' }}>
-        Add attestation → <span className="font-mono text-[10px] not-italic"
-          style={{ color: 'rgba(201,169,110,0.3)' }}>€4.95</span>
-      </button>
-    );
-  }
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -64,12 +52,6 @@ export default function InlineAttestation({ originId, shortToken }: Props) {
         <p className="font-mono text-[7px] tracking-[2px] uppercase text-center mt-2"
           style={{ color: 'rgba(201,169,110,0.2)' }}>Secured by Stripe</p>
       </div>
-
-      <button onClick={() => setExpanded(false)}
-        className="font-mono text-[8px] tracking-[2px] uppercase mt-3 transition-colors"
-        style={{ color: 'rgba(240,234,214,0.2)' }}>
-        Close
-      </button>
     </div>
   );
 }
