@@ -5,10 +5,12 @@ import { fetchOriginMetadata, fetchProofStatus, verifyOriginByHash } from '@/lib
 interface VerifyResult {
   shortToken: string;
   hashMatch: boolean;
+  originMatch: boolean;
   date: string;
   time: string;
   bitcoin: string;
   bitcoinOk: boolean;
+  mismatchMessage?: string;
 }
 
 async function sha256FromBuffer(buffer: ArrayBuffer): Promise<string> {
@@ -28,7 +30,12 @@ async function extractHash(file: File): Promise<string | null> {
   return sha256FromBuffer(await file.arrayBuffer());
 }
 
-export default function InlineVerify() {
+interface InlineVerifyProps {
+  expectedOriginId?: string;
+  expectedShortToken?: string;
+}
+
+export default function InlineVerify({ expectedOriginId, expectedShortToken }: InlineVerifyProps = {}) {
   const [expanded, setExpanded] = useState(false);
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -51,21 +58,33 @@ export default function InlineVerify() {
       setBusy(false);
       return;
     }
-    const meta = await fetchOriginMetadata(verify.origin.origin_id);
-    const proof = await fetchProofStatus(verify.origin.origin_id);
+    const foundOriginId = verify.origin.origin_id;
+    const foundToken = foundOriginId.slice(0, 8).toUpperCase();
+    
+    // Cross-check: does this origin match the page we're on?
+    const originMatch = expectedOriginId
+      ? foundOriginId === expectedOriginId
+      : expectedShortToken
+        ? foundToken === expectedShortToken.toUpperCase()
+        : true; // no expected value = standalone verify, always ok
+
+    const meta = await fetchOriginMetadata(foundOriginId);
+    const proof = await fetchProofStatus(foundOriginId);
     const captured = new Date(verify.origin.captured_at);
     const btcOk = proof.status === 'anchored';
     const blockHeight = proof.bitcoinBlockHeight;
     setResult({
-      shortToken: meta?.short_token ?? verify.origin.origin_id.slice(0, 8).toUpperCase(),
+      shortToken: meta?.short_token ?? foundToken,
       hashMatch: true,
+      originMatch,
       date: captured.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       time: `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`,
       bitcoin: btcOk ? (blockHeight ? `✓ block ${blockHeight.toLocaleString('en-US')}` : '✓ anchored') : 'pending',
       bitcoinOk: btcOk,
+      mismatchMessage: originMatch ? undefined : `Origin mismatch — this file belongs to ${foundToken}, not ${expectedShortToken?.toUpperCase() ?? expectedOriginId?.slice(0,8).toUpperCase()}`,
     });
     setBusy(false);
-  }, []);
+  }, [expectedOriginId, expectedShortToken]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -128,7 +147,20 @@ export default function InlineVerify() {
         </p>
       )}
 
-      {result && (
+      {result && !result.originMatch && (
+        <div className="w-full rounded-[8px] border p-3 mt-1"
+          style={{ borderColor: 'rgba(220,80,60,0.4)', background: 'rgba(220,80,60,0.06)' }}>
+          <Row label="Origin ID" value={result.shortToken} error />
+          <Row label="Hash match" value="✓ found in registry" />
+          <Row label="Page match" value="✗ wrong origin" error />
+          <p className="font-garamond text-[11px] mt-2 leading-snug"
+            style={{ color: 'rgba(220,80,60,0.7)' }}>
+            {result.mismatchMessage}
+          </p>
+        </div>
+      )}
+
+      {result && result.originMatch && (
         <div className="w-full rounded-[8px] border p-3 mt-1"
           style={{ borderColor: 'rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.03)' }}>
           <Row label="Origin ID" value={result.shortToken} gold />
@@ -148,14 +180,14 @@ export default function InlineVerify() {
   );
 }
 
-function Row({ label, value, ok = false, gold = false, last = false }: { label: string; value: string; ok?: boolean; gold?: boolean; last?: boolean }) {
+function Row({ label, value, ok = false, gold = false, error = false, last = false }: { label: string; value: string; ok?: boolean; gold?: boolean; error?: boolean; last?: boolean }) {
   return (
     <div className={`flex justify-between items-center py-1.5 ${last ? '' : 'border-b'}`}
       style={{ borderColor: 'rgba(201,169,110,0.1)' }}>
       <span className="font-mono text-[8px] tracking-[2px] uppercase"
         style={{ color: 'rgba(240,234,214,0.3)' }}>{label}</span>
       <span className="font-mono text-[9px]"
-        style={{ color: gold ? 'rgba(201,169,110,0.6)' : ok ? '#7fba6a' : 'rgba(240,234,214,0.35)' }}>{value}</span>
+        style={{ color: error ? 'rgba(220,80,60,0.8)' : gold ? 'rgba(201,169,110,0.6)' : ok ? '#7fba6a' : 'rgba(240,234,214,0.35)' }}>{value}</span>
     </div>
   );
 }
