@@ -19,7 +19,6 @@
  * Success returns the origin directly. Not found returns 404.
  */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import {
   corsHeaders,
   errorResponse,
@@ -32,12 +31,14 @@ import {
   getClientIp,
   normalizeHash,
   createServiceClient,
+  createAnonClient,
 } from '../_shared/coreHelpers.ts';
 
 const RATE_LIMIT = 1000; // requests per minute per IP
 
 interface CoreOrigin {
   origin_id: string;
+  short_token: string;
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
@@ -90,9 +91,10 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
     const originId = url.searchParams.get('origin_id');
     const hashParam = url.searchParams.get('hash');
+    const tokenParam = url.searchParams.get('token');
 
     // Require at least one parameter
-    if (!originId && !hashParam) {
+    if (!originId && !hashParam && !tokenParam) {
       logRequest(supabase, {
         endpoint: '/v1/core/resolve',
         method: 'GET',
@@ -104,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
       const response = errorResponse(
         'INVALID_REQUEST_BODY',
-        'Missing parameter. Provide origin_id or hash.',
+        'Missing parameter. Provide origin_id, hash, or token.',
         400
       );
       return new Response(response.body, {
@@ -134,21 +136,35 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Validate token format if provided
+    if (tokenParam && !/^[A-Fa-f0-9]{8}$/.test(tokenParam)) {
+      logRequest(supabase, {
+        endpoint: '/v1/core/resolve',
+        method: 'GET',
+        status_code: 400,
+        response_time_ms: Date.now() - startTime,
+        error_code: 'INVALID_REQUEST_BODY',
+        ip_hash: ipHash,
+      });
+
+      return errorResponse('INVALID_REQUEST_BODY', 'Token must be 8 hexadecimal characters', 400);
+    }
+
     // Query the origin_attestations table
     // Use anon key for public read (RLS allows SELECT)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const anonClient = createClient(supabaseUrl, supabaseAnonKey);
+    const anonClient = createAnonClient();
 
     let query = anonClient
       .from('origin_attestations')
-      .select('origin_id, hash, hash_algo, captured_at');
+      .select('origin_id, short_token, hash, hash_algo, captured_at');
 
     if (originId) {
       query = query.eq('origin_id', originId);
     } else if (hashParam) {
       const normalized = normalizeHash(hashParam)!;
       query = query.eq('hash', normalized.hash);
+    } else if (tokenParam) {
+      query = query.eq('short_token', tokenParam.toUpperCase());
     }
 
     // For hash lookups, there may be multiple attestations - return the first (oldest)
@@ -194,11 +210,10 @@ Deno.serve(async (req: Request) => {
 
     const proofStatus: 'pending' | 'anchored' = proofData?.status === 'anchored' ? 'anchored' : 'pending';
 
-    const proofBaseUrl = 'https://core.umarise.com';
-
     // Found - return Core response with proof status (consistent with verify)
     const origin: CoreOrigin = {
       origin_id: data.origin_id,
+      short_token: data.short_token,
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
@@ -209,7 +224,7 @@ Deno.serve(async (req: Request) => {
     };
 
     console.log('[v1-core-resolve] Resolved:', {
-      method: originId ? 'by_id' : 'by_hash',
+      method: originId ? 'by_id' : hashParam ? 'by_hash' : 'by_token',
       origin_id: data.origin_id,
     });
 

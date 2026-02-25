@@ -46,6 +46,11 @@ import Legal from "./pages/Legal";
 import Technical from "./pages/Technical";
 import Status from "./pages/Status";
 import ApiReference from "./pages/ApiReference";
+import ItExisted from "./pages/ItExisted";
+import ItExistedAnchored from "./pages/ItExistedAnchored";
+import ItExistedProof from "./pages/ItExistedProof";
+import ItExistedVerify from "./pages/ItExistedVerify";
+import ItExistedAttestation from "./pages/ItExistedAttestation";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +100,11 @@ const App = () => (
             <Route path="/status" element={<Status />} />
             <Route path="/api-reference" element={<ApiReference />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
+            <Route path="/itexisted" element={<ItExisted />} />
+            <Route path="/itexisted/anchored" element={<ItExistedAnchored />} />
+            <Route path="/itexisted/proof/:token" element={<ItExistedProof />} />
+            <Route path="/itexisted/verify" element={<ItExistedVerify />} />
+            <Route path="/itexisted/attestation/:token" element={<ItExistedAttestation />} />
             
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />

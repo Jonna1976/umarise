@@ -353,6 +353,7 @@ export type Database = {
           hash: string
           hash_algo: string
           origin_id: string
+          short_token: string
         }
         Insert: {
           api_key_prefix?: string | null
@@ -361,6 +362,7 @@ export type Database = {
           hash: string
           hash_algo?: string
           origin_id?: string
+          short_token: string
         }
         Update: {
           api_key_prefix?: string | null
@@ -369,6 +371,7 @@ export type Database = {
           hash?: string
           hash_algo?: string
           origin_id?: string
+          short_token?: string
         }
         Relationships: []
       }
