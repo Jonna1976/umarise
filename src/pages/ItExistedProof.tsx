@@ -167,7 +167,7 @@ export default function ItExistedProof() {
           {/* PENDING STATUS */}
           {!anchored && (
             <motion.p
-              className="font-mono text-[9px] tracking-[4px] uppercase text-center mt-4"
+              className="font-mono text-[14px] tracking-[4px] uppercase text-center mt-4"
               style={{ color: 'rgba(201,169,110,0.4)' }}
               animate={{ opacity: [0.4, 0.8, 0.4] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
@@ -190,11 +190,11 @@ export default function ItExistedProof() {
               onClick={onDownload}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
-              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Download your proof</span>
-              <span className="ml-auto text-[8px] flex-shrink-0"
+              <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
           </div>
@@ -205,11 +205,11 @@ export default function ItExistedProof() {
               onClick={() => !lockedStyle.opacity && toggleStep('verify')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
-              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify it</span>
-              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
+              <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
                 style={{
                   color: 'rgba(240,234,214,0.35)',
                   transform: openStep === 'verify' ? 'rotate(180deg)' : 'none',
@@ -229,7 +229,7 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── REMEMBER NOTE ── */}
-          <p className="font-garamond italic text-[16px] mb-8"
+          <p className="font-garamond italic text-[24px] mb-8"
             style={{
               color: !anchored ? 'rgba(240,234,214,0.35)' : 'rgba(240,234,214,0.85)',
               lineHeight: 1.65,
@@ -245,11 +245,11 @@ export default function ItExistedProof() {
               onClick={onShare}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
-              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
-              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
             </button>
           </div>
@@ -260,13 +260,13 @@ export default function ItExistedProof() {
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
-              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
-              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
-              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
+              <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
                 style={{
                   color: 'rgba(240,234,214,0.35)',
                   transform: openStep === 'attest' ? 'rotate(180deg)' : 'none',
@@ -291,13 +291,13 @@ export default function ItExistedProof() {
               onClick={() => navigate('/itexisted')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[11px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
-              <span className="font-mono text-[11px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
-              <span className="font-mono text-[9px] tracking-[2px] lowercase ml-1.5"
+              <span className="font-mono text-[14px] tracking-[2px] lowercase ml-1.5"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>(optional)</span>
-              <span className="ml-auto text-[8px] flex-shrink-0"
+              <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
           </div>
