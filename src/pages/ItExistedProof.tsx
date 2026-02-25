@@ -235,19 +235,19 @@ export default function ItExistedProof() {
           Share this proof
         </button>
 
-        <div className="flex items-center gap-2.5 mb-10">
-          <span className="font-mono text-[16px]"
+        <a href={shareUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2.5 mb-10 group">
+          <span className="font-mono text-[16px] transition-opacity group-hover:opacity-80"
             style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
             itexisted.app/{state.shortToken}
           </span>
-          <svg className="cursor-pointer flex-shrink-0 transition-opacity"
-            style={{ opacity: copied ? 1 : 0.5 }}
-            onClick={handleCopy}
-            width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="5" y="5" width="9" height="9" rx="1" stroke="#c9a96e" strokeWidth="1" />
-            <path d="M3 11V3a1 1 0 011-1h8" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+          <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
+            width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M11 7.5V11a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1h3.5" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+            <path d="M8 2h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 8L12 2" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
           </svg>
-        </div>
+        </a>
 
         {/* ── SECONDARY ACTIONS ── */}
         <div className="flex items-center gap-5 mb-8">
