@@ -31,9 +31,14 @@ export interface ProofCheckResult {
 
 export interface OriginMetadata {
   origin_id: string;
+  short_token?: string;
   hash: string;
   hash_algo: string;
   captured_at: string;
+  proof_status?: 'pending' | 'anchored';
+  proof_url?: string;
+  bitcoin_block_height?: number | null;
+  anchored_at?: string | null;
 }
 
 /**
@@ -113,10 +118,7 @@ export async function fetchProofStatus(originUuid: string): Promise<ProofCheckRe
 }
 
 /**
- * Resolve origin metadata from Core API.
- * 
- * @param originUuid - The UUID or hash to resolve
- * @returns Origin metadata or null if not found
+ * Resolve origin metadata from Core API by origin_id.
  */
 export async function fetchOriginMetadata(originUuid: string): Promise<OriginMetadata | null> {
   try {
@@ -126,13 +128,35 @@ export async function fetchOriginMetadata(originUuid: string): Promise<OriginMet
     );
 
     if (!response.ok) {
-      await response.text(); // consume body
+      await response.text();
       return null;
     }
 
     return await response.json() as OriginMetadata;
   } catch (error) {
     console.error('[coreApi] fetchOriginMetadata error:', error);
+    return null;
+  }
+}
+
+/**
+ * Resolve origin metadata from Core API by short token.
+ */
+export async function fetchOriginByToken(token: string): Promise<OriginMetadata | null> {
+  try {
+    const response = await fetch(
+      `${CORE_API_BASE}/v1-core-resolve?token=${encodeURIComponent(token)}`,
+      { method: 'GET' }
+    );
+
+    if (!response.ok) {
+      await response.text();
+      return null;
+    }
+
+    return await response.json() as OriginMetadata;
+  } catch (error) {
+    console.error('[coreApi] fetchOriginByToken error:', error);
     return null;
   }
 }
@@ -191,10 +215,40 @@ export async function verifyOriginByHash(rawHash: string): Promise<CoreVerifyRes
   }
 }
 
+
+export interface AttestationCheckoutResult {
+  url: string;
+}
+
 /**
- * Download proof.ots file for a given origin_id.
- * Calls fetchProofStatus internally and triggers browser download.
+ * Start Layer 3 attestation checkout.
  */
+export async function startAttestationCheckout(originId: string, deviceUserId: string): Promise<AttestationCheckoutResult | null> {
+  try {
+    const response = await fetch(`${CORE_API_BASE}/v1-attestation-checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ origin_id: originId, device_user_id: deviceUserId }),
+    });
+
+    if (!response.ok) {
+      await response.text();
+      return null;
+    }
+
+    const data = await response.json() as { url?: string };
+    if (!data.url) return null;
+    return { url: data.url };
+  } catch (error) {
+    console.error('[coreApi] startAttestationCheckout error:', error);
+    return null;
+  }
+}
+
 export async function downloadProofFile(originId: string): Promise<boolean> {
   const result = await fetchProofStatus(originId);
   
