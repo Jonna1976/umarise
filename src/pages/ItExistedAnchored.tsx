@@ -89,70 +89,77 @@ export default function ItExistedAnchored() {
       <motion.section
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center text-center"
-        style={{ maxWidth: 320 }}>
+        style={{ maxWidth: 340 }}>
 
-        {/* V7 pending nail */}
-        <V7Pending />
+        {/* Confirmation */}
+        <svg viewBox="0 0 48 48" width="40" height="40" className="mb-4">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="hsl(var(--itx-gold) / 0.3)" strokeWidth="1.2" />
+          <path d="M15 24L22 31L34 17" fill="none" stroke="hsl(var(--itx-gold) / 0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
 
-        {/* Anchor wire */}
-        <div className="w-px h-4"
-          style={{ background: 'linear-gradient(to bottom, hsl(var(--itx-gold) / 0.25), hsl(var(--itx-gold) / 0.08))' }} />
+        <h1 className="font-playfair text-[22px] font-light mb-1"
+          style={{ color: 'hsl(var(--itx-cream))' }}>
+          Anchored.
+        </h1>
 
-        {/* Golden frame placeholder */}
-        <div className="mb-5 p-2 rounded-[3px]"
-          style={{
-            background: 'linear-gradient(135deg, hsl(var(--itx-gold) / 0.22), hsl(var(--itx-gold) / 0.12) 30%, hsl(var(--itx-gold) / 0.18) 70%, hsl(var(--itx-gold) / 0.15))',
-            boxShadow: '0 4px 30px rgba(0,0,0,0.5), 0 0 20px hsl(var(--itx-gold) / 0.08), inset 0 0 0 2px hsl(var(--itx-gold) / 0.25), inset 0 0 0 3px hsl(var(--itx-surface) / 0.5), inset 0 0 0 4px hsl(var(--itx-gold) / 0.1)',
-          }}>
-          <div className="p-1 border"
-            style={{ borderColor: 'hsl(var(--itx-gold) / 0.15)', background: 'hsl(var(--itx-surface) / 0.95)' }}>
-            <div className="w-[220px] h-[140px] flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #2D1B0E, #1A2E1A, #1B1B2E)' }}>
-              <span className="font-garamond italic text-[13px]"
-                style={{ color: 'hsl(var(--itx-gold) / 0.2)' }}>anchoring…</span>
+        <p className="font-garamond text-[15px] mb-6 max-w-[280px] leading-relaxed"
+          style={{ color: 'hsl(var(--itx-cream) / 0.45)' }}>
+          Your file is registered. The Bitcoin proof takes ~2 hours to complete.
+        </p>
+
+        {/* Divider */}
+        <div className="w-10 h-px mb-5" style={{ background: 'hsl(var(--itx-gold) / 0.15)' }} />
+
+        {/* Token + date */}
+        <p className="font-mono text-[14px] tracking-[3px] mb-1"
+          style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>{state.shortToken}</p>
+        <p className="font-garamond text-[15px] mb-2"
+          style={{ color: 'hsl(var(--itx-cream) / 0.3)' }}>{date} · {time}</p>
+        <p className="font-mono text-[9px] tracking-[0.5px] mb-6 max-w-[280px] break-all"
+          style={{ color: 'hsl(var(--itx-gold-muted) / 0.2)' }}>{state.hash}</p>
+
+        {/* What happens next — key clarity */}
+        <div className="w-full rounded-lg p-4 mb-6"
+          style={{ background: 'hsl(var(--itx-surface))', border: '1px solid hsl(var(--itx-gold) / 0.1)' }}>
+          <p className="font-mono text-[9px] tracking-[2px] uppercase mb-3"
+            style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>What happens next</p>
+          
+          <div className="flex flex-col gap-3 text-left">
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>1.</span>
+              <p className="font-garamond text-[13px] leading-snug"
+                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
+                Your file's hash is being anchored to the Bitcoin blockchain (~2 hours)
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>2.</span>
+              <p className="font-garamond text-[13px] leading-snug"
+                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
+                Come back to your proof URL to download the complete proof bundle
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[10px] mt-px" style={{ color: 'hsl(var(--itx-gold) / 0.4)' }}>3.</span>
+              <p className="font-garamond text-[13px] leading-snug"
+                style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
+                Keep your original file — you'll need the exact bytes to verify
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Museum label */}
-        <div className="w-10 h-px mb-4" style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
-
-        <p className="font-mono text-[14px] tracking-[3px] mb-1"
-          style={{ color: 'hsl(var(--itx-gold) / 0.5)' }}>{state.shortToken}</p>
-        <p className="font-garamond text-[17px] mb-2"
-          style={{ color: 'hsl(var(--itx-cream) / 0.35)' }}>{date} · {time}</p>
-        <p className="font-mono text-[11px] tracking-[0.5px] mb-4 max-w-[280px] break-all"
-          style={{ color: 'hsl(var(--itx-gold-muted) / 0.3)' }}>{state.hash}</p>
-
-        {/* Proof components — pending */}
-        <div className="flex items-center gap-4 mb-6">
-          <span className="font-mono text-[10px] tracking-[1px]"
-            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>certificate</span>
-          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'hsl(var(--itx-gold) / 0.2)' }} />
-          <span className="font-mono text-[10px] tracking-[1px]"
-            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>hash</span>
-          <motion.span className="w-[3px] h-[3px] rounded-full"
-            animate={{ opacity: [0.2, 0.7, 0.2] }}
-            transition={{ duration: 2.5, repeat: Infinity }}
-            style={{ background: 'hsl(var(--itx-gold) / 0.4)' }} />
-          <span className="font-mono text-[10px] tracking-[1px] opacity-60"
-            style={{ color: 'hsl(var(--itx-gold) / 0.35)' }}>proof.ots</span>
-        </div>
-
-        {/* Share proof link — primary action */}
-        <button
-          onClick={() => navigate(`/itexisted/proof/${state.shortToken}`)}
-          className="px-10 py-[11px] rounded-full font-playfair text-[17px] font-light mb-4"
-          style={{
-            border: '1px solid hsl(var(--itx-gold) / 0.3)',
-            background: 'hsl(var(--itx-gold) / 0.08)',
-            color: 'hsl(var(--itx-gold) / 0.8)',
-          }}>
-          View proof
-        </button>
-
-        {/* Copy URL with visible icon */}
+        {/* Proof URL — the thing to bookmark */}
+        <p className="font-mono text-[8px] tracking-[2px] uppercase mb-2"
+          style={{ color: 'hsl(var(--itx-gold) / 0.3)' }}>Your proof URL</p>
         <CopyUrlButton url={proofUrl} token={state.shortToken} />
+
+        {/* Anchor another */}
+        <button onClick={() => navigate('/itexisted')}
+          className="mt-8 font-mono text-[9px] tracking-[1px] uppercase"
+          style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>
+          Anchor another file
+        </button>
       </motion.section>
     </main>
   );
