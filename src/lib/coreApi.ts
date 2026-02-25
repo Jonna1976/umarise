@@ -140,6 +140,28 @@ export async function fetchOriginMetadata(originUuid: string): Promise<OriginMet
 }
 
 /**
+ * Resolve origin metadata from Core API by hash.
+ */
+export async function fetchOriginByHash(hash: string): Promise<OriginMetadata | null> {
+  try {
+    const response = await fetch(
+      `${CORE_API_BASE}/v1-core-resolve?hash=${encodeURIComponent(hash)}`,
+      { method: 'GET' }
+    );
+
+    if (!response.ok) {
+      await response.text();
+      return null;
+    }
+
+    return await response.json() as OriginMetadata;
+  } catch (error) {
+    console.error('[coreApi] fetchOriginByHash error:', error);
+    return null;
+  }
+}
+
+/**
  * Resolve origin metadata from Core API by short token.
  */
 export async function fetchOriginByToken(token: string): Promise<OriginMetadata | null> {

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useMarks } from '@/hooks/useMarks';
-import { fetchOriginMetadata } from '@/lib/coreApi';
+import { fetchOriginByHash } from '@/lib/coreApi';
 import { toast } from 'sonner';
 
 type ItExistedState = 'capture' | 'passkey' | 'processing';
@@ -44,10 +44,17 @@ export default function ItExisted() {
       return;
     }
 
-    const resolved = await fetchOriginMetadata(mark.originId);
-    const shortToken = resolved?.short_token ?? mark.originId.slice(0, 8).toUpperCase();
+    // Resolve by hash — the bridge trigger creates the origin_attestation with a real UUID
+    // We poll briefly because the trigger is async on INSERT
+    let resolved = null;
+    for (let i = 0; i < 5; i++) {
+      resolved = await fetchOriginByHash(mark.hash);
+      if (resolved) break;
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    const shortToken = resolved?.short_token ?? mark.hash.slice(0, 8).toUpperCase();
     const payload = {
-      originId: mark.originId,
+      originId: resolved?.origin_id ?? mark.originId,
       shortToken,
       hash: mark.hash,
       capturedAt: resolved?.captured_at ?? mark.timestamp.toISOString(),
