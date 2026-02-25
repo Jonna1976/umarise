@@ -221,9 +221,11 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
               className="font-playfair font-light text-[26px] leading-[2.2]"
               style={{ color: 'hsl(var(--ritual-cream))' }}
             >
-              It exists.
+              It existed.
               <br />
-              Provable forever.
+              Now it's provable.
+              <br />
+              Your file stays yours.
               <br />
               <span style={{ color: 'hsl(var(--ritual-gold))' }}>Anchor what matters.</span>
             </h1>
