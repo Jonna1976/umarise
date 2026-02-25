@@ -14,12 +14,14 @@ interface AttState {
 
 export default function ItExistedAttestation() {
   const { token = '' } = useParams();
+  const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
   const [state, setState] = useState<AttState | null>(null);
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     (async () => {
+      if (!isValidToken) { setState(null); setLoading(false); return; }
       const resolved = await fetchOriginByToken(token);
       if (!resolved) { setState(null); setLoading(false); return; }
       const proof = await fetchProofStatus(resolved.origin_id);
