@@ -238,7 +238,7 @@ export default function ItExistedProof() {
               transition: 'max-height 0.4s ease, opacity 0.3s ease',
             }}>
               <div className="pt-4 pl-[23px]">
-                <InlineVerify />
+                <InlineVerify expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
               </div>
             </div>
           </div>
