@@ -236,12 +236,12 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── REMEMBER NOTE ── */}
-          <p className="font-garamond italic text-[24px] mb-8"
+          <p className="font-garamond italic text-[20px] mb-8"
             style={{
-              color: !anchored ? 'rgba(240,234,214,0.35)' : 'rgba(240,234,214,0.85)',
+              color: 'rgba(240,234,214,0.45)',
               lineHeight: 1.65,
-              maxWidth: 340,
-              opacity: !anchored ? 0.45 : 1,
+              maxWidth: 380,
+              opacity: !anchored ? 0.65 : 1,
             }}>
             Remember: the ZIP you've downloaded does not contain your original file. Keep your original file and your ZIP together on your device. You will need it to verify.
           </p>
