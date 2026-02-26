@@ -377,26 +377,8 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── CONTEXTUAL NOTE ── */}
-          <div className="mb-8" style={{
-            maxWidth: 380,
-            opacity: !anchored ? 0.65 : 1,
-          }}>
-            <p className="font-garamond italic text-[20px] mb-3"
-              style={{
-                color: anchored ? 'rgba(240,234,214,0.85)' : 'rgba(240,234,214,0.45)',
-                lineHeight: 1.65,
-              }}>
-              {artifactFile
-                ? 'Your original file will be included in the ZIP. One file, one proof. Keep it safe.'
-                : 'Tip: upload your original file in step 1 so your ZIP contains everything in one bundle.'
-              }
-            </p>
-            <p className="font-garamond italic text-[14px]"
-              style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.6 }}>
-              Including the original is optional. For sensitive files, share only the proof. The hash alone is enough for verification.
-            </p>
-          </div>
+
+
 
           {/* ── STEP 4: SHARE ── */}
           <div className="w-full mb-8" style={lockedStyle}>
