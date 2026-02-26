@@ -8,7 +8,7 @@ import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore'
 import { calculateSHA256 } from '@/lib/originHash';
 import { toast } from 'sonner';
 
-type ItExistedState = 'capture' | 'signing' | 'processing';
+type ItExistedState = 'capture' | 'signing';
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
 
 function mapFileType(mimeType: string): MarkType {
@@ -68,7 +68,7 @@ export default function ItExisted() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ItExistedState>('capture');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [signingStatus, setSigningStatus] = useState<'waiting' | 'prompting' | 'signed' | 'skipped'>('waiting');
+  const [signingStatus, setSigningStatus] = useState<'waiting' | 'prompting' | 'signed' | 'skipped' | 'anchoring'>('waiting');
 
   const fileName = useMemo(() => selectedFile?.name ?? '', [selectedFile]);
 
@@ -135,7 +135,7 @@ export default function ItExisted() {
   };
 
   const startAnchoring = (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
-    setState('processing');
+    setSigningStatus('anchoring');
     anchorFile(file, sigData);
   };
 
@@ -268,27 +268,24 @@ export default function ItExisted() {
                   continuing without signature…
                 </p>
               )}
+              {signingStatus === 'anchoring' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center gap-3">
+                  <motion.div
+                    animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+                    <V7Nail pending size={36} />
+                  </motion.div>
+                  <p className="font-mono text-[8px] tracking-[3px] uppercase"
+                    style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
+                </motion.div>
+              )}
             </div>
 
             {/* File name */}
             <p className="font-garamond italic text-[11px] text-center max-w-[200px]"
               style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>{fileName}</p>
-          </motion.div>
-        )}
-
-        {state === 'processing' && (
-          <motion.div key="processing"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex flex-col items-center gap-4">
-            <motion.div
-              animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-              <V7Nail pending size={40} />
-            </motion.div>
-            <p className="font-mono text-[8px] tracking-[3px] uppercase"
-              style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
-            <p className="font-garamond italic text-[12px] text-center max-w-[200px]"
-              style={{ color: 'hsl(var(--itx-cream) / 0.3)' }}>{fileName}</p>
           </motion.div>
         )}
       </AnimatePresence>
