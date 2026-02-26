@@ -173,6 +173,7 @@ code { font-family: var(--mono); font-size: 16px; }
     <p style="font-size:18px;line-height:1.7;margin-bottom:12px">It provides a verifiable commitment to the existence of specific bytes at or prior to a consensus-derived timestamp, without asserting authorship, ownership, identity, or legal status.</p>
     <p style="font-size:18px;line-height:1.7;margin-bottom:12px">This specification formally defines the semantics, verification function, and independence requirements of this primitive.</p>
     <p style="font-size:16px;line-height:1.7;color:var(--text-muted);font-style:italic">This introduction is non-normative. Normative requirements begin in Section 1.</p>
+    <p style="font-size:16px;line-height:1.7;color:var(--text-muted);margin-top:8px">The key words <span class="shall">must</span>, <span class="shall">should</span>, and <span class="shall">may</span> in this document are to be interpreted as described in <a href="https://www.rfc-editor.org/rfc/rfc2119" style="color:var(--text-muted)">RFC 2119</a>.</p>
   </div>
 
   <nav class="spec-nav">
@@ -314,6 +315,7 @@ code { font-family: var(--mono); font-size: 16px; }
       <li>resists unilateral timestamp rewriting</li>
       <li>allows reconstruction of historical state</li>
     </ul>
+    <p>No single controlling authority (including the proof issuer) <span class="shall">must</span> be able to rewrite historical state or timestamps.</p>
     <p>Permissioned or centrally mutable systems do not qualify unless their historical state is independently verifiable without reliance on a single controlling authority.</p>
     <p>This specification is ledger-agnostic.</p>
   </div>
