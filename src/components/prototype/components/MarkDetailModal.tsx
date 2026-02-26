@@ -547,6 +547,21 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               </div>
             )}
 
+            {/* 5. Anchor next */}
+            <div>
+              <div className="flex items-center gap-2 py-2 pl-4 mb-2">
+                <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>5.</span>
+                <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Next</span>
+              </div>
+              <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
+                <button onClick={onClose}
+                  className="font-mono text-[14px] tracking-[3px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
+                  style={{ border: '1px solid rgba(201,169,110,0.4)', color: 'hsl(var(--ritual-gold))' }}>
+                  Anchor a next file
+                </button>
+              </div>
+            </div>
+
               </div>
             )}
 
