@@ -15,6 +15,8 @@ import JSZip from 'jszip';
 import { type PasskeyCredential } from '@/lib/webauthn';
 import { getPasskeyCredential } from '@/lib/passkeyStore';
 import { AttestationRequestModal } from './AttestationRequestModal';
+import { calculateSHA256 } from '@/lib/originHash';
+import { buildOriginZip, buildZipFileName } from '@/lib/originZip';
 
 interface MarkDetailModalProps {
   mark: {
@@ -208,6 +210,55 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [attestationStatus, setAttestationStatus] = useState<'none' | 'pending' | 'attested'>('none');
   const [attestantInfo, setAttestantInfo] = useState<{ name: string; date: string } | null>(null);
 
+  // Artifact file state (double verification — matches itexisted.app pattern)
+  const [artifactFile, setArtifactFile] = useState<File | null>(null);
+  const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>('idle');
+  const [artifactDragOver, setArtifactDragOver] = useState(false);
+  const artifactInputRef = useRef<HTMLInputElement | null>(null);
+
+  const onArtifactFile = useCallback(async (file: File) => {
+    setArtifactStatus('checking');
+    try {
+      const buffer = await file.arrayBuffer();
+      const fileHash = await calculateSHA256(buffer);
+      const expectedHash = mark.hash.toLowerCase().replace(/^sha256:/, '');
+      if (fileHash === expectedHash) {
+        setArtifactFile(file);
+        setArtifactStatus('matched');
+        toast.success('File verified — will be included in your ZIP.');
+      } else {
+        setArtifactFile(null);
+        setArtifactStatus('mismatch');
+        toast.error('Hash mismatch — this is not the original file.');
+      }
+    } catch {
+      setArtifactStatus('mismatch');
+      toast.error('Could not read file.');
+    }
+  }, [mark.hash]);
+
+  const onDownloadZip = useCallback(async () => {
+    const anchored = mark.otsStatus === 'anchored';
+    if (!anchored) { toast.info('Proof is still pending.'); return; }
+    if (!mark.originUuid) return;
+    const proof = await fetchProofStatus(mark.originUuid);
+    if (proof.status !== 'anchored' || !proof.otsProofBytes) { toast.error('Not ready yet.'); return; }
+    const zip = await buildOriginZip({
+      originId: mark.originUuid, hash: mark.hash,
+      timestamp: mark.timestamp, imageUrl: mark.imageUrl ?? null,
+      otsProof: arrayBufferToBase64(proof.otsProofBytes),
+      artifactFile: artifactFile,
+      originalFileName: artifactFile?.name ?? null,
+      deviceSignature: null,
+      devicePublicKey: credentialRef.current?.publicKey ?? null,
+    });
+    const fileName = buildZipFileName(mark.originUuid, mark.timestamp, artifactFile?.name);
+    const url = URL.createObjectURL(zip);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }, [mark, artifactFile]);
+
   useEffect(() => {
     if (!mark.originUuid) return;
     const deviceUserId = getActiveDeviceId();
@@ -309,6 +360,82 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 </>
               )}
             </div>
+
+            {/* Upload original file + Download ZIP */}
+            {isAnchored && (
+              <div className="w-full max-w-[340px] mb-6 space-y-4">
+                {/* Upload original */}
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
+                    <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Upload your original file</span>
+                    <span className="font-mono text-[10px] tracking-[1px] lowercase" style={{ color: 'rgba(240,234,214,0.25)' }}>(optional)</span>
+                  </div>
+                  {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
+                    <label
+                      className="block w-full rounded-[8px] border-dashed border-[1.5px] p-4 text-center cursor-pointer transition-all"
+                      style={{
+                        borderColor: artifactDragOver ? 'rgba(201,169,110,0.6)' : 'rgba(201,169,110,0.2)',
+                        background: artifactDragOver ? 'rgba(201,169,110,0.08)' : 'rgba(201,169,110,0.02)',
+                      }}
+                      onDrop={(e) => { e.preventDefault(); setArtifactDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) onArtifactFile(f); }}
+                      onDragOver={(e) => { e.preventDefault(); setArtifactDragOver(true); }}
+                      onDragLeave={() => setArtifactDragOver(false)}
+                    >
+                      <input ref={artifactInputRef} type="file" className="hidden" accept="*/*"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
+                      <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+                        style={{ color: 'rgba(201,169,110,0.5)' }}>
+                        {artifactDragOver ? 'Release to verify' : 'Drop your original file here'}
+                      </p>
+                      <p className="font-garamond italic text-[14px]"
+                        style={{ color: 'rgba(240,234,214,0.25)' }}>
+                        Hash-verified and included in your ZIP
+                      </p>
+                      {artifactStatus === 'mismatch' && (
+                        <p className="font-mono text-[10px] mt-2" style={{ color: 'rgba(220,80,60,0.7)' }}>
+                          ✗ Last file did not match. Try the original
+                        </p>
+                      )}
+                    </label>
+                  ) : artifactStatus === 'checking' ? (
+                    <div className="flex items-center gap-2 py-3">
+                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
+                        <svg viewBox="0 0 24 24" width={16} height={16}>
+                          <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(201,169,110,0.15)" strokeWidth="1.5" />
+                          <path d="M12 3 A9 9 0 0 1 21 12" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </motion.div>
+                      <span className="font-mono text-[11px] tracking-[2px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 py-2">
+                      <span className="font-mono text-[12px]" style={{ color: '#7fba6a' }}>✓</span>
+                      <span className="font-mono text-[11px] tracking-[1px]" style={{ color: 'rgba(240,234,214,0.65)' }}>
+                        {artifactFile?.name}
+                      </span>
+                      <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
+                        className="font-mono text-[9px] tracking-[1px] uppercase ml-auto bg-transparent border-none cursor-pointer"
+                        style={{ color: 'rgba(240,234,214,0.25)' }}>
+                        Change
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Download ZIP */}
+                <button onClick={onDownloadZip}
+                  className="w-full flex items-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                  style={{ padding: 0 }}>
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>2.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Download your proof</span>
+                  {artifactFile && (
+                    <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1" style={{ color: 'rgba(127,186,106,0.6)' }}>incl. original</span>
+                  )}
+                  <span className="ml-auto text-[12px] flex-shrink-0" style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
+                </button>
+              </div>
+            )}
 
             {/* Verification details */}
             <div className="w-full max-w-[340px] mb-6">
