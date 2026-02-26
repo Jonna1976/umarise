@@ -129,16 +129,22 @@ export function SealedScreen({
     return () => clearInterval(interval);
   }, [coreOriginId, anchoredState]);
 
-  // Countdown label
+  // Live countdown that ticks every 30s
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    if (anchoredState) return;
+    const iv = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(iv);
+  }, [anchoredState]);
+
   const pendingLabel = useMemo(() => {
     const expectedAt = new Date(timestamp.getTime() + 2 * 60 * 60 * 1000);
-    const now = new Date();
     const diffMs = expectedAt.getTime() - now.getTime();
     const diffMin = Math.max(0, Math.round(diffMs / 60000));
     if (diffMin <= 0) return 'Bitcoin proof in progress, any moment now';
     if (diffMin < 60) return `Bitcoin proof in progress, ready in ~${diffMin} min`;
     return `Bitcoin proof in progress, ready in ~${Math.ceil(diffMin / 60)} hours`;
-  }, [timestamp]);
+  }, [timestamp, now]);
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
