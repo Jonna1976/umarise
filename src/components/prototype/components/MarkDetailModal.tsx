@@ -371,53 +371,50 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               <div className="w-full max-w-[340px] mb-6 space-y-4">
                 {/* Upload original */}
                 <div>
+                  <input ref={artifactInputRef} type="file" className="hidden" accept="*/*"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
+
                   {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
-                    <label
-                      className="block w-full rounded-[8px] border-dashed border-[1.5px] p-4 text-center cursor-pointer transition-all"
-                      style={{
-                        borderColor: artifactDragOver ? 'rgba(201,169,110,0.6)' : 'rgba(201,169,110,0.2)',
-                        background: artifactDragOver ? 'rgba(201,169,110,0.08)' : 'rgba(201,169,110,0.02)',
-                      }}
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => artifactInputRef.current?.click()}
                       onDrop={(e) => { e.preventDefault(); setArtifactDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) onArtifactFile(f); }}
                       onDragOver={(e) => { e.preventDefault(); setArtifactDragOver(true); }}
                       onDragLeave={() => setArtifactDragOver(false)}
                     >
-                      <input ref={artifactInputRef} type="file" className="hidden" accept="*/*"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                      <div className="text-left w-full">
-                        <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
-                          style={{ color: 'rgba(201,169,110,0.5)' }}>
-                          {artifactDragOver ? 'Release to verify' : '1. Add your original file'}
-                        </p>
-                        <p className="font-garamond italic text-[13px] pl-[1.1rem]"
-                          style={{ color: 'rgba(240,234,214,0.3)' }}>
-                          Hash-verified and included in your ZIP
-                        </p>
+                      <div className="flex items-center gap-2 py-2 pl-4">
+                        <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
+                        <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>
+                          {artifactDragOver ? 'Release to add' : 'Add your original file'}
+                        </span>
+                        <span className="ml-auto text-[12px] flex-shrink-0" style={{ color: 'rgba(240,234,214,0.35)' }}>↑</span>
                       </div>
                       {artifactStatus === 'mismatch' && (
-                        <p className="font-mono text-[10px] mt-2" style={{ color: 'rgba(220,80,60,0.7)' }}>
+                        <p className="font-mono text-[11px] pl-4 mt-1" style={{ color: 'rgba(220,80,60,0.7)' }}>
                           ✗ Last file did not match. Try the original
                         </p>
                       )}
-                    </label>
+                    </div>
                   ) : artifactStatus === 'checking' ? (
-                    <div className="flex items-center gap-2 py-3">
+                    <div className="flex items-center gap-2 py-2 pl-4">
+                      <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
-                        <svg viewBox="0 0 24 24" width={16} height={16}>
+                        <svg viewBox="0 0 24 24" width={14} height={14}>
                           <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(201,169,110,0.15)" strokeWidth="1.5" />
                           <path d="M12 3 A9 9 0 0 1 21 12" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
                       </motion.div>
-                      <span className="font-mono text-[11px] tracking-[2px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
+                      <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.5)' }}>Verifying…</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 py-2">
+                    <div className="flex items-center gap-2 py-2 pl-4">
+                      <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
                       <span className="font-mono text-[12px]" style={{ color: '#7fba6a' }}>✓</span>
-                      <span className="font-mono text-[11px] tracking-[1px]" style={{ color: 'rgba(240,234,214,0.65)' }}>
+                      <span className="font-mono text-[14px] tracking-[1px]" style={{ color: 'rgba(240,234,214,0.6)' }}>
                         {artifactFile?.name}
                       </span>
                       <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
-                        className="font-mono text-[9px] tracking-[1px] uppercase ml-auto bg-transparent border-none cursor-pointer"
+                        className="font-mono text-[11px] tracking-[1px] uppercase ml-auto bg-transparent border-none cursor-pointer"
                         style={{ color: 'rgba(240,234,214,0.25)' }}>
                         Change
                       </button>
