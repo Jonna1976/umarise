@@ -151,12 +151,20 @@ export default function ItExistedProof() {
   /* ── ACTIONS ── */
   const onShare = async () => {
     if (navigator.share) {
-      const msg = `Origin ${state.shortToken} — anchored proof.\nVerify: ${shareUrl}\n\nSend your original file separately via a secure channel, because bytes must stay intact for verification.`;
-      await navigator.share({ title: `Origin ${state.shortToken}`, text: msg, url: shareUrl }).catch(() => undefined);
-      return;
+      try {
+        const msg = `Origin ${state.shortToken}, anchored proof.\nVerify: ${shareUrl}\n\nSend your original file separately via a secure channel, because bytes must stay intact for verification.`;
+        await navigator.share({ title: `Origin ${state.shortToken}`, text: msg, url: shareUrl });
+        return;
+      } catch {
+        // Share cancelled or unavailable in this context, fall through to clipboard
+      }
     }
-    await navigator.clipboard?.writeText(shareUrl).catch(() => undefined);
-    toast.success('Proof URL copied.');
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('Proof URL copied.');
+    } catch {
+      toast.error('Could not copy URL.');
+    }
   };
 
   const onDownload = async () => {
