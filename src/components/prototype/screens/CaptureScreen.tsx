@@ -173,26 +173,14 @@ export function CaptureScreen({ onCapture, onCaptureFile, isFirstVisit = false }
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            {/* Pulsing hexagon */}
+            {/* Pulsing square */}
             <motion.div
               animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
               transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
             >
               <svg viewBox="0 0 56 56" width={56} height={56}>
-                <polygon
-                  points="28,4 50,16 50,40 28,52 6,40 6,16"
-                  fill="none"
-                  stroke="hsl(var(--ritual-gold))"
-                  strokeWidth="1"
-                  opacity="0.6"
-                />
-                <polygon
-                  points="28,12 42,20 42,36 28,44 14,36 14,20"
-                  fill="none"
-                  stroke="hsl(var(--ritual-gold))"
-                  strokeWidth="0.5"
-                  opacity="0.25"
-                />
+                <rect x="4" y="4" width="48" height="48" rx="5" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="1" opacity="0.6" />
+                <rect x="16" y="16" width="24" height="24" rx="3" fill="none" stroke="hsl(var(--ritual-gold))" strokeWidth="0.5" opacity="0.25" />
               </svg>
             </motion.div>
 

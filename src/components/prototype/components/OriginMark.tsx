@@ -5,30 +5,18 @@ export type OriginMarkState = 'anchored' | 'pending' | 'ghost';
 export type OriginMarkVariant = 'dark' | 'light';
 
 interface OriginMarkProps {
-  /** SVG size in px — scales proportionally */
   size?: number;
-  /** Visual state: anchored (solid), pending (dashed), ghost (empty) */
   state?: OriginMarkState;
-  /** Show glow filter — only for ceremonial use (sealed/detail nail) */
   glow?: boolean;
-  /** Pulse animation for pending state */
   animated?: boolean;
-  /** Color variant */
   variant?: OriginMarkVariant;
-  /** S0 intro animation: V7 appears → pulses */
   introAnimation?: boolean;
   className?: string;
 }
 
 /**
- * The Origin Mark — V7 Hexagon (⬡ with □ hole)
- * 
- * V7 is de spijker. Het houdt het bewijs op zijn plek.
- * 
- * States:
- * - anchored: solid gold hexagon, dark square hole, optional glow
- * - pending: dashed outline hexagon, ghost square, pulsing
- * - ghost: faint outline hexagon only (placeholder)
+ * The Origin Mark — Square with inner square hole
+ * Replaces V7 hexagon with clean geometric square mark.
  */
 export function OriginMark({
   size = 20,
@@ -42,10 +30,6 @@ export function OriginMark({
   const filterId = useId();
   const glowId = `glow-${filterId.replace(/:/g, '')}`;
 
-  // V7 uses a fixed viewBox of 48x48 for consistent proportions
-  // Hexagon points: 24,4 42,14 42,34 24,44 6,34 6,14
-  // Square hole: x=17 y=17 w=14 h=14 rx=1.8
-
   const surfaceColor = '#0F1A0F';
   const goldColor = '#C5935A';
 
@@ -53,7 +37,6 @@ export function OriginMark({
 
   useEffect(() => {
     if (!introAnimation) return;
-
     const runIntro = async () => {
       await dotControls.start({
         opacity: 1,
@@ -61,63 +44,30 @@ export function OriginMark({
         transition: { duration: 0.8, ease: 'easeOut', delay: 1.0 },
       });
     };
-
     runIntro();
   }, [introAnimation, dotControls]);
 
   if (state === 'ghost') {
     return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 20 20"
-        className={className}
-        style={{ overflow: 'visible' }}
-      >
-        <polygon
-          points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5"
-          fill="none"
-          stroke="rgba(197,147,90,0.1)"
-          strokeWidth="0.6"
-        />
+      <svg width={size} height={size} viewBox="0 0 20 20" className={className} style={{ overflow: 'visible' }}>
+        <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="rgba(197,147,90,0.1)" strokeWidth="0.6" />
       </svg>
     );
   }
 
   if (state === 'pending') {
+    const large = size >= 32;
     const pendingContent = (
-      <svg
-        width={size}
-        height={size}
-        viewBox={size >= 32 ? '0 0 48 48' : '0 0 20 20'}
-        className={className}
-        style={{ overflow: 'visible' }}
-      >
-        {size >= 32 ? (
+      <svg width={size} height={size} viewBox={large ? '0 0 48 48' : '0 0 20 20'} className={className} style={{ overflow: 'visible' }}>
+        {large ? (
           <>
-            <polygon
-              points="24,4 42,14 42,34 24,44 6,34 6,14"
-              fill="none"
-              stroke="rgba(197,147,90,0.4)"
-              strokeWidth="1.2"
-              strokeDasharray="3 3"
-            />
-            <rect x="17" y="17" width="14" height="14" rx="1.8"
-              fill="rgba(197,147,90,0.15)"
-            />
+            <rect x="4" y="4" width="40" height="40" rx="4" fill="none" stroke="rgba(197,147,90,0.4)" strokeWidth="1.2" strokeDasharray="3 3" />
+            <rect x="17" y="17" width="14" height="14" rx="1.8" fill="rgba(197,147,90,0.15)" />
           </>
         ) : (
           <>
-            <polygon
-              points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5"
-              fill="none"
-              stroke="rgba(197,147,90,0.3)"
-              strokeWidth="0.8"
-              strokeDasharray="2 2"
-            />
-            <rect x="6.5" y="6.5" width="7" height="7" rx="0.9"
-              fill="rgba(197,147,90,0.25)"
-            />
+            <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="rgba(197,147,90,0.3)" strokeWidth="0.8" strokeDasharray="2 2" />
+            <rect x="6.5" y="6.5" width="7" height="7" rx="0.9" fill="rgba(197,147,90,0.25)" />
           </>
         )}
       </svg>
@@ -134,30 +84,30 @@ export function OriginMark({
         </motion.div>
       );
     }
-
     return pendingContent;
   }
 
-  // Anchored state — solid gold hexagon with dark square hole
+  // Anchored state — solid gold square with dark square hole
+  const large = size >= 32;
   return (
     <svg
       width={size}
       height={size}
-      viewBox={size >= 32 ? '0 0 48 48' : '0 0 20 20'}
+      viewBox={large ? '0 0 48 48' : '0 0 20 20'}
       className={className}
       style={{
         overflow: 'visible',
-        ...(glow ? { filter: `drop-shadow(0 0 ${size >= 32 ? '10' : '6'}px rgba(197,147,90,0.35))` } : {}),
+        ...(glow ? { filter: `drop-shadow(0 0 ${large ? '10' : '6'}px rgba(197,147,90,0.35))` } : {}),
       }}
     >
-      {size >= 32 ? (
+      {large ? (
         <>
-          <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill={goldColor} />
+          <rect x="4" y="4" width="40" height="40" rx="4" fill={goldColor} />
           <rect x="17" y="17" width="14" height="14" rx="1.8" fill={surfaceColor} />
         </>
       ) : (
         <>
-          <polygon points="10,1.5 18,5.5 18,14.5 10,18.5 2,14.5 2,5.5" fill={goldColor} />
+          <rect x="2" y="2" width="16" height="16" rx="2" fill={goldColor} />
           <rect x="6.5" y="6.5" width="7" height="7" rx="0.9" fill={surfaceColor} />
         </>
       )}
