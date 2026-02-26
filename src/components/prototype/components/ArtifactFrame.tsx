@@ -108,14 +108,13 @@ export function ArtifactFrame({ artifact, isFocused, isNewest = false, onClick }
         {artifact.date}
       </motion.p>
 
-      {/* Status indicator */}
+      {/* Status indicator — small dot only */}
       <div className="relative flex flex-col items-center">
-        <motion.div className="mt-1.5" animate={{ opacity: isFocused ? 0.8 : 0.35 }} transition={{ duration: 0.4 }}
+        <motion.div className="mt-1.5 w-2 h-2 rounded-full" animate={{ opacity: isFocused ? 0.8 : 0.35 }} transition={{ duration: 0.4 }}
           onClick={artifact.otsStatus !== 'anchored' ? handleDotTap : undefined}
           onTouchStart={artifact.otsStatus !== 'anchored' ? handleDotTap : undefined}
-        >
-          <OriginMark size={20} state={artifact.otsStatus === 'anchored' ? 'anchored' : 'pending'} animated={artifact.otsStatus !== 'anchored'} variant="dark" />
-        </motion.div>
+          style={{ background: artifact.otsStatus === 'anchored' ? 'hsl(var(--ritual-gold))' : 'hsl(var(--ritual-gold) / 0.4)' }}
+        />
 
         <AnimatePresence>
           {showTooltip && artifact.otsStatus !== 'anchored' && (
