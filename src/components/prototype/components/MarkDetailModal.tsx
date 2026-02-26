@@ -535,7 +535,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
                 </div>
                 <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                  <p className="font-garamond text-[14px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                  <p className="font-garamond text-[18px] text-center leading-[1.6] max-w-[260px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
                     A certified independent attestant confirms it was you. €4,95. One-time.
                   </p>
                   <button onClick={() => setShowAttestationModal(true)}
