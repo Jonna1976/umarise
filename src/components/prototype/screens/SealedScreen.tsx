@@ -342,37 +342,37 @@ export function SealedScreen({
 
         {/* Hash — full, one line */}
         <p
-          className="font-mono text-[17px] tracking-[0.5px] mb-3.5 max-w-[280px] text-center break-all leading-[1.6]"
+          className="font-mono text-[13px] tracking-[0.5px] mb-3.5 max-w-[260px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
         </p>
 
         {/* Proof components — one line */}
-        <div className="flex items-center gap-4 mb-5">
-          <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+        <div className="flex items-center gap-3 mb-5">
+          <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             certificate
           </span>
-          <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-          <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+          <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             hash
           </span>
           {anchoredState ? (
             <>
-              <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
+              <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
+              <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
                 proof.ots
               </span>
             </>
           ) : (
             <>
               <motion.span
-                className="w-[3px] h-[3px] rounded-full"
+                className="w-[2px] h-[2px] rounded-full"
                 style={{ background: 'rgba(197,147,90,0.35)' }}
                 animate={{ opacity: [0.3, 0.7, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-              <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
+              <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
                 proof.ots
               </span>
             </>
