@@ -189,6 +189,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [imgError, setImgError] = useState(false);
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [verificationOpen, setVerificationOpen] = useState(true);
+  const [zipDownloaded, setZipDownloaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<VerifyResultData | null>(null);
@@ -405,7 +406,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 </div>
 
                 {/* Download ZIP */}
-                <button onClick={onDownloadZip}
+                <button onClick={() => { onDownloadZip(); setZipDownloaded(true); }}
                   className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
                   style={{ padding: undefined }}>
                   <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>2.</span>
@@ -416,7 +417,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   
                 </button>
 
-            {/* Verification details — only after Bitcoin confirmation */}
+            {zipDownloaded && (<>
+            {/* Verification details — only after ZIP download */}
               <button onClick={() => setVerificationOpen(!verificationOpen)}
                 className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
                 <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>3.</span>
@@ -548,6 +550,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 </div>
               </div>
             )}
+            </>)}
 
               </div>
             )}
