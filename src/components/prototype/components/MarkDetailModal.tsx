@@ -445,7 +445,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               </div>
             )}
 
-            {/* Verification details */}
+            {/* Verification details — only after Bitcoin confirmation */}
+            {isAnchored && (
             <div className="w-full max-w-[340px] mb-6">
               <button onClick={() => setVerificationOpen(!verificationOpen)}
                 className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
@@ -502,6 +503,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 )}
               </AnimatePresence>
             </div>
+            )}
 
             <input ref={zipInputRef} type="file" accept=".zip,application/zip" className="hidden"
               onChange={(e) => { const file = e.target.files?.[0]; if (file) handleZipFile(file); e.target.value = ''; }} />
