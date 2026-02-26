@@ -472,14 +472,33 @@ footer a:hover { color: var(--text-muted); }
 
   <!-- Extended verification -->
   <div class="independence" style="margin-top:1.5rem">
-    <h2 style="font-family:var(--mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Extended Verification</h2>
+    <h2 style="font-family:var(--mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Verification Scope</h2>
     <p>
-      For additional registry lookups, Bitcoin block status, and proof downloads
-      via Umarise infrastructure, visit
+      This reference verifier performs: hash match, ZIP/certificate parsing, OTS header validation, and .ots download.
+      It does not perform full Bitcoin verification in v1 — use <code style="font-size:14px">ots verify</code> or
+      <a href="https://opentimestamps.org" target="_blank" rel="noopener">opentimestamps.org</a> for ledger confirmation.
+    </p>
+    <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:14px;font-family:var(--mono)">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border-light)">
+          <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-size:11px;letter-spacing:0.1em;text-transform:uppercase">Capability</th>
+          <th style="text-align:center;padding:6px 8px;color:var(--text-muted);font-size:11px;letter-spacing:0.1em;text-transform:uppercase">This site</th>
+          <th style="text-align:center;padding:6px 8px;color:var(--text-muted);font-size:11px;letter-spacing:0.1em;text-transform:uppercase">umarise.com/verify</th>
+        </tr>
+      </thead>
+      <tbody style="color:var(--text)">
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Hash match + ZIP parsing</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">OTS header check</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Bitcoin verification</td><td style="text-align:center;padding:5px 8px;color:var(--yellow)">via CLI</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓ via API</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Registry lookup</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Works without Umarise</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Offline mode</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:0.75rem">
+      For registry lookups and proof status via Umarise infrastructure, visit
       <a href="https://umarise.com/verify" target="_blank" rel="noopener">umarise.com/verify</a>.
-      <br><br>
       That verifier provides value-added context but depends on issuer infrastructure.
-      It is not a normative implementation of IEC.
     </p>
   </div>
 </main>
