@@ -24,7 +24,7 @@ describe('buildOriginZip', () => {
     // Verify VERIFY.txt contains Guardian C8/C17 content
     const verifyContent = await zip.file('VERIFY.txt')!.async('string');
     expect(verifyContent).toContain('VERIFICATION INSTRUCTIONS');
-    expect(verifyContent).toContain('https://anchoring.app/verify');
+    expect(verifyContent).toContain('https://verify-anchoring.org');
     expect(verifyContent).toContain('sha256sum artifact.*');
     expect(verifyContent).toContain('WHAT THIS PROVES');
     expect(verifyContent).toContain('WHAT THIS DOES NOT PROVE');

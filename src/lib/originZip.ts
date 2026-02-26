@@ -279,10 +279,10 @@ NOTE ON ARTIFACT INCLUSION:
    A present artifact is always the exact original.
 
 VERIFY ONLINE:
-  https://anchoring.app/verify
+  https://verify-anchoring.org
   Upload this ZIP or the original file.
 
-VERIFY INDEPENDENTLY (no Umarise needed):
+VERIFY INDEPENDENTLY (no platform needed):
   1. Verify hash integrity:
      sha256sum artifact.*
      Compare output with "hash" field in certificate.json (without sha256: prefix)
@@ -295,9 +295,13 @@ VERIFY INDEPENDENTLY (no Umarise needed):
      python verify-anchor.py this-file.zip
 
 Both scripts require only standard tools (sha256sum/unzip/jq for bash,
-Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
+Python 3.8+ stdlib for Python). No platform infrastructure needed.
 
 Scripts available at: https://umarise.com/reviewer
+
+SPECIFICATION:
+  This proof conforms to the Anchoring Specification (IEC v1.0).
+  Canonical reference: https://anchoring-spec.org/v1.0/
 ${layer2Section}${attestationVerifySection}
 THREE LAYERS OF PROOF:
   Layer 1 — Existence & Time:
