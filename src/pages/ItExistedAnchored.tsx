@@ -81,7 +81,7 @@ export default function ItExistedAnchored() {
         {/* ── TITLE ── */}
         <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
           style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-          Anchored.
+          Registered.
         </h1>
 
         {/* ── DIVIDER 1 ── */}
