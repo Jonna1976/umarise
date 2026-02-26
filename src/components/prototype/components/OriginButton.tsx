@@ -20,12 +20,11 @@ export function OriginButton({ onClick, className = '' }: OriginButtonProps) {
       whileHover={{ opacity: 1 }}
       aria-label="Open Anchor Registry"
     >
-      <svg viewBox="0 0 28 28" width={24} height={24}>
-        <polygon
-          points="14,2.5 24.5,8.5 24.5,20.5 14,26.5 3.5,20.5 3.5,8.5"
-          fill="hsl(var(--ritual-gold))"
-        />
-        <rect x="9.5" y="9.5" width="9" height="9" rx="1.2" fill="hsl(var(--ritual-surface))" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="hsl(var(--ritual-gold))">
+        <rect x="1" y="1" width="7" height="7" rx="1.5" />
+        <rect x="10" y="1" width="7" height="7" rx="1.5" />
+        <rect x="1" y="10" width="7" height="7" rx="1.5" />
+        <rect x="10" y="10" width="7" height="7" rx="1.5" />
       </svg>
     </motion.button>
   );
