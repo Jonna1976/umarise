@@ -93,9 +93,26 @@ export default function Technical() {
           <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
             Technical Description
           </h1>
-          <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
+          <p className="text-landing-muted/50 text-sm uppercase tracking-wide mb-6">
             What an Anchor Record is, what it contains, and what it does not establish
           </p>
+          <div className="bg-landing-muted/5 border border-landing-muted/15 rounded px-5 py-4">
+            <p className="text-landing-cream/80 text-sm leading-relaxed">
+              Umarise implements the{' '}
+              <a
+                href="https://anchoring-spec.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
+              >
+                Anchoring Specification (IEC v1.0)
+              </a>.
+              The specification defines the verification function, permitted outputs, and semantic scope of anchoring.
+            </p>
+            <p className="text-landing-muted/50 text-xs mt-2 italic">
+              The specification is normative. This implementation is not.
+            </p>
+          </div>
         </div>
 
         {/* Document content */}
@@ -458,7 +475,16 @@ export default function Technical() {
               Disclaimer
             </h2>
             <p className="text-landing-muted/60">
-              This page describes the technical properties of the Anchor Record mechanism. It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
+              This page describes the technical properties of the Anchor Record mechanism as implemented by Umarise under the{' '}
+              <a
+                href="https://anchoring-spec.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-landing-copper underline underline-offset-2 hover:text-landing-cream/70 transition-colors"
+              >
+                Anchoring Specification (IEC)
+              </a>.
+              It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
             </p>
             <p className="text-landing-muted/50 text-sm mt-4">
               Document version 1.1, February 2026
