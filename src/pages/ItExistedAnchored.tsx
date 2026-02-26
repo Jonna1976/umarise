@@ -198,6 +198,8 @@ export default function ItExistedAnchored() {
                 >
                   <button
                     onClick={() => verifyInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleVerifyFile(e.dataTransfer.files?.[0] ?? null); }}
                     className="w-full py-5 rounded-lg border border-dashed transition-all hover:border-solid"
                     style={{
                       borderColor: verifyResult === 'match' ? 'rgba(120,180,120,0.4)' :
