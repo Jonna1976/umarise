@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anchoring Specification (IEC) — v1.0</title>
+<meta name="description" content="Normative specification for cryptographic anchoring. Defines the verification function, permitted outputs, semantic scope, and independence requirements.">
+<link rel="canonical" href="https://anchoring-spec.org">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --border: #e2e0dc;
+  --text: #1a1a1a;
+  --text-muted: #5a5856;
+  --text-dim: #8a8884;
+  --accent: #2a2a2a;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+  --serif: Georgia, 'Times New Roman', Times, serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.75;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Layout */
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* Header */
+.spec-header {
+  border-bottom: 2px solid var(--text);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.spec-header h1 {
+  font-family: var(--serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.spec-meta {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.spec-meta strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Sections */
+.spec-section {
+  margin-bottom: 2.5rem;
+}
+.spec-section h2 {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+.spec-section h2 .section-num {
+  color: var(--text);
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+.spec-section p {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+.spec-section ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0.75rem;
+}
+.spec-section ul li {
+  font-size: 0.92rem;
+  color: var(--text);
+  padding: 0.15rem 0 0.15rem 1.2rem;
+  position: relative;
+}
+.spec-section ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--text-dim);
+}
+
+/* Definition block */
+.definition {
+  border-left: 3px solid var(--text);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Formula */
+.formula {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+
+/* Term definitions */
+.term-list {
+  margin: 0.75rem 0;
+}
+.term-list dt {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 0.5rem;
+}
+.term-list dd {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-left: 0;
+  padding-left: 1rem;
+}
+
+/* Output table */
+.output-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+.output-table th {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid var(--text);
+  color: var(--text-muted);
+}
+.output-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.output-table td:first-child {
+  font-family: var(--mono);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Note */
+.normative-note {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.normative-note strong {
+  color: var(--text);
+}
+
+/* Footer */
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+footer a:hover {
+  color: var(--text);
+}
+
+@media (max-width: 480px) {
+  .page { padding: 2rem 1rem 3rem; }
+  .spec-header h1 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="spec-header">
+    <h1>Anchoring Specification (IEC)</h1>
+    <div class="spec-meta">
+      <strong>Version</strong> 1.0<br>
+      <strong>Status</strong> Normative<br>
+      <strong>Date</strong> 2026-02-26<br>
+      <strong>URI</strong> https://anchoring-spec.org/v1.0/
+    </div>
+  </div>
+
+  <!-- Section 1: Scope -->
+  <div class="spec-section">
+    <h2><span class="section-num">1</span> Scope</h2>
+    <p>This specification defines anchoring as a cryptographic method for establishing existence-at-or-before-T of a byte sequence.</p>
+    <p>It defines:</p>
+    <ul>
+      <li>the verification function</li>
+      <li>the permitted outputs</li>
+      <li>the semantic scope of anchoring</li>
+      <li>the exclusion of non-chronological claims</li>
+      <li>ledger qualification requirements</li>
+    </ul>
+    <p><strong>This specification is normative.</strong></p>
+  </div>
+
+  <!-- Section 2: Definition -->
+  <div class="spec-section">
+    <h2><span class="section-num">2</span> Definition</h2>
+    <div class="definition">
+      Anchoring establishes one property only:<br>
+      A specific byte sequence existed on or before time T.
+    </div>
+    <p>No additional claims are implied.</p>
+    <p>Time T is derived from publicly verifiable ledger consensus. It is not self-asserted.</p>
+  </div>
+
+  <!-- Section 3: Verification Function -->
+  <div class="spec-section">
+    <h2><span class="section-num">3</span> Verification Function</h2>
+    <div class="formula">V(B, P, L) → { valid | invalid | unverifiable }</div>
+    <dl class="term-list">
+      <dt>B</dt>
+      <dd>The exact byte sequence of the artifact under verification.</dd>
+      <dt>P</dt>
+      <dd>The proof bundle: a certificate containing a cryptographic hash commitment, and optionally a ledger proof.</dd>
+      <dt>L</dt>
+      <dd>Publicly verifiable ledger infrastructure (e.g. Bitcoin blockchain via OpenTimestamps).</dd>
+    </dl>
+    <p>Output semantics are defined in Section 4.</p>
+  </div>
+
+  <!-- Section 4: Output Semantics -->
+  <div class="spec-section">
+    <h2><span class="section-num">4</span> Output Semantics</h2>
+    <table class="output-table">
+      <thead>
+        <tr><th>Output</th><th>Condition</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>valid</td>
+          <td>Hash integrity confirmed and ledger inclusion verified. The byte sequence existed on or before time T.</td>
+        </tr>
+        <tr>
+          <td>invalid</td>
+          <td>Hash mismatch between artifact and certificate, or ledger proof is demonstrably incorrect.</td>
+        </tr>
+        <tr>
+          <td>unverifiable</td>
+          <td>Verification cannot be completed. Possible causes: missing artifact, missing or incomplete ledger proof, inaccessible ledger infrastructure.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>No other outputs are permitted.</strong></p>
+    <p>An implementation must not return intermediate, partial, or qualified results outside this set.</p>
+  </div>
+
+  <!-- Section 5: Exclusions -->
+  <div class="spec-section">
+    <h2><span class="section-num">5</span> Exclusions</h2>
+    <p>Anchoring does not establish:</p>
+    <ul>
+      <li>authorship</li>
+      <li>ownership</li>
+      <li>originality</li>
+      <li>legal enforceability</li>
+      <li>identity</li>
+      <li>intent</li>
+      <li>truthfulness</li>
+    </ul>
+    <p>An implementation must not present anchoring results in a manner that implies any of the above.</p>
+  </div>
+
+  <!-- Section 6: Independence Requirement -->
+  <div class="spec-section">
+    <h2><span class="section-num">6</span> Independence Requirement</h2>
+    <p>A compliant anchoring proof must remain verifiable without reliance on the issuing entity.</p>
+    <p>Verification must not require:</p>
+    <ul>
+      <li>account access</li>
+      <li>issuer-controlled infrastructure</li>
+      <li>issuer-controlled databases</li>
+    </ul>
+    <div class="definition">
+      If verification depends on the issuing service, the proof is non-compliant.
+    </div>
+  </div>
+
+  <!-- Section 7: Ledger Qualification -->
+  <div class="spec-section">
+    <h2><span class="section-num">7</span> Ledger Qualification</h2>
+    <p>A ledger qualifies for anchoring verification if:</p>
+    <ul>
+      <li>it is publicly accessible without credentials</li>
+      <li>its state is determined by distributed consensus</li>
+      <li>its history is append-only and tamper-evident</li>
+      <li>timestamp derivation is based on block inclusion, not self-assertion</li>
+    </ul>
+    <p>The Bitcoin blockchain, accessed via the OpenTimestamps protocol, satisfies these requirements.</p>
+  </div>
+
+  <!-- Section 8: Proof Bundle Structure -->
+  <div class="spec-section">
+    <h2><span class="section-num">8</span> Proof Bundle Structure</h2>
+    <p>A conformant proof bundle (P) contains at minimum:</p>
+    <ul>
+      <li>a certificate with a SHA-256 hash commitment</li>
+      <li>the original artifact (byte sequence B)</li>
+    </ul>
+    <p>Optionally, a proof bundle may include:</p>
+    <ul>
+      <li>an OpenTimestamps proof file (.ots) for ledger verification</li>
+      <li>an attestation certificate from a qualified attestant</li>
+      <li>a human-readable verification guide (VERIFY.txt)</li>
+    </ul>
+  </div>
+
+  <!-- Normative note -->
+  <div class="normative-note">
+    <strong>Conformance note.</strong> An implementation that extends the outputs defined in Section 4,
+    omits the exclusions defined in Section 5, or requires issuer infrastructure for verification
+    as prohibited by Section 6, is non-conformant with this specification.
+  </div>
+
+  <footer>
+    anchoring-spec.org · Version 1.0<br>
+    <a href="https://verify-anchoring.org">Reference verifier</a> ·
+    <a href="https://github.com/AnchoringTrust/anchoring-spec">Source</a><br><br>
+    This specification is placed in the public domain.
+  </footer>
+
+</div>
+
+</body>
+</html>
