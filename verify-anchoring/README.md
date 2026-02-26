@@ -63,15 +63,22 @@ For registry lookups, proof status checks, and additional context, an extended v
 
 This reference verifier and the extended verifier are complementary:
 
-| Feature | verify-anchoring.org | umarise.com/verify |
-|---------|---------------------|-------------------|
-| Hash verification (SHA-256) | ✓ | ✓ |
-| OTS header + bundle validation | ✓ | ✓ |
-| Bitcoin verification | Via CLI / external OTS verifier (proof included) | Via Core API (convenience) |
-| Registry lookup | ✗ | ✓ |
-| Proof status check | ✗ | ✓ |
-| Zero backend dependency | ✓ | ✗ |
-| Works offline (hash only) | ✓ | ✗ |
+| Capability | verify-anchoring.org | umarise.com/verify |
+|-----------|---------------------|-------------------|
+| Client-side SHA-256 | ✓ | ✓ |
+| ZIP / certificate parsing | ✓ | ✓ |
+| Hash match (artifact ↔ certificate) | ✓ | ✓ |
+| OTS proof present + header sanity check | ✓ | ✓ |
+| Bitcoin anchoring verification | Via CLI / external OTS verifier (proof included) | ✓ (convenience via Core API) |
+| Registry lookup (`verifyOriginByHash`) | ✗ | ✓ via Core API |
+| Proof status (`fetchProofStatus`) | ✗ | ✓ via Core API |
+| Download proof.ots | ✓ only if included in ZIP | ✓ (can fetch from Core if missing) |
+| Raw file → registry match | ✗ (shows hash only) | ✓ (hash → API lookup) |
+| Layer-2 device signature check | ✗ | ✓ |
+| Works if Umarise disappears | ✓ | ✗ |
+| Offline mode | ✓ (hash + ZIP checks; Bitcoin verify requires network/CLI) | ✗ |
+
+**Note:** verify-anchoring.org does not perform full Bitcoin verification in v1. It validates the .ots proof header and provides the proof file for independent verification via `ots verify` or [opentimestamps.org](https://opentimestamps.org).
 
 ---
 
