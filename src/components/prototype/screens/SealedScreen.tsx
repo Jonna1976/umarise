@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
-import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
+import { fetchProofStatus, arrayBufferToBase64, fetchOriginByHash } from '@/lib/coreApi';
 
 /** Desktop-only download helper */
 function downloadBlob(blob: Blob | null, originId: string) {
@@ -61,7 +61,9 @@ export function SealedScreen({
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [coreOriginId, setCoreOriginId] = useState<string | null>(null);
   const [anchoredState, setAnchoredState] = useState(isAnchored);
+  const [isResolvingOrigin, setIsResolvingOrigin] = useState(true);
   const [otsProofBase64, setOtsProofBase64] = useState<string | null>(null);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
@@ -71,22 +73,56 @@ export function SealedScreen({
 
   const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
 
-  // Poll for Bitcoin anchor status
+  // Resolve core origin UUID from hash, then poll for Bitcoin anchor status
   useEffect(() => {
-    if (anchoredState) return;
+    let cancelled = false;
+
+    const resolveOrigin = async () => {
+      setIsResolvingOrigin(true);
+      try {
+        const resolved = await fetchOriginByHash(hash);
+        if (cancelled) return;
+
+        if (!resolved?.origin_id) {
+          setCoreOriginId(null);
+          setAnchoredState(false);
+          return;
+        }
+
+        setCoreOriginId(resolved.origin_id);
+        if (resolved.proof_status === 'anchored') {
+          setAnchoredState(true);
+        }
+      } finally {
+        if (!cancelled) setIsResolvingOrigin(false);
+      }
+    };
+
+    resolveOrigin();
+    return () => {
+      cancelled = true;
+    };
+  }, [hash]);
+
+  useEffect(() => {
+    if (!coreOriginId || anchoredState) return;
+
     const poll = async () => {
       try {
-        const result = await fetchProofStatus(originId);
+        const result = await fetchProofStatus(coreOriginId);
         if (result.status === 'anchored') {
           setAnchoredState(true);
           if (result.otsProofBytes) setOtsProofBase64(arrayBufferToBase64(result.otsProofBytes));
         }
-      } catch {}
+      } catch {
+        // keep waiting state
+      }
     };
+
     poll();
     const interval = setInterval(poll, 20000);
     return () => clearInterval(interval);
-  }, [originId, anchoredState]);
+  }, [coreOriginId, anchoredState]);
 
   // Countdown label
   const pendingLabel = useMemo(() => {
@@ -332,7 +368,7 @@ export function SealedScreen({
       {/* ── SAVE BUTTON ── */}
       <motion.button
         onClick={handleSave}
-        disabled={isSaving || !anchoredState}
+        disabled={isSaving || isResolvingOrigin || !anchoredState}
         className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-40"
         style={{
           fontWeight: 300,
@@ -345,7 +381,7 @@ export function SealedScreen({
         transition={{ duration: 0.6, delay: 1.2 }}
         whileTap={!saved && anchoredState ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓' : isSaving ? 'Saving...' : anchoredState ? 'Save' : 'Save (waiting for Bitcoin)'}
+        {saved ? '✓' : isSaving ? 'Saving...' : isResolvingOrigin ? 'Save (checking proof...)' : anchoredState ? 'Save' : 'Save (waiting for Bitcoin)'}
       </motion.button>
 
       {/* ── POST-SEAL HINT ── */}
