@@ -340,10 +340,10 @@ footer a:hover { color: var(--text-muted); }
 
 <div class="header">
   <div class="header-inner">
-    <p class="header-label">Reference Implementation · IEC Verification</p>
-    <h1>Verify an origin proof</h1>
-    <p>Upload an origin ZIP to verify that the file bytes match the certificate. If a Bitcoin timestamp proof is included, you can verify it independently.</p>
-    <p class="privacy-note">Your files never leave your browser. This page does not contact Umarise.</p>
+    <p class="header-label">Reference Implementation · Anchoring Specification (IEC)</p>
+    <h1>Verify an Anchor Proof</h1>
+    <p>Independent verification under the Anchoring Specification (IEC).</p>
+    <p class="privacy-note">Your files never leave your browser. No data is stored. No backend is contacted.</p>
   </div>
 </div>
 
@@ -358,34 +358,108 @@ footer a:hover { color: var(--text-muted); }
 
   <div id="output"></div>
 
-  <div class="independence">
+  <!-- What this site is -->
+  <div class="independence" style="margin-top:2.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">What this site is</h2>
     <p>
-      This verifier is <strong>independent of the issuer</strong>. It makes zero calls to Umarise, anchoring.app, or itexisted.app.
+      This site is a reference implementation of the Anchoring Specification (IEC).
+      It performs independent verification of anchoring proofs.
       <br><br>
-      Hash verification runs locally using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" target="_blank" rel="noopener">Web Crypto API</a>.
-      Origin ZIPs are parsed locally in your browser.
-      If a <code>.ots</code> proof is included, you can verify the Bitcoin anchoring using <a href="https://opentimestamps.org" target="_blank" rel="noopener">OpenTimestamps</a> verification tools (<code>opentimestamps.org</code> or <code>ots verify</code>).
-      <br><br>
-      This page is <a href="https://github.com/AnchoringTrust/verify-anchoring" target="_blank" rel="noopener">open source</a>. You can fork it and host it yourself.
+      It does not create anchors.<br>
+      It does not issue certificates.<br>
+      It does not provide commercial services.
     </p>
   </div>
 
-  <div class="how-it-works">
-    <h2>How verification works</h2>
-    <ol>
-      <li>The ZIP is read locally in your browser — nothing is uploaded.</li>
-      <li>The certificate and artifact are extracted.</li>
-      <li>The artifact is hashed (SHA-256) and compared to the certificate hash.</li>
-      <li>If a <code>.ots</code> proof is included, you can verify the Bitcoin anchor independently using OpenTimestamps verification tools.</li>
-      <li>Results are reported as: <strong>valid</strong>, <strong>invalid</strong>, or <strong>unverifiable</strong>.</li>
-    </ol>
+  <!-- Verification model -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Verification Model</h2>
+    <p>
+      Verification is defined by the Anchoring Specification as:
+    </p>
+    <p style="font-family:var(--mono);font-size:0.85rem;color:var(--text);margin:0.75rem 0;padding:0.6rem 0.8rem;background:rgba(255,255,255,0.03);border-radius:2px">
+      V(B, P, L) → { valid | invalid | unverifiable }
+    </p>
+    <p>
+      Where:<br>
+      <strong>B</strong> = the exact byte sequence of the artifact<br>
+      <strong>P</strong> = the proof bundle (certificate and optional ledger proof)<br>
+      <strong>L</strong> = publicly verifiable ledger infrastructure
+    </p>
+    <p style="margin-top:0.75rem">This verifier implements that function.</p>
+  </div>
+
+  <!-- What it establishes -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">What this verifier establishes</h2>
+    <p>
+      If verification returns <strong>valid</strong>, exactly one property is established:
+    </p>
+    <p style="font-style:italic;color:var(--text);margin:0.5rem 0 0.75rem">
+      These exact bytes existed on or before time T.
+    </p>
+    <p>
+      Where T is derived from publicly verifiable ledger consensus.
+      No additional claims are implied.
+    </p>
+  </div>
+
+  <!-- What it does NOT establish -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">What this verifier does not establish</h2>
+    <p>
+      Verification does not establish:
+      authorship · ownership · originality · legal validity · identity · intent · truthfulness.
+      <br><br>
+      It establishes existence-at-or-before-T only.
+    </p>
+  </div>
+
+  <!-- Output semantics -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Output Semantics</h2>
+    <p>
+      The verifier returns exactly one of:<br><br>
+      <strong style="color:var(--green)">valid</strong> — hash integrity confirmed and ledger proof verified<br>
+      <strong style="color:var(--red)">invalid</strong> — hash mismatch or ledger proof invalid<br>
+      <strong style="color:var(--yellow)">unverifiable</strong> — verification cannot be completed (e.g. missing artifact, missing ledger proof, network unavailable)
+      <br><br>
+      No other interpretation is permitted.
+    </p>
+  </div>
+
+  <!-- Independence -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Independence</h2>
+    <p>
+      This verifier makes zero API calls to Umarise, anchoring.app, or itexisted.app.
+      It requires no account. It requires no login. It stores no data. It depends on no backend infrastructure.
+      <br><br>
+      Verification remains possible without the issuer of the proof.
+      After a proof is created, no ongoing relationship with the issuing service is required for verification.
+      <br><br>
+      The source code is <a href="https://github.com/AnchoringTrust/verify-anchoring" target="_blank" rel="noopener">public</a> and may be forked or self-hosted by any party.
+    </p>
+  </div>
+
+  <!-- Specification reference -->
+  <div class="independence" style="margin-top:1.5rem">
+    <h2 style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Specification</h2>
+    <p>
+      This verifier implements the Anchoring Specification (IEC).
+      The specification defines the verification function, the permitted outputs,
+      the semantic scope of anchoring, the exclusion of non-chronological claims,
+      and ledger qualification requirements.
+      <br><br>
+      <strong>The specification is normative. This implementation is not.</strong>
+    </p>
   </div>
 </main>
 
 <footer>
   verify-anchoring.org · Independent verification infrastructure
   <br>
-  <a href="https://github.com/AnchoringTrust/verify-anchoring">source code</a>
+  <a href="https://github.com/AnchoringTrust/verify-anchoring">source</a> · <span style="font-style:italic">The specification is normative. This implementation is not.</span>
 </footer>
 
 <!-- JSZip for ZIP parsing -->
