@@ -11,11 +11,13 @@ This repository contains the normative Anchoring Specification (IEC).
 It defines:
 
 - the verification function `V(B, P, L) → { valid | invalid | unverifiable }`
-- the permitted outputs and their conditions
-- the semantic scope of anchoring (existence-at-or-before-T only)
-- the exclusion of non-chronological claims
-- the independence requirement for compliant proofs
+- output semantics and their conditions
+- proof structure requirements
 - ledger qualification criteria
+- semantic exclusions (authorship, ownership, originality, identity, intent, legal enforceability, truthfulness)
+- the independence requirement for compliant proofs
+- governance model
+- legal scope
 
 ---
 
@@ -42,18 +44,43 @@ If any behavior in an implementation conflicts with this specification, the spec
 
 ---
 
+## Structure
+
+```
+/                          → Current normative version (v1.0)
+/v1.0/                     → Permanent, citable v1.0
+/one-page/                 → Compact academic reference
+/appendix/why-anchoring/   → Non-normative context (informative only)
+```
+
+---
+
 ## Versioning
 
-- `/v1.0/` — Current normative version
-- `/` — Always points to the current version
+IEC uses **MAJOR.MINOR** versioning.
 
-Versions are immutable once published. Corrections are issued as new versions.
+- **MAJOR** increments indicate breaking semantic changes
+- **MINOR** increments indicate clarifications without semantic change
+
+All published versions remain permanently accessible. Versions are immutable once published.
+
+---
+
+## Governance
+
+The Anchoring Specification is a public, versioned technical specification.
+
+It is not proprietary to any single implementation or commercial entity.
+
+Implementations may reference compliance with a specific IEC version.
+
+No implementation has normative authority over the specification.
 
 ---
 
 ## Hosting
 
-This is a single static HTML file hosted on GitHub Pages.
+Static HTML files hosted on GitHub Pages.
 
 No build step. No framework. No backend. No CMS. No analytics.
 

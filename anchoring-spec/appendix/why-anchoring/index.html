@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Anchoring — Appendix (Non-Normative)</title>
+<meta name="description" content="Non-normative appendix to the Anchoring Specification (IEC). Provides academic context for the anchoring method without making normative claims.">
+<link rel="canonical" href="https://anchoring-spec.org/appendix/why-anchoring/">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf8;
+  --surface: #f4f3f0;
+  --border: #e2e0dc;
+  --text: #1a1a1a;
+  --text-muted: #5a5856;
+  --text-dim: #8a8884;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+  --serif: Georgia, 'Times New Roman', Times, serif;
+}
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 640px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+.meta {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--text);
+}
+.status-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+section { margin-bottom: 2rem; }
+section h2 {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+section h2 .n { color: var(--text); font-weight: 600; margin-right: 0.5rem; }
+p { font-size: 0.95rem; margin-bottom: 0.75rem; }
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+footer a { color: var(--text-muted); text-decoration: none; }
+footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Why Anchoring</h1>
+  <div class="meta">
+    Appendix to the Anchoring Specification (IEC v1.0)
+  </div>
+  <div class="status-badge">Non-Normative · Informative Only</div>
+
+  <section>
+    <h2><span class="n">1</span> Background</h2>
+    <p>Digital systems depend on three axes: data, identity, and time.</p>
+    <p>Data can be copied. Identity can be simulated. Time, in most digital systems, remains under platform control.</p>
+    <p>In conventional systems, temporal claims depend on internal logs, cloud infrastructure, private timestamp services, and vendor-controlled databases. This creates structural dependence on issuer-controlled chronology.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span> The Chronology Problem</h2>
+    <p>As systems scale and automation increases, model versions evolve rapidly, artifacts are reproducible, logs are mutable, and reconstruction depends on access.</p>
+    <p>Where chronology is controlled internally, it becomes contestable.</p>
+    <p>Anchoring addresses this by separating system control from chronological control. Anchoring externalizes the temporal commitment.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span> Minimal Claim Principle</h2>
+    <p>Many timestamping services claim authorship, copyright protection, ownership proof, or legal certification.</p>
+    <p>Anchoring deliberately limits its semantic scope. It establishes existence-at-or-before-T only.</p>
+    <p>This minimality increases robustness. A system that claims less is harder to invalidate.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span> Architectural Independence</h2>
+    <p>A core property of anchoring is that verification survives the issuer.</p>
+    <p>After a proof is created: no account is required, no platform is required, no issuer-controlled infrastructure is required.</p>
+    <p>The proof remains verifiable via public ledger consensus.</p>
+    <p>This property is normative under IEC (Section 9).</p>
+  </section>
+
+  <section>
+    <h2><span class="n">5</span> Ledger Agnosticism</h2>
+    <p>Anchoring is ledger-agnostic. Any ledger qualifying under IEC may be used.</p>
+    <p>Ledger qualification requires: public verifiability, consensus-based ordering, resistance to unilateral timestamp rewriting, and reconstructible historical state.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">6</span> Intended Scope</h2>
+    <p>Anchoring is infrastructure.</p>
+    <p>It is not a legal doctrine. It is not a rights management system. It is not identity verification.</p>
+    <p>It is a primitive for temporal commitment.</p>
+  </section>
+
+  <footer>
+    This appendix is non-normative. It provides context only.<br>
+    Normative specification: <a href="https://anchoring-spec.org">anchoring-spec.org</a>
+  </footer>
+
+</div>
+</body>
+</html>
