@@ -13,12 +13,13 @@
   --bg: #fafaf8;
   --surface: #f4f3f0;
   --border: #e2e0dc;
-  --border-strong: #1a1a1a;
-  --text: #1a1a1a;
+  --border-strong: #111111;
+  --text: #111111;
   --text-muted: #5a5856;
-  --text-dim: #8a8884;
-  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
-  --serif: Georgia, 'Times New Roman', Times, serif;
+  --text-dim: #7a7874;
+  --mono: 'SF Mono', 'Fira Code', 'Roboto Mono', monospace;
+  --serif: Georgia, Charter, 'Source Serif Pro', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html { font-size: 16px; }
@@ -26,48 +27,75 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--serif);
-  line-height: 1.75;
+  font-size: 18px;
+  line-height: 1.7;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-.page { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+.page { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
 
-/* Header */
+/* ─── Top navigation ─── */
+.top-nav {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.top-nav .site-name {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.top-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.top-nav a:hover { color: var(--text); }
+
+/* ─── Header ─── */
 .spec-header {
-  border-bottom: 2px solid var(--border-strong);
-  padding-bottom: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 48px;
 }
 .spec-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 40px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  line-height: 1.2;
 }
 .spec-meta {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 13px;
   letter-spacing: 0.08em;
   color: var(--text-muted);
   line-height: 1.8;
 }
 .spec-meta strong { color: var(--text); font-weight: 600; }
 
-/* Navigation */
+/* ─── Table of Contents ─── */
 .spec-nav {
-  margin-bottom: 3rem;
-  padding: 1rem 1.25rem;
+  margin-bottom: 48px;
+  padding: 20px 24px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 2px;
 }
 .spec-nav h2 {
   font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 .spec-nav ol {
   list-style: none;
@@ -76,39 +104,50 @@ body {
 }
 .spec-nav li {
   counter-increment: toc;
-  font-size: 0.85rem;
+  font-size: 16px;
   color: var(--text-muted);
-  padding: 0.15rem 0;
+  padding: 3px 0;
 }
 .spec-nav li::before {
   content: counter(toc) ".";
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 13px;
   color: var(--text-dim);
-  margin-right: 0.5rem;
+  margin-right: 8px;
 }
 .spec-nav a { color: var(--text); text-decoration: none; }
 .spec-nav a:hover { text-decoration: underline; }
 
-/* Sections */
-.spec-section { margin-bottom: 2.5rem; }
+/* ─── Sections ─── */
+.spec-section { margin-bottom: 40px; }
 .spec-section h2 {
   font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.4rem;
-  margin-bottom: 1rem;
+  padding-bottom: 8px;
+  margin-top: 48px;
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
-.spec-section h2 .n { color: var(--text); font-weight: 600; margin-right: 0.5rem; }
-.spec-section p { font-size: 0.95rem; margin-bottom: 0.75rem; }
-.spec-section ul, .spec-section ol { padding-left: 0; list-style: none; margin-bottom: 0.75rem; }
+.spec-section h2 .n { color: var(--text); font-weight: 600; margin-right: 8px; }
+.spec-section h3 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-top: 32px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.spec-section p { font-size: 18px; margin-bottom: 12px; line-height: 1.7; }
+.spec-section ul, .spec-section ol { padding-left: 0; list-style: none; margin-bottom: 12px; }
 .spec-section li {
-  font-size: 0.92rem;
-  padding: 0.15rem 0 0.15rem 1.2rem;
+  font-size: 18px;
+  padding: 3px 0 3px 24px;
   position: relative;
+  line-height: 1.7;
 }
 .spec-section li::before {
   content: '—';
@@ -117,56 +156,62 @@ body {
   color: var(--text-dim);
 }
 
-/* Special blocks */
+/* ─── Special blocks ─── */
 .definition {
   border-left: 3px solid var(--border-strong);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
+  padding: 16px 20px;
+  margin: 20px 0;
   background: var(--surface);
   font-style: italic;
+  font-size: 18px;
+  line-height: 1.7;
 }
 .formula {
   font-family: var(--mono);
-  font-size: 0.88rem;
+  font-size: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 0.8rem 1rem;
-  margin: 1rem 0;
+  padding: 16px 20px;
+  margin: 20px 0;
   border-radius: 2px;
+  line-height: 1.6;
 }
-.term-list { margin: 0.75rem 0; }
+.term-list { margin: 16px 0; }
 .term-list dt {
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 16px;
   font-weight: 600;
-  margin-top: 0.5rem;
+  margin-top: 12px;
 }
 .term-list dd {
-  font-size: 0.9rem;
+  font-size: 18px;
   color: var(--text-muted);
   margin-left: 0;
-  padding-left: 1rem;
+  padding-left: 20px;
+  line-height: 1.7;
 }
 .output-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 0.88rem;
+  margin: 20px 0;
+  font-size: 16px;
 }
 .output-table th {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 13px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: left;
-  padding: 0.5rem 0.75rem;
+  padding: 10px 12px;
   border-bottom: 2px solid var(--border-strong);
   color: var(--text-muted);
 }
 .output-table td {
-  padding: 0.5rem 0.75rem;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+  font-size: 16px;
+  line-height: 1.6;
 }
 .output-table td:first-child {
   font-family: var(--mono);
@@ -174,11 +219,11 @@ body {
   white-space: nowrap;
 }
 .normative-note {
-  margin-top: 2.5rem;
-  padding: 1rem 1.25rem;
+  margin-top: 48px;
+  padding: 20px 24px;
   border: 1px solid var(--border);
   background: var(--surface);
-  font-size: 0.85rem;
+  font-size: 16px;
   color: var(--text-muted);
   line-height: 1.7;
 }
@@ -187,25 +232,45 @@ body {
 .shall { font-variant: small-caps; font-weight: 600; }
 
 footer {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
+  margin-top: 48px;
+  padding-top: 24px;
   border-top: 1px solid var(--border);
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 13px;
   color: var(--text-dim);
-  line-height: 1.8;
+  line-height: 1.6;
 }
 footer a { color: var(--text-muted); text-decoration: none; }
 footer a:hover { color: var(--text); }
 
-@media (max-width: 480px) {
-  .page { padding: 2rem 1rem 3rem; }
-  .spec-header h1 { font-size: 1.4rem; }
+code {
+  font-family: var(--mono);
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  body { font-size: 16px; }
+  .spec-header h1 { font-size: 28px; }
+  .spec-section h3 { font-size: 20px; }
+  .spec-section p, .spec-section li, .definition { font-size: 16px; }
+  .term-list dd { font-size: 16px; }
+  .formula { font-size: 15px; }
+  code { font-size: 15px; }
+  .output-table td { font-size: 15px; }
 }
 </style>
 </head>
 <body>
+
 <div class="page">
+
+  <!-- Top navigation -->
+  <nav class="top-nav">
+    <a href="/" class="site-name">Anchoring Specification</a>
+    <a href="/v1.0/">v1.0</a>
+    <a href="/one-page/">One-Page</a>
+    <a href="/appendix/why-anchoring/">Appendix</a>
+  </nav>
 
   <div class="spec-header">
     <h1>Anchoring Specification (IEC)</h1>
@@ -217,7 +282,7 @@ footer a:hover { color: var(--text); }
     </div>
   </div>
 
-  <p style="font-size:0.95rem;margin-bottom:2rem">
+  <p style="margin-bottom:40px">
     Anchoring is a cryptographic method for establishing existence-at-or-before-T of a byte sequence.
     This site is the canonical publication of the Anchoring Specification (IEC).
   </p>

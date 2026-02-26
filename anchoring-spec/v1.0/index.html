@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anchoring Specification (IEC) — v1.0</title>
 <meta name="description" content="Normative specification for cryptographic anchoring. Defines the verification function, output semantics, proof structure, ledger qualification, independence requirements, and semantic exclusions.">
-<link rel="canonical" href="https://anchoring-spec.org">
+<link rel="canonical" href="https://anchoring-spec.org/v1.0/">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,12 +13,13 @@
   --bg: #fafaf8;
   --surface: #f4f3f0;
   --border: #e2e0dc;
-  --border-strong: #1a1a1a;
-  --text: #1a1a1a;
+  --border-strong: #111111;
+  --text: #111111;
   --text-muted: #5a5856;
-  --text-dim: #8a8884;
-  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
-  --serif: Georgia, 'Times New Roman', Times, serif;
+  --text-dim: #7a7874;
+  --mono: 'SF Mono', 'Fira Code', 'Roboto Mono', monospace;
+  --serif: Georgia, Charter, 'Source Serif Pro', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html { font-size: 16px; }
@@ -26,203 +27,192 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--serif);
-  line-height: 1.75;
+  font-size: 18px;
+  line-height: 1.7;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-.page { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+.page { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
 
-/* Header */
-.spec-header {
-  border-bottom: 2px solid var(--border-strong);
-  padding-bottom: 1.5rem;
-  margin-bottom: 3rem;
+/* ─── Top navigation ─── */
+.top-nav {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: baseline;
 }
+.top-nav .site-name {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+.top-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.top-nav a:hover { color: var(--text); }
+
+.spec-header { margin-bottom: 48px; }
 .spec-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 40px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  line-height: 1.2;
 }
 .spec-meta {
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 13px;
   letter-spacing: 0.08em;
   color: var(--text-muted);
   line-height: 1.8;
 }
 .spec-meta strong { color: var(--text); font-weight: 600; }
 
-/* Navigation */
 .spec-nav {
-  margin-bottom: 3rem;
-  padding: 1rem 1.25rem;
+  margin-bottom: 48px;
+  padding: 20px 24px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 2px;
 }
 .spec-nav h2 {
   font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  border-bottom: none;
+  padding-bottom: 0;
 }
-.spec-nav ol {
-  list-style: none;
-  counter-reset: toc;
-  padding: 0;
-}
+.spec-nav ol { list-style: none; counter-reset: toc; padding: 0; }
 .spec-nav li {
   counter-increment: toc;
-  font-size: 0.85rem;
+  font-size: 16px;
   color: var(--text-muted);
-  padding: 0.15rem 0;
+  padding: 3px 0;
 }
 .spec-nav li::before {
   content: counter(toc) ".";
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: 13px;
   color: var(--text-dim);
-  margin-right: 0.5rem;
+  margin-right: 8px;
 }
 .spec-nav a { color: var(--text); text-decoration: none; }
 .spec-nav a:hover { text-decoration: underline; }
 
-/* Sections */
-.spec-section { margin-bottom: 2.5rem; }
+.spec-section { margin-bottom: 40px; }
 .spec-section h2 {
   font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.4rem;
-  margin-bottom: 1rem;
+  padding-bottom: 8px;
+  margin-top: 48px;
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
-.spec-section h2 .n { color: var(--text); font-weight: 600; margin-right: 0.5rem; }
-.spec-section p { font-size: 0.95rem; margin-bottom: 0.75rem; }
-.spec-section ul, .spec-section ol { padding-left: 0; list-style: none; margin-bottom: 0.75rem; }
-.spec-section li {
-  font-size: 0.92rem;
-  padding: 0.15rem 0 0.15rem 1.2rem;
-  position: relative;
-}
-.spec-section li::before {
-  content: '—';
-  position: absolute;
-  left: 0;
-  color: var(--text-dim);
-}
+.spec-section h2 .n { color: var(--text); font-weight: 600; margin-right: 8px; }
+.spec-section h3 { font-size: 22px; font-weight: 500; margin-top: 32px; margin-bottom: 12px; line-height: 1.4; }
+.spec-section p { font-size: 18px; margin-bottom: 12px; line-height: 1.7; }
+.spec-section ul, .spec-section ol { padding-left: 0; list-style: none; margin-bottom: 12px; }
+.spec-section li { font-size: 18px; padding: 3px 0 3px 24px; position: relative; line-height: 1.7; }
+.spec-section li::before { content: '—'; position: absolute; left: 0; color: var(--text-dim); }
 
-/* Special blocks */
 .definition {
   border-left: 3px solid var(--border-strong);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
+  padding: 16px 20px;
+  margin: 20px 0;
   background: var(--surface);
   font-style: italic;
+  font-size: 18px;
+  line-height: 1.7;
 }
 .formula {
   font-family: var(--mono);
-  font-size: 0.88rem;
+  font-size: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 0.8rem 1rem;
-  margin: 1rem 0;
+  padding: 16px 20px;
+  margin: 20px 0;
   border-radius: 2px;
+  line-height: 1.6;
 }
-.term-list { margin: 0.75rem 0; }
-.term-list dt {
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-}
-.term-list dd {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-left: 0;
-  padding-left: 1rem;
-}
-.output-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 0.88rem;
-}
+.term-list { margin: 16px 0; }
+.term-list dt { font-family: var(--mono); font-size: 16px; font-weight: 600; margin-top: 12px; }
+.term-list dd { font-size: 18px; color: var(--text-muted); margin-left: 0; padding-left: 20px; line-height: 1.7; }
+.output-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 16px; }
 .output-table th {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 2px solid var(--border-strong);
-  color: var(--text-muted);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+  text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--border-strong); color: var(--text-muted);
 }
-.output-table td {
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
-}
-.output-table td:first-child {
-  font-family: var(--mono);
-  font-weight: 600;
-  white-space: nowrap;
-}
+.output-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 16px; line-height: 1.6; }
+.output-table td:first-child { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
 .normative-note {
-  margin-top: 2.5rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.7;
+  margin-top: 48px; padding: 20px 24px; border: 1px solid var(--border);
+  background: var(--surface); font-size: 16px; color: var(--text-muted); line-height: 1.7;
 }
 .normative-note strong { color: var(--text); }
-
 .shall { font-variant: small-caps; font-weight: 600; }
 
 footer {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  line-height: 1.8;
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 13px; color: var(--text-dim); line-height: 1.6;
 }
 footer a { color: var(--text-muted); text-decoration: none; }
 footer a:hover { color: var(--text); }
 
-@media (max-width: 480px) {
-  .page { padding: 2rem 1rem 3rem; }
-  .spec-header h1 { font-size: 1.4rem; }
+code { font-family: var(--mono); font-size: 16px; }
+
+@media (max-width: 768px) {
+  body { font-size: 16px; }
+  .spec-header h1 { font-size: 28px; }
+  .spec-section h3 { font-size: 20px; }
+  .spec-section p, .spec-section li, .definition { font-size: 16px; }
+  .term-list dd { font-size: 16px; }
+  .formula { font-size: 15px; }
+  code { font-size: 15px; }
+  .output-table td { font-size: 15px; }
 }
 </style>
 </head>
 <body>
+
 <div class="page">
+
+  <nav class="top-nav">
+    <a href="/" class="site-name">Anchoring Specification</a>
+    <a href="/v1.0/">v1.0</a>
+    <a href="/one-page/">One-Page</a>
+    <a href="/appendix/why-anchoring/">Appendix</a>
+  </nav>
 
   <div class="spec-header">
     <h1>Anchoring Specification (IEC)</h1>
     <div class="spec-meta">
-      <strong>Version</strong> 1.0<br>
+      <strong>Version</strong> 1.0 — Frozen<br>
       <strong>Status</strong> Normative<br>
       <strong>Date</strong> 2026-02-26<br>
       <strong>URI</strong> https://anchoring-spec.org/v1.0/
     </div>
   </div>
 
-  <p style="font-size:0.95rem;margin-bottom:2rem">
-    Anchoring is a cryptographic method for establishing existence-at-or-before-T of a byte sequence.
-    This site is the canonical publication of the Anchoring Specification (IEC).
+  <p style="margin-bottom:40px">
+    This is the frozen, canonical publication of IEC v1.0. This version will never be modified.
   </p>
 
-  <!-- Table of Contents -->
   <nav class="spec-nav">
     <h2>Contents</h2>
     <ol>
@@ -247,7 +237,7 @@ footer a:hover { color: var(--text); }
     </ol>
   </nav>
 
-  <!-- 1. Scope -->
+  <!-- Sections 1-18: identical to index.html -->
   <div class="spec-section" id="scope">
     <h2><span class="n">1</span> Scope</h2>
     <p>This specification defines anchoring as a cryptographic method for establishing existence-at-or-before-T of a byte sequence.</p>
@@ -267,136 +257,80 @@ footer a:hover { color: var(--text); }
     <p><strong>This specification is normative.</strong></p>
   </div>
 
-  <!-- 2. Terminology -->
   <div class="spec-section" id="terminology">
     <h2><span class="n">2</span> Terminology</h2>
     <dl class="term-list">
-      <dt>Artifact (B)</dt>
-      <dd>A finite byte sequence.</dd>
-      <dt>Proof Bundle (P)</dt>
-      <dd>A structured set of data sufficient to verify anchoring claims.</dd>
-      <dt>Ledger Infrastructure (L)</dt>
-      <dd>A publicly verifiable consensus system capable of establishing temporal ordering.</dd>
-      <dt>Time T</dt>
-      <dd>A timestamp derived from ledger consensus. Not self-asserted.</dd>
+      <dt>Artifact (B)</dt><dd>A finite byte sequence.</dd>
+      <dt>Proof Bundle (P)</dt><dd>A structured set of data sufficient to verify anchoring claims.</dd>
+      <dt>Ledger Infrastructure (L)</dt><dd>A publicly verifiable consensus system capable of establishing temporal ordering.</dd>
+      <dt>Time T</dt><dd>A timestamp derived from ledger consensus. Not self-asserted.</dd>
     </dl>
   </div>
 
-  <!-- 3. Definition -->
   <div class="spec-section" id="definition">
     <h2><span class="n">3</span> Definition of Anchoring</h2>
-    <div class="definition">
-      Anchoring establishes one property only:<br>
-      A specific byte sequence existed on or before time T.
-    </div>
+    <div class="definition">Anchoring establishes one property only:<br>A specific byte sequence existed on or before time T.</div>
     <p>No additional claims are implied.</p>
   </div>
 
-  <!-- 4. Verification Function -->
   <div class="spec-section" id="verification">
     <h2><span class="n">4</span> Verification Function</h2>
     <p>Verification <span class="shall">shall</span> be defined as:</p>
     <div class="formula">V(B, P, L) → { valid | invalid | unverifiable }</div>
     <dl class="term-list">
-      <dt>B</dt>
-      <dd>The exact byte sequence of the artifact under verification.</dd>
-      <dt>P</dt>
-      <dd>The proof bundle: a certificate containing a cryptographic hash commitment, and optionally a ledger proof.</dd>
-      <dt>L</dt>
-      <dd>Publicly verifiable ledger infrastructure (e.g. Bitcoin blockchain via OpenTimestamps).</dd>
+      <dt>B</dt><dd>The exact byte sequence of the artifact under verification.</dd>
+      <dt>P</dt><dd>The proof bundle: a certificate containing a cryptographic hash commitment, and optionally a ledger proof.</dd>
+      <dt>L</dt><dd>Publicly verifiable ledger infrastructure (e.g. Bitcoin blockchain via OpenTimestamps).</dd>
     </dl>
     <p>Output semantics are defined in Section 5.</p>
   </div>
 
-  <!-- 5. Output Semantics -->
   <div class="spec-section" id="outputs">
     <h2><span class="n">5</span> Output Semantics</h2>
     <table class="output-table">
-      <thead>
-        <tr><th>Output</th><th>Condition</th></tr>
-      </thead>
+      <thead><tr><th>Output</th><th>Condition</th></tr></thead>
       <tbody>
-        <tr>
-          <td>valid</td>
-          <td>All conditions hold: Hash(B) equals the hash stated in P. Ledger inclusion proof is valid under L. Ledger timestamp T is derivable.</td>
-        </tr>
-        <tr>
-          <td>invalid</td>
-          <td>At least one condition fails: hash mismatch, invalid ledger proof, or corrupted/malformed proof structure.</td>
-        </tr>
-        <tr>
-          <td>unverifiable</td>
-          <td>Verification cannot be completed: missing artifact, missing proof data, inaccessible ledger infrastructure, or unsupported ledger type.</td>
-        </tr>
+        <tr><td>valid</td><td>All conditions hold: Hash(B) equals the hash stated in P. Ledger inclusion proof is valid under L. Ledger timestamp T is derivable.</td></tr>
+        <tr><td>invalid</td><td>At least one condition fails: hash mismatch, invalid ledger proof, or corrupted/malformed proof structure.</td></tr>
+        <tr><td>unverifiable</td><td>Verification cannot be completed: missing artifact, missing proof data, inaccessible ledger infrastructure, or unsupported ledger type.</td></tr>
       </tbody>
     </table>
     <p><strong>No additional outputs are permitted.</strong></p>
     <p>An implementation <span class="shall">must not</span> return intermediate, partial, or qualified results outside this set.</p>
   </div>
 
-  <!-- 6. Proof Structure -->
   <div class="spec-section" id="proof-structure">
     <h2><span class="n">6</span> Proof Structure Requirements</h2>
     <p>A compliant proof bundle <span class="shall">shall</span> include:</p>
-    <ul>
-      <li>a cryptographic hash of B</li>
-      <li>a timestamp claim</li>
-      <li>a ledger inclusion proof or commitment</li>
-    </ul>
-    <p>Optional:</p>
-    <ul>
-      <li>attestation metadata (non-normative)</li>
-    </ul>
+    <ul><li>a cryptographic hash of B</li><li>a timestamp claim</li><li>a ledger inclusion proof or commitment</li></ul>
+    <p>Optional:</p><ul><li>attestation metadata (non-normative)</li></ul>
     <p>The hash function <span class="shall">shall</span> be collision-resistant.</p>
   </div>
 
-  <!-- 7. Ledger Qualification -->
   <div class="spec-section" id="ledger">
     <h2><span class="n">7</span> Ledger Qualification Requirements</h2>
     <p>A ledger L qualifies if:</p>
-    <ul>
-      <li>it provides public verifiability</li>
-      <li>it provides consensus-based ordering</li>
-      <li>it resists unilateral timestamp rewriting</li>
-      <li>historical state is reconstructible</li>
-    </ul>
+    <ul><li>it provides public verifiability</li><li>it provides consensus-based ordering</li><li>it resists unilateral timestamp rewriting</li><li>historical state is reconstructible</li></ul>
     <p>Permissioned or centrally mutable systems do not qualify unless independently auditable.</p>
     <p>This specification is ledger-agnostic.</p>
   </div>
 
-  <!-- 8. Exclusions -->
   <div class="spec-section" id="exclusions">
     <h2><span class="n">8</span> Semantic Exclusions</h2>
     <p>Anchoring does not establish:</p>
-    <ul>
-      <li>authorship</li>
-      <li>ownership</li>
-      <li>originality</li>
-      <li>identity</li>
-      <li>intent</li>
-      <li>legal enforceability</li>
-      <li>truthfulness</li>
-    </ul>
+    <ul><li>authorship</li><li>ownership</li><li>originality</li><li>identity</li><li>intent</li><li>legal enforceability</li><li>truthfulness</li></ul>
     <p>Claims beyond existence-at-or-before-T are out of scope.</p>
     <p>An implementation <span class="shall">must not</span> present anchoring results in a manner that implies any of the above.</p>
   </div>
 
-  <!-- 9. Independence -->
   <div class="spec-section" id="independence">
     <h2><span class="n">9</span> Independence Requirement</h2>
     <p>A compliant anchoring proof <span class="shall">must</span> remain verifiable without reliance on the issuing entity.</p>
     <p>Verification <span class="shall">must not</span> require:</p>
-    <ul>
-      <li>issuer-controlled databases</li>
-      <li>issuer-controlled accounts</li>
-      <li>issuer-controlled infrastructure</li>
-    </ul>
-    <div class="definition">
-      If verification depends exclusively on the issuing entity, the proof is non-compliant.
-    </div>
+    <ul><li>issuer-controlled databases</li><li>issuer-controlled accounts</li><li>issuer-controlled infrastructure</li></ul>
+    <div class="definition">If verification depends exclusively on the issuing entity, the proof is non-compliant.</div>
   </div>
 
-  <!-- 10. Legal Scope -->
   <div class="spec-section" id="legal">
     <h2><span class="n">10</span> Legal Scope</h2>
     <p>This specification defines technical verification semantics only.</p>
@@ -404,19 +338,14 @@ footer a:hover { color: var(--text); }
     <p>Legal interpretation of anchoring proofs depends on applicable jurisdiction and independent evaluation.</p>
   </div>
 
-  <!-- 11. Versioning -->
   <div class="spec-section" id="versioning">
     <h2><span class="n">11</span> Versioning</h2>
     <p>IEC uses <strong>MAJOR.MINOR</strong> versioning.</p>
-    <ul>
-      <li><strong>MAJOR</strong> increments indicate breaking semantic changes</li>
-      <li><strong>MINOR</strong> increments indicate clarifications without semantic change</li>
-    </ul>
+    <ul><li><strong>MAJOR</strong> increments indicate breaking semantic changes</li><li><strong>MINOR</strong> increments indicate clarifications without semantic change</li></ul>
     <p>All published versions remain permanently accessible at their canonical URI.</p>
     <p>Current version: <strong>v1.0</strong> — <a href="/v1.0/" style="color:var(--text-muted)">anchoring-spec.org/v1.0/</a></p>
   </div>
 
-  <!-- 12. Governance -->
   <div class="spec-section" id="governance">
     <h2><span class="n">12</span> Governance</h2>
     <p>The Anchoring Specification (IEC) is a public, versioned technical specification.</p>
@@ -428,38 +357,21 @@ footer a:hover { color: var(--text); }
     <p>If conflicts arise between an implementation and the specification, the specification prevails.</p>
   </div>
 
-  <!-- 13. Threat Model -->
   <div class="spec-section" id="threat-model">
     <h2><span class="n">13</span> Threat Model</h2>
     <p>Anchoring assumes:</p>
-    <ul>
-      <li>collision resistance of the selected hash function</li>
-      <li>integrity of ledger consensus</li>
-      <li>availability of public ledger validation data</li>
-    </ul>
+    <ul><li>collision resistance of the selected hash function</li><li>integrity of ledger consensus</li><li>availability of public ledger validation data</li></ul>
     <p>Anchoring does not protect against:</p>
-    <ul>
-      <li>pre-image attacks</li>
-      <li>collusion attacks against ledger consensus</li>
-      <li>artifact substitution prior to anchoring</li>
-      <li>social engineering</li>
-      <li>legal misinterpretation</li>
-    </ul>
+    <ul><li>pre-image attacks</li><li>collusion attacks against ledger consensus</li><li>artifact substitution prior to anchoring</li><li>social engineering</li><li>legal misinterpretation</li></ul>
   </div>
 
-  <!-- 14. Cryptographic Requirements -->
   <div class="spec-section" id="cryptographic">
     <h2><span class="n">14</span> Cryptographic Requirements</h2>
     <p>Hash functions used in anchoring <span class="shall">must</span>:</p>
-    <ul>
-      <li>be publicly specified</li>
-      <li>have no known practical collision attacks</li>
-      <li>be widely reviewed</li>
-    </ul>
+    <ul><li>be publicly specified</li><li>have no known practical collision attacks</li><li>be widely reviewed</li></ul>
     <p>If a hash function becomes compromised, future IEC versions <span class="shall">may</span> deprecate its use.</p>
   </div>
 
-  <!-- 15. Time Semantics -->
   <div class="spec-section" id="time-semantics">
     <h2><span class="n">15</span> Time Semantics</h2>
     <p>Time T is defined as the earliest consensus-confirmed inclusion point of the commitment in ledger L.</p>
@@ -467,39 +379,26 @@ footer a:hover { color: var(--text); }
     <p>It does not establish exact creation time.</p>
   </div>
 
-  <!-- 16. Non-Retroactivity -->
   <div class="spec-section" id="non-retroactivity">
     <h2><span class="n">16</span> Non-Retroactivity</h2>
     <p>Anchoring does not permit retroactive modification of proof validity once ledger inclusion is finalized.</p>
     <p>If a ledger undergoes reorganization prior to finalization, verification status <span class="shall">may</span> change from <em>valid</em> to <em>unverifiable</em>.</p>
   </div>
 
-  <!-- 17. Compliance Statement -->
   <div class="spec-section" id="compliance">
     <h2><span class="n">17</span> Compliance Statement</h2>
     <p>An implementation claiming compliance <span class="shall">shall</span> state:</p>
-    <ul>
-      <li>the IEC version</li>
-      <li>the hash function used</li>
-      <li>the ledger type used</li>
-      <li>any deviations from default proof structure</li>
-    </ul>
+    <ul><li>the IEC version</li><li>the hash function used</li><li>the ledger type used</li><li>any deviations from default proof structure</li></ul>
     <p>Compliance claims <span class="shall">must</span> reference a specific IEC version.</p>
   </div>
 
-  <!-- 18. Archival Considerations -->
   <div class="spec-section" id="archival">
     <h2><span class="n">18</span> Archival Considerations</h2>
     <p>Long-term verifiability depends on:</p>
-    <ul>
-      <li>preservation of proof bundle integrity</li>
-      <li>continued availability of ledger validation data</li>
-      <li>continued availability of cryptographic verification algorithms</li>
-    </ul>
+    <ul><li>preservation of proof bundle integrity</li><li>continued availability of ledger validation data</li><li>continued availability of cryptographic verification algorithms</li></ul>
     <p>Anchoring proofs <span class="shall">should</span> be stored in durable, non-proprietary formats.</p>
   </div>
 
-  <!-- Conformance note -->
   <div class="normative-note">
     <strong>Conformance note.</strong> An implementation that extends the outputs defined in Section 5,
     omits the exclusions defined in Section 8, or requires issuer infrastructure for verification
@@ -507,7 +406,7 @@ footer a:hover { color: var(--text); }
   </div>
 
   <footer>
-    Canonical publication of the Anchoring Specification.<br>
+    Canonical publication of the Anchoring Specification (IEC v1.0 — Frozen).<br>
     The specification is normative. Implementations are not.<br><br>
     <a href="https://verify-anchoring.org">Reference verifier</a> ·
     <a href="/one-page/">One-page reference</a> ·

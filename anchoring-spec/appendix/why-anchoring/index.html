@@ -12,70 +12,103 @@
   --bg: #fafaf8;
   --surface: #f4f3f0;
   --border: #e2e0dc;
-  --text: #1a1a1a;
+  --text: #111111;
   --text-muted: #5a5856;
-  --text-dim: #8a8884;
-  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
-  --serif: Georgia, 'Times New Roman', Times, serif;
+  --text-dim: #7a7874;
+  --mono: 'SF Mono', 'Fira Code', 'Roboto Mono', monospace;
+  --serif: Georgia, Charter, 'Source Serif Pro', serif;
 }
 html { font-size: 16px; }
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--serif);
-  line-height: 1.75;
+  font-size: 18px;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
-.page { max-width: 640px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
-h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+.page { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+.top-nav {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.top-nav .site-name { color: var(--text); font-weight: 600; text-decoration: none; }
+.top-nav a { color: var(--text-muted); text-decoration: none; }
+.top-nav a:hover { color: var(--text); }
+
+h1 { font-size: 40px; font-weight: 400; margin-bottom: 8px; line-height: 1.2; }
 .meta {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 13px;
   color: var(--text-muted);
   letter-spacing: 0.08em;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
+  margin-bottom: 40px;
+  padding-bottom: 16px;
   border-bottom: 2px solid var(--text);
 }
 .status-badge {
   display: inline-block;
   font-family: var(--mono);
-  font-size: 0.65rem;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-dim);
   border: 1px solid var(--border);
-  padding: 0.2rem 0.5rem;
+  padding: 4px 10px;
   border-radius: 2px;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
 }
-section { margin-bottom: 2rem; }
+section { margin-bottom: 32px; }
 section h2 {
   font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.4rem;
-  margin-bottom: 0.75rem;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  line-height: 1.4;
 }
-section h2 .n { color: var(--text); font-weight: 600; margin-right: 0.5rem; }
-p { font-size: 0.95rem; margin-bottom: 0.75rem; }
+section h2 .n { color: var(--text); font-weight: 600; margin-right: 8px; }
+p { font-size: 18px; margin-bottom: 12px; line-height: 1.7; }
 footer {
-  margin-top: 2.5rem;
-  padding-top: 1rem;
+  margin-top: 48px;
+  padding-top: 16px;
   border-top: 1px solid var(--border);
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 13px;
   color: var(--text-dim);
+  line-height: 1.6;
 }
 footer a { color: var(--text-muted); text-decoration: none; }
 footer a:hover { color: var(--text); }
+@media (max-width: 768px) {
+  body { font-size: 16px; }
+  h1 { font-size: 28px; }
+  p { font-size: 16px; }
+}
 </style>
 </head>
 <body>
 <div class="page">
+
+  <nav class="top-nav">
+    <a href="/" class="site-name">Anchoring Specification</a>
+    <a href="/v1.0/">v1.0</a>
+    <a href="/one-page/">One-Page</a>
+    <a href="/appendix/why-anchoring/">Appendix</a>
+  </nav>
 
   <h1>Why Anchoring</h1>
   <div class="meta">
