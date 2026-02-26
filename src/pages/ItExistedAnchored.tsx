@@ -123,7 +123,7 @@ export default function ItExistedAnchored() {
         {/* ── URL INSTRUCTION ── */}
         <p className="font-garamond text-[18px] text-center mb-5"
           style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 300 }}>
-          Your proof is being anchored to the Bitcoin blockchain. Check back in ~2 hours.
+          Your file's fingerprint has been registered. It will be permanently anchored to the Bitcoin blockchain within ~2 hours.
         </p>
 
         {/* ── URL LINK ── */}
