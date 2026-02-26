@@ -252,9 +252,9 @@ export default function ItExistedProof() {
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Add your original file</span>
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Upload your original file</span>
               <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
-                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(recommended)</span>
+                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
             </div>
             <div className="pl-[23px]">
               {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
@@ -274,14 +274,14 @@ export default function ItExistedProof() {
                     style={{ color: 'rgba(201,169,110,0.5)' }}>
                     {dragOver ? 'Release to verify' : 'Drop your original file here'}
                   </p>
-                  <p className="font-garamond italic text-[14px]"
+                   <p className="font-garamond italic text-[14px]"
                     style={{ color: 'rgba(240,234,214,0.25)' }}>
-                    Hash-verified client-side — nothing is uploaded
-                  </p>
+                     Included in the ZIP so you have everything in one bundle on your device
+                   </p>
                   {artifactStatus === 'mismatch' && (
                     <p className="font-mono text-[10px] mt-2"
                       style={{ color: 'rgba(220,80,60,0.7)' }}>
-                      ✗ Last file did not match — try the original
+                      ✗ Last file did not match. Try the original
                     </p>
                   )}
                 </label>
@@ -371,13 +371,13 @@ export default function ItExistedProof() {
                 lineHeight: 1.65,
               }}>
               {artifactFile
-                ? 'Your original file will be included in the ZIP. One file, one proof — keep it safe.'
-                : 'Tip: add your original file in step 1 so your ZIP contains everything needed for verification.'
+                ? 'Your original file will be included in the ZIP. One file, one proof. Keep it safe.'
+                : 'Tip: upload your original file in step 1 so your ZIP contains everything in one bundle.'
               }
             </p>
             <p className="font-garamond italic text-[14px]"
               style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.6 }}>
-              Including the original is optional. For sensitive files, you can share only the proof — the hash alone is enough for verification.
+              Including the original is optional. For sensitive files, share only the proof. The hash alone is enough for verification.
             </p>
           </div>
 
