@@ -205,6 +205,18 @@ export default function ItExistedProof() {
 
         {/* TOP BLOCK */}
         <div className="w-full flex flex-col items-center mb-12">
+          {anchored && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="flex items-center justify-center rounded-full mb-7"
+              style={{ width: 56, height: 56, border: '1px solid rgba(201,169,110,0.4)' }}>
+              <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
+                <polyline points="3,9 7,13 15,5" stroke="#c9a96e" strokeWidth="1.2"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.div>
+          )}
           <h1 className="font-garamond text-[48px] font-normal text-center mb-10"
             style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
