@@ -276,23 +276,8 @@ export function SealedScreen({
         </motion.button>
       )}
 
-      {/* ── THE NAIL: V7 hexagon ── */}
-      <motion.div
-        className="flex flex-col items-center"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-      >
-        <OriginMark size={36} state="anchored" glow animated={false} variant="dark" />
-        <div
-          className="w-px h-4"
-          style={{
-            background: anchoredState
-              ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))'
-              : 'linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08))',
-          }}
-        />
-      </motion.div>
+      {/* spacer where V7 nail used to be */}
+      <div className="h-4" />
 
       {/* ── PHOTO IN GOLDEN MUSEUM FRAME ── */}
       <motion.div
@@ -325,7 +310,7 @@ export function SealedScreen({
 
       {/* ── MUSEUM LABEL ── */}
       <motion.div
-        className="flex flex-col items-center text-center"
+        className="flex flex-col items-center text-center max-w-[290px]"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
