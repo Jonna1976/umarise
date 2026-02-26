@@ -81,11 +81,8 @@ export default function ItExistedAnchored() {
         {/* ── TITLE ── */}
         <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
           style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-          Registered.
+          Submitted.
         </h1>
-
-        {/* ── DIVIDER 1 ── */}
-        <div className="mb-9" style={{ width: 32, height: 1, background: 'rgba(201,169,110,0.4)' }} />
 
         {/* ── ORIGIN ID LABEL ── */}
         <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
