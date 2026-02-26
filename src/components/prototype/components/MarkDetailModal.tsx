@@ -449,9 +449,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {isAnchored && (
             <div className="w-full max-w-[340px] mb-6">
               <button onClick={() => setVerificationOpen(!verificationOpen)}
-                className="w-full flex items-center justify-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
-                <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(240,234,214,0.35)' }}>verification details</span>
-                <motion.span className="text-[16px]" style={{ color: 'rgba(240,234,214,0.35)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
+                className="w-full flex items-center justify-center gap-1.5 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
+                <span className="font-mono text-[13px] tracking-[2px] uppercase" style={{ color: 'rgba(240,234,214,0.3)' }}>verification details</span>
+                <motion.span className="text-[12px]" style={{ color: 'rgba(240,234,214,0.3)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
               </button>
 
               <AnimatePresence>
