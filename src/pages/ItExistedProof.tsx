@@ -15,6 +15,8 @@ interface ProofState {
   shortToken: string;
   proofStatus: 'pending' | 'anchored';
   bitcoinBlockHeight: number | null;
+  deviceSignature: string | null;
+  devicePublicKey: string | null;
 }
 
 export default function ItExistedProof() {
@@ -43,6 +45,19 @@ export default function ItExistedProof() {
     const resolved = await fetchOriginByToken(token);
     if (!resolved) { setState(null); setLoading(false); return; }
     const proof = await fetchProofStatus(resolved.origin_id);
+    // Try to recover Layer 2 data from localStorage (set during sealing)
+    let deviceSignature: string | null = null;
+    let devicePublicKey: string | null = null;
+    try {
+      const raw = localStorage.getItem('itexisted_last_anchor');
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved.originId === resolved.origin_id || saved.shortToken === (resolved.short_token ?? token.toUpperCase())) {
+          deviceSignature = saved.deviceSignature ?? null;
+          devicePublicKey = saved.devicePublicKey ?? null;
+        }
+      }
+    } catch { /* ignore */ }
     setState({
       originId: resolved.origin_id,
       hash: resolved.hash,
@@ -50,6 +65,8 @@ export default function ItExistedProof() {
       shortToken: resolved.short_token ?? token.toUpperCase(),
       proofStatus: proof.status === 'anchored' ? 'anchored' : 'pending',
       bitcoinBlockHeight: proof.bitcoinBlockHeight,
+      deviceSignature,
+      devicePublicKey,
     });
     setLoading(false);
   };
@@ -152,6 +169,8 @@ export default function ItExistedProof() {
       otsProof: arrayBufferToBase64(proof.otsProofBytes),
       artifactFile: artifactFile,
       originalFileName: artifactFile?.name ?? null,
+      deviceSignature: state.deviceSignature,
+      devicePublicKey: state.devicePublicKey,
     });
     const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name);
     const url = URL.createObjectURL(zip);

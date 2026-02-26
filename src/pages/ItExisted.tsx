@@ -81,6 +81,9 @@ export default function ItExisted() {
     setTimeout(() => promptPasskey(file), 600);
   };
 
+  // Store Layer 2 signing result for inclusion in certificate.json
+  const [layer2, setLayer2] = useState<{ deviceSignature: string; devicePublicKey: string } | null>(null);
+
   const promptPasskey = async (file: File) => {
     setSigningStatus('prompting');
 
@@ -88,8 +91,7 @@ export default function ItExisted() {
     if (!isWebAuthnSupported()) {
       console.log('[ItExisted] WebAuthn not supported, skipping passkey');
       setSigningStatus('skipped');
-      // Proceed to anchoring after brief pause
-      setTimeout(() => startAnchoring(file), 800);
+      setTimeout(() => startAnchoring(file, null), 800);
       return;
     }
 
@@ -97,7 +99,7 @@ export default function ItExisted() {
     if (!hasPlatform) {
       console.log('[ItExisted] No platform authenticator, skipping passkey');
       setSigningStatus('skipped');
-      setTimeout(() => startAnchoring(file), 800);
+      setTimeout(() => startAnchoring(file, null), 800);
       return;
     }
 
@@ -111,7 +113,6 @@ export default function ItExisted() {
       let credential = getPasskeyCredential();
 
       if (!credential) {
-        // First time — register new passkey (triggers Face ID / fingerprint)
         credential = await registerPasskey(hash.substring(0, 8));
         savePasskeyCredential(credential);
       }
@@ -121,22 +122,24 @@ export default function ItExisted() {
       console.log('[ItExisted] ✓ Hash signed, sig length:', sig.signature.length);
       setSigningStatus('signed');
 
+      const sigData = { deviceSignature: sig.signature, devicePublicKey: credential.publicKey };
+      setLayer2(sigData);
+
       // Brief celebration before anchoring
-      setTimeout(() => startAnchoring(file), 1000);
+      setTimeout(() => startAnchoring(file, sigData), 1000);
     } catch (e) {
       console.warn('[ItExisted] Passkey signing cancelled or failed:', e);
       setSigningStatus('skipped');
-      // Still proceed — passkey is optional enhancement
-      setTimeout(() => startAnchoring(file), 800);
+      setTimeout(() => startAnchoring(file, null), 800);
     }
   };
 
-  const startAnchoring = (file: File) => {
+  const startAnchoring = (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
     setState('processing');
-    anchorFile(file);
+    anchorFile(file, sigData);
   };
 
-  const anchorFile = async (file: File) => {
+  const anchorFile = async (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
     const mark = await createMarkFromFile(file, mapFileType(file.type));
 
     if (!mark) {
@@ -159,6 +162,8 @@ export default function ItExisted() {
       shortToken,
       hash: mark.hash,
       capturedAt: resolved?.captured_at ?? mark.timestamp.toISOString(),
+      deviceSignature: sigData?.deviceSignature ?? null,
+      devicePublicKey: sigData?.devicePublicKey ?? null,
     };
 
     localStorage.setItem('itexisted_last_anchor', JSON.stringify(payload));

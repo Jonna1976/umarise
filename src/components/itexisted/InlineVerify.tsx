@@ -30,6 +30,8 @@ interface CertificateData {
   hash?: string;
   captured_at?: string;
   proof_status?: string;
+  device_signature?: string | null;
+  device_public_key?: string | null;
 }
 
 async function verifyFile(
@@ -95,6 +97,13 @@ async function verifyFile(
   // Step 3: Origin ID from certificate
   if (cert.origin_id) {
     steps.push({ label: 'Origin ID in certificate', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
+  }
+
+  // Step: Layer 2 device identity
+  if (cert.device_signature && cert.device_public_key) {
+    steps.push({ label: 'Layer 2 device signature present', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
+  } else {
+    steps.push({ label: 'Layer 2 device binding', status: 'info', detail: 'No device signature in certificate' });
   }
 
   // Step 4: Registry lookup

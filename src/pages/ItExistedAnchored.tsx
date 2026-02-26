@@ -7,6 +7,8 @@ interface AnchoredState {
   shortToken: string;
   hash: string;
   capturedAt: string;
+  deviceSignature?: string | null;
+  devicePublicKey?: string | null;
 }
 
 function getFallbackState(): AnchoredState | null {

@@ -381,9 +381,12 @@ export default function Verify() {
           steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
         }
 
-        // Step 5: Layer 2 device identity (opt-in — passkey / EUDI wallet / C2PA)
-        // Not yet active; displayed as a placeholder so the slot is always visible
-        steps.push({ label: 'Layer 2 identity binding', status: 'info' });
+        // Step 5: Layer 2 device identity
+        if (cert.device_signature && cert.device_public_key) {
+          steps.push({ label: 'Layer 2 device signature present', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
+        } else {
+          steps.push({ label: 'Layer 2 identity binding', status: 'info', detail: 'No device signature in certificate' });
+        }
 
         const result = await verifyHash(rawHash, cert, steps);
         setState({ phase: 'result', result });
