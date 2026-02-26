@@ -206,7 +206,7 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
 export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
   const [imgError, setImgError] = useState(false);
   const [zipFile, setZipFile] = useState<File | null>(null);
-  const [verificationOpen, setVerificationOpen] = useState(false);
+  const [verificationOpen, setVerificationOpen] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<VerifyResultData | null>(null);
@@ -444,9 +444,10 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {isAnchored && (
             <div className="w-full max-w-[340px] mb-6">
               <button onClick={() => setVerificationOpen(!verificationOpen)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
-                <span className="font-mono text-[13px] tracking-[2px] uppercase" style={{ color: 'rgba(240,234,214,0.3)' }}>verification details</span>
-                <motion.span className="text-[12px]" style={{ color: 'rgba(240,234,214,0.3)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
+                className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
+                <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>3.</span>
+                <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Verify your ZIP</span>
+                <motion.span className="text-[12px] ml-auto" style={{ color: 'rgba(240,234,214,0.3)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
               </button>
 
               <AnimatePresence>
