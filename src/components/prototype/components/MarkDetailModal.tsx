@@ -260,7 +260,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
       deviceSignature: null,
       devicePublicKey: credentialRef.current?.publicKey ?? null,
     });
-    const fileName = buildZipFileName(mark.originUuid, mark.timestamp, artifactFile?.name);
+    const fileName = buildZipFileName(mark.originId, mark.timestamp, artifactFile?.name);
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
     a.href = url; a.download = fileName; a.click();
