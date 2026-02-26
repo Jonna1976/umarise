@@ -368,7 +368,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
             {/* Upload original file + Download ZIP */}
             {isAnchored && (
-              <div className="w-full max-w-[340px] mb-6 space-y-4">
+              <div className="w-full max-w-[340px] space-y-4">
                 {/* Upload original */}
                 <div>
                   <input ref={artifactInputRef} type="file" className="hidden" accept="*/*"
@@ -433,12 +433,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   )}
                   
                 </button>
-              </div>
-            )}
 
             {/* Verification details — only after Bitcoin confirmation */}
-            {isAnchored && (
-            <div className="w-full max-w-[340px] mb-6">
               <button onClick={() => setVerificationOpen(!verificationOpen)}
                 className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
                 <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>3.</span>
@@ -494,23 +490,19 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
-            )}
 
             <input ref={zipInputRef} type="file" accept=".zip,application/zip" className="hidden"
               onChange={(e) => { const file = e.target.files?.[0]; if (file) handleZipFile(file); e.target.value = ''; }} />
 
-            <div className="w-10 h-px mb-7" style={{ background: 'rgba(240,234,214,0.08)' }} />
-
             {verifyResult && zipFile && !verifying && (
-              <div className="w-full flex flex-col items-center mb-6">
+              <div className="w-full flex flex-col items-center">
                 <InlineVerifyResult result={verifyResult} zipFile={zipFile} onReset={resetZip} originId={mark.originId} displayOriginId={displayOriginId} />
               </div>
             )}
 
             {/* Attestation blocks */}
             {attestationStatus === 'pending' && (
-              <div className="w-full max-w-[340px] mb-4">
+              <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
                   <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
@@ -522,7 +514,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             )}
 
             {attestationStatus === 'attested' && (
-              <div className="w-full max-w-[340px] mb-4">
+              <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
                   <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
@@ -536,8 +528,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               </div>
             )}
 
-            {isAnchored && attestationStatus === 'none' && (
-              <div className="w-full max-w-[340px] mb-4">
+            {attestationStatus === 'none' && (
+              <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
                   <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
@@ -552,6 +544,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                     Request attestation →
                   </button>
                 </div>
+              </div>
+            )}
+
               </div>
             )}
 
