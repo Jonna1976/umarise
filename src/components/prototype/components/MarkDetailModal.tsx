@@ -95,9 +95,6 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
           <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Not found in registry</span>
         </div>
       )}
-      {result.bitcoin_block_height && (
-        <p className="font-mono text-[14px] mb-4" style={{ color: 'hsl(142 20% 65%)' }}>Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}</p>
-      )}
       {result.status === 'verified' && (
         <button onClick={handleShare} disabled={saved}
           className="bg-transparent border-none cursor-pointer transition-all disabled:opacity-50 mb-3 hover:tracking-[4px]"
