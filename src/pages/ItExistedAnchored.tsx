@@ -40,6 +40,7 @@ export default function ItExistedAnchored() {
   const [copied, setCopied] = useState(false);
   const verifyInputRef = useRef<HTMLInputElement>(null);
   const [verifyResult, setVerifyResult] = useState<'idle' | 'checking' | 'match' | 'mismatch'>('idle');
+  const [verifyOpen, setVerifyOpen] = useState(false);
 
   const captured = useMemo(() => (state?.capturedAt ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
   const estimatedReady = useMemo(() => new Date(captured.getTime() + 2 * 3600000), [captured]);
@@ -172,6 +173,76 @@ export default function ItExistedAnchored() {
                 </p>
               </div>
             )}
+
+            {/* ── VERIFY (collapsible, under Completed) ── */}
+            <div className="mt-2">
+              <button
+                onClick={() => setVerifyOpen(v => !v)}
+                className="flex items-center gap-2 group"
+              >
+                <span className="font-mono text-[16px]" style={{ color: 'rgba(201,169,110,0.35)' }}>
+                  {verifyOpen ? '▾' : '▸'}
+                </span>
+                <span className="font-garamond italic text-[18px] group-hover:opacity-80 transition-opacity"
+                  style={{ color: 'rgba(240,234,214,0.4)' }}>
+                  Optional: upload your original file to verify
+                </span>
+              </button>
+
+              {verifyOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 ml-7"
+                >
+                  <button
+                    onClick={() => verifyInputRef.current?.click()}
+                    className="w-full py-5 rounded-lg border border-dashed transition-all hover:border-solid"
+                    style={{
+                      borderColor: verifyResult === 'match' ? 'rgba(120,180,120,0.4)' :
+                                   verifyResult === 'mismatch' ? 'rgba(200,100,100,0.4)' :
+                                   'rgba(201,169,110,0.15)',
+                      background: verifyResult === 'match' ? 'rgba(120,180,120,0.05)' :
+                                  verifyResult === 'mismatch' ? 'rgba(200,100,100,0.05)' :
+                                  'transparent',
+                    }}>
+                    {verifyResult === 'idle' && (
+                      <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                        Drop or select your original file
+                      </p>
+                    )}
+                    {verifyResult === 'checking' && (
+                      <p className="font-mono text-[14px]" style={{ color: 'rgba(201,169,110,0.5)' }}>
+                        Checking…
+                      </p>
+                    )}
+                    {verifyResult === 'match' && (
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="font-mono text-[14px]" style={{ color: 'rgba(120,180,120,0.8)' }}>
+                          ✓ Fingerprint matches
+                        </p>
+                        <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.4)' }}>
+                          This is the exact file you submitted
+                        </p>
+                      </div>
+                    )}
+                    {verifyResult === 'mismatch' && (
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="font-mono text-[14px]" style={{ color: 'rgba(200,100,100,0.8)' }}>
+                          ✗ Fingerprint does not match
+                        </p>
+                        <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.4)' }}>
+                          This is a different file than the one submitted
+                        </p>
+                      </div>
+                    )}
+                  </button>
+                  <input ref={verifyInputRef} type="file" className="hidden"
+                    onChange={(e) => { handleVerifyFile(e.target.files?.[0] ?? null); e.target.value = ''; }} />
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -198,83 +269,29 @@ export default function ItExistedAnchored() {
               </span>
             )}
           </div>
-          <div className="flex items-start gap-3">
-            <span className="font-mono text-[16px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>○</span>
-            <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.4)', lineHeight: 1.5 }}>
-              Bitcoin blockchain anchoring. Your fingerprint will be included in the next batch and permanently recorded in a Bitcoin block.
-            </p>
-          </div>
+
+          <p className="font-garamond text-[20px] mb-6" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.6 }}>
+            Once anchored, your fingerprint will be permanently recorded in a Bitcoin block.
+          </p>
+
+          <p className="font-garamond text-[18px] mb-3" style={{ color: 'rgba(240,234,214,0.35)' }}>
+            Your proof can be downloaded via:
+          </p>
+
+          <a href={fullProofUrl}
+            className="flex items-center gap-2.5 group"
+            onClick={(e) => { e.preventDefault(); navigate(`/itexisted/proof/${state.shortToken}`); }}>
+            <span className="font-mono text-[20px] transition-opacity group-hover:opacity-80"
+              style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
+              {proofUrl}
+            </span>
+            <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
+              width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <path d="M5 9l4-4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
+              <path d="M5 5h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
         </div>
-
-        {/* ── DIVIDER ── */}
-        <div className="w-full mb-8" style={{ maxWidth: 360, height: 1, background: 'rgba(240,234,214,0.06)' }} />
-
-        {/* ── VERIFY FILE (optional) ── */}
-        <div className="w-full mb-10" style={{ maxWidth: 360 }}>
-          <button
-            onClick={() => verifyInputRef.current?.click()}
-            className="w-full py-4 rounded-lg border border-dashed transition-all hover:border-solid"
-            style={{
-              borderColor: verifyResult === 'match' ? 'rgba(120,180,120,0.4)' :
-                           verifyResult === 'mismatch' ? 'rgba(200,100,100,0.4)' :
-                           'rgba(201,169,110,0.15)',
-              background: verifyResult === 'match' ? 'rgba(120,180,120,0.05)' :
-                          verifyResult === 'mismatch' ? 'rgba(200,100,100,0.05)' :
-                          'transparent',
-            }}>
-            {verifyResult === 'idle' && (
-              <p className="font-garamond text-[18px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
-                Optional: upload your file to verify the fingerprint
-              </p>
-            )}
-            {verifyResult === 'checking' && (
-              <p className="font-mono text-[14px]" style={{ color: 'rgba(201,169,110,0.5)' }}>
-                Checking…
-              </p>
-            )}
-            {verifyResult === 'match' && (
-              <div className="flex flex-col items-center gap-1">
-                <p className="font-mono text-[14px]" style={{ color: 'rgba(120,180,120,0.8)' }}>
-                  ✓ Fingerprint matches
-                </p>
-                <p className="font-garamond text-[16px]" style={{ color: 'rgba(240,234,214,0.4)' }}>
-                  This is the exact file you submitted
-                </p>
-              </div>
-            )}
-            {verifyResult === 'mismatch' && (
-              <div className="flex flex-col items-center gap-1">
-                <p className="font-mono text-[14px]" style={{ color: 'rgba(200,100,100,0.8)' }}>
-                  ✗ Fingerprint does not match
-                </p>
-                <p className="font-garamond text-[16px]" style={{ color: 'rgba(240,234,214,0.4)' }}>
-                  This is a different file than the one submitted
-                </p>
-              </div>
-            )}
-          </button>
-          <input ref={verifyInputRef} type="file" className="hidden"
-            onChange={(e) => { handleVerifyFile(e.target.files?.[0] ?? null); e.target.value = ''; }} />
-        </div>
-
-        {/* ── PROOF LINK ── */}
-        <p className="font-garamond text-[20px] text-center mb-4"
-          style={{ color: 'rgba(240,234,214,0.45)', lineHeight: 1.5, maxWidth: 320 }}>
-          Your permanent proof page:
-        </p>
-        <a href={fullProofUrl} 
-          className="flex items-center gap-2.5 mb-10 group"
-          onClick={(e) => { e.preventDefault(); navigate(`/itexisted/proof/${state.shortToken}`); }}>
-          <span className="font-mono text-[20px] transition-opacity group-hover:opacity-80"
-            style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
-            {proofUrl}
-          </span>
-          <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
-            width="15" height="15" viewBox="0 0 14 14" fill="none">
-            <path d="M5 9l4-4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
-            <path d="M5 5h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </a>
 
         {/* ── SUBMIT ANOTHER ── */}
         <button onClick={() => navigate('/itexisted')}
