@@ -18,14 +18,14 @@ function mapFileType(mimeType: string): MarkType {
   return 'text';
 }
 
-/** V7 Hexagonal nail — the anchor point */
+/** Square nail — the anchor point */
 function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: number }) {
   if (pending) {
     return (
       <motion.svg viewBox="0 0 48 48" width={size} height={size}
         animate={{ opacity: [0.3, 0.7, 0.3] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14"
+        <rect x="4" y="4" width="40" height="40" rx="4"
           fill="none" stroke="hsl(32 55% 55% / 0.4)" strokeWidth="1.2"
           strokeDasharray="3 3" />
         <rect x="17" y="17" width="14" height="14" rx="1.8"
@@ -36,7 +36,7 @@ function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: numb
   return (
     <svg viewBox="0 0 48 48" width={size} height={size}
       style={{ filter: 'drop-shadow(0 0 10px hsl(32 55% 55% / 0.35))' }}>
-      <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="hsl(32 55% 55%)" />
+      <rect x="4" y="4" width="40" height="40" rx="4" fill="hsl(32 55% 55%)" />
       <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(120 27% 8%)" />
     </svg>
   );
