@@ -510,33 +510,48 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
             {/* Attestation blocks */}
             {attestationStatus === 'pending' && (
-              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <p className="font-garamond text-[16px] italic text-center" style={{ color: 'rgba(240,234,214,0.35)' }}>Requested. You will be notified when complete.</p>
+              <div className="w-full max-w-[340px] mb-4">
+                <div className="flex items-center gap-2 py-2 pl-4 mb-2">
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
+                </div>
+                <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
+                  <p className="font-garamond text-[14px] italic text-center" style={{ color: 'rgba(240,234,214,0.35)' }}>Requested. You will be notified when complete.</p>
+                </div>
               </div>
             )}
 
             {attestationStatus === 'attested' && (
-              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <button onClick={() => {}} className="font-garamond italic text-[16px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70" style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}>
-                  Attested by {attestantInfo?.name || 'Attestant'} ✓
-                </button>
-                {attestantInfo?.date && <span className="font-mono text-[14px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>{attestantInfo.date}</span>}
+              <div className="w-full max-w-[340px] mb-4">
+                <div className="flex items-center gap-2 py-2 pl-4 mb-2">
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
+                </div>
+                <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
+                  <button onClick={() => {}} className="font-garamond italic text-[14px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70" style={{ color: 'hsl(var(--ritual-gold) / 0.6)' }}>
+                    Attested by {attestantInfo?.name || 'Attestant'} ✓
+                  </button>
+                  {attestantInfo?.date && <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.35)' }}>{attestantInfo.date}</span>}
+                </div>
               </div>
             )}
 
             {isAnchored && attestationStatus === 'none' && (
-              <div className="w-full max-w-[320px] rounded px-6 py-5 flex flex-col items-center gap-2.5 mb-4" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.4)' }}>Attestation</span>
-                <p className="font-garamond text-[16px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
-                  A certified independent attestant confirms it was you. €4,95. One-time.
-                </p>
-                <button onClick={() => setShowAttestationModal(true)}
-                  className="font-mono text-[14px] tracking-[3px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
-                  style={{ border: '1px solid rgba(201,169,110,0.4)', color: 'hsl(var(--ritual-gold))', marginTop: '4px' }}>
-                  Request attestation →
-                </button>
+              <div className="w-full max-w-[340px] mb-4">
+                <div className="flex items-center gap-2 py-2 pl-4 mb-2">
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
+                </div>
+                <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
+                  <p className="font-garamond text-[14px] text-center leading-[1.6] max-w-[240px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
+                    A certified independent attestant confirms it was you. €4,95. One-time.
+                  </p>
+                  <button onClick={() => setShowAttestationModal(true)}
+                    className="font-mono text-[14px] tracking-[3px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
+                    style={{ border: '1px solid rgba(201,169,110,0.4)', color: 'hsl(var(--ritual-gold))', marginTop: '4px' }}>
+                    Request attestation →
+                  </button>
+                </div>
               </div>
             )}
 
