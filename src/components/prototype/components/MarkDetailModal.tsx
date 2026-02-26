@@ -387,14 +387,16 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                     >
                       <input ref={artifactInputRef} type="file" className="hidden" accept="*/*"
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                      <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
-                        style={{ color: 'rgba(201,169,110,0.5)' }}>
-                        {artifactDragOver ? 'Release to verify' : '1. Drop your original file here'}
-                      </p>
-                      <p className="font-garamond italic text-[14px]"
-                        style={{ color: 'rgba(240,234,214,0.25)' }}>
-                        Hash-verified and included in your ZIP
-                      </p>
+                      <div className="text-left w-full">
+                        <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+                          style={{ color: 'rgba(201,169,110,0.5)' }}>
+                          {artifactDragOver ? 'Release to verify' : '1. Add your original file'}
+                        </p>
+                        <p className="font-garamond italic text-[13px] pl-[1.1rem]"
+                          style={{ color: 'rgba(240,234,214,0.3)' }}>
+                          Hash-verified and included in your ZIP
+                        </p>
+                      </div>
                       {artifactStatus === 'mismatch' && (
                         <p className="font-mono text-[10px] mt-2" style={{ color: 'rgba(220,80,60,0.7)' }}>
                           ✗ Last file did not match. Try the original
