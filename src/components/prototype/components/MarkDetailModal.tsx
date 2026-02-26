@@ -106,9 +106,15 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
         </button>
       )}
       <button onClick={onReset}
-        className="font-mono text-[13px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
-        style={{ color: 'rgba(245,240,232,0.3)' }}>
-        verify different file
+        className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80 mx-auto"
+        style={{ color: 'rgba(245,240,232,0.3)' }}
+        title="Verify another file">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+          <path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+          <path d="M8 16H3v5" />
+        </svg>
       </button>
     </motion.div>
   );
