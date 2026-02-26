@@ -120,10 +120,16 @@ export default function ItExistedAnchored() {
         {/* ── DIVIDER 2 ── */}
         <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
-        {/* ── URL INSTRUCTION ── */}
+        {/* ── EXPLANATION ── */}
         <p className="font-garamond text-[18px] text-center mb-5"
-          style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 300 }}>
+          style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 320 }}>
           Your file's fingerprint has been registered. It will be permanently anchored to the Bitcoin blockchain within ~2 hours.
+        </p>
+
+        {/* ── URL EXPLANATION ── */}
+        <p className="font-garamond text-[15px] text-center mb-4"
+          style={{ color: 'rgba(240,234,214,0.45)', lineHeight: 1.55, maxWidth: 300 }}>
+          This is your permanent proof link. Bookmark it or share it — anyone can verify your file's existence here:
         </p>
 
         {/* ── URL LINK ── */}

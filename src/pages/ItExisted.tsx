@@ -90,16 +90,14 @@ export default function ItExisted() {
     // Check WebAuthn support
     if (!isWebAuthnSupported()) {
       console.log('[ItExisted] WebAuthn not supported, skipping passkey');
-      setSigningStatus('skipped');
-      setTimeout(() => startAnchoring(file, null), 800);
+      startAnchoring(file, null);
       return;
     }
 
     const hasPlatform = await isPlatformAuthenticatorAvailable();
     if (!hasPlatform) {
       console.log('[ItExisted] No platform authenticator, skipping passkey');
-      setSigningStatus('skipped');
-      setTimeout(() => startAnchoring(file, null), 800);
+      startAnchoring(file, null);
       return;
     }
 
@@ -129,8 +127,7 @@ export default function ItExisted() {
       setTimeout(() => startAnchoring(file, sigData), 1000);
     } catch (e) {
       console.warn('[ItExisted] Passkey signing cancelled or failed:', e);
-      setSigningStatus('skipped');
-      setTimeout(() => startAnchoring(file, null), 800);
+      startAnchoring(file, null);
     }
   };
 
