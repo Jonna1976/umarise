@@ -267,11 +267,11 @@ export function SealedScreen({
           transition={{ duration: 0.6, delay: 1.4 }}
           aria-label="View gallery"
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="1" y="1" width="6" height="6" rx="1" />
-            <rect x="11" y="1" width="6" height="6" rx="1" />
-            <rect x="1" y="11" width="6" height="6" rx="1" />
-            <rect x="11" y="11" width="6" height="6" rx="1" />
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="rgba(197,147,90,0.45)">
+            <rect x="1" y="1" width="7" height="7" rx="1.5" />
+            <rect x="10" y="1" width="7" height="7" rx="1.5" />
+            <rect x="1" y="10" width="7" height="7" rx="1.5" />
+            <rect x="10" y="10" width="7" height="7" rx="1.5" />
           </svg>
         </motion.button>
       )}
