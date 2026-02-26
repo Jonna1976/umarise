@@ -141,10 +141,10 @@ export default function ItExistedAnchored() {
           </svg>
         </a>
 
-        {/* ── KEEP FILE ── */}
+        {/* ── KEEP FILE TIP ── */}
         <p className="font-garamond italic text-[14px] text-center mb-12"
           style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 280 }}>
-          Keep your original file. You'll need the exact bytes to verify.
+          Tip: rename your file to include <span className="font-mono" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span> so you can always match it to this proof.
         </p>
 
         {/* ── ANCHOR ANOTHER ── */}
