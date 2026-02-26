@@ -497,13 +497,9 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
                 <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Share your ZIP</span>
               </div>
-              {verifyResult && zipFile && !verifying ? (
+              {verifyResult && zipFile && !verifying && (
                 <div className="rounded px-6 py-4 flex flex-col items-center">
                   <InlineVerifyResult result={verifyResult} zipFile={zipFile} onReset={resetZip} originId={mark.originId} displayOriginId={displayOriginId} />
-                </div>
-              ) : (
-                <div className="rounded px-6 py-4 flex flex-col items-center">
-                  <p className="font-garamond text-[14px] italic text-center" style={{ color: 'rgba(240,234,214,0.25)' }}>Verify your ZIP first</p>
                 </div>
               )}
             </div>
