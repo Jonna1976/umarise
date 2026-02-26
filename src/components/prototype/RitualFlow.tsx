@@ -33,6 +33,19 @@ const FIRST_VISIT_KEY = 'umarise_first_visit_done';
 const ANCHOR_COUNT_KEY = 'umarise-mark-count';
 const UNSAVED_ARTIFACT_KEY = 'umarise_unsaved_artifact';
 
+function persistUnsavedArtifact(artifact: Artifact) {
+  try {
+    // Keep payload tiny and restart-safe: blob/data URLs are either invalid after restart
+    // or too large for localStorage quota on mobile Safari.
+    localStorage.setItem(
+      UNSAVED_ARTIFACT_KEY,
+      JSON.stringify({ ...artifact, imageUrl: null })
+    );
+  } catch (error) {
+    console.warn('[RitualFlow] Failed to persist unsaved artifact:', error);
+  }
+}
+
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('capture');
   const [previousScreen, setPreviousScreen] = useState<RitualScreen>('capture');
@@ -65,14 +78,21 @@ export function RitualFlow() {
     try {
       const raw = localStorage.getItem(UNSAVED_ARTIFACT_KEY);
       if (!raw) return;
+
       const saved = JSON.parse(raw);
-      // Reconstruct artifact with Date object
+      if (!saved?.id || !saved?.hash || !saved?.origin || !saved?.date) {
+        localStorage.removeItem(UNSAVED_ARTIFACT_KEY);
+        return;
+      }
+
       const artifact: Artifact = {
         ...saved,
         date: new Date(saved.date),
+        imageUrl: null,
       };
+
       setCurrentArtifact(artifact);
-      setCapturedImageUrl(saved.imageUrl ?? null);
+      setCapturedImageUrl(null);
       setScreen('sealed');
       console.log('[RitualFlow] Resumed unsaved artifact:', artifact.origin);
     } catch {
@@ -163,7 +183,7 @@ export function RitualFlow() {
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
         setIsFirstVisit(false);
-        try { localStorage.setItem(UNSAVED_ARTIFACT_KEY, JSON.stringify(realArtifact)); } catch {}
+        persistUnsavedArtifact(realArtifact);
         goToScreen('sealed');
       } else {
         console.error('[RitualFlow] Mark creation returned null');
@@ -225,7 +245,7 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         setIsFirstVisit(false);
-        try { localStorage.setItem(UNSAVED_ARTIFACT_KEY, JSON.stringify(realArtifact)); } catch {}
+        persistUnsavedArtifact(realArtifact);
         goToScreen('sealed');
         console.log('[RitualFlow] File mark created:', mark.id, 'hash:', mark.hash);
         console.log('[RitualFlow] VERIFY: sha256sum of', rf.fileName, 'should equal:', mark.hash);
