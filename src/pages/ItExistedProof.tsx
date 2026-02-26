@@ -338,12 +338,6 @@ export default function ItExistedProof() {
               <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
-            {!artifactFile && anchored && (
-              <p className="font-garamond italic text-[13px] pl-[23px] mt-2"
-                style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.5 }}>
-                Tip: rename your original file to include <span className="font-mono" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span> so you can always match it to this proof.
-              </p>
-            )}
           </div>
 
           {/* ── STEP 3: VERIFY ── */}
