@@ -155,7 +155,6 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
       return { status: 'error', steps };
     }
     steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
-    steps.push({ label: 'Hash matches this origin', status: 'ok' });
   } else {
     steps.push({ label: 'SHA-256 from certificate', status: 'ok', detail: rawHash.substring(0, 20) + '…' });
   }
