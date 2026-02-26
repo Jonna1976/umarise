@@ -344,7 +344,7 @@ export default function ItExistedProof() {
             {!artifactFile && anchored && (
               <p className="font-garamond italic text-[13px] pl-[23px] mt-2"
                 style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.5 }}>
-                Add your original in step 1 so everything stays together in one bundle.
+                Add your original file in step 1 so everything stays together in one ZIP bundle.
               </p>
             )}
           </div>
