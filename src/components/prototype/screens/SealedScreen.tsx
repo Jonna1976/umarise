@@ -6,13 +6,13 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
-
 const POST_SEAL_HINT_KEY = 'umarise_post_seal_hint_shown';
 import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64, fetchOriginByHash } from '@/lib/coreApi';
+import { calculateSHA256FromFile } from '@/lib/originHash';
 
 /** Desktop-only download helper */
 function downloadBlob(blob: Blob | null, originId: string) {
@@ -65,6 +65,9 @@ export function SealedScreen({
   const [anchoredState, setAnchoredState] = useState(isAnchored);
   const [isResolvingOrigin, setIsResolvingOrigin] = useState(true);
   const [otsProofBase64, setOtsProofBase64] = useState<string | null>(null);
+  const [artifactFile, setArtifactFile] = useState<File | null>(null);
+  const [artifactStatus, setArtifactStatus] = useState<'none' | 'matched' | 'mismatch'>('none');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -161,18 +164,38 @@ export function SealedScreen({
     localStorage.setItem(POST_SEAL_HINT_KEY, 'true');
   }, []);
 
+  // Handle artifact re-upload for double verification
+  const handleArtifactSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const fileHash = await calculateSHA256FromFile(file);
+    const expectedHash = hash.toLowerCase().replace(/^sha256:/, '');
+    
+    if (fileHash === expectedHash) {
+      setArtifactFile(file);
+      setArtifactStatus('matched');
+      // Invalidate pre-built ZIP so it gets rebuilt with artifact
+      prebuiltZipRef.current = null;
+      prebuiltFileRef.current = null;
+    } else {
+      setArtifactFile(null);
+      setArtifactStatus('mismatch');
+    }
+  }, [hash]);
+
   // Build ZIP only when anchored + ots proof available
   useEffect(() => {
     if (!anchoredState) return;
-    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined };
+    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined, artifactFile: artifactFile ?? undefined, originalFileName: fileName };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
-      const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
-      prebuiltFileRef.current = new File([blob], `origin-${cleanId}.zip`, { type: 'application/zip' });
+      const zipName = `origin-${originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim()}.zip`;
+      prebuiltFileRef.current = new File([blob], zipName, { type: 'application/zip' });
     }).catch(err => {
       console.warn('[SealedScreen] Failed to pre-build ZIP:', err);
     });
-  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, anchoredState, otsProofBase64]);
+  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, anchoredState, otsProofBase64, artifactFile, fileName]);
 
   const handleSave = useCallback(() => {
     if (isSaving || saved || !anchoredState) return;
@@ -214,7 +237,7 @@ export function SealedScreen({
       setSaved(true);
       setTimeout(() => onComplete(), 800);
     } else {
-      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined }).then(blob => {
+      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined, artifactFile: artifactFile ?? undefined, originalFileName: fileName }).then(blob => {
         downloadBlob(blob, originId);
         setSaved(true);
         setTimeout(() => onComplete(), 800);
@@ -365,6 +388,43 @@ export function SealedScreen({
         </motion.div>
       )}
 
+      {/* ── ARTIFACT RE-UPLOAD (Double Verification) ── */}
+      {anchoredState && (
+        <motion.div
+          className="flex flex-col items-center mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleArtifactSelect}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="font-mono text-[13px] tracking-[1px] px-4 py-2 rounded-full transition-all"
+            style={{
+              background: artifactStatus === 'matched' ? 'rgba(90,160,90,0.1)' : 'rgba(197,147,90,0.06)',
+              border: `1px solid ${artifactStatus === 'matched' ? 'rgba(90,160,90,0.35)' : artifactStatus === 'mismatch' ? 'rgba(200,80,80,0.35)' : 'rgba(197,147,90,0.2)'}`,
+              color: artifactStatus === 'matched' ? 'rgba(90,160,90,0.8)' : artifactStatus === 'mismatch' ? 'rgba(200,80,80,0.7)' : 'rgba(197,147,90,0.5)',
+            }}
+          >
+            {artifactStatus === 'matched'
+              ? `✓ ${artifactFile?.name ?? 'original'} verified`
+              : artifactStatus === 'mismatch'
+              ? '✗ hash mismatch — try again'
+              : '↑ Upload original file (optional)'}
+          </button>
+          {artifactStatus === 'none' && (
+            <span className="font-garamond text-[13px] mt-1.5 italic" style={{ color: 'hsl(var(--ritual-cream) / 0.3)' }}>
+              Include your original in the ZIP for complete proof
+            </span>
+          )}
+        </motion.div>
+      )}
+
       {/* ── SAVE BUTTON ── */}
       <motion.button
         onClick={handleSave}
@@ -381,7 +441,7 @@ export function SealedScreen({
         transition={{ duration: 0.6, delay: 1.2 }}
         whileTap={!saved && anchoredState ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓' : isSaving ? 'Saving...' : isResolvingOrigin ? 'Save (checking proof...)' : anchoredState ? 'Save' : 'Save (waiting for Bitcoin)'}
+        {saved ? '✓' : isSaving ? 'Saving...' : isResolvingOrigin ? 'Save (checking proof...)' : anchoredState ? (artifactStatus === 'matched' ? 'Save incl. original' : 'Save') : 'Save (waiting for Bitcoin)'}
       </motion.button>
 
       {/* ── POST-SEAL HINT ── */}
