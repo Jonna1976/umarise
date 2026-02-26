@@ -69,7 +69,9 @@ const App = () => (
             <Route path="/" element={
               typeof window !== 'undefined' && window.location.hostname === 'anchoring.app'
                 ? <Prototype />
-                : <Landing />
+                : typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
+                  ? <ItExisted />
+                  : <Landing />
             } />
             <Route path="/origin/:originId" element={<OriginView />} />
             <Route path="/review" element={<ReviewKit />} />
@@ -103,6 +105,9 @@ const App = () => (
             <Route path="/itexisted" element={<ItExisted />} />
             <Route path="/itexisted/anchored" element={<ItExistedAnchored />} />
             <Route path="/itexisted/proof/:token" element={<ItExistedProof />} />
+            {/* itexisted.app root-level routes */}
+            <Route path="/anchored" element={<ItExistedAnchored />} />
+            <Route path="/proof/:token" element={<ItExistedProof />} />
 
 
             
