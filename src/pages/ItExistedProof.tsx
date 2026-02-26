@@ -209,6 +209,18 @@ export default function ItExistedProof() {
             style={{ color: 'rgba(240,234,214,0.85)' }}>
             {date} - {time}
           </p>
+
+          {/* Layer 2 device binding indicator */}
+          {state.deviceSignature && (
+            <div className="flex items-center gap-2 mt-4">
+              <span className="font-mono text-[10px]" style={{ color: '#7fba6a' }}>✓</span>
+              <span className="font-mono text-[11px] tracking-[2px] uppercase"
+                style={{ color: 'rgba(127,186,106,0.7)' }}>
+                Device-signed
+              </span>
+            </div>
+          )}
+
           {!anchored && (
             <div className="flex items-center gap-3 mt-5">
               <motion.div
@@ -349,18 +361,25 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── CONTEXTUAL NOTE ── */}
-          <p className="font-garamond italic text-[20px] mb-8"
-            style={{
-              color: anchored ? 'rgba(240,234,214,0.85)' : 'rgba(240,234,214,0.45)',
-              lineHeight: 1.65,
-              maxWidth: 380,
-              opacity: !anchored ? 0.65 : 1,
-            }}>
-            {artifactFile
-              ? 'Your original file will be included in the ZIP. One file, one proof — keep it safe.'
-              : 'Tip: add your original file in step 1 so your ZIP contains everything needed for verification.'
-            }
-          </p>
+          <div className="mb-8" style={{
+            maxWidth: 380,
+            opacity: !anchored ? 0.65 : 1,
+          }}>
+            <p className="font-garamond italic text-[20px] mb-3"
+              style={{
+                color: anchored ? 'rgba(240,234,214,0.85)' : 'rgba(240,234,214,0.45)',
+                lineHeight: 1.65,
+              }}>
+              {artifactFile
+                ? 'Your original file will be included in the ZIP. One file, one proof — keep it safe.'
+                : 'Tip: add your original file in step 1 so your ZIP contains everything needed for verification.'
+              }
+            </p>
+            <p className="font-garamond italic text-[14px]"
+              style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.6 }}>
+              Including the original is optional. For sensitive files, you can share only the proof — the hash alone is enough for verification.
+            </p>
+          </div>
 
           {/* ── STEP 4: SHARE ── */}
           <div className="w-full mb-8" style={lockedStyle}>

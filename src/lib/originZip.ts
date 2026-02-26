@@ -220,6 +220,8 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
   }
 
   // 5. Add VERIFY.txt (Guardian C8 + C17: independent verification instructions)
+  const hasDeviceBinding = !!(input.deviceSignature && input.devicePublicKey);
+
   const proofOtsSection = hasProof
     ? '- proof.ots         : OpenTimestamps proof (anchored to Bitcoin)'
     : '- proof.ots         : Not yet available. Anchoring in progress.\n' +
@@ -244,20 +246,41 @@ VERIFY ATTESTATION (Layer 3):
 `
     : '';
 
+  const layer2Section = `
+LAYER 2 — DEVICE BINDING:
+   ${hasDeviceBinding
+     ? 'This anchor includes a cryptographic device signature (WebAuthn/Passkey).\n   The certificate.json contains device_signature and device_public_key fields.\n\n   What this proves:\n     The anchor was created on a specific hardware device (e.g. iPhone, MacBook)\n     using a biometric confirmation (Face ID, fingerprint, or device PIN).\n\n   What this does NOT prove:\n     The identity of the person operating the device.\n     Device binding establishes hardware provenance, not personal identity.'
+     : 'No device signature was recorded for this anchor.\n   Device binding is optional and depends on hardware support (WebAuthn/Passkey).'
+   }
+`;
+
   const verifyTxt = `VERIFICATION INSTRUCTIONS
 =========================
 
 This ZIP contains an independently verifiable existence proof.
 
 Contents:
-- artifact.*        : The original file
-- certificate.json  : Origin metadata (origin_id, hash, captured_at)
+- certificate.json  : Origin metadata (origin_id, hash, captured_at, device binding)
 ${proofOtsSection}
 ${attestationSection}
+- artifact.*        : The original file (if included by the owner)
+- VERIFY.txt        : This file
+
+NOTE ON ARTIFACT INCLUSION:
+   The original file is included at the owner's discretion.
+   For sensitive files, the owner may choose to share only the proof
+   (certificate + .ots) without the original. The hash in certificate.json
+   is sufficient to verify any file independently:
+     sha256sum <your-file>
+   Compare the output with the "hash" field in certificate.json.
+
+   When an artifact IS included, it is hash-enforced: if the file does not
+   match the hash in certificate.json, it is excluded automatically.
+   A present artifact is always the exact original.
 
 VERIFY ONLINE:
   https://anchoring.app/verify
-  Upload this ZIP.
+  Upload this ZIP or the original file.
 
 VERIFY INDEPENDENTLY (no Umarise needed):
   1. Verify hash integrity:
@@ -275,18 +298,25 @@ Both scripts require only standard tools (sha256sum/unzip/jq for bash,
 Python 3.8+ stdlib for Python). No Umarise infrastructure needed.
 
 Scripts available at: https://umarise.com/reviewer
-${attestationVerifySection}
-ARTIFACT INTEGRITY:
-   The artifact in this ZIP is hash-enforced: if the file does not match
-   the hash in certificate.json, it is excluded automatically. A present
-   artifact is always the exact original.
+${layer2Section}${attestationVerifySection}
+THREE LAYERS OF PROOF:
+  Layer 1 — Existence & Time:
+    SHA-256 hash + Bitcoin anchor = "these exact bytes existed at this time"
+
+  Layer 2 — Device Identity:
+    WebAuthn signature = "anchored on this specific hardware device"
+    ${hasDeviceBinding ? '✓ Present in this ZIP' : '· Not recorded for this anchor'}
+
+  Layer 3 — Third-Party Attestation:
+    Certified independent attestant = "a human action was confirmed"
+    ${hasAttestation ? '✓ Present in this ZIP' : '· Not requested for this anchor'}
 
 WHAT THIS PROVES:
    The exact bytes of the artifact existed no later than the moment
    of Bitcoin ledger inclusion. Nothing more, nothing less.
-${hasAttestation ? '\n  Layer 3: A certified independent attestant confirmed the human action behind this anchor.\n' : ''}
+
 WHAT THIS DOES NOT PROVE:
-  Authorship, ownership, accuracy, legality, or identity.
+   Authorship, ownership, accuracy, legality, or identity.
 `;
   zip.file('VERIFY.txt', verifyTxt);
 
