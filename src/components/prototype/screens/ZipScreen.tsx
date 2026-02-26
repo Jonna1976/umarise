@@ -40,9 +40,11 @@ interface ZipScreenProps {
   timestamp: Date;
   imageUrl: string | null;
   onComplete: () => void;
+  deviceSignature?: string | null;
+  devicePublicKey?: string | null;
 }
 
-export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: ZipScreenProps) {
+export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete, deviceSignature = null, devicePublicKey = null }: ZipScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const prebuiltZipRef = useRef<Blob | null>(null);
@@ -53,7 +55,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
   // Pre-build the ZIP AND the File object on mount
   // iOS Safari requires navigator.share() in the same synchronous call stack as the user gesture
   useEffect(() => {
-    const input = { originId, hash, timestamp, imageUrl };
+    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
       const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
@@ -62,7 +64,7 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
     }).catch(err => {
       console.warn('[ZipScreen] Failed to pre-build ZIP:', err);
     });
-  }, [originId, hash, timestamp, imageUrl]);
+  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey]);
 
   // CRITICAL: This handler must call navigator.share() with ZERO awaits before it
   // iOS Safari invalidates the user gesture context after any microtask boundary
@@ -121,13 +123,13 @@ export function ZipScreen({ originId, hash, timestamp, imageUrl, onComplete }: Z
       setSaved(true);
       setTimeout(() => onComplete(), 1200);
     } else {
-      buildOriginZip({ originId, hash, timestamp, imageUrl }).then(blob => {
+      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey }).then(blob => {
         downloadBlob(blob, originId);
         setSaved(true);
         setTimeout(() => onComplete(), 1200);
       });
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, deviceSignature, devicePublicKey]);
 
   return (
     <motion.div
