@@ -327,11 +327,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.4, delay: 0.1 }}
           onClick={(e) => e.stopPropagation()}>
 
-          {/* V7 nail + wire */}
-          <div className="flex flex-col items-center">
-            <OriginMark size={36} state={isAnchored ? 'anchored' : 'pending'} glow={isAnchored} animated={!isAnchored} variant="dark" />
-            <div className="w-px h-4" style={{ background: isAnchored ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))' : 'linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08))' }} />
-          </div>
+          {/* spacer */}
+          <div className="h-4" />
 
           {/* Photo in golden frame */}
           <div className="rounded-[4px] mb-6" style={{ padding: '12px', background: 'linear-gradient(135deg, rgba(197,147,90,0.3), rgba(180,130,70,0.15) 30%, rgba(197,147,90,0.25) 70%, rgba(210,160,80,0.2))', boxShadow: '0 6px 40px rgba(0,0,0,0.55), 0 0 24px rgba(197,147,90,0.1), inset 0 0 0 1px rgba(197,147,90,0.4), inset 0 0 0 2px rgba(15,26,15,0.5), inset 0 0 0 3px rgba(197,147,90,0.2)' }}>
