@@ -43,6 +43,7 @@ interface SealedScreenProps {
   devicePublicKey?: string | null;
   isAnchored?: boolean;
   onComplete: () => void;
+  onNavigateToGallery?: () => void;
 }
 
 export function SealedScreen({
@@ -57,6 +58,7 @@ export function SealedScreen({
   devicePublicKey = null,
   isAnchored = false,
   onComplete,
+  onNavigateToGallery,
 }: SealedScreenProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -247,13 +249,33 @@ export function SealedScreen({
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center px-6 pt-12"
+      className="relative min-h-screen flex flex-col items-center px-6 pt-12"
       style={{ background: 'hsl(var(--ritual-surface))' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* ── GALLERY NAV (top-left) ── */}
+      {onNavigateToGallery && (
+        <motion.button
+          onClick={onNavigateToGallery}
+          className="absolute top-5 left-5 p-2 rounded-full transition-all"
+          style={{ background: 'rgba(197,147,90,0.06)', border: '1px solid rgba(197,147,90,0.15)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
+          aria-label="View gallery"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="1" width="6" height="6" rx="1" />
+            <rect x="11" y="1" width="6" height="6" rx="1" />
+            <rect x="1" y="11" width="6" height="6" rx="1" />
+            <rect x="11" y="11" width="6" height="6" rx="1" />
+          </svg>
+        </motion.button>
+      )}
+
       {/* ── THE NAIL: V7 hexagon ── */}
       <motion.div
         className="flex flex-col items-center"

@@ -387,6 +387,7 @@ export function RitualFlow() {
           deviceSignature={currentArtifact.deviceSignature ?? null}
           devicePublicKey={currentArtifact.devicePublicKey ?? null}
           onComplete={handleSealedComplete}
+          onNavigateToGallery={() => setScreen('wall')}
         />
       )}
       
