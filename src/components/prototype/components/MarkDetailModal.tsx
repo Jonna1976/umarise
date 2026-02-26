@@ -98,11 +98,13 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
       {result.bitcoin_block_height && (
         <p className="font-mono text-[20px] mb-4" style={{ color: 'hsl(142 20% 65%)' }}>Bitcoin block {result.bitcoin_block_height.toLocaleString('en-US')}</p>
       )}
-      <button onClick={handleShare} disabled={saved}
-        className="bg-transparent border-none cursor-pointer transition-all disabled:opacity-50 mb-3 hover:tracking-[6px]"
-        style={{ fontFamily: "'DM Mono', monospace", fontSize: '20px', letterSpacing: '5px', textTransform: 'uppercase', color: saved ? 'rgba(240,234,214,0.5)' : 'rgba(240,234,214,0.85)' }}>
-        {saved ? '✓ Shared' : 'Share'}
-      </button>
+      {result.status === 'verified' && (
+        <button onClick={handleShare} disabled={saved}
+          className="bg-transparent border-none cursor-pointer transition-all disabled:opacity-50 mb-3 hover:tracking-[6px]"
+          style={{ fontFamily: "'DM Mono', monospace", fontSize: '20px', letterSpacing: '5px', textTransform: 'uppercase', color: saved ? 'rgba(240,234,214,0.5)' : 'rgba(240,234,214,0.85)' }}>
+          {saved ? '✓ Shared' : 'Share'}
+        </button>
+      )}
       <button onClick={onReset}
         className="font-mono text-[17px] tracking-[1px] bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80"
         style={{ color: 'rgba(245,240,232,0.3)' }}>
@@ -159,7 +161,13 @@ async function verifyZipFile(file: File, expectedHash?: string): Promise<VerifyR
   }
 
   if (cert.origin_id) steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
-  steps.push({ label: 'Layer 2 identity binding', status: 'info' });
+  if (cert.device_signature && cert.device_public_key) {
+    steps.push({ label: 'Device-signed (Layer 2)', status: 'ok', detail: 'Hardware-bound identity' });
+  } else if (cert.device_public_key) {
+    steps.push({ label: 'Device key present (Layer 2)', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
+  } else {
+    steps.push({ label: 'No device binding (Layer 2)', status: 'warn', detail: 'Not hardware-signed' });
+  }
   steps.push({ label: 'Looking up hash in registry', status: 'info' });
 
   const verifyResult = await verifyOriginByHash(rawHash);
