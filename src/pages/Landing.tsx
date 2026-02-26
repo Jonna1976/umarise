@@ -34,9 +34,20 @@ export default function Landing() {
             Independently verifiable.
           </p>
 
-          {/* Category descriptor */}
+          {/* Category descriptor + spec reference */}
           <p className="text-sm text-landing-muted/55 tracking-widest uppercase mt-6">
             Anchoring Infrastructure
+          </p>
+          <p className="text-xs text-landing-muted/35 mt-2 tracking-wide">
+            Implements the{' '}
+            <a
+              href="https://anchoring-spec.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-landing-muted/50 transition-colors"
+            >
+              Anchoring Specification (IEC)
+            </a>
           </p>
         </main>
 
