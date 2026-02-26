@@ -81,15 +81,6 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
 
   return (
     <motion.div className="w-full max-w-[340px] flex flex-col items-center" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-      {result.status === 'verified' && (
-        <div className="flex items-center gap-3 mb-4">
-          <svg viewBox="0 0 20 20" width={20} height={20}>
-            <circle cx="10" cy="10" r="9" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.3" />
-            <polyline points="5.5,10 8.5,13 14.5,7" fill="none" stroke="hsl(142 50% 50%)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>Verified</span>
-        </div>
-      )}
       {result.status === 'not_found' && (
         <div className="flex items-center gap-3 mb-4">
           <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(245,240,232,0.5)' }}>Not found in registry</span>
@@ -102,17 +93,6 @@ function InlineVerifyResult({ result, zipFile, onReset, originId, displayOriginI
           {saved ? '✓ Shared' : 'Share'}
         </button>
       )}
-      <button onClick={onReset}
-        className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent border-none cursor-pointer transition-opacity hover:opacity-80 mx-auto"
-        style={{ color: 'rgba(245,240,232,0.3)' }}
-        title="Verify another file">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-          <path d="M21 3v5h-5" />
-          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-          <path d="M8 16H3v5" />
-        </svg>
-      </button>
     </motion.div>
   );
 }
