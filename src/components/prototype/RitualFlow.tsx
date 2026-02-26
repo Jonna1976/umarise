@@ -31,6 +31,7 @@ export interface Artifact {
 
 const FIRST_VISIT_KEY = 'umarise_first_visit_done';
 const ANCHOR_COUNT_KEY = 'umarise-mark-count';
+const UNSAVED_ARTIFACT_KEY = 'umarise_unsaved_artifact';
 
 export function RitualFlow() {
   const [screen, setScreen] = useState<RitualScreen>('capture');
@@ -58,6 +59,26 @@ export function RitualFlow() {
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
   const [currentArtifact, setCurrentArtifact] = useState<Artifact | null>(null);
   const isCreatingMark = useRef(false);
+
+  // Resume unsaved artifact on mount (e.g. user returns next day)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(UNSAVED_ARTIFACT_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      // Reconstruct artifact with Date object
+      const artifact: Artifact = {
+        ...saved,
+        date: new Date(saved.date),
+      };
+      setCurrentArtifact(artifact);
+      setCapturedImageUrl(saved.imageUrl ?? null);
+      setScreen('sealed');
+      console.log('[RitualFlow] Resumed unsaved artifact:', artifact.origin);
+    } catch {
+      localStorage.removeItem(UNSAVED_ARTIFACT_KEY);
+    }
+  }, []);
   const markCreationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Safety: auto-reset isCreatingMark after 45s to prevent permanent lock
@@ -141,8 +162,8 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         console.log('[RitualFlow] Mark created:', mark.id);
-        // After first successful anchor, no longer first visit
         setIsFirstVisit(false);
+        try { localStorage.setItem(UNSAVED_ARTIFACT_KEY, JSON.stringify(realArtifact)); } catch {}
         goToScreen('sealed');
       } else {
         console.error('[RitualFlow] Mark creation returned null');
@@ -204,6 +225,7 @@ export function RitualFlow() {
         };
         setCurrentArtifact(realArtifact);
         setIsFirstVisit(false);
+        try { localStorage.setItem(UNSAVED_ARTIFACT_KEY, JSON.stringify(realArtifact)); } catch {}
         goToScreen('sealed');
         console.log('[RitualFlow] File mark created:', mark.id, 'hash:', mark.hash);
         console.log('[RitualFlow] VERIFY: sha256sum of', rf.fileName, 'should equal:', mark.hash);
@@ -229,6 +251,7 @@ export function RitualFlow() {
     setCapturedImageUrl(null);
     setCurrentArtifact(null);
     setCreatingMark(false);
+    localStorage.removeItem(UNSAVED_ARTIFACT_KEY);
     
     if (wasFirstVisit) {
       // First anchor special: show V7 nav reveal, then auto-advance
