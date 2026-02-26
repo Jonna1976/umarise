@@ -496,25 +496,23 @@ export default function Verify() {
         </AnimatePresence>
 
         {/* Independence statement — always visible */}
+        {/* Convenience disclaimer + independence cross-link */}
         <div
-          className="mt-10 py-5 px-6 rounded-sm text-center"
+          className="mt-10 py-5 px-6 rounded-sm"
           style={{ border: '1px solid hsl(var(--landing-cream) / 0.06)', background: 'hsl(var(--landing-cream) / 0.02)' }}
         >
           <p
-            className="text-[15px] leading-relaxed italic"
+            className="text-[15px] leading-relaxed"
             style={{ color: 'hsl(var(--landing-cream) / 0.6)' }}
           >
-            Verification semantics follow the{' '}
-            <a
-              href="https://anchoring-spec.org/v1.0/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 transition-opacity hover:opacity-70"
-              style={{ color: 'hsl(var(--landing-copper))' }}
-            >
-              Anchoring Specification (IEC v1.0)
-            </a>.
-            {' '}This proof is independently verifiable via{' '}
+            This verifier provides additional registry and status checks via Umarise Core.
+            It is not a normative implementation of the Anchoring Specification.
+          </p>
+          <p
+            className="text-[15px] leading-relaxed mt-3"
+            style={{ color: 'hsl(var(--landing-cream) / 0.6)' }}
+          >
+            For independent verification without issuer infrastructure, use{' '}
             <a
               href="https://verify-anchoring.org"
               target="_blank"
@@ -523,8 +521,24 @@ export default function Verify() {
               style={{ color: 'hsl(var(--landing-copper))' }}
             >
               verify-anchoring.org
-            </a>{' '}
-            or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>ots-cli</code> tool.
+            </a>
+            {' '}or the{' '}
+            <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>ots-cli</code> tool.
+          </p>
+          <p
+            className="text-[14px] leading-relaxed mt-3 italic"
+            style={{ color: 'hsl(var(--landing-cream) / 0.4)' }}
+          >
+            Verification semantics conform to the{' '}
+            <a
+              href="https://anchoring-spec.org/v1.0/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-opacity hover:opacity-70"
+              style={{ color: 'hsl(var(--landing-copper) / 0.7)' }}
+            >
+              Anchoring Specification (IEC v1.0)
+            </a>.
           </p>
         </div>
       </main>
