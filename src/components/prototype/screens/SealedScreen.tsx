@@ -4,7 +4,7 @@
  * V7 is de spijker. Het schilderij hangt eraan.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
 
 const POST_SEAL_HINT_KEY = 'umarise_post_seal_hint_shown';
@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import { ArtifactDisplay } from '../components/ArtifactDisplay';
 import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
+import { fetchProofStatus, arrayBufferToBase64 } from '@/lib/coreApi';
 
 /** Desktop-only download helper */
 function downloadBlob(blob: Blob | null, originId: string) {
@@ -60,6 +61,8 @@ export function SealedScreen({
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [anchoredState, setAnchoredState] = useState(isAnchored);
+  const [otsProofBase64, setOtsProofBase64] = useState<string | null>(null);
   const prebuiltZipRef = useRef<Blob | null>(null);
   const prebuiltFileRef = useRef<File | null>(null);
 
@@ -67,6 +70,34 @@ export function SealedScreen({
   const isImage = mimeType.startsWith('image/');
 
   const shortId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
+
+  // Poll for Bitcoin anchor status
+  useEffect(() => {
+    if (anchoredState) return;
+    const poll = async () => {
+      try {
+        const result = await fetchProofStatus(originId);
+        if (result.status === 'anchored') {
+          setAnchoredState(true);
+          if (result.otsProofBytes) setOtsProofBase64(arrayBufferToBase64(result.otsProofBytes));
+        }
+      } catch {}
+    };
+    poll();
+    const interval = setInterval(poll, 20000);
+    return () => clearInterval(interval);
+  }, [originId, anchoredState]);
+
+  // Countdown label
+  const pendingLabel = useMemo(() => {
+    const expectedAt = new Date(timestamp.getTime() + 2 * 60 * 60 * 1000);
+    const now = new Date();
+    const diffMs = expectedAt.getTime() - now.getTime();
+    const diffMin = Math.max(0, Math.round(diffMs / 60000));
+    if (diffMin <= 0) return 'Bitcoin proof in progress, any moment now';
+    if (diffMin < 60) return `Bitcoin proof in progress, ready in ~${diffMin} min`;
+    return `Bitcoin proof in progress, ready in ~${Math.ceil(diffMin / 60)} hours`;
+  }, [timestamp]);
 
   const formatDate = (date: Date) =>
     date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) +
@@ -94,8 +125,10 @@ export function SealedScreen({
     localStorage.setItem(POST_SEAL_HINT_KEY, 'true');
   }, []);
 
+  // Build ZIP only when anchored + ots proof available
   useEffect(() => {
-    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey };
+    if (!anchoredState) return;
+    const input = { originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined };
     buildOriginZip(input).then(blob => {
       prebuiltZipRef.current = blob;
       const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim();
@@ -103,10 +136,10 @@ export function SealedScreen({
     }).catch(err => {
       console.warn('[SealedScreen] Failed to pre-build ZIP:', err);
     });
-  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey]);
+  }, [originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, anchoredState, otsProofBase64]);
 
   const handleSave = useCallback(() => {
-    if (isSaving || saved) return;
+    if (isSaving || saved || !anchoredState) return;
     setIsSaving(true);
 
     const file = prebuiltFileRef.current;
@@ -145,13 +178,13 @@ export function SealedScreen({
       setSaved(true);
       setTimeout(() => onComplete(), 800);
     } else {
-      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey }).then(blob => {
+      buildOriginZip({ originId, hash, timestamp, imageUrl, deviceSignature, devicePublicKey, otsProof: otsProofBase64 ?? undefined }).then(blob => {
         downloadBlob(blob, originId);
         setSaved(true);
         setTimeout(() => onComplete(), 800);
       });
     }
-  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, deviceSignature, devicePublicKey]);
+  }, [isSaving, saved, originId, hash, timestamp, imageUrl, onComplete, isMobile, deviceSignature, devicePublicKey, anchoredState, otsProofBase64]);
 
   return (
     <motion.div
@@ -173,7 +206,7 @@ export function SealedScreen({
         <div
           className="w-px h-4"
           style={{
-            background: isAnchored
+            background: anchoredState
               ? 'linear-gradient(to bottom, rgba(197,147,90,0.5), rgba(197,147,90,0.15))'
               : 'linear-gradient(to bottom, rgba(197,147,90,0.25), rgba(197,147,90,0.08))',
           }}
@@ -252,7 +285,7 @@ export function SealedScreen({
           <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
             hash
           </span>
-          {isAnchored ? (
+          {anchoredState ? (
             <>
               <span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
               <span className="font-mono text-[15px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
@@ -275,23 +308,44 @@ export function SealedScreen({
         </div>
       </motion.div>
 
+      {/* ── PENDING COUNTDOWN ── */}
+      {!anchoredState && (
+        <motion.div
+          className="flex items-center gap-3 mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.0 }}
+        >
+          <motion.div
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: 'rgba(197,147,90,0.6)' }}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <span className="font-mono text-[12px] tracking-[2px] uppercase"
+            style={{ color: 'rgba(197,147,90,0.5)' }}>
+            {pendingLabel}
+          </span>
+        </motion.div>
+      )}
+
       {/* ── SAVE BUTTON ── */}
       <motion.button
         onClick={handleSave}
-        disabled={isSaving}
-        className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-50"
+        disabled={isSaving || !anchoredState}
+        className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-40"
         style={{
           fontWeight: 300,
           background: saved ? 'hsl(var(--ritual-gold) / 0.15)' : 'hsl(var(--ritual-gold) / 0.08)',
-          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : '0.3'})`,
-          color: `hsl(var(--ritual-gold) / ${saved ? '1' : '0.8'})`,
+          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : anchoredState ? '0.3' : '0.15'})`,
+          color: `hsl(var(--ritual-gold) / ${saved ? '1' : anchoredState ? '0.8' : '0.4'})`,
         }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.2 }}
-        whileTap={!saved ? { scale: 0.97 } : {}}
+        whileTap={!saved && anchoredState ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓' : isSaving ? 'Saving...' : 'Save'}
+        {saved ? '✓' : isSaving ? 'Saving...' : anchoredState ? 'Save' : 'Save (waiting for Bitcoin)'}
       </motion.button>
 
       {/* ── POST-SEAL HINT ── */}
