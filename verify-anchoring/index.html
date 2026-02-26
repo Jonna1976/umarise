@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>verify-anchoring.org — Independent Origin Verification</title>
-<meta name="description" content="Independently verify the existence and timestamp of any anchored origin. No accounts, no platform dependency. Your file never leaves your browser.">
+<meta name="description" content="Reference implementation of IEC verification. Independently verify the existence and chronological anchoring of any origin proof. Zero platform dependency. Your file never leaves your browser.">
 <link rel="canonical" href="https://verify-anchoring.org">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -169,6 +169,10 @@ main {
   background: var(--green-bg);
   border-color: #4a9e6e30;
 }
+.result-consistent {
+  background: var(--green-bg);
+  border-color: #4a9e6e30;
+}
 .result-pending {
   background: var(--yellow-bg);
   border-color: #c4a03a30;
@@ -185,6 +189,7 @@ main {
   margin-bottom: 0.4rem;
 }
 .result-verified .result-title { color: var(--green); }
+.result-consistent .result-title { color: var(--green); }
 .result-pending .result-title { color: var(--yellow); }
 .result-failed .result-title { color: var(--red); }
 .result-text {
@@ -307,6 +312,24 @@ footer a:hover { color: var(--text-muted); }
   color: var(--text-dim);
 }
 
+/* ─── Ledger details ─── */
+.ledger-details {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(74, 158, 110, 0.08);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.ledger-details .label {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.65rem;
+}
+
 @media (max-width: 480px) {
   .header h1 { font-size: 1.6rem; }
   main { padding: 1.5rem 1rem; }
@@ -317,10 +340,10 @@ footer a:hover { color: var(--text-muted); }
 
 <div class="header">
   <div class="header-inner">
-    <p class="header-label">Independent Origin Verification</p>
+    <p class="header-label">Reference Implementation · IEC Verification</p>
     <h1>Verify an anchor proof</h1>
-    <p>Drop an origin ZIP or any file to verify whether its existence was recorded in the Bitcoin blockchain.</p>
-    <p class="privacy-note">Your file never leaves your browser. All verification is performed client-side.</p>
+    <p>Drop an origin ZIP or any file to independently verify whether its existence was recorded in the Bitcoin blockchain.</p>
+    <p class="privacy-note">Your file never leaves your browser. All computation is performed client-side.</p>
   </div>
 </div>
 
@@ -338,8 +361,8 @@ footer a:hover { color: var(--text-muted); }
   <div class="independence">
     <p>
       This verifier is <strong>independent infrastructure</strong>. It makes zero calls to any Umarise, anchoring.app, or itexisted.app server.
-      Hash verification uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" target="_blank" rel="noopener">Web Crypto API</a>.
-      Bitcoin anchoring is verified via <a href="https://opentimestamps.org" target="_blank" rel="noopener">OpenTimestamps</a> calendar servers.
+      Hash computation uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" target="_blank" rel="noopener">Web Crypto API</a>.
+      Bitcoin anchoring is verified via public <a href="https://opentimestamps.org" target="_blank" rel="noopener">OpenTimestamps</a> calendar servers and block explorers.
       <br><br>
       This page is open source. You can <a href="https://github.com/AnchoringTrust/verify-anchoring" target="_blank" rel="noopener">fork it</a>, host it yourself, and verify without any third-party dependency.
     </p>
@@ -350,22 +373,27 @@ footer a:hover { color: var(--text-muted); }
     <ol>
       <li>Your file (or ZIP) is read entirely in your browser — nothing is uploaded.</li>
       <li>If it's an origin ZIP, the certificate and artifact are extracted and the SHA-256 hash is recomputed from the original bytes.</li>
-      <li>The recomputed hash is compared against the hash stated in the certificate.</li>
-      <li>If a <code>.ots</code> proof is included, it is verified against public Bitcoin calendar servers to confirm the timestamp.</li>
-      <li>The result shows whether the file's existence was provably recorded at the claimed time.</li>
+      <li>The recomputed hash is compared against the hash stated in the certificate. A match confirms <strong>internal consistency</strong>.</li>
+      <li>If a <code>.ots</code> proof is included, it is verified against public Bitcoin block explorers to confirm the <strong>external chronological anchoring</strong>.</li>
+      <li>The result shows the Bitcoin block height and ledger-derived timestamp — independent proof that the file existed before that point in time.</li>
     </ol>
   </div>
 </main>
 
 <footer>
-  verify-anchoring.org · Independent verification infrastructure
+  verify-anchoring.org · Reference implementation of IEC verification
   <br>
   <a href="https://github.com/AnchoringTrust/verify-anchoring">source code</a>
 </footer>
 
-<!-- JSZip for ZIP parsing — loaded from CDN with integrity check -->
+<!-- JSZip for ZIP parsing -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
         integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDFuGLXnkBd+HgIbVKxdGThbIaEp8WQRIMZB/6+HYg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+
+<!-- OpenTimestamps official library for Bitcoin ledger verification -->
+<script src="https://opentimestamps.org/assets/javascripts/vendor/opentimestamps.min.js"
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 
@@ -384,6 +412,14 @@ async function sha256(buffer) {
   return Array.from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
+}
+
+function hexToBytes(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes;
 }
 
 // ─── Render helpers ───
@@ -413,6 +449,11 @@ function escHtml(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+
+function formatTimestamp(unixSeconds) {
+  const d = new Date(unixSeconds * 1000);
+  return d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
 }
 
 // ─── UI State ───
@@ -445,9 +486,52 @@ dropZone.addEventListener('drop', e => {
   if (file && !processing) handleFile(file);
 });
 
-// Prevent default drag behavior on window
 window.addEventListener('dragover', e => e.preventDefault(), true);
 window.addEventListener('drop', e => e.preventDefault(), true);
+
+// ─── OTS Verification via official library ───
+async function verifyOtsProof(otsBuf, hashHex) {
+  if (typeof OpenTimestamps === 'undefined') {
+    return { error: 'OpenTimestamps library not loaded' };
+  }
+
+  try {
+    const otsBytes = new Uint8Array(otsBuf);
+    const hashBytes = hexToBytes(hashHex);
+
+    const detachedOts = OpenTimestamps.DetachedTimestampFile.deserialize(otsBytes);
+    const detached = OpenTimestamps.DetachedTimestampFile.fromHash(
+      new OpenTimestamps.Ops.OpSHA256(), hashBytes
+    );
+
+    const result = await OpenTimestamps.verify(detachedOts, detached, {
+      ignoreBitcoinNode: true,
+      timeout: 10000
+    });
+
+    if (result && result.bitcoin) {
+      return {
+        verified: true,
+        timestamp: result.bitcoin.timestamp,
+        height: result.bitcoin.height
+      };
+    }
+
+    // Check for pending attestations
+    const info = OpenTimestamps.info(detachedOts);
+    if (info && info.indexOf('PendingAttestation') !== -1) {
+      return { pending: true, info: info };
+    }
+
+    return { verified: false, info: info || 'No Bitcoin attestation found' };
+  } catch (err) {
+    // Check if it's a pending/incomplete timestamp
+    if (err.message && (err.message.indexOf('Pending') !== -1 || err.message.indexOf('pending') !== -1)) {
+      return { pending: true };
+    }
+    return { error: err.message || 'OTS verification failed' };
+  }
+}
 
 // ─── Main verification logic ───
 async function handleFile(file) {
@@ -528,7 +612,7 @@ async function verifyZip(file) {
   // 5. Captured at
   if (cert.captured_at) {
     const d = new Date(cert.captured_at);
-    steps.push({ label: 'Captured at', status: 'ok', detail: d.toISOString() });
+    steps.push({ label: 'Captured at (claimed)', status: 'info', detail: d.toISOString() });
   }
 
   // 6. Find artifact file
@@ -541,6 +625,8 @@ async function verifyZip(file) {
     !n.startsWith('.') &&
     !zip.files[n].dir
   );
+
+  let hashMatch = false;
 
   if (artifactFiles.length === 0) {
     steps.push({ label: 'No artifact file found in ZIP', status: 'warn', detail: 'Cannot recompute hash without original file' });
@@ -555,11 +641,12 @@ async function verifyZip(file) {
 
     // 8. Compare
     if (computedHash === certHash) {
-      steps.push({ label: 'Hash match confirmed ✓', status: 'ok', detail: 'Certificate hash matches recomputed artifact hash' });
+      steps.push({ label: 'Hash match — internal consistency confirmed', status: 'ok', detail: 'Certificate hash matches recomputed artifact hash' });
+      hashMatch = true;
     } else {
       steps.push({ label: 'HASH MISMATCH', status: 'error', detail: 'Certificate: ' + certHash + ' ≠ Computed: ' + computedHash });
       output.innerHTML = renderSteps(steps) +
-        renderBanner('failed', 'Verification failed', 'The artifact in this ZIP does not match the hash in the certificate. The file may have been modified.') +
+        renderBanner('failed', 'Verification failed', 'The artifact in this ZIP does not match the hash in the certificate. The file may have been modified after anchoring.') +
         renderReset();
       return;
     }
@@ -583,17 +670,16 @@ async function verifyZip(file) {
     }
   }
 
-  // 10. Check for .ots proof
+  // 10. Check for .ots proof and verify against Bitcoin
   const otsFiles = Object.keys(zip.files).filter(n => n.endsWith('.ots'));
   if (otsFiles.length > 0) {
     steps.push({ label: 'OpenTimestamps proof found: ' + otsFiles[0], status: 'ok' });
 
-    // Extract .ots binary for external verification link
     const otsBuf = await zip.file(otsFiles[0]).async('arraybuffer');
     const otsSize = otsBuf.byteLength;
     steps.push({ label: 'OTS proof size: ' + otsSize + ' bytes', status: 'info' });
 
-    // Check OTS header magic bytes (0x00 4f 70 65 6e 54 69 6d 65 73 74 61 6d 70 73)
+    // Check OTS header magic bytes
     const header = new Uint8Array(otsBuf.slice(0, 15));
     const otsHeaderStr = Array.from(header.slice(1, 15)).map(b => String.fromCharCode(b)).join('');
     if (header[0] === 0x00 && otsHeaderStr === 'OpenTimestamps') {
@@ -602,28 +688,87 @@ async function verifyZip(file) {
       steps.push({ label: 'OTS file header not recognized', status: 'warn' });
     }
 
+    // Verify against Bitcoin via OTS library
+    steps.push({ label: 'Contacting public Bitcoin block explorers…', status: 'info' });
+    output.innerHTML = renderSteps(steps) + '<div class="verifying-state" style="padding:1.5rem 0"><div class="spinner"></div><p>Verifying against Bitcoin ledger…</p></div>';
+
+    const otsResult = await verifyOtsProof(otsBuf, certHash);
+
     // Store for download
     window._lastOtsBlob = new Blob([otsBuf], { type: 'application/octet-stream' });
     window._lastOtsName = otsFiles[0];
 
-    output.innerHTML = renderSteps(steps) +
-      renderBanner('verified', 'Origin verified',
-        'The artifact hash matches the certificate, and a Bitcoin timestamp proof is included.<br><br>' +
-        'For full Bitcoin-level verification, download the .ots file and verify it at ' +
-        '<a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a> ' +
-        'or with the <code style="font-family:var(--mono);font-size:0.8rem">ots verify</code> command-line tool.' +
-        '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
-      ) +
-      renderReset();
-  } else {
-    steps.push({ label: 'No .ots proof in ZIP', status: 'warn', detail: 'Bitcoin timestamp cannot be verified without the .ots file' });
+    if (otsResult.verified) {
+      steps.pop(); // Remove "Contacting…"
+      steps.push({ label: 'Bitcoin ledger verification confirmed', status: 'ok' });
+      steps.push({ label: 'Block height: ' + otsResult.height, status: 'ok' });
+      steps.push({ label: 'Ledger timestamp: ' + formatTimestamp(otsResult.timestamp), status: 'ok' });
 
-    const hasMatch = steps.some(s => s.label.includes('Hash match'));
-    if (hasMatch) {
+      const ledgerDetails =
+        '<div class="ledger-details">' +
+          '<span class="label">Bitcoin block</span> ' + otsResult.height + '<br>' +
+          '<span class="label">Ledger timestamp</span> ' + formatTimestamp(otsResult.timestamp) + '<br>' +
+          '<span class="label">Interpretation</span> This file provably existed before block ' + otsResult.height + ' was mined.' +
+        '</div>';
+
       output.innerHTML = renderSteps(steps) +
-        renderBanner('pending', 'Hash verified — Bitcoin anchor pending',
-          'The artifact matches the certificate hash. However, no .ots proof was included in this ZIP. ' +
-          'The Bitcoin anchor may still be pending, or the proof was not yet available when this ZIP was generated.'
+        renderBanner('verified', 'Ledger-confirmed',
+          (hashMatch ? 'Internal consistency: hash match confirmed.<br>' : '') +
+          'External chronology: existence anchored in the Bitcoin blockchain.' +
+          ledgerDetails +
+          '<br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+        ) +
+        renderReset();
+    } else if (otsResult.pending) {
+      steps.pop();
+      steps.push({ label: 'Bitcoin anchoring pending', status: 'warn', detail: 'The proof has been submitted to calendar servers but is not yet confirmed in a Bitcoin block' });
+
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('pending', 'Internally consistent — ledger pending',
+          (hashMatch ? 'Internal consistency: hash match confirmed.<br>' : '') +
+          'The .ots proof is present but the Bitcoin anchor is not yet confirmed. ' +
+          'This typically resoletes within a few hours after submission. ' +
+          'Re-verify later or check with <a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a>.' +
+          '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+        ) +
+        renderReset();
+    } else if (otsResult.error) {
+      steps.pop();
+      steps.push({ label: 'OTS verification could not complete', status: 'warn', detail: otsResult.error });
+
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('pending', hashMatch ? 'Internally consistent — ledger verification inconclusive' : 'Ledger verification inconclusive',
+          (hashMatch ? 'Internal consistency: hash match confirmed.<br>' : '') +
+          'The .ots proof is present but could not be verified against public block explorers at this time. ' +
+          'This may be a temporary network issue. You can verify independently at ' +
+          '<a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a> ' +
+          'or with the <code style="font-family:var(--mono);font-size:0.8rem">ots verify</code> command-line tool.' +
+          '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+        ) +
+        renderReset();
+    } else {
+      steps.pop();
+      steps.push({ label: 'No Bitcoin attestation found in proof', status: 'warn' });
+
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('pending', hashMatch ? 'Internally consistent — no ledger attestation' : 'No ledger attestation',
+          (hashMatch ? 'Internal consistency: hash match confirmed.<br>' : '') +
+          'The .ots file does not contain a completed Bitcoin attestation. ' +
+          'It may need to be upgraded first. Try <a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a>.' +
+          '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+        ) +
+        renderReset();
+    }
+  } else {
+    steps.push({ label: 'No .ots proof in ZIP', status: 'warn', detail: 'External chronological anchoring cannot be verified without the .ots file' });
+
+    if (hashMatch) {
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('consistent', 'Internally consistent — no ledger proof',
+          'The artifact matches the certificate hash, confirming internal consistency.<br><br>' +
+          'However, no .ots proof was included in this ZIP. Without the OpenTimestamps proof, ' +
+          'external chronological anchoring in the Bitcoin blockchain cannot be independently verified. ' +
+          'The anchor may still be pending, or the proof was not yet available when this ZIP was generated.'
         ) +
         renderReset();
     } else {
@@ -648,7 +793,7 @@ async function verifyRawFile(file) {
     renderBanner('pending', 'Hash computed',
       'SHA-256: <code style="font-family:var(--mono);font-size:0.78rem;word-break:break-all">' + escHtml(hash) + '</code>' +
       '<br><br>To verify this file against a known origin, you need the origin ZIP containing the certificate and .ots proof. ' +
-      'This tool only verifies complete origin proof bundles autonomously.'
+      'This verifier only performs autonomous verification on complete origin proof bundles.'
     ) +
     renderReset();
 }
