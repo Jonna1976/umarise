@@ -305,11 +305,10 @@ export function SealedScreen({
         aria-hidden={!showHint}
       >
         <p
-          className="font-garamond italic text-[26px] leading-relaxed"
+          className="font-garamond italic text-[18px] leading-relaxed"
           style={{ color: 'hsl(var(--ritual-cream) / 0.38)' }}
         >
-          ☑️ Anchored. Keep your original file safe —<br />
-          you'll need it to verify.
+          Tip: rename your file to include <span className="font-mono text-[16px]" style={{ color: 'rgba(197,147,90,0.5)' }}>{shortId}</span> so you can always match it to this proof.
         </p>
       </motion.div>
 
