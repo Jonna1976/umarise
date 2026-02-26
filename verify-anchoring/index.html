@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>verify-anchoring.org — Independent Origin Verification</title>
+<meta name="description" content="Independently verify the existence and timestamp of any anchored origin. No accounts, no platform dependency. Your file never leaves your browser.">
+<link rel="canonical" href="https://verify-anchoring.org">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --border: #1e1e22;
+  --border-light: #2a2a30;
+  --text: #e8e4dc;
+  --text-muted: #8a8680;
+  --text-dim: #5a5652;
+  --accent: #c4956a;
+  --accent-dim: #c4956a66;
+  --green: #4a9e6e;
+  --green-bg: #4a9e6e18;
+  --yellow: #c4a03a;
+  --yellow-bg: #c4a03a18;
+  --red: #c45a5a;
+  --red-bg: #c45a5a18;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+  --serif: Georgia, 'Times New Roman', Times, serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Layout ─── */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1.5rem 2.5rem;
+}
+.header-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.header-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.header h1 {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.header p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 520px;
+}
+.header .privacy-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+main {
+  flex: 1;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* ─── Drop zone ─── */
+.drop-zone {
+  position: relative;
+  min-height: 180px;
+  border: 1px dashed var(--border-light);
+  border-radius: 3px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+.drop-zone:hover {
+  border-color: var(--accent-dim);
+}
+.drop-zone.dragging {
+  border-color: var(--accent);
+  border-style: solid;
+  background: #c4956a08;
+}
+.drop-zone.disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.drop-zone input { display: none; }
+.drop-label {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+.drop-label small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+/* ─── Verification log ─── */
+.log {
+  margin-top: 2rem;
+}
+.log-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.log-step:last-child { border-bottom: none; }
+.log-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+.log-label { color: var(--text); flex: 1; }
+.log-detail {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  word-break: break-all;
+}
+
+/* status colors */
+.step-ok .log-icon { color: var(--green); }
+.step-error .log-icon { color: var(--red); }
+.step-warn .log-icon { color: var(--yellow); }
+.step-info .log-icon { color: var(--text-muted); }
+
+/* ─── Result banner ─── */
+.result-banner {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.result-verified {
+  background: var(--green-bg);
+  border-color: #4a9e6e30;
+}
+.result-pending {
+  background: var(--yellow-bg);
+  border-color: #c4a03a30;
+}
+.result-failed {
+  background: var(--red-bg);
+  border-color: #c45a5a30;
+}
+.result-title {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.result-verified .result-title { color: var(--green); }
+.result-pending .result-title { color: var(--yellow); }
+.result-failed .result-title { color: var(--red); }
+.result-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+/* ─── Reset button ─── */
+.reset-btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.reset-btn:hover { color: var(--text-muted); }
+
+/* ─── Independence statement ─── */
+.independence {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+}
+.independence p {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+.independence a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.independence a:hover { opacity: 0.7; }
+.independence code {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ─── How it works ─── */
+.how-it-works {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+.how-it-works h2 {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.how-it-works ol {
+  list-style: none;
+  counter-reset: steps;
+}
+.how-it-works li {
+  counter-increment: steps;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.35rem 0;
+  padding-left: 1.8rem;
+  position: relative;
+}
+.how-it-works li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  width: 1.2rem;
+  text-align: right;
+}
+
+/* ─── Footer ─── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+footer a { color: var(--text-dim); text-decoration: none; }
+footer a:hover { color: var(--text-muted); }
+
+/* ─── Spinner ─── */
+.spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--border-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.verifying-state {
+  text-align: center;
+  padding: 3rem 0;
+}
+.verifying-state p {
+  margin-top: 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+@media (max-width: 480px) {
+  .header h1 { font-size: 1.6rem; }
+  main { padding: 1.5rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <p class="header-label">Independent Origin Verification</p>
+    <h1>Verify an anchor proof</h1>
+    <p>Drop an origin ZIP or any file to verify whether its existence was recorded in the Bitcoin blockchain.</p>
+    <p class="privacy-note">Your file never leaves your browser. All verification is performed client-side.</p>
+  </div>
+</div>
+
+<main>
+  <div id="drop-zone" class="drop-zone">
+    <input type="file" id="file-input">
+    <div class="drop-label">
+      Drop a file here or click to select
+      <small>Origin ZIP or any file</small>
+    </div>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="independence">
+    <p>
+      This verifier is <strong>independent infrastructure</strong>. It makes zero calls to any Umarise, anchoring.app, or itexisted.app server.
+      Hash verification uses the <a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" target="_blank" rel="noopener">Web Crypto API</a>.
+      Bitcoin anchoring is verified via <a href="https://opentimestamps.org" target="_blank" rel="noopener">OpenTimestamps</a> calendar servers.
+      <br><br>
+      This page is open source. You can <a href="https://github.com/AnchoringTrust/verify-anchoring" target="_blank" rel="noopener">fork it</a>, host it yourself, and verify without any third-party dependency.
+    </p>
+  </div>
+
+  <div class="how-it-works">
+    <h2>How verification works</h2>
+    <ol>
+      <li>Your file (or ZIP) is read entirely in your browser — nothing is uploaded.</li>
+      <li>If it's an origin ZIP, the certificate and artifact are extracted and the SHA-256 hash is recomputed from the original bytes.</li>
+      <li>The recomputed hash is compared against the hash stated in the certificate.</li>
+      <li>If a <code>.ots</code> proof is included, it is verified against public Bitcoin calendar servers to confirm the timestamp.</li>
+      <li>The result shows whether the file's existence was provably recorded at the claimed time.</li>
+    </ol>
+  </div>
+</main>
+
+<footer>
+  verify-anchoring.org · Independent verification infrastructure
+  <br>
+  <a href="https://github.com/AnchoringTrust/verify-anchoring">source code</a>
+</footer>
+
+<!-- JSZip for ZIP parsing — loaded from CDN with integrity check -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+        integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDFuGLXnkBd+HgIbVKxdGThbIaEp8WQRIMZB/6+HYg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+
+<script>
+// ─── SVG Icons ───
+const ICONS = {
+  ok: '<svg class="log-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  error: '<svg class="log-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M7 7l4 4M11 7l-4 4" stroke-linecap="round"/></svg>',
+  warn: '<svg class="log-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 6v4" stroke-linecap="round"/><circle cx="9" cy="12.5" r="0.5" fill="currentColor"/></svg>',
+  info: '<svg class="log-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="7"/><path d="M9 8v4" stroke-linecap="round"/><circle cx="9" cy="5.5" r="0.5" fill="currentColor"/></svg>',
+};
+
+// ─── SHA-256 via Web Crypto API ───
+async function sha256(buffer) {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// ─── Render helpers ───
+function renderSteps(steps) {
+  return '<div class="log">' + steps.map(s => {
+    const cls = 'step-' + s.status;
+    const detail = s.detail ? '<div class="log-detail">' + escHtml(s.detail) + '</div>' : '';
+    return '<div class="log-step ' + cls + '">' +
+      ICONS[s.status] +
+      '<div><div class="log-label">' + escHtml(s.label) + '</div>' + detail + '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function renderBanner(type, title, text) {
+  return '<div class="result-banner result-' + type + '">' +
+    '<div class="result-title">' + escHtml(title) + '</div>' +
+    '<div class="result-text">' + text + '</div>' +
+  '</div>';
+}
+
+function renderReset() {
+  return '<button class="reset-btn" onclick="resetUI()">← Verify another file</button>';
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ─── UI State ───
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const output = document.getElementById('output');
+let processing = false;
+
+function resetUI() {
+  processing = false;
+  dropZone.classList.remove('disabled');
+  dropZone.querySelector('.drop-label').innerHTML = 'Drop a file here or click to select<small>Origin ZIP or any file</small>';
+  output.innerHTML = '';
+  fileInput.value = '';
+}
+
+// ─── Drop zone events ───
+let dragCounter = 0;
+dropZone.addEventListener('click', () => { if (!processing) fileInput.click(); });
+fileInput.addEventListener('change', e => { if (e.target.files[0] && !processing) handleFile(e.target.files[0]); });
+
+dropZone.addEventListener('dragenter', e => { e.preventDefault(); dragCounter++; dropZone.classList.add('dragging'); });
+dropZone.addEventListener('dragleave', e => { e.preventDefault(); dragCounter--; if (dragCounter === 0) dropZone.classList.remove('dragging'); });
+dropZone.addEventListener('dragover', e => e.preventDefault());
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dragCounter = 0;
+  dropZone.classList.remove('dragging');
+  const file = e.dataTransfer.files[0];
+  if (file && !processing) handleFile(file);
+});
+
+// Prevent default drag behavior on window
+window.addEventListener('dragover', e => e.preventDefault(), true);
+window.addEventListener('drop', e => e.preventDefault(), true);
+
+// ─── Main verification logic ───
+async function handleFile(file) {
+  processing = true;
+  dropZone.classList.add('disabled');
+  output.innerHTML = '<div class="verifying-state"><div class="spinner"></div><p>Verifying…</p></div>';
+
+  try {
+    const name = file.name.toLowerCase();
+    const isZip = name.endsWith('.zip') || file.type === 'application/zip';
+
+    if (isZip) {
+      await verifyZip(file);
+    } else if (name.endsWith('.ots')) {
+      showError('Direct .ots verification requires the original file and certificate. Please upload the complete origin ZIP instead, or use <a href="https://opentimestamps.org" target="_blank" rel="noopener">opentimestamps.org</a> for standalone .ots verification.');
+    } else {
+      await verifyRawFile(file);
+    }
+  } catch (err) {
+    showError('Verification failed: ' + (err.message || 'Unknown error'));
+  }
+}
+
+async function verifyZip(file) {
+  const steps = [];
+
+  // 1. Open ZIP
+  let zip;
+  try {
+    const buf = await file.arrayBuffer();
+    zip = await JSZip.loadAsync(buf);
+    steps.push({ label: 'ZIP opened: ' + file.name, status: 'ok' });
+  } catch {
+    showError('Could not open this file as a ZIP archive.');
+    return;
+  }
+
+  // 2. Find certificate.json
+  const certFile = zip.file('certificate.json');
+  if (!certFile) {
+    steps.push({ label: 'certificate.json not found', status: 'error' });
+    output.innerHTML = renderSteps(steps) +
+      renderBanner('failed', 'Not an origin ZIP', 'This ZIP does not contain a certificate.json. It does not appear to be an origin proof archive.') +
+      renderReset();
+    return;
+  }
+  steps.push({ label: 'certificate.json found', status: 'ok' });
+
+  // 3. Parse certificate
+  let cert;
+  try {
+    const text = await certFile.async('text');
+    cert = JSON.parse(text);
+  } catch {
+    steps.push({ label: 'Certificate could not be parsed', status: 'error' });
+    output.innerHTML = renderSteps(steps) +
+      renderBanner('failed', 'Invalid certificate', 'The certificate.json file could not be read or parsed.') +
+      renderReset();
+    return;
+  }
+
+  if (!cert.hash) {
+    steps.push({ label: 'No hash found in certificate', status: 'error' });
+    output.innerHTML = renderSteps(steps) +
+      renderBanner('failed', 'Incomplete certificate', 'The certificate does not contain a hash field.') +
+      renderReset();
+    return;
+  }
+
+  const certHash = cert.hash.startsWith('sha256:') ? cert.hash.slice(7) : cert.hash;
+  steps.push({ label: 'Certificate SHA-256', status: 'ok', detail: certHash });
+
+  // 4. Origin ID
+  if (cert.origin_id) {
+    steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id });
+  }
+
+  // 5. Captured at
+  if (cert.captured_at) {
+    const d = new Date(cert.captured_at);
+    steps.push({ label: 'Captured at', status: 'ok', detail: d.toISOString() });
+  }
+
+  // 6. Find artifact file
+  const artifactFiles = Object.keys(zip.files).filter(n =>
+    n !== 'certificate.json' &&
+    n !== 'attestation.json' &&
+    n !== 'VERIFY.txt' &&
+    !n.endsWith('.ots') &&
+    !n.startsWith('__MACOSX') &&
+    !n.startsWith('.') &&
+    !zip.files[n].dir
+  );
+
+  if (artifactFiles.length === 0) {
+    steps.push({ label: 'No artifact file found in ZIP', status: 'warn', detail: 'Cannot recompute hash without original file' });
+  } else {
+    const artifactName = artifactFiles[0];
+    steps.push({ label: 'Artifact found: ' + artifactName, status: 'ok' });
+
+    // 7. Recompute hash
+    const artifactBuf = await zip.file(artifactName).async('arraybuffer');
+    const computedHash = await sha256(artifactBuf);
+    steps.push({ label: 'SHA-256 recomputed from artifact bytes', status: 'ok', detail: computedHash });
+
+    // 8. Compare
+    if (computedHash === certHash) {
+      steps.push({ label: 'Hash match confirmed ✓', status: 'ok', detail: 'Certificate hash matches recomputed artifact hash' });
+    } else {
+      steps.push({ label: 'HASH MISMATCH', status: 'error', detail: 'Certificate: ' + certHash + ' ≠ Computed: ' + computedHash });
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('failed', 'Verification failed', 'The artifact in this ZIP does not match the hash in the certificate. The file may have been modified.') +
+        renderReset();
+      return;
+    }
+  }
+
+  // 9. Check for attestation.json
+  const attestFile = zip.file('attestation.json');
+  if (attestFile) {
+    try {
+      const attestText = await attestFile.async('text');
+      const attest = JSON.parse(attestText);
+      steps.push({ label: 'Attestation certificate present', status: 'ok' });
+      if (attest.attestant_name) {
+        steps.push({ label: 'Attestant: ' + attest.attestant_name, status: 'info' });
+      }
+      if (attest.signature) {
+        steps.push({ label: 'Cryptographic signature present', status: 'ok', detail: attest.signature.substring(0, 32) + '…' });
+      }
+    } catch {
+      steps.push({ label: 'Attestation file present but unreadable', status: 'warn' });
+    }
+  }
+
+  // 10. Check for .ots proof
+  const otsFiles = Object.keys(zip.files).filter(n => n.endsWith('.ots'));
+  if (otsFiles.length > 0) {
+    steps.push({ label: 'OpenTimestamps proof found: ' + otsFiles[0], status: 'ok' });
+
+    // Extract .ots binary for external verification link
+    const otsBuf = await zip.file(otsFiles[0]).async('arraybuffer');
+    const otsSize = otsBuf.byteLength;
+    steps.push({ label: 'OTS proof size: ' + otsSize + ' bytes', status: 'info' });
+
+    // Check OTS header magic bytes (0x00 4f 70 65 6e 54 69 6d 65 73 74 61 6d 70 73)
+    const header = new Uint8Array(otsBuf.slice(0, 15));
+    const otsHeaderStr = Array.from(header.slice(1, 15)).map(b => String.fromCharCode(b)).join('');
+    if (header[0] === 0x00 && otsHeaderStr === 'OpenTimestamps') {
+      steps.push({ label: 'Valid OpenTimestamps header confirmed', status: 'ok' });
+    } else {
+      steps.push({ label: 'OTS file header not recognized', status: 'warn' });
+    }
+
+    // Store for download
+    window._lastOtsBlob = new Blob([otsBuf], { type: 'application/octet-stream' });
+    window._lastOtsName = otsFiles[0];
+
+    output.innerHTML = renderSteps(steps) +
+      renderBanner('verified', 'Origin verified',
+        'The artifact hash matches the certificate, and a Bitcoin timestamp proof is included.<br><br>' +
+        'For full Bitcoin-level verification, download the .ots file and verify it at ' +
+        '<a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a> ' +
+        'or with the <code style="font-family:var(--mono);font-size:0.8rem">ots verify</code> command-line tool.' +
+        '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+      ) +
+      renderReset();
+  } else {
+    steps.push({ label: 'No .ots proof in ZIP', status: 'warn', detail: 'Bitcoin timestamp cannot be verified without the .ots file' });
+
+    const hasMatch = steps.some(s => s.label.includes('Hash match'));
+    if (hasMatch) {
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('pending', 'Hash verified — Bitcoin anchor pending',
+          'The artifact matches the certificate hash. However, no .ots proof was included in this ZIP. ' +
+          'The Bitcoin anchor may still be pending, or the proof was not yet available when this ZIP was generated.'
+        ) +
+        renderReset();
+    } else {
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('pending', 'Certificate found — artifact missing',
+          'The certificate was readable but no artifact file was found for hash recomputation.'
+        ) +
+        renderReset();
+    }
+  }
+}
+
+async function verifyRawFile(file) {
+  const steps = [];
+  steps.push({ label: 'File read: ' + file.name, status: 'ok', detail: formatSize(file.size) });
+
+  const buffer = await file.arrayBuffer();
+  const hash = await sha256(buffer);
+  steps.push({ label: 'SHA-256 computed', status: 'ok', detail: hash });
+
+  output.innerHTML = renderSteps(steps) +
+    renderBanner('pending', 'Hash computed',
+      'SHA-256: <code style="font-family:var(--mono);font-size:0.78rem;word-break:break-all">' + escHtml(hash) + '</code>' +
+      '<br><br>To verify this file against a known origin, you need the origin ZIP containing the certificate and .ots proof. ' +
+      'This tool only verifies complete origin proof bundles autonomously.'
+    ) +
+    renderReset();
+}
+
+function showError(msg) {
+  output.innerHTML =
+    '<div class="result-banner result-failed" style="margin-top:2rem">' +
+      '<div class="result-title">Error</div>' +
+      '<div class="result-text">' + msg + '</div>' +
+    '</div>' +
+    renderReset();
+}
+
+function downloadOts() {
+  if (!window._lastOtsBlob || !window._lastOtsName) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(window._lastOtsBlob);
+  a.download = window._lastOtsName;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+</script>
+
+</body>
+</html>
