@@ -127,7 +127,7 @@ export default function DocsExport() {
           
           <h3 className="text-lg font-semibold mt-6 mb-3">3.1 Create Origin (write-once)</h3>
           <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-2">POST /origins</pre>
-          <p className="text-sm text-gray-700 mb-2"><strong>Guarantees:</strong> Hash is computed before storage. Returns immutable origin reference. No UPDATE endpoint exists.</p>
+          <p className="text-sm text-gray-700 mb-2"><strong>Properties:</strong> Hash is computed before storage. Returns immutable origin reference. No UPDATE endpoint exists.</p>
 
           <h3 className="text-lg font-semibold mt-6 mb-3">3.2 Resolve Origin</h3>
           <pre className="bg-gray-100 p-3 rounded text-xs font-mono mb-2">{`GET /origins/{origin_id}
