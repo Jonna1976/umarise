@@ -374,11 +374,6 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               <div className="w-full max-w-[340px] mb-6 space-y-4">
                 {/* Upload original */}
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
-                    <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Upload your original file</span>
-                    <span className="font-mono text-[10px] tracking-[1px] lowercase" style={{ color: 'rgba(240,234,214,0.25)' }}>(optional)</span>
-                  </div>
                   {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
                     <label
                       className="block w-full rounded-[8px] border-dashed border-[1.5px] p-4 text-center cursor-pointer transition-all"
