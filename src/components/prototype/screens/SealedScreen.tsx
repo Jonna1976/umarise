@@ -367,10 +367,10 @@ export function SealedScreen({
           ) : (
             <>
               <motion.span
-                className="w-[2px] h-[2px] rounded-full"
-                style={{ background: 'rgba(197,147,90,0.35)' }}
-                animate={{ opacity: [0.3, 0.7, 0.3] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-[3px] h-[3px] rounded-full"
+                style={{ background: 'rgba(197,147,90,0.6)' }}
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
               <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
                 proof.ots

@@ -348,23 +348,23 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
             <p className="font-mono text-[18px] tracking-[5px] mb-2" style={{ color: 'rgba(197,147,90,0.75)' }}>{displayOriginId}</p>
             <p className="font-garamond text-[20px] mb-3" style={{ color: 'hsl(var(--ritual-cream) / 0.6)' }}>{formattedDate} · {formattedTime}</p>
-            <p className="font-mono text-[15px] tracking-[0.5px] mb-5 max-w-[340px] break-all leading-[1.7] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}>{mark.hash}</p>
+            <p className="font-mono text-[11px] tracking-[0.5px] mb-5 max-w-[260px] break-all leading-[1.7] text-center" style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.5 }}>{mark.hash}</p>
 
             {/* Proof components */}
-            <div className="flex items-center gap-5 mb-6">
-              <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>hash</span>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="font-mono text-[12px] tracking-[2px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>hash</span>
               <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>certificate</span>
+              <span className="font-mono text-[12px] tracking-[2px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>certificate</span>
               {isAnchored ? (
                 <>
                   <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-                  <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>proof.ots</span>
+                  <span className="font-mono text-[12px] tracking-[2px] uppercase" style={{ color: 'rgba(197,147,90,0.4)' }}>proof.ots</span>
                 </>
               ) : (
                 <>
-                  <motion.span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }}
-                    animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }} />
-                  <span className="font-mono text-[17px] tracking-[4px] uppercase" style={{ color: 'rgba(197,147,90,0.4)', opacity: 0.6 }}>proof.ots</span>
+                  <motion.span className="w-[3px] h-[3px] rounded-full" style={{ background: 'rgba(197,147,90,0.6)' }}
+                    animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
+                  <span className="font-mono text-[12px] tracking-[2px] uppercase" style={{ color: 'rgba(197,147,90,0.4)', opacity: 0.6 }}>proof.ots</span>
                 </>
               )}
             </div>
