@@ -389,7 +389,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                         onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
                       <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
                         style={{ color: 'rgba(201,169,110,0.5)' }}>
-                        {artifactDragOver ? 'Release to verify' : 'Drop your original file here'}
+                        {artifactDragOver ? 'Release to verify' : '1. Drop your original file here'}
                       </p>
                       <p className="font-garamond italic text-[14px]"
                         style={{ color: 'rgba(240,234,214,0.25)' }}>
