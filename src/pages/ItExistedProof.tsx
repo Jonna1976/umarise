@@ -341,7 +341,7 @@ export default function ItExistedProof() {
             {!artifactFile && anchored && (
               <p className="font-garamond italic text-[13px] pl-[23px] mt-2"
                 style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.5 }}>
-                Add your original file in step 1 so everything stays together in one ZIP bundle.
+                Tip: rename your original file to include <span className="font-mono" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span> so you can always match it to this proof.
               </p>
             )}
           </div>
