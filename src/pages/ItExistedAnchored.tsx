@@ -61,7 +61,7 @@ export default function ItExistedAnchored() {
   const time = `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-8"
+    <main className="min-h-screen flex items-center justify-center px-6"
       style={{ background: '#0a0f0a', WebkitFontSmoothing: 'antialiased' }}>
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -70,7 +70,7 @@ export default function ItExistedAnchored() {
         style={{ maxWidth: 390 }}>
 
         {/* ── CHECKMARK ── */}
-        <div className="flex items-center justify-center rounded-full mb-7"
+        <div className="flex items-center justify-center rounded-full mb-6"
           style={{ width: 48, height: 48, border: '1px solid rgba(201,169,110,0.4)' }}>
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <polyline points="3,9 7,13 15,5" stroke="#c9a96e" strokeWidth="1.2"
@@ -79,82 +79,114 @@ export default function ItExistedAnchored() {
         </div>
 
         {/* ── TITLE ── */}
-        <h1 className="font-garamond text-[36px] font-normal text-center mb-12"
+        <h1 className="font-garamond text-[36px] font-normal text-center mb-10"
           style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
           Submitted.
         </h1>
 
-        {/* ── ORIGIN ID LABEL ── */}
-        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
-          style={{ color: 'rgba(201,169,110,0.4)' }}>
-          Origin ID
+        {/* ── RECORD DETAILS (left-aligned table) ── */}
+        <div className="w-full mb-10" style={{ maxWidth: 340 }}>
+          <div className="flex justify-between items-baseline mb-3">
+            <span className="font-mono text-[9px] tracking-[3px] uppercase"
+              style={{ color: 'rgba(201,169,110,0.4)' }}>Origin ID</span>
+            <span className="font-mono text-[15px] tracking-[3px]"
+              style={{ color: '#c9a96e' }}>{state.shortToken}</span>
+          </div>
+          <div className="flex justify-between items-baseline mb-3">
+            <span className="font-mono text-[9px] tracking-[3px] uppercase"
+              style={{ color: 'rgba(201,169,110,0.4)' }}>Date</span>
+            <span className="font-garamond text-[14px]"
+              style={{ color: 'rgba(240,234,214,0.5)' }}>{date} · {time}</span>
+          </div>
+          <div className="flex justify-between items-start">
+            <span className="font-mono text-[9px] tracking-[3px] uppercase pt-0.5"
+              style={{ color: 'rgba(201,169,110,0.4)' }}>Hash</span>
+            <span className="font-mono text-[9px] text-right break-all"
+              style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 240 }}>
+              {state.hash}
+            </span>
+          </div>
+        </div>
+
+        {/* ── WHAT'S DONE ── */}
+        <div className="w-full mb-8" style={{ maxWidth: 340 }}>
+          <p className="font-mono text-[8px] tracking-[4px] uppercase mb-4"
+            style={{ color: 'rgba(201,169,110,0.35)' }}>
+            ✓ Completed
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                SHA-256 fingerprint calculated from your file
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                Fingerprint submitted to the Umarise registry
+              </p>
+            </div>
+            {state.deviceSignature && (
+              <div className="flex items-start gap-3">
+                <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+                <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                  Signed with your device's hardware key
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── WHAT'S PENDING ── */}
+        <div className="w-full mb-10" style={{ maxWidth: 340 }}>
+          <p className="font-mono text-[8px] tracking-[4px] uppercase mb-4"
+            style={{ color: 'rgba(240,234,214,0.2)' }}>
+            ⏳ Pending (~2 hours)
+          </p>
+          <div className="flex items-start gap-3">
+            <span className="font-mono text-[11px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>○</span>
+            <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.4)', lineHeight: 1.5 }}>
+              Bitcoin blockchain anchoring — your fingerprint will be included in the next batch and permanently recorded in a Bitcoin block
+            </p>
+          </div>
+        </div>
+
+        {/* ── DIVIDER ── */}
+        <div className="w-full mb-8" style={{ height: 1, background: 'rgba(240,234,214,0.08)' }} />
+
+        {/* ── PROOF LINK ── */}
+        <p className="font-garamond text-[15px] text-center mb-3"
+          style={{ color: 'rgba(240,234,214,0.45)', lineHeight: 1.5, maxWidth: 300 }}>
+          Your permanent proof page — bookmark or share it:
         </p>
-
-        {/* ── ORIGIN ID ── */}
-        <p className="font-mono text-[22px] tracking-[6px] text-center mb-2.5"
-          style={{ color: '#c9a96e' }}>
-          {state.shortToken}
-        </p>
-
-        {/* ── DATE ── */}
-        <p className="font-garamond text-[16px] text-center mb-4"
-          style={{ color: 'rgba(240,234,214,0.35)' }}>
-          {date} · {time}
-        </p>
-
-        {/* ── HASH LABEL ── */}
-        <p className="font-mono text-[9px] tracking-[5px] uppercase text-center mb-2"
-          style={{ color: 'rgba(201,169,110,0.4)', marginTop: 4 }}>
-          Hash
-        </p>
-
-        {/* ── HASH ── */}
-        <p className="font-mono text-[9px] text-center break-all mb-12"
-          style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.5px', lineHeight: 1.8, maxWidth: 320 }}>
-          {state.hash}
-        </p>
-
-        {/* ── DIVIDER 2 ── */}
-        <div className="w-full mb-9" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
-
-        {/* ── EXPLANATION ── */}
-        <p className="font-garamond text-[18px] text-center mb-5"
-          style={{ color: 'rgba(240,234,214,0.85)', lineHeight: 1.55, maxWidth: 320 }}>
-          Your file's fingerprint has been registered. It will be permanently anchored to the Bitcoin blockchain within ~2 hours.
-        </p>
-
-        {/* ── URL EXPLANATION ── */}
-        <p className="font-garamond text-[15px] text-center mb-4"
-          style={{ color: 'rgba(240,234,214,0.45)', lineHeight: 1.55, maxWidth: 300 }}>
-          This is your permanent proof link. Bookmark it or share it — anyone can verify your file's existence here:
-        </p>
-
-        {/* ── URL LINK ── */}
         <a href={fullProofUrl} 
-          className="flex items-center gap-2.5 mb-12 group"
+          className="flex items-center gap-2.5 mb-8 group"
           onClick={(e) => { e.preventDefault(); navigate(`/itexisted/proof/${state.shortToken}`); }}>
-          <span className="font-mono text-[16px] transition-opacity group-hover:opacity-80"
+          <span className="font-mono text-[15px] transition-opacity group-hover:opacity-80"
             style={{ color: '#c9a96e', letterSpacing: '0.5px' }}>
             {proofUrl}
           </span>
           <svg className="flex-shrink-0 opacity-50 group-hover:opacity-80 transition-opacity"
-            width="14" height="14" viewBox="0 0 14 14" fill="none">
+            width="13" height="13" viewBox="0 0 14 14" fill="none">
             <path d="M5 9l4-4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" />
             <path d="M5 5h4v4" stroke="#c9a96e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </a>
 
-        {/* ── KEEP FILE TIP ── */}
-        <p className="font-garamond italic text-[18px] text-center mb-12"
-          style={{ color: 'rgba(240,234,214,0.45)', lineHeight: 1.6, maxWidth: 300 }}>
-          Tip: rename your file to include <span className="font-mono text-[16px]" style={{ color: 'rgba(201,169,110,0.6)' }}>{state.shortToken}</span> so you can always match it to this proof.
+        {/* ── TIP ── */}
+        <p className="font-garamond italic text-[14px] text-center mb-10"
+          style={{ color: 'rgba(240,234,214,0.3)', lineHeight: 1.6, maxWidth: 280 }}>
+          Tip: rename your file to include{' '}
+          <span className="font-mono text-[12px]" style={{ color: 'rgba(201,169,110,0.45)' }}>{state.shortToken}</span>{' '}
+          so you can always match it to this proof.
         </p>
 
-        {/* ── ANCHOR ANOTHER ── */}
+        {/* ── SUBMIT ANOTHER ── */}
         <button onClick={() => navigate('/itexisted')}
-          className="font-mono text-[9px] tracking-[5px] uppercase transition-colors hover:text-white/60"
-          style={{ color: 'rgba(240,234,214,0.35)' }}>
-          Anchor another file
+          className="font-mono text-[9px] tracking-[5px] uppercase transition-colors hover:text-white/60 mb-8"
+          style={{ color: 'rgba(240,234,214,0.25)' }}>
+          Submit another file
         </button>
 
       </motion.div>
