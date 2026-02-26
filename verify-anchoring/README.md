@@ -65,8 +65,9 @@ This reference verifier and the extended verifier are complementary:
 
 | Feature | verify-anchoring.org | umarise.com/verify |
 |---------|---------------------|-------------------|
-| Hash verification | ✓ | ✓ |
-| Bitcoin timestamp verification | ✓ | ✓ |
+| Hash verification (SHA-256) | ✓ | ✓ |
+| OTS header + bundle validation | ✓ | ✓ |
+| Bitcoin verification | Via CLI / external OTS verifier (proof included) | Via Core API (convenience) |
 | Registry lookup | ✗ | ✓ |
 | Proof status check | ✗ | ✓ |
 | Zero backend dependency | ✓ | ✗ |

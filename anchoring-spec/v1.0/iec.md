@@ -5,6 +5,8 @@
 > **Canonical URL:** https://anchoring-spec.org/v1.0/  
 > **License:** Public Domain (Unlicense)
 
+The key words MUST, SHOULD, and MAY in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
 ---
 
 ## 1. Purpose
@@ -70,7 +72,7 @@ No other outputs are permitted for a conformant implementation.
 
 ## 6. Proof Structure
 
-A conformant proof bundle SHALL contain:
+A conformant proof bundle MUST contain:
 
 1. The hash of the artifact
 2. The hash algorithm identifier
@@ -87,12 +89,14 @@ A conformant proof bundle MAY contain:
 
 ## 7. Ledger Qualification
 
-A qualified ledger SHALL:
+A qualified ledger MUST:
 
 1. Be publicly accessible without permission
 2. Be append-only (no retroactive modification)
 3. Provide independently verifiable time ordering
 4. Not be controlled by the proof issuer
+
+No single controlling authority (including the proof issuer) MUST be able to rewrite historical state or timestamps.
 
 ---
 
@@ -114,7 +118,7 @@ These exclusions are non-negotiable.
 
 ## 9. Independence Requirement
 
-A conformant proof SHALL be verifiable without reliance on:
+A conformant proof MUST be verifiable without reliance on:
 
 - the issuer of the proof
 - any infrastructure operated by the issuer
@@ -199,7 +203,7 @@ A conformant proof demonstrates existence at or before time T. It does not demon
 
 ## 16. Compliance Statements
 
-An implementation claiming IEC conformance SHALL:
+An implementation claiming IEC conformance MUST:
 
 1. Implement the verification function as defined in Section 4
 2. Produce only the outputs defined in Section 5
