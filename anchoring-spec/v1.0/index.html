@@ -2,10 +2,438 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=https://anchoring-spec.org">
-<title>Anchoring Specification v1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anchoring Specification (IEC) — v1.0</title>
+<meta name="description" content="Normative specification for cryptographic anchoring. Defines the verification function, output semantics, proof structure, ledger qualification, independence requirements, and semantic exclusions.">
+<link rel="canonical" href="https://anchoring-spec.org">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #fafaf8;
+  --surface: #f4f3f0;
+  --border: #e2e0dc;
+  --border-strong: #1a1a1a;
+  --text: #1a1a1a;
+  --text-muted: #5a5856;
+  --text-dim: #8a8884;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+  --serif: Georgia, 'Times New Roman', Times, serif;
+}
+
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.75;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 680px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+
+/* Header */
+.spec-header {
+  border-bottom: 2px solid var(--border-strong);
+  padding-bottom: 1.5rem;
+  margin-bottom: 3rem;
+}
+.spec-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.spec-meta {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.spec-meta strong { color: var(--text); font-weight: 600; }
+
+/* Navigation */
+.spec-nav {
+  margin-bottom: 3rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+.spec-nav h2 {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+.spec-nav ol {
+  list-style: none;
+  counter-reset: toc;
+  padding: 0;
+}
+.spec-nav li {
+  counter-increment: toc;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0;
+}
+.spec-nav li::before {
+  content: counter(toc) ".";
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-right: 0.5rem;
+}
+.spec-nav a { color: var(--text); text-decoration: none; }
+.spec-nav a:hover { text-decoration: underline; }
+
+/* Sections */
+.spec-section { margin-bottom: 2.5rem; }
+.spec-section h2 {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+.spec-section h2 .n { color: var(--text); font-weight: 600; margin-right: 0.5rem; }
+.spec-section p { font-size: 0.95rem; margin-bottom: 0.75rem; }
+.spec-section ul, .spec-section ol { padding-left: 0; list-style: none; margin-bottom: 0.75rem; }
+.spec-section li {
+  font-size: 0.92rem;
+  padding: 0.15rem 0 0.15rem 1.2rem;
+  position: relative;
+}
+.spec-section li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--text-dim);
+}
+
+/* Special blocks */
+.definition {
+  border-left: 3px solid var(--border-strong);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  font-style: italic;
+}
+.formula {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+.term-list { margin: 0.75rem 0; }
+.term-list dt {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+.term-list dd {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.output-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+.output-table th {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+.output-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.output-table td:first-child {
+  font-family: var(--mono);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.normative-note {
+  margin-top: 2.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.normative-note strong { color: var(--text); }
+
+.shall { font-variant: small-caps; font-weight: 600; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+footer a { color: var(--text-muted); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .page { padding: 2rem 1rem 3rem; }
+  .spec-header h1 { font-size: 1.4rem; }
+}
+</style>
 </head>
 <body>
-<p>Redirecting to <a href="https://anchoring-spec.org">anchoring-spec.org</a>…</p>
+<div class="page">
+
+  <div class="spec-header">
+    <h1>Anchoring Specification (IEC)</h1>
+    <div class="spec-meta">
+      <strong>Version</strong> 1.0<br>
+      <strong>Status</strong> Normative<br>
+      <strong>Date</strong> 2026-02-26<br>
+      <strong>URI</strong> https://anchoring-spec.org/v1.0/
+    </div>
+  </div>
+
+  <p style="font-size:0.95rem;margin-bottom:2rem">
+    Anchoring is a cryptographic method for establishing existence-at-or-before-T of a byte sequence.
+    This site is the canonical publication of the Anchoring Specification (IEC).
+  </p>
+
+  <!-- Table of Contents -->
+  <nav class="spec-nav">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#terminology">Terminology</a></li>
+      <li><a href="#definition">Definition of Anchoring</a></li>
+      <li><a href="#verification">Verification Function</a></li>
+      <li><a href="#outputs">Output Semantics</a></li>
+      <li><a href="#proof-structure">Proof Structure Requirements</a></li>
+      <li><a href="#ledger">Ledger Qualification Requirements</a></li>
+      <li><a href="#exclusions">Semantic Exclusions</a></li>
+      <li><a href="#independence">Independence Requirement</a></li>
+      <li><a href="#legal">Legal Scope</a></li>
+      <li><a href="#versioning">Versioning</a></li>
+      <li><a href="#governance">Governance</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. Scope -->
+  <div class="spec-section" id="scope">
+    <h2><span class="n">1</span> Scope</h2>
+    <p>This specification defines anchoring as a cryptographic method for establishing existence-at-or-before-T of a byte sequence.</p>
+    <p>This document defines:</p>
+    <ul>
+      <li>the verification function</li>
+      <li>output semantics</li>
+      <li>proof structure requirements</li>
+      <li>ledger qualification requirements</li>
+      <li>independence requirements</li>
+      <li>explicit semantic exclusions</li>
+    </ul>
+    <p><strong>This specification is normative.</strong></p>
+  </div>
+
+  <!-- 2. Terminology -->
+  <div class="spec-section" id="terminology">
+    <h2><span class="n">2</span> Terminology</h2>
+    <dl class="term-list">
+      <dt>Artifact (B)</dt>
+      <dd>A finite byte sequence.</dd>
+      <dt>Proof Bundle (P)</dt>
+      <dd>A structured set of data sufficient to verify anchoring claims.</dd>
+      <dt>Ledger Infrastructure (L)</dt>
+      <dd>A publicly verifiable consensus system capable of establishing temporal ordering.</dd>
+      <dt>Time T</dt>
+      <dd>A timestamp derived from ledger consensus. Not self-asserted.</dd>
+    </dl>
+  </div>
+
+  <!-- 3. Definition -->
+  <div class="spec-section" id="definition">
+    <h2><span class="n">3</span> Definition of Anchoring</h2>
+    <div class="definition">
+      Anchoring establishes one property only:<br>
+      A specific byte sequence existed on or before time T.
+    </div>
+    <p>No additional claims are implied.</p>
+  </div>
+
+  <!-- 4. Verification Function -->
+  <div class="spec-section" id="verification">
+    <h2><span class="n">4</span> Verification Function</h2>
+    <p>Verification <span class="shall">shall</span> be defined as:</p>
+    <div class="formula">V(B, P, L) → { valid | invalid | unverifiable }</div>
+    <dl class="term-list">
+      <dt>B</dt>
+      <dd>The exact byte sequence of the artifact under verification.</dd>
+      <dt>P</dt>
+      <dd>The proof bundle: a certificate containing a cryptographic hash commitment, and optionally a ledger proof.</dd>
+      <dt>L</dt>
+      <dd>Publicly verifiable ledger infrastructure (e.g. Bitcoin blockchain via OpenTimestamps).</dd>
+    </dl>
+    <p>Output semantics are defined in Section 5.</p>
+  </div>
+
+  <!-- 5. Output Semantics -->
+  <div class="spec-section" id="outputs">
+    <h2><span class="n">5</span> Output Semantics</h2>
+    <table class="output-table">
+      <thead>
+        <tr><th>Output</th><th>Condition</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>valid</td>
+          <td>All conditions hold: Hash(B) equals the hash stated in P. Ledger inclusion proof is valid under L. Ledger timestamp T is derivable.</td>
+        </tr>
+        <tr>
+          <td>invalid</td>
+          <td>At least one condition fails: hash mismatch, invalid ledger proof, or corrupted/malformed proof structure.</td>
+        </tr>
+        <tr>
+          <td>unverifiable</td>
+          <td>Verification cannot be completed: missing artifact, missing proof data, inaccessible ledger infrastructure, or unsupported ledger type.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p><strong>No additional outputs are permitted.</strong></p>
+    <p>An implementation <span class="shall">must not</span> return intermediate, partial, or qualified results outside this set.</p>
+  </div>
+
+  <!-- 6. Proof Structure -->
+  <div class="spec-section" id="proof-structure">
+    <h2><span class="n">6</span> Proof Structure Requirements</h2>
+    <p>A compliant proof bundle <span class="shall">shall</span> include:</p>
+    <ul>
+      <li>a cryptographic hash of B</li>
+      <li>a timestamp claim</li>
+      <li>a ledger inclusion proof or commitment</li>
+    </ul>
+    <p>Optional:</p>
+    <ul>
+      <li>attestation metadata (non-normative)</li>
+    </ul>
+    <p>The hash function <span class="shall">shall</span> be collision-resistant.</p>
+  </div>
+
+  <!-- 7. Ledger Qualification -->
+  <div class="spec-section" id="ledger">
+    <h2><span class="n">7</span> Ledger Qualification Requirements</h2>
+    <p>A ledger L qualifies if:</p>
+    <ul>
+      <li>it provides public verifiability</li>
+      <li>it provides consensus-based ordering</li>
+      <li>it resists unilateral timestamp rewriting</li>
+      <li>historical state is reconstructible</li>
+    </ul>
+    <p>Permissioned or centrally mutable systems do not qualify unless independently auditable.</p>
+    <p>This specification is ledger-agnostic.</p>
+  </div>
+
+  <!-- 8. Exclusions -->
+  <div class="spec-section" id="exclusions">
+    <h2><span class="n">8</span> Semantic Exclusions</h2>
+    <p>Anchoring does not establish:</p>
+    <ul>
+      <li>authorship</li>
+      <li>ownership</li>
+      <li>originality</li>
+      <li>identity</li>
+      <li>intent</li>
+      <li>legal enforceability</li>
+      <li>truthfulness</li>
+    </ul>
+    <p>Claims beyond existence-at-or-before-T are out of scope.</p>
+    <p>An implementation <span class="shall">must not</span> present anchoring results in a manner that implies any of the above.</p>
+  </div>
+
+  <!-- 9. Independence -->
+  <div class="spec-section" id="independence">
+    <h2><span class="n">9</span> Independence Requirement</h2>
+    <p>A compliant anchoring proof <span class="shall">must</span> remain verifiable without reliance on the issuing entity.</p>
+    <p>Verification <span class="shall">must not</span> require:</p>
+    <ul>
+      <li>issuer-controlled databases</li>
+      <li>issuer-controlled accounts</li>
+      <li>issuer-controlled infrastructure</li>
+    </ul>
+    <div class="definition">
+      If verification depends exclusively on the issuing entity, the proof is non-compliant.
+    </div>
+  </div>
+
+  <!-- 10. Legal Scope -->
+  <div class="spec-section" id="legal">
+    <h2><span class="n">10</span> Legal Scope</h2>
+    <p>This specification defines technical verification semantics only.</p>
+    <p>It does not create legal rights, obligations, or guarantees.</p>
+    <p>Legal interpretation of anchoring proofs depends on applicable jurisdiction and independent evaluation.</p>
+  </div>
+
+  <!-- 11. Versioning -->
+  <div class="spec-section" id="versioning">
+    <h2><span class="n">11</span> Versioning</h2>
+    <p>IEC uses <strong>MAJOR.MINOR</strong> versioning.</p>
+    <ul>
+      <li><strong>MAJOR</strong> increments indicate breaking semantic changes</li>
+      <li><strong>MINOR</strong> increments indicate clarifications without semantic change</li>
+    </ul>
+    <p>All published versions remain permanently accessible at their canonical URI.</p>
+    <p>Current version: <strong>v1.0</strong> — <a href="/v1.0/" style="color:var(--text-muted)">anchoring-spec.org/v1.0/</a></p>
+  </div>
+
+  <!-- 12. Governance -->
+  <div class="spec-section" id="governance">
+    <h2><span class="n">12</span> Governance</h2>
+    <p>The Anchoring Specification (IEC) is a public, versioned technical specification.</p>
+    <p>The specification is published openly and may be implemented by any party without restriction.</p>
+    <p>Version updates are proposed and documented publicly.</p>
+    <p>The specification is not proprietary to any single implementation or commercial entity.</p>
+    <p>Implementations may reference compliance with a specific IEC version.</p>
+    <p><strong>No implementation has normative authority over the specification.</strong></p>
+    <p>If conflicts arise between an implementation and the specification, the specification prevails.</p>
+  </div>
+
+  <!-- Conformance note -->
+  <div class="normative-note">
+    <strong>Conformance note.</strong> An implementation that extends the outputs defined in Section 5,
+    omits the exclusions defined in Section 8, or requires issuer infrastructure for verification
+    as prohibited by Section 9, is non-conformant with this specification.
+  </div>
+
+  <footer>
+    Canonical publication of the Anchoring Specification.<br>
+    The specification is normative. Implementations are not.<br><br>
+    <a href="https://verify-anchoring.org">Reference verifier</a> ·
+    <a href="/one-page/">One-page reference</a> ·
+    <a href="/appendix/why-anchoring/">Why Anchoring (non-normative)</a> ·
+    <a href="https://github.com/AnchoringTrust/anchoring-spec">Source</a>
+  </footer>
+
+</div>
 </body>
 </html>

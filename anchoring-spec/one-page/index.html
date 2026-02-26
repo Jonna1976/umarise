@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anchoring (IEC) — One-Page Reference</title>
+<meta name="description" content="Compact academic reference for the Anchoring Specification (IEC v1.0). Suitable for citation in papers, policy documents, and regulatory filings.">
+<link rel="canonical" href="https://anchoring-spec.org/one-page/">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf8;
+  --surface: #f4f3f0;
+  --border: #e2e0dc;
+  --text: #1a1a1a;
+  --text-muted: #5a5856;
+  --text-dim: #8a8884;
+  --mono: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+  --serif: Georgia, 'Times New Roman', Times, serif;
+}
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 600px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+.meta {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--text);
+}
+p { font-size: 0.95rem; margin-bottom: 0.75rem; }
+.formula {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+.definition {
+  border-left: 3px solid var(--text);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface);
+  font-style: italic;
+}
+.terms {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 1rem 1rem;
+}
+.terms strong { color: var(--text); }
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+footer a { color: var(--text-muted); text-decoration: none; }
+footer a:hover { color: var(--text); }
+@media print {
+  .page { max-width: 100%; padding: 1cm; }
+  footer a::after { content: " (" attr(href) ")"; font-size: 0.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Anchoring (IEC)</h1>
+  <div class="meta">
+    One-Page Academic Reference · Version 1.0 · Normative
+  </div>
+
+  <p>
+    Anchoring is a cryptographic method for establishing existence-at-or-before-T of a byte sequence.
+  </p>
+
+  <p>It is formally defined by the verification function:</p>
+
+  <div class="formula">V(B, P, L) → { valid | invalid | unverifiable }</div>
+
+  <div class="terms">
+    <strong>B</strong> = artifact byte sequence<br>
+    <strong>P</strong> = proof bundle<br>
+    <strong>L</strong> = publicly verifiable ledger infrastructure
+  </div>
+
+  <div class="definition">
+    Anchoring establishes one property only:<br>
+    A specific byte sequence existed on or before time T.
+  </div>
+
+  <p>Anchoring does not establish authorship, ownership, originality, identity, intent, legal validity, or truthfulness.</p>
+
+  <p>A compliant anchoring proof must remain verifiable independently of the issuing entity. Verification must not require issuer-controlled infrastructure.</p>
+
+  <p>Ledger systems must provide public verifiability and resistance to unilateral timestamp rewriting.</p>
+
+  <p>Output semantics are strictly limited to three defined states. No additional, partial, or qualified outputs are permitted.</p>
+
+  <p>The specification is normative. Implementations are not.</p>
+
+  <footer>
+    Specification version: IEC v1.0<br>
+    Canonical reference: <a href="https://anchoring-spec.org">anchoring-spec.org</a><br>
+    Reference verifier: <a href="https://verify-anchoring.org">verify-anchoring.org</a>
+  </footer>
+
+</div>
+</body>
+</html>
