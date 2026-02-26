@@ -57,6 +57,23 @@ Verification does not require the continued existence of the issuer of the proof
 
 ---
 
+## Extended verification
+
+For registry lookups, proof status checks, and additional context, an extended verifier is available at [umarise.com/verify](https://umarise.com/verify). The extended verifier uses the Umarise Core API for convenience features beyond the scope of independent verification.
+
+This reference verifier and the extended verifier are complementary:
+
+| Feature | verify-anchoring.org | umarise.com/verify |
+|---------|---------------------|-------------------|
+| Hash verification | ✓ | ✓ |
+| Bitcoin timestamp verification | ✓ | ✓ |
+| Registry lookup | ✗ | ✓ |
+| Proof status check | ✗ | ✓ |
+| Zero backend dependency | ✓ | ✗ |
+| Works offline (hash only) | ✓ | ✗ |
+
+---
+
 ## Relationship to IEC
 
 The Anchoring Specification (IEC) is normative.
@@ -93,6 +110,22 @@ origin-proof.zip
 
 ---
 
+## CLI verification
+
+Verification can also be performed without this website using standard tools:
+
+```bash
+# Compute SHA-256 hash
+shasum -a 256 artifact.ext
+
+# Verify OpenTimestamps proof against Bitcoin
+ots verify proof.ots
+```
+
+Any tool capable of computing SHA-256 and verifying OpenTimestamps proofs against the Bitcoin blockchain can independently validate an anchoring proof.
+
+---
+
 ## Dependencies
 
 - **JSZip 3.10.1** (loaded with Subresource Integrity protection)
@@ -119,6 +152,6 @@ No build step. No framework. No backend.
 
 ## License
 
-Public domain. No restrictions.
+Public domain ([Unlicense](https://unlicense.org)). No restrictions.
 
 Fork, modify, mirror, redistribute.

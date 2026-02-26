@@ -8,7 +8,11 @@
 
 This repository contains the normative Anchoring Specification (IEC).
 
-It defines:
+Anchoring is a public infrastructure primitive built on cryptographic commitments. It establishes one property only:
+
+> **The exact bytes of an artifact existed on or before time T.**
+
+The specification defines:
 
 - the verification function `V(B, P, L) → { valid | invalid | unverifiable }`
 - output semantics and their conditions
@@ -61,6 +65,29 @@ If any behavior in an implementation conflicts with this specification, the spec
 
 ---
 
+## How to cite
+
+```
+Anchoring Specification (IEC), Version 1.0.
+Published: February 2026.
+Canonical URL: https://anchoring-spec.org/v1.0/
+Repository: https://github.com/AnchoringTrust/anchoring-spec
+License: Public Domain (Unlicense)
+```
+
+BibTeX:
+```bibtex
+@misc{iec-anchoring-v1,
+  title        = {Anchoring Specification ({IEC})},
+  version      = {1.0},
+  year         = {2026},
+  url          = {https://anchoring-spec.org/v1.0/},
+  note         = {Public domain. Normative specification for cryptographic anchoring.}
+}
+```
+
+---
+
 ## Versioning
 
 IEC uses **MAJOR.MINOR** versioning.
@@ -70,17 +97,29 @@ IEC uses **MAJOR.MINOR** versioning.
 
 All published versions remain permanently accessible. Versions are immutable once published.
 
+### Immutability discipline
+
+- v1.0 text is **frozen**. It will not be modified after publication.
+- Corrections are published as errata (e.g., `v1.0-errata`) or as a new minor version (`v1.1`).
+- Each version is permanently citable at its canonical URL.
+
 ---
 
 ## Governance
 
 The Anchoring Specification is a public, versioned technical specification.
 
-It is not proprietary to any single implementation or commercial entity.
-
-Implementations may reference compliance with a specific IEC version.
+While IEC was initially authored and published by Umarise, the specification is open for implementation by any party without restriction. Governance is designed to evolve independently of any single organization or implementation.
 
 No implementation has normative authority over the specification.
+
+---
+
+## Reference verifier
+
+An independent reference verifier is available at [verify-anchoring.org](https://verify-anchoring.org).
+
+The reference verifier makes no API calls to any implementation. It can be forked, self-hosted, and audited by any party.
 
 ---
 
@@ -94,4 +133,4 @@ No build step. No framework. No backend. No CMS. No analytics.
 
 ## License
 
-Public domain. No restrictions.
+Public domain ([Unlicense](https://unlicense.org)). No restrictions.
