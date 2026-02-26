@@ -428,8 +428,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
                 {/* Download ZIP */}
                 <button onClick={onDownloadZip}
-                  className="w-full flex items-center gap-2 py-2 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
-                  style={{ padding: 0 }}>
+                  className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-opacity hover:opacity-70"
+                  style={{ padding: undefined }}>
                   <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>2.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Download your proof</span>
                   {artifactFile && (
