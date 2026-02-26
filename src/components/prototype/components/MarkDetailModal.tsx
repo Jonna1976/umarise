@@ -491,8 +491,14 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               onChange={(e) => { const file = e.target.files?.[0]; if (file) handleZipFile(file); e.target.value = ''; }} />
 
             {verifyResult && zipFile && !verifying && (
-              <div className="w-full flex flex-col items-center">
-                <InlineVerifyResult result={verifyResult} zipFile={zipFile} onReset={resetZip} originId={mark.originId} displayOriginId={displayOriginId} />
+              <div>
+                <div className="flex items-center gap-2 py-2 pl-4 mb-2">
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Share your ZIP</span>
+                </div>
+                <div className="rounded px-6 py-4 flex flex-col items-center">
+                  <InlineVerifyResult result={verifyResult} zipFile={zipFile} onReset={resetZip} originId={mark.originId} displayOriginId={displayOriginId} />
+                </div>
               </div>
             )}
 
@@ -500,7 +506,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {attestationStatus === 'pending' && (
               <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
-                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>5.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
                 </div>
                 <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
@@ -512,7 +518,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {attestationStatus === 'attested' && (
               <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
-                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>5.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
                 </div>
                 <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
@@ -527,7 +533,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
             {attestationStatus === 'none' && (
               <div>
                 <div className="flex items-center gap-2 py-2 pl-4 mb-2">
-                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
+                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>5.</span>
                   <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
                 </div>
                 <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
