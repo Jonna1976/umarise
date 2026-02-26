@@ -331,12 +331,9 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Download your proof</span>
-              {artifactFile ? (
+              {artifactFile && (
                 <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1"
                   style={{ color: 'rgba(127,186,106,0.6)', whiteSpace: 'nowrap' }}>incl. original</span>
-              ) : (
-                <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1"
-                  style={{ color: 'rgba(240,234,214,0.25)', whiteSpace: 'nowrap' }}>without original</span>
               )}
               <span className="ml-auto text-[12px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
