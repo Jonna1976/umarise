@@ -504,15 +504,25 @@ export default function Verify() {
             className="text-[15px] leading-relaxed italic"
             style={{ color: 'hsl(var(--landing-cream) / 0.6)' }}
           >
-            This proof is independently verifiable via{' '}
+            Verification semantics follow the{' '}
             <a
-              href="https://opentimestamps.org"
+              href="https://anchoring-spec.org/v1.0/"
               target="_blank"
               rel="noopener noreferrer"
               className="underline underline-offset-2 transition-opacity hover:opacity-70"
               style={{ color: 'hsl(var(--landing-copper))' }}
             >
-              opentimestamps.org
+              Anchoring Specification (IEC v1.0)
+            </a>.
+            {' '}This proof is independently verifiable via{' '}
+            <a
+              href="https://verify-anchoring.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 transition-opacity hover:opacity-70"
+              style={{ color: 'hsl(var(--landing-copper))' }}
+            >
+              verify-anchoring.org
             </a>{' '}
             or with the <code className="font-mono text-[13px]" style={{ color: 'hsl(var(--landing-cream) / 0.75)' }}>ots-cli</code> tool.
           </p>
@@ -527,7 +537,9 @@ export default function Verify() {
           color: 'hsl(var(--landing-cream) / 0.3)',
         }}
       >
-        anchoring.app · {new Date().getFullYear()}
+        umarise.com · Conforms to{' '}
+        <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>IEC v1.0</a>
+        {' '}· {new Date().getFullYear()}
       </footer>
     </div>
   );
