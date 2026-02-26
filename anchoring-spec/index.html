@@ -238,6 +238,12 @@ footer a:hover { color: var(--text); }
       <li><a href="#legal">Legal Scope</a></li>
       <li><a href="#versioning">Versioning</a></li>
       <li><a href="#governance">Governance</a></li>
+      <li><a href="#threat-model">Threat Model</a></li>
+      <li><a href="#cryptographic">Cryptographic Requirements</a></li>
+      <li><a href="#time-semantics">Time Semantics</a></li>
+      <li><a href="#non-retroactivity">Non-Retroactivity</a></li>
+      <li><a href="#compliance">Compliance Statement</a></li>
+      <li><a href="#archival">Archival Considerations</a></li>
     </ol>
   </nav>
 
@@ -253,6 +259,10 @@ footer a:hover { color: var(--text); }
       <li>ledger qualification requirements</li>
       <li>independence requirements</li>
       <li>explicit semantic exclusions</li>
+      <li>cryptographic requirements</li>
+      <li>threat model</li>
+      <li>time semantics</li>
+      <li>archival considerations</li>
     </ul>
     <p><strong>This specification is normative.</strong></p>
   </div>
@@ -416,6 +426,77 @@ footer a:hover { color: var(--text); }
     <p>Implementations may reference compliance with a specific IEC version.</p>
     <p><strong>No implementation has normative authority over the specification.</strong></p>
     <p>If conflicts arise between an implementation and the specification, the specification prevails.</p>
+  </div>
+
+  <!-- 13. Threat Model -->
+  <div class="spec-section" id="threat-model">
+    <h2><span class="n">13</span> Threat Model</h2>
+    <p>Anchoring assumes:</p>
+    <ul>
+      <li>collision resistance of the selected hash function</li>
+      <li>integrity of ledger consensus</li>
+      <li>availability of public ledger validation data</li>
+    </ul>
+    <p>Anchoring does not protect against:</p>
+    <ul>
+      <li>pre-image attacks</li>
+      <li>collusion attacks against ledger consensus</li>
+      <li>artifact substitution prior to anchoring</li>
+      <li>social engineering</li>
+      <li>legal misinterpretation</li>
+    </ul>
+  </div>
+
+  <!-- 14. Cryptographic Requirements -->
+  <div class="spec-section" id="cryptographic">
+    <h2><span class="n">14</span> Cryptographic Requirements</h2>
+    <p>Hash functions used in anchoring <span class="shall">must</span>:</p>
+    <ul>
+      <li>be publicly specified</li>
+      <li>have no known practical collision attacks</li>
+      <li>be widely reviewed</li>
+    </ul>
+    <p>If a hash function becomes compromised, future IEC versions <span class="shall">may</span> deprecate its use.</p>
+  </div>
+
+  <!-- 15. Time Semantics -->
+  <div class="spec-section" id="time-semantics">
+    <h2><span class="n">15</span> Time Semantics</h2>
+    <p>Time T is defined as the earliest consensus-confirmed inclusion point of the commitment in ledger L.</p>
+    <p>Anchoring establishes existence-at-or-before-T.</p>
+    <p>It does not establish exact creation time.</p>
+  </div>
+
+  <!-- 16. Non-Retroactivity -->
+  <div class="spec-section" id="non-retroactivity">
+    <h2><span class="n">16</span> Non-Retroactivity</h2>
+    <p>Anchoring does not permit retroactive modification of proof validity once ledger inclusion is finalized.</p>
+    <p>If a ledger undergoes reorganization prior to finalization, verification status <span class="shall">may</span> change from <em>valid</em> to <em>unverifiable</em>.</p>
+  </div>
+
+  <!-- 17. Compliance Statement -->
+  <div class="spec-section" id="compliance">
+    <h2><span class="n">17</span> Compliance Statement</h2>
+    <p>An implementation claiming compliance <span class="shall">shall</span> state:</p>
+    <ul>
+      <li>the IEC version</li>
+      <li>the hash function used</li>
+      <li>the ledger type used</li>
+      <li>any deviations from default proof structure</li>
+    </ul>
+    <p>Compliance claims <span class="shall">must</span> reference a specific IEC version.</p>
+  </div>
+
+  <!-- 18. Archival Considerations -->
+  <div class="spec-section" id="archival">
+    <h2><span class="n">18</span> Archival Considerations</h2>
+    <p>Long-term verifiability depends on:</p>
+    <ul>
+      <li>preservation of proof bundle integrity</li>
+      <li>continued availability of ledger validation data</li>
+      <li>continued availability of cryptographic verification algorithms</li>
+    </ul>
+    <p>Anchoring proofs <span class="shall">should</span> be stored in durable, non-proprietary formats.</p>
   </div>
 
   <!-- Conformance note -->

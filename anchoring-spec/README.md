@@ -16,6 +16,12 @@ It defines:
 - ledger qualification criteria
 - semantic exclusions (authorship, ownership, originality, identity, intent, legal enforceability, truthfulness)
 - the independence requirement for compliant proofs
+- threat model and security assumptions
+- cryptographic requirements
+- time semantics
+- non-retroactivity
+- compliance statement requirements
+- archival considerations
 - governance model
 - legal scope
 

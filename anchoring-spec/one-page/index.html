@@ -111,6 +111,12 @@ footer a:hover { color: var(--text); }
 
   <p>Output semantics are strictly limited to three defined states. No additional, partial, or qualified outputs are permitted.</p>
 
+  <p>Hash functions must be publicly specified, collision-resistant, and widely reviewed. Time T is defined as the earliest consensus-confirmed inclusion point in the ledger. Anchoring does not establish exact creation time.</p>
+
+  <p>Anchoring does not permit retroactive modification of proof validity once ledger inclusion is finalized. Proofs should be stored in durable, non-proprietary formats.</p>
+
+  <p>An implementation claiming compliance shall state the IEC version, hash function, ledger type, and any deviations from default proof structure.</p>
+
   <p>The specification is normative. Implementations are not.</p>
 
   <footer>
