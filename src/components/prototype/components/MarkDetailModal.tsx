@@ -462,6 +462,12 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
 
                       {!verifying && verifyResult && verifyResult.steps?.length > 0 ? (
                         <>
+                          {verifyResult.status === 'verified' && (
+                            <div className="flex items-center gap-2.5 py-1.5 mb-1 font-mono text-[14px]" style={{ borderBottom: '1px solid rgba(240,234,214,0.06)' }}>
+                              <span className="flex-shrink-0 text-[12px] mt-0.5" style={{ color: 'hsl(142 50% 50%)' }}>✓</span>
+                              <span className="flex-1 leading-[1.5] tracking-[2px] uppercase" style={{ color: 'hsl(142 50% 55%)' }}>Verified</span>
+                            </div>
+                          )}
                           {verifyResult.steps.map((step, i) => (
                             <div key={i} className="flex items-start gap-2.5 py-1 font-mono text-[14px]" style={{ borderBottom: i < verifyResult.steps!.length - 1 ? '1px solid rgba(240,234,214,0.06)' : 'none' }}>
                               <span className="flex-shrink-0 text-[12px] mt-0.5" style={{
