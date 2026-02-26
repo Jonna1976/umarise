@@ -387,7 +387,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                         <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>
                           {artifactDragOver ? 'Release to add' : 'Add your original file'}
                         </span>
-                        <span className="ml-auto text-[12px] flex-shrink-0" style={{ color: 'rgba(240,234,214,0.35)' }}>↑</span>
+                        
                       </div>
                       {artifactStatus === 'mismatch' && (
                         <p className="font-mono text-[11px] pl-4 mt-1" style={{ color: 'rgba(220,80,60,0.7)' }}>
@@ -431,7 +431,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                   {artifactFile && (
                     <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1" style={{ color: 'rgba(127,186,106,0.6)' }}>incl. original</span>
                   )}
-                  <span className="ml-auto text-[12px] flex-shrink-0" style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
+                  
                 </button>
               </div>
             )}
@@ -443,7 +443,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
                 className="w-full flex items-center gap-2 py-2 pl-4 bg-transparent border-none cursor-pointer transition-colors hover:opacity-70">
                 <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>3.</span>
                 <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Verify your ZIP</span>
-                <motion.span className="text-[12px] ml-auto" style={{ color: 'rgba(240,234,214,0.3)' }} animate={{ rotate: verificationOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>▾</motion.span>
+                
               </button>
 
               <AnimatePresence>
