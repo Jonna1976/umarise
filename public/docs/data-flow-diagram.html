@@ -210,85 +210,46 @@
 
 <h2>Full Data Flow</h2>
 
-<div class="mermaid-container">
-  <pre class="mermaid">
-flowchart TB
-    subgraph CLIENT["Client Device"]
-        FILE["File / Photo / Data"]
-        HASH_FN["SHA-256 (Web Crypto API / local)"]
-        FILE -->|bytes stay local| HASH_FN
-        HASH_FN -->|64 hex chars| HASH_OUT["Hash: sha256:a1b2c3..."]
-    end
+<h3>Path A — B2B (Partner API)</h3>
+<div class="flow-block">Client: SHA-256 hash van bestand berekenen (lokaal)
+  ↓
+POST /v1-core-origins + X-API-Key            → Cloudflare WAF + TLS
+  ↓
+Edge Function: API key valideren              → partner_api_keys
+  ↓
+Edge Function: rate limit checken             → core_rate_limits
+  ↓
+INSERT hash + origin_id + timestamp           → origin_attestations (write-once)
+  ↓
+OTS Worker leest unstamped hashes             → Hetzner (cron, elk uur)
+  ↓
+Worker: Merkle-batch submitten                → OTS Calendar Servers (3×)
+  ↓
+Calendar: anchor in Bitcoin                   → Bitcoin Blockchain
+  ↓
+Worker: .ots proof opslaan                    → core_ots_proofs (immutable)</div>
 
-    subgraph CLOUDFLARE["Cloudflare"]
-        WAF["WAF + Rate Limit"]
-        TLS["TLS Termination"]
-    end
+<h3>Path B — B2C (App via Supabase RLS)</h3>
+<div class="flow-block">Client: SHA-256 hash van bestand berekenen (lokaal)
+  ↓
+App: INSERT page met hash                     → pages (Supabase RLS)
+  ↓
+DB trigger: bridge_page_to_core               → automatisch
+  ↓
+INSERT hash + origin_id + timestamp           → origin_attestations (write-once)
+  ↓
+  … daarna identiek aan Path A (OTS Worker → Bitcoin)</div>
 
-    subgraph SUPABASE["Supabase"]
-        subgraph EDGE["Edge Functions"]
-            V1_ORIGINS["POST /v1-core-origins (partner key required)"]
-            V1_VERIFY["POST /v1-core-verify (public)"]
-            V1_RESOLVE["GET /v1-core-resolve (public)"]
-            V1_PROOF["GET /v1-core-proof (public)"]
-            V1_HEALTH["GET /v1-core-health (public)"]
-        end
+<h3>Verificatie (publiek, geen API key)</h3>
+<div class="flow-block">POST /v1-core-verify   → lookup in origin_attestations
+GET  /v1-core-resolve  → lookup (first-in-time) in origin_attestations
+GET  /v1-core-proof    → download .ots uit core_ots_proofs
+GET  /v1-core-health   → DB ping</div>
 
-        subgraph DB["PostgreSQL"]
-            OA["origin_attestations (write-once triggers)"]
-            OTS_P["core_ots_proofs (immutable after anchoring)"]
-            PAK["partner_api_keys (no delete)"]
-            RL["core_rate_limits"]
-            DDL["core_ddl_audit (event trigger)"]
-            PAGES["pages (App table)"]
-            BRIDGE["trigger: bridge_page_to_core"]
-        end
-    end
-
-    subgraph HETZNER["Hetzner Server"]
-        WORKER["OTS Worker (Node.js, cron every hour)"]
-        LEDGER["attestation-ledger (append-only JSONL)"]
-        SYNC["sync-attestations.js (cron every 5 min)"]
-    end
-
-    subgraph BITCOIN["Bitcoin Network"]
-        OTS_CAL["OTS Calendar Servers (3 independent)"]
-        BTC["Bitcoin Blockchain (immutable)"]
-    end
-
-    HASH_OUT -->|"POST hash + X-API-Key (TLS encrypted)"| WAF
-    WAF --> V1_ORIGINS
-    V1_ORIGINS -->|"validate key via"| PAK
-    V1_ORIGINS -->|"rate check"| RL
-    V1_ORIGINS -->|"INSERT (write-once)"| OA
-
-    HASH_OUT -->|"App: INSERT pages (Supabase RLS)"| PAGES
-    PAGES -->|"DB trigger"| BRIDGE
-    BRIDGE -->|"INSERT (write-once)"| OA
-
-    OA -->|"read unstamped"| WORKER
-    WORKER -->|"submit hash batch"| OTS_CAL
-    OTS_CAL -->|"anchor in"| BTC
-    OTS_CAL -->|"return .ots proof"| WORKER
-    WORKER -->|"store proof"| OTS_P
-
-    WAF --> V1_VERIFY
-    WAF --> V1_RESOLVE
-    WAF --> V1_PROOF
-    V1_VERIFY -->|"lookup"| OA
-    V1_RESOLVE -->|"lookup (first-in-time)"| OA
-    V1_PROOF -->|"download .ots"| OTS_P
-
-    WORKER -->|"append"| LEDGER
-    SYNC -->|"compare DB vs ledger"| OA
-    SYNC -->|"compare"| LEDGER
-
-    WAF --> V1_HEALTH
-    V1_HEALTH -->|"DB ping"| DB
-
-    DB -->|"DDL events"| DDL
-  </pre>
-</div>
+<h3>Monitoring</h3>
+<div class="flow-block">OTS Worker              → append naar attestation-ledger (JSONL)
+sync-attestations.js    → vergelijk DB vs ledger (cron, elke 5 min)
+PostgreSQL              → DDL events → core_ddl_audit</div>
 
 <hr>
 
@@ -378,15 +339,6 @@ flowchart TB
   Data Flow Diagram — Umarise Core API v1.0 — 17 February 2026
 </div>
 
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: 'neutral',
-    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
-    securityLevel: 'loose'
-  });
-</script>
 
 </body>
 </html>
