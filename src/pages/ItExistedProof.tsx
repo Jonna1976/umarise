@@ -356,29 +356,14 @@ export default function ItExistedProof() {
 
           {/* ── STEP 3: VERIFY ── */}
           <div className="w-full mb-8" style={lockedStyle}>
-            <button
-              onClick={() => !lockedStyle.opacity && toggleStep('verify')}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <div className="flex items-baseline w-full">
               <span className="font-mono text-[14px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
-              <span className="font-mono text-[14px] tracking-[3px] uppercase mr-1.5"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Verify it</span>
-              <span className="ml-auto text-[10px] flex-shrink-0 transition-transform"
-                style={{
-                  color: 'rgba(240,234,214,0.35)',
-                  transform: openStep === 'verify' ? 'rotate(180deg)' : 'none',
-                }}>▾</span>
-            </button>
-            <div style={{
-              maxHeight: openStep === 'verify' ? 800 : 0,
-              overflow: 'hidden',
-              opacity: openStep === 'verify' ? 1 : 0,
-              transition: 'max-height 0.4s ease, opacity 0.3s ease',
-            }}>
-              <div className="pt-4 pl-[23px]">
-                <InlineVerify expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
-              </div>
+              <span className="font-mono text-[14px] tracking-[3px] uppercase"
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Verify your ZIP</span>
+            </div>
+            <div className="pt-4 pl-[23px]">
+              <InlineVerify expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
             </div>
           </div>
 
