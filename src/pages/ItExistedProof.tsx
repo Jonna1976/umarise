@@ -289,7 +289,7 @@ export default function ItExistedProof() {
                 >
                   <input type="file" className="hidden" accept="*/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                  <p className="font-mono text-[10px] tracking-[2px] uppercase mb-1"
+                  <p className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
                     style={{ color: 'rgba(201,169,110,0.5)' }}>
                     {dragOver ? 'Release to verify' : 'Drop your original file here'}
                   </p>
