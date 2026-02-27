@@ -217,32 +217,23 @@ export default function ItExistedProof() {
               </svg>
             </motion.div>
           )}
-          <h1 className="font-garamond text-[41px] font-normal text-center mb-8"
-            style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-            {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
-          </h1>
-
-          {/* Bitcoin anchoring status */}
-          {!anchored && (
-            <div className="flex items-center gap-2 mt-2">
-              <span className="relative flex h-2.5 w-2.5">
+          {anchored ? (
+            <h1 className="font-garamond text-[41px] font-normal text-center"
+              style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
+              Your proof is ready.
+            </h1>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="relative flex h-3 w-3 flex-shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
+                <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
               </span>
-              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.5 }}>
+              <h1 className="font-garamond text-[38px] font-normal text-center"
+                style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
                 Bitcoin proof in progress, ready in ~2 hours
-              </p>
+              </h1>
             </div>
           )}
-          {anchored && (
-            <div className="flex items-center gap-2 mt-2">
-              <span className="font-mono text-[13px]" style={{ color: '#c9a96e' }}>✓</span>
-              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
-                Anchored in Bitcoin block{state.bitcoinBlockHeight ? ` #${state.bitcoinBlockHeight}` : ''}
-              </p>
-            </div>
-          )}
-
         </div>
 
 
