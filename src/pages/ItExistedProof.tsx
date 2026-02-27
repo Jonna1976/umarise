@@ -461,8 +461,6 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
                 Download your proof
               </span>
-              <span className="ml-auto text-[15px] flex-shrink-0"
-                style={{ color: 'rgba(240,234,214,0.35)' }}></span>
             </button>
           </div>
 
@@ -539,8 +537,6 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
-              <span className="ml-auto text-[15px] flex-shrink-0"
-                style={{ color: 'rgba(240,234,214,0.35)' }}></span>
             </button>
           </div>
 
