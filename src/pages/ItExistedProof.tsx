@@ -26,6 +26,7 @@ export default function ItExistedProof() {
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProofState | null>(null);
   const [openStep, setOpenStep] = useState<string | null>(null);
+  const [verifyKey, setVerifyKey] = useState(0);
 
   // Artifact file state (user-provided for ZIP inclusion)
   const [artifactFile, setArtifactFile] = useState<File | null>(null);
@@ -471,9 +472,15 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify your ZIP</span>
+              <button
+                onClick={() => setVerifyKey(k => k + 1)}
+                className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
+                style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                New
+              </button>
             </div>
             <div className="pt-4 pl-[23px]">
-              <InlineVerify expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
+              <InlineVerify key={verifyKey} expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
             </div>
           </div>
 
