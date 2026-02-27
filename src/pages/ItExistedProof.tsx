@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { Copy } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -267,10 +268,19 @@ export default function ItExistedProof() {
             <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               Bookmark this page
             </p>
-            <p className="font-mono text-[15px] tracking-[1px] mt-1"
-              style={{ color: '#c9a96e' }}>
-              https://itexisted.app/proof/{state.shortToken}
-            </p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://itexisted.app/proof/${state.shortToken}`);
+                toast.success('URL copied');
+              }}
+              className="flex items-center gap-2 mt-1 group"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+              <span className="font-mono text-[15px] tracking-[1px]"
+                style={{ color: '#c9a96e' }}>
+                https://itexisted.app/proof/{state.shortToken}
+              </span>
+              <Copy size={14} className="opacity-40 group-hover:opacity-80 transition-opacity" style={{ color: '#c9a96e' }} />
+            </button>
             <p className="font-garamond text-[15px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               we'll have your proof ready soon.
             </p>
