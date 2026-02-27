@@ -280,7 +280,7 @@ NOTE ON ARTIFACT INCLUSION:
 
 VERIFY ONLINE:
   https://verify-anchoring.org
-  Upload this ZIP or the original file.
+  Drop this ZIP or the original file.
 
 VERIFY INDEPENDENTLY (no platform needed):
   1. Verify hash integrity:
