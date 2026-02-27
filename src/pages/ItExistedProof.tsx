@@ -261,6 +261,22 @@ export default function ItExistedProof() {
           </div>
         </div>
 
+        {/* BOOKMARK HINT (pending only) */}
+        {!anchored && (
+          <div className="w-full mb-10 text-center">
+            <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+              Bookmark this page
+            </p>
+            <p className="font-mono text-[12px] tracking-[1px] mt-1 break-all"
+              style={{ color: '#c9a96e' }}>
+              {window.location.href}
+            </p>
+            <p className="font-garamond text-[17px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+              we'll have your proof ready soon.
+            </p>
+          </div>
+        )}
+
         {/* DIVIDER */}
         <div className="w-full mb-10" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
