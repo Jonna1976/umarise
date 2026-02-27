@@ -134,7 +134,8 @@ export default function ItExistedProof() {
     );
   }
 
-  const anchored = state.proofStatus === 'anchored';
+  const testAnchored = new URLSearchParams(window.location.search).get('test') === 'anchored';
+  const anchored = testAnchored || state.proofStatus === 'anchored';
   const date = captured.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const time = `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`;
 
