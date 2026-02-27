@@ -324,8 +324,13 @@ WHAT THIS DOES NOT PROVE:
 `;
   zip.file('VERIFY.txt', verifyTxt);
 
-  // Generate ZIP blob
-  return zip.generateAsync({ type: 'blob' });
+  // Generate ZIP blob — explicit mimeType for maximum compatibility
+  return zip.generateAsync({
+    type: 'blob',
+    mimeType: 'application/zip',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 6 },
+  });
 }
 
 /**
@@ -349,7 +354,32 @@ export async function saveOriginZip(
   // Use pre-built blob if provided (preserves iOS gesture context), otherwise build now
   const zipBlob = prebuiltZipBlob || await buildOriginZip(input);
 
-  // Try Web Share API with File object (native share sheet)
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || 
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // Log ZIP integrity before any transport
+  console.log('[originZip] ZIP blob size:', zipBlob.size, 'bytes');
+
+  // === FIX A: iOS gets direct download as PRIMARY path ===
+  // navigator.share() on iOS can corrupt ZIP bytes during transport.
+  // Direct download to Files app preserves byte integrity.
+  if (isIOS) {
+    console.info('[originZip] iOS detected: using direct download (share corrupts ZIPs)');
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = zipFileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 2000);
+    return true;
+  }
+
+  // Non-iOS: try Web Share API first
   if (navigator.share) {
     try {
       const file = new File([zipBlob], zipFileName, { type: 'application/zip' });
@@ -362,24 +392,14 @@ export async function saveOriginZip(
       const err = error as Error;
       if (err.name === 'AbortError') {
         console.log('[originZip] User cancelled share sheet');
-        return false; // User cancelled — not an error
+        return false;
       }
       console.warn('[originZip] Share API failed:', err.name, err.message);
     }
-  } else {
-    console.info('[originZip] navigator.share not available');
   }
 
-  // On mobile: SKIP download fallback — it opens an ugly file preview page
-  // that breaks the ritual flow. The ZIP is silently "saved" and the user
-  // can re-download from their Marked Origins (Wall detail view).
-  if (isMobile) {
-    console.info('[originZip] Mobile: skipping download fallback to preserve UX');
-    return true;
-  }
-
-  // Desktop fallback: direct download (works fine on desktop browsers)
-  console.info('[originZip] Desktop: falling back to direct download');
+  // Desktop / Android fallback: direct download
+  console.info('[originZip] Falling back to direct download');
   const url = URL.createObjectURL(zipBlob);
   const a = document.createElement('a');
   a.href = url;
