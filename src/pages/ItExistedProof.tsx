@@ -461,10 +461,6 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
                 Download your proof
               </span>
-              {artifactFile && (
-                <span className="font-mono text-[15px] tracking-[1px] lowercase ml-1"
-                  style={{ color: 'rgba(127,186,106,0.6)', whiteSpace: 'nowrap' }}>incl. original</span>
-              )}
               <span className="ml-auto text-[15px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
