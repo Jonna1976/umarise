@@ -516,7 +516,6 @@ footer a:hover { color: var(--text-muted); }
 
 <!-- JSZip for ZIP parsing -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-        integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDFuGLXnkBd+HgIbVKxdGThbIaEp8WQRIMZB/6+HYg=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 
@@ -617,6 +616,35 @@ dropZone.addEventListener('drop', e => {
 window.addEventListener('dragover', e => e.preventDefault(), true);
 window.addEventListener('drop', e => e.preventDefault(), true);
 
+async function loadExternalScript(src) {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.referrerPolicy = 'no-referrer';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureJSZipLoaded() {
+  if (typeof JSZip !== 'undefined') return true;
+
+  const fallbacks = [
+    'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+    'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js',
+  ];
+
+  for (const src of fallbacks) {
+    const loaded = await loadExternalScript(src);
+    if (loaded && typeof JSZip !== 'undefined') return true;
+  }
+
+  return typeof JSZip !== 'undefined';
+}
+
 // ─── OTS Verification via official library ───
 async function verifyOtsProof(otsBuf, hashHex) {
   if (typeof OpenTimestamps === 'undefined') {
@@ -708,6 +736,15 @@ async function verifyZip(file) {
         '<span style="font-family:var(--mono);font-size:13px;color:var(--text-dim)">Expected: 50 4B 03 04<br>Found: ' + hexHeader + '</span><br><br>' +
         'This typically means the file was corrupted during transfer (e.g. iOS Share sheet). ' +
         'Try downloading the ZIP directly to Files instead of sharing it.'
+      );
+      return;
+    }
+
+    const jszipReady = await ensureJSZipLoaded();
+    if (!jszipReady) {
+      showError(
+        'ZIP parser kon niet geladen worden (JSZip ontbreekt).<br><br>' +
+        'Controleer netwerk/content blocker en probeer opnieuw. '
       );
       return;
     }
