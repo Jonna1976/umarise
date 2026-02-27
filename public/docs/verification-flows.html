@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verification Flows — Umarise</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --bg: #fefdfb;
+    --accent: #c5935a;
+    --border: #e0dcd4;
+    --table-stripe: #f7f5f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* Header block */
+  .doc-header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .doc-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .doc-header .subtitle {
+    font-size: 20px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+  .doc-header .meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    margin-top: 16px;
+  }
+
+  /* Sections */
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-top: 56px;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+
+  p { margin-bottom: 16px; }
+
+  strong { font-weight: 600; }
+
+  em { font-style: italic; }
+
+  /* Flow diagrams */
+  .flow-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    background: var(--table-stripe);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .flow-block .arrow { color: var(--ink-muted); }
+  .flow-block .annotation { color: var(--ink-muted); font-size: 11px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 28px;
+    font-size: 16px;
+  }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--table-stripe); }
+
+  /* Comparison table */
+  .comparison-table { font-size: 14px; }
+  .comparison-table th { font-size: 10px; }
+  .comparison-table td { padding: 8px 10px; }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(197,147,90,0.08), rgba(197,147,90,0.03));
+    border: 1px solid rgba(197,147,90,0.25);
+    padding: 24px 28px;
+    margin: 32px 0;
+    font-size: 17px;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+  }
+
+  /* Dependency badge */
+  .dep-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin: 8px 0 16px;
+  }
+  .dep-required { background: rgba(197,147,90,0.15); color: #8a6530; }
+  .dep-none { background: rgba(90,160,90,0.12); color: #3a6a3a; }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+  }
+
+  /* Separator */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* Print styles */
+  @media print {
+    body { padding: 40px 0; font-size: 16px; }
+    .doc-header h1 { font-size: 32px; }
+    h2 { margin-top: 36px; }
+    .flow-block { font-size: 11px; padding: 14px 18px; }
+    table { font-size: 14px; }
+    .comparison-table { font-size: 12px; }
+    .highlight-box { break-inside: avoid; }
+    h2, h3 { break-after: avoid; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Verification Flows</h1>
+  <div class="subtitle">Drie verificatietracks, drie doelgroepen, één waarheid.</div>
+  <div class="meta">Umarise — 27 februari 2026</div>
+</div>
+
+<!-- ─── TRACK 1 ────────────────────────────────────── -->
+
+<h2>1. In-app verificatie</h2>
+<p><strong>anchoring.app / itexisted.app</strong></p>
+<p>Gebruiker uploadt een proof-ZIP in de gallery (MarkDetailModal / Proof Page).<br>
+Doel: bevestigen dat deze ZIP bij dit record hoort en geanchord is in Bitcoin.</p>
+
+<h3>Flow</h3>
+<div class="flow-block">ZIP openen
+  ↓
+certificate.json uitlezen
+  ↓
+SHA-256 hash uit certificate
+  ↓
+Hash vergelijken met huidige mark          <span class="annotation">← record-check</span>
+  ↓
+Hash opzoeken in registry                  <span class="annotation">← registry-check</span>
+  ↓
+Bitcoin anchor status ophalen              <span class="annotation">← bestaans-check</span>
+  ↓
+✓ VERIFIED  of  · PENDING  of  ✗ ERROR</div>
+
+<h3>Wat wordt bewezen</h3>
+<table>
+  <thead><tr><th>Stap</th><th>Vraag</th><th>Bron</th></tr></thead>
+  <tbody>
+    <tr><td>Record-check</td><td>Hoort deze ZIP bij dit record?</td><td>Lokale mark hash vs certificate hash</td></tr>
+    <tr><td>Registry-check</td><td>Is deze hash geregistreerd in het registry?</td><td>Umarise registry (origin_attestations)</td></tr>
+    <tr><td>Bestaans-check</td><td>Is deze hash verankerd in Bitcoin?</td><td>core_ots_proofs status</td></tr>
+  </tbody>
+</table>
+
+<h3>Wat NIET wordt gecheckt</h3>
+<p>Of het artifact in de ZIP byte-voor-byte intact is — dat is de verantwoordelijkheid van de externe flows. De inhoud van het bestand zelf — content-agnostic by design. Eigenaarschap — dat is Laag 2 (passkey binding), niet deze flow.</p>
+
+<span class="dep-badge dep-required">Vereist Umarise registry (online)</span>
+
+<hr>
+
+<!-- ─── TRACK 2 ────────────────────────────────────── -->
+
+<h2>2. Referentie Verifier</h2>
+<p><strong>verify-anchoring.org</strong></p>
+<p>Onafhankelijke, 100% client-side verificatie conform de Anchoring Specification (IEC v1.0).<br>
+Doel: bewijzen dat een hash verankerd is in Bitcoin, zonder enige afhankelijkheid van Umarise.</p>
+
+<h3>Flow</h3>
+<div class="flow-block">ZIP uploaden in browser
+  ↓
+certificate.json uitlezen
+  ↓
+Artifact localiseren (indien aanwezig)
+  ↓
+SHA-256 van artifact berekenen             <span class="annotation">← integriteits-check (optioneel)</span>
+  ↓
+Vergelijken met hash uit certificate.json  <span class="annotation">← artifact-authenticiteits-check</span>
+  ↓
+.ots proof verifiëren tegen Bitcoin        <span class="annotation">← bestaans-check (onafhankelijk)</span>
+  ↓
+✓ Valid — ledger-confirmed
+  of  Artifact mismatch — ledger confirmed
+  of  Ledger confirmed (geen artifact)</div>
+
+<h3>Wat wordt bewezen</h3>
+<table>
+  <thead><tr><th>Stap</th><th>Vraag</th><th>Bron</th></tr></thead>
+  <tbody>
+    <tr><td>Integriteits-check</td><td>Is dit bestand ongewijzigd?</td><td>sha256sum artifact vs certificate.json</td></tr>
+    <tr><td>Bestaans-check</td><td>No later than welk moment bestond deze hash?</td><td>.ots proof vs publieke Bitcoin blockchain</td></tr>
+  </tbody>
+</table>
+
+<span class="dep-badge dep-none">Geen afhankelijkheid — volledig onafhankelijk</span>
+
+<hr>
+
+<!-- ─── TRACK 3 ────────────────────────────────────── -->
+
+<h2>3. CLI verificatie (offline / terminal)</h2>
+<p>Advocaat, auditor of rechter verifieert een proof-ZIP volledig offline.<br>
+Doel: bewijzen dat het artifact ongewijzigd is en no later than een specifiek moment bestond.</p>
+
+<h3>Tools</h3>
+<p><code>verify-anchor.sh</code> (bash, zero-dependency)<br>
+<code>verify-anchor.py</code> (Python, zero-dependency)<br>
+Beschikbaar op umarise.com/reviewer</p>
+
+<h3>Flow</h3>
+<div class="flow-block">ZIP uitpakken
+  ↓
+artifact.{ext} localiseren
+  ↓
+SHA-256 van artifact berekenen             <span class="annotation">← integriteits-check</span>
+  ↓
+Vergelijken met hash uit certificate.json  <span class="annotation">← artifact-authenticiteits-check</span>
+  ↓
+.ots proof verifiëren tegen Bitcoin        <span class="annotation">← bestaans-check (onafhankelijk)</span>
+  ↓
+✓ Artifact is intact + bestond no later than [Bitcoin block timestamp]</div>
+
+<h3>Wat wordt bewezen</h3>
+<table>
+  <thead><tr><th>Stap</th><th>Vraag</th><th>Bron</th></tr></thead>
+  <tbody>
+    <tr><td>Integriteits-check</td><td>Is dit bestand ongewijzigd?</td><td>sha256sum artifact vs certificate.json</td></tr>
+    <tr><td>Artifact-authenticiteits-check</td><td>Welke hash, origin_id, captured_at?</td><td>certificate.json in ZIP</td></tr>
+    <tr><td>Bestaans-check</td><td>No later than welk moment bestond deze hash?</td><td>.ots proof vs publieke Bitcoin blockchain</td></tr>
+  </tbody>
+</table>
+
+<span class="dep-badge dep-none">Geen afhankelijkheid — volledig onafhankelijk van Umarise</span>
+
+<hr>
+
+<!-- ─── COMPARISON ─────────────────────────────────── -->
+
+<h2>Vergelijking</h2>
+<table class="comparison-table">
+  <thead>
+    <tr><th></th><th>In-app</th><th>Referentie Verifier</th><th>CLI</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Doelgroep</strong></td><td>Gebruiker zelf</td><td>Iedereen (browser)</td><td>Derde partij (technisch)</td></tr>
+    <tr><td><strong>Toegang</strong></td><td>Gallery, ZIP uploaden</td><td>Website, ZIP uploaden</td><td>Terminal / command line</td></tr>
+    <tr><td><strong>Hash-bron</strong></td><td>Lokale mark + registry</td><td>Artifact bytes in ZIP</td><td>Artifact bytes in ZIP</td></tr>
+    <tr><td><strong>Bitcoin-check</strong></td><td>Via registry (core_ots_proofs)</td><td>Lokale OTS library</td><td>Via ots verify CLI</td></tr>
+    <tr><td><strong>Umarise nodig?</strong></td><td>Ja (registry lookup)</td><td>Nee (zero-dependency)</td><td>Nee (zero-dependency)</td></tr>
+    <tr><td><strong>Bewijst</strong></td><td>"Deze ZIP hoort bij dit geregistreerde en geanchorde record"</td><td>"Deze hash is verankerd in Bitcoin no later than [datum]"</td><td>"Dit bestand is ongewijzigd en bestond no later than [datum]"</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── WHY THREE ──────────────────────────────────── -->
+
+<h2>Waarom drie tracks?</h2>
+
+<p>De in-app flow is een <strong>convenience check</strong> — snel bevestigen dat je ZIP klopt bij dit record.</p>
+<p>De referentie verifier is het <strong>onafhankelijke browser-bewijs</strong> — geen installatie, geen CLI kennis nodig.</p>
+<p>De CLI scripts zijn het <strong>ultieme offline bewijs</strong> — juridisch bruikbaar, zero-dependency, zelfs als Umarise en verify-anchoring.org morgen niet meer bestaan.</p>
+
+<div class="highlight-box">
+  <strong>Alle drie verifiëren uiteindelijk dezelfde waarheid:</strong>
+  Deze bytes bestonden no later than dit moment in de Bitcoin blockchain.<br><br>
+  Het verschil is de route. De in-app flow loopt via Umarise. De referentie verifier loopt via de browser. De CLI loopt rechtstreeks via Bitcoin.
+</div>
+
+<div class="doc-footer">
+  Verification Flows — Umarise — 27 februari 2026
+</div>
+
+</body>
+</html>
