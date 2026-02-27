@@ -241,23 +241,6 @@ export default function ItExistedProof() {
             </div>
           )}
 
-          {!anchored && (
-            <div className="flex items-center gap-3 mt-5">
-              <motion.div
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ background: 'rgba(201,169,110,0.6)' }}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <motion.span
-                className="font-mono text-[12px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(201,169,110,0.6)' }}
-                animate={{ opacity: [0.5, 0.9, 0.5] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-                {pendingLabel}
-              </motion.span>
-            </div>
-          )}
         </div>
 
 
