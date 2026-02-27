@@ -90,6 +90,10 @@ export default function ItExistedProof() {
       const buffer = await file.arrayBuffer();
       const fileHash = await calculateSHA256(buffer);
       const expectedHash = state.hash.toLowerCase().replace(/^sha256:/, '');
+      console.log('[ArtifactCheck] file:', file.name, 'size:', file.size);
+      console.log('[ArtifactCheck] fileHash:    ', fileHash);
+      console.log('[ArtifactCheck] expectedHash:', expectedHash);
+      console.log('[ArtifactCheck] match:', fileHash === expectedHash);
       if (fileHash === expectedHash) {
         setArtifactFile(file);
         setArtifactStatus('matched');
@@ -99,7 +103,8 @@ export default function ItExistedProof() {
         setArtifactStatus('mismatch');
         toast.error('Hash mismatch — this is not the original file.');
       }
-    } catch {
+    } catch (e) {
+      console.error('[ArtifactCheck] error:', e);
       setArtifactStatus('mismatch');
       toast.error('Could not read file.');
     }
