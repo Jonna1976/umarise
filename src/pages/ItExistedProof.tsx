@@ -188,7 +188,7 @@ export default function ItExistedProof() {
           });
         }
 
-        const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile.name);
+        const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile.name, state.shortToken);
         const zipFile = new File([zipBlob], fileName, { type: 'application/zip' });
 
         // iOS: direct download to avoid byte corruption via navigator.share
@@ -261,7 +261,7 @@ export default function ItExistedProof() {
       deviceSignature: state.deviceSignature,
       devicePublicKey: state.devicePublicKey,
     });
-    const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name);
+    const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name, state.shortToken);
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
     a.href = url; a.download = fileName; a.click();
