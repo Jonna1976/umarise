@@ -411,17 +411,27 @@ export default function ItExistedProof() {
                     style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 py-2">
-                  <span className="font-mono text-[10px]" style={{ color: '#7fba6a' }}>✓</span>
-                  <span className="font-mono text-[10px] tracking-[1px]"
-                    style={{ color: 'rgba(240,234,214,0.65)' }}>
-                    {artifactFile?.name}
-                  </span>
-                  <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
-                    className="font-mono text-[8px] tracking-[1px] uppercase ml-auto"
-                    style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                    Change
-                  </button>
+                <div className="py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px]" style={{ color: '#7fba6a' }}>✓</span>
+                    <span className="font-mono text-[10px] tracking-[1px]"
+                      style={{ color: 'rgba(240,234,214,0.65)' }}>
+                      {artifactFile?.name}
+                    </span>
+                    <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
+                      className="font-mono text-[8px] tracking-[1px] uppercase ml-auto"
+                      style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      Change
+                    </button>
+                  </div>
+                  <div className="mt-2 pl-[18px]">
+                    <p className="font-mono text-[8px] tracking-[1px] uppercase mb-1"
+                      style={{ color: 'rgba(201,169,110,0.35)' }}>Hash match confirmed</p>
+                    <p className="font-mono text-[8px] leading-[1.6] break-all"
+                      style={{ color: 'rgba(201,169,110,0.45)' }}>
+                      {state?.hash}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
