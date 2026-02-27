@@ -250,7 +250,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
             onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
           <p className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
             style={{ color: 'rgba(201,169,110,0.5)' }}>
-            {dragOver ? 'Release to verify' : 'Drop file or ZIP here'}
+            {dragOver ? 'Release to verify' : 'Drop your ZIP here'}
           </p>
           <p className="font-garamond italic text-[12px]"
             style={{ color: 'rgba(240,234,214,0.2)' }}>or tap to choose</p>
