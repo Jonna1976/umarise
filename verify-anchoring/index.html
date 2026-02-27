@@ -519,19 +519,8 @@ footer a:hover { color: var(--text-muted); }
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 
-<!-- OpenTimestamps official library for Bitcoin ledger verification (primary + fallbacks) -->
-<script src="https://opentimestamps.org/assets/javascripts/vendor/opentimestamps.min.js"
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-<script>
-// Fallback: if primary OTS source failed, try unpkg
-if (typeof OpenTimestamps === 'undefined') {
-  var s = document.createElement('script');
-  s.src = 'https://unpkg.com/opentimestamps@0.6.9/dist/opentimestamps.min.js';
-  s.crossOrigin = 'anonymous';
-  document.head.appendChild(s);
-}
-</script>
+<!-- OpenTimestamps library — bundled locally for zero CDN dependency -->
+<script src="vendor/opentimestamps.min.js"></script>
 
 <script>
 // ─── SVG Icons ───
