@@ -519,10 +519,19 @@ footer a:hover { color: var(--text-muted); }
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 
-<!-- OpenTimestamps official library for Bitcoin ledger verification -->
+<!-- OpenTimestamps official library for Bitcoin ledger verification (primary + fallbacks) -->
 <script src="https://opentimestamps.org/assets/javascripts/vendor/opentimestamps.min.js"
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
+<script>
+// Fallback: if primary OTS source failed, try unpkg
+if (typeof OpenTimestamps === 'undefined') {
+  var s = document.createElement('script');
+  s.src = 'https://unpkg.com/opentimestamps@0.6.9/dist/opentimestamps.min.js';
+  s.crossOrigin = 'anonymous';
+  document.head.appendChild(s);
+}
+</script>
 
 <script>
 // ─── SVG Icons ───
@@ -934,13 +943,21 @@ async function verifyZip(file) {
         renderReset();
     } else if (otsResult.error) {
       steps.pop();
-      steps.push({ label: 'OTS verification could not complete', status: 'warn', detail: otsResult.error });
+      const isLibMissing = otsResult.error === 'OpenTimestamps library not loaded';
+      steps.push({ label: 'OTS verification could not complete', status: 'warn', detail: isLibMissing ? 'External verification library could not be loaded. The .ots file itself has a valid header.' : otsResult.error });
+
+      const artifactNote = hashMatch 
+        ? 'Artifact hash matches certificate.<br>' 
+        : (artifactFiles.length > 0 ? '<span style="color:var(--yellow)">⚠ Artifact in ZIP does not match certificate hash (likely a compressed thumbnail from an older ZIP version).</span><br>' : '');
+
+      const bannerTitle = hashMatch ? 'Valid (bytes) — ledger unverifiable' : (artifactFiles.length > 0 ? 'Artifact mismatch — ledger unverifiable' : 'Certificate only — ledger unverifiable');
 
       output.innerHTML = renderSteps(steps) +
-        renderBanner('pending', hashMatch ? 'Valid (bytes) — ledger unverifiable' : 'Unverifiable',
-          (hashMatch ? 'Artifact hash matches certificate.<br>' : '') +
-          'A Bitcoin timestamp proof file (.ots) is included but could not be verified at this time. ' +
-          'This may be a temporary network issue. You can verify independently at ' +
+        renderBanner('pending', bannerTitle,
+          artifactNote +
+          'A Bitcoin timestamp proof file (.ots) is included with a valid OpenTimestamps header, but could not be fully verified at this time. ' +
+          (isLibMissing ? 'The external OpenTimestamps library failed to load (network/CDN issue). ' : 'This may be a temporary network issue. ') +
+          'You can verify independently at ' +
           '<a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a> ' +
           'or with the <code style="font-family:var(--mono);font-size:0.8rem">ots verify</code> command-line tool.' +
           '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
