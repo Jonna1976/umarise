@@ -42,25 +42,6 @@ function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: numb
   );
 }
 
-/** Face ID / biometric icon */
-function BiometricIcon({ size = 48 }: { size?: number }) {
-  return (
-    <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
-      {/* Face ID-style corners */}
-      <path d="M14 6H8a2 2 0 00-2 2v6" stroke="hsl(var(--itx-gold))" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M34 6h6a2 2 0 012 2v6" stroke="hsl(var(--itx-gold))" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M14 42H8a2 2 0 01-2-2v-6" stroke="hsl(var(--itx-gold))" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M34 42h6a2 2 0 002-2v-6" stroke="hsl(var(--itx-gold))" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Eyes */}
-      <circle cx="18" cy="19" r="1.5" fill="hsl(var(--itx-gold) / 0.6)" />
-      <circle cx="30" cy="19" r="1.5" fill="hsl(var(--itx-gold) / 0.6)" />
-      {/* Nose */}
-      <path d="M24 22v4" stroke="hsl(var(--itx-gold) / 0.4)" strokeWidth="1.2" strokeLinecap="round" />
-      {/* Mouth */}
-      <path d="M19 31c1.5 2 8.5 2 10 0" stroke="hsl(var(--itx-gold) / 0.5)" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function ItExisted() {
   const navigate = useNavigate();
@@ -68,71 +49,46 @@ export default function ItExisted() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ItExistedState>('capture');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [signingStatus, setSigningStatus] = useState<'waiting' | 'prompting' | 'signed' | 'skipped' | 'anchoring'>('waiting');
-
   const fileName = useMemo(() => selectedFile?.name ?? '', [selectedFile]);
-
-  const handlePick = (file: File | null) => {
-    if (!file) return;
-    setSelectedFile(file);
-    setState('signing');
-    setSigningStatus('waiting');
-    // Small delay before prompting biometric (feels intentional)
-    setTimeout(() => promptPasskey(file), 600);
-  };
 
   // Store Layer 2 signing result for inclusion in certificate.json
   const [layer2, setLayer2] = useState<{ deviceSignature: string; devicePublicKey: string } | null>(null);
 
-  const promptPasskey = async (file: File) => {
-    setSigningStatus('prompting');
+  const handlePick = async (file: File | null) => {
+    if (!file) return;
+    setSelectedFile(file);
+    setState('signing');
 
-    // Check WebAuthn support
-    if (!isWebAuthnSupported()) {
-      console.log('[ItExisted] WebAuthn not supported, skipping passkey');
-      startAnchoring(file, null);
-      return;
-    }
-
-    const hasPlatform = await isPlatformAuthenticatorAvailable();
-    if (!hasPlatform) {
-      console.log('[ItExisted] No platform authenticator, skipping passkey');
-      startAnchoring(file, null);
-      return;
-    }
+    // Try single biometric prompt, then anchor
+    let sigData: { deviceSignature: string; devicePublicKey: string } | null = null;
 
     try {
-      // Compute hash first for signing
-      const arrayBuffer = await file.arrayBuffer();
-      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      if (isWebAuthnSupported() && await isPlatformAuthenticatorAvailable()) {
+        // Compute hash
+        const arrayBuffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-      let credential = getPasskeyCredential();
+        let credential = getPasskeyCredential();
 
-      if (!credential) {
-        credential = await registerPasskey(hash.substring(0, 8));
-        savePasskeyCredential(credential);
+        if (!credential) {
+          // First time: register creates ONE biometric prompt, skip signHash
+          credential = await registerPasskey(hash.substring(0, 8));
+          savePasskeyCredential(credential);
+          sigData = { deviceSignature: 'registered', devicePublicKey: credential.publicKey };
+        } else {
+          // Already registered: single sign prompt
+          const sig = await signHash(credential.credentialId, hash);
+          sigData = { deviceSignature: sig.signature, devicePublicKey: credential.publicKey };
+        }
+        console.log('[ItExisted] ✓ Passkey complete');
       }
-
-      // Sign the hash (triggers biometric prompt)
-      const sig = await signHash(credential.credentialId, hash);
-      console.log('[ItExisted] ✓ Hash signed, sig length:', sig.signature.length);
-      setSigningStatus('signed');
-
-      const sigData = { deviceSignature: sig.signature, devicePublicKey: credential.publicKey };
-      setLayer2(sigData);
-
-      // Brief celebration before anchoring
-      setTimeout(() => startAnchoring(file, sigData), 1000);
     } catch (e) {
-      console.warn('[ItExisted] Passkey signing cancelled or failed:', e);
-      startAnchoring(file, null);
+      console.warn('[ItExisted] Passkey skipped:', e);
     }
-  };
 
-  const startAnchoring = (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
-    setSigningStatus('anchoring');
+    setLayer2(sigData);
     anchorFile(file, sigData);
   };
 
@@ -213,74 +169,15 @@ export default function ItExisted() {
             transition={{ duration: 0.4 }}
             className="flex flex-col items-center gap-5">
 
-            {/* Biometric icon with pulse */}
             <motion.div
-              animate={signingStatus === 'prompting' ? {
-                scale: [1, 1.06, 1],
-                opacity: [0.7, 1, 0.7],
-              } : signingStatus === 'signed' ? { scale: 1, opacity: 1 } : { opacity: 0.5 }}
-              transition={signingStatus === 'prompting' ? {
-                duration: 1.8, repeat: Infinity, ease: 'easeInOut'
-              } : { duration: 0.3 }}>
-              <BiometricIcon size={56} />
+              animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+              <V7Nail pending size={36} />
             </motion.div>
 
-            {/* Status text */}
-            <div className="flex flex-col items-center gap-1">
-              {signingStatus === 'waiting' && (
-                <p className="font-mono text-[9px] tracking-[2px] uppercase"
-                  style={{ color: 'hsl(var(--itx-gold-muted))' }}>
-                  preparing…
-                </p>
-              )}
-              {signingStatus === 'prompting' && (
-                <>
-                  <p className="font-playfair text-[18px] font-light"
-                    style={{ color: 'hsl(var(--itx-cream))' }}>
-                    Sign with biometrics
-                  </p>
-                  <p className="font-garamond text-[13px] italic mt-1"
-                    style={{ color: 'hsl(var(--itx-cream) / 0.4)' }}>
-                    Use Face ID, fingerprint, or device PIN
-                  </p>
-                </>
-              )}
-              {signingStatus === 'signed' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center gap-1">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="hsl(var(--itx-gold))" strokeWidth="1.2" />
-                    <path d="M8 12l3 3 5-6" stroke="hsl(var(--itx-gold))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <p className="font-mono text-[9px] tracking-[2px] uppercase"
-                    style={{ color: 'hsl(var(--itx-gold))' }}>
-                    signed
-                  </p>
-                </motion.div>
-              )}
-              {signingStatus === 'skipped' && (
-                <p className="font-mono text-[9px] tracking-[2px] uppercase"
-                  style={{ color: 'hsl(var(--itx-cream) / 0.3)' }}>
-                  continuing without signature…
-                </p>
-              )}
-              {signingStatus === 'anchoring' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center gap-3">
-                  <motion.div
-                    animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-                    <V7Nail pending size={36} />
-                  </motion.div>
-                  <p className="font-mono text-[8px] tracking-[3px] uppercase"
-                    style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
-                </motion.div>
-              )}
-            </div>
+            <p className="font-mono text-[8px] tracking-[3px] uppercase"
+              style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
 
-            {/* File name */}
             <p className="font-garamond italic text-[11px] text-center max-w-[200px]"
               style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>{fileName}</p>
           </motion.div>
