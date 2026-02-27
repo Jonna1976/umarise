@@ -222,68 +222,29 @@ export default function ItExistedProof() {
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
           </h1>
 
-          {/* Layer 2 device binding indicator */}
-          {state.deviceSignature && (
-            <div className="flex items-center gap-2 mt-4">
-              <span className="font-mono text-[8px]" style={{ color: '#7fba6a' }}>✓</span>
-              <span className="font-mono text-[10px] tracking-[2px] uppercase"
-                style={{ color: 'rgba(127,186,106,0.7)' }}>
-                Device-signed
+          {/* Bitcoin anchoring status */}
+          {!anchored && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
               </span>
+              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.5 }}>
+                Bitcoin proof in progress, ready in ~2 hours
+              </p>
+            </div>
+          )}
+          {anchored && (
+            <div className="flex items-center gap-2 mt-2">
+              <span className="font-mono text-[13px]" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                Anchored in Bitcoin block{state.bitcoinBlockHeight ? ` #${state.bitcoinBlockHeight}` : ''}
+              </p>
             </div>
           )}
 
         </div>
 
-
-        {/* ── COMPLETED STEPS ── */}
-        <div className="w-full mb-8" style={{ maxWidth: 400 }}>
-          <p className="font-mono text-[10px] tracking-[3px] uppercase mb-4"
-            style={{ color: 'rgba(201,169,110,0.4)' }}>
-            ✓ Completed
-          </p>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-start gap-2">
-              <span className="font-mono text-[13px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
-                SHA-256 fingerprint calculated from your file
-              </p>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="font-mono text-[13px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-              <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
-                Fingerprint submitted to the origin registry
-              </p>
-            </div>
-            {state.deviceSignature && (
-              <div className="flex items-start gap-2">
-                <span className="font-mono text-[13px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-                <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
-                  Signed with your device's hardware key
-                </p>
-              </div>
-            )}
-            {anchored && (
-              <div className="flex items-start gap-2">
-                <span className="font-mono text-[13px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-                <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
-                  Anchored in Bitcoin block{state.bitcoinBlockHeight ? ` #${state.bitcoinBlockHeight}` : ''}
-                </p>
-              </div>
-            )}
-            {!anchored && (
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
-                </span>
-                <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.5 }}>
-                  Bitcoin proof in progress, ready in ~2 hours
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8" style={{ maxWidth: 400 }}>
