@@ -428,7 +428,7 @@ export default function ItExistedProof() {
                     <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
                       className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
                       style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      Change
+                      New
                     </button>
                   </div>
                   <div className="mt-2 pl-[18px]">
