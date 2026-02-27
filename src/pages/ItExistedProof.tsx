@@ -239,7 +239,7 @@ export default function ItExistedProof() {
 
 
         {/* ── RECORD DETAILS ── */}
-        <div className="w-full mb-8" style={{ maxWidth: 400 }}>
+        <div className="w-full mb-8">
           <div className="flex justify-between items-baseline mb-3">
             <span className="font-mono text-[13px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Origin ID</span>
