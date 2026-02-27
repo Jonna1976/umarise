@@ -260,6 +260,84 @@ export default function ItExistedProof() {
           )}
         </div>
 
+        {/* ── RENAME TIP ── */}
+        <p className="font-garamond italic text-[18px] text-center mb-10 w-full"
+          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 340, alignSelf: 'center' }}>
+          Tip: rename your file to include{' '}
+          <span className="font-mono text-[15px]" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span>{' '}
+          so you can always match it to this proof.
+        </p>
+
+        {/* ── RECORD DETAILS ── */}
+        <div className="w-full mb-10" style={{ maxWidth: 400 }}>
+          <div className="flex justify-between items-baseline mb-4">
+            <span className="font-mono text-[13px] tracking-[2px] uppercase"
+              style={{ color: 'rgba(201,169,110,0.45)' }}>Origin ID</span>
+            <span className="font-mono text-[22px] tracking-[4px]"
+              style={{ color: '#c9a96e' }}>{state.shortToken}</span>
+          </div>
+          <div className="flex justify-between items-baseline mb-4">
+            <span className="font-mono text-[13px] tracking-[2px] uppercase"
+              style={{ color: 'rgba(201,169,110,0.45)' }}>Date</span>
+            <span className="font-garamond text-[20px]"
+              style={{ color: 'rgba(240,234,214,0.5)' }}>{date} · {time}</span>
+          </div>
+          <div className="flex justify-between items-start">
+            <span className="font-mono text-[13px] tracking-[2px] uppercase pt-1"
+              style={{ color: 'rgba(201,169,110,0.45)' }}>Hash</span>
+            <span className="font-mono text-[13px] text-right break-all"
+              style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 250 }}>
+              {state.hash}
+            </span>
+          </div>
+        </div>
+
+        {/* ── COMPLETED STEPS ── */}
+        <div className="w-full mb-8" style={{ maxWidth: 400 }}>
+          <p className="font-mono text-[12px] tracking-[3px] uppercase mb-5"
+            style={{ color: 'rgba(201,169,110,0.4)' }}>
+            ✓ Completed
+          </p>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                SHA-256 fingerprint calculated from your file
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                Fingerprint submitted to the origin registry
+              </p>
+            </div>
+            {state.deviceSignature && (
+              <div className="flex items-start gap-3">
+                <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                  Signed with your device's hardware key
+                </p>
+              </div>
+            )}
+            {anchored && (
+              <div className="flex items-start gap-3">
+                <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+                  Anchored in Bitcoin block{state.bitcoinBlockHeight ? ` #${state.bitcoinBlockHeight}` : ''}
+                </p>
+              </div>
+            )}
+            {!anchored && (
+              <div className="flex items-start gap-3">
+                <span className="font-mono text-[16px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>⏳</span>
+                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.5 }}>
+                  Awaiting Bitcoin anchoring
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* DIVIDER */}
         <div className="w-full mb-10" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
 
