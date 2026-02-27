@@ -35,8 +35,24 @@ export default function Anchor() {
             Anchor One-Pager
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
-            Normative Overview
+            Overview
           </p>
+          <div className="bg-landing-muted/5 border border-landing-muted/15 rounded px-5 py-4 mt-6">
+            <p className="text-landing-cream/80 text-sm leading-relaxed">
+              Umarise implements the{' '}
+              <a
+                href="https://anchoring-spec.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
+              >
+                Anchoring Specification (IEC v1.0)
+              </a>.
+            </p>
+            <p className="text-landing-muted/50 text-xs mt-2 italic">
+              The specification is normative. This implementation is not.
+            </p>
+          </div>
         </div>
 
         {/* Document content */}
@@ -129,7 +145,7 @@ export default function Anchor() {
 
           {/* Record Structure */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Structure (Normative)</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Record Structure</h2>
             <p className="mb-4">An Anchor Record consists of:</p>
             <ul className="space-y-2 pl-4">
               <li><span className="text-landing-copper">hash</span>: identifying what existed</li>
@@ -199,7 +215,7 @@ export default function Anchor() {
 
           {/* Non-Responsibilities */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities (Normative)</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
             <p className="mb-4">The anchor mechanism does not:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
               <li>store content</li>
