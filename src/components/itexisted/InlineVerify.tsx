@@ -404,12 +404,12 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         </div>
       )}
 
-      {/* Reset button */}
+      {/* Refresh button */}
       {result && (
-        <button onClick={reset}
-          className="font-mono text-[15px] tracking-[2px] uppercase mt-3 transition-colors"
+        <button onClick={() => window.location.reload()}
+          className="font-mono text-[15px] tracking-[2px] uppercase mt-3 transition-colors flex items-center gap-2"
           style={{ color: 'rgba(240,234,214,0.2)', background: 'none', border: 'none', cursor: 'pointer' }}>
-          Verify another file
+          ↻ Refresh
         </button>
       )}
     </div>
