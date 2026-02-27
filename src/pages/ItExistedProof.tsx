@@ -265,7 +265,7 @@ export default function ItExistedProof() {
         {/* BOOKMARK HINT (pending only) */}
         {!anchored && (
           <div className="w-full mb-10">
-            <p className="font-garamond text-[15px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+            <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               Bookmark this page
             </p>
             <button
@@ -275,13 +275,13 @@ export default function ItExistedProof() {
               }}
               className="flex items-center gap-2 mt-1 group"
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-              <span className="font-mono text-[15px] tracking-[1px]"
+              <span className="font-mono text-[20px] tracking-[1px]"
                 style={{ color: '#c9a96e' }}>
                 https://itexisted.app/proof/{state.shortToken}
               </span>
-              <Copy size={14} className="opacity-40 group-hover:opacity-80 transition-opacity" style={{ color: '#c9a96e' }} />
+              <Copy size={16} className="opacity-40 group-hover:opacity-80 transition-opacity" style={{ color: '#c9a96e' }} />
             </button>
-            <p className="font-garamond text-[15px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+            <p className="font-garamond text-[20px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               we'll have your proof ready soon.
             </p>
           </div>
