@@ -248,7 +248,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         >
           <input type="file" className="hidden" accept="*/*"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
-          <p className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
+          <p className="font-mono text-[15px] tracking-[2px] uppercase mb-1"
             style={{ color: 'rgba(201,169,110,0.5)' }}>
             {dragOver ? 'Release to verify' : 'Drop your ZIP here'}
           </p>
@@ -264,7 +264,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
               <path d="M18 3 A15 15 0 0 1 33 18" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </motion.div>
-          <p className="font-mono text-[8px] tracking-[2px] uppercase"
+          <p className="font-mono text-[15px] tracking-[2px] uppercase"
             style={{ color: 'rgba(240,234,214,0.3)' }}>
             Verifying {fileName ? `"${fileName}"` : ''}…
           </p>
@@ -278,8 +278,8 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(74,124,89,0.4)', background: 'rgba(74,124,89,0.06)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[10px]" style={{ color: '#7fba6a' }}>✓</span>
-            <span className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: '#7fba6a' }}>Verified</span>
+            <span className="font-mono text-[15px]" style={{ color: '#7fba6a' }}>✓</span>
+            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: '#7fba6a' }}>Verified</span>
           </div>
           <Row label="Origin ID" value={result.shortToken!} gold />
           <Row label="Hash match" value="✓ confirmed" ok />
@@ -294,8 +294,8 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(201,169,110,0.3)', background: 'rgba(201,169,110,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[10px]" style={{ color: 'rgba(201,169,110,0.7)' }}>!</span>
-            <span className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.7)' }}>Registered — Bitcoin pending</span>
+            <span className="font-mono text-[15px]" style={{ color: 'rgba(201,169,110,0.7)' }}>!</span>
+            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.7)' }}>Registered — Bitcoin pending</span>
           </div>
           <Row label="Origin ID" value={result.shortToken!} gold />
           <Row label="Hash match" value="✓ confirmed" ok />
@@ -310,10 +310,10 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(220,80,60,0.4)', background: 'rgba(220,80,60,0.06)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[10px]" style={{ color: 'rgba(220,80,60,0.8)' }}>✗</span>
-            <span className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: 'rgba(220,80,60,0.8)' }}>Wrong proof file</span>
+            <span className="font-mono text-[15px]" style={{ color: 'rgba(220,80,60,0.8)' }}>✗</span>
+            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: 'rgba(220,80,60,0.8)' }}>Wrong proof file</span>
           </div>
-          <p className="font-garamond text-[12px] leading-snug"
+          <p className="font-garamond text-[15px] leading-snug"
             style={{ color: 'rgba(220,80,60,0.65)' }}>
             This ZIP belongs to a different origin. It does not match this page.
           </p>
@@ -325,10 +325,10 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(240,234,214,0.12)', background: 'rgba(240,234,214,0.03)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[10px]" style={{ color: 'rgba(240,234,214,0.4)' }}>·</span>
-            <span className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.4)' }}>Not found</span>
+            <span className="font-mono text-[15px]" style={{ color: 'rgba(240,234,214,0.4)' }}>·</span>
+            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.4)' }}>Not found</span>
           </div>
-          <p className="font-garamond text-[12px] leading-snug"
+          <p className="font-garamond text-[15px] leading-snug"
             style={{ color: 'rgba(240,234,214,0.35)' }}>
             This hash was not found in the registry.
           </p>
@@ -340,10 +340,10 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(220,80,60,0.3)', background: 'rgba(220,80,60,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[10px]" style={{ color: 'rgba(220,80,60,0.7)' }}>✗</span>
-            <span className="font-mono text-[8px] tracking-[3px] uppercase" style={{ color: 'rgba(220,80,60,0.7)' }}>Verification failed</span>
+            <span className="font-mono text-[15px]" style={{ color: 'rgba(220,80,60,0.7)' }}>✗</span>
+            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: 'rgba(220,80,60,0.7)' }}>Verification failed</span>
           </div>
-          <p className="font-garamond text-[12px] leading-snug"
+          <p className="font-garamond text-[15px] leading-snug"
             style={{ color: 'rgba(220,80,60,0.5)' }}>
             The file could not be verified. Please check the file and try again.
           </p>
@@ -355,9 +355,9 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         <div className="w-full mt-2">
           <button
             onClick={() => setStepsOpen(v => !v)}
-            className="flex items-center gap-1.5 font-mono text-[7px] tracking-[2px] uppercase transition-colors"
+            className="flex items-center gap-1.5 font-mono text-[15px] tracking-[2px] uppercase transition-colors"
             style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>
-            <span style={{ transform: stepsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', fontSize: '8px' }}>▾</span>
+            <span style={{ transform: stepsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', fontSize: '15px' }}>▾</span>
             {stepsOpen ? 'Hide verification steps' : 'Show verification steps'}
           </button>
 
@@ -373,7 +373,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
                 <div className="rounded-[6px] px-3 py-3 mt-1 space-y-1.5"
                   style={{ background: 'rgba(10,15,10,0.8)', border: '1px solid rgba(240,234,214,0.06)' }}>
                   {result.steps.map((step, i) => (
-                    <div key={i} className="flex items-start gap-2 font-mono text-[8px] leading-[1.6]">
+                    <div key={i} className="flex items-start gap-2 font-mono text-[15px] leading-[1.6]">
                       <span className="flex-shrink-0 mt-px" style={{
                         color: step.status === 'ok' ? '#7fba6a'
                           : step.status === 'error' ? 'rgba(220,80,60,0.8)'
@@ -407,7 +407,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
       {/* Reset button */}
       {result && (
         <button onClick={reset}
-          className="font-mono text-[7px] tracking-[2px] uppercase mt-3 transition-colors"
+          className="font-mono text-[15px] tracking-[2px] uppercase mt-3 transition-colors"
           style={{ color: 'rgba(240,234,214,0.2)', background: 'none', border: 'none', cursor: 'pointer' }}>
           Verify another file
         </button>
@@ -424,9 +424,9 @@ function Row({ label, value, ok = false, gold = false, error = false, last = fal
   return (
     <div className={`flex justify-between items-center py-1.5 ${last ? '' : 'border-b'}`}
       style={{ borderColor: 'rgba(201,169,110,0.1)' }}>
-      <span className="font-mono text-[8px] tracking-[2px] uppercase"
+      <span className="font-mono text-[15px] tracking-[2px] uppercase"
         style={{ color: 'rgba(240,234,214,0.3)' }}>{label}</span>
-      <span className="font-mono text-[9px]"
+      <span className="font-mono text-[15px]"
         style={{ color: error ? 'rgba(220,80,60,0.8)' : gold ? 'rgba(201,169,110,0.6)' : ok ? '#7fba6a' : 'rgba(240,234,214,0.35)' }}>{value}</span>
     </div>
   );
