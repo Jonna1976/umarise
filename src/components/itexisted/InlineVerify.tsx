@@ -127,13 +127,16 @@ async function finalizeResult(
   certOriginId?: string,
 ): Promise<FullVerifyResult> {
   const foundOriginId = origin.origin_id;
-  const foundToken = foundOriginId.slice(0, 8).toUpperCase();
+
+  // Fetch the real short_token from registry (not a UUID prefix)
+  const meta = await fetchOriginMetadata(foundOriginId);
+  const foundToken = meta?.short_token ?? foundOriginId.slice(0, 8).toUpperCase();
 
   // Step 5: Cross-check origin against this page
   const originMatch = expectedOriginId
-    ? foundOriginId === expectedOriginId
+    ? foundOriginId.toLowerCase() === expectedOriginId.toLowerCase()
     : expectedShortToken
-      ? foundToken === expectedShortToken.toUpperCase()
+      ? foundToken.toUpperCase() === expectedShortToken.toUpperCase()
       : true;
 
   if (!originMatch) {
@@ -172,13 +175,12 @@ async function finalizeResult(
   }
 
   // Build result
-  const meta = await fetchOriginMetadata(foundOriginId);
   const captured = new Date(origin.captured_at);
 
   return {
     status: proofStatus === 'anchored' ? 'verified' : 'pending',
     steps,
-    shortToken: meta?.short_token ?? foundToken,
+    shortToken: foundToken,
     date: captured.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     time: `${captured.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} UTC`,
     bitcoin: bitcoinLabel,
