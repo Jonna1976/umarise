@@ -9,6 +9,34 @@ import { calculateSHA256 } from '@/lib/originHash';
 import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
 
+/** Countdown: shows time remaining until ~2h after capture */
+function CountdownTimer({ capturedAt }: { capturedAt: string }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const target = new Date(capturedAt).getTime() + 2 * 60 * 60 * 1000;
+  const remaining = Math.max(0, target - now);
+  if (remaining <= 0) {
+    return (
+      <span className="font-mono text-[15px] tracking-[2px] uppercase"
+        style={{ color: 'rgba(201,169,110,0.7)' }}>
+        Almost ready — refresh to check
+      </span>
+    );
+  }
+  const h = Math.floor(remaining / 3_600_000);
+  const m = Math.floor((remaining % 3_600_000) / 60_000);
+  const s = Math.floor((remaining % 60_000) / 1000);
+  return (
+    <span className="font-mono text-[18px] tracking-[2px]"
+      style={{ color: '#c9a96e' }}>
+      Ready in {h > 0 ? `${h}h ` : ''}{String(m).padStart(2, '0')}m {String(s).padStart(2, '0')}s
+    </span>
+  );
+}
+
 interface ProofState {
   originId: string;
   hash: string;
@@ -305,19 +333,21 @@ export default function ItExistedProof() {
               Your proof is ready.
             </h1>
           ) : (
-            <div className="flex items-start gap-3">
-              <span className="relative flex h-3 w-3 flex-shrink-0 mt-[18px]">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(201,169,110,0.5)' }}></span>
-                <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: '#c9a96e' }}></span>
-              </span>
+            <div className="flex flex-col items-start gap-1">
               <h1 className="font-garamond text-[38px] font-normal"
                 style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-                Bitcoin proof in progress, ready in ~2 hours
+                Anchoring to Bitcoin in progress
               </h1>
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-3 w-3 flex-shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(201,169,110,0.5)' }}></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: '#c9a96e' }}></span>
+                </span>
+                <CountdownTimer capturedAt={state.capturedAt} />
+              </div>
             </div>
           )}
         </div>
-
 
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8">
@@ -368,14 +398,11 @@ export default function ItExistedProof() {
           </div>
         )}
 
-        {/* DIVIDER */}
-        <div className="w-full mb-10" style={{ height: 1, background: 'rgba(240,234,214,0.12)' }} />
+        {/* ── STEPS ── */}
+        <div className="w-full flex flex-col items-start">
 
-        {/* STEPS */}
-        <div className="w-full flex flex-col">
-
-          {/* ── STEP 1: ADD YOUR FILE ── */}
-          <div className="w-full mb-8" style={lockedStyle}>
+          {/* ── STEP 1: VERIFY ORIGINAL FILE ── */}
+          <div className="w-full mb-8">
             <div className="flex items-baseline w-full mb-3">
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
@@ -383,63 +410,34 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify your original file</span>
             </div>
             <div className="pl-[23px]">
-              {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
+              {artifactStatus !== 'matched' ? (
                 <label
                   className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all"
                   style={{
-                    borderColor: dragOver ? 'rgba(201,169,110,0.6)' : 'rgba(201,169,110,0.2)',
-                    background: dragOver ? 'rgba(201,169,110,0.08)' : 'rgba(201,169,110,0.02)',
+                    borderColor: dragOver ? 'rgba(201,169,110,0.5)' : 'rgba(201,169,110,0.25)',
+                    background: dragOver ? 'rgba(201,169,110,0.06)' : 'rgba(201,169,110,0.02)',
                   }}
-                  onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) onArtifactFile(f); }}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) onArtifactFile(f); }}
                 >
                   <input type="file" className="hidden" accept="*/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
                   <p className="font-mono text-[15px] tracking-[2px] uppercase mb-1"
                     style={{ color: 'rgba(201,169,110,0.5)' }}>
-                    {dragOver ? 'Release to verify' : 'Select or drop file'}
+                    {artifactStatus === 'checking' ? 'Checking…' : 'Drop your original file here'}
                   </p>
-                  {artifactStatus === 'mismatch' && (
-                    <p className="font-mono text-[15px] mt-2"
-                      style={{ color: 'rgba(220,80,60,0.7)' }}>
-                      ✗ Last file did not match. Try the original
-                    </p>
-                  )}
                 </label>
-              ) : artifactStatus === 'checking' ? (
-                <div className="flex items-center gap-2 py-3">
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
-                    <svg viewBox="0 0 24 24" width={16} height={16}>
-                      <circle cx="12" cy="12" r="9" fill="none" stroke="rgba(201,169,110,0.15)" strokeWidth="1.5" />
-                      <path d="M12 3 A9 9 0 0 1 21 12" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                  </motion.div>
-                  <span className="font-mono text-[15px] tracking-[2px] uppercase"
-                    style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
-                </div>
               ) : (
-                <div className="py-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[15px]" style={{ color: '#7fba6a' }}>✓</span>
-                    <span className="font-mono text-[15px] tracking-[1px]"
-                      style={{ color: 'rgba(240,234,214,0.65)' }}>
-                      {artifactFile?.name}
-                    </span>
-                    <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
-                      className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
-                      style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      New
-                    </button>
-                  </div>
-                  <div className="mt-2 pl-[18px]">
-                    <p className="font-mono text-[15px] tracking-[1px] uppercase mb-1"
-                      style={{ color: 'rgba(201,169,110,0.35)' }}>Hash match confirmed</p>
-                    <p className="font-mono text-[15px] leading-[1.6] break-all"
-                      style={{ color: 'rgba(201,169,110,0.45)' }}>
-                      {state?.hash}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <p className="font-mono text-[15px] tracking-[1px] uppercase mb-1"
+                    style={{ color: 'rgba(201,169,110,0.35)' }}>Hash match confirmed</p>
+                  <button
+                    onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
+                    className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
+                    style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    New
+                  </button>
                 </div>
               )}
             </div>
@@ -449,13 +447,8 @@ export default function ItExistedProof() {
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={() => { if (artifactStatus === 'matched') onDownload(); }}
-              disabled={artifactStatus !== 'matched'}
-              className="flex items-baseline w-full text-left transition-opacity"
-              style={{
-                background: 'none', border: 'none', padding: 0,
-                cursor: artifactStatus === 'matched' ? 'pointer' : 'not-allowed',
-                opacity: artifactStatus === 'matched' ? 1 : 0.35,
-              }}>
+              className="flex items-baseline w-full text-left"
+              style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0, opacity: artifactStatus !== 'matched' ? 0.35 : 1 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase mr-1.5"
@@ -483,9 +476,6 @@ export default function ItExistedProof() {
               <InlineVerify key={verifyKey} expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
             </div>
           </div>
-
-
-
 
           {/* ── STEP 4: SHARE ── */}
           <div className="w-full mb-8" style={lockedStyle}>
