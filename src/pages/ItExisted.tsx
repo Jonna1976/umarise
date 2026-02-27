@@ -57,9 +57,8 @@ export default function ItExisted() {
   const handlePick = async (file: File | null) => {
     if (!file) return;
     setSelectedFile(file);
-    setState('signing');
 
-    // Try single biometric prompt, then anchor
+    // Try single biometric prompt BEFORE showing anchoring screen
     let sigData: { deviceSignature: string; devicePublicKey: string } | null = null;
 
     try {
@@ -89,6 +88,7 @@ export default function ItExisted() {
     }
 
     setLayer2(sigData);
+    setState('signing');
     anchorFile(file, sigData);
   };
 
