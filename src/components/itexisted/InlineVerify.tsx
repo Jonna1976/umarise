@@ -406,6 +406,17 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         </div>
       )}
 
+      {/* New button after result */}
+      {result && (
+        <div className="flex justify-end mt-3">
+          <button onClick={reset}
+            className="font-mono text-[15px] tracking-[1px] uppercase"
+            style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+            New
+          </button>
+        </div>
+      )}
+
     </div>
   );
 }
