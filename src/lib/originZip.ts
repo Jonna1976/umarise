@@ -59,8 +59,8 @@ export interface OriginZipInput {
  * Build a descriptive ZIP filename for easy retrieval in Downloads.
  * Format: origin-{TOKEN}-{sanitized-name}-{YYYYMMDD}.zip
  */
-export function buildZipFileName(originId: string, timestamp: Date, originalFileName?: string | null): string {
-  const cleanId = originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim().slice(0, 8);
+export function buildZipFileName(originId: string, timestamp: Date, originalFileName?: string | null, shortToken?: string | null): string {
+  const cleanId = shortToken?.toUpperCase() ?? originId.toUpperCase().replace(/^(ORIGIN\s+|ANCHOR\s+|UM-)/i, '').trim().slice(0, 8);
   const dateStr = timestamp.toISOString().slice(0, 10).replace(/-/g, '');
 
   if (originalFileName) {
