@@ -223,12 +223,12 @@ export default function ItExistedProof() {
               Your proof is ready.
             </h1>
           ) : (
-            <div className="flex items-center gap-3">
-              <span className="relative flex h-3 w-3 flex-shrink-0">
+            <div className="flex items-start gap-3">
+              <span className="relative flex h-3 w-3 flex-shrink-0 mt-[18px]">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
                 <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
               </span>
-              <h1 className="font-garamond text-[38px] font-normal text-center"
+              <h1 className="font-garamond text-[38px] font-normal"
                 style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
                 Bitcoin proof in progress, ready in ~2 hours
               </h1>
