@@ -252,8 +252,6 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
             style={{ color: 'rgba(201,169,110,0.5)' }}>
             {dragOver ? 'Release to verify' : 'Drop your ZIP here'}
           </p>
-          <p className="font-garamond italic text-[12px]"
-            style={{ color: 'rgba(240,234,214,0.2)' }}>or tap to choose</p>
         </label>
       )}
 
