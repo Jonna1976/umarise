@@ -11,7 +11,13 @@ interface Props {
 export default function InlineAttestation({ originId, shortToken }: Props) {
   const [redirecting, setRedirecting] = useState(false);
 
+  const isTestMode = new URLSearchParams(window.location.search).get('test') === 'anchored';
+
   const onPay = async () => {
+    if (isTestMode) {
+      toast.success('Test mode: attestation checkout would open here (Stripe).');
+      return;
+    }
     const deviceId = getActiveDeviceId();
     if (!deviceId) { toast.error('Device not ready.'); return; }
     setRedirecting(true);
