@@ -348,7 +348,6 @@ export async function saveOriginZip(
   input: OriginZipInput,
   prebuiltZipBlob?: Blob,
 ): Promise<boolean> {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const zipFileName = buildZipFileName(input.originId, input.timestamp, input.originalFileName);
   
   // Use pre-built blob if provided (preserves iOS gesture context), otherwise build now
