@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Flow Diagram — Umarise Core API</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --bg: #fefdfb;
+    --accent: #c5935a;
+    --border: #e0dcd4;
+    --table-stripe: #f7f5f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  .doc-header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .doc-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .doc-header .subtitle {
+    font-size: 20px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+  .doc-header .meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    margin-top: 16px;
+  }
+  .doc-header .meta span {
+    display: inline-block;
+    margin-right: 24px;
+  }
+
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-top: 56px;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+
+  p { margin-bottom: 16px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    background: var(--table-stripe);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 28px;
+    font-size: 15px;
+  }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--table-stripe); }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(197,147,90,0.08), rgba(197,147,90,0.03));
+    border: 1px solid rgba(197,147,90,0.25);
+    padding: 24px 28px;
+    margin: 32px 0;
+    font-size: 17px;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+  }
+
+  /* Mermaid container */
+  .mermaid-container {
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin: 20px 0 28px;
+    overflow-x: auto;
+  }
+  .mermaid {
+    text-align: center;
+  }
+
+  /* Flow block for print fallback */
+  .flow-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    background: var(--table-stripe);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* Print styles */
+  @media print {
+    body { padding: 40px 0; font-size: 16px; max-width: 100%; }
+    .doc-header h1 { font-size: 30px; }
+    h2 { margin-top: 36px; }
+    table { font-size: 13px; break-inside: avoid; }
+    .highlight-box { break-inside: avoid; }
+    h2, h3 { break-after: avoid; }
+    .mermaid-container { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Data Flow Diagram</h1>
+  <div class="subtitle">Umarise Core API — Two paths, one truth. Content never leaves the device.</div>
+  <div class="meta">
+    <span>Version 1.0</span>
+    <span>17 February 2026</span>
+    <span>Status: For External Reviewers</span>
+  </div>
+</div>
+
+<!-- ─── OVERVIEW ────────────────────────────────────── -->
+
+<h2>Overview</h2>
+<p>Two paths produce the same result. Content never leaves the device. Only SHA-256 hashes cross any network boundary.</p>
+
+<hr>
+
+<!-- ─── DIAGRAM ────────────────────────────────────── -->
+
+<h2>Full Data Flow</h2>
+
+<div class="mermaid-container">
+  <pre class="mermaid">
+flowchart TB
+    subgraph CLIENT["Client Device"]
+        FILE["File / Photo / Data"]
+        HASH_FN["SHA-256 (Web Crypto API / local)"]
+        FILE -->|bytes stay local| HASH_FN
+        HASH_FN -->|64 hex chars| HASH_OUT["Hash: sha256:a1b2c3..."]
+    end
+
+    subgraph CLOUDFLARE["Cloudflare"]
+        WAF["WAF + Rate Limit"]
+        TLS["TLS Termination"]
+    end
+
+    subgraph SUPABASE["Supabase"]
+        subgraph EDGE["Edge Functions"]
+            V1_ORIGINS["POST /v1-core-origins (partner key required)"]
+            V1_VERIFY["POST /v1-core-verify (public)"]
+            V1_RESOLVE["GET /v1-core-resolve (public)"]
+            V1_PROOF["GET /v1-core-proof (public)"]
+            V1_HEALTH["GET /v1-core-health (public)"]
+        end
+
+        subgraph DB["PostgreSQL"]
+            OA["origin_attestations (write-once triggers)"]
+            OTS_P["core_ots_proofs (immutable after anchoring)"]
+            PAK["partner_api_keys (no delete)"]
+            RL["core_rate_limits"]
+            DDL["core_ddl_audit (event trigger)"]
+            PAGES["pages (App table)"]
+            BRIDGE["trigger: bridge_page_to_core"]
+        end
+    end
+
+    subgraph HETZNER["Hetzner Server"]
+        WORKER["OTS Worker (Node.js, cron every hour)"]
+        LEDGER["attestation-ledger (append-only JSONL)"]
+        SYNC["sync-attestations.js (cron every 5 min)"]
+    end
+
+    subgraph BITCOIN["Bitcoin Network"]
+        OTS_CAL["OTS Calendar Servers (3 independent)"]
+        BTC["Bitcoin Blockchain (immutable)"]
+    end
+
+    HASH_OUT -->|"POST hash + X-API-Key (TLS encrypted)"| WAF
+    WAF --> V1_ORIGINS
+    V1_ORIGINS -->|"validate key via"| PAK
+    V1_ORIGINS -->|"rate check"| RL
+    V1_ORIGINS -->|"INSERT (write-once)"| OA
+
+    HASH_OUT -->|"App: INSERT pages (Supabase RLS)"| PAGES
+    PAGES -->|"DB trigger"| BRIDGE
+    BRIDGE -->|"INSERT (write-once)"| OA
+
+    OA -->|"read unstamped"| WORKER
+    WORKER -->|"submit hash batch"| OTS_CAL
+    OTS_CAL -->|"anchor in"| BTC
+    OTS_CAL -->|"return .ots proof"| WORKER
+    WORKER -->|"store proof"| OTS_P
+
+    WAF --> V1_VERIFY
+    WAF --> V1_RESOLVE
+    WAF --> V1_PROOF
+    V1_VERIFY -->|"lookup"| OA
+    V1_RESOLVE -->|"lookup (first-in-time)"| OA
+    V1_PROOF -->|"download .ots"| OTS_P
+
+    WORKER -->|"append"| LEDGER
+    SYNC -->|"compare DB vs ledger"| OA
+    SYNC -->|"compare"| LEDGER
+
+    WAF --> V1_HEALTH
+    V1_HEALTH -->|"DB ping"| DB
+
+    DB -->|"DDL events"| DDL
+  </pre>
+</div>
+
+<hr>
+
+<!-- ─── BOUNDARY TABLE ─────────────────────────────── -->
+
+<h2>What Crosses Each Boundary</h2>
+<table>
+  <thead>
+    <tr><th>Boundary</th><th>What Crosses</th><th>What Does NOT Cross</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Client → Cloudflare</td><td>SHA-256 hash (64 hex chars), API key</td><td>File content, photos, PII</td></tr>
+    <tr><td>Cloudflare → Supabase</td><td>Hash, API key, request metadata</td><td>File content (never received)</td></tr>
+    <tr><td>Supabase → Hetzner</td><td>Hash, origin_id, timestamps (read by worker)</td><td>File content, API keys</td></tr>
+    <tr><td>Hetzner → OTS Calendars</td><td>Merkle root of hash batch</td><td>Individual hashes (aggregated)</td></tr>
+    <tr><td>OTS Calendars → Bitcoin</td><td>OTS commitment transaction</td><td>No Umarise data</td></tr>
+    <tr><td>Bitcoin → anyone</td><td>Block with Merkle root</td><td>Immutable, public</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── VISIBILITY TABLE ───────────────────────────── -->
+
+<h2>What Each Component Can See</h2>
+<table>
+  <thead>
+    <tr><th>Component</th><th>Can See</th><th>Cannot See</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Client device</td><td>Full file content + hash</td><td>Nothing hidden</td></tr>
+    <tr><td>Cloudflare</td><td>Hash in transit (TLS terminated)</td><td>File content</td></tr>
+    <tr><td>Supabase Edge Functions</td><td>Hash, API key hash, timestamps</td><td>File content, raw API key</td></tr>
+    <tr><td>Supabase PostgreSQL</td><td>Hash, origin_id, timestamps, key hash</td><td>File content, raw API key</td></tr>
+    <tr><td>Hetzner OTS Worker</td><td>Hash, origin_id, timestamps</td><td>File content, API keys</td></tr>
+    <tr><td>OTS Calendar Servers</td><td>Merkle root (aggregated hashes)</td><td>Individual hashes</td></tr>
+    <tr><td>Bitcoin Network</td><td>OTS commitment transaction</td><td>Nothing about Umarise</td></tr>
+    <tr><td>Public verifier</td><td>Hash, .ots proof, Bitcoin block</td><td>File content</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── DATA AT REST ───────────────────────────────── -->
+
+<h2>Data at Rest</h2>
+<table>
+  <thead>
+    <tr><th>Location</th><th>Data Stored</th><th>Protection</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Supabase DB</td><td>Hashes, origin_ids, timestamps, key hashes, proofs</td><td>RLS (7 tables), write-once triggers, DDL audit</td></tr>
+    <tr><td>Hetzner disk</td><td>.ots proof files, ledger (JSONL), sync log</td><td>Append-only flag on ledger, standard Linux permissions</td></tr>
+    <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── DATA IN TRANSIT ────────────────────────────── -->
+
+<h2>Data in Transit</h2>
+<table>
+  <thead>
+    <tr><th>Path</th><th>Encryption</th><th>Content</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Client → API</td><td>TLS 1.3 (Cloudflare)</td><td>Hash + API key</td></tr>
+    <tr><td>API → DB</td><td>Internal Supabase (encrypted)</td><td>Hash + metadata</td></tr>
+    <tr><td>Worker → DB</td><td>Supabase client (HTTPS)</td><td>Read: hashes; Write: proofs</td></tr>
+    <tr><td>Worker → OTS</td><td>HTTPS to calendar servers</td><td>Merkle root</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── CRITICAL INVARIANT ─────────────────────────── -->
+
+<h2>Critical Invariant</h2>
+
+<div class="highlight-box">
+  <strong>No column for content exists in any table.</strong>
+  This is architectural, not policy. There is no mechanism to store file content even if someone tried. The hash is a one-way function: content cannot be derived from it.
+</div>
+
+<div class="doc-footer">
+  Data Flow Diagram — Umarise Core API v1.0 — 17 February 2026
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'neutral',
+    flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+    securityLevel: 'loose'
+  });
+</script>
+
+</body>
+</html>
