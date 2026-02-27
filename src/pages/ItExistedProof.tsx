@@ -328,10 +328,13 @@ export default function ItExistedProof() {
               </div>
             )}
             {!anchored && (
-              <div className="flex items-start gap-2">
-                <span className="font-mono text-[13px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>⏳</span>
-                <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.5 }}>
-                  Awaiting Bitcoin anchoring
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
+                </span>
+                <p className="font-garamond text-[17px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.5 }}>
+                  Bitcoin proof in progress, ready in ~2 hours
                 </p>
               </div>
             )}
