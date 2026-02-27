@@ -243,12 +243,19 @@ export default function ItExistedProof() {
 
   const onDownload = async () => {
     if (!anchored) { toast.info('Proof is still pending. Come back in ~2 hours.'); return; }
-    const proof = await fetchProofStatus(state.originId);
-    if (proof.status !== 'anchored' || !proof.otsProofBytes) { toast.error('Not ready yet.'); return; }
+    const testMode = new URLSearchParams(window.location.search).get('test') === 'anchored';
+    let otsProofBase64: string | null = null;
+
+    if (!testMode) {
+      const proof = await fetchProofStatus(state.originId);
+      if (proof.status !== 'anchored' || !proof.otsProofBytes) { toast.error('Not ready yet.'); return; }
+      otsProofBase64 = arrayBufferToBase64(proof.otsProofBytes);
+    }
+
     const zip = await buildOriginZip({
       originId: state.originId, hash: state.hash,
       timestamp: new Date(state.capturedAt), imageUrl: null,
-      otsProof: arrayBufferToBase64(proof.otsProofBytes),
+      otsProof: otsProofBase64,
       artifactFile: artifactFile,
       originalFileName: artifactFile?.name ?? null,
       deviceSignature: state.deviceSignature,
