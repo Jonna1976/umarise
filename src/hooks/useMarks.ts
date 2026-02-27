@@ -381,6 +381,7 @@ export function useMarks() {
     file: File,
     type: LocalMark['type'] = 'warm',
     onProgress?: (fraction: number) => void,
+    skipPasskey?: boolean,
   ): Promise<DisplayMark | null> => {
     // Auto-initialize device ID if not present
     let deviceUserId = getDeviceId();
@@ -430,7 +431,7 @@ export function useMarks() {
       let deviceSignature: string | null = null;
       let devicePublicKey: string | null = null;
 
-      if (isWebAuthnSupported()) {
+      if (isWebAuthnSupported() && !skipPasskey) {
         let credential = getPasskeyCredential();
         if (!credential) {
           try {
