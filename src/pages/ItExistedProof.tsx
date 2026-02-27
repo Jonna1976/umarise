@@ -205,7 +205,7 @@ export default function ItExistedProof() {
         style={{ maxWidth: 420 }}>
 
         {/* TOP BLOCK */}
-        <div className="w-full flex flex-col items-center mb-12">
+        <div className="w-full flex flex-col items-start mb-12">
           {anchored && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
@@ -219,15 +219,15 @@ export default function ItExistedProof() {
             </motion.div>
           )}
           {anchored ? (
-            <h1 className="font-garamond text-[41px] font-normal text-center"
+            <h1 className="font-garamond text-[41px] font-normal"
               style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
               Your proof is ready.
             </h1>
           ) : (
             <div className="flex items-start gap-3">
               <span className="relative flex h-3 w-3 flex-shrink-0 mt-[18px]">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(240,234,214,0.4)' }}></span>
-                <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: 'rgba(240,234,214,0.5)' }}></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(201,169,110,0.5)' }}></span>
+                <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: '#c9a96e' }}></span>
               </span>
               <h1 className="font-garamond text-[38px] font-normal"
                 style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
