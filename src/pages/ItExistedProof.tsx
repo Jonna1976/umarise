@@ -343,7 +343,7 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[14px] tracking-[3px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
-                {artifactStatus === 'matched' ? 'Download your proof' : 'Add original file first'}
+                Download your proof
               </span>
               {artifactFile && (
                 <span className="font-mono text-[8px] tracking-[1px] lowercase ml-1"
