@@ -837,10 +837,7 @@ async function verifyZip(file) {
       hashMatch = true;
     } else {
       steps.push({ label: 'HASH MISMATCH', status: 'error', detail: 'Certificate: ' + certHash + ' ≠ Computed: ' + computedHash });
-      output.innerHTML = renderSteps(steps) +
-        renderBanner('failed', 'Invalid', 'The artifact in this ZIP does not match the hash in the certificate. The file may have been modified after anchoring.') +
-        renderReset();
-      return;
+      steps.push({ label: 'Artifact does not match certificate hash', status: 'warn', detail: 'This may be a compressed thumbnail from an older ZIP version. The certificate hash remains the authority.' });
     }
   }
 
@@ -905,9 +902,17 @@ async function verifyZip(file) {
 
       const disclaimer = '<br><br><span style="font-size:0.78rem;color:var(--text-dim)">VALID does not imply authorship, ownership, or truth.</span>';
 
+      const bannerType = hashMatch ? 'verified' : 'pending';
+      const bannerTitle = hashMatch 
+        ? 'Valid — ledger-confirmed' 
+        : 'Artifact mismatch — ledger-confirmed';
+      const artifactNote = hashMatch 
+        ? 'Artifact hash matches certificate.<br>' 
+        : '<span style="color:var(--yellow)">⚠ Artifact in ZIP does not match certificate hash (likely a compressed thumbnail from an older ZIP version).</span><br>';
+
       output.innerHTML = renderSteps(steps) +
-        renderBanner('verified', 'Valid — ledger-confirmed',
-          (hashMatch ? 'Artifact hash matches certificate.<br>' : '') +
+        renderBanner(bannerType, bannerTitle,
+          artifactNote +
           'Existence anchored in the Bitcoin blockchain.' +
           ledgerDetails + disclaimer +
           '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
@@ -967,10 +972,22 @@ async function verifyZip(file) {
           '<br><br><span style="font-size:0.78rem;color:var(--text-dim)">VALID (bytes) does not imply authorship, ownership, or truth.</span>'
         ) +
         renderReset();
+    } else if (artifactFiles.length > 0 && !hashMatch) {
+      output.innerHTML = renderSteps(steps) +
+        renderBanner('failed', 'Artifact mismatch — ledger unverifiable',
+          'The artifact in this ZIP does not match the certificate hash. ' +
+          'This may be a compressed preview from an older ZIP version.<br><br>' +
+          'No .ots proof was included, so Bitcoin anchoring cannot be verified here either. ' +
+          'To verify this origin, re-download the ZIP from the app (which now excludes non-original artifacts) ' +
+          'or verify the original file hash manually against the certificate.' +
+          '<br><br><span style="font-size:0.78rem;color:var(--text-dim)">The certificate hash remains the authority for independent verification.</span>'
+        ) +
+        renderReset();
     } else {
       output.innerHTML = renderSteps(steps) +
-        renderBanner('pending', 'Unverifiable',
-          'The certificate was readable but no artifact file was found for hash recomputation.'
+        renderBanner('pending', 'Certificate only — ledger unverifiable',
+          'The certificate was readable but no artifact was included for hash recomputation.<br><br>' +
+          'No .ots proof was included. The anchor may still be pending, or the proof was not yet available when this ZIP was generated.'
         ) +
         renderReset();
     }
