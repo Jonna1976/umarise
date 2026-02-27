@@ -217,15 +217,15 @@ export default function ItExistedProof() {
               </svg>
             </motion.div>
           )}
-          <h1 className="font-garamond text-[48px] font-normal text-center mb-10"
+          <h1 className="font-garamond text-[34px] font-normal text-center mb-8"
             style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
           </h1>
-          <p className="font-mono text-[26px] tracking-[6px] text-center mb-4"
+          <p className="font-mono text-[18px] tracking-[5px] text-center mb-3"
             style={{ color: '#c9a96e' }}>
             {state.shortToken}
           </p>
-          <p className="font-garamond text-[24px] text-center"
+          <p className="font-garamond text-[17px] text-center"
             style={{ color: 'rgba(240,234,214,0.85)' }}>
             {date} - {time}
           </p>
@@ -233,8 +233,8 @@ export default function ItExistedProof() {
           {/* Layer 2 device binding indicator */}
           {state.deviceSignature && (
             <div className="flex items-center gap-2 mt-4">
-              <span className="font-mono text-[10px]" style={{ color: '#7fba6a' }}>✓</span>
-              <span className="font-mono text-[11px] tracking-[2px] uppercase"
+              <span className="font-mono text-[7px]" style={{ color: '#7fba6a' }}>✓</span>
+              <span className="font-mono text-[8px] tracking-[2px] uppercase"
                 style={{ color: 'rgba(127,186,106,0.7)' }}>
                 Device-signed
               </span>
@@ -250,7 +250,7 @@ export default function ItExistedProof() {
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
               <motion.span
-                className="font-mono text-[14px] tracking-[4px] uppercase"
+                className="font-mono text-[10px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(201,169,110,0.6)' }}
                 animate={{ opacity: [0.5, 0.9, 0.5] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
@@ -261,31 +261,31 @@ export default function ItExistedProof() {
         </div>
 
         {/* ── RENAME TIP ── */}
-        <p className="font-garamond italic text-[18px] text-center mb-10 w-full"
-          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 340, alignSelf: 'center' }}>
+        <p className="font-garamond italic text-[13px] text-center mb-8 w-full"
+          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 300, alignSelf: 'center' }}>
           Tip: rename your file to include{' '}
-          <span className="font-mono text-[15px]" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span>{' '}
+          <span className="font-mono text-[11px]" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span>{' '}
           so you can always match it to this proof.
         </p>
 
         {/* ── RECORD DETAILS ── */}
-        <div className="w-full mb-10" style={{ maxWidth: 400 }}>
-          <div className="flex justify-between items-baseline mb-4">
-            <span className="font-mono text-[13px] tracking-[2px] uppercase"
+        <div className="w-full mb-8" style={{ maxWidth: 400 }}>
+          <div className="flex justify-between items-baseline mb-3">
+            <span className="font-mono text-[9px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Origin ID</span>
-            <span className="font-mono text-[22px] tracking-[4px]"
+            <span className="font-mono text-[15px] tracking-[3px]"
               style={{ color: '#c9a96e' }}>{state.shortToken}</span>
           </div>
-          <div className="flex justify-between items-baseline mb-4">
-            <span className="font-mono text-[13px] tracking-[2px] uppercase"
+          <div className="flex justify-between items-baseline mb-3">
+            <span className="font-mono text-[9px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Date</span>
-            <span className="font-garamond text-[20px]"
+            <span className="font-garamond text-[14px]"
               style={{ color: 'rgba(240,234,214,0.5)' }}>{date} · {time}</span>
           </div>
           <div className="flex justify-between items-start">
-            <span className="font-mono text-[13px] tracking-[2px] uppercase pt-1"
+            <span className="font-mono text-[9px] tracking-[2px] uppercase pt-1"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Hash</span>
-            <span className="font-mono text-[13px] text-right break-all"
+            <span className="font-mono text-[9px] text-right break-all"
               style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 250 }}>
               {state.hash}
             </span>
@@ -294,43 +294,43 @@ export default function ItExistedProof() {
 
         {/* ── COMPLETED STEPS ── */}
         <div className="w-full mb-8" style={{ maxWidth: 400 }}>
-          <p className="font-mono text-[12px] tracking-[3px] uppercase mb-5"
+          <p className="font-mono text-[8px] tracking-[3px] uppercase mb-4"
             style={{ color: 'rgba(201,169,110,0.4)' }}>
             ✓ Completed
           </p>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-start gap-3">
-              <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-              <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-start gap-2">
+              <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[14px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
                 SHA-256 fingerprint calculated from your file
               </p>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-              <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+            <div className="flex items-start gap-2">
+              <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+              <p className="font-garamond text-[14px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
                 Fingerprint submitted to the origin registry
               </p>
             </div>
             {state.deviceSignature && (
-              <div className="flex items-start gap-3">
-                <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+              <div className="flex items-start gap-2">
+                <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+                <p className="font-garamond text-[14px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
                   Signed with your device's hardware key
                 </p>
               </div>
             )}
             {anchored && (
-              <div className="flex items-start gap-3">
-                <span className="font-mono text-[16px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
-                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
+              <div className="flex items-start gap-2">
+                <span className="font-mono text-[11px] mt-0.5" style={{ color: '#c9a96e' }}>✓</span>
+                <p className="font-garamond text-[14px]" style={{ color: 'rgba(240,234,214,0.7)', lineHeight: 1.5 }}>
                   Anchored in Bitcoin block{state.bitcoinBlockHeight ? ` #${state.bitcoinBlockHeight}` : ''}
                 </p>
               </div>
             )}
             {!anchored && (
-              <div className="flex items-start gap-3">
-                <span className="font-mono text-[16px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>⏳</span>
-                <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.5 }}>
+              <div className="flex items-start gap-2">
+                <span className="font-mono text-[11px] mt-0.5" style={{ color: 'rgba(240,234,214,0.25)' }}>⏳</span>
+                <p className="font-garamond text-[14px]" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.5 }}>
                   Awaiting Bitcoin anchoring
                 </p>
               </div>
@@ -347,11 +347,11 @@ export default function ItExistedProof() {
           {/* ── STEP 1: ADD YOUR FILE ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <div className="flex items-baseline w-full mb-3">
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Upload your original file</span>
-              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+              <span className="font-mono text-[8px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
             </div>
             <div className="pl-[23px]">
@@ -368,16 +368,16 @@ export default function ItExistedProof() {
                 >
                   <input type="file" className="hidden" accept="*/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                  <p className="font-mono text-[11px] tracking-[2px] uppercase mb-1"
+                  <p className="font-mono text-[8px] tracking-[2px] uppercase mb-1"
                     style={{ color: 'rgba(201,169,110,0.5)' }}>
                     {dragOver ? 'Release to verify' : 'Drop your original file here'}
                   </p>
-                   <p className="font-garamond italic text-[14px]"
+                   <p className="font-garamond italic text-[10px]"
                     style={{ color: 'rgba(240,234,214,0.25)' }}>
                      Included in the ZIP so you have everything in one bundle on your device
                    </p>
                   {artifactStatus === 'mismatch' && (
-                    <p className="font-mono text-[10px] mt-2"
+                    <p className="font-mono text-[7px] mt-2"
                       style={{ color: 'rgba(220,80,60,0.7)' }}>
                       ✗ Last file did not match. Try the original
                     </p>
@@ -391,18 +391,18 @@ export default function ItExistedProof() {
                       <path d="M12 3 A9 9 0 0 1 21 12" fill="none" stroke="rgba(201,169,110,0.6)" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </motion.div>
-                  <span className="font-mono text-[11px] tracking-[2px] uppercase"
+                  <span className="font-mono text-[8px] tracking-[2px] uppercase"
                     style={{ color: 'rgba(240,234,214,0.35)' }}>Verifying hash…</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 py-2">
-                  <span className="font-mono text-[12px]" style={{ color: '#7fba6a' }}>✓</span>
-                  <span className="font-mono text-[11px] tracking-[1px]"
+                  <span className="font-mono text-[8px]" style={{ color: '#7fba6a' }}>✓</span>
+                  <span className="font-mono text-[8px] tracking-[1px]"
                     style={{ color: 'rgba(240,234,214,0.65)' }}>
                     {artifactFile?.name}
                   </span>
                   <button onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
-                    className="font-mono text-[9px] tracking-[1px] uppercase ml-auto"
+                    className="font-mono text-[7px] tracking-[1px] uppercase ml-auto"
                     style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
                     Change
                   </button>
@@ -422,17 +422,17 @@ export default function ItExistedProof() {
                 cursor: artifactStatus === 'matched' ? 'pointer' : 'not-allowed',
                 opacity: artifactStatus === 'matched' ? 1 : 0.35,
               }}>
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
                 {artifactStatus === 'matched' ? 'Download your proof' : 'Add original file first'}
               </span>
               {artifactFile && (
-                <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1"
+                <span className="font-mono text-[7px] tracking-[1px] lowercase ml-1"
                   style={{ color: 'rgba(127,186,106,0.6)', whiteSpace: 'nowrap' }}>incl. original</span>
               )}
-              <span className="ml-auto text-[12px] flex-shrink-0"
+              <span className="ml-auto text-[8px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
           </div>
@@ -443,11 +443,11 @@ export default function ItExistedProof() {
               onClick={() => !lockedStyle.opacity && toggleStep('verify')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify it</span>
-              <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
+              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
                 style={{
                   color: 'rgba(240,234,214,0.35)',
                   transform: openStep === 'verify' ? 'rotate(180deg)' : 'none',
@@ -474,11 +474,11 @@ export default function ItExistedProof() {
               onClick={onShare}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
-              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+              <span className="font-mono text-[8px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
             </button>
           </div>
@@ -489,13 +489,13 @@ export default function ItExistedProof() {
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
-              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+              <span className="font-mono text-[8px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
-              <span className="ml-auto text-[12px] flex-shrink-0 transition-transform"
+              <span className="ml-auto text-[8px] flex-shrink-0 transition-transform"
                 style={{
                   color: 'rgba(240,234,214,0.35)',
                   transform: openStep === 'attest' ? 'rotate(180deg)' : 'none',
@@ -519,13 +519,13 @@ export default function ItExistedProof() {
               onClick={() => navigate('/itexisted')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
+              <span className="font-mono text-[12px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>6.</span>
-              <span className="font-mono text-[17px] tracking-[4px] uppercase"
+              <span className="font-mono text-[12px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
-              <span className="font-mono text-[12px] tracking-[1px] lowercase ml-2"
+              <span className="font-mono text-[8px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
-              <span className="ml-auto text-[12px] flex-shrink-0"
+              <span className="ml-auto text-[8px] flex-shrink-0"
                 style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
             </button>
           </div>
