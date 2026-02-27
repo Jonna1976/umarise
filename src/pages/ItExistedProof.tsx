@@ -273,7 +273,7 @@ export default function ItExistedProof() {
               <span className="font-mono text-[14px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
               <span className="font-mono text-[14px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Upload your original file</span>
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Verify & bundle your original file</span>
             </div>
             <div className="pl-[23px]">
               {artifactStatus === 'idle' || artifactStatus === 'mismatch' ? (
