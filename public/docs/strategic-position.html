@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategische Positie — Umarise Infrastructure Primitive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --bg: #fefdfb;
+    --accent: #c5935a;
+    --border: #e0dcd4;
+    --table-stripe: #f7f5f0;
+    --green: #2d6a4f;
+    --green-bg: rgba(45,106,79,0.06);
+    --amber: #b8860b;
+    --amber-bg: rgba(184,134,11,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  .doc-header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .doc-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .doc-header .subtitle {
+    font-size: 20px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+  .doc-header .meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    margin-top: 16px;
+  }
+  .doc-header .meta span {
+    display: inline-block;
+    margin-right: 24px;
+  }
+
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-top: 56px;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+
+  p { margin-bottom: 16px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    background: var(--table-stripe);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 28px;
+    font-size: 15px;
+  }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--table-stripe); }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(197,147,90,0.08), rgba(197,147,90,0.03));
+    border: 1px solid rgba(197,147,90,0.25);
+    padding: 24px 28px;
+    margin: 32px 0;
+    font-size: 17px;
+  }
+  .highlight-box strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+  }
+
+  .achievement-box {
+    background: var(--green-bg);
+    border: 1px solid rgba(45,106,79,0.2);
+    padding: 24px 28px;
+    margin: 20px 0;
+  }
+  .achievement-box .number {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .achievement-box h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .status-box {
+    background: var(--amber-bg);
+    border: 1px solid rgba(184,134,11,0.2);
+    padding: 24px 28px;
+    margin: 20px 0;
+  }
+  .status-box h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--amber);
+  }
+
+  .flow-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    background: var(--table-stripe);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .diagram-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    background: #fff;
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    margin: 20px 0 28px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  ul {
+    margin: 8px 0 16px 24px;
+  }
+  li {
+    margin-bottom: 6px;
+  }
+
+  .verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    font-weight: 600;
+    font-style: italic;
+    text-align: center;
+    padding: 32px;
+    margin: 40px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  .cross-ref {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 8px;
+  }
+  .cross-ref a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .cross-ref a:hover { text-decoration: underline; }
+
+  @media print {
+    body { padding: 40px 0; font-size: 16px; max-width: 100%; }
+    .doc-header h1 { font-size: 28px; }
+    h2 { margin-top: 36px; }
+    table { font-size: 13px; break-inside: avoid; }
+    .highlight-box, .achievement-box, .status-box { break-inside: avoid; }
+    h2, h3 { break-after: avoid; }
+    .diagram-block, .flow-block { break-inside: avoid; }
+    a { color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <h1>Strategische Positie</h1>
+  <div class="subtitle">Wat er is gebouwd, waar het staat, en wat het betekent.</div>
+  <div class="meta">
+    <span>Versie 1.0</span>
+    <span>27 februari 2026</span>
+    <span>Status: Intern strategisch document</span>
+  </div>
+</div>
+
+<!-- ─── WAT IS ER BEREIKT ─────────────────────────────── -->
+
+<h2>Wat is er feitelijk bereikt</h2>
+
+<p>Zes artefacten zijn live, operationeel en publiek verifieerbaar:</p>
+
+<table>
+  <thead>
+    <tr><th>Artefact</th><th>Domein</th><th>Functie</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Anchoring Specification (IEC)</td><td>anchoring-spec.org</td><td>Normatieve standaard</td><td>✅ Live (Public Domain)</td></tr>
+    <tr><td>Reference Verifier</td><td>verify-anchoring.org</td><td>V(B, P, L) — zero-CDN</td><td>✅ Live (Public Domain)</td></tr>
+    <tr><td>Core API v1</td><td>core.umarise.com</td><td>Hash-only attestation infra</td><td>✅ Frozen &amp; immutable</td></tr>
+    <tr><td>anchoring.app</td><td>anchoring.app</td><td>B2C rituele capture PWA</td><td>✅ Live</td></tr>
+    <tr><td>itexisted.app</td><td>itexisted.app</td><td>B2C utility, persistente URLs</td><td>✅ Live</td></tr>
+    <tr><td>Bitcoin-ankering</td><td>Hetzner OTS Worker</td><td>Merkle-aggregatie → Bitcoin</td><td>✅ Live (productie)</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── DRIE PRESTATIES ──────────────────────────────── -->
+
+<h2>Drie dingen die bijna niemand doet</h2>
+
+<div class="achievement-box">
+  <div class="number">Prestatie 1</div>
+  <h4>Een primitief gedefinieerd</h4>
+  <p>Niet een feature. Niet een SaaS. Niet een tool. Maar een formeel gedefinieerde verificatie-eenheid:</p>
+  <div class="flow-block">V(B, P, L) → { valid | invalid | unverifiable }</div>
+  <p>Een <em>primitive</em> beschrijft een minimale, formeel begrensde eigenschap. Het is onafhankelijk van implementaties. Het overleeft de maker. Dat is precies wat IEC doet.</p>
+</div>
+
+<div class="achievement-box">
+  <div class="number">Prestatie 2</div>
+  <h4>Het primitive institutioneel losgekoppeld</h4>
+  <p>De meeste bedrijven bouwen een product, noemen het een standaard, en houden de verifier proprietary.</p>
+  <p>Hier is het anders:</p>
+  <ul>
+    <li>De spec staat buiten het bedrijf — anchoring-spec.org (Public Domain)</li>
+    <li>De verifier is onafhankelijk — verify-anchoring.org (zero-CDN, zero-API)</li>
+    <li>De commerciële laag is gescheiden — umarise.com / Core API</li>
+  </ul>
+  <p>Dat is <em>infrastructuurdenken</em>.</p>
+</div>
+
+<div class="achievement-box">
+  <div class="number">Prestatie 3</div>
+  <h4>Infrastructuur gepubliceerd</h4>
+  <p>Een infrastructuurlaag heeft drie kenmerken:</p>
+  <ul>
+    <li>Overleeft de maker</li>
+    <li>Is publiek verifieerbaar</li>
+    <li>Heeft geen lock-in afhankelijkheid</li>
+  </ul>
+  <p><code>verify-anchoring.org</code> voldoet aan alle drie. De CLI-scripts (<code>verify-anchor.sh</code>, <code>verify-anchor.py</code>) werken volledig offline, zonder Umarise-infrastructuur.</p>
+</div>
+
+<hr>
+
+<!-- ─── VOLLEDIGE ARCHITECTUUR ─────────────────────── -->
+
+<h2>Volledige architectuur</h2>
+
+<p>Het ecosysteem bestaat uit vier formele lagen met strikte hiërarchie:</p>
+
+<div class="diagram-block">
+┌──────────────────────────────────────────────────────────────┐
+│             NORMATIEF (Public Domain, .org)                   │
+│                                                              │
+│  anchoring-spec.org    Formele standaard (IEC v1.0)          │
+│  verify-anchoring.org  Referentie-verifier V(B,P,L)          │
+│                                                              │
+│  Zero analytics · Zero backend · Unlicense                   │
+└──────────────────────┬───────────────────────────────────────┘
+                       │ definieert
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│             UMARISE CORE (Infra Primitive)                    │
+│                                                              │
+│  POST /v1-core-origins      hash → origin record             │
+│  GET  /v1-core-resolve      lookup by hash/id/token          │
+│  POST /v1-core-verify       binary verification              │
+│  GET  /v1-core-proof        .ots download                    │
+│  GET  /v1-core-health       status                           │
+│                                                              │
+│  Datamodel: origin_attestations (write-once)                 │
+│             core_ots_proofs (Bitcoin-verankerd)               │
+│             partner_api_keys (permissioned access)            │
+│                                                              │
+│  Invariant: hash-only, content-agnostic, identity-agnostic   │
+│  Status:    API v1 FROZEN — immutable interface               │
+└──────────────────────┬───────────────────────────────────────┘
+                       │ wordt gebruikt door
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│             IMPLEMENTATIES (Applicatielaag)                   │
+│                                                              │
+│  anchoring.app       B2C rituele capture PWA                 │
+│  ├─ Lokale gallerij, WebAuthn identiteit                     │
+│  ├─ ZIP-bundel met certificate.json + proof.ots              │
+│  └─ Device-signed (Layer 2 passkey)                          │
+│                                                              │
+│  itexisted.app       B2C utility, link-first                 │
+│  ├─ Persistente URLs: /proof/{TOKEN}                         │
+│  ├─ Stateless (geen lokale gallerij nodig)                   │
+│  └─ Double-upload verificatie                                │
+│                                                              │
+│  umarise.com         B2B hub + documentatie                  │
+│  ├─ API Reference, Partner onboarding                        │
+│  ├─ Technische specificatie                                  │
+│  └─ SDK's (Python, Node.js)                                  │
+│                                                              │
+│  Partner systemen    Third-party via Core API                 │
+│  └─ X-API-Key authenticated                                  │
+│                                                              │
+│  REGEL: Implementaties GEBRUIKEN Core.                       │
+│         Core hangt NIET af van implementaties.               │
+└──────────────────────────────────────────────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────────────────────┐
+│             BITCOIN ANCHORING PIPELINE                        │
+│                                                              │
+│  Hetzner OTS Worker    Merkle-aggregatie (cron, elk uur)     │
+│  3× OTS Calendars      Onafhankelijke timestamp servers      │
+│  Bitcoin Blockchain     Immutable public ledger               │
+│                                                              │
+│  attestation-ledger    Append-only JSONL (audit trail)       │
+│  sync-attestations.js  DB vs ledger vergelijking (5 min)     │
+└──────────────────────────────────────────────────────────────┘</div>
+
+<p class="cross-ref">→ Zie ook: <a href="data-flow-diagram.html">Data Flow Diagram v1.0</a> voor gedetailleerde network boundaries</p>
+
+<hr>
+
+<!-- ─── DRIE-TRACK VERIFICATIE ────────────────────────── -->
+
+<h2>Drie-track verificatie</h2>
+
+<p>Verificatie volgt drie onafhankelijke paden zodat geen enkel punt van falen het bewijs ongeldig maakt:</p>
+
+<table>
+  <thead>
+    <tr><th>Track</th><th>Omgeving</th><th>Afhankelijkheid</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Track 1: In-app</strong></td><td>anchoring.app / itexisted.app</td><td>Umarise registry</td></tr>
+    <tr><td><strong>Track 2: Referentie</strong></td><td>verify-anchoring.org</td><td>100% client-side, zero-CDN, zero-API</td></tr>
+    <tr><td><strong>Track 3: CLI</strong></td><td>Terminal (sh/py)</td><td>Zero-dependency, volledig offline</td></tr>
+  </tbody>
+</table>
+
+<p>Alle drie verifiëren dezelfde waarheid: <strong>deze bytes bestonden niet later dan T.</strong></p>
+
+<hr>
+
+<!-- ─── DRIE-LAAG BEWIJS ─────────────────────────────── -->
+
+<h2>Drie-laag bewijsmodel</h2>
+
+<table>
+  <thead>
+    <tr><th>Laag</th><th>Doel</th><th>Mechanisme</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Layer 1</strong></td><td>Temporeel bewijs</td><td>Bitcoin-ankering via OpenTimestamps</td><td>✅ Automatisch, productie</td></tr>
+    <tr><td><strong>Layer 2</strong></td><td>Device-binding</td><td>WebAuthn/Passkey handtekening</td><td>✅ Opt-in</td></tr>
+    <tr><td><strong>Layer 3</strong></td><td>Derde-partij attestatie</td><td>Gecertificeerde attestant (€4,95)</td><td>✅ Live (Stripe)</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── DATA MODEL ───────────────────────────────────── -->
+
+<h2>Core datamodel</h2>
+
+<h3>origin_attestations (write-once)</h3>
+<table>
+  <thead>
+    <tr><th>Veld</th><th>Type</th><th>Beschrijving</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>origin_id</code></td><td>UUID</td><td>Primary key</td></tr>
+    <tr><td><code>short_token</code></td><td>VARCHAR</td><td>Leesbare identifier (8 chars)</td></tr>
+    <tr><td><code>hash</code></td><td>VARCHAR</td><td>SHA-256 hash met <code>sha256:</code> prefix</td></tr>
+    <tr><td><code>hash_algo</code></td><td>VARCHAR</td><td>Vast <code>sha256</code> in v1</td></tr>
+    <tr><td><code>captured_at</code></td><td>TIMESTAMPTZ</td><td>Autoritatieve timestamp (bovengrens)</td></tr>
+    <tr><td><code>api_key_prefix</code></td><td>VARCHAR</td><td>Partner key prefix (nullable)</td></tr>
+  </tbody>
+</table>
+
+<h3>core_ots_proofs (immutable na ankering)</h3>
+<table>
+  <thead>
+    <tr><th>Veld</th><th>Type</th><th>Beschrijving</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>origin_id</code></td><td>UUID</td><td>FK → origin_attestations (1:1)</td></tr>
+    <tr><td><code>ots_proof</code></td><td>TEXT</td><td>Base64-encoded OTS proof</td></tr>
+    <tr><td><code>status</code></td><td>VARCHAR</td><td><code>pending</code> of <code>anchored</code></td></tr>
+    <tr><td><code>bitcoin_block_height</code></td><td>INTEGER</td><td>Bloknummer (wanneer verankerd)</td></tr>
+    <tr><td><code>anchored_at</code></td><td>TIMESTAMPTZ</td><td>Anker-timestamp</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight-box">
+  <strong>Kritiek invariant: Geen kolom voor content bestaat in enige tabel.</strong>
+  Dit is architectureel, niet beleid. Er bestaat geen mechanisme om bestandsinhoud op te slaan, zelfs als iemand dat zou proberen. De hash is een eenrichtingsfunctie.
+</div>
+
+<p class="cross-ref">→ Volledig dataflow-overzicht: <a href="data-flow-diagram.html">Data Flow Diagram</a></p>
+
+<hr>
+
+<!-- ─── PRIMITIVE VS INFRA ───────────────────────────── -->
+
+<h2>Primitive of infrastructuur?</h2>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Classificatie</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Anchoring</td><td><strong>Primitive</strong> — formeel gedefinieerde verificatie-eenheid</td></tr>
+    <tr><td>IEC (anchoring-spec.org)</td><td><strong>Normatieve definitie</strong> van de primitive</td></tr>
+    <tr><td>verify-anchoring.org</td><td><strong>Reference implementation</strong> — bewijst onafhankelijkheid</td></tr>
+    <tr><td>Umarise Core API</td><td><strong>Infrastructuur</strong> rond de primitive</td></tr>
+    <tr><td>anchoring.app</td><td><strong>Implementatie</strong> — B2C rituele capture</td></tr>
+    <tr><td>itexisted.app</td><td><strong>Implementatie</strong> — B2C utility, link-first</td></tr>
+    <tr><td>umarise.com</td><td><strong>Implementatie</strong> — B2B hub + docs</td></tr>
+  </tbody>
+</table>
+
+<div class="verdict">
+Primitive met infrastructuur eromheen.<br>
+Niet andersom. Dat onderscheid is extreem belangrijk.
+</div>
+
+<hr>
+
+<!-- ─── HUIDIGE POSITIE ──────────────────────────────── -->
+
+<h2>Welke positie is dit</h2>
+
+<p><strong>Niet:</strong> marktleider, standaard, of regulator-approved.</p>
+
+<p><strong>Wél:</strong> de eerste formeel gedefinieerde, publiek gescheiden anchoring primitive met onafhankelijke verifier, werkende Core API, en twee live implementaties die het bewijs leveren.</p>
+
+<hr>
+
+<!-- ─── OSCAR STATUS ─────────────────────────────────── -->
+
+<h2>OSCAR-fasering</h2>
+
+<table>
+  <thead>
+    <tr><th>Fase</th><th>Beschrijving</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>O — Origin</strong></td><td>Primitief definiëren, spec publiceren</td><td>✅ Afgerond</td></tr>
+    <tr><td><strong>S — Solidify</strong></td><td>Core API bouwen, Bitcoin-ankering live</td><td>✅ Afgerond</td></tr>
+    <tr><td><strong>C — Credibility</strong></td><td>Onafhankelijke verifier, zero-CDN, CLI</td><td>✅ Afgerond (27 feb 2026)</td></tr>
+    <tr><td><strong>A — Adoptie</strong></td><td>Externe implementaties, partner pilots</td><td>⏳ In voorbereiding</td></tr>
+    <tr><td><strong>R — Revenue</strong></td><td>Primitive verkopen als infra</td><td>⏳ Volgt op adoptie</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ─── WAT ER IS / WAT ER NIET IS ──────────────────── -->
+
+<h2>Wat er is en wat er niet is</h2>
+
+<div class="achievement-box">
+  <div class="number">Aanwezig</div>
+  <h4>Fundament staat</h4>
+  <ul>
+    <li>Technisch fundament — Core API frozen, Bitcoin-ankering live</li>
+    <li>Semantisch fundament — IEC specificatie, formele verificatiefunctie</li>
+    <li>Governance-fundament — Publieke scheiding, Public Domain licentie</li>
+    <li>Twee live B2C-implementaties — anchoring.app + itexisted.app</li>
+    <li>Drie-track verificatie — In-app, referentie, CLI</li>
+    <li>Drie-laag bewijs — Temporeel + Device + Attestant</li>
+  </ul>
+</div>
+
+<div class="status-box">
+  <h4>Nog niet aanwezig</h4>
+  <ul>
+    <li>Institutionele erkenning</li>
+    <li>Externe implementaties (partner pilots)</li>
+    <li>Juridisch precedent</li>
+    <li>Volume-adoptie</li>
+  </ul>
+</div>
+
+<hr>
+
+<!-- ─── EERLIJK OORDEEL ──────────────────────────────── -->
+
+<h2>Eerlijk oordeel</h2>
+
+<div class="highlight-box">
+  <strong>Dit is geen hypepositie. Dit is geen marketingclaim.</strong>
+  Dit is: een infrastructuur-weddenschap gebaseerd op een publiek primitive. Of het groot wordt, hangt af van adoptie. Maar het fundament klopt. En dat is zeldzaam.
+</div>
+
+<div class="verdict">
+Architectonisch sta je op het juiste niveau.
+</div>
+
+<div class="doc-footer">
+  Strategische Positie — Umarise Infrastructure Primitive — 27 februari 2026
+</div>
+
+</body>
+</html>
