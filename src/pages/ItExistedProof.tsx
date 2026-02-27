@@ -152,13 +152,80 @@ export default function ItExistedProof() {
 
   /* ── ACTIONS ── */
   const onShare = async () => {
+    // If artifact + anchored → share ZIP bundle
+    if (anchored && artifactFile) {
+      try {
+        const testAnchored = new URLSearchParams(window.location.search).get('test') === 'anchored';
+        let zipBlob: Blob;
+
+        if (testAnchored) {
+          zipBlob = await buildOriginZip({
+            originId: state.originId, hash: state.hash,
+            timestamp: new Date(state.capturedAt), imageUrl: null,
+            otsProof: null,
+            artifactFile, originalFileName: artifactFile.name,
+            deviceSignature: state.deviceSignature,
+            devicePublicKey: state.devicePublicKey,
+          });
+        } else {
+          const proof = await fetchProofStatus(state.originId);
+          if (proof.status !== 'anchored' || !proof.otsProofBytes) {
+            toast.error('Proof not ready yet.');
+            return;
+          }
+          zipBlob = await buildOriginZip({
+            originId: state.originId, hash: state.hash,
+            timestamp: new Date(state.capturedAt), imageUrl: null,
+            otsProof: arrayBufferToBase64(proof.otsProofBytes),
+            artifactFile, originalFileName: artifactFile.name,
+            deviceSignature: state.deviceSignature,
+            devicePublicKey: state.devicePublicKey,
+          });
+        }
+
+        const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile.name);
+        const zipFile = new File([zipBlob], fileName, { type: 'application/zip' });
+
+        // iOS: direct download to avoid byte corruption via navigator.share
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+          const url = URL.createObjectURL(zipBlob);
+          const a = document.createElement('a');
+          a.href = url; a.download = fileName; a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          toast.success('ZIP downloaded. Share via email or messaging app.\nSend the original file separately via a secure channel.');
+          return;
+        }
+
+        if (navigator.share && navigator.canShare?.({ files: [zipFile] })) {
+          await navigator.share({
+            title: `Origin ${state.shortToken}`,
+            text: `Anchored proof for origin ${state.shortToken}.\nSend your original file separately via a secure channel.`,
+            files: [zipFile],
+          });
+          return;
+        }
+
+        // Desktop fallback: download
+        const url = URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        toast.success('ZIP downloaded. Share it manually.');
+        return;
+      } catch (e) {
+        console.warn('[Share] ZIP share failed, falling back to URL:', e);
+      }
+    }
+
+    // Fallback: share proof URL only
     if (navigator.share) {
       try {
         const msg = `Origin ${state.shortToken}, anchored proof.\nVerify: ${shareUrl}\n\nSend your original file separately via a secure channel, because bytes must stay intact for verification.`;
         await navigator.share({ title: `Origin ${state.shortToken}`, text: msg, url: shareUrl });
         return;
       } catch {
-        // Share cancelled or unavailable in this context, fall through to clipboard
+        // cancelled
       }
     }
     try {
