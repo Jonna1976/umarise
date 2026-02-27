@@ -260,13 +260,6 @@ export default function ItExistedProof() {
           )}
         </div>
 
-        {/* ── RENAME TIP ── */}
-        <p className="font-garamond italic text-[16px] text-center mb-8 w-full"
-          style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.6, maxWidth: 320, alignSelf: 'center' }}>
-          Tip: rename your file to include{' '}
-          <span className="font-mono text-[13px]" style={{ color: 'rgba(201,169,110,0.5)' }}>{state.shortToken}</span>{' '}
-          so you can always match it to this proof.
-        </p>
 
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8" style={{ maxWidth: 400 }}>
