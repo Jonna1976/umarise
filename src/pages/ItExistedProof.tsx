@@ -291,12 +291,8 @@ export default function ItExistedProof() {
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
                   <p className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
                     style={{ color: 'rgba(201,169,110,0.5)' }}>
-                    {dragOver ? 'Release to verify' : 'Drop your original file here'}
+                    {dragOver ? 'Release to verify' : 'Select or drop file'}
                   </p>
-                   <p className="font-garamond italic text-[12px]"
-                    style={{ color: 'rgba(240,234,214,0.25)' }}>
-                     Included in the ZIP so you have everything in one bundle on your device
-                   </p>
                   {artifactStatus === 'mismatch' && (
                     <p className="font-mono text-[8px] mt-2"
                       style={{ color: 'rgba(220,80,60,0.7)' }}>
