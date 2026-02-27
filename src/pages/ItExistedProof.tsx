@@ -462,7 +462,7 @@ export default function ItExistedProof() {
                 Download your proof
               </span>
               <span className="ml-auto text-[15px] flex-shrink-0"
-                style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
+                style={{ color: 'rgba(240,234,214,0.35)' }}></span>
             </button>
           </div>
 
@@ -540,7 +540,7 @@ export default function ItExistedProof() {
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
               <span className="ml-auto text-[15px] flex-shrink-0"
-                style={{ color: 'rgba(240,234,214,0.35)' }}>→</span>
+                style={{ color: 'rgba(240,234,214,0.35)' }}></span>
             </button>
           </div>
 
