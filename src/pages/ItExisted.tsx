@@ -119,7 +119,7 @@ export default function ItExisted() {
     };
 
     localStorage.setItem('itexisted_last_anchor', JSON.stringify(payload));
-    navigate('/itexisted/anchored', { state: payload });
+    navigate(`/itexisted/proof/${shortToken}`);
   };
 
   return (
