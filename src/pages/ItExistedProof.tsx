@@ -243,13 +243,13 @@ export default function ItExistedProof() {
           <div className="flex justify-between items-baseline mb-3">
             <span className="font-mono text-[13px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Origin ID</span>
-            <span className="font-mono text-[20px] tracking-[3px]"
+            <span className="font-mono text-[18px] tracking-[3px]"
               style={{ color: '#c9a96e' }}>{state.shortToken}</span>
           </div>
           <div className="flex justify-between items-baseline mb-3">
             <span className="font-mono text-[13px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Date</span>
-            <span className="font-garamond text-[20px]"
+            <span className="font-garamond text-[18px]"
               style={{ color: 'rgba(240,234,214,0.5)' }}>{date} · {time}</span>
           </div>
           <div className="flex justify-between items-start">
@@ -265,7 +265,7 @@ export default function ItExistedProof() {
         {/* BOOKMARK HINT (pending only) */}
         {!anchored && (
           <div className="w-full mb-10">
-            <p className="font-garamond text-[20px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+            <p className="font-garamond text-[18px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               Bookmark this page
             </p>
             <button
@@ -275,13 +275,13 @@ export default function ItExistedProof() {
               }}
               className="flex items-center gap-2 mt-1 group"
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-              <span className="font-mono text-[20px] tracking-[1px]"
+              <span className="font-mono text-[18px] tracking-[1px]"
                 style={{ color: '#c9a96e' }}>
                 https://itexisted.app/proof/{state.shortToken}
               </span>
               <Copy size={16} className="opacity-40 group-hover:opacity-80 transition-opacity" style={{ color: '#c9a96e' }} />
             </button>
-            <p className="font-garamond text-[20px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
+            <p className="font-garamond text-[18px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
               we'll have your proof ready soon.
             </p>
           </div>
