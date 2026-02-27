@@ -248,7 +248,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
         >
           <input type="file" className="hidden" accept="*/*"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }} />
-          <p className="font-mono text-[9px] tracking-[2px] uppercase mb-1"
+          <p className="font-mono text-[13px] tracking-[2px] uppercase mb-1"
             style={{ color: 'rgba(201,169,110,0.5)' }}>
             {dragOver ? 'Release to verify' : 'Drop file or ZIP here'}
           </p>
