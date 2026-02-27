@@ -187,11 +187,11 @@ export default function Technical() {
             <p className="mt-4">
               The .ots file is a standard OpenTimestamps format. It can be verified using{' '}
               <a
-                href="https://anchoring.app/verify"
+                href="https://verify-anchoring.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-              >anchoring.app/verify</a>, the{' '}
+              >verify-anchoring.org</a>, the{' '}
               <code className="font-mono text-sm text-landing-copper">ots verify</code>{' '}
               command-line tool, or any Bitcoin full node.
             </p>
@@ -373,12 +373,12 @@ export default function Technical() {
                 </h3>
                 <p className="text-landing-muted/70">
                    Any party can look up, verify, and retrieve proof files for any Anchor Record. No credentials, no registration, no relationship with Umarise required. Verification is available at{' '}
-                  <a
-                    href="https://anchoring.app/verify"
+                   <a
+                    href="https://verify-anchoring.org"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-                  >anchoring.app/verify</a>.
+                  >verify-anchoring.org</a>.
                 </p>
               </div>
               <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
@@ -421,12 +421,12 @@ export default function Technical() {
                 </h3>
                 <p className="text-landing-muted/70">
                   The .ots proof file is not yet available. The third party has the file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
-                  <a
-                    href="https://anchoring.app/verify"
+                   <a
+                    href="https://verify-anchoring.org"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-                  >anchoring.app/verify</a>{' '}
+                  >verify-anchoring.org</a>{' '}
                   using the origin_id from the certificate, or directly via the{' '}
                   <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
                   endpoint.
