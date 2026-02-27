@@ -221,14 +221,6 @@ export default function ItExistedProof() {
             style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
             {anchored ? 'Your proof is ready.' : 'Your proof is on its way.'}
           </h1>
-          <p className="font-mono text-[22px] tracking-[5px] text-center mb-3"
-            style={{ color: '#c9a96e' }}>
-            {state.shortToken}
-          </p>
-          <p className="font-garamond text-[20px] text-center"
-            style={{ color: 'rgba(240,234,214,0.85)' }}>
-            {date} - {time}
-          </p>
 
           {/* Layer 2 device binding indicator */}
           {state.deviceSignature && (
