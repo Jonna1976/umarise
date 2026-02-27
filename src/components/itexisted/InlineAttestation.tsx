@@ -38,7 +38,7 @@ export default function InlineAttestation({ originId, shortToken }: Props) {
 
         <div className="flex items-baseline justify-between mb-4 pt-3 border-t"
           style={{ borderColor: 'rgba(201,169,110,0.1)' }}>
-          <span className="font-mono text-[10px] tracking-[3px] uppercase"
+          <span className="font-mono text-[15px] tracking-[3px] uppercase"
             style={{ color: 'rgba(201,169,110,0.35)' }}>Total</span>
           <span className="font-garamond text-[26px]"
             style={{ color: 'rgba(201,169,110,0.7)' }}>€4.95</span>
@@ -55,7 +55,7 @@ export default function InlineAttestation({ originId, shortToken }: Props) {
           {redirecting ? 'Opening…' : 'Continue to payment'}
         </button>
 
-        <p className="font-mono text-[8px] tracking-[3px] uppercase text-center mt-3"
+        <p className="font-mono text-[15px] tracking-[3px] uppercase text-center mt-3"
           style={{ color: 'rgba(201,169,110,0.2)' }}>Secured by Stripe</p>
       </div>
     </div>
