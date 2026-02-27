@@ -148,7 +148,7 @@ async function finalizeResult(
   steps.push({ label: 'Origin matches this page', status: 'ok', detail: foundToken });
 
   // Step 6: Check certificate origin_id consistency (if present)
-  if (certOriginId && certOriginId !== foundOriginId) {
+  if (certOriginId && certOriginId.toLowerCase() !== foundOriginId.toLowerCase()) {
     steps.push({ label: 'Certificate origin_id inconsistent with registry', status: 'warn', detail: certOriginId.substring(0, 16) + '…' });
   }
 
