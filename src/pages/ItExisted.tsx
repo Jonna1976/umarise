@@ -8,7 +8,7 @@ import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore'
 import { calculateSHA256 } from '@/lib/originHash';
 import { toast } from 'sonner';
 
-type ItExistedState = 'capture' | 'signing';
+type ItExistedState = 'capture';
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
 
 function mapFileType(mimeType: string): MarkType {
@@ -88,7 +88,6 @@ export default function ItExisted() {
     }
 
     setLayer2(sigData);
-    setState('signing');
     anchorFile(file, sigData);
   };
 
@@ -163,25 +162,6 @@ export default function ItExisted() {
           </motion.div>
         )}
 
-        {state === 'signing' && (
-          <motion.div key="signing"
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col items-center gap-5">
-
-            <motion.div
-              animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.4, 0.7] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-              <V7Nail pending size={36} />
-            </motion.div>
-
-            <p className="font-mono text-[8px] tracking-[3px] uppercase"
-              style={{ color: 'hsl(var(--itx-gold-muted))' }}>anchoring…</p>
-
-            <p className="font-garamond italic text-[11px] text-center max-w-[200px]"
-              style={{ color: 'hsl(var(--itx-cream) / 0.2)' }}>{fileName}</p>
-          </motion.div>
-        )}
       </AnimatePresence>
 
       <input ref={inputRef} type="file" className="hidden"
