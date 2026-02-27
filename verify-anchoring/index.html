@@ -514,10 +514,8 @@ footer a:hover { color: var(--text-muted); }
   <span style="font-style:italic">The specification is normative. This implementation is not.</span>
 </footer>
 
-<!-- JSZip for ZIP parsing -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
+<!-- JSZip — bundled locally for zero CDN dependency -->
+<script src="vendor/jszip.min.js"></script>
 
 <!-- OpenTimestamps library — bundled locally for zero CDN dependency -->
 <script src="vendor/opentimestamps.min.js"></script>
@@ -627,19 +625,7 @@ async function loadExternalScript(src) {
   });
 }
 
-async function ensureJSZipLoaded() {
-  if (typeof JSZip !== 'undefined') return true;
-
-  const fallbacks = [
-    'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
-    'https://unpkg.com/jszip@3.10.1/dist/jszip.min.js',
-  ];
-
-  for (const src of fallbacks) {
-    const loaded = await loadExternalScript(src);
-    if (loaded && typeof JSZip !== 'undefined') return true;
-  }
-
+function ensureJSZipLoaded() {
   return typeof JSZip !== 'undefined';
 }
 
