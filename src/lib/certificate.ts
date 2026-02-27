@@ -102,7 +102,7 @@ export function createCertificate(
     hash,
     hash_algo: 'SHA-256',
     captured_at: capturedAt.toISOString(),
-    verify_url: 'https://anchoring.app/verify',
+    verify_url: 'https://verify-anchoring.org',
     proof_included: proofIncluded,
     proof_status: proofStatus,
     claimed_by: claimedBy,
