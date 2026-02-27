@@ -336,13 +336,20 @@ export default function ItExistedProof() {
           {/* ── STEP 2: DOWNLOAD ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
-              onClick={onDownload}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              onClick={() => { if (artifactStatus === 'matched') onDownload(); }}
+              disabled={artifactStatus !== 'matched'}
+              className="flex items-baseline w-full text-left transition-opacity"
+              style={{
+                background: 'none', border: 'none', padding: 0,
+                cursor: artifactStatus === 'matched' ? 'pointer' : 'not-allowed',
+                opacity: artifactStatus === 'matched' ? 1 : 0.35,
+              }}>
               <span className="font-mono text-[17px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[17px] tracking-[4px] uppercase mr-1.5"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Download your proof</span>
+                style={{ color: 'rgba(240,234,214,0.85)' }}>
+                {artifactStatus === 'matched' ? 'Download your proof' : 'Add original file first'}
+              </span>
               {artifactFile && (
                 <span className="font-mono text-[10px] tracking-[1px] lowercase ml-1"
                   style={{ color: 'rgba(127,186,106,0.6)', whiteSpace: 'nowrap' }}>incl. original</span>
