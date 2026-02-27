@@ -241,21 +241,21 @@ export default function ItExistedProof() {
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8" style={{ maxWidth: 400 }}>
           <div className="flex justify-between items-baseline mb-3">
-            <span className="font-mono text-[11px] tracking-[2px] uppercase"
+            <span className="font-mono text-[13px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Origin ID</span>
-            <span className="font-mono text-[18px] tracking-[3px]"
+            <span className="font-mono text-[20px] tracking-[3px]"
               style={{ color: '#c9a96e' }}>{state.shortToken}</span>
           </div>
           <div className="flex justify-between items-baseline mb-3">
-            <span className="font-mono text-[11px] tracking-[2px] uppercase"
+            <span className="font-mono text-[13px] tracking-[2px] uppercase"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Date</span>
-            <span className="font-garamond text-[17px]"
+            <span className="font-garamond text-[20px]"
               style={{ color: 'rgba(240,234,214,0.5)' }}>{date} · {time}</span>
           </div>
           <div className="flex justify-between items-start">
-            <span className="font-mono text-[11px] tracking-[2px] uppercase pt-1"
+            <span className="font-mono text-[13px] tracking-[2px] uppercase pt-1"
               style={{ color: 'rgba(201,169,110,0.45)' }}>Hash</span>
-            <span className="font-mono text-[11px] text-right break-all"
+            <span className="font-mono text-[13px] text-right break-all"
               style={{ color: 'rgba(240,234,214,0.35)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 250 }}>
               {state.hash}
             </span>
