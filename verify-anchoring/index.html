@@ -803,10 +803,12 @@ async function verifyZip(file) {
   );
 
   let hashMatch = false;
+  let hasArtifact = false;
 
   if (artifactFiles.length === 0) {
     steps.push({ label: 'No artifact file found in ZIP', status: 'warn', detail: 'Cannot recompute hash without original file' });
   } else {
+    hasArtifact = true;
     const artifactName = artifactFiles[0];
     steps.push({ label: 'Artifact found: ' + artifactName, status: 'ok' });
 
@@ -889,10 +891,14 @@ async function verifyZip(file) {
       const bannerType = hashMatch ? 'verified' : 'pending';
       const bannerTitle = hashMatch 
         ? 'Valid — ledger-confirmed' 
-        : 'Artifact mismatch — ledger-confirmed';
+        : hasArtifact 
+          ? 'Artifact mismatch — ledger-confirmed'
+          : 'No artifact — ledger-confirmed';
       const artifactNote = hashMatch 
         ? 'Artifact hash matches certificate.<br>' 
-        : '<span style="color:var(--yellow)">⚠ Artifact in ZIP does not match certificate hash (likely a compressed thumbnail from an older ZIP version).</span><br>';
+        : hasArtifact
+          ? '<span style="color:var(--yellow)">⚠ Artifact in ZIP does not match certificate hash (likely a compressed thumbnail from an older ZIP version).</span><br>'
+          : '<span style="color:var(--yellow)">⚠ No artifact file included in this ZIP. Hash verification requires the original file.</span><br>';
 
       output.innerHTML = renderSteps(steps) +
         renderBanner(bannerType, bannerTitle,
