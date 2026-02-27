@@ -379,7 +379,7 @@ export default function ItExistedProof() {
               <span className="font-mono text-[14px] tracking-[2px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
               <span className="font-mono text-[14px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Share it</span>
+                style={{ color: 'rgba(240,234,214,0.85)' }}>Share your proof</span>
               <span className="font-mono text-[10px] tracking-[1px] lowercase ml-2"
                 style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
             </button>
