@@ -608,7 +608,7 @@ export default function ItExistedProof() {
               style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
               Want to add a trust layer?
             </h2>
-            <p className="font-garamond italic text-[15px] mb-6"
+            <p className="font-garamond italic text-[17px] mb-6"
               style={{ color: 'rgba(245,240,232,0.4)', lineHeight: 1.55 }}>
               A notary or verified third party can attest to this anchor — adding identity and legal weight above the cryptographic proof.
             </p>
