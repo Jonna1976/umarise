@@ -1,8 +1,9 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import { useKaartenbak, KaartenbakItem } from '@/contexts/KaartenbakContext';
+import { loadArtifact } from '@/lib/artifactCache';
 import { toast } from 'sonner';
 
 /**
@@ -15,6 +16,23 @@ export default function Kaartenbak() {
   const [dragOver, setDragOver] = useState(false);
   const [processing, setProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Track which items have their artifact cached in IndexedDB
+  const [cacheStatus, setCacheStatus] = useState<Record<string, boolean>>({});
+
+  // Check cache status for all items when panel opens
+  useEffect(() => {
+    if (!isOpen || items.length === 0) return;
+    const checkAll = async () => {
+      const status: Record<string, boolean> = {};
+      await Promise.all(items.map(async (item) => {
+        const token = item.shortToken.toUpperCase();
+        const cached = await loadArtifact(token);
+        status[item.originId] = !!cached;
+      }));
+      setCacheStatus(status);
+    };
+    checkAll();
+  }, [isOpen, items]);
 
   const parseZips = useCallback(async (files: FileList | File[]) => {
     setProcessing(true);
@@ -196,6 +214,29 @@ export default function Kaartenbak() {
                   )}
 
                   {!item.fileName && <span style={{ flex: 1 }} />}
+
+                  {/* Cache status indicator */}
+                  {item.status === 'anchored' && cacheStatus[item.originId] === false && (
+                    <span style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: 1,
+                      color: 'rgba(220,160,60,0.6)',
+                      flexShrink: 0,
+                    }} title="Original file not in cache — re-add on proof page">
+                      ⚠
+                    </span>
+                  )}
+                  {cacheStatus[item.originId] === true && (
+                    <span style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 10,
+                      color: 'rgba(127,186,106,0.6)',
+                      flexShrink: 0,
+                    }} title="Original file ready in cache">
+                      ✓
+                    </span>
+                  )}
 
                   <span style={{
                     fontFamily: "'DM Mono', monospace",
