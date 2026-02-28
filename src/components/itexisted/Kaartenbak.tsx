@@ -122,18 +122,14 @@ export default function Kaartenbak() {
                   textTransform: 'uppercase' as const,
                   color: 'rgba(197,147,90,0.4)',
                 }}>
-                  {items.length > 0 ? 'Your anchors' : 'Kaartenbak'}
+                  {items.length > 0 ? 'Je anchors' : 'Kaartenbak'}
                 </span>
-                {items.length > 0 && (
-                  <span style={{
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: 9,
-                    letterSpacing: 2,
-                    color: 'rgba(197,147,90,0.25)',
-                  }}>
-                    {items.length} item{items.length !== 1 ? 's' : ''}
-                  </span>
-                )}
+                <svg viewBox="0 0 24 24" width={18} height={18}
+                  style={{ cursor: 'pointer', opacity: 0.5, filter: 'drop-shadow(0 0 4px rgba(197,147,90,0.4))' }}
+                  onClick={() => setOpen(false)}>
+                  <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.9" />
+                  <circle cx="12" cy="12" r="3" fill="#C5935A" />
+                </svg>
               </div>
 
               {/* Drop zone — always visible */}
