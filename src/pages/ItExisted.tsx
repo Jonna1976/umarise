@@ -120,7 +120,7 @@ export default function ItExisted() {
       // Use correct path based on hostname
       const isItExistedDomain = window.location.hostname === 'itexisted.app';
       const path = isItExistedDomain ? `/proof/${shortToken}` : `/itexisted/proof/${shortToken}`;
-      navigate(path);
+      navigate(path, { state: { file } });
     } catch (e) {
       console.error('[ItExisted] anchorFile failed:', e);
       toast.error('Something went wrong. Try again.');
