@@ -203,15 +203,15 @@ export default function ItExisted() {
               : `/itexisted/proof/${lastAnchor.shortToken}`;
             navigate(path);
           }}
-          className="fixed bottom-8 right-8 flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
+          className="fixed top-8 right-8 flex items-center gap-3 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
           style={{ cursor: 'pointer' }}
         >
-          <StatusMark pending={anchorStatus === 'pending'} size={19} />
-          <span className="font-mono text-[9px] tracking-[1.5px] uppercase"
+          <StatusMark pending={anchorStatus === 'pending'} size={24} />
+          <span className="font-mono text-[11px] tracking-[2px] uppercase"
             style={{
               color: anchorStatus === 'anchored'
-                ? 'hsl(var(--itx-gold))'
-                : 'hsl(var(--itx-cream) / 0.25)',
+                ? '#C5935A'
+                : 'rgba(240,234,214,0.35)',
             }}>
             {anchorStatus === 'anchored' ? 'Anchored' : 'Anchoring'}
           </span>
