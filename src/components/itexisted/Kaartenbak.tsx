@@ -122,7 +122,7 @@ export default function Kaartenbak() {
                   textTransform: 'uppercase' as const,
                   color: 'rgba(197,147,90,0.4)',
                 }}>
-                  {items.length > 0 ? 'Je anchors' : 'Kaartenbak'}
+                  {items.length > 0 ? 'Your anchors' : 'Drop ZIPs'}
                 </span>
                 <svg viewBox="0 0 24 24" width={18} height={18}
                   style={{ cursor: 'pointer', opacity: 0.5, filter: 'drop-shadow(0 0 4px rgba(197,147,90,0.4))' }}
