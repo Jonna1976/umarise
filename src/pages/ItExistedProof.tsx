@@ -53,7 +53,9 @@ interface ProofState {
 }
 
 export default function ItExistedProof() {
-  const { token = '' } = useParams();
+  const { token: rawToken = '' } = useParams();
+  // Normalize token to uppercase for consistent cache key lookups
+  const token = rawToken.toUpperCase();
   const navigate = useNavigate();
   const location = useLocation();
   const { addItems, items: kaartenbakItems } = useKaartenbak();
@@ -258,11 +260,11 @@ export default function ItExistedProof() {
 
   /* ── ACTIONS ── */
   const onShare = async () => {
-    // Ensure artifact is available — restore from IndexedDB cache if needed
-    let resolvedArtifactForShare = artifactFile;
-    if (!resolvedArtifactForShare && artifactStatus === 'matched' && token) {
-      const cached = await loadArtifact(token);
-      if (cached) { resolvedArtifactForShare = cached; setArtifactFile(cached); }
+    // Ensure artifact is available — use ref + IndexedDB restore
+    let resolvedArtifactForShare = artifactFileRef.current;
+    if (!resolvedArtifactForShare && token) {
+      const cached = await loadArtifact(token) || await loadArtifact(token.toLowerCase());
+      if (cached) { resolvedArtifactForShare = cached; setArtifactFile(cached); artifactFileRef.current = cached; }
     }
     // If artifact + anchored → share ZIP bundle
     if (anchored && resolvedArtifactForShare) {
@@ -361,20 +363,36 @@ export default function ItExistedProof() {
 
     // Use ref to avoid stale closure — React state may lag behind
     let resolvedArtifact = artifactFileRef.current;
-    console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'artifactStatus:', artifactStatus);
+    console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'size:', resolvedArtifact?.size ?? 0, 'artifactStatus:', artifactStatus);
+    
+    // Always attempt IndexedDB restore if ref is empty
     if (!resolvedArtifact && token) {
-      // Always attempt IndexedDB restore as last resort
       console.log('[onDownload] Attempting IndexedDB restore for token:', token);
       const cached = await loadArtifact(token);
       if (cached) {
         resolvedArtifact = cached;
         setArtifactFile(cached);
         artifactFileRef.current = cached;
-        console.log('[onDownload] Restored from cache:', cached.name, cached.size, 'bytes');
+        console.log('[onDownload] ✓ Restored from cache:', cached.name, cached.size, 'bytes');
       } else {
-        console.warn('[onDownload] Cache empty — ZIP will not contain artifact');
+        // Also try lowercase token as fallback (legacy cache entries)
+        const cachedLower = await loadArtifact(token.toLowerCase());
+        if (cachedLower) {
+          resolvedArtifact = cachedLower;
+          setArtifactFile(cachedLower);
+          artifactFileRef.current = cachedLower;
+          // Re-cache under normalized key
+          cacheArtifact(token, cachedLower);
+          console.log('[onDownload] ✓ Restored from cache (lowercase key):', cachedLower.name, cachedLower.size, 'bytes');
+        } else {
+          console.warn('[onDownload] ⚠ Cache empty for token:', token, '— ZIP will not contain artifact');
+          toast.info('Original file not found in cache. Re-add your file in Step 1 before downloading.');
+        }
       }
     }
+
+    // Final diagnostic log before ZIP generation
+    console.log('[onDownload] Building ZIP with artifact:', resolvedArtifact ? `${resolvedArtifact.name} (${resolvedArtifact.size} bytes)` : 'NONE');
 
     const zip = await buildOriginZip({
       originId: state.originId, hash: state.hash,
@@ -391,26 +409,17 @@ export default function ItExistedProof() {
     setDownloadedZipBlob(zip);
     setDownloadedZipName(fileName);
     
-    // iOS: use share sheet so user can explicitly "Save to Files"
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS && navigator.share && navigator.canShare) {
-      const zipFile = new File([zip], fileName, { type: 'application/zip' });
-      try {
-        if (navigator.canShare({ files: [zipFile] })) {
-          await navigator.share({ files: [zipFile] });
-          return;
-        }
-      } catch (e) {
-        // User cancelled or share failed — fall through to <a> download
-        if ((e as Error).name === 'AbortError') return;
-        console.warn('[onDownload] share failed, falling back to <a>:', e);
-      }
-    }
-    
+    // Direct download — avoids iOS share sheet ZIP corruption
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
-    a.href = url; a.download = fileName; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    a.href = url; a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 2000);
   };
 
   const toggleStep = (id: string) => {
