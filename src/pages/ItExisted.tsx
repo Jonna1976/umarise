@@ -1,8 +1,8 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMarks } from '@/hooks/useMarks';
-import { fetchOriginByHash } from '@/lib/coreApi';
+import { fetchOriginByHash, fetchProofStatus } from '@/lib/coreApi';
 import { isWebAuthnSupported, isPlatformAuthenticatorAvailable, registerPasskey, signHash } from '@/lib/webauthn';
 import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore';
 import { calculateSHA256 } from '@/lib/originHash';
@@ -50,6 +50,24 @@ export default function ItExisted() {
   const [state, setState] = useState<ItExistedState>('capture');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileName = useMemo(() => selectedFile?.name ?? '', [selectedFile]);
+
+  // Last anchor status indicator
+  const [lastAnchor, setLastAnchor] = useState<{ shortToken: string; originId: string } | null>(null);
+  const [anchorStatus, setAnchorStatus] = useState<'pending' | 'anchored' | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('itexisted_last_anchor');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data?.shortToken && data?.originId) {
+        setLastAnchor({ shortToken: data.shortToken, originId: data.originId });
+        fetchProofStatus(data.originId).then(result => {
+          setAnchorStatus(result.status === 'anchored' ? 'anchored' : 'pending');
+        }).catch(() => setAnchorStatus('pending'));
+      }
+    } catch {}
+  }, []);
 
   // Store Layer 2 signing result for inclusion in certificate.json
   const [layer2, setLayer2] = useState<{ deviceSignature: string; devicePublicKey: string } | null>(null);
@@ -163,6 +181,34 @@ export default function ItExisted() {
         )}
 
       </AnimatePresence>
+
+      {/* Last anchor status indicator */}
+      {lastAnchor && anchorStatus && state === 'capture' && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 2 }}
+          onClick={() => {
+            const isItExistedDomain = window.location.hostname === 'itexisted.app';
+            const path = isItExistedDomain
+              ? `/proof/${lastAnchor.shortToken}`
+              : `/itexisted/proof/${lastAnchor.shortToken}`;
+            navigate(path);
+          }}
+          className="fixed bottom-8 right-8 flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
+          style={{ cursor: 'pointer' }}
+        >
+          <V7Nail pending={anchorStatus === 'pending'} size={18} />
+          <span className="font-mono text-[9px] tracking-[1.5px] uppercase"
+            style={{
+              color: anchorStatus === 'anchored'
+                ? 'hsl(var(--itx-gold))'
+                : 'hsl(var(--itx-cream) / 0.25)',
+            }}>
+            {anchorStatus === 'anchored' ? 'proof ready' : 'anchoring…'}
+          </span>
+        </motion.button>
+      )}
 
       <input ref={inputRef} type="file" className="hidden"
         onChange={(e) => { handlePick(e.target.files?.[0] ?? null); e.target.value = ''; }} />
