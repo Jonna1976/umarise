@@ -151,7 +151,7 @@ export default function ItExisted() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: 'hsl(var(--itx-bg))' }}>
+      style={{ background: 'hsl(var(--itx-bg))', paddingTop: '8vh' }}>
 
       <AnimatePresence mode="wait">
         {state === 'capture' && (
