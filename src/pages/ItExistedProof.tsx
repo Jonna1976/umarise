@@ -536,28 +536,11 @@ export default function ItExistedProof() {
                 {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
-            {downloadedZipBlob && !saveConfirmed && (
-              <div className="pb-4 text-center">
-                <button
-                  onClick={() => setSaveConfirmed(true)}
-                  className="font-mono text-[13px] tracking-[3px] uppercase py-2.5 px-6 rounded-full transition-all"
-                  style={{
-                    border: '1px solid rgba(197,147,90,0.3)',
-                    background: 'rgba(197,147,90,0.06)',
-                    color: 'rgba(197,147,90,0.7)',
-                    cursor: 'pointer',
-                  }}>
-                  Yes, saved my proof
-                </button>
-              </div>
-            )}
-            {saveConfirmed && (
-              <div className="flex items-center py-2 pb-4">
-                <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                  style={{ color: '#7fba6a' }}>✓</span>
-                <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                  style={{ color: '#7fba6a' }}>Saved</span>
-              </div>
+            {downloadedZipBlob && (
+              <p className="font-garamond italic text-[15px] pb-4 pl-6"
+                style={{ color: 'rgba(245,240,232,0.3)' }}>
+                Save it well. This is your proof.
+              </p>
             )}
           </div>
 
