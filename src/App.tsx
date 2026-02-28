@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { PinGate } from "@/components/PinGate";
 import { InternalGate } from "@/components/InternalGate";
@@ -95,7 +95,11 @@ const App = () => (
             } />
             <Route path="/install" element={<Install />} />
             
-            <Route path="/verify" element={<Verify />} />
+            <Route path="/verify" element={
+              typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
+                ? <Navigate to="/" replace />
+                : <Verify />
+            } />
             <Route path="/reviewer" element={<ReviewerPackage />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/technical" element={<Technical />} />
