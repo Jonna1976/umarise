@@ -474,9 +474,9 @@ footer a:hover { color: var(--text-muted); }
   <div class="independence" style="margin-top:1.5rem">
     <h2 style="font-family:var(--mono);font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem">Verification Scope</h2>
     <p>
-      This reference verifier performs: hash match, ZIP/certificate parsing, OTS header validation, and .ots download.
-      It does not perform full Bitcoin verification in v1 — use <code style="font-size:14px">ots verify</code> or
-      <a href="https://opentimestamps.org" target="_blank" rel="noopener">opentimestamps.org</a> for ledger confirmation.
+      This reference verifier performs: hash match, ZIP/certificate parsing, OTS header validation,
+      Bitcoin ledger verification (via bundled OpenTimestamps library), and .ots proof download.
+      All verification runs locally in your browser — no backend, no API calls.
     </p>
     <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:14px;font-family:var(--mono)">
       <thead>
@@ -489,7 +489,7 @@ footer a:hover { color: var(--text-muted); }
       <tbody style="color:var(--text)">
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Hash match + ZIP parsing</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">OTS header check</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Bitcoin verification</td><td style="text-align:center;padding:5px 8px;color:var(--yellow)">via CLI</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓ via API</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Bitcoin verification</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓ local OTS</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓ via API</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Registry lookup</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Works without Umarise</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px">Offline mode</td><td style="text-align:center;padding:5px 8px;color:var(--green)">✓</td><td style="text-align:center;padding:5px 8px;color:var(--text-dim)">✗</td></tr>
