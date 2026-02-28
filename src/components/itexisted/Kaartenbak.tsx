@@ -106,13 +106,16 @@ export default function Kaartenbak() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50"
+            className="fixed bottom-0 left-1/2 z-50"
             style={{
               background: '#0a150a',
               borderTop: '1px solid rgba(197,147,90,0.15)',
               borderRadius: '14px 14px 0 0',
               maxHeight: '70vh',
               overflow: 'hidden',
+              width: '100%',
+              maxWidth: 420 + 48,
+              transform: 'translateX(-50%)',
             }}
           >
             {/* Handle */}
@@ -169,28 +172,32 @@ export default function Kaartenbak() {
                     </svg>
                   )}
 
-                  <div className="flex flex-col" style={{ flex: 1, minWidth: 0 }}>
-                    <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
-                      fontFamily: "'JetBrains Mono', monospace",
+                  <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: 14,
+                    letterSpacing: 1.5,
+                    color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
+                    flexShrink: 0,
+                  }}>
+                    {item.shortToken}
+                  </span>
+
+                  {item.fileName && (
+                    <span style={{
+                      fontFamily: "'EB Garamond', serif",
                       fontSize: 14,
-                      letterSpacing: 1.5,
-                      color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
+                      color: 'rgba(245,240,232,0.35)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      textAlign: 'right',
                     }}>
-                      {item.shortToken}
+                      {item.fileName}
                     </span>
-                    {item.fileName && (
-                      <span style={{
-                        fontFamily: "'EB Garamond', serif",
-                        fontSize: 13,
-                        color: 'rgba(245,240,232,0.35)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        {item.fileName}
-                      </span>
-                    )}
-                  </div>
+                  )}
+
+                  {!item.fileName && <span style={{ flex: 1 }} />}
 
                   <span style={{
                     fontFamily: "'EB Garamond', serif",
