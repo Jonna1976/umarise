@@ -82,6 +82,8 @@ export default function ItExistedProof() {
   });
 
   // Restore artifact file from IndexedDB cache on mount (if previously confirmed)
+  // If cache is empty but status says 'matched', reset to idle so drop zone appears
+  const [cacheMissFileName, setCacheMissFileName] = useState<string | null>(null);
   useEffect(() => {
     if (artifactStatus === 'matched' && !artifactFile && token) {
       loadArtifact(token).then(file => {
@@ -89,6 +91,13 @@ export default function ItExistedProof() {
           setArtifactFile(file);
           artifactFileRef.current = file;
           console.log('[ArtifactCache] restored:', file.name);
+        } else {
+          // Cache empty — reset status so user sees the drop zone with filename hint
+          console.warn('[ArtifactCache] cache empty for token:', token, '— resetting to idle');
+          const savedFileName = kaartenbakItems.find(i => i.shortToken === token)?.fileName || null;
+          setCacheMissFileName(savedFileName);
+          setArtifactStatus('idle');
+          try { localStorage.removeItem(storageKey); } catch {}
         }
       });
     }
@@ -542,9 +551,18 @@ export default function ItExistedProof() {
                     ) : (
                       <>
                         <p className="font-garamond text-[20px]"
-                          style={{ color: '#F5F0E8' }}>Drop your original file.</p>
-                        <p className="font-garamond text-[16px] italic mt-1"
-                          style={{ color: 'rgba(245,240,232,0.38)' }}>It is the key to your proof.</p>
+                          style={{ color: '#F5F0E8' }}>
+                          {cacheMissFileName ? 'Re-add your original file' : 'Drop your original file.'}
+                        </p>
+                        {cacheMissFileName ? (
+                          <p className="font-mono text-[14px] mt-2"
+                            style={{ color: 'rgba(197,147,90,0.7)' }}>
+                            {cacheMissFileName}
+                          </p>
+                        ) : (
+                          <p className="font-garamond text-[16px] italic mt-1"
+                            style={{ color: 'rgba(245,240,232,0.38)' }}>It is the key to your proof.</p>
+                        )}
                       </>
                     )}
                   </label>
