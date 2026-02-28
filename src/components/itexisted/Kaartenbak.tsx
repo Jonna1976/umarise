@@ -106,16 +106,14 @@ export default function Kaartenbak() {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-1/2 z-50"
+            className="fixed bottom-0 left-0 right-0 z-50 mx-auto"
             style={{
               background: '#0a150a',
               borderTop: '1px solid rgba(197,147,90,0.15)',
               borderRadius: '14px 14px 0 0',
               maxHeight: '70vh',
               overflow: 'hidden',
-              width: '100%',
-              maxWidth: 420 + 48,
-              transform: 'translateX(-50%)',
+              maxWidth: 468,
             }}
           >
             {/* Handle */}
