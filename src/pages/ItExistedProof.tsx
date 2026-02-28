@@ -68,6 +68,9 @@ export default function ItExistedProof() {
   // Artifact file state — persist match across refreshes via localStorage (survives tab close)
   const storageKey = `artifact_matched_${token}`;
   const [artifactFile, setArtifactFile] = useState<File | null>(null);
+  const artifactFileRef = useRef<File | null>(null);
+  // Keep ref in sync with state so handlers always read the latest value
+  useEffect(() => { artifactFileRef.current = artifactFile; }, [artifactFile]);
   const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>(() => {
     try { return localStorage.getItem(storageKey) === 'matched' ? 'matched' : 'idle'; } catch { return 'idle'; }
   });
@@ -82,6 +85,7 @@ export default function ItExistedProof() {
       loadArtifact(token).then(file => {
         if (file) {
           setArtifactFile(file);
+          artifactFileRef.current = file;
           console.log('[ArtifactCache] restored:', file.name);
         }
       });
@@ -186,6 +190,7 @@ export default function ItExistedProof() {
       setComputedHash(fileHash);
       if (fileHash === expectedHash) {
         setArtifactFile(file);
+        artifactFileRef.current = file;
         setArtifactStatus('matched');
         try { localStorage.setItem(storageKey, 'matched'); localStorage.setItem(`artifact_hash_${token}`, fileHash); } catch {}
         if (token) cacheArtifact(token, file);
@@ -354,15 +359,18 @@ export default function ItExistedProof() {
       otsProofBase64 = arrayBufferToBase64(proof.otsProofBytes);
     }
 
-    // Ensure artifact is available — restore from IndexedDB cache if needed
-    let resolvedArtifact = artifactFile;
-    if (!resolvedArtifact && artifactStatus === 'matched' && token) {
-      console.log('[onDownload] artifactFile null but status matched — restoring from cache');
+    // Use ref to avoid stale closure — React state may lag behind
+    let resolvedArtifact = artifactFileRef.current;
+    console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'artifactStatus:', artifactStatus);
+    if (!resolvedArtifact && token) {
+      // Always attempt IndexedDB restore as last resort
+      console.log('[onDownload] Attempting IndexedDB restore for token:', token);
       const cached = await loadArtifact(token);
       if (cached) {
         resolvedArtifact = cached;
         setArtifactFile(cached);
-        console.log('[onDownload] Restored from cache:', cached.name);
+        artifactFileRef.current = cached;
+        console.log('[onDownload] Restored from cache:', cached.name, cached.size, 'bytes');
       } else {
         console.warn('[onDownload] Cache empty — ZIP will not contain artifact');
       }
