@@ -119,34 +119,49 @@ export default function ItExisted() {
   };
 
   const anchorFile = async (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
-    const mark = await createMarkFromFile(file, mapFileType(file.type), undefined, true);
+    try {
+      const mark = await createMarkFromFile(file, mapFileType(file.type), undefined, true);
 
-    if (!mark) {
-      toast.error('Anchoring failed. Try again.');
+      if (!mark) {
+        toast.error('Anchoring failed. Try again.');
+        setState('capture');
+        setSelectedFile(null);
+        return;
+      }
+
+      // Poll for origin resolution with backoff
+      let resolved = null;
+      for (let i = 0; i < 8; i++) {
+        await new Promise(r => setTimeout(r, i === 0 ? 500 : 1500));
+        try {
+          resolved = await fetchOriginByHash(mark.hash);
+          if (resolved) break;
+        } catch (e) {
+          console.warn('[ItExisted] resolve poll error:', e);
+        }
+      }
+      const shortToken = resolved?.short_token ?? mark.hash.slice(0, 8).toUpperCase();
+      const payload = {
+        originId: resolved?.origin_id ?? mark.originId,
+        shortToken,
+        hash: mark.hash,
+        capturedAt: resolved?.captured_at ?? mark.timestamp.toISOString(),
+        deviceSignature: sigData?.deviceSignature ?? null,
+        devicePublicKey: sigData?.devicePublicKey ?? null,
+      };
+
+      localStorage.setItem('itexisted_last_anchor', JSON.stringify(payload));
+      
+      // Use correct path based on hostname
+      const isItExistedDomain = window.location.hostname === 'itexisted.app';
+      const path = isItExistedDomain ? `/proof/${shortToken}` : `/itexisted/proof/${shortToken}`;
+      navigate(path);
+    } catch (e) {
+      console.error('[ItExisted] anchorFile failed:', e);
+      toast.error('Something went wrong. Try again.');
       setState('capture');
       setSelectedFile(null);
-      return;
     }
-
-    // Poll for origin resolution with backoff
-    let resolved = null;
-    for (let i = 0; i < 8; i++) {
-      await new Promise(r => setTimeout(r, i === 0 ? 500 : 1500));
-      resolved = await fetchOriginByHash(mark.hash);
-      if (resolved) break;
-    }
-    const shortToken = resolved?.short_token ?? mark.hash.slice(0, 8).toUpperCase();
-    const payload = {
-      originId: resolved?.origin_id ?? mark.originId,
-      shortToken,
-      hash: mark.hash,
-      capturedAt: resolved?.captured_at ?? mark.timestamp.toISOString(),
-      deviceSignature: sigData?.deviceSignature ?? null,
-      devicePublicKey: sigData?.devicePublicKey ?? null,
-    };
-
-    localStorage.setItem('itexisted_last_anchor', JSON.stringify(payload));
-    navigate(`/itexisted/proof/${shortToken}`);
   };
 
   return (
