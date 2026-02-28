@@ -566,40 +566,18 @@ export default function ItExistedProof() {
           {/* Gold divider */}
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
-          {/* ── STEP 3: VERIFY ── */}
-          <div className="w-full" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
-            <div className="flex items-center w-full py-4">
-              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
-                ✓
-              </span>
-              <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
-                {downloadedZipBlob ? 'ZIP verified' : 'Verify your ZIP'}
-              </span>
+          {/* Silent background verification — no visible step */}
+          {downloadedZipBlob && (
+            <div className="hidden">
+              <InlineVerify
+                key={verifyKey}
+                expectedOriginId={state?.originId}
+                expectedShortToken={state?.shortToken}
+                autoVerifyBlob={downloadedZipBlob}
+                autoVerifyName={downloadedZipName}
+              />
             </div>
-            {downloadedZipBlob && (
-              <div className="pb-4 rounded-[8px] p-4"
-                style={{ background: 'rgba(10,15,10,0.6)', border: '1px solid rgba(197,147,90,0.1)' }}>
-                <InlineVerify
-                  key={verifyKey}
-                  expectedOriginId={state?.originId}
-                  expectedShortToken={state?.shortToken}
-                  autoVerifyBlob={downloadedZipBlob}
-                  autoVerifyName={downloadedZipName}
-                />
-                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(197,147,90,0.08)' }}>
-                  <p className="font-garamond text-[15px] italic"
-                    style={{ color: 'rgba(245,240,232,0.3)' }}>
-                    Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
-                      style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Gold divider */}
+          )}
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
           {/* ── ATTESTATION SECTION — visually separate ── */}
