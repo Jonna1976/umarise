@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
-import { fetchOriginMetadata, fetchProofStatus, verifyOriginByHash } from '@/lib/coreApi';
+import { verifyOriginByHash } from '@/lib/coreApi';
 
 // ── Step log types ──
 
@@ -120,17 +120,14 @@ async function verifyFile(
 }
 
 async function finalizeResult(
-  origin: { origin_id: string; captured_at: string; proof_status?: string },
+  origin: { origin_id: string; captured_at: string; proof_status?: string; short_token?: string; bitcoin_block_height?: number | null; anchored_at?: string | null },
   steps: VerifyStep[],
   expectedOriginId?: string,
   expectedShortToken?: string,
   certOriginId?: string,
 ): Promise<FullVerifyResult> {
   const foundOriginId = origin.origin_id;
-
-  // Fetch the real short_token from registry (not a UUID prefix)
-  const meta = await fetchOriginMetadata(foundOriginId);
-  const foundToken = meta?.short_token ?? foundOriginId.slice(0, 8).toUpperCase();
+  const foundToken = origin.short_token ?? foundOriginId.slice(0, 8).toUpperCase();
 
   // Step 5: Cross-check origin against this page
   const originMatch = expectedOriginId
@@ -140,7 +137,6 @@ async function finalizeResult(
       : true;
 
   if (!originMatch) {
-    // Retroactive: mark ALL prior steps as error
     steps.forEach(s => { s.status = 'error'; });
     const expectedLabel = expectedShortToken?.toUpperCase() ?? expectedOriginId?.slice(0, 8).toUpperCase() ?? '?';
     steps.push({ label: 'Origin ID mismatch', status: 'error', detail: `ZIP → ${foundToken}, page → ${expectedLabel}` });
@@ -155,7 +151,7 @@ async function finalizeResult(
     steps.push({ label: 'Certificate origin_id inconsistent with registry', status: 'warn', detail: certOriginId.substring(0, 16) + '…' });
   }
 
-  // Step 7: Bitcoin status
+  // Step 7: Bitcoin status (already included in verify response — no extra call needed)
   const proofStatus: 'pending' | 'anchored' = (origin.proof_status as 'anchored') || 'pending';
   let bitcoinLabel = 'pending';
   let bitcoinOk = false;
@@ -163,10 +159,9 @@ async function finalizeResult(
   if (proofStatus === 'anchored') {
     steps.push({ label: 'Bitcoin anchor confirmed', status: 'ok' });
     bitcoinOk = true;
-    const proofResult = await fetchProofStatus(foundOriginId);
-    if (proofResult.status === 'anchored' && proofResult.bitcoinBlockHeight) {
-      bitcoinLabel = `✓ block ${proofResult.bitcoinBlockHeight.toLocaleString('en-US')}`;
-      steps.push({ label: `Bitcoin block ${proofResult.bitcoinBlockHeight.toLocaleString('en-US')}`, status: 'ok' });
+    if (origin.bitcoin_block_height) {
+      bitcoinLabel = `✓ block ${origin.bitcoin_block_height.toLocaleString('en-US')}`;
+      steps.push({ label: `Bitcoin block ${origin.bitcoin_block_height.toLocaleString('en-US')}`, status: 'ok' });
     } else {
       bitcoinLabel = '✓ anchored';
     }
@@ -174,7 +169,6 @@ async function finalizeResult(
     steps.push({ label: 'Bitcoin anchor pending', status: 'warn' });
   }
 
-  // Build result
   const captured = new Date(origin.captured_at);
 
   return {

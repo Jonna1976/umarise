@@ -43,11 +43,14 @@ interface CoreVerifyRequest {
 
 interface CoreOrigin {
   origin_id: string;
+  short_token: string;
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
   proof_status: 'pending' | 'anchored';
   proof_url: string;
+  bitcoin_block_height: number | null;
+  anchored_at: string | null;
 }
 
 Deno.serve(async (req: Request) => {
@@ -162,7 +165,7 @@ Deno.serve(async (req: Request) => {
 
     const { data, error } = await anonClient
       .from('origin_attestations')
-      .select('origin_id, hash, hash_algo, captured_at')
+      .select('origin_id, hash, hash_algo, captured_at, short_token')
       .or(`hash.eq.${prefixedHash},hash.eq.${rawHex}`)
       .order('captured_at', { ascending: true })
       .limit(1)
@@ -209,7 +212,7 @@ Deno.serve(async (req: Request) => {
     // Check OTS proof status for this origin
     const { data: proofData } = await supabase
       .from('core_ots_proofs')
-      .select('status')
+      .select('status, bitcoin_block_height, anchored_at')
       .eq('origin_id', data.origin_id)
       .maybeSingle();
     
@@ -220,11 +223,14 @@ Deno.serve(async (req: Request) => {
     // Attestation found - return origin directly (no wrapper)
     const origin: CoreOrigin = {
       origin_id: data.origin_id,
+      short_token: data.short_token,
       hash: data.hash,
       hash_algo: data.hash_algo as 'sha256',
       captured_at: data.captured_at,
       proof_status: proofStatus,
       proof_url: `https://core.umarise.com/v1-core-proof?origin_id=${data.origin_id}`,
+      bitcoin_block_height: proofData?.bitcoin_block_height ?? null,
+      anchored_at: proofData?.anchored_at ?? null,
     };
 
     logRequest(supabase, {
