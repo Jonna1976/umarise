@@ -63,6 +63,7 @@ export default function ItExistedProof() {
   const [verifyKey, setVerifyKey] = useState(0);
   const [downloadedZipBlob, setDownloadedZipBlob] = useState<Blob | null>(null);
   const [downloadedZipName, setDownloadedZipName] = useState<string | null>(null);
+  const [saveConfirmed, setSaveConfirmed] = useState(false);
 
   // Artifact file state — persist match across refreshes via sessionStorage
   const storageKey = `artifact_matched_${token}`;
@@ -533,11 +534,32 @@ export default function ItExistedProof() {
                 {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
-            {downloadedZipBlob && (
-              <p className="font-garamond italic text-[14px] text-center mt-2 pb-2"
-                style={{ color: 'rgba(245,240,232,0.35)' }}>
-                Save it well. This is your proof.
-              </p>
+            {downloadedZipBlob && !saveConfirmed && (
+              <div className="pb-4 text-center">
+                <p className="font-garamond italic text-[15px] mb-4"
+                  style={{ color: 'rgba(245,240,232,0.4)' }}>
+                  Save it well. This is your proof.
+                </p>
+                <button
+                  onClick={() => setSaveConfirmed(true)}
+                  className="font-mono text-[13px] tracking-[3px] uppercase py-2.5 px-6 rounded-full transition-all"
+                  style={{
+                    border: '1px solid rgba(197,147,90,0.3)',
+                    background: 'rgba(197,147,90,0.06)',
+                    color: 'rgba(197,147,90,0.7)',
+                    cursor: 'pointer',
+                  }}>
+                  I've saved my proof
+                </button>
+              </div>
+            )}
+            {saveConfirmed && (
+              <div className="flex items-center py-2 pb-4">
+                <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
+                  style={{ color: '#7fba6a' }}>✓</span>
+                <span className="font-mono text-[13px] tracking-[3px] uppercase"
+                  style={{ color: '#7fba6a' }}>Saved</span>
+              </div>
             )}
           </div>
 
@@ -545,7 +567,7 @@ export default function ItExistedProof() {
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
           {/* ── STEP 3: VERIFY ── */}
-          <div className="w-full" style={fullLockedStyle}>
+          <div className="w-full" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
             <div className="flex items-center w-full py-4">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
@@ -581,7 +603,7 @@ export default function ItExistedProof() {
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
           {/* ── ATTESTATION SECTION — visually separate ── */}
-          <div className="w-full mt-10 mb-6" style={fullLockedStyle}>
+          <div className="w-full mt-10 mb-6" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
             <h2 className="font-garamond italic text-[24px] mb-3"
               style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
               Want to add a trust layer?
