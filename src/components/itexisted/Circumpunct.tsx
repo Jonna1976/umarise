@@ -39,7 +39,8 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
       )}
 
       {state === 'pending' && (
-        <svg viewBox="0 0 32 32" width={24} height={24} style={{ overflow: 'visible' }}>
+        <svg viewBox="0 0 32 32" width={28} height={28} style={{ overflow: 'visible' }}>
+          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="1.1" />
           <motion.circle
             cx="16" cy="16" r="4" fill="#C5935A"
             animate={{ opacity: [1, 0.2, 1] }}
