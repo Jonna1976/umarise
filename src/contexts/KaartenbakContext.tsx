@@ -20,22 +20,36 @@ interface KaartenbakState {
 
 const KaartenbakContext = createContext<KaartenbakState | null>(null);
 
+const STORAGE_KEY = 'kaartenbak_items';
+
+function loadFromSession(): KaartenbakItem[] {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
 export function KaartenbakProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<KaartenbakItem[]>([]);
+  const [items, setItems] = useState<KaartenbakItem[]>(loadFromSession);
   const [isOpen, setIsOpen] = useState(false);
+
+  // Persist to sessionStorage on every change
+  const syncStorage = useCallback((updated: KaartenbakItem[]) => {
+    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
+  }, []);
 
   const addItems = useCallback((newItems: KaartenbakItem[]) => {
     setItems(prev => {
       const existing = new Set(prev.map(i => i.originId));
       const unique = newItems.filter(i => !existing.has(i.originId));
       const merged = [...prev, ...unique];
-      // Sort chronologically descending
       merged.sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime());
+      syncStorage(merged);
       return merged;
     });
-  }, []);
+  }, [syncStorage]);
 
-  const clearItems = useCallback(() => setItems([]), []);
+  const clearItems = useCallback(() => { setItems([]); syncStorage([]); }, [syncStorage]);
 
   const toggle = useCallback(() => setIsOpen(prev => !prev), []);
 
