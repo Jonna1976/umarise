@@ -337,13 +337,6 @@ const Architecture = () => {
   ┌──────────────────────────────────────────────────┐
   │          TRANSITIONAL STATE                       │
   │                                                  │
-  │   "Now it's provable."   (cream)                 │
-  │   "Anchor what matters." (gold)                  │
-  │                                                  │
-  │          ┌───────────┐                           │
-  │          │  + (pulse) │  ← breathing animation    │
-  │          └───────────┘                           │
-  │                                                  │
   │   1. SHA-256 hash (client-side, in RAM)           │
   │   2. Passkey prompt (1× biometric)               │
   │   3. Registry submission                         │
@@ -356,25 +349,32 @@ const Architecture = () => {
   │        SCREEN 2 — PROOF PAGE                      │
   │        /proof/{SHORT_TOKEN}                       │
   │                                                  │
-  │   "Your file is anchored ⊙"  (Playfair 28px)     │
+  │   "Your file is anchored"  (Playfair 28px)        │
   │   "It existed. Now it's provable.                │
-  │    Your file stays yours."   (italic, EB Garamond)│
+  │    Your file stays yours."   (italic, 17px)       │
   │                                                  │
   │   ┌─ Record Details ──────────────────────────┐  │
-  │   │  ORIGIN ID    624BF441                    │  │
-  │   │  DATE         27 Feb 2026 · 21:24 UTC     │  │
-  │   │  HASH         63f1ed...82a                │  │
+  │   │  DOC           contract-final.pdf         │  │
+  │   │  ORIGIN ID     624BF441                   │  │
+  │   │  DATE          27 Feb 2026 · 21:24 UTC    │  │
+  │   │  HASH          63f1ed...82a               │  │
   │   └───────────────────────────────────────────┘  │
   │                                                  │
-  │   1. Verify your original file    ← drop zone    │
-  │   2. Download your proof          ← ZIP bundle   │
-  │   3. Verify your ZIP              ← drop zone    │
-  │   4. Request attestation          ← optional     │
-  │   5. ⊕ Anchor another file        ← LOOP ──────►│
+  │   ✓ Original file verified  ← auto via RAM       │
+  │   ✓ Download your proof     ← ZIP bundle          │
+  │   [ Yes, saved my proof ]   ← SAVE gate           │
+  │   ✓ ZIP verified            ← automatic           │
+  │                                                  │
+  │   ── Want to add a trust layer? ──               │
+  │   [ Request attestation ]   ← optional, €4.95    │
+  │                                                  │
+  │   (⊕) Anchor another file  ← LOOP ──────────►   │
   │                                                  │
   └──────────────────────────────────────────────────┘
                                           │
-                                          └──► back to SCREEN 1`}
+                                          └──► back to SCREEN 1
+
+  FLOW: Activate → Passkey → Download → Save → Optioneel attestatie`}
           </div>
 
           {/* Technical Details */}
@@ -395,13 +395,14 @@ const Architecture = () => {
                   { aspect: 'Identity', impl: 'WebAuthn passkey (1× biometric, best-effort)', why: 'Layer 2 device binding without accounts' },
                   { aspect: 'Hashing', impl: 'Client-side SHA-256 via Web Crypto API (in RAM)', why: 'Original bytes never leave the device' },
                   { aspect: 'Token', impl: '8-char short_token from registry', why: 'Human-shareable, persistent URL' },
-                  { aspect: 'Verification', impl: 'Embedded in Proof Page (Step 1: re-upload original)', why: 'Not a feature — inherent to the proof' },
+                  { aspect: 'Verification', impl: 'Auto-verified after download (no user action)', why: 'Verification is automatic, not a step' },
                   { aspect: 'ZIP', impl: 'artifact + certificate.json + VERIFY.txt + proof.ots', why: 'Self-contained evidence bundle' },
-                  { aspect: 'Attestation', impl: 'Step 4 on Proof Page (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
-                  { aspect: 'Loop', impl: 'Step 5: ⊕ Anchor another → Homepage', why: 'Closed ritual cycle, no dead ends' },
+                  { aspect: 'Save gate', impl: '"Yes, saved my proof" confirmation required', why: 'Ensures user has saved before proceeding' },
+                  { aspect: 'Attestation', impl: 'Separate section, unlocked after Save (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
+                  { aspect: 'Loop', impl: '⊕ Anchor another → Homepage', why: 'Closed ritual cycle, no dead ends' },
                   { aspect: 'Routing', impl: 'hostname === "itexisted.app" → ItExisted component', why: 'Single codebase, hostname-based rendering' },
                   { aspect: 'Typography', impl: 'Playfair Display (headers) + EB Garamond (body) + DM Mono (data)', why: 'Museum aesthetic — WCAG AA compliant' },
-                  { aspect: 'Status indicator', impl: 'Circumpunct ⊙ top-right (from localStorage)', why: 'Last anchor status without gallery' },
+                  { aspect: 'Status indicator', impl: 'Circumpunct ⊙ top-right (Kaartenbak trigger)', why: 'Drop ZIPs = ephemeral history, no database' },
                   { aspect: 'Recovery', impl: 'Hash-based lookup on homepage drop zone', why: 'Re-find proof URL from original file' },
                 ].map((row) => (
                   <tr key={row.aspect} className="text-landing-cream/70">
@@ -421,8 +422,9 @@ const Architecture = () => {
               <li>• The app never explains itself — discovery is external (spec, docs, context)</li>
               <li>• No onboarding, no tutorial, no "what is this" — if the user doesn't know, they're too early</li>
               <li>• Every addition must survive: "Is this the act, or explanation of the act?"</li>
-              <li>• Verification is not a feature — it is inherent to the proof (Step 1 on Proof Page)</li>
-              <li>• Double Upload required: original file must be re-added before ZIP download (zero-storage)</li>
+              <li>• Verification is automatic — not a user step, but confirmation after download</li>
+              <li>• Save gate required: user must confirm they saved the ZIP before attestation unlocks</li>
+              <li>• Flow: Activate → Passkey → Download → Save → Optioneel attestatie</li>
               <li>• The proof URL (/proof/&#123;TOKEN&#125;) is the product — shareable, persistent, link-first</li>
             </ul>
           </div>
