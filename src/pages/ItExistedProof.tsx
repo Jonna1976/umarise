@@ -377,11 +377,27 @@ export default function ItExistedProof() {
       deviceSignature: state.deviceSignature,
       devicePublicKey: state.devicePublicKey,
     });
-    const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name, state.shortToken);
+    const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), resolvedArtifact?.name, state.shortToken);
     
     // Store blob for auto-verification in Step 3
     setDownloadedZipBlob(zip);
     setDownloadedZipName(fileName);
+    
+    // iOS: use share sheet so user can explicitly "Save to Files"
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS && navigator.share && navigator.canShare) {
+      const zipFile = new File([zip], fileName, { type: 'application/zip' });
+      try {
+        if (navigator.canShare({ files: [zipFile] })) {
+          await navigator.share({ files: [zipFile] });
+          return;
+        }
+      } catch (e) {
+        // User cancelled or share failed — fall through to <a> download
+        if ((e as Error).name === 'AbortError') return;
+        console.warn('[onDownload] share failed, falling back to <a>:', e);
+      }
+    }
     
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
