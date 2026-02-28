@@ -431,13 +431,10 @@ export default function ItExistedProof() {
           {artifactFile && artifactStatus === 'matched' && (
             <div className="flex justify-between items-baseline mb-2.5">
               <span className="font-mono text-[11px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.55)' }}>Document</span>
+                style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
               <span className="font-garamond text-[16px]"
                 style={{ color: 'rgba(245,240,232,0.65)' }}>
                 {artifactFile.name}
-                <span style={{ color: 'rgba(245,240,232,0.35)', marginLeft: '8px', fontSize: '14px' }}>
-                  ({(artifactFile.size / 1024).toFixed(0)} KB)
-                </span>
               </span>
             </div>
           )}
