@@ -362,7 +362,7 @@ const Architecture = () => {
   │                                                  │
   │   ✓ Original file verified  ← auto via RAM       │
   │   ✓ Download your proof     ← ZIP bundle          │
-  │   [ Yes, saved my proof ]   ← SAVE gate           │
+  │   "Save it well. This is your proof."             │
   │   ✓ ZIP verified            ← automatic           │
   │                                                  │
   │   ── Want to add a trust layer? ──               │
@@ -397,8 +397,7 @@ const Architecture = () => {
                   { aspect: 'Token', impl: '8-char short_token from registry', why: 'Human-shareable, persistent URL' },
                   { aspect: 'Verification', impl: 'Auto-verified after download (no user action)', why: 'Verification is automatic, not a step' },
                   { aspect: 'ZIP', impl: 'artifact + certificate.json + VERIFY.txt + proof.ots', why: 'Self-contained evidence bundle' },
-                  { aspect: 'Save gate', impl: '"Yes, saved my proof" confirmation required', why: 'Ensures user has saved before proceeding' },
-                  { aspect: 'Attestation', impl: 'Separate section, unlocked after Save (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
+                  { aspect: 'Attestation', impl: 'Separate section below proof (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
                   { aspect: 'Loop', impl: '⊕ Anchor another → Homepage', why: 'Closed ritual cycle, no dead ends' },
                   { aspect: 'Routing', impl: 'hostname === "itexisted.app" → ItExisted component', why: 'Single codebase, hostname-based rendering' },
                   { aspect: 'Typography', impl: 'Playfair Display (headers) + EB Garamond (body) + DM Mono (data)', why: 'Museum aesthetic — WCAG AA compliant' },
@@ -423,8 +422,8 @@ const Architecture = () => {
               <li>• No onboarding, no tutorial, no "what is this" — if the user doesn't know, they're too early</li>
               <li>• Every addition must survive: "Is this the act, or explanation of the act?"</li>
               <li>• Verification is automatic — not a user step, but confirmation after download</li>
-              <li>• Save gate required: user must confirm they saved the ZIP before attestation unlocks</li>
-              <li>• Flow: Activate → Passkey → Download → Save → Optioneel attestatie</li>
+              <li>• No gates, no confirmations — a subtle reminder ("Save it well.") replaces friction</li>
+              <li>• Flow: Activate → Passkey → Download → Optioneel attestatie</li>
               <li>• The proof URL (/proof/&#123;TOKEN&#125;) is the product — shareable, persistent, link-first</li>
             </ul>
           </div>
