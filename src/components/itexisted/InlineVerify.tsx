@@ -34,6 +34,13 @@ interface CertificateData {
   device_public_key?: string | null;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ]);
+}
+
 async function verifyFile(
   file: File,
   expectedOriginId?: string,
@@ -202,14 +209,19 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
     setStepsOpen(false);
     setFileName(file.name);
     try {
-      const r = await verifyFile(file, expectedOriginId, expectedShortToken);
+      const r = await withTimeout(
+        verifyFile(file, expectedOriginId, expectedShortToken),
+        20000,
+        'Verification timed out. Try again.'
+      );
       setResult(r);
       // Auto-open steps on error/mismatch
       if (r.status === 'error' || r.status === 'mismatch' || r.status === 'not_found') {
         setStepsOpen(true);
       }
-    } catch {
-      setResult({ status: 'error', steps: [{ label: 'Unexpected error during verification', status: 'error' }] });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unexpected error during verification';
+      setResult({ status: 'error', steps: [{ label: message, status: 'error' }] });
       setStepsOpen(true);
     }
     setBusy(false);

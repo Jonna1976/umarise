@@ -74,7 +74,18 @@ export default function ItExistedProof() {
     if (!isValidToken) { setState(null); setLoading(false); return; }
     const resolved = await fetchOriginByToken(token);
     if (!resolved) { setState(null); setLoading(false); return; }
-    const proof = await fetchProofStatus(resolved.origin_id);
+
+    // Use status from resolve response first (fast path, no binary proof download)
+    let proofStatus: 'pending' | 'anchored' = resolved.proof_status === 'anchored' ? 'anchored' : 'pending';
+    let bitcoinBlockHeight: number | null = resolved.bitcoin_block_height ?? null;
+
+    // Fallback only if resolve didn't include status
+    if (!resolved.proof_status) {
+      const proof = await fetchProofStatus(resolved.origin_id);
+      proofStatus = proof.status === 'anchored' ? 'anchored' : 'pending';
+      bitcoinBlockHeight = proof.bitcoinBlockHeight;
+    }
+
     // Try to recover Layer 2 data from localStorage (set during sealing)
     let deviceSignature: string | null = null;
     let devicePublicKey: string | null = null;
@@ -93,8 +104,8 @@ export default function ItExistedProof() {
       hash: resolved.hash,
       capturedAt: resolved.captured_at,
       shortToken: resolved.short_token ?? token.toUpperCase(),
-      proofStatus: proof.status === 'anchored' ? 'anchored' : 'pending',
-      bitcoinBlockHeight: proof.bitcoinBlockHeight,
+      proofStatus,
+      bitcoinBlockHeight,
       deviceSignature,
       devicePublicKey,
     });
