@@ -108,9 +108,9 @@ async function verifyFile(
 
   // Step: Layer 2 device identity
   if (cert.device_signature && cert.device_public_key) {
-    steps.push({ label: 'Layer 2 device signature present', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
+    steps.push({ label: 'Device signature present', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
   } else {
-    steps.push({ label: 'Layer 2 device binding', status: 'info', detail: 'No device signature in certificate' });
+    steps.push({ label: 'Device binding', status: 'info', detail: 'No device signature in certificate' });
   }
 
   // Step 4: Registry lookup
