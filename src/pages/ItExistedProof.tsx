@@ -533,6 +533,12 @@ export default function ItExistedProof() {
                 {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
+            {downloadedZipBlob && (
+              <p className="font-garamond italic text-[14px] text-center mt-2 pb-2"
+                style={{ color: 'rgba(245,240,232,0.35)' }}>
+                Save it well. This is your proof.
+              </p>
+            )}
           </div>
 
           {/* Gold divider */}
