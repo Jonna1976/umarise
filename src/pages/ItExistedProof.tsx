@@ -402,8 +402,8 @@ export default function ItExistedProof() {
               </p>
             </>
           ) : (
-            <div className="flex flex-col items-start gap-1">
-              <h1 className="font-garamond text-[34px] font-normal"
+            <div className="flex flex-col items-start gap-0">
+              <h1 className="font-garamond text-[28px] font-normal leading-snug"
                 style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
                 Anchoring to Bitcoin in progress
               </h1>
