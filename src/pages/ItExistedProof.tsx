@@ -461,11 +461,11 @@ export default function ItExistedProof() {
           {/* ── STEP 2: DOWNLOAD ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
-              onClick={() => { if (artifactStatus === 'matched') onDownload(); }}
+              onClick={() => onDownload()}
               className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0, opacity: artifactStatus !== 'matched' ? 0.35 : 1 }}>
+              style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: artifactStatus === 'matched' ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>2.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
                 Download your proof
