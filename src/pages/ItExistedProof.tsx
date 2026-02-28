@@ -492,29 +492,14 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── STEP 4: SHARE ── */}
-          <div className="w-full mb-8" style={lockedStyle}>
-            <button
-              onClick={onShare}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>4.</span>
-              <span className="font-mono text-[15px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Share your proof</span>
-              <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
-                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
-            </button>
-          </div>
-
-          {/* ── STEP 5: ATTESTATION ── */}
+          {/* ── STEP 4: ATTESTATION ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <button
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>5.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>4.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
@@ -537,14 +522,14 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── STEP 6: ANCHOR ANOTHER ── */}
+          {/* ── STEP 5: ANCHOR ANOTHER ── */}
           <div className="w-full mb-8" style={!anchored ? { opacity: 0.45 } : {}}>
             <button
               onClick={() => navigate('/itexisted')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>6.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>5.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
