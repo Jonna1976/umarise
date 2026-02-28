@@ -380,22 +380,22 @@ export default function ItExistedProof() {
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8">
           <div className="flex justify-between items-baseline mb-2.5">
-            <span className="font-mono text-[9px] tracking-[4px] uppercase"
-              style={{ color: 'rgba(197,147,90,0.5)' }}>Origin ID</span>
-            <span className="font-mono text-[11px] tracking-[1px]"
+            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+              style={{ color: 'rgba(197,147,90,0.55)' }}>Origin ID</span>
+            <span className="font-mono text-[14px] tracking-[1px]"
               style={{ color: '#C5935A' }}>{state.shortToken}</span>
           </div>
           <div className="flex justify-between items-baseline mb-2.5">
-            <span className="font-mono text-[9px] tracking-[4px] uppercase"
-              style={{ color: 'rgba(197,147,90,0.5)' }}>Date</span>
-            <span className="font-garamond text-[14px]"
-              style={{ color: 'rgba(245,240,232,0.6)' }}>{date} · {time}</span>
+            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+              style={{ color: 'rgba(197,147,90,0.55)' }}>Date</span>
+            <span className="font-garamond text-[16px]"
+              style={{ color: 'rgba(245,240,232,0.65)' }}>{date} · {time}</span>
           </div>
           <div className="flex justify-between items-start">
-            <span className="font-mono text-[9px] tracking-[4px] uppercase pt-0.5"
-              style={{ color: 'rgba(197,147,90,0.5)' }}>Hash</span>
-            <span className="font-mono text-[9px] text-right break-all"
-              style={{ color: 'rgba(245,240,232,0.4)', letterSpacing: '0.3px', lineHeight: 1.6, maxWidth: 220 }}>
+            <span className="font-mono text-[11px] tracking-[3px] uppercase pt-0.5"
+              style={{ color: 'rgba(197,147,90,0.55)' }}>Hash</span>
+            <span className="font-mono text-[11px] text-right break-all"
+              style={{ color: 'rgba(245,240,232,0.45)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 220 }}>
               {state.hash}
             </span>
           </div>
@@ -432,10 +432,10 @@ export default function ItExistedProof() {
           {/* ── STEP 1: VERIFY ORIGINAL FILE ── */}
           <div className="w-full mb-8">
             <div className="flex items-baseline w-full mb-3">
-              <span className="font-mono text-[9px] tracking-[4px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>1.</span>
-              <span className="font-mono text-[9px] tracking-[4px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>Verify your original file</span>
+              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>1.</span>
+              <span className="font-mono text-[13px] tracking-[3px] uppercase"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>Verify your original file</span>
               {(artifactStatus === 'matched' || artifactStatus === 'mismatch') && (
                 <button
                   onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); setComputedHash(null); }}
@@ -466,7 +466,7 @@ export default function ItExistedProof() {
                     <>
                       <p className="font-garamond text-[20px]"
                         style={{ color: '#F5F0E8' }}>Drop your original file.</p>
-                      <p className="font-garamond text-[15px] italic mt-1"
+                      <p className="font-garamond text-[16px] italic mt-1"
                         style={{ color: 'rgba(245,240,232,0.38)' }}>It is the key to your proof.</p>
                     </>
                   )}
@@ -494,10 +494,10 @@ export default function ItExistedProof() {
               onClick={() => onDownload()}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0 }}>
-              <span className="font-mono text-[9px] tracking-[4px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>2.</span>
-              <span className="font-mono text-[9px] tracking-[4px] uppercase mr-1.5"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>
+              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>2.</span>
+              <span className="font-mono text-[13px] tracking-[3px] uppercase mr-1.5"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>
                 Download your proof
               </span>
             </button>
@@ -506,10 +506,10 @@ export default function ItExistedProof() {
           {/* ── STEP 3: VERIFY ── */}
           <div className="w-full mb-8" style={lockedStyle}>
             <div className="flex items-baseline w-full">
-              <span className="font-mono text-[9px] tracking-[4px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>3.</span>
-              <span className="font-mono text-[9px] tracking-[4px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>Verify your ZIP</span>
+              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>3.</span>
+              <span className="font-mono text-[13px] tracking-[3px] uppercase"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>Verify your ZIP</span>
             </div>
             <div className="pt-4 pl-[23px]">
               <InlineVerify key={verifyKey} expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
@@ -522,11 +522,11 @@ export default function ItExistedProof() {
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[9px] tracking-[4px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>4.</span>
-              <span className="font-mono text-[9px] tracking-[4px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.5)' }}>Request attestation</span>
-              <span className="font-garamond text-[13px] italic ml-2"
+              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>4.</span>
+              <span className="font-mono text-[13px] tracking-[3px] uppercase"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>Request attestation</span>
+              <span className="font-garamond text-[15px] italic ml-2"
                 style={{ color: 'rgba(245,240,232,0.3)', whiteSpace: 'nowrap' }}>optional</span>
               <span className="ml-auto text-[15px] flex-shrink-0 transition-transform"
                 style={{
@@ -559,7 +559,7 @@ export default function ItExistedProof() {
               }}>
               <span style={{ color: 'rgba(197,147,90,0.6)', fontSize: 18, lineHeight: 1 }}>+</span>
             </button>
-            <span className="font-mono text-[9px] tracking-[3px] uppercase"
+            <span className="font-mono text-[13px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.5)', cursor: 'pointer' }}
               onClick={() => navigate('/itexisted')}>
               Anchor another file
