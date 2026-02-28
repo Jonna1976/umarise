@@ -32,8 +32,8 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
       aria-label="Open kaartenbak"
     >
       {state === 'dim' && (
-        <svg viewBox="0 0 32 32" width={24} height={24} style={{ overflow: 'visible', opacity: 0.3 }}>
-          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.9" />
+        <svg viewBox="0 0 32 32" width={28} height={28} style={{ overflow: 'visible', opacity: 0.35 }}>
+          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(197,147,90,0.6)" strokeWidth="1.1" />
           <circle cx="16" cy="16" r="4" fill="#C5935A" />
         </svg>
       )}
@@ -49,9 +49,9 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
       )}
 
       {state === 'glow' && (
-        <svg viewBox="0 0 32 32" width={24} height={24}
+        <svg viewBox="0 0 32 32" width={28} height={28}
           style={{ overflow: 'visible', filter: glowFilter, transition: 'filter 0.2s ease' }}>
-          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="0.9" />
+          <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(197,147,90,0.55)" strokeWidth="1.1" />
           <circle cx="16" cy="16" r="4" fill="#C5935A" />
         </svg>
       )}
