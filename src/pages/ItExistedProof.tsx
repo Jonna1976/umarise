@@ -329,37 +329,42 @@ export default function ItExistedProof() {
         {/* TOP BLOCK */}
         <div className="w-full flex flex-col items-start mb-12">
           {anchored ? (
-            <h1 className="font-garamond text-[41px] font-normal flex items-center gap-1"
-              style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-              Your file is anchored
-              <motion.span
-                className="inline-block"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.2, delay: 0.8 }}>
-                <svg viewBox="0 0 42 42" width="34" height="34" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '-6px' }}>
-                  <motion.circle
-                    cx="21" cy="38" fill="none"
-                    stroke="rgba(197,147,90,0.45)" strokeWidth="0.9"
-                    initial={{ r: 0, opacity: 0 }}
-                    animate={{ r: 15, opacity: 1 }}
-                    transition={{ duration: 0.9, delay: 2.2, ease: [0.2, 0, 0.2, 1] }}
-                  />
-                  <motion.circle
-                    cx="21" cy="38" r="3.5" fill="#C5935A"
-                    animate={{
-                      opacity: [0.6, 1, 0.6],
-                      filter: [
-                        'drop-shadow(0 0 4px rgba(197,147,90,0.3))',
-                        'drop-shadow(0 0 12px rgba(197,147,90,0.8))',
-                        'drop-shadow(0 0 4px rgba(197,147,90,0.3))',
-                      ],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                </svg>
-              </motion.span>
-            </h1>
+            <>
+              <h1 className="font-garamond text-[41px] font-normal flex items-center gap-1"
+                style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
+                Your file is anchored
+                <motion.span
+                  className="inline-block"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1.2, delay: 0.8 }}>
+                  <svg viewBox="0 0 42 42" width="34" height="34" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '-6px' }}>
+                    <motion.circle
+                      cx="21" cy="38" fill="none"
+                      stroke="rgba(197,147,90,0.45)" strokeWidth="0.9"
+                      initial={{ r: 0, opacity: 0 }}
+                      animate={{ r: 15, opacity: 1 }}
+                      transition={{ duration: 0.9, delay: 2.2, ease: [0.2, 0, 0.2, 1] }}
+                    />
+                    <motion.circle
+                      cx="21" cy="38" r="3.5" fill="#C5935A"
+                      animate={{
+                        opacity: [0.6, 1, 0.6],
+                        filter: [
+                          'drop-shadow(0 0 4px rgba(197,147,90,0.3))',
+                          'drop-shadow(0 0 12px rgba(197,147,90,0.8))',
+                          'drop-shadow(0 0 4px rgba(197,147,90,0.3))',
+                        ],
+                      }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  </svg>
+                </motion.span>
+              </h1>
+              <p className="font-garamond text-[18px] mt-3 leading-relaxed" style={{ color: 'rgba(240,234,214,0.55)' }}>
+                It existed. Now it's provable. Your file stays yours.
+              </p>
+            </>
           ) : (
             <div className="flex flex-col items-start gap-1">
               <h1 className="font-garamond text-[34px] font-normal"
