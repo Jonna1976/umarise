@@ -440,16 +440,14 @@ export default function ItExistedProof() {
 
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8">
-          {artifactFile && artifactStatus === 'matched' && (
-            <div className="flex justify-between items-baseline mb-2.5">
-              <span className="font-mono text-[11px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
-              <span className="font-mono text-[13px] tracking-[1px] text-right break-all"
-                style={{ color: 'rgba(245,240,232,0.65)', maxWidth: 280 }}>
-                {artifactFile.name}
-              </span>
-            </div>
-          )}
+          <div className="flex justify-between items-baseline mb-2.5">
+            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+              style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
+            <span className="font-mono text-[13px] tracking-[1px] text-right break-all"
+              style={{ color: 'rgba(245,240,232,0.65)', maxWidth: 280 }}>
+              {artifactFile && artifactStatus === 'matched' ? artifactFile.name : '—'}
+            </span>
+          </div>
           <div className="flex justify-between items-baseline mb-2.5">
             <span className="font-mono text-[11px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Origin ID</span>

@@ -378,7 +378,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
             onClick={() => setStepsOpen(v => !v)}
             className="flex items-center gap-1.5 font-mono text-[15px] tracking-[2px] uppercase transition-colors"
             style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>
-            <span style={{ transform: stepsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', fontSize: '15px' }}>▾</span>
+            
             {stepsOpen ? 'Hide verification steps' : 'Show verification steps'}
           </button>
 
