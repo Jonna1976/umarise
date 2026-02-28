@@ -374,54 +374,34 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
       {/* ── Step log (collapsible) ── */}
       {result && result.steps.length > 0 && (
         <div className="w-full mt-2">
-          <button
-            onClick={() => setStepsOpen(v => !v)}
-            className="flex items-center gap-1.5 font-mono text-[15px] tracking-[2px] uppercase transition-colors"
-            style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>
-            
-            {stepsOpen ? 'Hide verification steps' : 'Show verification steps'}
-          </button>
-
-          <AnimatePresence>
-            {stepsOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <div className="rounded-[6px] px-3 py-3 mt-1 space-y-1.5"
-                  style={{ background: 'rgba(10,15,10,0.8)', border: '1px solid rgba(240,234,214,0.06)' }}>
-                  {result.steps.map((step, i) => (
-                    <div key={i} className="flex items-start gap-2 font-mono text-[15px] leading-[1.6]">
-                      <span className="flex-shrink-0 mt-px" style={{
-                        color: step.status === 'ok' ? '#7fba6a'
-                          : step.status === 'error' ? 'rgba(220,80,60,0.8)'
-                          : step.status === 'warn' ? 'rgba(201,169,110,0.7)'
-                          : 'rgba(240,234,214,0.25)',
-                      }}>
-                        {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
-                      </span>
-                      <span style={{
-                        color: step.status === 'ok' ? 'rgba(240,234,214,0.55)'
-                          : step.status === 'error' ? 'rgba(220,80,60,0.7)'
-                          : step.status === 'warn' ? 'rgba(201,169,110,0.6)'
-                          : 'rgba(240,234,214,0.3)',
-                      }}>
-                        {step.label}
-                        {step.detail && (
-                          <span className="ml-1.5" style={{ color: 'rgba(240,234,214,0.2)', wordBreak: 'break-all' }}>
-                            {step.detail}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="rounded-[6px] px-3 py-3 mt-1 space-y-1.5"
+            style={{ background: 'rgba(10,15,10,0.8)', border: '1px solid rgba(240,234,214,0.06)' }}>
+            {result.steps.map((step, i) => (
+              <div key={i} className="flex items-start gap-2 font-mono text-[15px] leading-[1.6]">
+                <span className="flex-shrink-0 mt-px" style={{
+                  color: step.status === 'ok' ? '#7fba6a'
+                    : step.status === 'error' ? 'rgba(220,80,60,0.8)'
+                    : step.status === 'warn' ? 'rgba(201,169,110,0.7)'
+                    : 'rgba(240,234,214,0.25)',
+                }}>
+                  {step.status === 'ok' ? '✓' : step.status === 'error' ? '✗' : step.status === 'warn' ? '!' : '·'}
+                </span>
+                <span style={{
+                  color: step.status === 'ok' ? 'rgba(240,234,214,0.55)'
+                    : step.status === 'error' ? 'rgba(220,80,60,0.7)'
+                    : step.status === 'warn' ? 'rgba(201,169,110,0.6)'
+                    : 'rgba(240,234,214,0.3)',
+                }}>
+                  {step.label}
+                  {step.detail && (
+                    <span className="ml-1.5" style={{ color: 'rgba(240,234,214,0.2)', wordBreak: 'break-all' }}>
+                      {step.detail}
+                    </span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
