@@ -588,7 +588,7 @@ export default function ItExistedProof() {
                   autoVerifyName={downloadedZipName}
                 />
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(197,147,90,0.08)' }}>
-                  <p className="font-garamond text-[14px] italic"
+                  <p className="font-garamond text-[13px] italic"
                     style={{ color: 'rgba(245,240,232,0.3)' }}>
                     Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
                       style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
@@ -607,7 +607,7 @@ export default function ItExistedProof() {
               style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
               Want to add a trust layer?
             </h2>
-            <p className="font-garamond italic text-[16px] mb-6"
+            <p className="font-garamond italic text-[13px] mb-6"
               style={{ color: 'rgba(245,240,232,0.4)', lineHeight: 1.55 }}>
               A notary or verified third party can attest to this anchor — adding identity and legal weight above the cryptographic proof.
             </p>
