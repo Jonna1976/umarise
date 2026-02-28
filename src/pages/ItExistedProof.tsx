@@ -432,8 +432,8 @@ export default function ItExistedProof() {
             <div className="flex justify-between items-baseline mb-2.5">
               <span className="font-mono text-[11px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
-              <span className="font-mono text-[14px] tracking-[1px]"
-                style={{ color: 'rgba(245,240,232,0.65)' }}>
+              <span className="font-mono text-[14px] tracking-[1px] text-right break-all"
+                style={{ color: 'rgba(245,240,232,0.65)', maxWidth: 280 }}>
                 {artifactFile.name}
               </span>
             </div>
