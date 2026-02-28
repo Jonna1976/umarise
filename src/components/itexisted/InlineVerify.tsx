@@ -298,10 +298,6 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
       {result?.status === 'verified' && (
         <div className="w-full rounded-[8px] border p-4 mt-1"
           style={{ borderColor: 'rgba(74,124,89,0.4)', background: 'rgba(74,124,89,0.06)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-[15px]" style={{ color: '#7fba6a' }}>✓</span>
-            <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: '#7fba6a' }}>Verified</span>
-          </div>
           <Row label="Origin ID" value={result.shortToken!} ok />
           <Row label="Hash match" value="✓ confirmed" ok />
           <Row label="Date" value={result.date!} />
