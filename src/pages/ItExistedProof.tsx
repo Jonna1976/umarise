@@ -440,8 +440,8 @@ export default function ItExistedProof() {
                 <label
                   className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer transition-all"
                   style={{
-                    borderColor: dragOver ? 'rgba(245,240,232,0.5)' : 'rgba(245,240,232,0.3)',
-                    background: dragOver ? 'rgba(245,240,232,0.06)' : 'rgba(245,240,232,0.02)',
+                    borderColor: dragOver ? 'rgba(197,147,90,0.7)' : 'rgba(197,147,90,0.4)',
+                    background: dragOver ? 'rgba(197,147,90,0.18)' : 'rgba(197,147,90,0.1)',
                   }}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
