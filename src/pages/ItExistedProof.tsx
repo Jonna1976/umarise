@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { buildOriginZip, buildZipFileName } from '@/lib/originZip';
 import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus } from '@/lib/coreApi';
 import { calculateSHA256 } from '@/lib/originHash';
+import { cacheArtifact, loadArtifact } from '@/lib/artifactCache';
 import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
 import Circumpunct from '@/components/itexisted/Circumpunct';
@@ -70,6 +71,18 @@ export default function ItExistedProof() {
   const [computedHash, setComputedHash] = useState<string | null>(() => {
     try { return sessionStorage.getItem(`artifact_hash_${token}`) || null; } catch { return null; }
   });
+
+  // Restore artifact file from IndexedDB cache on mount (if previously confirmed)
+  useEffect(() => {
+    if (artifactStatus === 'matched' && !artifactFile && token) {
+      loadArtifact(token).then(file => {
+        if (file) {
+          setArtifactFile(file);
+          console.log('[ArtifactCache] restored:', file.name);
+        }
+      });
+    }
+  }, [token, artifactStatus]);
 
   // When proof becomes anchored, auto-open verify step
   useEffect(() => {
@@ -162,6 +175,7 @@ export default function ItExistedProof() {
         setArtifactFile(file);
         setArtifactStatus('matched');
         try { sessionStorage.setItem(storageKey, 'matched'); sessionStorage.setItem(`artifact_hash_${token}`, fileHash); } catch {}
+        if (token) cacheArtifact(token, file);
         toast.success('File verified — will be included in your ZIP.');
       } else {
         setArtifactFile(null);
