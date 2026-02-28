@@ -352,6 +352,32 @@ export default function ItExistedProof() {
 
   const onDownload = async () => {
     if (!anchored) { toast.info('Proof is still pending. Come back in ~2 hours.'); return; }
+
+    // ── GATE: Ensure artifact is available before proceeding ──
+    let resolvedArtifact = artifactFileRef.current;
+    console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'size:', resolvedArtifact?.size ?? 0);
+    
+    // Always attempt IndexedDB restore if ref is empty
+    if (!resolvedArtifact && token) {
+      console.log('[onDownload] Attempting IndexedDB restore for token:', token);
+      const cached = await loadArtifact(token) || await loadArtifact(token.toLowerCase());
+      if (cached) {
+        resolvedArtifact = cached;
+        setArtifactFile(cached);
+        artifactFileRef.current = cached;
+        cacheArtifact(token, cached); // ensure normalized key
+        console.log('[onDownload] ✓ Restored from cache:', cached.name, cached.size, 'bytes');
+      }
+    }
+
+    // HARD GATE: no artifact → no download
+    if (!resolvedArtifact) {
+      console.warn('[onDownload] ⚠ No artifact available — blocking download');
+      toast.error('Add your original file in Step 1 first. The ZIP must contain the original to be valid.');
+      setOpenStep('verify-file');
+      return;
+    }
+
     const testMode = new URLSearchParams(window.location.search).get('test') === 'anchored';
     let otsProofBase64: string | null = null;
 
@@ -361,38 +387,7 @@ export default function ItExistedProof() {
       otsProofBase64 = arrayBufferToBase64(proof.otsProofBytes);
     }
 
-    // Use ref to avoid stale closure — React state may lag behind
-    let resolvedArtifact = artifactFileRef.current;
-    console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'size:', resolvedArtifact?.size ?? 0, 'artifactStatus:', artifactStatus);
-    
-    // Always attempt IndexedDB restore if ref is empty
-    if (!resolvedArtifact && token) {
-      console.log('[onDownload] Attempting IndexedDB restore for token:', token);
-      const cached = await loadArtifact(token);
-      if (cached) {
-        resolvedArtifact = cached;
-        setArtifactFile(cached);
-        artifactFileRef.current = cached;
-        console.log('[onDownload] ✓ Restored from cache:', cached.name, cached.size, 'bytes');
-      } else {
-        // Also try lowercase token as fallback (legacy cache entries)
-        const cachedLower = await loadArtifact(token.toLowerCase());
-        if (cachedLower) {
-          resolvedArtifact = cachedLower;
-          setArtifactFile(cachedLower);
-          artifactFileRef.current = cachedLower;
-          // Re-cache under normalized key
-          cacheArtifact(token, cachedLower);
-          console.log('[onDownload] ✓ Restored from cache (lowercase key):', cachedLower.name, cachedLower.size, 'bytes');
-        } else {
-          console.warn('[onDownload] ⚠ Cache empty for token:', token, '— ZIP will not contain artifact');
-          toast.info('Original file not found in cache. Re-add your file in Step 1 before downloading.');
-        }
-      }
-    }
-
-    // Final diagnostic log before ZIP generation
-    console.log('[onDownload] Building ZIP with artifact:', resolvedArtifact ? `${resolvedArtifact.name} (${resolvedArtifact.size} bytes)` : 'NONE');
+    console.log('[onDownload] Building ZIP with artifact:', `${resolvedArtifact.name} (${resolvedArtifact.size} bytes)`);
 
     const zip = await buildOriginZip({
       originId: state.originId, hash: state.hash,
