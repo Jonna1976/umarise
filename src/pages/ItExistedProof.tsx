@@ -502,6 +502,14 @@ export default function ItExistedProof() {
                     style={{ color: artifactStatus === 'matched' ? '#7fba6a' : 'rgba(220,80,60,0.8)' }}>
                     {artifactStatus === 'matched' ? 'Hash match confirmed' : 'Hash mismatch — wrong file'}
                   </p>
+                  {artifactStatus === 'matched' && artifactFile && (
+                    <p style={{ fontFamily: "'EB Garamond', serif", fontSize: '16px', color: 'rgba(127,186,106,0.85)', marginTop: '2px' }}>
+                      {artifactFile.name}
+                      <span style={{ color: 'rgba(127,186,106,0.5)', marginLeft: '8px', fontSize: '14px' }}>
+                        ({(artifactFile.size / 1024).toFixed(0)} KB)
+                      </span>
+                    </p>
+                  )}
                   {computedHash && (
                     <p className="font-mono text-[13px] break-all"
                       style={{ color: artifactStatus === 'matched' ? 'rgba(127,186,106,0.6)' : 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
