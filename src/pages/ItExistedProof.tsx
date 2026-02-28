@@ -447,30 +447,6 @@ export default function ItExistedProof() {
           </div>
         </div>
 
-        {/* BOOKMARK HINT (pending only) */}
-        {!anchored && (
-          <div className="w-full mb-10">
-            <p className="font-garamond text-[18px]" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
-              Bookmark this page
-            </p>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`https://itexisted.app/proof/${state.shortToken}`);
-                toast.success('URL copied');
-              }}
-              className="flex items-center gap-2 mt-1 group"
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-              <span className="font-mono text-[18px] tracking-[1px]"
-                style={{ color: '#c9a96e' }}>
-                https://itexisted.app/proof/{state.shortToken}
-              </span>
-              <Copy size={16} className="opacity-40 group-hover:opacity-80 transition-opacity" style={{ color: '#c9a96e' }} />
-            </button>
-            <p className="font-garamond text-[18px] mt-2" style={{ color: 'rgba(240,234,214,0.5)', lineHeight: 1.8 }}>
-              we'll have your proof ready soon.
-            </p>
-          </div>
-        )}
 
         {/* ── STEPS ── */}
         <div className="w-full flex flex-col items-start">
@@ -613,6 +589,26 @@ export default function ItExistedProof() {
               style={{ color: '#F5F0E8' }}>
               Anchor another file
             </span>
+          </div>
+
+          {/* ── BOOKMARK HINT (bottom) ── */}
+          <div className="w-full mt-8 mb-4">
+            <p className="font-garamond text-[16px] italic" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.8 }}>
+              Before you leave, bookmark this page:
+            </p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://itexisted.app/proof/${state.shortToken}`);
+                toast.success('URL copied');
+              }}
+              className="flex items-center gap-2 mt-1.5 group"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+              <span className="font-mono text-[15px] tracking-[0.5px]"
+                style={{ color: 'rgba(201,169,110,0.6)' }}>
+                https://itexisted.app/proof/{state.shortToken}
+              </span>
+              <Copy size={14} className="opacity-30 group-hover:opacity-70 transition-opacity" style={{ color: '#c9a96e' }} />
+            </button>
           </div>
 
         </div>
