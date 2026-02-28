@@ -206,8 +206,12 @@ export default function ItExistedProof() {
     return (
       <main className="min-h-screen flex items-center justify-center"
         style={{ background: '#0a0f0a' }}>
-        <span className="font-mono text-[14px] tracking-[2px] uppercase"
-          style={{ color: 'rgba(240,234,214,0.35)' }}>Loading…</span>
+        <svg viewBox="0 0 40 40" width={32} height={32}>
+          <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(197,147,90,0.3)" strokeWidth="0.8" />
+          <circle cx="20" cy="20" r="5" fill="#C5935A">
+            <animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite" />
+          </circle>
+        </svg>
       </main>
     );
   }
