@@ -427,16 +427,7 @@ export default function ItExistedProof() {
         </div>
 
         {/* ── RECORD DETAILS ── */}
-        <div className="w-full mb-8 rounded-[10px] transition-all duration-500"
-          style={{
-            border: artifactStatus === 'matched'
-              ? '1px solid rgba(127,186,106,0.25)'
-              : '1px solid transparent',
-            background: artifactStatus === 'matched'
-              ? 'rgba(127,186,106,0.04)'
-              : 'transparent',
-            padding: artifactStatus === 'matched' ? '16px' : '0',
-          }}>
+        <div className="w-full mb-8">
           {artifactFile && artifactStatus === 'matched' && (
             <div className="flex justify-between items-baseline mb-2.5">
               <span className="font-mono text-[11px] tracking-[3px] uppercase"
