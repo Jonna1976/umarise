@@ -459,10 +459,17 @@ export default function ItExistedProof() {
                 >
                   <input type="file" className="hidden" accept="*/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                  <p className="font-mono text-[15px] tracking-[2px] uppercase mb-1"
-                    style={{ color: artifactStatus === 'checking' ? 'rgba(245,240,232,0.5)' : 'rgba(245,240,232,0.7)' }}>
-                    {artifactStatus === 'checking' ? 'Checking…' : 'Drop your original file here'}
-                  </p>
+                  {artifactStatus === 'checking' ? (
+                    <p className="font-mono text-[15px] tracking-[2px] uppercase"
+                      style={{ color: 'rgba(245,240,232,0.5)' }}>Checking…</p>
+                  ) : (
+                    <>
+                      <p className="font-garamond text-[28px]"
+                        style={{ color: '#f0ead6' }}>Drop your original file.</p>
+                      <p className="font-garamond text-[20px] italic mt-1"
+                        style={{ color: 'rgba(240,234,214,0.45)' }}>It is the key to your proof.</p>
+                    </>
+                  )}
                 </label>
               ) : (
                 <div className="flex flex-col gap-2">
