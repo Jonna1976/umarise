@@ -551,10 +551,12 @@ export default function ItExistedProof() {
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0 }}>
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>2.</span>
+                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
+                {downloadedZipBlob ? '✓' : '2.'}
+              </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase mr-1.5"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>
-                Download your proof
+                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
+                {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
           </div>
@@ -570,14 +572,6 @@ export default function ItExistedProof() {
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
                 {downloadedZipBlob ? 'ZIP verified' : 'Verify your ZIP'}
               </span>
-              {downloadedZipBlob && (
-                <button
-                  onClick={() => { setDownloadedZipBlob(null); setDownloadedZipName(null); setVerifyKey(k => k + 1); }}
-                  className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
-                  style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                  New
-                </button>
-              )}
             </div>
             <div className="pt-4 pl-[23px]">
               <InlineVerify
