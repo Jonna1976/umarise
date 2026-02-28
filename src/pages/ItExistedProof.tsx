@@ -60,11 +60,16 @@ export default function ItExistedProof() {
   const [openStep, setOpenStep] = useState<string | null>(null);
   const [verifyKey, setVerifyKey] = useState(0);
 
-  // Artifact file state (user-provided for ZIP inclusion)
+  // Artifact file state — persist match across refreshes via sessionStorage
+  const storageKey = `artifact_matched_${token}`;
   const [artifactFile, setArtifactFile] = useState<File | null>(null);
-  const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>('idle');
+  const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>(() => {
+    try { return sessionStorage.getItem(storageKey) === 'matched' ? 'matched' : 'idle'; } catch { return 'idle'; }
+  });
   const [dragOver, setDragOver] = useState(false);
-  const [computedHash, setComputedHash] = useState<string | null>(null);
+  const [computedHash, setComputedHash] = useState<string | null>(() => {
+    try { return sessionStorage.getItem(`artifact_hash_${token}`) || null; } catch { return null; }
+  });
 
   // When proof becomes anchored, auto-open verify step
   useEffect(() => {
@@ -156,6 +161,7 @@ export default function ItExistedProof() {
       if (fileHash === expectedHash) {
         setArtifactFile(file);
         setArtifactStatus('matched');
+        try { sessionStorage.setItem(storageKey, 'matched'); sessionStorage.setItem(`artifact_hash_${token}`, fileHash); } catch {}
         toast.success('File verified — will be included in your ZIP.');
       } else {
         setArtifactFile(null);
@@ -462,7 +468,7 @@ export default function ItExistedProof() {
                 style={{ color: '#F5F0E8' }}>1.</span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
                 style={{ color: '#F5F0E8' }}>Verify your original file</span>
-              {(artifactStatus === 'matched' || artifactStatus === 'mismatch') && (
+              {artifactStatus === 'mismatch' && (
                 <button
                   onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); setComputedHash(null); }}
                   className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
@@ -536,6 +542,12 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(197,147,90,0.7)' }}>3.</span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(197,147,90,0.7)' }}>Verify your ZIP</span>
+              <button
+                onClick={() => setVerifyKey(k => k + 1)}
+                className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
+                style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                New
+              </button>
             </div>
             <div className="pt-4 pl-[23px]">
               <InlineVerify key={verifyKey} expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
