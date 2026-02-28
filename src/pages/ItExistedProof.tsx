@@ -8,6 +8,8 @@ import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus } from '@/lib
 import { calculateSHA256 } from '@/lib/originHash';
 import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
+import Circumpunct from '@/components/itexisted/Circumpunct';
+import Kaartenbak from '@/components/itexisted/Kaartenbak';
 
 /** Countdown: shows time remaining until ~2h after capture */
 function CountdownTimer({ capturedAt }: { capturedAt: string }) {
@@ -318,6 +320,9 @@ export default function ItExistedProof() {
   const lockedStyle = (artifactStatus !== 'matched') ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
 
   return (
+    <>
+    <Circumpunct />
+    <Kaartenbak />
     <main className="min-h-screen flex items-center justify-center px-6"
       style={{ background: '#0a0f0a', WebkitFontSmoothing: 'antialiased', padding: '60px 24px' }}>
       <motion.div
@@ -574,5 +579,6 @@ export default function ItExistedProof() {
         </div>
       </motion.div>
     </main>
+    </>
   );
 }

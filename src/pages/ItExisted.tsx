@@ -7,6 +7,9 @@ import { isWebAuthnSupported, isPlatformAuthenticatorAvailable, registerPasskey,
 import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore';
 import { calculateSHA256 } from '@/lib/originHash';
 import { toast } from 'sonner';
+import Circumpunct from '@/components/itexisted/Circumpunct';
+import Kaartenbak from '@/components/itexisted/Kaartenbak';
+import { useKaartenbak } from '@/contexts/KaartenbakContext';
 
 type ItExistedState = 'capture' | 'anchoring';
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
@@ -18,39 +21,6 @@ function mapFileType(mimeType: string): MarkType {
   return 'text';
 }
 
-/** Circumpunct status mark — dot = pending (breathing), dot+ring = anchored (pulsing glow) */
-function StatusMark({ pending = false, size = 16 }: { pending?: boolean; size?: number }) {
-  if (pending) {
-    return (
-      <svg viewBox="0 0 20 20" width={size} height={size} style={{ flexShrink: 0 }}>
-        <motion.circle
-          cx="10" cy="10" r="3" fill="#C5935A"
-          animate={{ opacity: [0.3, 0.9, 0.3] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 20 20" width={size} height={size} style={{ flexShrink: 0, overflow: 'visible' }}>
-      <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="0.8" />
-      <motion.circle
-        cx="10" cy="10" r="3" fill="#C5935A"
-        animate={{
-          opacity: [0.6, 1, 0.6],
-          filter: [
-            'drop-shadow(0 0 2px rgba(197,147,90,0.3))',
-            'drop-shadow(0 0 8px rgba(197,147,90,0.8))',
-            'drop-shadow(0 0 2px rgba(197,147,90,0.3))',
-          ],
-        }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </svg>
-  );
-}
-
-
 export default function ItExisted() {
   const navigate = useNavigate();
   const { createMarkFromFile } = useMarks();
@@ -59,23 +29,7 @@ export default function ItExisted() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileName = useMemo(() => selectedFile?.name ?? '', [selectedFile]);
 
-  // Last anchor status indicator
-  const [lastAnchor, setLastAnchor] = useState<{ shortToken: string; originId: string } | null>(null);
-  const [anchorStatus, setAnchorStatus] = useState<'pending' | 'anchored' | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('itexisted_last_anchor');
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (data?.shortToken && data?.originId) {
-        setLastAnchor({ shortToken: data.shortToken, originId: data.originId });
-        fetchProofStatus(data.originId).then(result => {
-          setAnchorStatus(result.status === 'anchored' ? 'anchored' : 'pending');
-        }).catch(() => setAnchorStatus('pending'));
-      }
-    } catch {}
-  }, []);
+  const { addItems } = useKaartenbak();
 
   // Store Layer 2 signing result for inclusion in certificate.json
   const [layer2, setLayer2] = useState<{ deviceSignature: string; devicePublicKey: string } | null>(null);
@@ -151,6 +105,16 @@ export default function ItExisted() {
       };
 
       localStorage.setItem('itexisted_last_anchor', JSON.stringify(payload));
+
+      // Add to kaartenbak (ephemeral in-memory)
+      addItems([{
+        originId: payload.originId,
+        shortToken: payload.shortToken,
+        hash: payload.hash,
+        capturedAt: payload.capturedAt,
+        verifyUrl: `https://itexisted.app/proof/${payload.shortToken}`,
+        status: 'pending',
+      }]);
       
       // Use correct path based on hostname
       const isItExistedDomain = window.location.hostname === 'itexisted.app';
@@ -234,33 +198,9 @@ export default function ItExisted() {
 
       </AnimatePresence>
 
-      {/* Last anchor status indicator */}
-      {lastAnchor && anchorStatus && state === 'capture' && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 2 }}
-          onClick={() => {
-            const isItExistedDomain = window.location.hostname === 'itexisted.app';
-            const path = isItExistedDomain
-              ? `/proof/${lastAnchor.shortToken}`
-              : `/itexisted/proof/${lastAnchor.shortToken}`;
-            navigate(path);
-          }}
-          className="fixed top-8 right-8 flex items-center gap-3 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
-          style={{ cursor: 'pointer' }}
-        >
-          <StatusMark pending={anchorStatus === 'pending'} size={24} />
-          <span className="font-mono text-[11px] tracking-[2px] uppercase"
-            style={{
-              color: anchorStatus === 'anchored'
-                ? '#C5935A'
-                : 'rgba(240,234,214,0.35)',
-            }}>
-            {anchorStatus === 'anchored' ? 'Anchored' : 'Anchoring'}
-          </span>
-        </motion.button>
-      )}
+      {/* Universal circumpunct + kaartenbak */}
+      <Circumpunct />
+      <Kaartenbak />
 
       <input ref={inputRef} type="file" className="hidden"
         onChange={(e) => { handlePick(e.target.files?.[0] ?? null); e.target.value = ''; }} />

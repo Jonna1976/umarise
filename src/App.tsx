@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import { KaartenbakProvider } from "@/contexts/KaartenbakContext";
 import { PinGate } from "@/components/PinGate";
 import { InternalGate } from "@/components/InternalGate";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
@@ -57,6 +58,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <DemoModeProvider>
+      <KaartenbakProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -139,6 +141,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </KaartenbakProvider>
     </DemoModeProvider>
   </QueryClientProvider>
 );
