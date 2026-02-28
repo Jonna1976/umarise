@@ -273,16 +273,35 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
   useEffect(() => {
     if (autoVerifyBlob && !autoVerifiedRef.current && !result && !busy) {
       autoVerifiedRef.current = true;
-      // Clone the blob to avoid I/O issues on mobile Safari
-      autoVerifyBlob.arrayBuffer().then(buffer => {
-        const freshBlob = new Blob([buffer], { type: 'application/zip' });
-        const file = new File([freshBlob], autoVerifyName || 'proof.zip', { type: 'application/zip' });
-        processFile(file);
-      }).catch(err => {
-        console.error('[InlineVerify] Failed to read blob:', err);
+      // Use FileReader for better mobile Safari compatibility
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const buffer = reader.result as ArrayBuffer;
+          const freshBlob = new Blob([buffer], { type: 'application/zip' });
+          const file = new File([freshBlob], autoVerifyName || 'proof.zip', { type: 'application/zip' });
+          processFile(file);
+        } catch (err) {
+          console.error('[InlineVerify] Failed to construct file from blob:', err);
+          setResult({ status: 'error', steps: [{ label: 'Could not read downloaded ZIP', status: 'error' }] });
+          setStepsOpen(true);
+        }
+      };
+      reader.onerror = () => {
+        console.error('[InlineVerify] FileReader failed:', reader.error);
         setResult({ status: 'error', steps: [{ label: 'Could not read downloaded ZIP', status: 'error' }] });
         setStepsOpen(true);
-      });
+      };
+      // Small delay to let Safari settle after blob creation
+      setTimeout(() => {
+        try {
+          reader.readAsArrayBuffer(autoVerifyBlob);
+        } catch (err) {
+          console.error('[InlineVerify] readAsArrayBuffer threw:', err);
+          setResult({ status: 'error', steps: [{ label: 'Could not read downloaded ZIP', status: 'error' }] });
+          setStepsOpen(true);
+        }
+      }, 100);
     }
   }, [autoVerifyBlob, autoVerifyName, result, busy, processFile]);
 
