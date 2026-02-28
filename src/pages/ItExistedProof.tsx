@@ -536,10 +536,6 @@ export default function ItExistedProof() {
             </button>
             {downloadedZipBlob && !saveConfirmed && (
               <div className="pb-4 text-center">
-                <p className="font-garamond italic text-[15px] mb-4"
-                  style={{ color: 'rgba(245,240,232,0.4)' }}>
-                  Save it well. This is your proof.
-                </p>
                 <button
                   onClick={() => setSaveConfirmed(true)}
                   className="font-mono text-[13px] tracking-[3px] uppercase py-2.5 px-6 rounded-full transition-all"
