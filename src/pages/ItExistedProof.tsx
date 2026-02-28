@@ -427,7 +427,16 @@ export default function ItExistedProof() {
         </div>
 
         {/* ── RECORD DETAILS ── */}
-        <div className="w-full mb-8">
+        <div className="w-full mb-8 rounded-[10px] transition-all duration-500"
+          style={{
+            border: artifactStatus === 'matched'
+              ? '1px solid rgba(127,186,106,0.25)'
+              : '1px solid transparent',
+            background: artifactStatus === 'matched'
+              ? 'rgba(127,186,106,0.04)'
+              : 'transparent',
+            padding: artifactStatus === 'matched' ? '16px' : '0',
+          }}>
           {artifactFile && artifactStatus === 'matched' && (
             <div className="flex justify-between items-baseline mb-2.5">
               <span className="font-mono text-[11px] tracking-[3px] uppercase"
@@ -465,16 +474,7 @@ export default function ItExistedProof() {
         <div className="w-full flex flex-col items-start">
 
           {/* ── STEP 1: VERIFY ORIGINAL FILE ── */}
-          <div className="w-full mb-8 rounded-[10px] transition-all duration-500"
-            style={{
-              border: artifactStatus === 'matched'
-                ? '1px solid rgba(127,186,106,0.25)'
-                : '1px solid transparent',
-              background: artifactStatus === 'matched'
-                ? 'rgba(127,186,106,0.04)'
-                : 'transparent',
-              padding: artifactStatus === 'matched' ? '16px' : '0',
-            }}>
+          <div className="w-full mb-8">
             <div className="flex items-baseline w-full mb-3">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#F5F0E8' }}>
