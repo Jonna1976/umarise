@@ -328,22 +328,14 @@ export default function ItExistedProof() {
 
         {/* TOP BLOCK */}
         <div className="w-full flex flex-col items-start mb-12">
-          {anchored && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="flex items-center justify-center rounded-full mb-7"
-              style={{ width: 56, height: 56, border: '1px solid rgba(201,169,110,0.4)' }}>
-              <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
-                <polyline points="3,9 7,13 15,5" stroke="#c9a96e" strokeWidth="1.2"
-                  strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </motion.div>
-          )}
           {anchored ? (
-            <h1 className="font-garamond text-[41px] font-normal"
+            <h1 className="font-garamond text-[41px] font-normal flex items-center gap-3"
               style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
               Your file is anchored.
+              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0"
+                style={{ width: 36, height: 36, border: '1.5px solid rgba(201,169,110,0.5)' }}>
+                <span className="font-mono text-[16px] font-semibold" style={{ color: '#c9a96e' }}>A</span>
+              </span>
             </h1>
           ) : (
             <div className="flex flex-col items-start gap-1">
