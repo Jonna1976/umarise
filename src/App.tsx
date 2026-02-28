@@ -7,6 +7,7 @@ import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { KaartenbakProvider } from "@/contexts/KaartenbakContext";
 import { PinGate } from "@/components/PinGate";
 import { InternalGate } from "@/components/InternalGate";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { PWAUpdatePrompt } from "@/components/pwa/PWAUpdatePrompt";
 import Index from "./pages/Index";
@@ -65,6 +66,7 @@ const App = () => (
         <InstallPrompt />
         <PWAUpdatePrompt />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* PUBLIC ROUTES - No PinGate */}
             {/* anchoring.app → ritual flow directly; other domains → landing */}
