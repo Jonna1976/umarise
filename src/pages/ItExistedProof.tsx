@@ -331,8 +331,9 @@ export default function ItExistedProof() {
     setOpenStep(prev => prev === id ? null : id);
   };
 
-  /* locked: steps 2-4 and + require file verification (step 1) first */
+  /* Step 1 is always accessible. Steps 2-4 require file match. Steps 2+3 also require anchored. */
   const lockedStyle = (artifactStatus !== 'matched') ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
+  const fullLockedStyle = (artifactStatus !== 'matched' || !anchored) ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
 
   return (
     <>
@@ -514,7 +515,7 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── STEP 2: DOWNLOAD ── */}
-          <div className="w-full mb-8" style={lockedStyle}>
+          <div className="w-full mb-8" style={fullLockedStyle}>
             <button
               onClick={() => onDownload()}
               className="flex items-baseline w-full text-left"
@@ -529,7 +530,7 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── STEP 3: VERIFY ── */}
-          <div className="w-full mb-8" style={lockedStyle}>
+          <div className="w-full mb-8" style={fullLockedStyle}>
             <div className="flex items-baseline w-full">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: 'rgba(197,147,90,0.7)' }}>3.</span>
