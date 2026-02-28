@@ -572,21 +572,18 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── ANCHOR ANOTHER ── */}
-          <div className="w-full mb-8 flex items-center justify-center gap-2.5 mt-4 opacity-50 hover:opacity-90 transition-opacity" style={!anchored ? { opacity: 0.3 } : {}}>
-            <button
-              onClick={() => navigate('/itexisted')}
+          <div className="w-full mb-8 flex items-center justify-start gap-2.5 mt-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" style={!anchored ? { opacity: 0.3 } : {}} onClick={() => navigate('/itexisted')}>
+            <div
               className="flex items-center justify-center rounded-full transition-all"
               style={{
-                width: 36, height: 36,
-                border: '1px solid rgba(197,147,90,0.35)',
+                width: 28, height: 28,
+                border: '1px solid rgba(245,240,232,0.4)',
                 background: 'none',
-                cursor: 'pointer',
               }}>
-              <span style={{ color: 'rgba(197,147,90,0.6)', fontSize: 18, lineHeight: 1 }}>+</span>
-            </button>
+              <span style={{ color: '#F5F0E8', fontSize: 16, lineHeight: 1 }}>+</span>
+            </div>
             <span className="font-mono text-[13px] tracking-[3px] uppercase"
-              style={{ color: 'rgba(197,147,90,0.6)', cursor: 'pointer' }}
-              onClick={() => navigate('/itexisted')}>
+              style={{ color: '#F5F0E8' }}>
               Anchor another file
             </span>
           </div>
