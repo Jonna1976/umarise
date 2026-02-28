@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>itexisted.app — Protocol as Interface</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #555;
+    --ink-muted: #888;
+    --bg: #fefdfb;
+    --accent: #c5935a;
+    --border: #e0dcd4;
+    --table-stripe: #f7f5f0;
+    --dark-bg: #0d1a14;
+    --cream: #f0ead6;
+    --gold: #c5935a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @media print {
+    body { padding: 40px 24px; font-size: 16px; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+    .flow-visual { break-inside: avoid; }
+  }
+
+  body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--bg);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .doc-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .doc-header .subtitle {
+    font-size: 20px;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+  .doc-header .meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    margin-top: 16px;
+  }
+
+  /* Sections */
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-top: 56px;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+
+  p { margin-bottom: 16px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* Flow visuals */
+  .flow-visual {
+    background: var(--dark-bg);
+    border-radius: 12px;
+    padding: 40px 32px;
+    margin: 24px 0 32px;
+    color: var(--cream);
+    position: relative;
+  }
+
+  .screen-box {
+    border: 1px solid rgba(197, 147, 90, 0.3);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .screen-box.active {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(197, 147, 90, 0.1);
+  }
+
+  .screen-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .screen-label .num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .screen-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .screen-desc {
+    font-family: 'EB Garamond', serif;
+    font-size: 14px;
+    color: rgba(240, 234, 214, 0.5);
+    line-height: 1.6;
+  }
+
+  .flow-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 8px 0;
+    opacity: 0.5;
+  }
+  .flow-arrow .label {
+    font-size: 10px;
+    color: rgba(240, 234, 214, 0.3);
+    display: block;
+    margin-top: 2px;
+  }
+
+  .circumpunct {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    position: relative;
+  }
+  .circumpunct::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+  }
+  .circumpunct::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .loop-indicator {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(197, 147, 90, 0.25);
+    text-transform: uppercase;
+  }
+
+  /* Steps */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 2px 12px;
+    margin: 16px 0;
+  }
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    text-align: right;
+    padding-top: 2px;
+  }
+  .step-text {
+    font-size: 13px;
+    color: rgba(240, 234, 214, 0.6);
+    font-family: 'EB Garamond', serif;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 28px;
+    font-size: 16px;
+  }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: var(--table-stripe); }
+  td.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+  td.small { font-size: 14px; color: var(--ink-light); }
+
+  /* Constraint block */
+  .constraint-block {
+    border-left: 3px solid var(--accent);
+    background: var(--table-stripe);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+  }
+  .constraint-block .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .constraint-block ul {
+    list-style: none;
+    padding: 0;
+  }
+  .constraint-block li {
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+    font-size: 16px;
+  }
+  .constraint-block li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink-muted);
+  }
+
+  /* Quote */
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 16px 24px;
+    margin: 24px 0;
+    font-style: italic;
+    color: var(--ink-light);
+    background: var(--table-stripe);
+  }
+
+  /* Route map */
+  .route-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 2.2;
+    background: var(--table-stripe);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+  }
+  .route-block .method {
+    color: #2d7a4f;
+    font-weight: 500;
+  }
+  .route-block .path {
+    color: var(--ink);
+  }
+  .route-block .desc {
+    color: var(--ink-muted);
+    font-size: 11px;
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="doc-header">
+  <h1>itexisted.app</h1>
+  <div class="subtitle">Protocol as Interface — End-to-End Architecture</div>
+  <div class="meta">Version 1.0 &nbsp;·&nbsp; 28 February 2026 &nbsp;·&nbsp; Umarise</div>
+</div>
+
+<!-- Premise -->
+<h2>Premise</h2>
+
+<blockquote>
+  "The app does not explain itself. The action is the interface.<br>
+  Two screens, one loop. No menu, no navigation, no features — only a repeatable act."
+</blockquote>
+
+<p>
+  <strong>itexisted.app</strong> is a stateless, link-first anchoring utility. It proves that a file existed
+  at a specific moment in time by creating an immutable cryptographic record anchored to the Bitcoin
+  blockchain via OpenTimestamps. The interface embodies the protocol: no accounts, no gallery,
+  no stored data — only a repeatable act and its persistent proof.
+</p>
+
+<!-- Flow Diagram -->
+<h2>End-to-End Flow</h2>
+
+<div class="flow-visual">
+
+  <!-- Screen 1 -->
+  <div class="screen-box active">
+    <div class="screen-label"><span class="num">1</span> Homepage</div>
+    <div class="screen-title">"Anchor what matters."</div>
+    <div class="screen-desc">
+      Playfair Display 37/52px · Gold (#C5935A)<br>
+      Dashed circle with + glyph · File picker trigger<br>
+      Top-right: <span class="circumpunct"></span> status of last anchor (from localStorage)
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    ▼
+    <span class="label">file selected → client-side processing</span>
+  </div>
+
+  <!-- Transitional -->
+  <div class="screen-box">
+    <div class="screen-label"><span class="num">⟡</span> Transitional State</div>
+    <div class="screen-title">"Now it's provable."</div>
+    <div class="steps-grid">
+      <span class="step-num">1.</span><span class="step-text">SHA-256 hash computed (client-side, Web Crypto API, in RAM)</span>
+      <span class="step-num">2.</span><span class="step-text">WebAuthn passkey prompt (1× biometric — Face ID / Touch ID / Windows Hello)</span>
+      <span class="step-num">3.</span><span class="step-text">Registry submission (hash → Umarise Core API → origin_attestations)</span>
+      <span class="step-num">4.</span><span class="step-text">Short token resolution (8-char human-readable identifier)</span>
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    ▼
+    <span class="label">immediate redirect → /proof/{TOKEN}</span>
+  </div>
+
+  <!-- Screen 2 -->
+  <div class="screen-box active">
+    <div class="screen-label"><span class="num">2</span> Proof Page</div>
+    <div class="screen-title">"Your file is anchored" <span class="circumpunct"></span></div>
+    <div class="screen-desc" style="margin-bottom: 16px;">
+      Persistent URL · Shareable · The product is the link
+    </div>
+    <div class="steps-grid">
+      <span class="step-num">§1</span><span class="step-text">Record Details — Origin ID, Date, SHA-256 Hash</span>
+      <span class="step-num">§2</span><span class="step-text">Verify your original file — re-upload, client-side hash match</span>
+      <span class="step-num">§3</span><span class="step-text">Download your proof — ZIP bundle (requires artifact re-upload)</span>
+      <span class="step-num">§4</span><span class="step-text">Verify your ZIP — drop zone for independent verification</span>
+      <span class="step-num">§5</span><span class="step-text">Request attestation — optional Layer 3 (€4.95)</span>
+      <span class="step-num">§6</span><span class="step-text"><strong>⊕ Anchor another file</strong> — loop back to Homepage</span>
+    </div>
+  </div>
+
+  <div class="flow-arrow">
+    ↺
+    <span class="label">closed loop → back to screen 1</span>
+  </div>
+
+</div>
+
+<!-- Page Break -->
+<div class="page-break"></div>
+
+<!-- Technical Matrix -->
+<h2>Technical Specification</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Implementation</th>
+      <th>Rationale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Screens</strong></td>
+      <td class="mono">2 (Homepage + Proof Page)</td>
+      <td class="small">Protocol as interface — no navigation needed</td>
+    </tr>
+    <tr>
+      <td><strong>State</strong></td>
+      <td class="mono">Stateless (no accounts, no gallery)</td>
+      <td class="small">Link-first model: URL is the product</td>
+    </tr>
+    <tr>
+      <td><strong>Storage</strong></td>
+      <td class="mono">Zero — no IndexedDB, no localStorage*</td>
+      <td class="small">Zero-storage doctrine: privacy by architecture</td>
+    </tr>
+    <tr>
+      <td><strong>Identity</strong></td>
+      <td class="mono">WebAuthn passkey (1× biometric)</td>
+      <td class="small">Layer 2 device binding without accounts</td>
+    </tr>
+    <tr>
+      <td><strong>Hashing</strong></td>
+      <td class="mono">Client-side SHA-256 via Web Crypto API</td>
+      <td class="small">Original bytes never leave the device</td>
+    </tr>
+    <tr>
+      <td><strong>Token</strong></td>
+      <td class="mono">8-char short_token from registry</td>
+      <td class="small">Human-shareable, persistent URL</td>
+    </tr>
+    <tr>
+      <td><strong>Verification</strong></td>
+      <td class="mono">Embedded in Proof Page (Step 2)</td>
+      <td class="small">Not a feature — inherent to the proof</td>
+    </tr>
+    <tr>
+      <td><strong>ZIP Bundle</strong></td>
+      <td class="mono">artifact + certificate.json + VERIFY.txt + proof.ots</td>
+      <td class="small">Self-contained evidence bundle</td>
+    </tr>
+    <tr>
+      <td><strong>Double Upload</strong></td>
+      <td class="mono">Required before ZIP download</td>
+      <td class="small">Zero-storage: artifact not retained client-side</td>
+    </tr>
+    <tr>
+      <td><strong>Attestation</strong></td>
+      <td class="mono">Layer 3, optional (€4.95)</td>
+      <td class="small">Certified third-party confirmation</td>
+    </tr>
+    <tr>
+      <td><strong>Loop</strong></td>
+      <td class="mono">⊕ Anchor another → Homepage</td>
+      <td class="small">Closed ritual cycle, no dead ends</td>
+    </tr>
+    <tr>
+      <td><strong>Routing</strong></td>
+      <td class="mono">hostname === "itexisted.app"</td>
+      <td class="small">Single codebase, hostname-based rendering</td>
+    </tr>
+    <tr>
+      <td><strong>Typography</strong></td>
+      <td class="mono">Playfair + EB Garamond + DM Mono</td>
+      <td class="small">Museum aesthetic, WCAG AA compliant</td>
+    </tr>
+    <tr>
+      <td><strong>Status</strong></td>
+      <td class="mono">Circumpunct ⊙ (top-right, localStorage)</td>
+      <td class="small">Last anchor status without gallery</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size: 14px; color: var(--ink-muted);">
+  * localStorage is used exclusively for the last-anchor reference (short_token + origin_id)
+  to display the status indicator. No file content or user data is persisted.
+</p>
+
+<!-- Routes -->
+<h2>Route Map</h2>
+
+<div class="route-block">
+  <span class="method">GET</span> <span class="path">/</span> <span class="desc">→ Homepage (ItExisted component via hostname routing)</span><br>
+  <span class="method">GET</span> <span class="path">/proof/:token</span> <span class="desc">→ Proof Page (ItExistedProof)</span><br>
+  <span class="method">GET</span> <span class="path">/verify/:token</span> <span class="desc">→ Public verification (ItExistedVerify)</span>
+</div>
+
+<!-- Data Flow -->
+<h2>Data Flow</h2>
+
+<h3>What crosses the network boundary</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Direction</th>
+      <th>Destination</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="mono">SHA-256 hash</td>
+      <td>Client → API</td>
+      <td class="small">Umarise Core (origin_attestations table)</td>
+    </tr>
+    <tr>
+      <td class="mono">Passkey public key</td>
+      <td>Client → localStorage</td>
+      <td class="small">Device-local only (credential ID + public key)</td>
+    </tr>
+    <tr>
+      <td class="mono">Passkey signature</td>
+      <td>Client → certificate.json</td>
+      <td class="small">Included in ZIP bundle (Layer 2 proof)</td>
+    </tr>
+    <tr>
+      <td class="mono">OTS proof</td>
+      <td>API → Client</td>
+      <td class="small">Bitcoin timestamp proof (.ots file)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>What never crosses the network boundary</h3>
+
+<div class="constraint-block">
+  <div class="label">Critical Invariant</div>
+  <ul>
+    <li>Original file bytes — hashed in RAM, never transmitted</li>
+    <li>File name — not sent, not stored</li>
+    <li>File metadata — not sent, not stored</li>
+    <li>User identity — no accounts, no email, no phone</li>
+  </ul>
+</div>
+
+<!-- Page Break -->
+<div class="page-break"></div>
+
+<!-- Layer Architecture -->
+<h2>Proof Layers</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Mechanism</th>
+      <th>Proves</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Layer 0</strong></td>
+      <td class="mono">SHA-256 hash</td>
+      <td class="small">File content integrity (exact bytes)</td>
+      <td class="mono">Immediate</td>
+    </tr>
+    <tr>
+      <td><strong>Layer 1</strong></td>
+      <td class="mono">OpenTimestamps → Bitcoin</td>
+      <td class="small">Temporal existence (before block N)</td>
+      <td class="mono">~4–24h</td>
+    </tr>
+    <tr>
+      <td><strong>Layer 2</strong></td>
+      <td class="mono">WebAuthn passkey signature</td>
+      <td class="small">Device-bound authorship</td>
+      <td class="mono">Immediate</td>
+    </tr>
+    <tr>
+      <td><strong>Layer 3</strong></td>
+      <td class="mono">Certified attestation</td>
+      <td class="small">Third-party legal witness</td>
+      <td class="mono">Optional (€4.95)</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ZIP Bundle -->
+<h2>Evidence Bundle (ZIP)</h2>
+
+<div class="constraint-block">
+  <div class="label">Contents</div>
+  <ul>
+    <li><strong>artifact.*</strong> — the original file (re-uploaded by user before download)</li>
+    <li><strong>certificate.json</strong> — origin_id, hash, timestamp, passkey signature, proof status</li>
+    <li><strong>VERIFY.txt</strong> — human-readable verification instructions</li>
+    <li><strong>proof.ots</strong> — OpenTimestamps binary proof (when anchored)</li>
+  </ul>
+</div>
+
+<p>
+  The ZIP is self-contained: any third party can independently verify the proof
+  without contacting Umarise. The <code>VERIFY.txt</code> includes step-by-step
+  instructions for manual verification using standard command-line tools.
+</p>
+
+<!-- Binding Constraints -->
+<h2>Constitutional Constraints</h2>
+
+<div class="constraint-block">
+  <div class="label">Interface Test</div>
+  <ul>
+    <li>The app never explains itself — discovery is external (spec, docs, context)</li>
+    <li>No onboarding, no tutorial, no "what is this"</li>
+    <li>Every addition must survive: <em>"Is this the act, or explanation of the act?"</em></li>
+    <li>Verification is not a feature — it is inherent to the proof</li>
+    <li>Double Upload required: original file must be re-added before ZIP download</li>
+    <li>The proof URL (/proof/{TOKEN}) is the product — shareable, persistent, link-first</li>
+  </ul>
+</div>
+
+<div class="constraint-block">
+  <div class="label">Core Boundary (C0)</div>
+  <ul>
+    <li>Core accepts hash-only input — no bytes cross into infrastructure</li>
+    <li>Core remains valid if all companion apps (incl. itexisted.app) disappear</li>
+    <li>The companion provides convenience — the Core provides truth</li>
+    <li>No mechanism or database column exists to store file content</li>
+  </ul>
+</div>
+
+<!-- Footer -->
+<div class="doc-footer">
+  Umarise · itexisted.app · Protocol as Interface · v1.0
+</div>
+
+</body>
+</html>
