@@ -40,9 +40,18 @@ export function KaartenbakProvider({ children }: { children: ReactNode }) {
 
   const addItems = useCallback((newItems: KaartenbakItem[]) => {
     setItems(prev => {
-      const existing = new Set(prev.map(i => i.originId));
-      const unique = newItems.filter(i => !existing.has(i.originId));
-      const merged = [...prev, ...unique];
+      const existingMap = new Map(prev.map(i => [i.originId, i]));
+      // Update existing items' status, add new ones
+      for (const item of newItems) {
+        const existing = existingMap.get(item.originId);
+        if (existing) {
+          // Update status if changed
+          existingMap.set(item.originId, { ...existing, status: item.status });
+        } else {
+          existingMap.set(item.originId, item);
+        }
+      }
+      const merged = Array.from(existingMap.values());
       merged.sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime());
       syncStorage(merged);
       return merged;
