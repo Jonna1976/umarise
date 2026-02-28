@@ -438,10 +438,10 @@ export default function ItExistedProof() {
             <div className="pl-[23px]">
               {artifactStatus !== 'matched' && artifactStatus !== 'mismatch' ? (
                 <label
-                  className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all"
+                  className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer transition-all"
                   style={{
-                    borderColor: dragOver ? 'rgba(201,169,110,0.5)' : 'rgba(201,169,110,0.25)',
-                    background: dragOver ? 'rgba(201,169,110,0.06)' : 'rgba(201,169,110,0.02)',
+                    borderColor: dragOver ? 'rgba(245,240,232,0.5)' : 'rgba(245,240,232,0.3)',
+                    background: dragOver ? 'rgba(245,240,232,0.06)' : 'rgba(245,240,232,0.02)',
                   }}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
@@ -450,7 +450,7 @@ export default function ItExistedProof() {
                   <input type="file" className="hidden" accept="*/*"
                     onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
                   <p className="font-mono text-[15px] tracking-[2px] uppercase mb-1"
-                    style={{ color: 'rgba(201,169,110,0.5)' }}>
+                    style={{ color: artifactStatus === 'checking' ? 'rgba(245,240,232,0.5)' : 'rgba(245,240,232,0.7)' }}>
                     {artifactStatus === 'checking' ? 'Checking…' : 'Drop your original file here'}
                   </p>
                 </label>
