@@ -233,8 +233,16 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
   useEffect(() => {
     if (autoVerifyBlob && !autoVerifiedRef.current && !result && !busy) {
       autoVerifiedRef.current = true;
-      const file = new File([autoVerifyBlob], autoVerifyName || 'proof.zip', { type: 'application/zip' });
-      processFile(file);
+      // Clone the blob to avoid I/O issues on mobile Safari
+      autoVerifyBlob.arrayBuffer().then(buffer => {
+        const freshBlob = new Blob([buffer], { type: 'application/zip' });
+        const file = new File([freshBlob], autoVerifyName || 'proof.zip', { type: 'application/zip' });
+        processFile(file);
+      }).catch(err => {
+        console.error('[InlineVerify] Failed to read blob:', err);
+        setResult({ status: 'error', steps: [{ label: 'Could not read downloaded ZIP', status: 'error' }] });
+        setStepsOpen(true);
+      });
     }
   }, [autoVerifyBlob, autoVerifyName, result, busy, processFile]);
 
