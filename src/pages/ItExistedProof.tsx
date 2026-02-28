@@ -60,6 +60,7 @@ export default function ItExistedProof() {
   const [artifactFile, setArtifactFile] = useState<File | null>(null);
   const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>('idle');
   const [dragOver, setDragOver] = useState(false);
+  const [computedHash, setComputedHash] = useState<string | null>(null);
 
   // When proof becomes anchored, auto-open verify step
   useEffect(() => {
@@ -134,6 +135,7 @@ export default function ItExistedProof() {
       console.log('[ArtifactCheck] fileHash:    ', fileHash);
       console.log('[ArtifactCheck] expectedHash:', expectedHash);
       console.log('[ArtifactCheck] match:', fileHash === expectedHash);
+      setComputedHash(fileHash);
       if (fileHash === expectedHash) {
         setArtifactFile(file);
         setArtifactStatus('matched');
@@ -416,12 +418,20 @@ export default function ItExistedProof() {
           <div className="w-full mb-8">
             <div className="flex items-baseline w-full mb-3">
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>1.</span>
+                style={{ color: '#f0ead6' }}>1.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify your original file</span>
+              {(artifactStatus === 'matched' || artifactStatus === 'mismatch') && (
+                <button
+                  onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); setComputedHash(null); }}
+                  className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
+                  style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  New
+                </button>
+              )}
             </div>
             <div className="pl-[23px]">
-              {artifactStatus !== 'matched' ? (
+              {artifactStatus !== 'matched' && artifactStatus !== 'mismatch' ? (
                 <label
                   className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all"
                   style={{
@@ -440,15 +450,17 @@ export default function ItExistedProof() {
                   </p>
                 </label>
               ) : (
-                <div className="flex items-center gap-3">
-                  <p className="font-mono text-[15px] tracking-[1px] uppercase mb-1"
-                    style={{ color: 'rgba(201,169,110,0.35)' }}>Hash match confirmed</p>
-                  <button
-                    onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); }}
-                    className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
-                    style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                    New
-                  </button>
+                <div className="flex flex-col gap-2">
+                  <p className="font-mono text-[15px] tracking-[1px] uppercase"
+                    style={{ color: artifactStatus === 'matched' ? '#7fba6a' : 'rgba(220,80,60,0.8)' }}>
+                    {artifactStatus === 'matched' ? 'Hash match confirmed' : 'Hash mismatch — wrong file'}
+                  </p>
+                  {computedHash && (
+                    <p className="font-mono text-[13px] break-all"
+                      style={{ color: artifactStatus === 'matched' ? 'rgba(127,186,106,0.6)' : 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
+                      {computedHash}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -461,7 +473,7 @@ export default function ItExistedProof() {
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0, opacity: artifactStatus !== 'matched' ? 0.35 : 1 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>2.</span>
+                style={{ color: artifactStatus === 'matched' ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>2.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase mr-1.5"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>
                 Download your proof
@@ -473,7 +485,7 @@ export default function ItExistedProof() {
           <div className="w-full mb-8" style={lockedStyle}>
             <div className="flex items-baseline w-full">
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>3.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>3.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Verify your ZIP</span>
               <button
@@ -495,7 +507,7 @@ export default function ItExistedProof() {
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>4.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>4.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Share your proof</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
@@ -510,7 +522,7 @@ export default function ItExistedProof() {
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>5.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>5.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Request attestation</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
@@ -540,7 +552,7 @@ export default function ItExistedProof() {
               className="flex items-baseline w-full text-left"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(201,169,110,0.4)' }}>6.</span>
+                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>6.</span>
               <span className="font-mono text-[15px] tracking-[3px] uppercase"
                 style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
               <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
