@@ -522,18 +522,21 @@ export default function ItExistedProof() {
             </div>
           </div>
 
-          {/* ── STEP 5: ANCHOR ANOTHER ── */}
-          <div className="w-full mb-8" style={!anchored ? { opacity: 0.45 } : {}}>
+          {/* ── ANCHOR ANOTHER ── */}
+          <div className="w-full mb-8 flex justify-center mt-4" style={!anchored ? { opacity: 0.45 } : {}}>
             <button
               onClick={() => navigate('/itexisted')}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[15px] tracking-[2px] flex-shrink-0 mr-3"
-                style={{ color: anchored ? '#f0ead6' : 'rgba(201,169,110,0.4)' }}>5.</span>
-              <span className="font-mono text-[15px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(240,234,214,0.85)' }}>Anchor another file</span>
-              <span className="font-mono text-[15px] tracking-[1px] lowercase ml-2"
-                style={{ color: 'rgba(240,234,214,0.35)', whiteSpace: 'nowrap' }}>(optional)</span>
+              className="flex items-center justify-center rounded-full transition-all"
+              style={{
+                width: 56, height: 56,
+                border: '1.5px solid rgba(201,169,110,0.35)',
+                background: 'none',
+                cursor: 'pointer',
+              }}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <line x1="11" y1="4" x2="11" y2="18" stroke="#c9a96e" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="4" y1="11" x2="18" y2="11" stroke="#c9a96e" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
             </button>
           </div>
 
