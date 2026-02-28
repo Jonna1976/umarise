@@ -171,7 +171,7 @@ export default function Kaartenbak() {
                   )}
 
                   <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: "'DM Mono', monospace",
                     fontSize: 14,
                     letterSpacing: 1.5,
                     color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
@@ -182,8 +182,8 @@ export default function Kaartenbak() {
 
                   {item.fileName && (
                     <span style={{
-                      fontFamily: "'EB Garamond', serif",
-                      fontSize: 14,
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 13,
                       color: 'rgba(245,240,232,0.35)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -198,8 +198,8 @@ export default function Kaartenbak() {
                   {!item.fileName && <span style={{ flex: 1 }} />}
 
                   <span style={{
-                    fontFamily: "'EB Garamond', serif",
-                    fontSize: 15,
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 13,
                     color: 'rgba(245,240,232,0.4)',
                   }}>
                     {formatDate(item.capturedAt)}
