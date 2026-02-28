@@ -31,6 +31,13 @@ export default function Kaartenbak() {
 
         if (cert.origin_id && cert.hash) {
           const shortToken = cert.short_token || cert.origin_id.slice(0, 8).toUpperCase();
+          // Try to find artifact filename from ZIP
+          const artifactEntry = Object.keys(zip.files).find(n => n.startsWith('artifact.'));
+          // Also check for original filenames in ZIP (non-standard files)
+          const allFiles = Object.keys(zip.files).filter(n => 
+            !['certificate.json', 'proof.ots', 'attestation.json', 'VERIFY.txt'].includes(n) && !n.startsWith('artifact.')
+          );
+          const fileName = allFiles[0] || (artifactEntry ? artifactEntry : null);
           parsed.push({
             originId: cert.origin_id,
             shortToken,
@@ -38,6 +45,7 @@ export default function Kaartenbak() {
             capturedAt: cert.captured_at || cert.timestamp || new Date().toISOString(),
             verifyUrl: `https://itexisted.app/proof/${shortToken}`,
             status: cert.bitcoin_block_height ? 'anchored' : 'pending',
+            fileName: fileName || null,
           });
         }
       } catch (e) {
@@ -161,15 +169,28 @@ export default function Kaartenbak() {
                     </svg>
                   )}
 
-                  <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 14,
-                    letterSpacing: 1.5,
-                    color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
-                    flex: 1,
-                  }}>
-                    {item.shortToken}
-                  </span>
+                  <div className="flex flex-col" style={{ flex: 1, minWidth: 0 }}>
+                    <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 14,
+                      letterSpacing: 1.5,
+                      color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
+                    }}>
+                      {item.shortToken}
+                    </span>
+                    {item.fileName && (
+                      <span style={{
+                        fontFamily: "'EB Garamond', serif",
+                        fontSize: 13,
+                        color: 'rgba(245,240,232,0.35)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {item.fileName}
+                      </span>
+                    )}
+                  </div>
 
                   <span style={{
                     fontFamily: "'EB Garamond', serif",

@@ -110,8 +110,9 @@ export default function ItExistedProof() {
       capturedAt: state.capturedAt,
       verifyUrl: `https://itexisted.app/proof/${state.shortToken}`,
       status: state.proofStatus === 'anchored' ? 'anchored' : 'pending',
+      fileName: artifactFile?.name ?? null,
     }]);
-  }, [state?.originId, state?.proofStatus]);
+  }, [state?.originId, state?.proofStatus, artifactFile?.name]);
 
   const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
 

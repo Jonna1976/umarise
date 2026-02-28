@@ -7,6 +7,7 @@ export interface KaartenbakItem {
   capturedAt: string;
   verifyUrl: string;
   status?: 'pending' | 'anchored';
+  fileName?: string | null;
 }
 
 interface KaartenbakState {
@@ -45,8 +46,7 @@ export function KaartenbakProvider({ children }: { children: ReactNode }) {
       for (const item of newItems) {
         const existing = existingMap.get(item.originId);
         if (existing) {
-          // Update status if changed
-          existingMap.set(item.originId, { ...existing, status: item.status });
+          existingMap.set(item.originId, { ...existing, status: item.status, fileName: item.fileName ?? existing.fileName });
         } else {
           existingMap.set(item.originId, item);
         }
