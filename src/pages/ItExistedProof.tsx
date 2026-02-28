@@ -428,6 +428,19 @@ export default function ItExistedProof() {
 
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8">
+          {artifactFile && artifactStatus === 'matched' && (
+            <div className="flex justify-between items-baseline mb-2.5">
+              <span className="font-mono text-[11px] tracking-[3px] uppercase"
+                style={{ color: 'rgba(197,147,90,0.55)' }}>Document</span>
+              <span className="font-garamond text-[16px]"
+                style={{ color: 'rgba(245,240,232,0.65)' }}>
+                {artifactFile.name}
+                <span style={{ color: 'rgba(245,240,232,0.35)', marginLeft: '8px', fontSize: '14px' }}>
+                  ({(artifactFile.size / 1024).toFixed(0)} KB)
+                </span>
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-baseline mb-2.5">
             <span className="font-mono text-[11px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Origin ID</span>
@@ -455,12 +468,25 @@ export default function ItExistedProof() {
         <div className="w-full flex flex-col items-start">
 
           {/* ── STEP 1: VERIFY ORIGINAL FILE ── */}
-          <div className="w-full mb-8">
+          <div className="w-full mb-8 rounded-[10px] transition-all duration-500"
+            style={{
+              border: artifactStatus === 'matched'
+                ? '1px solid rgba(127,186,106,0.25)'
+                : '1px solid transparent',
+              background: artifactStatus === 'matched'
+                ? 'rgba(127,186,106,0.04)'
+                : 'transparent',
+              padding: artifactStatus === 'matched' ? '16px' : '0',
+            }}>
             <div className="flex items-baseline w-full mb-3">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: '#F5F0E8' }}>1.</span>
+                style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#F5F0E8' }}>
+                {artifactStatus === 'matched' ? '✓' : '1.'}
+              </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: '#F5F0E8' }}>Verify your original file</span>
+                style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#F5F0E8' }}>
+                {artifactStatus === 'matched' ? 'Original file verified' : 'Verify your original file'}
+              </span>
               {artifactStatus === 'mismatch' && (
                 <button
                   onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); setComputedHash(null); }}
@@ -470,7 +496,7 @@ export default function ItExistedProof() {
                 </button>
               )}
             </div>
-            <div className="pl-[23px]">
+            <div className={artifactStatus === 'matched' ? '' : 'pl-[23px]'}>
               {artifactStatus !== 'matched' && artifactStatus !== 'mismatch' ? (
                 <label
                   className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer transition-all"
@@ -497,24 +523,25 @@ export default function ItExistedProof() {
                   )}
                 </label>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <p className="font-mono text-[15px] tracking-[1px] uppercase"
-                    style={{ color: artifactStatus === 'matched' ? '#7fba6a' : 'rgba(220,80,60,0.8)' }}>
-                    {artifactStatus === 'matched' ? 'Hash match confirmed' : 'Hash mismatch — wrong file'}
-                  </p>
-                  {artifactStatus === 'matched' && artifactFile && (
-                    <p style={{ fontFamily: "'EB Garamond', serif", fontSize: '16px', color: 'rgba(127,186,106,0.85)', marginTop: '2px' }}>
-                      {artifactFile.name}
-                      <span style={{ color: 'rgba(127,186,106,0.5)', marginLeft: '8px', fontSize: '14px' }}>
-                        ({(artifactFile.size / 1024).toFixed(0)} KB)
-                      </span>
+                <div className="flex flex-col gap-1">
+                  {artifactStatus === 'matched' ? (
+                    <p className="font-garamond text-[15px] italic pl-[23px]"
+                      style={{ color: 'rgba(127,186,106,0.6)' }}>
+                      Hash match confirmed
                     </p>
-                  )}
-                  {computedHash && (
-                    <p className="font-mono text-[13px] break-all"
-                      style={{ color: artifactStatus === 'matched' ? 'rgba(127,186,106,0.6)' : 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
-                      {computedHash}
-                    </p>
+                  ) : (
+                    <>
+                      <p className="font-mono text-[15px] tracking-[1px] uppercase"
+                        style={{ color: 'rgba(220,80,60,0.8)' }}>
+                        Hash mismatch — wrong file
+                      </p>
+                      {computedHash && (
+                        <p className="font-mono text-[13px] break-all"
+                          style={{ color: 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
+                          {computedHash}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               )}
