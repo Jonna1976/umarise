@@ -23,20 +23,27 @@ const KaartenbakContext = createContext<KaartenbakState | null>(null);
 
 const STORAGE_KEY = 'kaartenbak_items';
 
-function loadFromSession(): KaartenbakItem[] {
+function loadFromStorage(): KaartenbakItem[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    // Migrate from sessionStorage → localStorage (one-time)
+    const session = sessionStorage.getItem(STORAGE_KEY);
+    const local = localStorage.getItem(STORAGE_KEY);
+    if (session && !local) {
+      localStorage.setItem(STORAGE_KEY, session);
+      sessionStorage.removeItem(STORAGE_KEY);
+      return JSON.parse(session);
+    }
+    return local ? JSON.parse(local) : [];
   } catch { return []; }
 }
 
 export function KaartenbakProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<KaartenbakItem[]>(loadFromSession);
+  const [items, setItems] = useState<KaartenbakItem[]>(loadFromStorage);
   const [isOpen, setIsOpen] = useState(false);
 
   // Persist to sessionStorage on every change
   const syncStorage = useCallback((updated: KaartenbakItem[]) => {
-    try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
   }, []);
 
   const addItems = useCallback((newItems: KaartenbakItem[]) => {
