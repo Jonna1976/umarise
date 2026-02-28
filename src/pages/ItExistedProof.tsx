@@ -341,7 +341,7 @@ export default function ItExistedProof() {
           {anchored ? (
             <h1 className="font-garamond text-[41px] font-normal"
               style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-              Your proof is ready.
+              Your file is anchored.
             </h1>
           ) : (
             <div className="flex flex-col items-start gap-1">
