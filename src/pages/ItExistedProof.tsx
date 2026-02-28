@@ -395,7 +395,7 @@ export default function ItExistedProof() {
             <span className="font-mono text-[11px] tracking-[3px] uppercase pt-0.5"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Hash</span>
             <span className="font-mono text-[11px] text-right break-all"
-              style={{ color: 'rgba(245,240,232,0.45)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 220 }}>
+              style={{ color: 'rgba(245,240,232,0.45)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 280 }}>
               {state.hash}
             </span>
           </div>
