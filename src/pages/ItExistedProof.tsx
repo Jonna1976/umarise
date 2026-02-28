@@ -587,7 +587,7 @@ export default function ItExistedProof() {
 
           {/* ── BOOKMARK HINT (bottom) ── */}
           <div className="w-full mt-8 mb-4">
-            <p className="font-garamond text-[16px] italic" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.8 }}>
+            <p className="font-garamond text-[19px] italic" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.8 }}>
               Before you leave, bookmark this page:
             </p>
             <button
