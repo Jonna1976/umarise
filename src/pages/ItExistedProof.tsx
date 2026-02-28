@@ -412,13 +412,7 @@ export default function ItExistedProof() {
                 style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
                 Anchoring to Bitcoin in progress
               </h1>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3 flex-shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: 'rgba(201,169,110,0.5)' }}></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3" style={{ backgroundColor: '#c9a96e' }}></span>
-                </span>
-                <CountdownTimer capturedAt={state.capturedAt} />
-              </div>
+              <CountdownTimer capturedAt={state.capturedAt} />
             </div>
           )}
         </div>
