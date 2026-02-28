@@ -111,6 +111,7 @@ main {
 }
 .drop-zone.disabled {
   cursor: default;
+  opacity: 0.5;
 }
 .drop-zone input { display: none; }
 .drop-label {
@@ -352,8 +353,8 @@ footer a:hover { color: var(--text-muted); }
   <div id="drop-zone" class="drop-zone">
     <input type="file" id="file-input">
     <div class="drop-label">
-      Drop your Origin ZIP here
-      <small>or click to select · any file = hash only</small>
+      Drop an origin ZIP or click to select
+      <small>Origin ZIP recommended · Any file = hash only</small>
     </div>
   </div>
 
@@ -564,11 +565,7 @@ function renderBanner(type, title, text) {
 }
 
 function renderReset() {
-  // Reset drop zone to accept new files immediately
-  processing = false;
-  dropZone.classList.remove('disabled');
-  dropZone.querySelector('.drop-label').innerHTML = 'Drop your Origin ZIP here<small>or click to select · any file = hash only</small>';
-  return '';
+  return '<button class="reset-btn" onclick="resetUI()">← Verify another file</button>';
 }
 
 function escHtml(s) {
@@ -591,7 +588,7 @@ let processing = false;
 function resetUI() {
   processing = false;
   dropZone.classList.remove('disabled');
-  dropZone.querySelector('.drop-label').innerHTML = 'Drop your Origin ZIP here<small>or click to select · any file = hash only</small>';
+  dropZone.querySelector('.drop-label').innerHTML = 'Drop a file here or click to select<small>Origin ZIP or any file</small>';
   output.innerHTML = '';
   fileInput.value = '';
 }
@@ -599,7 +596,7 @@ function resetUI() {
 // ─── Drop zone events ───
 let dragCounter = 0;
 dropZone.addEventListener('click', () => { if (!processing) fileInput.click(); });
-fileInput.addEventListener('change', e => { if (e.target.files[0]) { processing = false; handleFile(e.target.files[0]); } });
+fileInput.addEventListener('change', e => { if (e.target.files[0] && !processing) handleFile(e.target.files[0]); });
 
 dropZone.addEventListener('dragenter', e => { e.preventDefault(); dragCounter++; dropZone.classList.add('dragging'); });
 dropZone.addEventListener('dragleave', e => { e.preventDefault(); dragCounter--; if (dragCounter === 0) dropZone.classList.remove('dragging'); });
@@ -609,7 +606,7 @@ dropZone.addEventListener('drop', e => {
   dragCounter = 0;
   dropZone.classList.remove('dragging');
   const file = e.dataTransfer.files[0];
-  if (file) { processing = false; handleFile(file); }
+  if (file && !processing) handleFile(file);
 });
 
 window.addEventListener('dragover', e => e.preventDefault(), true);
@@ -679,8 +676,8 @@ async function verifyOtsProof(otsBuf, hashHex) {
 // ─── Main verification logic ───
 async function handleFile(file) {
   processing = true;
-  dropZone.querySelector('.drop-label').innerHTML = '<div class="spinner" style="margin:0 auto"></div>';
-  output.innerHTML = '';
+  dropZone.classList.add('disabled');
+  output.innerHTML = '<div class="verifying-state"><div class="spinner"></div><p>Verifying…</p></div>';
 
   try {
     const name = file.name.toLowerCase();

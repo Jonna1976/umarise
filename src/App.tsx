@@ -95,11 +95,7 @@ const App = () => (
             } />
             <Route path="/install" element={<Install />} />
             
-            <Route path="/verify" element={
-              typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
-                ? <ItExisted />
-                : <Verify />
-            } />
+            <Route path="/verify" element={<Verify />} />
             <Route path="/reviewer" element={<ReviewerPackage />} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/technical" element={<Technical />} />
