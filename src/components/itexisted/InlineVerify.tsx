@@ -425,16 +425,6 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
         </div>
       )}
 
-      {/* Reset — verify another file */}
-      {result && !busy && (
-        <button
-          onClick={reset}
-          className="mt-3 font-mono text-[11px] tracking-[3px] uppercase transition-opacity opacity-40 hover:opacity-80"
-          style={{ color: '#F5F0E8', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>
-          Verify another file
-        </button>
-      )}
-
     </div>
   );
 }
