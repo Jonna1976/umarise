@@ -433,9 +433,9 @@ export default function ItExistedProof() {
           <div className="w-full mb-8">
             <div className="flex items-baseline w-full mb-3">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.55)' }}>1.</span>
+                style={{ color: '#F5F0E8' }}>1.</span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.55)' }}>Verify your original file</span>
+                style={{ color: '#F5F0E8' }}>Verify your original file</span>
               {(artifactStatus === 'matched' || artifactStatus === 'mismatch') && (
                 <button
                   onClick={() => { setArtifactFile(null); setArtifactStatus('idle'); setComputedHash(null); }}
