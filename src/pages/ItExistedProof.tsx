@@ -65,15 +65,15 @@ export default function ItExistedProof() {
   const [downloadedZipName, setDownloadedZipName] = useState<string | null>(null);
   const [saveConfirmed, setSaveConfirmed] = useState(false);
 
-  // Artifact file state — persist match across refreshes via sessionStorage
+  // Artifact file state — persist match across refreshes via localStorage (survives tab close)
   const storageKey = `artifact_matched_${token}`;
   const [artifactFile, setArtifactFile] = useState<File | null>(null);
   const [artifactStatus, setArtifactStatus] = useState<'idle' | 'checking' | 'matched' | 'mismatch'>(() => {
-    try { return sessionStorage.getItem(storageKey) === 'matched' ? 'matched' : 'idle'; } catch { return 'idle'; }
+    try { return localStorage.getItem(storageKey) === 'matched' ? 'matched' : 'idle'; } catch { return 'idle'; }
   });
   const [dragOver, setDragOver] = useState(false);
   const [computedHash, setComputedHash] = useState<string | null>(() => {
-    try { return sessionStorage.getItem(`artifact_hash_${token}`) || null; } catch { return null; }
+    try { return localStorage.getItem(`artifact_hash_${token}`) || null; } catch { return null; }
   });
 
   // Restore artifact file from IndexedDB cache on mount (if previously confirmed)
@@ -187,7 +187,7 @@ export default function ItExistedProof() {
       if (fileHash === expectedHash) {
         setArtifactFile(file);
         setArtifactStatus('matched');
-        try { sessionStorage.setItem(storageKey, 'matched'); sessionStorage.setItem(`artifact_hash_${token}`, fileHash); } catch {}
+        try { localStorage.setItem(storageKey, 'matched'); localStorage.setItem(`artifact_hash_${token}`, fileHash); } catch {}
         if (token) cacheArtifact(token, file);
         toast.success('File verified — will be included in your ZIP.');
       } else {
