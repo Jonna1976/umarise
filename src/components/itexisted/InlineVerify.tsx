@@ -302,7 +302,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
             <span className="font-mono text-[15px]" style={{ color: '#7fba6a' }}>✓</span>
             <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: '#7fba6a' }}>Verified</span>
           </div>
-          <Row label="Origin ID" value={result.shortToken!} gold />
+          <Row label="Origin ID" value={result.shortToken!} ok />
           <Row label="Hash match" value="✓ confirmed" ok />
           <Row label="Date" value={result.date!} />
           <Row label="Time" value={result.time!} />
@@ -318,7 +318,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
             <span className="font-mono text-[15px]" style={{ color: 'rgba(201,169,110,0.7)' }}>!</span>
             <span className="font-mono text-[15px] tracking-[3px] uppercase" style={{ color: 'rgba(201,169,110,0.7)' }}>Registered — Bitcoin pending</span>
           </div>
-          <Row label="Origin ID" value={result.shortToken!} gold />
+          <Row label="Origin ID" value={result.shortToken!} ok />
           <Row label="Hash match" value="✓ confirmed" ok />
           <Row label="Date" value={result.date!} />
           <Row label="Time" value={result.time!} />
