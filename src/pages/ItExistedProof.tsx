@@ -253,8 +253,14 @@ export default function ItExistedProof() {
 
   /* ── ACTIONS ── */
   const onShare = async () => {
+    // Ensure artifact is available — restore from IndexedDB cache if needed
+    let resolvedArtifactForShare = artifactFile;
+    if (!resolvedArtifactForShare && artifactStatus === 'matched' && token) {
+      const cached = await loadArtifact(token);
+      if (cached) { resolvedArtifactForShare = cached; setArtifactFile(cached); }
+    }
     // If artifact + anchored → share ZIP bundle
-    if (anchored && artifactFile) {
+    if (anchored && resolvedArtifactForShare) {
       try {
         const testAnchored = new URLSearchParams(window.location.search).get('test') === 'anchored';
         let zipBlob: Blob;
@@ -264,7 +270,7 @@ export default function ItExistedProof() {
             originId: state.originId, hash: state.hash,
             timestamp: new Date(state.capturedAt), imageUrl: null,
             otsProof: null,
-            artifactFile, originalFileName: artifactFile.name,
+            artifactFile: resolvedArtifactForShare, originalFileName: resolvedArtifactForShare.name,
             deviceSignature: state.deviceSignature,
             devicePublicKey: state.devicePublicKey,
           });
@@ -278,13 +284,13 @@ export default function ItExistedProof() {
             originId: state.originId, hash: state.hash,
             timestamp: new Date(state.capturedAt), imageUrl: null,
             otsProof: arrayBufferToBase64(proof.otsProofBytes),
-            artifactFile, originalFileName: artifactFile.name,
+            artifactFile: resolvedArtifactForShare, originalFileName: resolvedArtifactForShare.name,
             deviceSignature: state.deviceSignature,
             devicePublicKey: state.devicePublicKey,
           });
         }
 
-        const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile.name, state.shortToken);
+        const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), resolvedArtifactForShare.name, state.shortToken);
         const zipFile = new File([zipBlob], fileName, { type: 'application/zip' });
 
         // iOS: direct download to avoid byte corruption via navigator.share
@@ -348,12 +354,26 @@ export default function ItExistedProof() {
       otsProofBase64 = arrayBufferToBase64(proof.otsProofBytes);
     }
 
+    // Ensure artifact is available — restore from IndexedDB cache if needed
+    let resolvedArtifact = artifactFile;
+    if (!resolvedArtifact && artifactStatus === 'matched' && token) {
+      console.log('[onDownload] artifactFile null but status matched — restoring from cache');
+      const cached = await loadArtifact(token);
+      if (cached) {
+        resolvedArtifact = cached;
+        setArtifactFile(cached);
+        console.log('[onDownload] Restored from cache:', cached.name);
+      } else {
+        console.warn('[onDownload] Cache empty — ZIP will not contain artifact');
+      }
+    }
+
     const zip = await buildOriginZip({
       originId: state.originId, hash: state.hash,
       timestamp: new Date(state.capturedAt), imageUrl: null,
       otsProof: otsProofBase64,
-      artifactFile: artifactFile,
-      originalFileName: artifactFile?.name ?? null,
+      artifactFile: resolvedArtifact,
+      originalFileName: resolvedArtifact?.name ?? null,
       deviceSignature: state.deviceSignature,
       devicePublicKey: state.devicePublicKey,
     });
