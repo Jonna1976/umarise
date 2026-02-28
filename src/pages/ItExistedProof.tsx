@@ -361,7 +361,7 @@ export default function ItExistedProof() {
                   </svg>
                 </motion.span>
               </h1>
-              <p className="font-garamond text-[18px] mt-3 leading-relaxed" style={{ color: 'rgba(240,234,214,0.55)' }}>
+              <p className="font-garamond italic text-[18px] mt-3 leading-relaxed" style={{ color: 'rgba(240,234,214,0.55)' }}>
                 It existed. Now it's provable. Your file stays yours.
               </p>
             </>
