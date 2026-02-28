@@ -578,7 +578,8 @@ export default function ItExistedProof() {
               </span>
             </div>
             {downloadedZipBlob && (
-              <div className="pb-4">
+              <div className="pb-4 rounded-[8px] p-4"
+                style={{ background: 'rgba(10,15,10,0.6)', border: '1px solid rgba(197,147,90,0.1)' }}>
                 <InlineVerify
                   key={verifyKey}
                   expectedOriginId={state?.originId}
@@ -586,11 +587,13 @@ export default function ItExistedProof() {
                   autoVerifyBlob={downloadedZipBlob}
                   autoVerifyName={downloadedZipName}
                 />
-                <p className="font-garamond text-[14px] italic mt-3"
-                  style={{ color: 'rgba(245,240,232,0.3)' }}>
-                  Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
-                    style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
-                </p>
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(197,147,90,0.08)' }}>
+                  <p className="font-garamond text-[14px] italic"
+                    style={{ color: 'rgba(245,240,232,0.3)' }}>
+                    Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
+                      style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
+                  </p>
+                </div>
               </div>
             )}
           </div>
