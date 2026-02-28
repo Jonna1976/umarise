@@ -10,6 +10,7 @@ import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
 import Circumpunct from '@/components/itexisted/Circumpunct';
 import Kaartenbak from '@/components/itexisted/Kaartenbak';
+import { useKaartenbak } from '@/contexts/KaartenbakContext';
 
 /** Countdown: shows time remaining until ~2h after capture */
 function CountdownTimer({ capturedAt }: { capturedAt: string }) {
@@ -53,6 +54,7 @@ interface ProofState {
 export default function ItExistedProof() {
   const { token = '' } = useParams();
   const navigate = useNavigate();
+  const { addItems } = useKaartenbak();
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProofState | null>(null);
   const [openStep, setOpenStep] = useState<string | null>(null);
@@ -70,6 +72,19 @@ export default function ItExistedProof() {
       setOpenStep('verify');
     }
   }, [state?.proofStatus]);
+
+  // Auto-add current anchor to kaartenbak so it shows as a row
+  useEffect(() => {
+    if (!state) return;
+    addItems([{
+      originId: state.originId,
+      shortToken: state.shortToken,
+      hash: state.hash,
+      capturedAt: state.capturedAt,
+      verifyUrl: `https://itexisted.app/proof/${state.shortToken}`,
+      status: state.proofStatus === 'anchored' ? 'anchored' : 'pending',
+    }]);
+  }, [state?.originId, state?.proofStatus]);
 
   const isValidToken = /^[0-9a-fA-F]{8}$/.test(token);
 

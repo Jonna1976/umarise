@@ -137,9 +137,9 @@ export default function Kaartenbak() {
                 <button
                   key={item.originId}
                   onClick={() => navigateToProof(item.shortToken)}
-                  className="flex items-center gap-2.5 w-full text-left transition-all group"
+                  className="flex items-center gap-3 w-full text-left transition-all group"
                   style={{
-                    padding: '10px 0',
+                    padding: '14px 0',
                     background: 'none',
                     border: 'none',
                     borderBottom: '1px solid rgba(197,147,90,0.07)',
@@ -148,13 +148,13 @@ export default function Kaartenbak() {
                 >
                   {/* Mini circumpunct per item */}
                   {item.status === 'pending' ? (
-                    <svg viewBox="0 0 20 20" width={13} height={13} style={{ flexShrink: 0 }}>
+                    <svg viewBox="0 0 20 20" width={16} height={16} style={{ flexShrink: 0 }}>
                       <circle cx="10" cy="10" r="3" fill="#C5935A" opacity={0.5}>
                         <animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite" />
                       </circle>
                     </svg>
                   ) : (
-                    <svg viewBox="0 0 20 20" width={13} height={13}
+                    <svg viewBox="0 0 20 20" width={16} height={16}
                       style={{ flexShrink: 0, filter: 'drop-shadow(0 0 4px rgba(197,147,90,0.4))' }}>
                       <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="0.8" />
                       <circle cx="10" cy="10" r="3" fill="#C5935A" />
@@ -163,7 +163,7 @@ export default function Kaartenbak() {
 
                   <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
                     fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: 10,
+                    fontSize: 14,
                     letterSpacing: 1.5,
                     color: item.status === 'pending' ? 'rgba(197,147,90,0.4)' : '#C5935A',
                     flex: 1,
@@ -173,8 +173,8 @@ export default function Kaartenbak() {
 
                   <span style={{
                     fontFamily: "'EB Garamond', serif",
-                    fontSize: 12,
-                    color: 'rgba(245,240,232,0.3)',
+                    fontSize: 15,
+                    color: 'rgba(245,240,232,0.4)',
                   }}>
                     {formatDate(item.capturedAt)}
                   </span>
