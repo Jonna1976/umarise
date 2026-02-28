@@ -452,7 +452,7 @@ export default function ItExistedProof() {
             <span className="font-mono text-[11px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Origin ID</span>
             <span className="font-mono text-[13px] tracking-[1px]"
-              style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#C5935A' }}>{state.shortToken}</span>
+              style={{ color: '#C5935A' }}>{state.shortToken}</span>
           </div>
           <div className="flex justify-between items-baseline mb-2.5">
             <span className="font-mono text-[11px] tracking-[3px] uppercase"
