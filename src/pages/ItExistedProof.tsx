@@ -545,7 +545,7 @@ export default function ItExistedProof() {
                     color: 'rgba(197,147,90,0.7)',
                     cursor: 'pointer',
                   }}>
-                  I've saved my proof
+                  Yes, saved my proof
                 </button>
               </div>
             )}
