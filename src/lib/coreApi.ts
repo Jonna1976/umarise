@@ -209,14 +209,19 @@ export async function verifyOriginByHash(rawHash: string): Promise<CoreVerifyRes
     // Normalize: ensure sha256: prefix
     const hash = rawHash.startsWith('sha256:') ? rawHash : rawHash;
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     const response = await fetch(
       `${CORE_API_BASE}/v1-core-verify`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hash }),
+        signal: controller.signal,
       }
     );
+    clearTimeout(timeoutId);
 
     if (response.status === 200) {
       const data = await response.json();
