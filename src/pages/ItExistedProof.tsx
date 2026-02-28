@@ -585,8 +585,8 @@ export default function ItExistedProof() {
             </span>
           </div>
 
-          {/* ── BOOKMARK HINT (bottom) ── */}
-          <div className="w-full mt-8 mb-4">
+          {/* ── BOOKMARK HINT ── */}
+          <div className="w-full mt-8 mb-6">
             <p className="font-garamond text-[19px] italic" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.8 }}>
               Before you leave, bookmark this page:
             </p>
@@ -603,6 +603,23 @@ export default function ItExistedProof() {
               </span>
               <Copy size={14} className="opacity-30 group-hover:opacity-70 transition-opacity" style={{ color: '#c9a96e' }} />
             </button>
+          </div>
+
+          {/* ── ANCHOR ANOTHER ── */}
+          <div className="w-full mb-8 flex items-center justify-start gap-2.5 mt-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" style={!anchored ? { opacity: 0.3 } : {}} onClick={() => navigate('/itexisted')}>
+            <div
+              className="flex items-center justify-center rounded-full transition-all"
+              style={{
+                width: 28, height: 28,
+                border: '1px solid rgba(245,240,232,0.4)',
+                background: 'none',
+              }}>
+              <span style={{ color: '#F5F0E8', fontSize: 16, lineHeight: 1 }}>+</span>
+            </div>
+            <span className="font-mono text-[13px] tracking-[3px] uppercase"
+              style={{ color: '#F5F0E8' }}>
+              Anchor another file
+            </span>
           </div>
 
         </div>
