@@ -206,7 +206,7 @@ export default function ItExisted() {
           className="fixed bottom-8 right-8 flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
           style={{ cursor: 'pointer' }}
         >
-          <StatusMark pending={anchorStatus === 'pending'} size={16} />
+          <StatusMark pending={anchorStatus === 'pending'} size={19} />
           <span className="font-mono text-[9px] tracking-[1.5px] uppercase"
             style={{
               color: anchorStatus === 'anchored'
