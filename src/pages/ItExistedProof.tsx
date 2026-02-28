@@ -329,13 +329,26 @@ export default function ItExistedProof() {
         {/* TOP BLOCK */}
         <div className="w-full flex flex-col items-start mb-12">
           {anchored ? (
-            <h1 className="font-garamond text-[41px] font-normal flex items-center gap-3"
+            <h1 className="font-garamond text-[41px] font-normal flex items-center gap-1"
               style={{ color: '#f0ead6', letterSpacing: '-0.3px' }}>
-              Your file is anchored.
-              <span className="inline-flex items-center justify-center rounded-full flex-shrink-0"
-                style={{ width: 36, height: 36, border: '1.5px solid rgba(201,169,110,0.5)' }}>
-                <span className="font-mono text-[16px] font-semibold" style={{ color: '#c9a96e' }}>A</span>
-              </span>
+              Your file is anchored
+              <motion.span
+                className="inline-block"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.8 }}
+                style={{ filter: 'drop-shadow(0 0 8px rgba(197,147,90,0.5))' }}>
+                <svg viewBox="0 0 42 42" width="24" height="24" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '1px' }}>
+                  <motion.circle
+                    cx="21" cy="38" fill="none"
+                    stroke="rgba(197,147,90,0.45)" strokeWidth="0.9"
+                    initial={{ r: 0, opacity: 0 }}
+                    animate={{ r: 15, opacity: 1 }}
+                    transition={{ duration: 0.9, delay: 2.2, ease: [0.2, 0, 0.2, 1] }}
+                  />
+                  <circle cx="21" cy="38" r="3.2" fill="#C5935A" />
+                </svg>
+              </motion.span>
             </h1>
           ) : (
             <div className="flex flex-col items-start gap-1">

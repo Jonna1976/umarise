@@ -18,23 +18,24 @@ function mapFileType(mimeType: string): MarkType {
   return 'text';
 }
 
-/** Square nail — the anchor point */
-function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: number }) {
+/** Circumpunct status mark — dot = pending, dot+ring = anchored */
+function StatusMark({ pending = false, size = 16 }: { pending?: boolean; size?: number }) {
   if (pending) {
     return (
-      <motion.svg viewBox="0 0 48 48" width={size} height={size}
-        animate={{ opacity: [0.3, 0.7, 0.3] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-        <rect x="4" y="4" width="40" height="40" rx="4"
-          fill="none" stroke="hsl(32 55% 55% / 0.4)" strokeWidth="1.2"
-          strokeDasharray="3 3" />
-      </motion.svg>
+      <svg viewBox="0 0 20 20" width={size} height={size} style={{ opacity: 0.5, flexShrink: 0 }}>
+        <motion.circle
+          cx="10" cy="10" r="3" fill="#C5935A"
+          animate={{ opacity: [0.9, 0.3, 0.9] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </svg>
     );
   }
   return (
-    <svg viewBox="0 0 48 48" width={size} height={size}
-      style={{ filter: 'drop-shadow(0 0 10px hsl(32 55% 55% / 0.35))' }}>
-      <rect x="4" y="4" width="40" height="40" rx="4" fill="hsl(32 55% 55%)" />
+    <svg viewBox="0 0 20 20" width={size} height={size}
+      style={{ flexShrink: 0, filter: 'drop-shadow(0 0 5px rgba(197,147,90,0.5))' }}>
+      <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="0.8" />
+      <circle cx="10" cy="10" r="3" fill="#C5935A" />
     </svg>
   );
 }
@@ -195,7 +196,7 @@ export default function ItExisted() {
           className="fixed bottom-8 right-8 flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all hover:bg-white/5"
           style={{ cursor: 'pointer' }}
         >
-          <V7Nail pending={anchorStatus === 'pending'} size={18} />
+          <StatusMark pending={anchorStatus === 'pending'} size={16} />
           <span className="font-mono text-[9px] tracking-[1.5px] uppercase"
             style={{
               color: anchorStatus === 'anchored'
