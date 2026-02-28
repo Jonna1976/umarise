@@ -400,16 +400,16 @@ export default function ItExistedProof() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 1.2, delay: 0.8 }}>
-                  <svg viewBox="0 0 42 42" width="20" height="20" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '3px', marginLeft: '3px', filter: 'drop-shadow(0 0 7px rgba(197,147,90,0.5))' }}>
+                  <svg viewBox="0 0 42 42" width="26" height="26" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '2px', marginLeft: '6px', filter: 'drop-shadow(0 0 7px rgba(197,147,90,0.5))' }}>
                     <motion.circle
-                      cx="21" cy="38" fill="none"
-                      stroke="rgba(197,147,90,0.45)" strokeWidth="0.9"
+                      cx="21" cy="21" fill="none"
+                      stroke="rgba(197,147,90,0.6)" strokeWidth="1.2"
                       initial={{ r: 0, opacity: 0 }}
                       animate={{ r: 15, opacity: 1 }}
                       transition={{ duration: 0.9, delay: 2.2, ease: [0.2, 0, 0.2, 1] }}
                     />
                     <motion.circle
-                      cx="21" cy="38" r="3.5" fill="#C5935A"
+                      cx="21" cy="21" r="4" fill="#C5935A"
                       animate={{
                         opacity: [0.6, 1, 0.6],
                         filter: [
