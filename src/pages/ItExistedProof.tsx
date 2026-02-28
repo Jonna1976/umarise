@@ -569,7 +569,7 @@ export default function ItExistedProof() {
           </div>
 
           {/* ── STEP 4: ATTESTATION ── */}
-          <div className="w-full mb-8" style={lockedStyle}>
+          <div className="w-full mb-8" style={fullLockedStyle}>
             <button
               onClick={() => !lockedStyle.opacity && toggleStep('attest')}
               className="flex items-baseline w-full text-left"
