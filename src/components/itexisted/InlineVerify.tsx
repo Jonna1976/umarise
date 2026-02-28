@@ -294,8 +294,8 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
 
       {/* VERIFIED */}
       {result?.status === 'verified' && (
-        <div className="w-full rounded-[8px] border p-4 mt-1"
-          style={{ borderColor: 'rgba(74,124,89,0.4)', background: 'rgba(74,124,89,0.06)' }}>
+        <div className="w-full mb-3">
+
           <Row label="Origin ID" value={result.shortToken!} ok />
           <Row label="Hash match" value="✓ confirmed" ok />
           <Row label="Date" value={result.date!} />
@@ -367,9 +367,7 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
 
       {/* ── Step log (collapsible) ── */}
       {result && result.steps.length > 0 && (
-        <div className="w-full mt-2">
-          <div className="rounded-[6px] px-3 py-3 mt-1 space-y-1.5"
-            style={{ background: 'rgba(10,15,10,0.8)', border: '1px solid rgba(240,234,214,0.06)' }}>
+        <div className="w-full mt-3 pt-3 space-y-1.5" style={{ borderTop: '1px solid rgba(74,124,89,0.15)' }}>
             {result.steps.map((step, i) => (
               <div key={i} className="flex items-start gap-2 font-mono text-[15px] leading-[1.6]">
                 <span className="flex-shrink-0 mt-px" style={{
@@ -396,7 +394,6 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken, aut
               </div>
             ))}
           </div>
-        </div>
       )}
 
     </div>
