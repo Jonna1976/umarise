@@ -595,8 +595,16 @@ function resetUI() {
 
 // ─── Drop zone events ───
 let dragCounter = 0;
-dropZone.addEventListener('click', () => { fileInput.click(); });
-fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+dropZone.addEventListener('click', () => {
+  if (processing) return;
+  fileInput.value = '';
+  fileInput.click();
+});
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file && !processing) handleFile(file);
+  e.target.value = '';
+});
 
 dropZone.addEventListener('dragenter', e => { e.preventDefault(); dragCounter++; dropZone.classList.add('dragging'); });
 dropZone.addEventListener('dragleave', e => { e.preventDefault(); dragCounter--; if (dragCounter === 0) dropZone.classList.remove('dragging'); });
@@ -606,7 +614,7 @@ dropZone.addEventListener('drop', e => {
   dragCounter = 0;
   dropZone.classList.remove('dragging');
   const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
+  if (file && !processing) handleFile(file);
 });
 
 window.addEventListener('dragover', e => e.preventDefault(), true);
@@ -675,8 +683,10 @@ async function verifyOtsProof(otsBuf, hashHex) {
 
 // ─── Main verification logic ───
 async function handleFile(file) {
+  if (processing) return;
+
   processing = true;
-  dropZone.classList.remove('disabled');
+  dropZone.classList.add('disabled');
   output.innerHTML = '<div class="verifying-state"><div class="spinner"></div><p>Verifying…</p></div>';
 
   try {
@@ -692,6 +702,10 @@ async function handleFile(file) {
     }
   } catch (err) {
     showError('Verification failed: ' + (err.message || 'Unknown error'));
+  } finally {
+    processing = false;
+    dropZone.classList.remove('disabled');
+    fileInput.value = '';
   }
 }
 
