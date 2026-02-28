@@ -28,8 +28,6 @@ function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: numb
         <rect x="4" y="4" width="40" height="40" rx="4"
           fill="none" stroke="hsl(32 55% 55% / 0.4)" strokeWidth="1.2"
           strokeDasharray="3 3" />
-        <rect x="17" y="17" width="14" height="14" rx="1.8"
-          fill="hsl(32 55% 55% / 0.15)" />
       </motion.svg>
     );
   }
@@ -37,7 +35,6 @@ function V7Nail({ pending = false, size = 36 }: { pending?: boolean; size?: numb
     <svg viewBox="0 0 48 48" width={size} height={size}
       style={{ filter: 'drop-shadow(0 0 10px hsl(32 55% 55% / 0.35))' }}>
       <rect x="4" y="4" width="40" height="40" rx="4" fill="hsl(32 55% 55%)" />
-      <rect x="17" y="17" width="14" height="14" rx="1.8" fill="hsl(120 27% 8%)" />
     </svg>
   );
 }
