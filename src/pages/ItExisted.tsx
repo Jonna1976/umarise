@@ -205,7 +205,7 @@ export default function ItExisted() {
                 ? 'hsl(var(--itx-gold))'
                 : 'hsl(var(--itx-cream) / 0.25)',
             }}>
-            {anchorStatus === 'anchored' ? 'proof ready' : 'anchoring…'}
+            {anchorStatus === 'anchored' ? 'Anchored' : 'Anchoring'}
           </span>
         </motion.button>
       )}
