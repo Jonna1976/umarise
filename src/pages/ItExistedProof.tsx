@@ -314,8 +314,8 @@ export default function ItExistedProof() {
     setOpenStep(prev => prev === id ? null : id);
   };
 
-  /* locked class styles */
-  const lockedStyle = !anchored ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
+  /* locked: steps 2-4 and + require file verification (step 1) first */
+  const lockedStyle = (artifactStatus !== 'matched') ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
 
   return (
     <main className="min-h-screen flex items-center justify-center px-6"
