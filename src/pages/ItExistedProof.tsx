@@ -601,11 +601,6 @@ export default function ItExistedProof() {
                 style={{ color: 'rgba(197,147,90,0.7)' }}>Request attestation</span>
               <span className="font-garamond text-[15px] italic ml-2"
                 style={{ color: 'rgba(245,240,232,0.35)', whiteSpace: 'nowrap' }}>optional</span>
-              <span className="ml-auto text-[15px] flex-shrink-0 transition-transform"
-                style={{
-                  color: 'rgba(240,234,214,0.35)',
-                  transform: openStep === 'attest' ? 'rotate(180deg)' : 'none',
-                }}>▾</span>
             </button>
             <div style={{
               maxHeight: openStep === 'attest' ? 800 : 0,
