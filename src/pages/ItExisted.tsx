@@ -18,24 +18,34 @@ function mapFileType(mimeType: string): MarkType {
   return 'text';
 }
 
-/** Circumpunct status mark — dot = pending, dot+ring = anchored */
+/** Circumpunct status mark — dot = pending (breathing), dot+ring = anchored (pulsing glow) */
 function StatusMark({ pending = false, size = 16 }: { pending?: boolean; size?: number }) {
   if (pending) {
     return (
-      <svg viewBox="0 0 20 20" width={size} height={size} style={{ opacity: 0.5, flexShrink: 0 }}>
+      <svg viewBox="0 0 20 20" width={size} height={size} style={{ flexShrink: 0 }}>
         <motion.circle
           cx="10" cy="10" r="3" fill="#C5935A"
-          animate={{ opacity: [0.9, 0.3, 0.9] }}
+          animate={{ opacity: [0.3, 0.9, 0.3] }}
           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 20 20" width={size} height={size}
-      style={{ flexShrink: 0, filter: 'drop-shadow(0 0 5px rgba(197,147,90,0.5))' }}>
+    <svg viewBox="0 0 20 20" width={size} height={size} style={{ flexShrink: 0, overflow: 'visible' }}>
       <circle cx="10" cy="10" r="8" fill="none" stroke="rgba(197,147,90,0.45)" strokeWidth="0.8" />
-      <circle cx="10" cy="10" r="3" fill="#C5935A" />
+      <motion.circle
+        cx="10" cy="10" r="3" fill="#C5935A"
+        animate={{
+          opacity: [0.6, 1, 0.6],
+          filter: [
+            'drop-shadow(0 0 2px rgba(197,147,90,0.3))',
+            'drop-shadow(0 0 8px rgba(197,147,90,0.8))',
+            'drop-shadow(0 0 2px rgba(197,147,90,0.3))',
+          ],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
     </svg>
   );
 }
