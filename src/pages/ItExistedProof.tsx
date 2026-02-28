@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Copy } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { buildOriginZip, buildZipFileName } from '@/lib/originZip';
@@ -55,6 +55,7 @@ interface ProofState {
 export default function ItExistedProof() {
   const { token = '' } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addItems } = useKaartenbak();
   const [loading, setLoading] = useState(true);
   const [state, setState] = useState<ProofState | null>(null);
@@ -84,7 +85,15 @@ export default function ItExistedProof() {
     }
   }, [token, artifactStatus]);
 
-  // When proof becomes anchored, auto-open verify step
+  // Auto-confirm Step 1 if file was passed via router state (single-upload flow)
+  const passedFileRef = useRef(false);
+  useEffect(() => {
+    const passedFile = (location.state as any)?.file as File | undefined;
+    if (passedFile && state && !passedFileRef.current && artifactStatus === 'idle') {
+      passedFileRef.current = true;
+      onArtifactFile(passedFile);
+    }
+  }, [state, location.state, artifactStatus]);
   useEffect(() => {
     if (state?.proofStatus === 'anchored') {
       setOpenStep('verify');
