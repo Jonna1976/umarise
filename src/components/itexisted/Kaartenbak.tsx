@@ -132,55 +132,17 @@ export default function Kaartenbak() {
                 </svg>
               </div>
 
-              {/* Drop zone — always visible */}
-              <label
-                className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all mb-4"
-                style={{
-                  borderColor: dragOver ? 'rgba(197,147,90,0.7)' : 'rgba(197,147,90,0.2)',
-                  background: dragOver ? 'rgba(197,147,90,0.12)' : 'transparent',
-                }}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={onDrop}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".zip"
-                  multiple
-                  onChange={(e) => { if (e.target.files?.length) parseZips(e.target.files); e.target.value = ''; }}
-                />
-                {processing ? (
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'rgba(245,240,232,0.4)', letterSpacing: 2 }}>
-                    Reading…
-                  </span>
-                ) : (
-                  <>
-                    <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 16, color: '#F5F0E8', display: 'block' }}>
-                      Drop your proof ZIPs here
-                    </span>
-                    <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 13, fontStyle: 'italic', color: 'rgba(245,240,232,0.3)', display: 'block', marginTop: 4 }}>
-                      The ZIPs are the database
-                    </span>
-                  </>
-                )}
-              </label>
-
               {/* Anchor list */}
               {items.map((item) => (
                 <button
                   key={item.originId}
                   onClick={() => navigateToProof(item.shortToken)}
-                  className="flex items-center gap-2.5 w-full text-left transition-all hover:bg-white/[0.03]"
+                  className="flex items-center gap-2.5 w-full text-left transition-all group"
                   style={{
                     padding: '10px 0',
-                    borderBottom: '1px solid rgba(197,147,90,0.07)',
                     background: 'none',
                     border: 'none',
-                    borderBottomWidth: 1,
-                    borderBottomStyle: 'solid',
-                    borderBottomColor: 'rgba(197,147,90,0.07)',
+                    borderBottom: '1px solid rgba(197,147,90,0.07)',
                     cursor: 'pointer',
                   }}
                 >
@@ -188,7 +150,7 @@ export default function Kaartenbak() {
                   {item.status === 'pending' ? (
                     <svg viewBox="0 0 20 20" width={13} height={13} style={{ flexShrink: 0 }}>
                       <circle cx="10" cy="10" r="3" fill="#C5935A" opacity={0.5}>
-                        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite" />
                       </circle>
                     </svg>
                   ) : (
@@ -199,7 +161,7 @@ export default function Kaartenbak() {
                     </svg>
                   )}
 
-                  <span style={{
+                  <span className="group-hover:text-[#F5F0E8] transition-colors" style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     fontSize: 10,
                     letterSpacing: 1.5,
@@ -219,18 +181,41 @@ export default function Kaartenbak() {
                 </button>
               ))}
 
-              {/* Empty state note */}
+              {/* Empty state — drop zone only when no items */}
               {items.length === 0 && (
-                <p style={{
-                  fontFamily: "'EB Garamond', serif",
-                  fontSize: 14,
-                  fontStyle: 'italic',
-                  color: 'rgba(245,240,232,0.2)',
-                  textAlign: 'center',
-                  marginTop: 8,
-                }}>
-                  Your ZIPs are the database. Nothing is stored.
-                </p>
+                <label
+                  className="block w-full rounded-[8px] border-dashed border-[1.5px] p-5 text-center cursor-pointer transition-all"
+                  style={{
+                    borderColor: dragOver ? 'rgba(197,147,90,0.7)' : 'rgba(197,147,90,0.2)',
+                    background: dragOver ? 'rgba(197,147,90,0.12)' : 'transparent',
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={onDrop}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".zip"
+                    multiple
+                    onChange={(e) => { if (e.target.files?.length) parseZips(e.target.files); e.target.value = ''; }}
+                  />
+                  {processing ? (
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'rgba(245,240,232,0.4)', letterSpacing: 2 }}>
+                      Reading…
+                    </span>
+                  ) : (
+                    <>
+                      <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 16, color: '#F5F0E8', display: 'block' }}>
+                        Drop your proof ZIPs here
+                      </span>
+                      <span style={{ fontFamily: "'EB Garamond', serif", fontSize: 13, fontStyle: 'italic', color: 'rgba(245,240,232,0.3)', display: 'block', marginTop: 4 }}>
+                        The ZIPs are the database
+                      </span>
+                    </>
+                  )}
+                </label>
               )}
             </div>
           </motion.div>
