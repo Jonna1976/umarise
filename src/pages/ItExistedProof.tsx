@@ -476,12 +476,15 @@ export default function ItExistedProof() {
         {/* ── STEPS ── */}
         <div className="w-full flex flex-col items-start">
 
+          {/* Gold divider */}
+          <div className="w-full mb-6" style={{ borderTop: '1px solid rgba(197,147,90,0.25)' }} />
+
           {/* ── STEP 1: VERIFY ORIGINAL FILE ── */}
-          <div className="w-full mb-8">
-            <div className="flex items-baseline w-full mb-3">
+          <div className="w-full">
+            <div className="flex items-center w-full py-3">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#F5F0E8' }}>
-                {artifactStatus === 'matched' ? '✓' : '1.'}
+                ✓
               </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
                 style={{ color: artifactStatus === 'matched' ? '#7fba6a' : '#F5F0E8' }}>
@@ -496,115 +499,133 @@ export default function ItExistedProof() {
                 </button>
               )}
             </div>
-            <div className={artifactStatus === 'matched' ? '' : 'pl-[23px]'}>
-              {artifactStatus !== 'matched' && artifactStatus !== 'mismatch' ? (
-                <label
-                  className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer transition-all"
-                  style={{
-                    borderColor: dragOver ? 'rgba(197,147,90,0.7)' : 'rgba(197,147,90,0.4)',
-                    background: dragOver ? 'rgba(197,147,90,0.18)' : 'rgba(197,147,90,0.1)',
-                  }}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) onArtifactFile(f); }}
-                >
-                  <input type="file" className="hidden" accept="*/*"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
-                  {artifactStatus === 'checking' ? (
-                    <p className="font-mono text-[15px] tracking-[2px] uppercase"
-                      style={{ color: 'rgba(245,240,232,0.5)' }}>Checking…</p>
-                  ) : (
-                    <>
-                      <p className="font-garamond text-[20px]"
-                        style={{ color: '#F5F0E8' }}>Drop your original file.</p>
-                      <p className="font-garamond text-[16px] italic mt-1"
-                        style={{ color: 'rgba(245,240,232,0.38)' }}>It is the key to your proof.</p>
-                    </>
-                  )}
-                </label>
-              ) : (
-                <div className="flex flex-col gap-1">
-                  {artifactStatus === 'matched' ? (
-                    <p className="font-garamond text-[15px] italic pl-[23px]"
-                      style={{ color: 'rgba(127,186,106,0.6)' }}>
-                      Hash match confirmed
+            {artifactStatus !== 'matched' && (
+              <div className="pb-4">
+                {artifactStatus !== 'mismatch' ? (
+                  <label
+                    className="block w-full rounded-[8px] border-dashed border-[1.5px] p-6 text-center cursor-pointer transition-all"
+                    style={{
+                      borderColor: dragOver ? 'rgba(197,147,90,0.7)' : 'rgba(197,147,90,0.4)',
+                      background: dragOver ? 'rgba(197,147,90,0.18)' : 'rgba(197,147,90,0.1)',
+                    }}
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) onArtifactFile(f); }}
+                  >
+                    <input type="file" className="hidden" accept="*/*"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) onArtifactFile(f); }} />
+                    {artifactStatus === 'checking' ? (
+                      <p className="font-mono text-[15px] tracking-[2px] uppercase"
+                        style={{ color: 'rgba(245,240,232,0.5)' }}>Checking…</p>
+                    ) : (
+                      <>
+                        <p className="font-garamond text-[20px]"
+                          style={{ color: '#F5F0E8' }}>Drop your original file.</p>
+                        <p className="font-garamond text-[16px] italic mt-1"
+                          style={{ color: 'rgba(245,240,232,0.38)' }}>It is the key to your proof.</p>
+                      </>
+                    )}
+                  </label>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <p className="font-mono text-[15px] tracking-[1px] uppercase"
+                      style={{ color: 'rgba(220,80,60,0.8)' }}>
+                      Hash mismatch — wrong file
                     </p>
-                  ) : (
-                    <>
-                      <p className="font-mono text-[15px] tracking-[1px] uppercase"
-                        style={{ color: 'rgba(220,80,60,0.8)' }}>
-                        Hash mismatch — wrong file
+                    {computedHash && (
+                      <p className="font-mono text-[13px] break-all"
+                        style={{ color: 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
+                        {computedHash}
                       </p>
-                      {computedHash && (
-                        <p className="font-mono text-[13px] break-all"
-                          style={{ color: 'rgba(220,80,60,0.5)', lineHeight: 1.6 }}>
-                          {computedHash}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
+          {/* Gold divider */}
+          <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
+
           {/* ── STEP 2: DOWNLOAD ── */}
-          <div className="w-full mb-8" style={fullLockedStyle}>
+          <div className="w-full" style={fullLockedStyle}>
             <button
               onClick={() => onDownload()}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: 0 }}>
+              className="flex items-center w-full text-left py-4"
+              style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: '16px 0' }}>
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
-                {downloadedZipBlob ? '✓' : '2.'}
+                ✓
               </span>
-              <span className="font-mono text-[13px] tracking-[3px] uppercase mr-1.5"
+              <span className="font-mono text-[13px] tracking-[3px] uppercase"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
                 {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
           </div>
 
+          {/* Gold divider */}
+          <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
+
           {/* ── STEP 3: VERIFY ── */}
-          <div className="w-full mb-8" style={fullLockedStyle}>
-            <div className="flex items-baseline w-full">
+          <div className="w-full" style={fullLockedStyle}>
+            <div className="flex items-center w-full py-4">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
-                {downloadedZipBlob ? '✓' : '3.'}
+                ✓
               </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
                 {downloadedZipBlob ? 'ZIP verified' : 'Verify your ZIP'}
               </span>
             </div>
-            <div className="pt-4 pl-[23px]">
-              <InlineVerify
-                key={verifyKey}
-                expectedOriginId={state?.originId}
-                expectedShortToken={state?.shortToken}
-                autoVerifyBlob={downloadedZipBlob}
-                autoVerifyName={downloadedZipName}
-              />
-              <p className="font-garamond text-[14px] italic mt-3"
-                style={{ color: 'rgba(245,240,232,0.3)' }}>
-                Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
-                  style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
-              </p>
-            </div>
+            {downloadedZipBlob && (
+              <div className="pb-4">
+                <InlineVerify
+                  key={verifyKey}
+                  expectedOriginId={state?.originId}
+                  expectedShortToken={state?.shortToken}
+                  autoVerifyBlob={downloadedZipBlob}
+                  autoVerifyName={downloadedZipName}
+                />
+                <p className="font-garamond text-[14px] italic mt-3"
+                  style={{ color: 'rgba(245,240,232,0.3)' }}>
+                  Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
+                    style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* ── STEP 4: ATTESTATION ── */}
-          <div className="w-full mb-8" style={fullLockedStyle}>
+          {/* Gold divider */}
+          <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
+
+          {/* ── ATTESTATION SECTION — visually separate ── */}
+          <div className="w-full mt-10 mb-6" style={fullLockedStyle}>
+            <h2 className="font-garamond italic text-[24px] mb-3"
+              style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
+              Want to add a trust layer?
+            </h2>
+            <p className="font-garamond italic text-[16px] mb-6"
+              style={{ color: 'rgba(245,240,232,0.4)', lineHeight: 1.55 }}>
+              A notary or verified third party can attest to this anchor — adding identity and legal weight above the cryptographic proof.
+            </p>
             <button
-              onClick={() => !lockedStyle.opacity && toggleStep('attest')}
-              className="flex items-baseline w-full text-left"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>4.</span>
-              <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>Request attestation</span>
-              <span className="font-garamond text-[15px] italic ml-2"
-                style={{ color: 'rgba(245,240,232,0.35)', whiteSpace: 'nowrap' }}>optional</span>
+              onClick={() => toggleStep('attest')}
+              className="w-full flex items-center justify-center gap-3 py-3.5 rounded-[8px] transition-all"
+              style={{
+                border: '1px solid rgba(197,147,90,0.3)',
+                background: 'rgba(197,147,90,0.04)',
+                cursor: 'pointer',
+              }}>
+              <svg viewBox="0 0 20 20" width={14} height={14} style={{ flexShrink: 0 }}>
+                <circle cx="10" cy="10" r="7" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.8" />
+                <circle cx="10" cy="10" r="2.5" fill="rgba(197,147,90,0.7)" />
+              </svg>
+              <span className="font-mono text-[13px] tracking-[4px] uppercase"
+                style={{ color: 'rgba(197,147,90,0.6)' }}>
+                Request attestation
+              </span>
             </button>
             <div style={{
               maxHeight: openStep === 'attest' ? 800 : 0,
@@ -612,27 +633,26 @@ export default function ItExistedProof() {
               opacity: openStep === 'attest' ? 1 : 0,
               transition: 'max-height 0.4s ease, opacity 0.3s ease',
             }}>
-              <div className="pt-4 pl-[23px]">
+              <div className="pt-5">
                 <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
               </div>
             </div>
           </div>
 
-
-
           {/* ── ANCHOR ANOTHER ── */}
-          <div className="w-full mb-8 flex items-center justify-start gap-2.5 mt-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" style={!anchored ? { opacity: 0.3 } : {}} onClick={() => navigate('/itexisted')}>
+          <div className="w-full flex items-center justify-center gap-3 mt-6 mb-8 opacity-50 hover:opacity-80 transition-opacity cursor-pointer"
+            style={!anchored ? { opacity: 0.25 } : {}}
+            onClick={() => navigate('/itexisted')}>
             <div
-              className="flex items-center justify-center rounded-full transition-all"
+              className="flex items-center justify-center rounded-full"
               style={{
-                width: 28, height: 28,
-                border: '1px solid rgba(245,240,232,0.4)',
-                background: 'none',
+                width: 32, height: 32,
+                border: '1px solid rgba(245,240,232,0.3)',
               }}>
-              <span style={{ color: '#F5F0E8', fontSize: 16, lineHeight: 1 }}>+</span>
+              <span style={{ color: 'rgba(245,240,232,0.6)', fontSize: 18, lineHeight: 1 }}>+</span>
             </div>
-            <span className="font-mono text-[13px] tracking-[3px] uppercase"
-              style={{ color: '#F5F0E8' }}>
+            <span className="font-mono text-[13px] tracking-[4px] uppercase"
+              style={{ color: 'rgba(245,240,232,0.5)' }}>
               Anchor another file
             </span>
           </div>
