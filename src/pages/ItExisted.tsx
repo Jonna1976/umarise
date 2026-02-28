@@ -8,7 +8,7 @@ import { getPasskeyCredential, savePasskeyCredential } from '@/lib/passkeyStore'
 import { calculateSHA256 } from '@/lib/originHash';
 import { toast } from 'sonner';
 
-type ItExistedState = 'capture';
+type ItExistedState = 'capture' | 'anchoring';
 type MarkType = 'warm' | 'text' | 'sound' | 'digital' | 'organic' | 'sketch';
 
 function mapFileType(mimeType: string): MarkType {
@@ -114,6 +114,7 @@ export default function ItExisted() {
     }
 
     setLayer2(sigData);
+    setState('anchoring');
     anchorFile(file, sigData);
   };
 
@@ -159,18 +160,11 @@ export default function ItExisted() {
             className="flex flex-col items-center text-center gap-0"
             style={{ lineHeight: '2.2' }}>
 
-            {/* Branding copy */}
-            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream))' }}>
-              It existed.
-            </p>
-            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream))' }}>
-              Now it's provable.
-            </p>
-            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-cream) / 0.5)' }}>
-              Your file stays yours.
-            </p>
-            <p className="font-playfair text-[20px] font-light" style={{ color: 'hsl(var(--itx-gold))' }}>
-              Anchor what matters.
+            {/* Single statement */}
+            <p className="font-playfair text-[32px] font-light leading-snug" style={{ color: 'hsl(var(--itx-gold))' }}>
+              Anchor what
+              <br />
+              matters.
             </p>
 
             {/* Circle + plus */}
@@ -180,6 +174,41 @@ export default function ItExisted() {
               style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
               <span className="font-playfair text-[42px] leading-none" style={{ color: 'hsl(var(--itx-cream) / 0.18)' }}>+</span>
             </button>
+
+            <span className="mt-8 font-mono text-[7px] tracking-[3px] uppercase"
+              style={{ color: 'hsl(var(--itx-gold) / 0.12)' }}>
+              itexisted.app
+            </span>
+          </motion.div>
+        )}
+
+        {state === 'anchoring' && (
+          <motion.div key="anchoring"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center text-center gap-0"
+            style={{ lineHeight: '2.2' }}>
+
+            <p className="font-playfair text-[32px] font-light leading-snug" style={{ color: 'hsl(var(--itx-cream))' }}>
+              Now it's provable.
+            </p>
+            <p className="font-playfair text-[32px] font-light leading-snug mt-1" style={{ color: 'hsl(var(--itx-gold))' }}>
+              Anchor what
+              <br />
+              matters.
+            </p>
+
+            {/* Circle with breathing dot */}
+            <div className="mt-10 w-[150px] h-[150px] rounded-full border-[1.5px] border-dashed flex items-center justify-center"
+              style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
+              <motion.span
+                className="font-playfair text-[42px] leading-none"
+                style={{ color: 'hsl(var(--itx-cream) / 0.18)' }}
+                animate={{ opacity: [0.18, 0.4, 0.18] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
+                +
+              </motion.span>
+            </div>
 
             <span className="mt-8 font-mono text-[7px] tracking-[3px] uppercase"
               style={{ color: 'hsl(var(--itx-gold) / 0.12)' }}>
