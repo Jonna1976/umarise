@@ -62,7 +62,7 @@ async function verifyFile(
       steps[steps.length - 1] = { label: 'Hash not found in registry', status: 'error' };
       return { status: 'not_found', steps };
     }
-    steps[steps.length - 1] = { label: 'Hash found in registry', status: 'ok', detail: hash.substring(0, 16) + '…' };
+    steps[steps.length - 1] = { label: 'Hash verified against registry', status: 'ok' };
 
     return await finalizeResult(verify.origin, steps, expectedOriginId, expectedShortToken);
   }
@@ -121,7 +121,7 @@ async function verifyFile(
     steps[steps.length - 1] = { label: 'Hash not found in registry', status: 'error' };
     return { status: 'not_found', steps };
   }
-  steps[steps.length - 1] = { label: 'Hash found in registry', status: 'ok', detail: rawHash.substring(0, 16) + '…' };
+  steps[steps.length - 1] = { label: 'Hash verified against registry', status: 'ok' };
 
   return await finalizeResult(verifyResult.origin, steps, expectedOriginId, expectedShortToken, cert.origin_id);
 }
@@ -151,7 +151,7 @@ async function finalizeResult(
     return { status: 'mismatch', steps, shortToken: foundToken };
   }
 
-  steps.push({ label: 'Origin matches this page', status: 'ok', detail: foundToken });
+  // Origin match confirmed — not shown in step log (already in summary card)
 
   // Step 6: Check certificate origin_id consistency (if present)
   if (certOriginId && certOriginId.toLowerCase() !== foundOriginId.toLowerCase()) {
@@ -164,11 +164,9 @@ async function finalizeResult(
   let bitcoinOk = false;
 
   if (proofStatus === 'anchored') {
-    steps.push({ label: 'Bitcoin anchor confirmed', status: 'ok' });
     bitcoinOk = true;
     if (origin.bitcoin_block_height) {
       bitcoinLabel = `✓ block ${origin.bitcoin_block_height.toLocaleString('en-US')}`;
-      steps.push({ label: `Bitcoin block ${origin.bitcoin_block_height.toLocaleString('en-US')}`, status: 'ok' });
     } else {
       bitcoinLabel = '✓ anchored';
     }
