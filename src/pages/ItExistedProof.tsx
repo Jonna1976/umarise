@@ -337,7 +337,7 @@ export default function ItExistedProof() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.2, delay: 0.8 }}>
-                <svg viewBox="0 0 42 42" width="34" height="34" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '1px' }}>
+                <svg viewBox="0 0 42 42" width="34" height="34" style={{ overflow: 'visible', display: 'inline-block', verticalAlign: '-6px' }}>
                   <motion.circle
                     cx="21" cy="38" fill="none"
                     stroke="rgba(197,147,90,0.45)" strokeWidth="0.9"
