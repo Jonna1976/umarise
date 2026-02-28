@@ -248,7 +248,7 @@ const Architecture = () => {
           Architecture Overview
         </h1>
         <p className="text-landing-muted/50 text-sm">
-          24 February 2026 — Layer 3 Attestation + Stripe Checkout Live
+          28 February 2026 — itexisted.app 2-Screen Loop + Layer 3 Attestation
         </p>
       </div>
 
@@ -265,8 +265,20 @@ const Architecture = () => {
 │  PinGate:  /app /prototype /intake /pilot-tracker    │
 │            /architecture                              │
 │                                                      │
-│  Visual:   Anchor Mark on all headers (16px)         │
-│            Ghost/pending/anchored states per context  │
+├─────────────────────────────────────────────────────┤
+│               itexisted.app                           │
+│                                                      │
+│  Screen 1:  Homepage — "Anchor what matters." + ⊕    │
+│  Screen 2:  Proof Page — /proof/{TOKEN}              │
+│  Loop:      Homepage → Anchor → Proof → ⊕ → Homepage │
+│  Stateless: No accounts, no gallery, no local storage │
+│  Link-first: Persistent URL = the product            │
+│                                                      │
+├─────────────────────────────────────────────────────┤
+│               anchoring.app                           │
+│                                                      │
+│  Ritual PWA: Camera + Gallery + ZIP download         │
+│  Local:     IndexedDB thumbnails, device-isolated    │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │               core.umarise.com                       │
@@ -287,11 +299,144 @@ const Architecture = () => {
 ├─────────────────────────────────────────────────────┤
 │              Client Device                           │
 │                                                      │
-│  IndexedDB, Web Crypto, WebAuthn, JSZip              │
+│  Web Crypto (SHA-256), WebAuthn, JSZip               │
 │  No data leaves device without explicit action       │
 │  ZIP = artifact + certificate.json + VERIFY.txt+.ots │
 └─────────────────────────────────────────────────────┘`}
         </div>
+
+        {/* 0. itexisted.app — Protocol as Interface */}
+        <section>
+          <SectionHeader icon={Globe} title="itexisted.app — Protocol as Interface" num={0} />
+          
+          <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-6">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Design Principle</p>
+            <p className="text-sm text-landing-cream/70 italic">
+              "The app does not explain itself. The action is the interface. 
+              Two screens, one loop. No menu, no navigation, no features — only a repeatable act."
+            </p>
+          </div>
+
+          {/* Flow Diagram */}
+          <div className="bg-landing-cream/[0.02] border border-landing-cream/10 rounded-lg p-6 font-mono text-sm text-landing-cream/60 whitespace-pre leading-relaxed mb-6">
+{`  ┌─────────────────────────────────────────────────┐
+  │             SCREEN 1 — HOMEPAGE                  │
+  │                                                  │
+  │   "Anchor what matters."   (Playfair 37/52px)    │
+  │                                                  │
+  │          ┌───────────┐                           │
+  │          │     +     │   ← file picker trigger    │
+  │          └───────────┘                           │
+  │        (dashed circle)                           │
+  │                                                  │
+  │   [Status: ⊙ ANCHORED]   ← top-right, last anchor│
+  │                                                  │
+  └──────────────┬──────────────────────────────────┘
+                 │ file selected
+                 ▼
+  ┌──────────────────────────────────────────────────┐
+  │          TRANSITIONAL STATE                       │
+  │                                                  │
+  │   "Now it's provable."   (cream)                 │
+  │   "Anchor what matters." (gold)                  │
+  │                                                  │
+  │          ┌───────────┐                           │
+  │          │  + (pulse) │  ← breathing animation    │
+  │          └───────────┘                           │
+  │                                                  │
+  │   1. SHA-256 hash (client-side, in RAM)           │
+  │   2. Passkey prompt (1× biometric)               │
+  │   3. Registry submission                         │
+  │   4. Redirect → /proof/{TOKEN}                   │
+  │                                                  │
+  └──────────────┬──────────────────────────────────┘
+                 │ immediate redirect
+                 ▼
+  ┌──────────────────────────────────────────────────┐
+  │        SCREEN 2 — PROOF PAGE                      │
+  │        /proof/{SHORT_TOKEN}                       │
+  │                                                  │
+  │   "Your file is anchored ⊙"  (Playfair 28px)     │
+  │   "It existed. Now it's provable.                │
+  │    Your file stays yours."   (italic, EB Garamond)│
+  │                                                  │
+  │   ┌─ Record Details ──────────────────────────┐  │
+  │   │  ORIGIN ID    624BF441                    │  │
+  │   │  DATE         27 Feb 2026 · 21:24 UTC     │  │
+  │   │  HASH         63f1ed...82a                │  │
+  │   └───────────────────────────────────────────┘  │
+  │                                                  │
+  │   1. Verify your original file    ← drop zone    │
+  │   2. Download your proof          ← ZIP bundle   │
+  │   3. Verify your ZIP              ← drop zone    │
+  │   4. Request attestation          ← optional     │
+  │   5. ⊕ Anchor another file        ← LOOP ──────►│
+  │                                                  │
+  └──────────────────────────────────────────────────┘
+                                          │
+                                          └──► back to SCREEN 1`}
+          </div>
+
+          {/* Technical Details */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-landing-muted/40 text-xs uppercase tracking-wider border-b border-landing-cream/10">
+                  <th className="pb-3 pr-4">Aspect</th>
+                  <th className="pb-3 pr-4">Implementation</th>
+                  <th className="pb-3">Rationale</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-landing-cream/5">
+                {[
+                  { aspect: 'Screens', impl: '2 (Homepage + Proof Page)', why: 'Protocol as interface — no navigation needed' },
+                  { aspect: 'State', impl: 'Stateless (no accounts, no gallery)', why: 'Link-first model: URL is the product' },
+                  { aspect: 'Storage', impl: 'Zero — no IndexedDB, no localStorage (except last anchor ref)', why: 'Zero-storage doctrine: privacy by architecture' },
+                  { aspect: 'Identity', impl: 'WebAuthn passkey (1× biometric, best-effort)', why: 'Layer 2 device binding without accounts' },
+                  { aspect: 'Hashing', impl: 'Client-side SHA-256 via Web Crypto API (in RAM)', why: 'Original bytes never leave the device' },
+                  { aspect: 'Token', impl: '8-char short_token from registry', why: 'Human-shareable, persistent URL' },
+                  { aspect: 'Verification', impl: 'Embedded in Proof Page (Step 1: re-upload original)', why: 'Not a feature — inherent to the proof' },
+                  { aspect: 'ZIP', impl: 'artifact + certificate.json + VERIFY.txt + proof.ots', why: 'Self-contained evidence bundle' },
+                  { aspect: 'Attestation', impl: 'Step 4 on Proof Page (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
+                  { aspect: 'Loop', impl: 'Step 5: ⊕ Anchor another → Homepage', why: 'Closed ritual cycle, no dead ends' },
+                  { aspect: 'Routing', impl: 'hostname === "itexisted.app" → ItExisted component', why: 'Single codebase, hostname-based rendering' },
+                  { aspect: 'Typography', impl: 'Playfair Display (headers) + EB Garamond (body) + DM Mono (data)', why: 'Museum aesthetic — WCAG AA compliant' },
+                  { aspect: 'Status indicator', impl: 'Circumpunct ⊙ top-right (from localStorage)', why: 'Last anchor status without gallery' },
+                  { aspect: 'Recovery', impl: 'Hash-based lookup on homepage drop zone', why: 'Re-find proof URL from original file' },
+                ].map((row) => (
+                  <tr key={row.aspect} className="text-landing-cream/70">
+                    <td className="py-2.5 pr-4 font-medium text-landing-cream/90 whitespace-nowrap">{row.aspect}</td>
+                    <td className="py-2.5 pr-4 font-mono text-xs">{row.impl}</td>
+                    <td className="py-2.5 text-xs text-landing-muted/50">{row.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Architectural Constraints */}
+          <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Binding Constraints</p>
+            <ul className="space-y-1 text-sm text-landing-cream/60">
+              <li>• The app never explains itself — discovery is external (spec, docs, context)</li>
+              <li>• No onboarding, no tutorial, no "what is this" — if the user doesn't know, they're too early</li>
+              <li>• Every addition must survive: "Is this the act, or explanation of the act?"</li>
+              <li>• Verification is not a feature — it is inherent to the proof (Step 1 on Proof Page)</li>
+              <li>• Double Upload required: original file must be re-added before ZIP download (zero-storage)</li>
+              <li>• The proof URL (/proof/&#123;TOKEN&#125;) is the product — shareable, persistent, link-first</li>
+            </ul>
+          </div>
+
+          {/* Routes */}
+          <div className="mt-6 p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
+            <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-3">Route Map</p>
+            <div className="font-mono text-xs text-landing-cream/60 space-y-1">
+              <p><span className="text-emerald-400/70">GET</span> <span className="text-landing-cream/80">/</span> → Homepage (ItExisted component via hostname routing)</p>
+              <p><span className="text-emerald-400/70">GET</span> <span className="text-landing-cream/80">/proof/:token</span> → Proof Page (ItExistedProof)</p>
+              <p><span className="text-landing-muted/40">GET</span> <span className="text-landing-cream/50">/anchored</span> → Legacy redirect (ItExistedAnchored)</p>
+            </div>
+          </div>
+        </section>
 
         {/* 1. B2C App Layer */}
         <section>
