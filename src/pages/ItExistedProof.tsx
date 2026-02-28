@@ -602,25 +602,6 @@ export default function ItExistedProof() {
           </div>
 
 
-          {/* ── BOOKMARK HINT ── */}
-          <div className="w-full mt-8 mb-6">
-            <p className="font-garamond text-[19px] italic" style={{ color: 'rgba(240,234,214,0.35)', lineHeight: 1.8 }}>
-              Before you leave, bookmark this page:
-            </p>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(`https://itexisted.app/proof/${state.shortToken}`);
-                toast.success('URL copied');
-              }}
-              className="flex items-center gap-2 mt-1.5 group"
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-              <span className="font-mono text-[15px] tracking-[0.5px]"
-                style={{ color: 'rgba(201,169,110,0.6)' }}>
-                https://itexisted.app/proof/{state.shortToken}
-              </span>
-              <Copy size={14} className="opacity-30 group-hover:opacity-70 transition-opacity" style={{ color: '#c9a96e' }} />
-            </button>
-          </div>
 
           {/* ── ANCHOR ANOTHER ── */}
           <div className="w-full mb-8 flex items-center justify-start gap-2.5 mt-4 opacity-60 hover:opacity-100 transition-opacity cursor-pointer" style={!anchored ? { opacity: 0.3 } : {}} onClick={() => navigate('/itexisted')}>
