@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
 import { verifyOriginByHash } from '@/lib/coreApi';
@@ -194,14 +194,18 @@ async function finalizeResult(
 interface InlineVerifyProps {
   expectedOriginId?: string;
   expectedShortToken?: string;
+  /** Pre-built ZIP blob to auto-verify on mount (skips drop zone) */
+  autoVerifyBlob?: Blob | null;
+  autoVerifyName?: string | null;
 }
 
-export default function InlineVerify({ expectedOriginId, expectedShortToken }: InlineVerifyProps = {}) {
+export default function InlineVerify({ expectedOriginId, expectedShortToken, autoVerifyBlob, autoVerifyName }: InlineVerifyProps) {
   const [result, setResult] = useState<FullVerifyResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [stepsOpen, setStepsOpen] = useState(false);
+  const autoVerifiedRef = useRef(false);
 
   const processFile = useCallback(async (file: File) => {
     setBusy(true);
@@ -226,6 +230,15 @@ export default function InlineVerify({ expectedOriginId, expectedShortToken }: I
     }
     setBusy(false);
   }, [expectedOriginId, expectedShortToken]);
+
+  // Auto-verify from pre-built blob (e.g. after ZIP download)
+  useEffect(() => {
+    if (autoVerifyBlob && !autoVerifiedRef.current && !result && !busy) {
+      autoVerifiedRef.current = true;
+      const file = new File([autoVerifyBlob], autoVerifyName || 'proof.zip', { type: 'application/zip' });
+      processFile(file);
+    }
+  }, [autoVerifyBlob, autoVerifyName, result, busy, processFile]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

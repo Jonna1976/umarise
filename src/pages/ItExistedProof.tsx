@@ -61,6 +61,8 @@ export default function ItExistedProof() {
   const [state, setState] = useState<ProofState | null>(null);
   const [openStep, setOpenStep] = useState<string | null>(null);
   const [verifyKey, setVerifyKey] = useState(0);
+  const [downloadedZipBlob, setDownloadedZipBlob] = useState<Blob | null>(null);
+  const [downloadedZipName, setDownloadedZipName] = useState<string | null>(null);
 
   // Artifact file state — persist match across refreshes via sessionStorage
   const storageKey = `artifact_matched_${token}`;
@@ -351,6 +353,11 @@ export default function ItExistedProof() {
       devicePublicKey: state.devicePublicKey,
     });
     const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), artifactFile?.name, state.shortToken);
+    
+    // Store blob for auto-verification in Step 3
+    setDownloadedZipBlob(zip);
+    setDownloadedZipName(fileName);
+    
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
     a.href = url; a.download = fileName; a.click();
@@ -556,18 +563,35 @@ export default function ItExistedProof() {
           <div className="w-full mb-8" style={fullLockedStyle}>
             <div className="flex items-baseline w-full">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>3.</span>
+                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
+                {downloadedZipBlob ? '✓' : '3.'}
+              </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.7)' }}>Verify your ZIP</span>
-              <button
-                onClick={() => setVerifyKey(k => k + 1)}
-                className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
-                style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                New
-              </button>
+                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(197,147,90,0.7)' }}>
+                {downloadedZipBlob ? 'ZIP verified' : 'Verify your ZIP'}
+              </span>
+              {downloadedZipBlob && (
+                <button
+                  onClick={() => { setDownloadedZipBlob(null); setDownloadedZipName(null); setVerifyKey(k => k + 1); }}
+                  className="font-mono text-[15px] tracking-[1px] uppercase ml-auto"
+                  style={{ color: 'rgba(240,234,214,0.25)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                  New
+                </button>
+              )}
             </div>
             <div className="pt-4 pl-[23px]">
-              <InlineVerify key={verifyKey} expectedOriginId={state?.originId} expectedShortToken={state?.shortToken} />
+              <InlineVerify
+                key={verifyKey}
+                expectedOriginId={state?.originId}
+                expectedShortToken={state?.shortToken}
+                autoVerifyBlob={downloadedZipBlob}
+                autoVerifyName={downloadedZipName}
+              />
+              <p className="font-garamond text-[14px] italic mt-3"
+                style={{ color: 'rgba(245,240,232,0.3)' }}>
+                Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
+                  style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
+              </p>
             </div>
           </div>
 
