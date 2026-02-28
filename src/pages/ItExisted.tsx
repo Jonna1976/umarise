@@ -27,6 +27,7 @@ export default function ItExisted() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<ItExistedState>('capture');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const fileName = useMemo(() => selectedFile?.name ?? '', [selectedFile]);
 
   const { addItems } = useKaartenbak();
@@ -146,12 +147,15 @@ export default function ItExisted() {
               matters.
             </p>
 
-            {/* Circle + plus */}
+            {/* Circle + plus — click AND drop */}
             <button
               onClick={() => inputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handlePick(f); }}
               className="mt-10 md:mt-14 w-[172px] h-[172px] md:w-[220px] md:h-[220px] rounded-full border-[1.5px] border-dashed flex items-center justify-center transition-all hover:border-solid"
-              style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
-              <span className="font-playfair text-[48px] md:text-[56px] leading-none" style={{ color: 'hsl(var(--itx-cream) / 0.18)' }}>+</span>
+              style={{ borderColor: dragOver ? 'hsl(var(--itx-gold) / 0.6)' : 'hsl(var(--itx-gold) / 0.25)', background: dragOver ? 'hsl(var(--itx-gold) / 0.06)' : 'transparent' }}>
+              <span className="font-playfair text-[48px] md:text-[56px] leading-none" style={{ color: dragOver ? 'hsl(var(--itx-cream) / 0.4)' : 'hsl(var(--itx-cream) / 0.18)' }}>+</span>
             </button>
 
             <span className="mt-8 font-mono text-[7px] tracking-[3px] uppercase"
