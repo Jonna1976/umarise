@@ -476,6 +476,7 @@ export default function ItExistedProof() {
   /* Step 1 is always accessible. Steps 2-4 require file match. Steps 2+3 also require anchored. */
   const lockedStyle = (artifactStatus !== 'matched') ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
   const fullLockedStyle = (artifactStatus !== 'matched' || !anchored) ? { opacity: 0.45, pointerEvents: 'none' as const } : {};
+  const hasVerifiedOriginal = artifactStatus === 'matched';
 
   return (
     <>
@@ -495,10 +496,16 @@ export default function ItExistedProof() {
             <>
               <h1 className="font-playfair text-[28px] md:text-[42px] font-normal"
                 style={{ color: '#f0ead6', lineHeight: 1.25 }}>
-                Your file is <span style={{ color: '#C5935A' }}>anchored</span>
+                {hasVerifiedOriginal ? (
+                  <>Your file is <span style={{ color: '#C5935A' }}>anchored</span></>
+                ) : (
+                  <>This origin is <span style={{ color: '#C5935A' }}>anchored</span></>
+                )}
               </h1>
               <p className="font-garamond italic text-[22px] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
-                It existed. Now it's provable. Your file stays yours.
+                {hasVerifiedOriginal
+                  ? "It existed. Now it's provable. Your file stays yours."
+                  : 'Anchor confirmed in Bitcoin. Add your original file below to check if it matches this proof.'}
               </p>
             </>
           ) : (
