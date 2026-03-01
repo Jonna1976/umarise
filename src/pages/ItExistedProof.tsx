@@ -517,8 +517,8 @@ export default function ItExistedProof() {
           <div className="flex justify-between items-baseline mb-2.5">
             <span className="font-mono text-[11px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
-            <span className="font-mono text-[13px] tracking-[1px] text-right truncate"
-              style={{ color: 'rgba(245,240,232,0.65)', maxWidth: '65%' }}>
+            <span className="font-mono text-[13px] tracking-[1px] text-right break-all"
+              style={{ color: 'rgba(245,240,232,0.65)', maxWidth: '70%' }}>
               {artifactFile && artifactStatus === 'matched'
                 ? artifactFile.name
                 : kaartenbakItems.find(i => i.shortToken === token)?.fileName || '—'}
