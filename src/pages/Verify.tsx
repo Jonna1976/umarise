@@ -1,3 +1,4 @@
+// Convenience verifier — Bitcoin verification via Core API. For independent offline verification: verify-anchoring.org
 /**
  * /verify — Standalone verificatiepagina
  * 

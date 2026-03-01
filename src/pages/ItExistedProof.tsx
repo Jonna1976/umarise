@@ -720,10 +720,11 @@ export default function ItExistedProof() {
                   autoVerifyName={downloadedZipName}
                 />
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(74,124,89,0.15)' }}>
-                  <p className="font-garamond text-[17px] italic"
+                  <p className="font-garamond text-[13px] italic"
                     style={{ color: 'rgba(245,240,232,0.3)' }}>
-                    Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener"
-                      style={{ color: 'rgba(197,147,90,0.5)', textDecoration: 'underline' }}>verify-anchoring.org</a>
+                    Independent verification without itexisted.app:{' '}
+                    <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer"
+                      style={{ color: 'rgba(197,147,90,0.45)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>verify-anchoring.org</a>
                   </p>
                 </div>
               </div>
