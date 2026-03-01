@@ -50,6 +50,7 @@ import ApiReference from "./pages/ApiReference";
 import ItExisted from "./pages/ItExisted";
 import ItExistedAnchored from "./pages/ItExistedAnchored";
 import ItExistedProof from "./pages/ItExistedProof";
+import SdkSpec from "./pages/SdkSpec";
 
 
 
@@ -109,6 +110,7 @@ const App = () => (
             {/* itexisted.app root-level routes */}
             <Route path="/anchored" element={<ItExistedAnchored />} />
             <Route path="/proof/:token" element={<ItExistedProof />} />
+            <Route path="/sdk-spec" element={<SdkSpec />} />
 
 
             
