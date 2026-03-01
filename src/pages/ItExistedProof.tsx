@@ -515,9 +515,9 @@ export default function ItExistedProof() {
         {/* ── RECORD DETAILS ── */}
         <div className="w-full mb-8">
           <div className="flex justify-between items-baseline mb-2.5">
-            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+            <span className="font-mono text-[12px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Doc</span>
-            <span className="font-mono text-[13px] tracking-[1px] text-right break-all"
+            <span className="font-mono text-[12px] tracking-[1px] text-right break-all"
               style={{ color: 'rgba(245,240,232,0.65)', maxWidth: '70%' }}>
               {artifactFile && artifactStatus === 'matched'
                 ? artifactFile.name
@@ -525,21 +525,21 @@ export default function ItExistedProof() {
             </span>
           </div>
           <div className="flex justify-between items-baseline mb-2.5">
-            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+            <span className="font-mono text-[12px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Origin ID</span>
-            <span className="font-mono text-[13px] tracking-[1px]"
+            <span className="font-mono text-[12px] tracking-[1px]"
               style={{ color: '#C5935A' }}>{state.shortToken}</span>
           </div>
           <div className="flex justify-between items-baseline mb-2.5">
-            <span className="font-mono text-[11px] tracking-[3px] uppercase"
+            <span className="font-mono text-[12px] tracking-[3px] uppercase"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Date</span>
-            <span className="font-mono text-[13px]"
+            <span className="font-mono text-[12px]"
               style={{ color: 'rgba(245,240,232,0.65)' }}>{date} · {time}</span>
           </div>
           <div className="flex justify-between items-start">
-            <span className="font-mono text-[11px] tracking-[3px] uppercase pt-0.5"
+            <span className="font-mono text-[12px] tracking-[3px] uppercase pt-0.5"
               style={{ color: 'rgba(197,147,90,0.55)' }}>Hash</span>
-            <span className="font-mono text-[11px] text-right break-all"
+            <span className="font-mono text-[12px] text-right break-all"
               style={{ color: 'rgba(245,240,232,0.45)', letterSpacing: '0.3px', lineHeight: 1.7, maxWidth: 280 }}>
               {state.hash}
             </span>
