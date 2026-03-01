@@ -434,11 +434,57 @@ const SdkSource = () => {
           >
             ↓ Download alle bestanden (.txt)
           </button>
+          <a
+            href="https://github.com/Jonna1976/umarise-anchor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 text-sm font-mono border border-border rounded hover:bg-muted transition-colors"
+          >
+            GitHub →
+          </a>
         </div>
+
+        {/* Integration timeline */}
+        <section className="mt-12 border border-border rounded-lg p-6 bg-muted/30">
+          <h2 className="text-lg font-bold font-mono mb-4">⏱ Integration Timeline</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            With API key and repo access, a developer can integrate in <strong className="text-foreground">1–2 hours</strong>.
+          </p>
+          <div className="grid gap-2 text-sm font-mono">
+            <div className="flex justify-between border-b border-border/50 pb-1">
+              <span className="text-muted-foreground">npm install @umarise/anchor</span>
+              <span className="text-foreground">1 min</span>
+            </div>
+            <div className="flex justify-between border-b border-border/50 pb-1">
+              <span className="text-muted-foreground">Configure API key</span>
+              <span className="text-foreground">5 min</span>
+            </div>
+            <div className="flex justify-between border-b border-border/50 pb-1">
+              <span className="text-muted-foreground">First anchor() call</span>
+              <span className="text-foreground">10 min</span>
+            </div>
+            <div className="flex justify-between border-b border-border/50 pb-1">
+              <span className="text-muted-foreground">Add verify() check</span>
+              <span className="text-foreground">10 min</span>
+            </div>
+            <div className="flex justify-between border-b border-border/50 pb-1">
+              <span className="text-muted-foreground">Integrate into codebase</span>
+              <span className="text-foreground">30 min</span>
+            </div>
+            <div className="flex justify-between pt-1">
+              <span className="font-bold text-foreground">Test & deploy</span>
+              <span className="font-bold text-foreground">15 min</span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-4">
+            Using the <a href="/api-reference" className="text-primary hover:underline">AI integration prompt</a> can cut this in half.
+          </p>
+        </section>
 
         <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-col gap-2">
           <a href="/sdk-spec" className="text-primary hover:underline">→ SDK Specification</a>
-          <a href="/" className="text-primary hover:underline">← Terug naar home</a>
+          <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">→ GitHub Repository</a>
+          <a href="/" className="text-primary hover:underline">← Back to home</a>
         </footer>
       </div>
     </div>
