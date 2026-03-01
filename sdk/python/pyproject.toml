@@ -7,7 +7,7 @@ name = "umarise"
 version = "1.0.0"
 description = "Minimal SDK for the Umarise Core v1 origin attestation API. Zero dependencies."
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "Unlicense"}
 requires-python = ">=3.8"
 authors = [
     {name = "Umarise", email = "partners@umarise.com"}
@@ -16,14 +16,8 @@ keywords = ["umarise", "anchoring", "origin", "attestation", "proof", "opentimes
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: The Unlicense (Unlicense)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
@@ -31,6 +25,5 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://umarise.com"
-Documentation = "https://umarise.lovable.app/api-reference"
+Documentation = "https://umarise.com/api-reference"
 Repository = "https://github.com/umarise/python-sdk"
-"SDK Specification" = "https://umarise.lovable.app/sdk-spec"

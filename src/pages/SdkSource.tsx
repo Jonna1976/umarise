@@ -396,7 +396,7 @@ Single-file SDK for Umarise Core v1 API.
 Zero external dependencies. Uses urllib from the standard library.
 
 Usage:
-    from umarise import UmariseCore, hash_bytes
+    from umarise import UmariseCore, hash_buffer
 
     core = UmariseCore()
     result = core.verify("sha256:abc123...")
@@ -639,7 +639,7 @@ def _parse_origin(data: dict) -> OriginRecord:
         proof_url=data.get("proof_url"),
     )
 
-def hash_bytes(data: bytes) -> str:
+def hash_buffer(data: bytes) -> str:
     """Hash bytes using SHA-256. Returns 'sha256:<hex>' format."""
     digest = hashlib.sha256(data).hexdigest()
     return f"sha256:{digest}"
@@ -653,13 +653,13 @@ Single-file SDK for Umarise Core v1. Zero external dependencies.
 ## Quick Start
 
 \\\`\\\`\\\`python
-from umarise import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_buffer
 
 core = UmariseCore()
 health = core.health()
 
 with open("document.pdf", "rb") as f:
-    file_hash = hash_bytes(f.read())
+    file_hash = hash_buffer(f.read())
 
 result = core.verify(file_hash)
 if result:
@@ -670,12 +670,12 @@ if result:
 
 \\\`\\\`\\\`python
 import os
-from umarise import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_buffer
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 
 with open("document.pdf", "rb") as f:
-    file_hash = hash_bytes(f.read())
+    file_hash = hash_buffer(f.read())
 
 origin = core.attest(file_hash)
 print("Created:", origin.origin_id)
