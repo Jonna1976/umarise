@@ -710,7 +710,8 @@ export default function ItExistedProof() {
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
           {/* ── ATTESTATION SECTION — visually separate ── */}
-          <div className="w-full mt-10 mb-6" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
+          <div className="w-full mt-10 mb-2" style={{ borderTop: '1px solid rgba(197,147,90,0.25)' }} />
+          <div className="w-full mb-6" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
             <h2 className="font-garamond italic text-[24px] mb-3"
               style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
               Want to add a trust layer?
