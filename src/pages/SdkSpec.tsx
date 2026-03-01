@@ -258,7 +258,8 @@ try {
         </Section>
 
         {/* Footer */}
-        <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground">
+        <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-col gap-2">
+          <a href="/sdk-source" className="text-primary hover:underline">→ Bekijk SDK broncode</a>
           <a href="/" className="text-primary hover:underline">← Terug naar home</a>
         </footer>
       </div>
