@@ -106,7 +106,7 @@ export default function QuickStartSection() {
   -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             singleLine={`curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"pending"}`}
-            note='Test hash: SHA-256 of an empty file. Hash your own file: sha256sum file.pdf (Linux) or shasum -a 256 file.pdf (macOS). Pending = proof is being anchored (10–20 min). Repeat step 3 afterwards — proof_status changes from "pending" to "anchored".'
+            note='Test hash: SHA-256 of an empty file. Hash your own file: sha256sum file.pdf (Linux) or shasum -a 256 file.pdf (macOS). Pending = proof is being anchored (10-20 min). Repeat step 3 afterwards - proof_status changes from "pending" to "anchored".'
           />
 
           <div className="border-t border-[hsl(var(--landing-cream)/0.06)]" />
@@ -130,7 +130,7 @@ export default function QuickStartSection() {
   -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             singleLine={`curl -X POST ${BASE}/v1-core-verify -H 'Content-Type: application/json' -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
             expected={`{"origin_id":"...","hash":"sha256:e3b0c44...","hash_algo":"sha256","captured_at":"...","proof_status":"anchored"}`}
-            note='Verify returns the first attestation for this hash (first-in-time resolution). With the test hash you may see an earlier captured_at with proof_status "anchored" — this is correct: the hash already existed. With your own file you will see your own attestation.'
+            note='Verify returns the first attestation for this hash (first-in-time resolution). With the test hash you may see an earlier captured_at with proof_status "anchored" - this is correct: the hash already existed. With your own file you will see your own attestation.'
           />
         </div>
 

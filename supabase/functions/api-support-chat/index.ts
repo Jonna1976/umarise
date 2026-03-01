@@ -92,10 +92,17 @@ ERROR RESPONSE FORMAT:
 Error codes: UNAUTHORIZED, API_KEY_REVOKED, INVALID_HASH_FORMAT, RATE_LIMIT_EXCEEDED, NOT_FOUND, INTERNAL_ERROR, TIMEOUT
 
 SDKs AVAILABLE:
-- Node.js/TypeScript: umarise-core.ts (~230 lines, zero dependencies)
-- Python: umarise_core.py (~200 lines, zero dependencies, Python 3.8+)
+- Node.js/TypeScript: @umarise/anchor (npm package, zero dependencies, <4KB gzipped)
+  GitHub: https://github.com/Jonna1976/umarise-anchor
+  Functions: anchor(), verify(), proof(), hashBuffer()
+- Python: umarise (zero dependencies, Python 3.8+)
+  GitHub: https://github.com/Jonna1976/umarise-python
+  Class: UmariseCore with methods: health(), attest(), verify(), resolve(), proof(), hash_buffer()
 
-Both SDKs provide: health(), resolve(), verify(), proof(), attest(), hashBytes()/hash_bytes()
+Node.js uses functional exports: import { anchor, verify, proof, hashBuffer } from '@umarise/anchor';
+Python uses a class: from umarise import UmariseCore, hash_buffer; core = UmariseCore(api_key=...)
+
+Both SDKs provide the same capabilities. Node.js naming: anchor(). Python naming: attest(). Both do the same thing: POST /v1-core-origins.
 
 PROOF LIFECYCLE:
 1. Partner hashes file locally (SDK: hashBytes/hash_bytes)

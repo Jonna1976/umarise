@@ -1,7 +1,7 @@
 {
-  "name": "Anchoring",
-  "short_name": "Anchor",
-  "description": "Anchor what matters.",
+  "name": "Umarise",
+  "short_name": "Umarise",
+  "description": "Independently verifiable existence proofs.",
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#050A05",

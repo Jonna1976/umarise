@@ -14,6 +14,7 @@ import IntegrationTLDR from '@/components/api-reference/IntegrationTLDR';
 const BASE_URL = 'https://core.umarise.com';
 
 const endpoints = [
+  { id: 'tldr', name: 'TL;DR', icon: Zap },
   { id: 'api-key', name: 'API Key', icon: Key },
   { id: 'ai-integration', name: 'AI Integration', icon: Bot },
   { id: 'quick-start', name: 'Quick Start', icon: Zap },
@@ -67,7 +68,9 @@ export default function ApiReference() {
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
 
         {/* ─── INTEGRATION TL;DR ─── */}
-        <IntegrationTLDR />
+        <div id="tldr">
+          <IntegrationTLDR />
+        </div>
 
         {/* ─── API KEY ─── */}
         <ApiKeySection />
@@ -110,16 +113,17 @@ export default function ApiReference() {
            <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Examples</h4>
           <CodeTabs examples={{
             curl: `curl ${BASE_URL}/v1-core-health`,
-            node: `import { UmariseCore } from './umarise-core';
+            node: `import { anchor, hashBuffer } from '@umarise/anchor';
+import { readFileSync } from 'fs';
 
-const core = new UmariseCore();
-const health = await core.health();
-// → { status: "operational", version: "v1", timestamp: "..." }`,
+const hash = await hashBuffer(readFileSync('file.pdf'));
+const result = await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
+// -> { originId: "...", proofStatus: "pending" }`,
             python: `from umarise import UmariseCore
 
 core = UmariseCore()
 health = core.health()
-# → {"status": "operational", "version": "v1", "timestamp": "..."}`,
+# -> {"status": "operational", "version": "v1", "timestamp": "..."}`,
           }} />
         </section>
 
@@ -167,20 +171,19 @@ health = core.health()
   -H "Content-Type: application/json" \\
   -H "X-API-Key: um_your_key" \\
   -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`,
-            node: `import { UmariseCore } from './umarise-core';
+            node: `import { anchor, hashBuffer } from '@umarise/anchor';
+import { readFileSync } from 'fs';
 
-const core = new UmariseCore({ apiKey: 'um_your_key' });
-const origin = await core.attest(
-  'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-);
-// → { origin_id: "...", hash: "sha256:...", proof_status: "pending" }`,
-            python: `from umarise import UmariseCore
+const hash = await hashBuffer(readFileSync('file.pdf'));
+const result = await anchor(hash, { apiKey: 'um_your_key' });
+// -> { originId: "...", hash: "sha256:...", proofStatus: "pending" }`,
+            python: `from umarise import UmariseCore, hash_buffer
 
 core = UmariseCore(api_key="um_your_key")
 origin = core.attest(
     "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 )
-# → {"origin_id": "...", "hash": "sha256:...", "proof_status": "pending"}`,
+# -> {"origin_id": "...", "hash": "sha256:...", "proof_status": "pending"}`,
           }} />
 
           <Note>Once created, an attestation is immutable. It cannot be modified or deleted.</Note>
@@ -224,17 +227,10 @@ curl "${BASE_URL}/v1-core-resolve?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890
 
 # By hash
 curl "${BASE_URL}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`,
-            node: `import { UmariseCore } from './umarise-core';
-
-const core = new UmariseCore();
+            node: `import { verify } from '@umarise/anchor';
 
 // By origin_id
-const byId = await core.resolve({ originId: 'a1b2c3d4-...' });
-
-// By hash
-const byHash = await core.resolve({
-  hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-});`,
+const byId = await verify('sha256:e3b0c44...');`,
             python: `from umarise import UmariseCore
 
 core = UmariseCore()
@@ -283,10 +279,9 @@ by_hash = core.resolve(
             curl: `curl -X POST ${BASE_URL}/v1-core-verify \\
   -H "Content-Type: application/json" \\
   -d '{"hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`,
-            node: `import { UmariseCore } from './umarise-core';
+            node: `import { verify } from '@umarise/anchor';
 
-const core = new UmariseCore();
-const result = await core.verify(
+const result = await verify(
   'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 );
 // result is null if no match, or the origin record`,
@@ -340,15 +335,14 @@ result = core.verify(
           <CodeTabs examples={{
             curl: `curl "${BASE_URL}/v1-core-proof?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890" \\
   -o proof.ots`,
-            node: `import { UmariseCore } from './umarise-core';
+            node: `import { proof } from '@umarise/anchor';
 import { writeFileSync } from 'fs';
 
-const core = new UmariseCore();
-const result = await core.proof('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+const result = await proof('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
 
-if (result.proof) {
-  writeFileSync('proof.ots', result.proof);
-  console.log('Block height:', result.bitcoin_block_height);
+if (result.data) {
+  writeFileSync('proof.ots', result.data);
+  console.log('Block height:', result.bitcoinBlockHeight);
 }`,
             python: `from umarise import UmariseCore
 

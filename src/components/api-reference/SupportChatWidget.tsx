@@ -297,7 +297,7 @@ export default function SupportChatWidget() {
               </form>
               <div className="px-3 pb-2 space-y-1">
                 <p className="text-[9px] text-[hsl(var(--landing-cream)/0.4)] italic">
-                  AI-generated — may contain errors. Always verify against the documentation above.
+                  AI-generated - may contain errors. Always verify against the documentation above.
                 </p>
                 <a
                   href="mailto:partners@umarise.com"
