@@ -84,6 +84,23 @@ export default function ItExistedProof() {
   // Restore artifact file from IndexedDB cache on mount (if previously confirmed)
   // If cache is empty but status says 'matched', reset to idle so drop zone appears
   const [cacheMissFileName, setCacheMissFileName] = useState<string | null>(null);
+
+  // Reset stale state when token changes (navigation via kaartenbak)
+  useEffect(() => {
+    setCacheMissFileName(null);
+    setArtifactFile(null);
+    artifactFileRef.current = null;
+    setComputedHash(null);
+    setDownloadedZipBlob(null);
+    setDownloadedZipName(null);
+    setSaveConfirmed(false);
+    // Re-derive artifact status from localStorage for the new token
+    try {
+      const key = `artifact_matched_${token}`;
+      setArtifactStatus(localStorage.getItem(key) === 'matched' ? 'matched' : 'idle');
+    } catch { setArtifactStatus('idle'); }
+  }, [token]);
+
   useEffect(() => {
     if (artifactStatus === 'matched' && !artifactFile && token) {
       loadArtifact(token).then(file => {
