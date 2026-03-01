@@ -24,7 +24,7 @@ export type {
     language: "typescript",
     code: `import { AnchorError } from './errors';
 
-const DEFAULT_BASE_URL = 'https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1';
+const DEFAULT_BASE_URL = 'https://core.umarise.com';
 const DEFAULT_TIMEOUT = 12_000;
 
 export interface AnchorOptions {
@@ -101,7 +101,7 @@ export async function anchor(
     language: "typescript",
     code: `import { AnchorError } from './errors';
 
-const DEFAULT_BASE_URL = 'https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1';
+const DEFAULT_BASE_URL = 'https://core.umarise.com';
 const DEFAULT_TIMEOUT = 12_000;
 
 export interface VerifyOptions {
@@ -160,7 +160,7 @@ export async function verify(
     language: "typescript",
     code: `import { AnchorError } from './errors';
 
-const DEFAULT_BASE_URL = 'https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1';
+const DEFAULT_BASE_URL = 'https://core.umarise.com';
 const DEFAULT_TIMEOUT = 30_000;
 
 export interface ProofOptions {
