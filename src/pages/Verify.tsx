@@ -343,8 +343,9 @@ export default function Verify() {
         // Step 1: open ZIP
         let zip: JSZip;
         try {
-          zip = await JSZip.loadAsync(file);
-          steps.push({ label: `ZIP opened: ${file.name}`, status: 'ok' });
+          const buf = await file.arrayBuffer();
+          zip = await JSZip.loadAsync(buf);
+          steps.push({ label: `ZIP opened: ${file.name}`, status: 'ok', detail: `${file.size} bytes` });
         } catch {
           setState({ phase: 'error', message: 'Could not open file.' });
           return;
