@@ -7,7 +7,7 @@ Single-file SDK for [Umarise Core v1](https://umarise.com/core). Zero external d
 ## Quick Start
 
 ```python
-from umarise_core import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_bytes
 
 # 1. Initialize (public endpoints need no API key)
 core = UmariseCore()
@@ -34,7 +34,7 @@ else:
 
 ```python
 import os
-from umarise_core import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_bytes
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 
@@ -78,7 +78,7 @@ by_hash = core.resolve(hash=file_hash)
 Standalone utility. Hashes `bytes` using SHA-256.
 
 ```python
-from umarise_core import hash_bytes
+from umarise import hash_bytes
 
 with open("document.pdf", "rb") as f:
     file_hash = hash_bytes(f.read())
@@ -88,7 +88,7 @@ with open("document.pdf", "rb") as f:
 ## Error Handling
 
 ```python
-from umarise_core import UmariseCore, UmariseCoreError
+from umarise import UmariseCore, UmariseCoreError
 
 core = UmariseCore(api_key="um_...")
 
@@ -108,7 +108,7 @@ Error codes: `UNAUTHORIZED`, `API_KEY_REVOKED`, `INVALID_HASH_FORMAT`, `RATE_LIM
 
 ```python
 import os
-from umarise_core import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_bytes
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 

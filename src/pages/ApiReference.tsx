@@ -115,7 +115,7 @@ export default function ApiReference() {
 const core = new UmariseCore();
 const health = await core.health();
 // → { status: "operational", version: "v1", timestamp: "..." }`,
-            python: `from umarise_core import UmariseCore
+            python: `from umarise import UmariseCore
 
 core = UmariseCore()
 health = core.health()
@@ -174,7 +174,7 @@ const origin = await core.attest(
   'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 );
 // → { origin_id: "...", hash: "sha256:...", proof_status: "pending" }`,
-            python: `from umarise_core import UmariseCore
+            python: `from umarise import UmariseCore
 
 core = UmariseCore(api_key="um_your_key")
 origin = core.attest(
@@ -235,7 +235,7 @@ const byId = await core.resolve({ originId: 'a1b2c3d4-...' });
 const byHash = await core.resolve({
   hash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 });`,
-            python: `from umarise_core import UmariseCore
+            python: `from umarise import UmariseCore
 
 core = UmariseCore()
 
@@ -290,7 +290,7 @@ const result = await core.verify(
   'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 );
 // result is null if no match, or the origin record`,
-            python: `from umarise_core import UmariseCore
+            python: `from umarise import UmariseCore
 
 core = UmariseCore()
 result = core.verify(
@@ -350,7 +350,7 @@ if (result.proof) {
   writeFileSync('proof.ots', result.proof);
   console.log('Block height:', result.bitcoin_block_height);
 }`,
-            python: `from umarise_core import UmariseCore
+            python: `from umarise import UmariseCore
 
 core = UmariseCore()
 result = core.proof("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
