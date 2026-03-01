@@ -37,13 +37,14 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
       {showPlus && (
         <button
           onClick={() => navigate('/itexisted')}
-          className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all duration-300"
+          className="w-[26px] h-[26px] flex items-center justify-center transition-all duration-300"
           style={{
-            border: '1px solid rgba(197,147,90,0.35)',
             background: 'none',
+            border: 'none',
             cursor: 'pointer',
             color: 'rgba(197,147,90,0.55)',
-            fontSize: 14,
+            fontSize: 20,
+            fontWeight: 300,
             lineHeight: 1,
           }}
           onMouseEnter={(e) => {
