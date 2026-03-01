@@ -52,7 +52,17 @@ export default function ApiReference() {
         </div>
       </div>
 
-
+      {/* Navigation */}
+      <div className="border-b border-[hsl(var(--landing-cream)/0.06)] sticky top-0 z-10 bg-[hsl(var(--landing-deep))]">
+        <div className="max-w-4xl mx-auto px-6 py-3 flex gap-4 overflow-x-auto">
+          {endpoints.map((ep) => (
+            <a key={ep.id} href={`#${ep.id}`} className="flex items-center gap-2 text-sm text-[hsl(var(--landing-cream)/0.7)] hover:text-[hsl(var(--landing-cream))] transition-colors shrink-0">
+              {'method' in ep && ep.method ? <MethodBadge method={ep.method} /> : ep.icon && <ep.icon className="w-3.5 h-3.5" />}
+              <span className="font-mono text-xs">{ep.name}</span>
+            </a>
+          ))}
+        </div>
+      </div>
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
 
@@ -71,12 +81,8 @@ export default function ApiReference() {
         {/* ─── LIVE DEMO ─── */}
         <LiveDemoFlow />
 
-        {/* ─── DIVIDER ─── */}
-        <div className="text-center py-4 border-y border-[hsl(var(--landing-cream)/0.08)]">
-          <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm italic">
-            The sections above are everything most integrations need. What follows is the complete technical reference: endpoints, parameters, response formats, error codes, and rate limits.
-          </p>
-        </div>
+
+
 
         {/* ─── 1. HEALTH ─── */}
         <section id="health">
