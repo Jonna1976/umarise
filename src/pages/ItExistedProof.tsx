@@ -494,10 +494,10 @@ export default function ItExistedProof() {
           {anchored ? (
             <>
               <h1 className="font-playfair text-[28px] md:text-[36px] font-normal flex items-center gap-1"
-                style={{ color: '#f0ead6', lineHeight: 1.25 }}>
+                style={{ color: '#f0ead6', lineHeight: 1.25, maxWidth: '100vw', width: '100vw', marginLeft: 'calc(-50vw + 50%)' , paddingLeft: '24px', paddingRight: '24px', boxSizing: 'border-box' }}>
                 Your file is anchored
               </h1>
-              <p className="font-garamond italic text-[17px] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
+              <p className="font-garamond italic text-[20px] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
                 It existed. Now it's provable. Your file stays yours.
               </p>
             </>
