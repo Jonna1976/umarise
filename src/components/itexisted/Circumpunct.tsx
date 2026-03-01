@@ -44,7 +44,7 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
             cursor: 'pointer',
             color: 'rgba(197,147,90,0.55)',
             fontSize: 20,
-            fontWeight: 300,
+            fontWeight: 700,
             lineHeight: 1,
           }}
           onMouseEnter={(e) => {
