@@ -3,9 +3,12 @@ import { Zap, Package, Key, ArrowRight } from 'lucide-react';
 export default function IntegrationTLDR() {
   return (
     <section className="border border-[hsl(var(--landing-copper)/0.25)] rounded-lg p-6 bg-[hsl(var(--landing-copper)/0.04)]">
+      {/* Header */}
+      <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))] mb-4">Integration TL;DR</h2>
+
       {/* What it is */}
       <p className="text-[hsl(var(--landing-cream))] text-base font-serif mb-1">
-        Umarise Core anchors SHA-256 hashes to the Bitcoin blockchain — immutable proof that data existed at a specific moment.
+        Umarise Core anchors SHA-256 hashes to the Bitcoin blockchain. Immutable proof that data existed at a specific moment.
       </p>
       <p className="text-[hsl(var(--landing-cream)/0.55)] text-xs font-mono mb-6">
         You hash locally. We anchor. Anyone can verify. No files leave your system.

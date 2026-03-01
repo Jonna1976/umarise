@@ -50,7 +50,7 @@ export default function AIIntegrationSection() {
         </div>
 
         <h4 className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono uppercase tracking-wider mb-3">
-          The prompt — copy and paste into your AI assistant
+          The prompt - copy and paste into your AI assistant
         </h4>
 
         <div className="relative group">

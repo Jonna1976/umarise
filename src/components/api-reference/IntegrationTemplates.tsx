@@ -135,7 +135,7 @@ export default function IntegrationTemplates() {
 
             <div className="ml-9 space-y-2">
               <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs">
-                Your key starts with <code className="text-[hsl(var(--landing-copper))]">um_</code> — the same key as used in the Quick Start curls.
+                Your key starts with <code className="text-[hsl(var(--landing-copper))]">um_</code> - the same key as used in the Quick Start curls.
               </p>
 
               {lang === 'python' && (
@@ -211,7 +211,7 @@ def upload_thesis(request):
     file = request.FILES["thesis"]
     submission = Submission.objects.create(student=request.user, file=file)
 
-    # Attest — 1 line
+    # Attest - 1 line
     result = umarise.safe_attest(submission.file.path, str(submission.id))
 
     if result:
@@ -235,7 +235,7 @@ def upload():
     data = file.read()
     record_id = save_to_database(file.filename, data)
 
-    # Attest — 1 line
+    # Attest - 1 line
     result = umarise.attest_bytes(data, record_id)
 
     return jsonify({"record_id": record_id, "origin_id": result["origin_id"]})`,

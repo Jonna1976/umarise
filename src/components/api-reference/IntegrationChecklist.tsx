@@ -26,7 +26,7 @@ const AI_CHECKLIST: ChecklistItem[] = [
   },
   {
     label: 'Error handling confirmed (non-blocking)',
-    detail: 'Verify that your integration handles failures gracefully. safe_attest() should never block your workflow — if Core is temporarily unreachable, it logs the error and your app continues.',
+    detail: 'Verify that your integration handles failures gracefully. safe_attest() should never block your workflow - if Core is temporarily unreachable, it logs the error and your app continues.',
   },
   {
     label: 'Proof status confirmed anchored after 10-20 minutes',
@@ -47,7 +47,7 @@ interface ChecklistGroup {
 
 const FULL_CHECKLIST: ChecklistGroup[] = [
   {
-    title: 'No key needed — start here',
+    title: 'No key needed - start here',
     stepOffset: 1,
     items: [
       {
