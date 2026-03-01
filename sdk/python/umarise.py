@@ -1,11 +1,11 @@
 """
-Umarise Core SDK — Python
+Umarise Core SDK - Python
 
 Single-file SDK for Umarise Core v1 API.
 Zero external dependencies. Uses urllib from the standard library.
 
 Usage:
-    from umarise import UmariseCore, hash_bytes
+    from umarise import UmariseCore, hash_buffer
 
     core = UmariseCore()
     result = core.verify("sha256:abc123...")
@@ -14,9 +14,8 @@ Usage:
     origin = core.attest("sha256:abc123...")
 
 Requirements: Python 3.8+
-
 Version: 1.0.0
-License: MIT
+License: Unlicense
 """
 
 from __future__ import annotations
@@ -26,12 +25,11 @@ import json
 import urllib.request
 import urllib.error
 import urllib.parse
-from dataclasses import dataclass, field
-from typing import Optional, Union
+from dataclasses import dataclass
+from typing import Optional
 
 
-# ─── Types ──────────────────────────────────────────────────────
-
+# --- Types ---
 
 @dataclass
 class OriginRecord:
@@ -71,59 +69,36 @@ class HealthResult:
 class UmariseCoreError(Exception):
     """Error returned by the Umarise Core API."""
 
-    def __init__(
-        self,
-        code: str,
-        message: str,
-        status_code: int,
-        retry_after_seconds: Optional[int] = None,
-    ):
+    def __init__(self, code: str, message: str, status_code: int, retry_after_seconds: Optional[int] = None):
         super().__init__(message)
         self.code = code
         self.status_code = status_code
         self.retry_after_seconds = retry_after_seconds
 
 
-# ─── SDK ────────────────────────────────────────────────────────
-
+# --- SDK ---
 
 class UmariseCore:
     """Client for the Umarise Core v1 API."""
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        base_url: str = "https://core.umarise.com",
-        timeout: int = 30,
-    ):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = "https://core.umarise.com", timeout: int = 30):
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
-
-    # ─── Public Endpoints ───────────────────────────────────────
 
     def health(self) -> HealthResult:
         """Check API health."""
         data = self._request("GET", "/v1-core-health")
         return HealthResult(status=data["status"], version=data["version"])
 
-    def resolve(
-        self,
-        *,
-        origin_id: Optional[str] = None,
-        hash: Optional[str] = None,
-    ) -> Optional[OriginRecord]:
-        """
-        Resolve an origin by ID or hash.
-        Returns the earliest attestation, or None if not found.
-        """
+    def resolve(self, *, origin_id: Optional[str] = None, hash: Optional[str] = None) -> Optional[OriginRecord]:
+        """Resolve an origin by ID or hash."""
         if origin_id:
             query = f"origin_id={urllib.parse.quote(origin_id)}"
         elif hash:
             query = f"hash={urllib.parse.quote(_normalize_hash(hash))}"
         else:
             raise ValueError("Either origin_id or hash must be provided")
-
         try:
             data = self._request("GET", f"/v1-core-resolve?{query}")
             return _parse_origin(data)
@@ -133,14 +108,9 @@ class UmariseCore:
             raise
 
     def verify(self, hash: str) -> Optional[VerifyResult]:
-        """
-        Verify a hash against the registry.
-        Returns the origin record if found, None if no match.
-        """
+        """Verify a hash against the registry. No API key needed."""
         try:
-            data = self._request(
-                "POST", "/v1-core-verify", {"hash": _normalize_hash(hash)}
-            )
+            data = self._request("POST", "/v1-core-verify", {"hash": _normalize_hash(hash)})
             return VerifyResult(
                 origin_id=data["origin_id"],
                 hash=data["hash"],
@@ -155,72 +125,43 @@ class UmariseCore:
             raise
 
     def proof(self, origin_id: str) -> ProofResult:
-        """Download the OpenTimestamps proof for an origin."""
+        """Download the OpenTimestamps proof for an origin. No API key needed."""
         url = f"{self.base_url}/v1-core-proof?origin_id={urllib.parse.quote(origin_id)}"
         req = urllib.request.Request(url, method="GET")
-
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                if resp.status == 200:
-                    proof_bytes = resp.read()
-                    block_height = resp.headers.get("x-bitcoin-block-height")
-                    anchored_at = resp.headers.get("x-anchored-at")
-                    return ProofResult(
-                        origin_id=origin_id,
-                        status="anchored",
-                        proof=proof_bytes,
-                        bitcoin_block_height=int(block_height) if block_height else None,
-                        anchored_at=anchored_at,
-                    )
-                # 202 handled below via HTTPError
+                proof_bytes = resp.read()
+                block_height = resp.headers.get("x-bitcoin-block-height")
+                anchored_at = resp.headers.get("x-anchored-at")
+                return ProofResult(
+                    origin_id=origin_id,
+                    status="anchored",
+                    proof=proof_bytes,
+                    bitcoin_block_height=int(block_height) if block_height else None,
+                    anchored_at=anchored_at,
+                )
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return ProofResult(origin_id=origin_id, status="not_found")
             if e.code == 202:
                 return ProofResult(origin_id=origin_id, status="pending")
             self._handle_http_error(e)
-
         return ProofResult(origin_id=origin_id, status="not_found")
 
-    # ─── Partner Endpoint (requires API key) ────────────────────
-
     def attest(self, hash: str) -> OriginRecord:
-        """
-        Create an origin attestation. Requires a Partner API key.
-        """
+        """Create an origin attestation. Requires a Partner API key."""
         if not self.api_key:
-            raise UmariseCoreError(
-                "UNAUTHORIZED",
-                "API key required for attest(). Pass api_key to UmariseCore().",
-                401,
-            )
-
-        data = self._request(
-            "POST",
-            "/v1-core-origins",
-            {"hash": _normalize_hash(hash)},
-            authenticated=True,
-        )
+            raise UmariseCoreError("UNAUTHORIZED", "API key required for attest(). Pass api_key to UmariseCore().", 401)
+        data = self._request("POST", "/v1-core-origins", {"hash": _normalize_hash(hash)}, authenticated=True)
         return _parse_origin(data)
 
-    # ─── Internal Helpers ───────────────────────────────────────
-
-    def _request(
-        self,
-        method: str,
-        path: str,
-        body: Optional[dict] = None,
-        authenticated: bool = False,
-    ) -> dict:
+    def _request(self, method, path, body=None, authenticated=False):
         url = f"{self.base_url}{path}"
         headers = {"Content-Type": "application/json"}
-
         if authenticated and self.api_key:
             headers["X-API-Key"] = self.api_key
-
         data = json.dumps(body).encode() if body else None
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
-
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 return json.loads(resp.read().decode())
@@ -231,13 +172,12 @@ class UmariseCore:
                 raise UmariseCoreError("TIMEOUT", f"Request timed out after {self.timeout}s", 0)
             raise
 
-    def _handle_http_error(self, e: urllib.error.HTTPError) -> None:
+    def _handle_http_error(self, e):
         try:
             error_body = json.loads(e.read().decode())
             err = error_body.get("error", {})
         except (json.JSONDecodeError, UnicodeDecodeError):
             err = {}
-
         raise UmariseCoreError(
             code=err.get("code", "UNKNOWN_ERROR"),
             message=err.get("message", f"HTTP {e.code}"),
@@ -246,18 +186,15 @@ class UmariseCore:
         )
 
 
-# ─── Utility ────────────────────────────────────────────────────
-
+# --- Utility ---
 
 def _normalize_hash(hash_str: str) -> str:
-    """Normalize hash: accepts raw 64-char hex or sha256: prefixed."""
     trimmed = hash_str.strip().lower()
     if trimmed.startswith("sha256:"):
         return trimmed
     if len(trimmed) == 64 and all(c in "0123456789abcdef" for c in trimmed):
         return f"sha256:{trimmed}"
-    return trimmed  # Let the API validate
-
+    return trimmed
 
 def _parse_origin(data: dict) -> OriginRecord:
     return OriginRecord(
@@ -269,16 +206,7 @@ def _parse_origin(data: dict) -> OriginRecord:
         proof_url=data.get("proof_url"),
     )
 
-
-def hash_bytes(data: bytes) -> str:
-    """
-    Hash bytes using SHA-256.
-
-    Args:
-        data: File content as bytes.
-
-    Returns:
-        Hash string in 'sha256:<hex>' format.
-    """
+def hash_buffer(data: bytes) -> str:
+    """Hash bytes using SHA-256. Returns 'sha256:<hex>' format."""
     digest = hashlib.sha256(data).hexdigest()
     return f"sha256:{digest}"
