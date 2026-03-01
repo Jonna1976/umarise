@@ -1,159 +1,170 @@
-# Creation Integrity — Positioning for Research Governance
+# Creation Integrity - Positioning for Research Governance
 
-> **Version**: 1.0  
+> **Version**: 1.1  
 > **Date**: March 2026  
-> **Audience**: Research integrity officers, data stewards, institutional CTO's, deans of research  
-> **Status**: Canonical reference — refers to Canon v5.1 §XII
+> **Audience**: Research integrity officers, data stewards, institutional CTOs, deans of research  
+> **Status**: Canonical reference - see Canon v5.2 XII
 
 ---
 
-## I. WHAT CREATION INTEGRITY IS
+## I. Definition
 
-Creation Integrity is the verifiable property that a specific digital artifact existed in its exact form at or before a specific moment in time.
+Creation Integrity is the verifiable property that a specific digital artifact existed in its exact byte-form at or before a specific moment in time.
 
-It is established when three conditions are met simultaneously:
+It is established if and only if three conditions are met:
 
-1. **Byte-identity** — A cryptographic hash uniquely identifies the artifact
-2. **Temporal anchoring** — The hash is committed to an immutable, external ledger
-3. **Independent verifiability** — The proof can be validated without the issuing party
+1. **Byte-Identity** - A cryptographic hash uniquely represents the artifact
+2. **Temporal Anchoring** - The hash is committed to an immutable external ledger
+3. **Independent Verifiability** - The proof can be validated without reliance on the issuing party
 
 If any condition is absent, Creation Integrity is not established.
 
-This is a protocol-level property, not a product feature. It is defined by the [Anchoring Specification (IEC)](https://anchoring-spec.org/v1.0/), an open, public domain standard.
+Creation Integrity is a protocol-level property defined by the [Anchoring Specification (IEC)](https://anchoring-spec.org/v1.0/). It is not a product feature and is not owned by any implementation.
 
 ---
 
-## II. WHAT IT IS NOT
+## II. Boundary Conditions
 
-| Creation Integrity is not… | Because… |
-|---------------------------|----------|
-| A replacement for Git | Git tracks version history. CIL establishes temporal existence of a specific state. |
-| A replacement for Electronic Lab Notebooks | ELNs manage research process. CIL anchors specific artifacts produced by that process. |
-| A replacement for Data Management Plans | DMPs define intent and policy. CIL records fact. |
-| Authorship proof | It records that bytes existed. It does not record who produced them. |
-| Content authentication | It establishes byte-identity, not truthfulness or meaning. |
+Creation Integrity does not replace existing research systems. It operates beneath them.
 
-**It is a supplementary infrastructure layer beneath existing systems.**
+| It is not... | Because... |
+|---|---|
+| A replacement for Git | Git records change history; Creation Integrity establishes temporal existence of a specific state |
+| A replacement for ELNs | ELNs manage research workflow; Creation Integrity anchors discrete outputs |
+| A replacement for DMPs | DMPs define policy; Creation Integrity records fact |
+| Authorship proof | It establishes existence, not identity |
+| Content validation | It establishes byte-identity, not truth or meaning |
 
-An institution that adopts Creation Integrity does not replace its current tooling. It adds a verifiable anchoring layer underneath.
+Creation Integrity is a supplementary infrastructure layer.
 
 ---
 
-## III. THE INSTITUTIONAL PRINCIPLE
+## III. Institutional Principle
 
 > Internal audit trails are supplementary.  
 > External anchoring is determinative.
 
-Internal logs — Git timestamps, repository deposit dates, internal databases — are controlled by the institution that produces them. They are useful for process management. They are insufficient for independent verification.
+Internal logs - repository timestamps, ELN metadata, institutional databases - are controlled by the institution that generates them. They support process management but do not provide independent verification.
 
-Creation Integrity requires external commitment: a hash anchored in a ledger that the institution does not control. This is what makes the proof independently verifiable.
-
----
-
-## IV. WHAT THIS SOLVES
-
-### Priority disputes
-
-Without Creation Integrity, priority is established through:
-- Journal submission timestamps (controlled by publishers)
-- Repository deposit dates (controlled by institutions)
-- Email timestamps (trivially fabricated)
-
-With Creation Integrity, priority becomes deterministic: the artifact's hash is committed to the Bitcoin blockchain via the OpenTimestamps protocol. The timestamp is mathematically verifiable by any party, without contacting the institution, the publisher, or the anchoring provider.
-
-### Artifact authenticity
-
-In a generative era, the question shifts from *"who created this?"* to *"did this specific version exist before it could have been fabricated?"*
-
-Creation Integrity answers the second question. It does not answer the first. That boundary is permanent.
-
-### Governance resilience
-
-Policies based on internal logs are vulnerable to:
-- System migrations that lose metadata
-- Administrative changes that alter access controls
-- Infrastructure failures that compromise audit trails
-
-Externally anchored proofs survive all of these. The proof artifact (a `.ots` file) is a portable, self-contained mathematical commitment that remains valid regardless of institutional infrastructure changes.
+Creation Integrity requires external commitment to a ledger outside institutional control. This is what makes the proof independently verifiable.
 
 ---
 
-## V. GOVERNANCE INTEGRATION
+## IV. Governance Relevance
 
-An institution can formalize Creation Integrity through:
+### Priority Determination
 
-| Action | Scope |
-|--------|-------|
-| Adapt Research Integrity Policy | Add Creation Integrity as a recommended or required practice for priority-sensitive outputs |
-| Define as technical standard in data governance | Include anchoring in institutional data management frameworks |
-| Require at PhD project initiation | Anchor initial research proposals, data collection protocols, and experimental designs |
-| Integrate in institutional repository workflow | Anchor artifacts at deposit time, store proof alongside the artifact |
+Absent Creation Integrity, priority relies on:
 
-This requires no fundamental restructuring of research processes. Only an additional anchoring step.
+- Journal submission timestamps
+- Repository deposit dates
+- Internal documentation
 
----
+All are institutionally controlled.
 
-## VI. RISK MANAGEMENT
+With Creation Integrity, the artifact's hash is externally anchored. Verification requires no contact with the institution, publisher, or implementation provider.
 
-### What not to rely on
+Priority becomes mathematically verifiable.
 
-| Practice | Risk |
-|----------|------|
-| Git timestamps | Controlled by the repository owner. Rewritable via force-push or repository migration. |
-| Repository deposit dates | Controlled by the institution. Subject to administrative changes. |
-| Internal log files | Controlled by infrastructure. Subject to system failures and migrations. |
+### Artifact Existence in a Generative Context
 
-### Verification discipline
+In environments where digital artifacts can be retroactively fabricated, the evidentiary question shifts:
 
-| Action | Frequency |
-|--------|-----------|
-| Verify proof after 12 months | Confirms long-term validity of the anchoring |
-| Check reproducibility | Re-hash the original artifact, compare against stored hash |
-| Validate independently of original provider | Use [verify-anchoring.org](https://verify-anchoring.org) or any OTS-compatible verifier |
+- Not "who created this?"
+- But "did this specific byte sequence exist before it could have been fabricated?"
 
-Long-term validity is a structural property, not a service commitment.
+Creation Integrity addresses the second question only.
 
----
+### Infrastructure Resilience
 
-## VII. STRATEGIC IMPACT
+Institutional systems evolve:
 
-With Creation Integrity:
+- Repositories migrate
+- Access controls change
+- Infrastructure fails
 
-- Evidence becomes **deterministic** instead of probabilistic
-- Priority disputes become **resolvable** through mathematical verification
-- Governance becomes **future-proof** — proofs survive institutional changes
-- Artifact authenticity becomes **structurally reinforced** against generative fabrication
+Externally anchored proofs remain valid independent of these changes.
 
-In a generative era, this is not optimization. It is stabilization.
+Creation Integrity is infrastructure-resilient by design.
 
 ---
 
-## VIII. IMPLEMENTATION LANDSCAPE
+## V. Governance Integration
 
-Creation Integrity is a property. It can be produced by any system that satisfies the three conditions (§I).
+Institutions may formalize Creation Integrity through:
 
-| Layer | Example | Role |
-|-------|---------|------|
-| Normative specification | [Anchoring Specification (IEC)](https://anchoring-spec.org/v1.0/) | Defines valid anchoring |
-| Reference verifier | [verify-anchoring.org](https://verify-anchoring.org) | Independent, zero-API verification |
-| Infrastructure | [Umarise Core](https://umarise.com/api-reference) | One implementation that produces Creation Integrity |
+| Action | Effect |
+|---|---|
+| Update Research Integrity Policy | Recognize Creation Integrity as recommended or required for priority-sensitive outputs |
+| Integrate into Data Governance Standards | Define anchoring as part of artifact lifecycle management |
+| Apply at PhD or grant initiation | Anchor proposals, protocols, datasets at first stable state |
+| Integrate at repository deposit | Store proof alongside deposited artifacts |
 
-The specification is normative. Implementations are not.
-
-An institution may use Umarise, build its own implementation, or use any future system that satisfies IEC. The property is independent of the provider.
-
----
-
-## IX. POSITIONING
-
-Creation Integrity is not a tool.
-
-It is a protocol-layer for research governance.
-
-The implementation may be commercial. The verification must remain public and independent. That distinction determines whether it becomes infrastructure — or merely software.
+No existing system requires replacement. Anchoring is an additional step in the artifact lifecycle.
 
 ---
 
-*This document references [Canon v5.1 §XII](./canon-v5.md) for the formal definition of Creation Integrity.*  
-*The [Anchoring Specification (IEC v1.0)](https://anchoring-spec.org/v1.0/) is the normative standard.*  
-*The specification is normative. This document is not.*
+## VI. Risk Clarification
+
+### Practices That Do Not Establish Creation Integrity
+
+| Practice | Limitation |
+|---|---|
+| Git timestamps | Repository-controlled; mutable through administrative actions |
+| Repository deposit dates | Institution-controlled |
+| Internal logs | Infrastructure-dependent |
+
+### Verification Discipline
+
+Long-term validity depends on:
+
+- Recomputing the hash of the original artifact
+- Validating the proof against the ledger
+- Performing verification independently of the original provider
+
+Creation Integrity is a structural property, not a service commitment.
+
+---
+
+## VII. Strategic Impact
+
+Creation Integrity introduces:
+
+- Deterministic temporal existence
+- Independently verifiable priority
+- Infrastructure-level resilience
+- Structural reinforcement against retroactive fabrication
+
+In generative environments, deterministic temporal anchoring provides evidentiary stability where reconstructive verification becomes probabilistic.
+
+---
+
+## VIII. Implementation Neutrality
+
+Creation Integrity is defined by specification, not by vendor.
+
+| Layer | Role |
+|---|---|
+| [Anchoring Specification (IEC)](https://anchoring-spec.org/v1.0/) | Normative definition of valid anchoring |
+| [Independent Verifier](https://verify-anchoring.org) | Public validation of proofs |
+| Implementation (e.g., Umarise Core) | System that performs anchoring according to specification |
+
+Any implementation that satisfies the specification can produce Creation Integrity.
+
+No implementation defines it.
+
+---
+
+## IX. Position
+
+Creation Integrity is a protocol-layer for research governance.
+
+Implementations may be commercial.
+Verification must remain public and independent.
+
+That distinction determines whether Creation Integrity functions as infrastructure rather than software.
+
+---
+
+*This document references Canon v5.2 XII for the formal definition.*  
+*The [Anchoring Specification (IEC v1.0)](https://anchoring-spec.org/v1.0/) defines the normative standard.*
