@@ -237,11 +237,112 @@ These questions are answered by building and testing, not by writing more docume
 
 ---
 
+## XII. CREATION INTEGRITY
+
+### Definition
+
+**Creation Integrity** is the verifiable property that a specific digital artifact existed in its exact form at or before a specific moment in time.
+
+It is not a product. It is not a feature. It is a protocol-level concept.
+
+Creation Integrity is established when three conditions are met simultaneously:
+
+1. **Byte-identity** — A cryptographic hash uniquely identifies the artifact
+2. **Temporal anchoring** — The hash is committed to an immutable, external ledger
+3. **Independent verifiability** — The proof can be validated without the issuer
+
+If any condition is absent, Creation Integrity is not established.
+
+### What it is
+
+Creation Integrity is a property of an artifact, not of a system.
+
+A system can *enable* Creation Integrity. It cannot *be* Creation Integrity.
+
+The distinction matters: Creation Integrity exists at the protocol level. Implementations — including Umarise — are instances. The property is defined by the Anchoring Specification (IEC), not by any single implementation.
+
+### What it is not
+
+| Creation Integrity is not… | Because… |
+|---------------------------|----------|
+| Authorship proof | It records existence, not identity |
+| A replacement for Git | Git tracks changes; CIL establishes temporal existence |
+| A replacement for Electronic Lab Notebooks | ELNs manage research process; CIL anchors specific artifacts |
+| A replacement for Data Management Plans | DMPs define intent; CIL records fact |
+| Ownership verification | Ownership is a legal conclusion, not a cryptographic property |
+| Content authentication | It proves byte-identity, not meaning or truthfulness |
+
+### Invariants
+
+1. Creation Integrity is binary. An artifact either has it or does not.
+2. Creation Integrity is immutable. Once established, it cannot be revoked or modified.
+3. Creation Integrity is independent. It does not require trust in the issuing party.
+4. Creation Integrity is minimal. It records hash, time, and ledger commitment — nothing more.
+5. Internal audit trails are supplementary. External anchoring is determinative.
+
+### Relation to Anchoring
+
+Anchoring (as defined by IEC) is the mechanism. Creation Integrity is the property it produces.
+
+| Concept | Role |
+|---------|------|
+| **Anchoring** | The act of committing a hash to an immutable ledger |
+| **Creation Integrity** | The resulting verifiable property of the artifact |
+| **Anchoring Specification (IEC)** | The normative definition of valid anchoring |
+| **Umarise Core** | One implementation that produces Creation Integrity |
+
+The specification defines what constitutes valid anchoring. Valid anchoring produces Creation Integrity. Umarise is one system that implements valid anchoring. It is not the only possible system.
+
+### Scope
+
+Creation Integrity applies to any digital artifact that can be reduced to bytes:
+
+- Research data, manuscripts, notebooks
+- Source code, design files, contracts
+- Photographs, recordings, sensor output
+- AI training data, model weights, generated outputs
+
+It does not apply to physical objects, verbal agreements, or anything that cannot be deterministically hashed.
+
+### Strategic position
+
+In a generative era — where AI can produce, modify, and fabricate digital artifacts at scale — the question shifts from *"who created this?"* to *"did this exist before it could have been fabricated?"*
+
+Creation Integrity answers the second question. It does not answer the first. That boundary is permanent.
+
+---
+
+## XIII. WHAT REMAINS
+
+The conceptual work is done. What remains is validation:
+
+1. **Does the ritual resonate?** — Do users feel something when they mark a beginning?
+2. **Is deliberate friction valuable?** — Does the 1.5-second seal create meaning, or frustration?
+3. **Is "recognition of origin" a category?** — Does anyone else want what we offer?
+4. **Is Creation Integrity a governance primitive?** — Do institutions adopt it as infrastructure?
+
+These questions are answered by building and testing, not by writing more documents.
+
+---
+
+## XIV. WHAT IS LOCKED
+
+1. The App is ritual software. Friction is the feature.
+2. Core is the foundation. Immutability is the architecture.
+3. Privacy-by-design. Artifacts never leave the device.
+4. The discipline of refusal. Less is more.
+5. Recognition, not proof. Intention, not just existence.
+6. Creation Integrity is a protocol-level property, not a product feature.
+7. Phase 1 is honest about what it is. Phase 2 is direction, not promise.
+
+---
+
 Umarise helps people recognize a beginning before it disappears.
 
 The App makes the recognition conscious.  
-Core makes the recognition hold.
+Core makes the recognition hold.  
+Creation Integrity makes the holding verifiable.
 
 That is all. That is enough.
 
-**End of Canon v5.0**
+**End of Canon v5.1**
