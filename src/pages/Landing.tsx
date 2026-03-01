@@ -55,18 +55,18 @@ export default function Landing() {
         <div className="border-t border-landing-muted/10" />
 
         {/* Navigation - documentary, not menu */}
-        <nav className="py-6 md:py-8 flex flex-col gap-3">
+        <nav className="py-6 md:py-8 flex flex-col gap-4">
           {/* Primary documents */}
-          <div className="flex items-center gap-6 text-base text-landing-muted/55">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-base text-landing-muted/55">
             <Link to="/anchor" className="hover:text-landing-muted/75 transition-colors">Anchor</Link>
             <Link to="/technical" className="hover:text-landing-muted/75 transition-colors">Technical</Link>
-            <Link to="/creation-integrity" className="hover:text-landing-muted/75 transition-colors">Creation Integrity</Link>
+            <Link to="/creation-integrity" className="hover:text-landing-muted/75 transition-colors whitespace-nowrap">Creation Integrity</Link>
             <Link to="/why" className="hover:text-landing-muted/75 transition-colors">Why</Link>
             <Link to="/core" className="hover:text-landing-muted/75 transition-colors">Core</Link>
           </div>
 
           {/* Verification & legal */}
-          <div className="flex items-center gap-6 text-base text-landing-muted/50">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-base text-landing-muted/50">
             <Link to="/verify" className="hover:text-landing-muted/70 transition-colors">Verify</Link>
             <Link to="/legal" className="hover:text-landing-muted/70 transition-colors">Legal</Link>
             <Link to="/privacy" className="hover:text-landing-muted/70 transition-colors">Privacy</Link>
