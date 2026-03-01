@@ -3,7 +3,7 @@
  * 
  * Verifies that:
  * 1. Allowed origins get their own origin reflected back
- * 2. Unknown origins get the default (anchoring.app) — NOT '*'
+ * 2. Unknown origins get the default (itexisted.app) — NOT '*'
  * 3. Vary: Origin header is always present
  */
 
@@ -19,21 +19,21 @@ const TEST_BODY = JSON.stringify({
   content: "dGVzdA==",
 });
 
-Deno.test("CORS: allowed origin (anchoring.app) is reflected", async () => {
+Deno.test("CORS: allowed origin (itexisted.app) is reflected", async () => {
   const res = await fetch(ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "apikey": SUPABASE_ANON_KEY,
-      "Origin": "https://anchoring.app",
+      "Origin": "https://itexisted.app",
     },
     body: TEST_BODY,
   });
 
   assertEquals(
     res.headers.get("access-control-allow-origin"),
-    "https://anchoring.app",
-    "Should reflect anchoring.app"
+    "https://itexisted.app",
+    "Should reflect itexisted.app"
   );
   const vary = res.headers.get("vary") || "";
   assertEquals(
@@ -101,7 +101,7 @@ Deno.test("CORS: unknown origin gets default, NOT wildcard", async () => {
   }
   
   // Should fallback to default allowed origin
-  assertEquals(acao, "https://anchoring.app", "Unknown origin should get default (anchoring.app)");
+  assertEquals(acao, "https://itexisted.app", "Unknown origin should get default (itexisted.app)");
   await res.text();
 });
 
@@ -121,6 +121,6 @@ Deno.test("CORS: no origin header gets default", async () => {
     throw new Error("CORS VULNERABILITY: wildcard '*' returned when no Origin sent!");
   }
   
-  assertEquals(acao, "https://anchoring.app", "No origin should get default");
+  assertEquals(acao, "https://itexisted.app", "No origin should get default");
   await res.text();
 });
