@@ -36,7 +36,6 @@ import PartnerOnboardingExport from "./pages/PartnerOnboardingExport";
 import Prototype from "./pages/Prototype";
 import PrototypeB from "./pages/PrototypeB";
 import Why from "./pages/Why";
-import AnchoringWhy from "./pages/AnchoringWhy";
 import SealedPreviewPage from "./pages/SealedPreview";
 import Install from "./pages/Install";
 import Architecture from "./pages/Architecture";
@@ -69,13 +68,11 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             {/* PUBLIC ROUTES - No PinGate */}
-            {/* anchoring.app → ritual flow directly; other domains → landing */}
+            {/* itexisted.app → ItExisted directly; other domains → landing */}
             <Route path="/" element={
-              typeof window !== 'undefined' && window.location.hostname === 'anchoring.app'
-                ? <Prototype />
-                : typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
-                  ? <ItExisted />
-                  : <Landing />
+              typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
+                ? <ItExisted />
+                : <Landing />
             } />
             <Route path="/origin/:originId" element={<OriginView />} />
             <Route path="/review" element={<ReviewKit />} />
@@ -92,11 +89,7 @@ const App = () => (
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/why" element={
-              typeof window !== 'undefined' && window.location.hostname === 'anchoring.app'
-                ? <AnchoringWhy />
-                : <Why />
-            } />
+            <Route path="/why" element={<Why />} />
             <Route path="/install" element={<Install />} />
             
             <Route path="/verify" element={

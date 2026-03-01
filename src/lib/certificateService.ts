@@ -236,7 +236,7 @@ export async function generateCertificate(data: CertificateData): Promise<Blob> 
   doc.text('sealed on your device · only the proof leaves', pageWidth / 2, pageHeight - margin - 10, { align: 'center' });
   
   doc.setFont('helvetica', 'normal');
-  doc.text('Verify at anchoring.app/verify', pageWidth / 2, pageHeight - margin - 5, { align: 'center' });
+  doc.text('Verify at itexisted.app', pageWidth / 2, pageHeight - margin - 5, { align: 'center' });
   
   // Generate blob
   return doc.output('blob');

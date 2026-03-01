@@ -9,7 +9,7 @@
  */
 
 const ALLOWED_ORIGINS = [
-  'https://anchoring.app',
+  'https://itexisted.app',
   'https://umarise.com',
   'https://www.umarise.com',
   'https://umarise.lovable.app',

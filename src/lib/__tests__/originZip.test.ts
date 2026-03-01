@@ -41,7 +41,7 @@ describe('buildOriginZip', () => {
     expect(cert.hash).toBe('a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8');
     expect(cert.hash_algo).toBe('SHA-256');
     expect(cert.captured_at).toBe('2026-02-07T20:00:00.000Z');
-    expect(cert.verify_url).toBe('https://anchoring.app/verify');
+    expect(cert.verify_url).toBe('https://verify-anchoring.org');
     expect(cert.proof_included).toBe(false);
     expect(cert.proof_status).toBe('pending');
     expect(cert.claimed_by).toBeNull();
