@@ -88,14 +88,6 @@ if (result) {
 }
 ```
 
-**Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `hash` | `string` | ✅ | SHA-256 hash to verify |
-| `options.baseUrl` | `string` | — | Override API endpoint |
-| `options.timeout` | `number` | — | Timeout in ms. Default: `12000` |
-
 **Returns:** `VerifyResult | null`
 
 ```typescript
@@ -114,8 +106,7 @@ interface VerifyResult {
 
 ### `proof(originId, options?) → Promise<ProofResult>`
 
-Download de OpenTimestamps proof voor een origin.  
-**Geen API key nodig.**
+Download de OpenTimestamps proof voor een origin. **Geen API key nodig.**
 
 ```typescript
 import { proof } from '@umarise/anchor';
@@ -124,7 +115,6 @@ const result = await proof('f47ac10b-58cc-4372-a567-0e02b2c3d479');
 
 switch (result.status) {
   case 'anchored':
-    // result.data is Uint8Array — the .ots binary
     fs.writeFileSync('proof.ots', result.data);
     console.log(`Bitcoin block: ${result.bitcoinBlockHeight}`);
     break;
@@ -137,21 +127,13 @@ switch (result.status) {
 }
 ```
 
-**Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `originId` | `string` | ✅ | Origin UUID |
-| `options.baseUrl` | `string` | — | Override API endpoint |
-| `options.timeout` | `number` | — | Timeout in ms. Default: `30000` |
-
 **Returns:** `ProofResult`
 
 ```typescript
 interface ProofResult {
   originId: string;
   status: 'anchored' | 'pending' | 'not_found';
-  data: Uint8Array | null;          // Binary .ots (only when anchored)
+  data: Uint8Array | null;           // Binary .ots (only when anchored)
   bitcoinBlockHeight: number | null; // Block number (only when anchored)
   anchoredAt: string | null;         // ISO 8601 (only when anchored)
 }
@@ -164,23 +146,10 @@ interface ProofResult {
 Utility om een bestand te hashen. Geen Core API call.
 
 ```typescript
-import { hashBuffer } from '@umarise/anchor';
-import { readFileSync } from 'fs';
-
-const file = readFileSync('contract.pdf');
-const hash = hashBuffer(file);
-// "sha256:a7f3b2c1e4d5..."
-```
-
----
-
-## Volledige integratie in 4 regels
-
-```typescript
 import { anchor, hashBuffer } from '@umarise/anchor';
 import { readFileSync } from 'fs';
 
-const hash = hashBuffer(readFileSync('document.pdf'));
+const hash = hashBuffer(readFileSync('contract.pdf'));
 const result = await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
 console.log(`Origin: ${result.originId}`);
 ```
@@ -223,8 +192,6 @@ console.log(`Origin: ${result.originId}`);
 
 ## Error handling
 
-Alle errors zijn typed:
-
 ```typescript
 import { AnchorError } from '@umarise/anchor';
 
@@ -251,16 +218,14 @@ try {
 
 ---
 
-## Prijsmodel (voor Oscar)
+## Prijsmodel
 
-| Tier | Prijs | Volume | Rate limit |
-|------|-------|--------|------------|
-| Starter | Gratis | 100 attestaties/maand | 10/min |
-| Growth | Op aanvraag | 10.000+/maand | 100/min |
-| Enterprise | Op aanvraag | Onbeperkt | Custom |
+*Nog niet definitief. Beslissing volgt.*
 
 `verify()` en `proof()` zijn altijd gratis en ongelimiteerd.  
 Verificatie is een publiek goed.
+
+`anchor()` vereist een API key. Volume en tarieven volgen.
 
 ---
 
@@ -269,7 +234,11 @@ Verificatie is een publiek goed.
 | Stap | Status |
 |------|--------|
 | Core API v1 | ✅ Live, bevroren |
+| API Reference (umarise.com/api-reference) | ✅ Live — Quick Start, templates, troubleshooting, 15 tests |
+| Partner onboarding docs | ✅ Vervalt — API reference dekt dit volledig |
 | SDK spec (dit document) | ✅ Klaar |
-| npm package bouwen | 🔲 ~2 dagen werk |
-| PyPI package bouwen | 🔲 ~1 dag werk |
-| Partner onboarding docs | 🔲 ~1 dag werk |
+| npm package `@umarise/anchor` | 🔲 ~2 dagen werk — enige echte gap |
+| PyPI package `umarise` | 🔲 ~1 dag werk — enige echte gap |
+
+De API reference op umarise.com/api-reference is de partner onboarding. Compleet: curl voorbeelden, Node.js en Python templates, AI-integratie prompt, Try it Live, 15 geautomatiseerde tests. Een aparte onboarding doc is overbodig.
+
