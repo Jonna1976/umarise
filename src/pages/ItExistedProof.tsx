@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { Copy } from 'lucide-react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import JSZip from 'jszip';
 import { buildOriginZip, buildZipFileName } from '@/lib/originZip';
 import { arrayBufferToBase64, fetchOriginByToken, fetchProofStatus } from '@/lib/coreApi';
 import { calculateSHA256 } from '@/lib/originHash';
-import { cacheArtifact, loadArtifact } from '@/lib/artifactCache';
+import { cacheArtifact, clearArtifact, loadArtifact } from '@/lib/artifactCache';
 import InlineVerify from '@/components/itexisted/InlineVerify';
 import InlineAttestation from '@/components/itexisted/InlineAttestation';
 import Circumpunct from '@/components/itexisted/Circumpunct';
@@ -362,11 +362,32 @@ export default function ItExistedProof() {
   const onDownload = async () => {
     if (!anchored) { toast.info('Proof is still pending. Come back in ~2 hours.'); return; }
 
-    // ── GATE: Ensure artifact is available before proceeding ──
+    const resetArtifactFlow = async (message: string) => {
+      await Promise.all([
+        clearArtifact(token),
+        clearArtifact(token.toLowerCase()),
+      ]);
+      try {
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(`artifact_hash_${token}`);
+      } catch {
+        // ignore storage failures
+      }
+      setArtifactFile(null);
+      artifactFileRef.current = null;
+      setArtifactStatus('idle');
+      setComputedHash(null);
+      setDownloadedZipBlob(null);
+      setDownloadedZipName(null);
+      setSaveConfirmed(false);
+      setOpenStep('verify-file');
+      toast.error(message);
+    };
+
+    // ── GATE 1: Ensure artifact is available ──
     let resolvedArtifact = artifactFileRef.current;
     console.log('[onDownload] artifactFileRef.current:', resolvedArtifact?.name ?? 'null', 'size:', resolvedArtifact?.size ?? 0);
-    
-    // Always attempt IndexedDB restore if ref is empty
+
     if (!resolvedArtifact && token) {
       console.log('[onDownload] Attempting IndexedDB restore for token:', token);
       const cached = await loadArtifact(token) || await loadArtifact(token.toLowerCase());
@@ -379,11 +400,23 @@ export default function ItExistedProof() {
       }
     }
 
-    // HARD GATE: no artifact → no download
     if (!resolvedArtifact) {
       console.warn('[onDownload] ⚠ No artifact available — blocking download');
       toast.error('Add your original file in Step 1 first. The ZIP must contain the original to be valid.');
       setOpenStep('verify-file');
+      return;
+    }
+
+    // ── GATE 2: Artifact hash must still match certificate hash ──
+    const artifactHash = await calculateSHA256(await resolvedArtifact.arrayBuffer());
+    const expectedHash = state.hash.toLowerCase().replace(/^sha256:/, '');
+    if (artifactHash !== expectedHash) {
+      console.error('[onDownload] ⚠ Artifact hash mismatch before ZIP build', {
+        file: resolvedArtifact.name,
+        expected: expectedHash,
+        actual: artifactHash,
+      });
+      await resetArtifactFlow('Original file check expired or mismatched. Re-add the exact original file to create a valid ZIP.');
       return;
     }
 
@@ -407,12 +440,22 @@ export default function ItExistedProof() {
       deviceSignature: state.deviceSignature,
       devicePublicKey: state.devicePublicKey,
     });
+
+    // ── GATE 3: ZIP must physically contain artifact.* ──
+    const zipContent = await JSZip.loadAsync(zip);
+    const hasArtifactInZip = Object.keys(zipContent.files).some((entry) => /^artifact\./i.test(entry) && !zipContent.files[entry].dir);
+    if (!hasArtifactInZip) {
+      console.error('[onDownload] ⚠ ZIP built without artifact entry — blocking download');
+      await resetArtifactFlow('ZIP safety check failed: original file was not included. Re-add your original file and try again.');
+      return;
+    }
+
     const fileName = buildZipFileName(state.originId, new Date(state.capturedAt), resolvedArtifact?.name, state.shortToken);
-    
+
     // Store blob for auto-verification in Step 3
     setDownloadedZipBlob(zip);
     setDownloadedZipName(fileName);
-    
+
     // Direct download — avoids iOS share sheet ZIP corruption
     const url = URL.createObjectURL(zip);
     const a = document.createElement('a');
