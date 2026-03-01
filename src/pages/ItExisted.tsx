@@ -169,34 +169,19 @@ export default function ItExisted() {
           <motion.div key="anchoring"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
-            className="flex flex-col items-center text-center gap-0"
-            style={{ lineHeight: '2.2' }}>
+            className="flex flex-col items-center justify-center text-center">
 
-            <p className="font-playfair text-[37px] md:text-[52px] font-light leading-snug" style={{ color: 'hsl(var(--itx-cream))' }}>
-              Now it's provable.
-            </p>
-            <p className="font-playfair text-[37px] md:text-[52px] font-light leading-snug mt-1" style={{ color: 'hsl(var(--itx-gold))' }}>
-              Anchor what
-              <br />
-              matters.
-            </p>
-
-            {/* Circle with breathing dot */}
-            <div className="mt-10 md:mt-14 w-[172px] h-[172px] md:w-[220px] md:h-[220px] rounded-full border-[1.5px] border-dashed flex items-center justify-center"
+            {/* Only the breathing circle — pure calm, no text */}
+            <div className="w-[172px] h-[172px] md:w-[220px] md:h-[220px] rounded-full border-[1.5px] border-dashed flex items-center justify-center"
               style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
-              <motion.span
-                className="font-playfair text-[48px] md:text-[56px] leading-none"
-                style={{ color: 'hsl(var(--itx-cream) / 0.18)' }}
-                animate={{ opacity: [0.18, 0.4, 0.18] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}>
-                +
-              </motion.span>
+              <motion.div
+                className="w-[6px] h-[6px] rounded-full"
+                style={{ background: 'hsl(var(--itx-gold) / 0.5)' }}
+                animate={{ opacity: [0.3, 0.8, 0.3], scale: [1, 1.3, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
             </div>
 
-            <span className="mt-8 font-mono text-[7px] tracking-[3px] uppercase"
-              style={{ color: 'hsl(var(--itx-gold) / 0.12)' }}>
-              itexisted.app
-            </span>
           </motion.div>
         )}
 
