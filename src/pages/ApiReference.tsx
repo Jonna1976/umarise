@@ -478,7 +478,12 @@ done`} />
         <IntegrationChecklist />
 
         {/* ─── FOOTER ─── */}
-        <div className="pt-10 border-t border-[hsl(var(--landing-cream)/0.06)] text-center space-y-2">
+        <div className="pt-10 border-t border-[hsl(var(--landing-cream)/0.06)] text-center space-y-3">
+          <div className="flex justify-center gap-4 text-xs font-mono">
+            <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream)/0.9)] transition-colors">Node.js SDK →</a>
+            <a href="https://github.com/Jonna1976/umarise-python" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream)/0.9)] transition-colors">Python SDK →</a>
+            <Link to="/sdk-spec" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream)/0.9)] transition-colors">SDK Spec →</Link>
+          </div>
           <p className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono">
             Core v1 · Frozen protocol · <Link to="/status" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">System Status</Link> · <Link to="/legal" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">Legal</Link>
           </p>
