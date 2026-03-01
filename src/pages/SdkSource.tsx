@@ -396,7 +396,7 @@ Single-file SDK for Umarise Core v1 API.
 Zero external dependencies. Uses urllib from the standard library.
 
 Usage:
-    from umarise_core import UmariseCore, hash_bytes
+    from umarise import UmariseCore, hash_bytes
 
     core = UmariseCore()
     result = core.verify("sha256:abc123...")
@@ -653,7 +653,7 @@ Single-file SDK for Umarise Core v1. Zero external dependencies.
 ## Quick Start
 
 \\\`\\\`\\\`python
-from umarise_core import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_bytes
 
 core = UmariseCore()
 health = core.health()
@@ -670,7 +670,7 @@ if result:
 
 \\\`\\\`\\\`python
 import os
-from umarise_core import UmariseCore, hash_bytes
+from umarise import UmariseCore, hash_bytes
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 
