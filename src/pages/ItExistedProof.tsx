@@ -674,7 +674,7 @@ export default function ItExistedProof() {
           <div className="w-full" style={{ borderTop: '1px solid rgba(197,147,90,0.15)' }} />
 
           {/* ── ZIP VERIFIED — automatic, not a user action ── */}
-          <div className="w-full">
+          <div className="w-full" style={fullLockedStyle}>
             <div className="flex items-center w-full py-4">
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
                 style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(240,234,214,0.25)' }}>
