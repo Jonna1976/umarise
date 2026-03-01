@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import ApiKeySection from '@/components/api-reference/ApiKeySection';
 import AIIntegrationSection from '@/components/api-reference/AIIntegrationSection';
@@ -10,39 +10,171 @@ import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
 import LiveDemoFlow from '@/components/api-reference/LiveDemoFlow';
 import IntegrationTemplates from '@/components/api-reference/IntegrationTemplates';
 import IntegrationTLDR from '@/components/api-reference/IntegrationTLDR';
+import React from 'react';
 
 const BASE_URL = 'https://core.umarise.com';
 
-const endpoints = [
-  { id: 'tldr', name: 'TL;DR', icon: Zap },
-  { id: 'api-key', name: 'API Key', icon: Key },
-  { id: 'ai-integration', name: 'AI Integration', icon: Bot },
-  { id: 'quick-start', name: 'Quick Start', icon: Zap },
-  { id: 'live-demo', name: 'Try it Live', icon: PlayCircle },
-  { id: 'health', name: 'Health', method: 'GET' },
-  { id: 'origins', name: 'Attest', method: 'POST' },
-  { id: 'resolve', name: 'Resolve', method: 'GET' },
-  { id: 'verify', name: 'Verify', method: 'POST' },
-  { id: 'proof', name: 'Proof', method: 'GET' },
-  { id: 'errors', name: 'Errors', icon: AlertTriangle },
-  { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
-  { id: 'templates', name: 'Templates', icon: FileCode2 },
-  { id: 'troubleshooting', name: 'Troubleshoot', icon: AlertTriangle },
-  { id: 'checklist', name: 'Checklist', icon: ListChecks },
+type NavItem = { id: string; name: string; icon?: React.ComponentType<{ className?: string }>; method?: string };
+
+const navGroups: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Getting Started',
+    items: [
+      { id: 'tldr', name: 'TL;DR', icon: Zap },
+      { id: 'api-key', name: 'API Key', icon: Key },
+      { id: 'ai-integration', name: 'AI Integration', icon: Bot },
+      { id: 'quick-start', name: 'Quick Start', icon: Zap },
+      { id: 'live-demo', name: 'Try it Live', icon: PlayCircle },
+    ],
+  },
+  {
+    label: 'Endpoints',
+    items: [
+      { id: 'health', name: 'Health', method: 'GET' },
+      { id: 'origins', name: 'Attest', method: 'POST' },
+      { id: 'resolve', name: 'Resolve', method: 'GET' },
+      { id: 'verify', name: 'Verify', method: 'POST' },
+      { id: 'proof', name: 'Proof', method: 'GET' },
+    ],
+  },
+  {
+    label: 'Reference',
+    items: [
+      { id: 'errors', name: 'Errors', icon: AlertTriangle },
+      { id: 'rate-limits', name: 'Rate Limits', icon: Clock },
+      { id: 'templates', name: 'Templates', icon: FileCode2 },
+      { id: 'troubleshooting', name: 'Troubleshoot', icon: AlertTriangle },
+      { id: 'checklist', name: 'Checklist', icon: ListChecks },
+    ],
+  },
 ];
 
+function ApiSidebar({ activeId }: { activeId: string }) {
+  return (
+    <nav className="hidden lg:block w-56 shrink-0">
+      <div className="sticky top-6 space-y-6 pr-4">
+        {navGroups.map((group) => (
+          <div key={group.label}>
+            <p className="text-[hsl(var(--landing-cream)/0.45)] text-[10px] font-mono uppercase tracking-[0.15em] mb-2 pl-2">
+              {group.label}
+            </p>
+            <ul className="space-y-0.5">
+              {group.items.map((item) => {
+                const isActive = activeId === item.id;
+                return (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
+                        isActive
+                          ? 'bg-[hsl(var(--landing-cream)/0.08)] text-[hsl(var(--landing-cream))]'
+                          : 'text-[hsl(var(--landing-cream)/0.55)] hover:text-[hsl(var(--landing-cream)/0.85)] hover:bg-[hsl(var(--landing-cream)/0.04)]'
+                      }`}
+                    >
+                      {'method' in item && item.method ? (
+                        <MethodBadge method={item.method} />
+                      ) : (
+                        'icon' in item && item.icon && <item.icon className="w-3 h-3 shrink-0" />
+                      )}
+                      <span className="font-mono">{item.name}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+function MobileNav({ activeId }: { activeId: string }) {
+  const [open, setOpen] = React.useState(false);
+  const allItems = navGroups.flatMap((g) => g.items);
+  const current = allItems.find((i) => i.id === activeId) || allItems[0];
+
+  return (
+    <div className="lg:hidden sticky top-0 z-10 bg-[hsl(var(--landing-deep))] border-b border-[hsl(var(--landing-cream)/0.06)]">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full px-6 py-3 flex items-center justify-between text-sm text-[hsl(var(--landing-cream)/0.85)]"
+      >
+        <span className="font-mono text-xs">{current.name}</span>
+        <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="px-6 pb-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          {navGroups.map((group) => (
+            <div key={group.label}>
+              <p className="text-[hsl(var(--landing-cream)/0.45)] text-[10px] font-mono uppercase tracking-[0.15em] mb-1">
+                {group.label}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs font-mono transition-colors ${
+                      activeId === item.id
+                        ? 'bg-[hsl(var(--landing-cream)/0.1)] text-[hsl(var(--landing-cream))]'
+                        : 'text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream))]'
+                    }`}
+                  >
+                    {'method' in item && item.method ? <MethodBadge method={item.method} /> : null}
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function useActiveSection() {
+  const [activeId, setActiveId] = React.useState('tldr');
+
+  React.useEffect(() => {
+    const ids = navGroups.flatMap((g) => g.items.map((i) => i.id));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          setActiveId(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return activeId;
+}
+
 export default function ApiReference() {
+  const activeId = useActiveSection();
+
   return (
     <div className="min-h-screen bg-[hsl(var(--landing-deep))]">
       {/* Header */}
       <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
             <ArrowLeft className="w-4 h-4" /><span className="text-sm">Back</span>
           </Link>
           <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.9)]">Umarise</span>
         </div>
-        <div className="max-w-4xl mx-auto px-6 pb-10 pt-6">
+        <div className="max-w-5xl mx-auto px-6 pb-10 pt-6">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">Core API v1</p>
             <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">API Reference</h1>
@@ -53,19 +185,16 @@ export default function ApiReference() {
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="border-b border-[hsl(var(--landing-cream)/0.06)] sticky top-0 z-10 bg-[hsl(var(--landing-deep))]">
-        <div className="max-w-4xl mx-auto px-6 py-3 flex gap-4 overflow-x-auto">
-          {endpoints.map((ep) => (
-            <a key={ep.id} href={`#${ep.id}`} className="flex items-center gap-2 text-sm text-[hsl(var(--landing-cream)/0.7)] hover:text-[hsl(var(--landing-cream))] transition-colors shrink-0">
-              {'method' in ep && ep.method ? <MethodBadge method={ep.method} /> : ep.icon && <ep.icon className="w-3.5 h-3.5" />}
-              <span className="font-mono text-xs">{ep.name}</span>
-            </a>
-          ))}
-        </div>
-      </div>
+      {/* Mobile Navigation */}
+      <MobileNav activeId={activeId} />
 
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
+      {/* Two-column layout */}
+      <div className="max-w-5xl mx-auto px-6 py-12 flex gap-10">
+        {/* Sidebar */}
+        <ApiSidebar activeId={activeId} />
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0 space-y-20">
 
         {/* ─── INTEGRATION TL;DR ─── */}
         <div id="tldr">
@@ -482,6 +611,7 @@ done`} />
             Core v1 · Frozen protocol · <Link to="/status" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">System Status</Link> · <Link to="/legal" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">Legal</Link>
           </p>
           <p className="text-[hsl(var(--landing-cream)/0.25)] text-xs font-mono">© Umarise</p>
+        </div>
         </div>
       </div>
 
