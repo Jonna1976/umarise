@@ -26,7 +26,7 @@ const SdkSpec = () => {
         {/* What it is */}
         <Section title="What it is">
           <P>
-            An npm package that wraps the Umarise Core v1 REST API into three functions.
+            An npm package that wraps the Umarise Core v1 REST API into four functions.
             <br />
             No magic. No abstraction. Just less boilerplate.
           </P>
