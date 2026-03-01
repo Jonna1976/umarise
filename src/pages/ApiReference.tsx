@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown, ArrowUp } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown, ArrowUp, Search, X } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import ApiKeySection from '@/components/api-reference/ApiKeySection';
 import AIIntegrationSection from '@/components/api-reference/AIIntegrationSection';
@@ -50,40 +50,83 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 ];
 
 function ApiSidebar({ activeId }: { activeId: string }) {
+  const [query, setQuery] = React.useState('');
+  const q = query.toLowerCase().trim();
+
+  const filteredGroups = q
+    ? navGroups
+        .map((g) => ({
+          ...g,
+          items: g.items.filter(
+            (i) =>
+              i.name.toLowerCase().includes(q) ||
+              i.id.toLowerCase().includes(q) ||
+              (i.method && i.method.toLowerCase().includes(q))
+          ),
+        }))
+        .filter((g) => g.items.length > 0)
+    : navGroups;
+
   return (
     <nav className="hidden lg:block w-56 shrink-0">
-      <div className="sticky top-6 space-y-6 pr-4">
-        {navGroups.map((group) => (
-          <div key={group.label}>
-            <p className="text-[hsl(var(--landing-cream)/0.45)] text-[10px] font-mono uppercase tracking-[0.15em] mb-2 pl-2">
-              {group.label}
-            </p>
-            <ul className="space-y-0.5">
-              {group.items.map((item) => {
-                const isActive = activeId === item.id;
-                return (
-                  <li key={item.id}>
-                    <a
-                      href={`#${item.id}`}
-                      className={`flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
-                        isActive
-                          ? 'bg-[hsl(var(--landing-cream)/0.08)] text-[hsl(var(--landing-cream))]'
-                          : 'text-[hsl(var(--landing-cream)/0.55)] hover:text-[hsl(var(--landing-cream)/0.85)] hover:bg-[hsl(var(--landing-cream)/0.04)]'
-                      }`}
-                    >
-                      {'method' in item && item.method ? (
-                        <MethodBadge method={item.method} />
-                      ) : (
-                        'icon' in item && item.icon && <item.icon className="w-3 h-3 shrink-0" />
-                      )}
-                      <span className="font-mono">{item.name}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+      <div className="sticky top-6 space-y-4 pr-4">
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[hsl(var(--landing-cream)/0.35)]" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Find..."
+            className="w-full pl-7 pr-7 py-1.5 rounded bg-[hsl(var(--landing-cream)/0.04)] border border-[hsl(var(--landing-cream)/0.08)] text-[hsl(var(--landing-cream)/0.85)] placeholder:text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono focus:outline-none focus:border-[hsl(var(--landing-cream)/0.2)] transition-colors"
+          />
+          {q && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)]"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Nav groups */}
+        {filteredGroups.length === 0 ? (
+          <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono pl-2">No results</p>
+        ) : (
+          filteredGroups.map((group) => (
+            <div key={group.label}>
+              <p className="text-[hsl(var(--landing-cream)/0.45)] text-[10px] font-mono uppercase tracking-[0.15em] mb-2 pl-2">
+                {group.label}
+              </p>
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive = activeId === item.id;
+                  return (
+                    <li key={item.id}>
+                      <a
+                        href={`#${item.id}`}
+                        onClick={() => setQuery('')}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${
+                          isActive
+                            ? 'bg-[hsl(var(--landing-cream)/0.08)] text-[hsl(var(--landing-cream))]'
+                            : 'text-[hsl(var(--landing-cream)/0.55)] hover:text-[hsl(var(--landing-cream)/0.85)] hover:bg-[hsl(var(--landing-cream)/0.04)]'
+                        }`}
+                      >
+                        {item.method ? (
+                          <MethodBadge method={item.method} />
+                        ) : (
+                          item.icon && <item.icon className="w-3 h-3 shrink-0" />
+                        )}
+                        <span className="font-mono">{item.name}</span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))
+        )}
       </div>
     </nav>
   );
