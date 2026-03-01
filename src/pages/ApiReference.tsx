@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown, ArrowUp } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import ApiKeySection from '@/components/api-reference/ApiKeySection';
 import AIIntegrationSection from '@/components/api-reference/AIIntegrationSection';
@@ -159,6 +159,28 @@ function useActiveSection() {
   }, []);
 
   return activeId;
+}
+
+function ScrollToTopButton() {
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-6 right-6 z-20 p-2.5 rounded-full bg-[hsl(var(--landing-cream)/0.1)] border border-[hsl(var(--landing-cream)/0.15)] text-[hsl(var(--landing-cream)/0.7)] hover:text-[hsl(var(--landing-cream))] hover:bg-[hsl(var(--landing-cream)/0.15)] transition-all backdrop-blur-sm"
+      aria-label="Scroll to top"
+    >
+      <ArrowUp className="w-4 h-4" />
+    </button>
+  );
 }
 
 export default function ApiReference() {
@@ -615,6 +637,7 @@ done`} />
         </div>
       </div>
 
+      <ScrollToTopButton />
       <SupportChatWidget />
     </div>
   );
