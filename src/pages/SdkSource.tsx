@@ -274,6 +274,97 @@ export class AnchorError extends Error {
   }
 }`,
   },
+  {
+    name: "package.json",
+    language: "json",
+    code: `{
+  "name": "@umarise/anchor",
+  "version": "1.0.0",
+  "description": "Minimal SDK for the Umarise Core v1 Anchoring API",
+  "license": "Unlicense",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc && node build-cjs.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "keywords": ["umarise", "anchoring", "origin", "proof", "opentimestamps", "sha256"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/umarise/anchor"
+  },
+  "homepage": "https://umarise.com/sdk-spec"
+}`,
+  },
+  {
+    name: "README.md",
+    language: "markdown",
+    code: `# @umarise/anchor
+
+Minimal SDK for the Umarise Core v1 Anchoring API.
+Zero dependencies. <4 KB gzipped.
+
+## Install
+
+\\\`\\\`\\\`
+npm install @umarise/anchor
+\\\`\\\`\\\`
+
+## Usage
+
+\\\`\\\`\\\`typescript
+import { anchor, hashBuffer } from '@umarise/anchor';
+import { readFileSync } from 'fs';
+
+const hash = await hashBuffer(readFileSync('contract.pdf'));
+const result = await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
+console.log(\\\`Origin: \\\${result.originId}\\\`);
+\\\`\\\`\\\`
+
+## API
+
+- **anchor(hash, options)** — Register a hash. Returns originId.
+- **verify(hash)** — Check if a hash exists. No API key needed.
+- **proof(originId)** — Download .ots proof. No API key needed.
+- **hashBuffer(buffer)** — SHA-256 hash a buffer (async, Web Crypto).
+
+## License
+
+Unlicense (Public Domain)`,
+  },
+  {
+    name: "LICENSE",
+    language: "text",
+    code: `This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+For more information, please refer to <https://unlicense.org>`,
+  },
 ];
 
 const SdkSource = () => {
