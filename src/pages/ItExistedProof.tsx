@@ -497,7 +497,7 @@ export default function ItExistedProof() {
                 style={{ color: '#f0ead6', lineHeight: 1.25 }}>
                 Your file is anchored
               </h1>
-              <p className="font-garamond italic text-[24px] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
+              <p className="font-garamond italic text-[22px] mt-3 leading-relaxed" style={{ color: 'rgba(245,240,232,0.6)' }}>
                 It existed. Now it's provable. Your file stays yours.
               </p>
             </>
