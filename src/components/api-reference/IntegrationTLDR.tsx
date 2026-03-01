@@ -58,9 +58,11 @@ const check = await verify(hash);`}</pre>
         <div className="rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)] p-3">
           <p className="text-[10px] font-mono uppercase tracking-wider text-[hsl(var(--landing-cream)/0.45)] mb-2">Python</p>
           <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.85)] whitespace-pre leading-relaxed">{`from umarise import UmariseCore, hash_buffer
+import os
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
-origin = core.attest(hash_buffer(open("contract.pdf", "rb").read()))
+file_hash = hash_buffer(open("contract.pdf", "rb").read())
+origin = core.attest(file_hash)
 
 # Verify (public, no key)
 result = UmariseCore().verify(file_hash)`}</pre>
