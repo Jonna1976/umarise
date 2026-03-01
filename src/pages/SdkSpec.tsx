@@ -248,7 +248,7 @@ try {
               ["Partner onboarding docs", "Superseded - API reference covers this fully"],
               ["SDK spec (this document)", "Complete"],
               ["npm package @umarise/anchor", "Complete - GitHub repo live"],
-              ["PyPI package umarise", "SDK code ready, not yet published (~1 day)"],
+              ["PyPI package umarise", "GitHub repo live, not yet published on PyPI"],
             ]}
           />
           <P className="text-sm text-muted-foreground mt-4">
