@@ -51,6 +51,7 @@ import ItExisted from "./pages/ItExisted";
 import ItExistedAnchored from "./pages/ItExistedAnchored";
 import ItExistedProof from "./pages/ItExistedProof";
 import SdkSpec from "./pages/SdkSpec";
+import SdkSource from "./pages/SdkSource";
 
 
 
@@ -111,6 +112,7 @@ const App = () => (
             <Route path="/anchored" element={<ItExistedAnchored />} />
             <Route path="/proof/:token" element={<ItExistedProof />} />
             <Route path="/sdk-spec" element={<SdkSpec />} />
+            <Route path="/sdk-source" element={<SdkSource />} />
 
 
             
