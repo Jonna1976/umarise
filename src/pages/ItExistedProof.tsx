@@ -493,7 +493,7 @@ export default function ItExistedProof() {
         <div className="w-full flex flex-col items-start mb-12">
           {anchored ? (
             <>
-              <h1 className="font-playfair text-[28px] md:text-[40px] font-normal"
+              <h1 className="font-playfair text-[28px] md:text-[42px] font-normal"
                 style={{ color: '#f0ead6', lineHeight: 1.25 }}>
                 Your file is anchored
               </h1>
