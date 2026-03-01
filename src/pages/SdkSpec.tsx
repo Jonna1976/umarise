@@ -23,12 +23,12 @@ const SdkSpec = () => {
 
         <hr className="border-border mb-10" />
 
-        {/* Wat het is */}
-        <Section title="Wat het is">
+        {/* What it is */}
+        <Section title="What it is">
           <P>
-            Een npm package die de Umarise Core v1 REST API wrapt in drie functies.
+            An npm package that wraps the Umarise Core v1 REST API into three functions.
             <br />
-            Geen magie. Geen abstractie. Alleen minder boilerplate.
+            No magic. No abstraction. Just less boilerplate.
           </P>
           <Code>npm install @umarise/anchor</Code>
         </Section>
@@ -37,7 +37,7 @@ const SdkSpec = () => {
         <Section title="API Surface">
           {/* anchor() */}
           <H3>anchor(hash, options?) → Promise&lt;AnchorResult&gt;</H3>
-          <P>Registreer een hash in het Umarise-register.</P>
+          <P>Register a hash in the Umarise registry.</P>
           <Code lang="typescript">{`import { anchor } from '@umarise/anchor';
 
 const result = await anchor('sha256:a7f3b2c1e4d5...', {
@@ -56,16 +56,16 @@ const result = await anchor('sha256:a7f3b2c1e4d5...', {
           <Table
             headers={["Parameter", "Type", "Required", "Description"]}
             rows={[
-              ["hash", "string", "✅", "SHA-256 hash. Accepteert sha256:hex of raw 64-char hex."],
-              ["options.apiKey", "string", "✅", "Partner API key (um_live_... of um_test_...)."],
-              ["options.baseUrl", "string", "—", "Override API endpoint. Default: https://core.umarise.com"],
-              ["options.timeout", "number", "—", "Timeout in ms. Default: 12000"],
+              ["hash", "string", "Yes", "SHA-256 hash. Accepts sha256:hex or raw 64-char hex."],
+              ["options.apiKey", "string", "Yes", "Partner API key (um_live_... or um_test_...)."],
+              ["options.baseUrl", "string", "No", "Override API endpoint. Default: https://core.umarise.com"],
+              ["options.timeout", "number", "No", "Timeout in ms. Default: 12000"],
             ]}
           />
 
           <H4>Returns: AnchorResult</H4>
           <Code lang="typescript">{`interface AnchorResult {
-  originId: string;       // UUID — permanent identifier
+  originId: string;       // UUID - permanent identifier
   hash: string;           // Normalized sha256:hex
   capturedAt: string;     // ISO 8601 timestamp
   proofStatus: 'pending'; // Always 'pending' at creation
@@ -87,7 +87,7 @@ const result = await anchor('sha256:a7f3b2c1e4d5...', {
           {/* verify() */}
           <H3>verify(hash, options?) → Promise&lt;VerifyResult | null&gt;</H3>
           <P>
-            Controleer of een hash bestaat in het register. <strong>Geen API key nodig.</strong>
+            Check whether a hash exists in the registry. <strong>No API key needed.</strong>
           </P>
           <Code lang="typescript">{`import { verify } from '@umarise/anchor';
 
@@ -108,14 +108,14 @@ if (result) {
   proofStatus: 'pending' | 'anchored';
   proofUrl: string;       // URL to download .ots proof
 }`}</Code>
-          <P className="text-sm text-muted-foreground">null = hash niet gevonden in het register.</P>
+          <P className="text-sm text-muted-foreground">null = hash not found in registry.</P>
 
           <hr className="border-border my-8" />
 
           {/* proof() */}
           <H3>proof(originId, options?) → Promise&lt;ProofResult&gt;</H3>
           <P>
-            Download de OpenTimestamps proof voor een origin. <strong>Geen API key nodig.</strong>
+            Download the OpenTimestamps proof for an origin. <strong>No API key needed.</strong>
           </P>
           <Code lang="typescript">{`import { proof } from '@umarise/anchor';
 
@@ -146,7 +146,7 @@ switch (result.status) {
 
         {/* hashBuffer */}
         <Section title="Helper: hashBuffer(buffer) → Promise<string>">
-          <P>Utility om een bestand te hashen. Geen Core API call. Altijd async (Web Crypto).</P>
+          <P>Utility to hash a file. No Core API call. Always async (Web Crypto).</P>
           <Code lang="typescript">{`import { anchor, hashBuffer } from '@umarise/anchor';
 import { readFileSync } from 'fs';
 
@@ -155,27 +155,27 @@ const result = await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
 console.log(\`Origin: \${result.originId}\`);`}</Code>
         </Section>
 
-        {/* Wat de SDK NIET doet */}
-        <Section title="Wat de SDK NIET doet">
+        {/* What the SDK does NOT do */}
+        <Section title="What the SDK does NOT do">
           <ul className="space-y-2 list-none">
-            <Li><strong>Geen bestanden opslaan.</strong> Umarise ontvangt alleen hashes, nooit bestanden.</Li>
-            <Li><strong>Geen identiteit.</strong> Geen user accounts, geen sessies.</Li>
-            <Li><strong>Geen interpretatie.</strong> De SDK zegt niet wát iets is, alleen dát het bestond.</Li>
-            <Li><strong>Geen retry logic.</strong> Bij een fout krijg je een error. Jij beslist wat je ermee doet.</Li>
-            <Li><strong>Geen caching.</strong> Elke call gaat naar de Core API.</Li>
+            <Li><strong>No file storage.</strong> Umarise receives only hashes, never files.</Li>
+            <Li><strong>No identity.</strong> No user accounts, no sessions.</Li>
+            <Li><strong>No interpretation.</strong> The SDK does not say what something is, only that it existed.</Li>
+            <Li><strong>No retry logic.</strong> On failure you get an error. You decide what to do with it.</Li>
+            <Li><strong>No caching.</strong> Every call goes directly to the Core API.</Li>
           </ul>
         </Section>
 
-        {/* Technische details */}
-        <Section title="Technische details">
+        {/* Technical details */}
+        <Section title="Technical details">
           <Table
             headers={["Property", "Value"]}
             rows={[
               ["Runtime", "Node.js 18+, Bun, Deno, browsers (ESM)"],
               ["Dependencies", "0 (zero)"],
               ["Bundle size", "< 4 KB gzipped"],
-              ["Protocol", "HTTPS → Umarise Core v1 REST API"],
-              ["Auth", "X-API-Key header (alleen voor anchor())"],
+              ["Protocol", "HTTPS to Umarise Core v1 REST API"],
+              ["Auth", "X-API-Key header (anchor() only)"],
               ["Format", "ESM + CJS dual export"],
             ]}
           />
@@ -184,12 +184,12 @@ console.log(\`Origin: \${result.originId}\`);`}</Code>
         {/* Endpoint mapping */}
         <Section title="Endpoint mapping">
           <Table
-            headers={["SDK functie", "HTTP method", "Core API endpoint"]}
+            headers={["SDK function", "HTTP method", "Core API endpoint"]}
             rows={[
               ["anchor()", "POST", "/v1-core-origins"],
               ["verify()", "POST", "/v1-core-verify"],
               ["proof()", "GET", "/v1-core-proof?origin_id="],
-              ["hashBuffer()", "—", "Lokaal (Web Crypto / Node crypto)"],
+              ["hashBuffer()", "-", "Local (Web Crypto / Node crypto)"],
             ]}
           />
         </Section>
@@ -209,58 +209,60 @@ try {
 }`}</Code>
         </Section>
 
-        {/* Wat Oscar kan zeggen */}
-        <Section title="Wat Oscar kan zeggen">
+        {/* What Oscar can say */}
+        <Section title="Partner pitch">
           <blockquote className="border-l-4 border-primary/40 pl-6 py-2 italic text-muted-foreground leading-relaxed">
-            "Integratie kost één middag. Vier regels code.
+            "Integration takes one afternoon. Four lines of code.
             <br />
-            Jullie bestanden blijven bij jullie. Wij ontvangen alleen de hash.
+            Your files stay with you. We only receive the hash.
             <br />
-            Na integratie kan iedereen — jullie klanten, een rechter, een auditor —
+            After integration, anyone - your clients, a judge, an auditor -
             <br />
-            onafhankelijk verifiëren dat het bestand bestond op dat moment.
+            can independently verify that the file existed at that moment.
             <br />
-            Zonder ons te vertrouwen. De Bitcoin-blockchain is het bewijs."
+            Without trusting us. The Bitcoin blockchain is the proof."
           </blockquote>
         </Section>
 
-        {/* Prijsmodel */}
-        <Section title="Prijsmodel">
-          <P className="italic text-muted-foreground">Nog niet definitief. Beslissing volgt.</P>
+        {/* Pricing */}
+        <Section title="Pricing">
+          <P className="italic text-muted-foreground">Not finalized. Decision pending.</P>
           <P>
-            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">verify()</code> en{" "}
-            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">proof()</code> zijn altijd gratis en ongelimiteerd.
+            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">verify()</code> and{" "}
+            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">proof()</code> are always free and unlimited.
             <br />
-            Verificatie is een publiek goed.
+            Verification is a public good.
           </P>
           <P>
-            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">anchor()</code> vereist een API key. Volume en tarieven volgen.
+            <code className="text-sm bg-muted px-1.5 py-0.5 rounded">anchor()</code> requires an API key. Volume and pricing to follow.
           </P>
         </Section>
 
-        {/* Tijdlijn */}
-        <Section title="Tijdlijn">
+        {/* Timeline */}
+        <Section title="Timeline">
           <Table
-            headers={["Stap", "Status"]}
+            headers={["Step", "Status"]}
             rows={[
-              ["Core API v1", "✅ Live, bevroren"],
-              ["API Reference", "✅ Live — Quick Start, templates, troubleshooting, 15 tests"],
-              ["Partner onboarding docs", "✅ Vervalt — API reference dekt dit volledig"],
-              ["SDK spec (dit document)", "✅ Klaar"],
-              ["npm package @umarise/anchor", "🔲 ~2 dagen werk"],
-              ["PyPI package umarise", "🔲 ~1 dag werk"],
+              ["Core API v1", "Live, frozen"],
+              ["API Reference", "Live - Quick Start, templates, troubleshooting, 15 tests"],
+              ["Partner onboarding docs", "Superseded - API reference covers this fully"],
+              ["SDK spec (this document)", "Complete"],
+              ["npm package @umarise/anchor", "Complete - GitHub repo live"],
+              ["PyPI package umarise", "SDK code ready, not yet published (~1 day)"],
             ]}
           />
           <P className="text-sm text-muted-foreground mt-4">
-            De API reference op umarise.com/api-reference is de partner onboarding. Compleet: curl voorbeelden, 
-            Node.js en Python templates, AI-integratie prompt, Try it Live, 15 geautomatiseerde tests.
+            The API reference at umarise.com/api-reference is the partner onboarding. Complete: curl examples, 
+            Node.js and Python templates, AI integration prompt, Try it Live, 15 automated tests.
           </P>
         </Section>
 
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-col gap-2">
-          <a href="/sdk-source" className="text-primary hover:underline">→ Bekijk SDK broncode</a>
-          <a href="/" className="text-primary hover:underline">← Terug naar home</a>
+          <a href="/sdk-source" className="text-primary hover:underline">View SDK source code</a>
+          <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GitHub Repository</a>
+          <a href="/api-reference" className="text-primary hover:underline">API Reference</a>
+          <a href="/" className="text-primary hover:underline">Back to home</a>
         </footer>
       </div>
     </div>
