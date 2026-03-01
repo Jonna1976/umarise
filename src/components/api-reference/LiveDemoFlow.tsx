@@ -80,7 +80,7 @@ export default function LiveDemoFlow() {
     updateStep(1, { status: 'running' });
     const start = Date.now();
     try {
-      const text = inputText.trim() || `Hello Umarise — ${new Date().toISOString()}`;
+      const text = inputText.trim() || `Hello Umarise - ${new Date().toISOString()}`;
       if (!inputText.trim()) setInputText(text);
       const hex = await sha256Hex(text);
       setComputedHash(hex);
@@ -106,12 +106,12 @@ export default function LiveDemoFlow() {
         body: JSON.stringify({ hash: `sha256:${computedHash}` }),
       });
       const data = await res.json();
-      // 404 is the expected result (hash not attested yet) — show as success with clear labeling
+      // 404 is the expected result (hash not attested yet) - show as success with clear labeling
       const is404 = res.status === 404;
       updateStep(2, { 
         status: is404 || res.ok ? 'success' : 'error',
         response: is404 
-          ? { status: 404, result: 'NOT_FOUND (expected)', message: 'This hash was never attested — the registry correctly confirms it does not exist.' }
+          ? { status: 404, result: 'NOT_FOUND (expected)', message: 'This hash was never attested - the registry correctly confirms it does not exist.' }
           : { status: res.status, ...data },
         duration: Date.now() - start 
       });
@@ -197,7 +197,7 @@ export default function LiveDemoFlow() {
               <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="text-center py-6 space-y-4">
                     <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm max-w-md mx-auto">
-                     This demo uses only <strong className="text-[hsl(var(--landing-cream)/0.95)]">public endpoints</strong> — no API key, no account, no setup.
+                     This demo uses only <strong className="text-[hsl(var(--landing-cream)/0.95)]">public endpoints</strong> - no API key, no account, no setup.
                      You check health, hash text in your browser, and verify it against the live registry.
                   </p>
                   <button
@@ -233,7 +233,7 @@ export default function LiveDemoFlow() {
                 {steps[1].status === 'idle' && (
                   <div className="space-y-3 mt-4">
                     <label className="block text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono uppercase tracking-wider">
-                      Type something — a name, a sentence, a contract clause
+                      Type something - a name, a sentence, a contract clause
                     </label>
                     <input
                       type="text"
@@ -276,7 +276,7 @@ export default function LiveDemoFlow() {
                     <div className="mt-4 space-y-4">
                      <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
-                          <strong className="text-[hsl(var(--landing-cream)/0.95)]">Result: Not Found (404)</strong> — exactly right. 
+                          <strong className="text-[hsl(var(--landing-cream)/0.95)]">Result: Not Found (404)</strong> - exactly right. 
                           This hash was never attested, so the registry correctly confirms it does not exist.
                         </p>
                      </div>
@@ -299,8 +299,8 @@ export default function LiveDemoFlow() {
                   <div className="mt-4 space-y-3">
                     <div className="p-3 rounded border border-[hsl(120,23%,45%,0.2)] bg-[hsl(120,23%,45%,0.04)]">
                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
-                          <strong className="text-[hsl(120,33%,65%)]">Found!</strong> — This is a real attestation from our registry. 
-                          The origin record contains the SHA-256 hash, timestamp, and origin_id — the three facts that constitute proof of existence.
+                           <strong className="text-[hsl(120,33%,65%)]">Found!</strong> - This is a real attestation from our registry. 
+                           The origin record contains the SHA-256 hash, timestamp, and origin_id - the three facts that constitute proof of existence.
                        </p>
                     </div>
                   </div>
@@ -318,7 +318,7 @@ export default function LiveDemoFlow() {
             >
               <div>
                  <p className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-1">
-                   ✓ Demo complete — you've touched every public primitive
+                   ✓ Demo complete - you've touched every public primitive
                  </p>
                  <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs">
                     To create attestations and anchor them to Bitcoin you need a partner API key.

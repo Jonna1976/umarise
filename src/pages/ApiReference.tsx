@@ -84,7 +84,7 @@ export default function ApiReference() {
         {/* ─── DIVIDER ─── */}
         <div className="text-center py-4 border-y border-[hsl(var(--landing-cream)/0.08)]">
           <p className="text-[hsl(var(--landing-cream)/0.5)] text-sm italic">
-            The sections above are everything most integrations need. What follows is the complete technical reference — endpoints, parameters, response formats, error codes, and rate limits.
+            The sections above are everything most integrations need. What follows is the complete technical reference: endpoints, parameters, response formats, error codes, and rate limits.
           </p>
         </div>
 
@@ -375,7 +375,7 @@ if result.proof:
 while true; do
   STATUS=$(curl -s "$BASE/v1-core-resolve?origin_id=$ORIGIN_ID" | grep -o '"proof_status":"[^"]*"' | cut -d'"' -f4)
   [ "$STATUS" = "anchored" ] && echo "Anchored!" && break
-  echo "Status: $STATUS — retrying in 60s..."
+  echo "Status: $STATUS - retrying in 60s..."
   sleep 60
 done`} />
         </section>
@@ -452,7 +452,7 @@ done`} />
                    ['/v1-core-verify', 'Per IP (hashed)', '1,000/min', 'Public'],
                    ['/v1-core-resolve', 'Per IP (hashed)', '1,000/min', 'Public'],
                    ['/v1-core-proof', 'Per IP (hashed)', '1,000/min', 'Public'],
-                   ['/v1-core-health', '—', '—', 'No rate limit'],
+                   ['/v1-core-health', '-', '-', 'No rate limit'],
                 ].map(([ep, scope, window, notes]) => (
                   <tr key={ep} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                     <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))]">{ep}</td>
