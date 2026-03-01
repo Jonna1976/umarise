@@ -2,7 +2,7 @@ import { Zap, Package, Key, ArrowRight } from 'lucide-react';
 
 export default function IntegrationTLDR() {
   return (
-    <section className="border border-[hsl(var(--landing-copper)/0.25)] rounded-lg p-6 bg-[hsl(var(--landing-copper)/0.04)]">
+    <section id="tldr" className="border border-[hsl(var(--landing-copper)/0.25)] rounded-lg p-6 bg-[hsl(var(--landing-copper)/0.04)]">
       {/* Header */}
       <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))] mb-4">Integration TL;DR</h2>
 
@@ -37,7 +37,7 @@ export default function IntegrationTLDR() {
           <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))] mt-0.5 shrink-0" />
           <div>
             <p className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium">2 functions</p>
-            <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs">anchor() + verify()</p>
+            <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs">attest() + verify()</p>
           </div>
         </div>
       </div>
