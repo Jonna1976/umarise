@@ -637,11 +637,11 @@ export default function ItExistedProof() {
               className="flex items-center w-full text-left py-4"
               style={{ background: 'none', border: 'none', cursor: artifactStatus === 'matched' ? 'pointer' : 'default', padding: '16px 0' }}>
               <span className="font-mono text-[13px] tracking-[3px] flex-shrink-0 mr-3"
-                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(240,234,214,0.25)' }}>
-                {downloadedZipBlob ? '✓' : '·'}
+                style={{ color: downloadedZipBlob ? '#7fba6a' : '#F5F0E8' }}>
+                {downloadedZipBlob ? '✓' : '→'}
               </span>
               <span className="font-mono text-[13px] tracking-[3px] uppercase"
-                style={{ color: downloadedZipBlob ? '#7fba6a' : 'rgba(240,234,214,0.25)' }}>
+                style={{ color: downloadedZipBlob ? '#7fba6a' : '#F5F0E8' }}>
                 {downloadedZipBlob ? 'Proof downloaded' : 'Download your proof'}
               </span>
             </button>
