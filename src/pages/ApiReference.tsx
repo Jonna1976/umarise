@@ -9,6 +9,7 @@ import IntegrationChecklist from '@/components/api-reference/IntegrationChecklis
 import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
 import LiveDemoFlow from '@/components/api-reference/LiveDemoFlow';
 import IntegrationTemplates from '@/components/api-reference/IntegrationTemplates';
+import IntegrationTLDR from '@/components/api-reference/IntegrationTLDR';
 
 const BASE_URL = 'https://core.umarise.com';
 
@@ -64,6 +65,9 @@ export default function ApiReference() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
+
+        {/* ─── INTEGRATION TL;DR ─── */}
+        <IntegrationTLDR />
 
         {/* ─── API KEY ─── */}
         <ApiKeySection />
