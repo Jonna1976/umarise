@@ -354,7 +354,7 @@ export default function Verify() {
         // Step 2: certificate.json
         const certFile = zip.file('certificate.json');
         if (!certFile) {
-          setState({ phase: 'error', message: 'This does not appear to be an Umarise origin ZIP. Expected: certificate.json.' });
+          setState({ phase: 'error', message: 'This does not appear to be an origin ZIP. Expected: certificate.json.' });
           return;
         }
         steps.push({ label: 'certificate.json found', status: 'ok' });
@@ -379,16 +379,108 @@ export default function Verify() {
 
         // Step 4: origin ID
         if (cert.origin_id) {
-          steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id.substring(0, 16) + '…' });
+          steps.push({ label: 'Origin ID', status: 'ok', detail: cert.origin_id });
         }
 
-        // Step 5: Layer 2 device identity
+        // Step 5: captured_at
+        if (cert.captured_at) {
+          const d = new Date(cert.captured_at);
+          steps.push({ label: 'Captured at (claimed)', status: 'info', detail: d.toISOString() });
+        }
+
+        // Step 6: Find and verify artifact file
+        const artifactFiles = Object.keys(zip.files).filter(n =>
+          n !== 'certificate.json' &&
+          n !== 'attestation.json' &&
+          n !== 'VERIFY.txt' &&
+          !n.endsWith('.ots') &&
+          !n.startsWith('__MACOSX') &&
+          !n.startsWith('.') &&
+          !zip.files[n].dir
+        );
+
+        let hashMismatch = false;
+
+        if (artifactFiles.length === 0) {
+          steps.push({ label: 'No artifact file found in ZIP', status: 'warn', detail: 'Cannot recompute hash without original file' });
+        } else {
+          const artifactName = artifactFiles[0];
+          steps.push({ label: `Artifact found: ${artifactName}`, status: 'ok' });
+
+          // Recompute hash from artifact bytes
+          const artifactBuf = await zip.file(artifactName)!.async('arraybuffer');
+          const computedHash = await computeSHA256(artifactBuf);
+          steps.push({ label: 'SHA-256 recomputed from artifact', status: 'ok', detail: computedHash.substring(0, 20) + '…' });
+
+          // Compare
+          if (computedHash === rawHash) {
+            steps.push({ label: 'Hash match confirmed', status: 'ok', detail: 'Artifact matches certificate' });
+          } else {
+            steps.push({ label: 'HASH MISMATCH', status: 'error', detail: `Certificate: ${rawHash.substring(0, 16)}… ≠ Computed: ${computedHash.substring(0, 16)}…` });
+            hashMismatch = true;
+          }
+        }
+
+        // Step 7: Check for attestation.json
+        const attestFile = zip.file('attestation.json');
+        if (attestFile) {
+          try {
+            const attestText = await attestFile.async('text');
+            const attest = JSON.parse(attestText);
+            steps.push({ label: 'Attestation certificate present', status: 'ok' });
+            if (attest.attestant_name) {
+              steps.push({ label: `Attestant: ${attest.attestant_name}`, status: 'info' });
+            }
+          } catch {
+            steps.push({ label: 'Attestation file present but unreadable', status: 'warn' });
+          }
+        }
+
+        // Step 8: Check for .ots proof
+        const otsFiles = Object.keys(zip.files).filter(n => n.endsWith('.ots'));
+        if (otsFiles.length > 0) {
+          steps.push({ label: `OpenTimestamps proof found: ${otsFiles[0]}`, status: 'ok' });
+          const otsBuf = await zip.file(otsFiles[0])!.async('arraybuffer');
+          // Validate OTS header magic bytes
+          const header = new Uint8Array(otsBuf.slice(0, 15));
+          const otsHeaderStr = Array.from(header.slice(1, 15)).map(b => String.fromCharCode(b)).join('');
+          if (header[0] === 0x00 && otsHeaderStr === 'OpenTimestamps') {
+            steps.push({ label: 'Valid OpenTimestamps header confirmed', status: 'ok' });
+          } else {
+            steps.push({ label: 'OTS file header not recognized', status: 'warn' });
+          }
+        } else {
+          steps.push({ label: 'No .ots proof in ZIP', status: 'info', detail: 'Anchoring may still be pending' });
+        }
+
+        // Step 9: VERIFY.txt
+        if (zip.file('VERIFY.txt')) {
+          steps.push({ label: 'VERIFY.txt present', status: 'ok' });
+        }
+
+        // Step 10: Device identity
         if (cert.device_signature && cert.device_public_key) {
           steps.push({ label: 'Device signature present', status: 'ok', detail: cert.device_public_key.substring(0, 16) + '…' });
         } else {
           steps.push({ label: 'Device identity binding', status: 'info', detail: 'No device signature in certificate' });
         }
 
+        // If hash mismatch, show mismatch result
+        if (hashMismatch) {
+          setState({
+            phase: 'result',
+            result: {
+              status: 'mismatch',
+              origin_id: cert.origin_id,
+              hash: rawHash,
+              captured_at: cert.captured_at,
+              steps,
+            },
+          });
+          return;
+        }
+
+        // Registry lookup via Core API
         const result = await verifyHash(rawHash, cert, steps);
         setState({ phase: 'result', result });
 
