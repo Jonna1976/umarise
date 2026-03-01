@@ -32,7 +32,7 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
   const showPlus = !isHome;
 
   return (
-    <div className={`fixed top-6 right-6 z-50 flex items-center gap-[14px] ${className}`}>
+    <div className={`fixed top-6 right-6 z-50 flex items-center gap-[14px] ${className}`} style={{ transform: 'scale(1.1)' }}>
       {/* + button — navigate to homepage */}
       {showPlus && (
         <button
