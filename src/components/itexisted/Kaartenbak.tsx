@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
 import { useKaartenbak, KaartenbakItem } from '@/contexts/KaartenbakContext';
 import { loadArtifact } from '@/lib/artifactCache';
+import { fetchOriginByToken } from '@/lib/coreApi';
 import { toast } from 'sonner';
 
 /**
@@ -33,6 +34,29 @@ export default function Kaartenbak() {
     };
     checkAll();
   }, [isOpen, items]);
+
+  // Refresh pending items' status from registry when panel opens
+  useEffect(() => {
+    if (!isOpen) return;
+    const pendingItems = items.filter(i => i.status === 'pending');
+    if (pendingItems.length === 0) return;
+
+    const refreshStatuses = async () => {
+      const updates: KaartenbakItem[] = [];
+      await Promise.all(pendingItems.map(async (item) => {
+        try {
+          const resolved = await fetchOriginByToken(item.shortToken);
+          if (resolved?.proof_status === 'anchored') {
+            updates.push({ ...item, status: 'anchored' });
+          }
+        } catch { /* ignore network errors */ }
+      }));
+      if (updates.length > 0) {
+        addItems(updates);
+      }
+    };
+    refreshStatuses();
+  }, [isOpen]);
 
   const parseZips = useCallback(async (files: FileList | File[]) => {
     setProcessing(true);
