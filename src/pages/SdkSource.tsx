@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const files: { name: string; language: string; code: string }[] = [
   {
@@ -374,6 +374,19 @@ const SdkSource = () => {
     document.title = "@umarise/anchor — Source";
   }, []);
 
+  const downloadAll = useCallback(() => {
+    const content = files
+      .map((f) => `// ═══ ${f.name} ═══\n\n${f.code}`)
+      .join("\n\n\n");
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "umarise-anchor-sdk-source.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-6 py-16">
@@ -382,7 +395,7 @@ const SdkSource = () => {
             @umarise/anchor
           </h1>
           <p className="text-sm text-muted-foreground">
-            SDK broncode — 6 bestanden, 0 dependencies, &lt;4 KB gzipped
+            SDK broncode — 9 bestanden, 0 dependencies, &lt;4 KB gzipped
           </p>
           <div className="mt-3">
             <a href="/sdk-spec" className="text-sm text-primary hover:underline">
@@ -413,7 +426,18 @@ const SdkSource = () => {
           <code>{files[activeFile].code}</code>
         </pre>
 
-        <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground">
+        {/* Download all */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => downloadAll()}
+            className="px-4 py-2 text-sm font-mono bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
+          >
+            ↓ Download alle bestanden (.txt)
+          </button>
+        </div>
+
+        <footer className="mt-16 pt-8 border-t border-border text-sm text-muted-foreground flex flex-col gap-2">
+          <a href="/sdk-spec" className="text-primary hover:underline">→ SDK Specification</a>
           <a href="/" className="text-primary hover:underline">← Terug naar home</a>
         </footer>
       </div>
