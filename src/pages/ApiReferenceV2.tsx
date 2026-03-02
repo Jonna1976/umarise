@@ -162,6 +162,7 @@ export default function ApiReferenceV2() {
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code>
+              <span className="text-[hsl(var(--landing-cream)/0.35)] ml-2">(not browsable - use endpoints below)</span>
             </p>
           </Section>
 
