@@ -83,6 +83,7 @@ const NAV = [
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'changelog', label: 'Changelog' },
 ];
 
 function Sidebar({ active }: { active: string }) {
@@ -161,7 +162,10 @@ export default function ApiReferenceV2() {
               Umarise Core anchors SHA-256 hashes to Bitcoin. Immutable proof that data existed at a specific moment.
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
-              Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code>
+              Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · Version: <code className="text-[hsl(var(--landing-copper))]">v1</code> (frozen)
+            </p>
+            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-1">
+              All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>. The v1 contract is frozen - no breaking changes.
             </p>
 
             {/* Verify Now — instant gratification */}
@@ -199,6 +203,42 @@ export default function ApiReferenceV2() {
               Request a key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a>
               <span className="text-[hsl(var(--landing-cream)/0.35)]"> — typically issued within 24 hours.</span>
             </p>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Header</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Required</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Content-Type', 'POST only', 'application/json'],
+                    ['X-API-Key', 'POST /origins', 'Partner API key (um_...)'],
+                    ['X-API-Version', 'No', 'Returned in all responses. Currently v1.'],
+                  ].map(([header, req, desc]) => (
+                    <tr key={header} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+                      <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{header}</td>
+                      <td className="py-2 pr-4 text-xs">{req}</td>
+                      <td className="py-2 text-[hsl(var(--landing-cream)/0.7)] text-xs">{desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Response Envelope</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+              Success responses return the resource directly. Error responses use a consistent envelope:
+            </p>
+            <Code code={`// Success (2xx)
+{ "origin_id": "...", "hash": "...", ... }
+
+// Error (4xx/5xx)
+{ "error": { "code": "ERROR_CODE", "message": "Human-readable description" } }`} />
           </Section>
 
           {/* -- Quick Start -- */}
@@ -404,7 +444,11 @@ done`}
 
           <Section id="resolve">
             <Endpoint method="GET" path="/v1-core-resolve" title="Look up an origin by ID or hash. Hash lookups return the earliest attestation." auth="public">
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Examples</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
+              <Param name="origin_id" type="uuid" desc="Look up by origin ID (mutually exclusive with hash)" />
+              <Param name="hash" type="string" desc="Look up by SHA-256 hash. Returns earliest attestation." />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Examples</h4>
               <Code code={`curl "${BASE}/v1-core-resolve?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890"`} />
               <Code code={`curl "${BASE}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`} />
 
@@ -418,12 +462,32 @@ done`}
   "bitcoin_block_height": 880123,
   "anchored_at": "2026-02-17T14:30:00.000Z"
 }`} />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response fields</h4>
+              <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation." />
+              <Param name="hash" type="string" desc="SHA-256 hash with algorithm prefix." />
+              <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was first registered. Immutable." />
+              <Param name="proof_status" type="string" desc={`"pending" or "anchored". Anchored = Bitcoin-confirmed.`} />
+              <Param name="bitcoin_block_height" type="integer" desc="Bitcoin block number. Present only when anchored." />
+              <Param name="anchored_at" type="ISO 8601" desc="Timestamp of Bitcoin confirmation. Present only when anchored." />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <Code code={`// 404 — Origin or hash not found
+{ "error": { "code": "NOT_FOUND", "message": "No attestation found" } }`} />
+              <Code code={`// 400 — Missing parameter
+{ "error": { "code": "INVALID_REQUEST_BODY", "message": "Provide origin_id or hash" } }`} />
+
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
+                Typical response time: &lt;200ms. Rate limit: 1,000/min per IP.
+              </p>
             </Endpoint>
           </Section>
 
           <Section id="verify">
             <Endpoint method="POST" path="/v1-core-verify" title="Check if a hash exists in the registry. Returns the earliest attestation for this hash." auth="public">
-              <Param name="hash" type="string" required desc="SHA-256 hash to verify" />
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Request</h4>
+              <Param name="hash" type="string" required desc="SHA-256 hash to verify (64 hex chars, optional sha256: prefix)" />
+              <Code code={`{ "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" }`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200 (match)</h4>
               <Code code={`{
@@ -433,17 +497,51 @@ done`}
   "proof_status": "anchored"
 }`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 404 (no match)</h4>
-              <Code code={`{ "error": { "code": "NOT_FOUND", "message": "No attestation found for this hash" } }`} />
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response fields</h4>
+              <Param name="origin_id" type="uuid" desc="Unique identifier for the earliest attestation of this hash." />
+              <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
+              <Param name="captured_at" type="ISO 8601" desc="When this hash was first registered." />
+              <Param name="proof_status" type="string" desc={`"pending" or "anchored".`} />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <Code code={`// 404 — Hash not found in registry
+{ "error": { "code": "NOT_FOUND", "message": "No attestation found for this hash" } }`} />
+              <Code code={`// 400 — Invalid hash format
+{ "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
+
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
+                Typical response time: &lt;200ms. Rate limit: 1,000/min per IP. No API key required.
+              </p>
             </Endpoint>
           </Section>
 
           <Section id="proof">
             <Endpoint method="GET" path="/v1-core-proof" title="Download the OpenTimestamps (.ots) proof file." auth="public">
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
               <Param name="origin_id" type="uuid" required desc="Origin to download proof for" />
-              <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mt-3 mb-1">Returns binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code>. 202 if still pending.</p>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mb-2">Typical response time: &lt;200ms.</p>
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200</h4>
+              <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-1">Binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code>. Save as <code className="text-[hsl(var(--landing-copper))]">.ots</code> file.</p>
               <Code code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ID" -o proof.ots`} />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 202 (pending)</h4>
+              <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-1">Proof not yet available. Bitcoin anchoring in progress.</p>
+              <Code code={`{ "error": { "code": "PROOF_PENDING", "message": "Proof is pending Bitcoin confirmation" } }`} />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <Code code={`// 404 — Origin not found
+{ "error": { "code": "NOT_FOUND", "message": "No attestation found for this origin_id" } }`} />
+
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mt-4">
+                Verify independently at{' '}
+                <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
+                  verify-anchoring.org
+                </a>
+                {' '}- no account required.
+              </p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-1">
+                Typical response time: &lt;200ms. Rate limit: 1,000/min per IP.
+              </p>
             </Endpoint>
           </Section>
 
@@ -717,6 +815,37 @@ print(result["captured_at"])`} />
               Vendor-neutral. IEC-conformant. Forward to legal, compliance, or technical counterparts.
             </p>
           </div>
+
+          {/* -- Changelog -- */}
+          <Section id="changelog">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-4">Changelog</h2>
+            <div className="space-y-4">
+              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
+                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-03-02</span>
+                <div>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">Documentation: Stripe-level DX</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Added response field descriptions on all endpoints. Added error responses per endpoint. Added request headers table and response envelope docs. Added polling guidance with timing caveats. Added partner one-liner.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
+                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-02-27</span>
+                <div>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">API Reference v2</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Redesigned API documentation. Added "Verify Now" instant demo. Structured Quick Start (5 steps). End-to-end SDK examples for Node.js and Python.</p>
+                </div>
+              </div>
+              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
+                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-02-16</span>
+                <div>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">Core v1 API launch</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Initial release. POST /origins, GET /resolve, POST /verify, GET /proof. Partner API keys. Rate limiting. OpenTimestamps integration.</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-4 font-mono">
+              The v1 contract is frozen. No breaking changes. Additions are backward-compatible.
+            </p>
+          </Section>
 
           {/* Footer */}
           <div className="pt-8 border-t border-[hsl(var(--landing-cream)/0.06)] text-center">
