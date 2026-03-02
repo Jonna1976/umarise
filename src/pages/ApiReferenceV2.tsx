@@ -180,7 +180,10 @@ export default function ApiReferenceV2() {
           {/* ── Quick Start ── */}
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
-            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-4">Two commands. Replace YOUR_KEY with your API key.</p>
+            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Two commands. Replace YOUR_KEY with your API key.</p>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
+              Test hash: SHA-256 of an empty file. Safe to use for testing — this record already exists.
+            </p>
 
             <div className="space-y-4">
               <div>
@@ -229,15 +232,17 @@ export default function ApiReferenceV2() {
   "proof_status": "pending"
 }`} />
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
-                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> → <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
+                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> → <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10–20 minutes.
+                Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve?origin_id=...</code> every 60 seconds until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.
               </p>
             </Endpoint>
           </Section>
 
           <Section id="resolve">
             <Endpoint method="GET" path="/v1-core-resolve" title="Look up an origin by ID or hash. Hash lookups return the earliest attestation." auth="public">
-              <Param name="origin_id" type="uuid" desc="Origin identifier" />
-              <Param name="hash" type="string" desc="SHA-256 hash (returns first-in-time)" />
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Examples</h4>
+              <Code code={`curl "${BASE}/v1-core-resolve?origin_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890"`} />
+              <Code code={`curl "${BASE}/v1-core-resolve?hash=sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200</h4>
               <Code code={`{
@@ -253,7 +258,7 @@ export default function ApiReferenceV2() {
           </Section>
 
           <Section id="verify">
-            <Endpoint method="POST" path="/v1-core-verify" title="Check if a hash exists in the registry." auth="public">
+            <Endpoint method="POST" path="/v1-core-verify" title="Check if a hash exists in the registry. Returns the earliest attestation for this hash." auth="public">
               <Param name="hash" type="string" required desc="SHA-256 hash to verify" />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200 (match)</h4>
@@ -340,7 +345,7 @@ export default function ApiReferenceV2() {
               </table>
             </div>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
-              Headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code>
+              Headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code> (Unix timestamp)
             </p>
           </Section>
 
@@ -387,8 +392,7 @@ result = UmariseCore().verify(file_hash)`} />
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                <span className="text-amber-400/80 font-mono">Note:</span> npm and PyPI packages are being published. 
-                In the meantime, you can clone the SDK from GitHub or use the REST API directly with the curl examples above.
+                <span className="text-amber-400/80 font-mono">Note:</span> REST API is production-ready. SDKs in final testing — use curl examples as fallback.
               </p>
             </div>
           </Section>
