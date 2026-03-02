@@ -71,6 +71,9 @@ export default function CreationIntegrity() {
           <p className="text-landing-cream/90 leading-relaxed text-lg">
             Creation Integrity is the verifiable property that a specific digital artifact existed in its exact byte-form at or before a specific moment in time.
           </p>
+          <p className="text-landing-muted/40 text-xs mt-4 tracking-wide">
+            Published 2 March 2026
+          </p>
         </div>
 
         <div className="space-y-16 text-landing-muted/80 leading-relaxed">
