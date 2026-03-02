@@ -41,7 +41,7 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
   };
 
   return (
-    <div className={`fixed top-6 right-6 z-50 flex items-center gap-[14px] ${className}`} style={{ transform: 'scale(1.1)' }}>
+    <div className={`fixed top-6 right-6 z-50 flex items-center gap-[8px] ${className}`} style={{ transform: 'scale(1.1)' }}>
       {/* Proof icon — navigate to proof entry (ZIP drop) */}
       {showProofIcon && (
         <button
@@ -50,7 +50,7 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
           style={{ background: 'none', border: 'none', cursor: 'pointer' }}
           aria-label="View proof"
         >
-          <svg viewBox="0 0 24 24" width={18} height={18} style={{ opacity: 0.55, transition: 'opacity 0.2s' }}
+          <svg viewBox="0 0 24 24" width={20} height={20} style={{ opacity: 0.55, transition: 'opacity 0.2s' }}
             onMouseEnter={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.9'; }}
             onMouseLeave={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.55'; }}>
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"
