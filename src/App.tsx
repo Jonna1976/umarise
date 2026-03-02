@@ -104,7 +104,7 @@ const App = () => (
                 ? <Navigate to="/" replace />
                 : <Verify />
             } />
-            <Route path="/reviewer" element={<ReviewerPackage />} />
+            <Route path="/reviewer" element={<InternalGate><ReviewerPackage /></InternalGate>} />
             <Route path="/legal" element={<Legal />} />
             <Route path="/technical" element={<Technical />} />
             <Route path="/status" element={<Status />} />
