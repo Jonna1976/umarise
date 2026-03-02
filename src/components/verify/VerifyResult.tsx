@@ -20,6 +20,7 @@ export interface VerifyResultData {
   signature?: string | null;
   device_signature?: string | null;
   device_public_key?: string | null;
+  revocation?: { revoked: boolean; revoked_at?: string; reason?: string } | null;
   steps?: VerifyStep[];
 }
 
@@ -217,6 +218,26 @@ export function VerifyResult({ result, onReset }: VerifyResultProps) {
             <p className="mt-3 text-[14px] italic" style={{ color: 'hsl(142 15% 52%)' }}>
               Anchored in Bitcoin — block number loading.
             </p>
+          )}
+
+          {result.revocation?.revoked && (
+            <div
+              className="mt-5 rounded-sm px-5 py-4 flex items-start gap-3"
+              style={{
+                background: 'hsl(38 25% 8%)',
+                border: '1px solid hsl(38 40% 32% / 0.5)',
+              }}
+            >
+              <span className="font-mono text-[13px] flex-shrink-0" style={{ color: 'hsl(38 65% 60%)' }}>!</span>
+              <div>
+                <p className="font-mono text-[10px] tracking-[2px] uppercase mb-1" style={{ color: 'hsl(38 65% 60%)' }}>
+                  Association released
+                </p>
+                <p className="text-[13px]" style={{ color: 'hsl(38 20% 65%)' }}>
+                  The creator has released their association with this origin. The anchor record and proof remain valid and independently verifiable.
+                </p>
+              </div>
+            </div>
           )}
 
           {result.proof_status === 'anchored' && (
