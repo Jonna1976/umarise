@@ -346,16 +346,21 @@ export default function ApiReferenceV2() {
 
           {/* ── SDKs ── */}
           <Section id="sdks">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-4">SDKs</h2>
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">SDKs</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-4">
+              Thin wrappers around the REST API. Zero dependencies. Copy into your project or install from the package registry.
+            </p>
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Node.js</p>
+                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Node.js / TypeScript</p>
+                <Code code={`npm install @umarise/anchor`} />
                 <Code code={`import { anchor, verify, hashBuffer } from '@umarise/anchor';
 
 const hash = await hashBuffer(readFileSync('doc.pdf'));
 await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
 
-// Verify (public, no key)
+// Verify (public, no key needed)
 const result = await verify(hash);`} />
                 <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
@@ -364,18 +369,27 @@ const result = await verify(hash);`} />
               </div>
               <div>
                 <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Python</p>
+                <Code code={`pip install umarise`} />
                 <Code code={`from umarise import UmariseCore, hash_buffer
+import os
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 origin = core.attest(hash_buffer(open("doc.pdf","rb").read()))
 
-# Verify (public, no key)
+# Verify (public, no key needed)
 result = UmariseCore().verify(file_hash)`} />
                 <a href="https://github.com/Jonna1976/umarise-python" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
                   GitHub →
                 </a>
               </div>
+            </div>
+
+            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                <span className="text-amber-400/80 font-mono">Note:</span> npm and PyPI packages are being published. 
+                In the meantime, you can clone the SDK from GitHub or use the REST API directly with the curl examples above.
+              </p>
             </div>
           </Section>
 
