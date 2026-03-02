@@ -46,6 +46,7 @@ import Verify from "./pages/Verify";
 import Legal from "./pages/Legal";
 import Technical from "./pages/Technical";
 import Status from "./pages/Status";
+import ApiReference from "./pages/ApiReference";
 import ApiReferenceV2 from "./pages/ApiReferenceV2";
 import ItExisted from "./pages/ItExisted";
 import ItExistedAnchored from "./pages/ItExistedAnchored";
@@ -103,6 +104,7 @@ const App = () => (
             <Route path="/technical" element={<Technical />} />
             <Route path="/status" element={<Status />} />
             <Route path="/api-reference" element={<ApiReferenceV2 />} />
+            <Route path="/api-reference-v1" element={<ApiReference />} />
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             <Route path="/itexisted" element={<ItExisted />} />
             <Route path="/itexisted/anchored" element={<ItExistedAnchored />} />
