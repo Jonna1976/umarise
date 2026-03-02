@@ -7,7 +7,7 @@ Single-file SDK for [Umarise Core v1](https://umarise.com/core). Zero external d
 ## Quick Start
 
 ```typescript
-import { UmariseCore, hashBytes } from './umarise-core';
+import { UmariseCore, hashBytes } from '@umarise/anchor';
 import { readFile } from 'fs/promises';
 
 // 1. Initialize (public endpoints need no API key)
@@ -79,7 +79,7 @@ const byHash = await core.resolve({ hash });
 Standalone utility. Hashes a `Buffer` or `Uint8Array` using SHA-256.
 
 ```typescript
-import { hashBytes } from './umarise-core';
+import { hashBytes } from '@umarise/anchor';
 const hash = await hashBytes(fileBuffer);
 // Returns: "sha256:a1b2c3..."
 ```
@@ -87,7 +87,7 @@ const hash = await hashBytes(fileBuffer);
 ## Error Handling
 
 ```typescript
-import { UmariseCoreError } from './umarise-core';
+import { UmariseCoreError } from '@umarise/anchor';
 
 try {
   await core.attest(hash);
@@ -107,7 +107,7 @@ Error codes: `UNAUTHORIZED`, `API_KEY_REVOKED`, `INVALID_HASH_FORMAT`, `RATE_LIM
 ### Automated Attestation (e.g., LMS upload hook)
 
 ```typescript
-import { UmariseCore, hashBytes } from './umarise-core';
+import { UmariseCore, hashBytes } from '@umarise/anchor';
 import { readFile } from 'fs/promises';
 
 const core = new UmariseCore({ apiKey: process.env.UMARISE_API_KEY });
@@ -148,4 +148,4 @@ The SDK creates and verifies **existence proofs**: a specific hash existed at a 
 
 ## License
 
-MIT
+Unlicense (Public Domain)
