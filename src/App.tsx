@@ -51,6 +51,7 @@ import ApiReferenceV2 from "./pages/ApiReferenceV2";
 import ItExisted from "./pages/ItExisted";
 import ItExistedAnchored from "./pages/ItExistedAnchored";
 import ItExistedProof from "./pages/ItExistedProof";
+import ItExistedProofEntry from "./pages/ItExistedProofEntry";
 import SdkSpec from "./pages/SdkSpec";
 import SdkSource from "./pages/SdkSource";
 import CreationIntegrity from "./pages/CreationIntegrity";
@@ -112,9 +113,11 @@ const App = () => (
             <Route path="/witness/:token" element={<WitnessConfirmation />} />
             <Route path="/itexisted" element={<ItExisted />} />
             <Route path="/itexisted/anchored" element={<ItExistedAnchored />} />
+            <Route path="/itexisted/proof" element={<ItExistedProofEntry />} />
             <Route path="/itexisted/proof/:token" element={<ItExistedProof />} />
             {/* itexisted.app root-level routes */}
             <Route path="/anchored" element={<ItExistedAnchored />} />
+            <Route path="/proof" element={<ItExistedProofEntry />} />
             <Route path="/proof/:token" element={<ItExistedProof />} />
             <Route path="/sdk-spec" element={<SdkSpec />} />
             <Route path="/sdk-source" element={<SdkSource />} />

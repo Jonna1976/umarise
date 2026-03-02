@@ -31,8 +31,36 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
   const isHome = location.pathname === '/itexisted' || location.pathname === '/';
   const showPlus = !isHome;
 
+  // Show proof icon when not already on proof entry page
+  const isProofEntry = location.pathname === '/itexisted/proof' || location.pathname === '/proof';
+  const showProofIcon = !isProofEntry;
+
+  const handleProofNav = () => {
+    const isItExisted = window.location.hostname === 'itexisted.app';
+    navigate(isItExisted ? '/proof' : '/itexisted/proof');
+  };
+
   return (
     <div className={`fixed top-6 right-6 z-50 flex items-center gap-[14px] ${className}`} style={{ transform: 'scale(1.1)' }}>
+      {/* Proof icon — navigate to proof entry (ZIP drop) */}
+      {showProofIcon && (
+        <button
+          onClick={handleProofNav}
+          className="w-[26px] h-[26px] flex items-center justify-center transition-all duration-300"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          aria-label="View proof"
+        >
+          <svg viewBox="0 0 24 24" width={16} height={16} style={{ opacity: 0.4, transition: 'opacity 0.2s' }}
+            onMouseEnter={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.8'; }}
+            onMouseLeave={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.4'; }}>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"
+              fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
+            <path d="M14 2v6h6" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
+            <path d="M9 15l2 2 4-4" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
+          </svg>
+        </button>
+      )}
+
       {/* + button — navigate to homepage */}
       {showPlus && (
         <button
