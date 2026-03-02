@@ -43,6 +43,11 @@ interface CertificateData {
   signature?: string | null;
   device_signature?: string | null;
   device_public_key?: string | null;
+  revocation?: {
+    revoked: boolean;
+    revoked_at?: string;
+    reason?: string;
+  } | null;
 }
 
 async function verifyHash(hash: string, cert?: CertificateData, extraSteps: VerifyStep[] = []): Promise<VerifyResultData> {
@@ -95,6 +100,7 @@ async function verifyHash(hash: string, cert?: CertificateData, extraSteps: Veri
     signature: cert?.signature ?? null,
     device_signature: cert?.device_signature ?? null,
     device_public_key: cert?.device_public_key ?? null,
+    revocation: cert?.revocation ?? null,
     steps,
   };
 }
@@ -466,7 +472,14 @@ export default function Verify() {
           steps.push({ label: 'Device identity binding', status: 'info', detail: 'No device signature in certificate' });
         }
 
-        // If hash mismatch, show mismatch result
+        // Step 11: Revocation status
+        if (cert.revocation && cert.revocation.revoked) {
+          const revokedDetail = cert.revocation.revoked_at
+            ? `Released on ${new Date(cert.revocation.revoked_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}`
+            : 'Association released';
+          steps.push({ label: 'Association revoked', status: 'warn', detail: revokedDetail });
+        }
+
         if (hashMismatch) {
           setState({
             phase: 'result',

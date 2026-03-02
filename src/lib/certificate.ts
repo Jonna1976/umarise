@@ -89,6 +89,16 @@ export interface OriginCertificate {
   /** Identity assurance binding (v1.3+) */
   identity_binding?: IdentityBinding;
 
+  /** Revocation status (v1.3+) — set when association is released */
+  revocation?: {
+    /** Whether the association has been revoked */
+    revoked: boolean;
+    /** ISO 8601 timestamp of revocation */
+    revoked_at: string;
+    /** Reason category */
+    reason: 'association_released' | 'key_compromised' | 'other';
+  } | null;
+
   /** Certificate metadata (v1.3+) */
   meta?: {
     /** Specification version reference */
@@ -122,6 +132,7 @@ export function createCertificate(
   deviceSignature: string | null = null,
   devicePublicKey: string | null = null,
   attestationIncluded: boolean = false,
+  revocation: { revoked_at: string; reason: 'association_released' | 'key_compromised' | 'other' } | null = null,
 ): OriginCertificate {
   // Strip prefix if present (um- → raw hex)
   const cleanId = originId.toUpperCase().replace(/^UM-/i, '');
@@ -159,6 +170,7 @@ export function createCertificate(
     attestation_included: attestationIncluded || undefined,
     sig_algorithm: sigAlgorithm,
     identity_binding: identityBinding,
+    revocation: revocation ? { revoked: true, ...revocation } : null,
     meta: {
       spec_version: 'anchoring-spec.org/v1.3',
       implementation: 'umarise-anchor/1.3.0',
