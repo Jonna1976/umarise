@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -343,33 +343,26 @@ export default UmariseCore;
 };
 
 export default function SdkDownload() {
-  useEffect(() => {
-    async function buildAndDownload() {
-      const zip = new JSZip();
-      const folder = zip.folder('umarise-anchor-sdk')!;
-
-      for (const [path, content] of Object.entries(FILES)) {
-        folder.file(path, content);
-      }
-
-      const blob = await zip.generateAsync({
-        type: 'blob',
-        mimeType: 'application/zip',
-        compression: 'DEFLATE',
-        compressionOptions: { level: 6 },
-      });
-
-      saveAs(blob, 'umarise-anchor-sdk-1.0.0.zip');
+  const handleDownloadZip = useCallback(async () => {
+    const zip = new JSZip();
+    const folder = zip.folder('umarise-anchor-sdk')!;
+    for (const [path, content] of Object.entries(FILES)) {
+      folder.file(path, content);
     }
-
-    buildAndDownload();
+    const blob = await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/zip',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 },
+    });
+    saveAs(blob, 'umarise-anchor-sdk-1.0.0.zip');
   }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
       <div className="max-w-lg text-center space-y-6 px-4">
-        <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
+          <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
           Live on npm
         </div>
 
@@ -400,9 +393,12 @@ export default function SdkDownload() {
           </a>
         </div>
 
-        <p className="text-xs text-muted-foreground pt-2">
-          ZIP download is ook beschikbaar voor offline gebruik.
-        </p>
+        <button
+          onClick={handleDownloadZip}
+          className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
+        >
+          Download als ZIP (offline)
+        </button>
       </div>
     </div>
   );
