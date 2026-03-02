@@ -581,10 +581,27 @@ result = UmariseCore().verify(file_hash)`} />
               </div>
 
               {/* Q10 */}
-              <div>
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already use an RFC 3161 TSA. Should we switch?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
                   Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority - if the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS: trustless, no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
+                </p>
+              </div>
+
+              {/* Q11 */}
+              <div>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"How does Umarise anchoring differ from C2PA?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  Umarise anchoring and C2PA operate at different verification layers. An anchoring proof asserts only: the exact byte sequence (or its cryptographic hash) existed at or before time T. Time T is derived from a publicly verifiable ledger. Verification requires recomputing the hash, validating the ledger inclusion proof, and confirming ledger timestamp finality.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  Anchoring does not assert authorship, identity, ownership, originality, tool usage, editing history, or whether content is AI-generated.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  C2PA, by contrast, asserts that a specific identity signed a manifest describing provenance and production history. C2PA binds time to identity via PKI. Anchoring binds time directly to exact bytes via ledger inclusion.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  Anchoring proofs MAY be embedded as C2PA assertions when both identity provenance and independently verifiable temporal existence are required.
                 </p>
               </div>
 
