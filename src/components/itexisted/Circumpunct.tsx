@@ -54,9 +54,9 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
             onMouseEnter={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.8'; }}
             onMouseLeave={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.4'; }}>
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"
-              fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
-            <path d="M14 2v6h6" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
-            <path d="M9 15l2 2 4-4" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="1.3" />
+              fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
+            <path d="M14 2v6h6" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
+            <path d="M9 15l2 2 4-4" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
           </svg>
         </button>
       )}
