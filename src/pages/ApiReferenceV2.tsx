@@ -211,10 +211,15 @@ export default function ApiReferenceV2() {
                 </div>
                 <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Your content never leaves your device.</p>
                 <Code
-                  code={`shasum -a 256 yourfile.pdf
-# → a1b2c3d4e5f6...  yourfile.pdf`}
+                  code={`shasum -a 256 yourfile.pdf`}
                   copy="shasum -a 256 yourfile.pdf"
                 />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    → <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  yourfile.pdf
+                  </p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">Copy the 64-character hash before the filename. Use it in step 2.</p>
+                </div>
               </div>
 
               {/* Step 2 */}
