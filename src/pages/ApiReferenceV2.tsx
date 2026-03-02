@@ -242,11 +242,51 @@ export default function ApiReferenceV2() {
                   </p>
                 </div>
               </div>
+
+              {/* Step 4 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Check anchoring status</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Wait ~15 min for Bitcoin confirmation, then poll.</p>
+                <Code
+                  code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
+                  copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    → <span className="text-emerald-400">200</span>{' '}
+                    {`{ "proof_status": "anchored", "bitcoin_block_height": 935037 }`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">5.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Download the .ots proof</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Binary OpenTimestamps proof file. Independently verifiable.</p>
+                <Code
+                  code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
+                  copy={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
+                    Verify independently at{' '}
+                    <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
+                      verify-anchoring.org
+                    </a>
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                <span className="text-amber-400/80 font-mono">Tip:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min).
+                <span className="text-amber-400/80 font-mono">Tip:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min). If still pending, wait 5 min and retry step 4.
               </p>
             </div>
           </Section>
