@@ -82,6 +82,7 @@ const NAV = [
   { id: 'errors', label: 'Errors' },
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
+  { id: 'faq', label: 'FAQ' },
 ];
 
 function Sidebar({ active }: { active: string }) {
@@ -498,6 +499,101 @@ result = UmariseCore().verify(file_hash)`} />
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 <span className="text-amber-400/80 font-mono">Note:</span> REST API is production-ready. SDKs in final testing - use curl examples as fallback.
+              </p>
+            </div>
+          </Section>
+
+          {/* ── FAQ ── */}
+          <Section id="faq">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-6">Frequently Asked Questions</h2>
+            <div className="space-y-6">
+
+              {/* Q1 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple — can't anyone build this?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That's the point — anchoring should be infrastructure anyone can use and verify. This API saves you from building and maintaining Merkle-batching, OTS calendar management, and Bitcoin monitoring yourself.
+                </p>
+              </div>
+
+              {/* Q2 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already hash our files with SHA-256. How is this different?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  SHA-256 proves <em>integrity</em> — the bytes haven't changed. Anchoring proves <em>chronology</em> — these bytes existed on or before time T. Without an external time binding, a hash is self-attested: you could generate it today and claim it's from last year. Anchoring binds the hash to Bitcoin's public ledger, providing an independently verifiable timestamp.
+                </p>
+              </div>
+
+              {/* Q3 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What does this add beyond raw OpenTimestamps?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  OTS is the transport layer to Bitcoin. This API adds: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">IEC specification</a> as a semantic framework that defines exactly what a proof does and doesn't establish.
+                </p>
+              </div>
+
+              {/* Q4 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"There are other cryptographic timestamping services. Why this one?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer — if the Certificate Authority or service disappears, verification may break. This API anchors to Bitcoin via OpenTimestamps: verification is trustless and survives the issuer. The .ots proof file + your original + any SHA-256 calculator + the public Bitcoin blockchain = complete verification, forever. No account required. No vendor lock-in.
+                </p>
+              </div>
+
+              {/* Q5 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Is this ledger-agnostic? We use a different blockchain."</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> defines <em>ledger qualification criteria</em> (Section 7), not a specific blockchain. Bitcoin is the current ledger used by this implementation. Any ledger that meets the criteria — publicly accessible, append-only, independently verifiable time ordering, not controlled by the proof issuer — qualifies under the spec.
+                </p>
+              </div>
+
+              {/* Q6 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can I bulk-anchor existing files retroactively?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  Yes. The API accepts hashes — not files. Hash each file locally, then POST each hash. The backend automatically batches hashes into Merkle trees for efficient Bitcoin anchoring. A bulk import is straightforward: loop over your files, compute SHA-256, POST to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. Rate limit: 100 requests/min per API key. Note: the anchor timestamp will reflect when you anchored, not when the file was originally created. Anchoring proves "existed no later than T" — it cannot backdate.
+                </p>
+              </div>
+
+              {/* Q7 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What if Umarise disappears — are my proofs lost?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  No. Once anchored, your proof is self-contained: the .ots file + original artifact + <code className="text-[hsl(var(--landing-copper))]">sha256sum</code> + the public Bitcoin blockchain = complete verification without Umarise. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is open source, forkable, and runs without any backend. The proof survives the issuer.
+                </p>
+              </div>
+
+              {/* Q8 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can you see our data?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  No. The API receives only SHA-256 hashes — never files. A SHA-256 hash is a one-way fingerprint: without the original artifact, the hash is meaningless. There is no mechanism in the system to store, receive, or reconstruct file content. Your data stays in your custody. The hash crosses the network boundary; your content does not.
+                </p>
+              </div>
+
+              {/* Q9 */}
+              <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone — including you — modify or delete an existing record?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  No. Database-level immutability triggers block UPDATE and DELETE operations, even for internal service roles. Row-level security blocks all client-side mutations. And the Bitcoin anchoring makes retroactive modification mathematically detectable. This is architecture, not policy — there is no "admin override" that can alter a committed record.
+                </p>
+              </div>
+
+              {/* Q10 */}
+              <div>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already use an RFC 3161 TSA. Should we switch?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                  Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority — if the CA is compromised or discontinued, verification depends on their infrastructure. This API anchors to Bitcoin via OTS: trustless, no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: if your current solution meets the ledger qualification criteria (Section 7), it can be IEC-conformant regardless of transport. The question is whether your proofs survive the issuer.
+                </p>
+              </div>
+
+            </div>
+
+            {/* Bitcoin disclaimer */}
+            <div className="mt-8 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.45)]">
+                Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
               </p>
             </div>
           </Section>
