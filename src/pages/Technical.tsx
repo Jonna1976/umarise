@@ -469,6 +469,26 @@ export default function Technical() {
             </p>
           </section>
 
+          {/* For Partners */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              For Partners
+            </h2>
+            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-5">
+              <p className="text-landing-muted/60 text-sm mb-3">
+                One-liner for internal stakeholders and downstream customers:
+              </p>
+              <blockquote className="border-l-2 border-landing-copper/40 pl-4 py-2">
+                <p className="text-landing-cream/85 text-sm italic leading-relaxed">
+                  "Umarise provides an anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation."
+                </p>
+              </blockquote>
+              <p className="text-landing-muted/50 text-xs mt-3">
+                Vendor-neutral. IEC-conformant. Forward to legal, compliance, or technical counterparts.
+              </p>
+            </div>
+          </section>
+
           {/* Disclaimer */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">

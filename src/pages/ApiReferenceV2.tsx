@@ -283,7 +283,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">3.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify anytime</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify. Rate-limited at 1,000 requests/min per IP.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -304,7 +304,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Check anchoring status</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Wait ~15 min for Bitcoin confirmation, then poll.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Wait for Bitcoin confirmation (typical: ~15 min, ledger-dependent), then poll.</p>
                 <Code
                   code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
                   copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
@@ -345,7 +345,7 @@ export default function ApiReferenceV2() {
 
             <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2">
-                <span className="text-amber-400/80 font-mono">Production polling:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min).
+                <span className="text-amber-400/80 font-mono">Production polling:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (typical: 10-20 min, ledger-dependent).
               </p>
               <Code
                 code={`# Poll until anchored (bash)
@@ -384,7 +384,7 @@ done`}
               <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation. Use for resolve/proof calls." />
               <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was registered. Immutable." />
-              <Param name="proof_status" type="string" desc={`"pending" → "anchored" after Bitcoin confirmation (10-20 min).`} />
+              <Param name="proof_status" type="string" desc={`"pending" > "anchored" after Bitcoin confirmation (typical: 10-20 min, ledger-dependent).`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <div className="space-y-2">
@@ -701,6 +701,22 @@ print(result["captured_at"])`} />
               </p>
             </div>
           </Section>
+
+          {/* -- For Partners -- */}
+          <div className="p-5 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
+            <h3 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">For Partners</h3>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed mb-3">
+              One-liner for internal stakeholders and downstream customers:
+            </p>
+            <blockquote className="border-l-2 border-[hsl(var(--landing-copper)/0.4)] pl-4 py-2">
+              <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] italic leading-relaxed">
+                "Umarise provides an anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation."
+              </p>
+            </blockquote>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
+              Vendor-neutral. IEC-conformant. Forward to legal, compliance, or technical counterparts.
+            </p>
+          </div>
 
           {/* Footer */}
           <div className="pt-8 border-t border-[hsl(var(--landing-cream)/0.06)] text-center">
