@@ -180,8 +180,16 @@ export default function ApiReferenceV2() {
           {/* -- Quick Start -- */}
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-4">
               Five steps in your terminal. Replace <code className="text-[hsl(var(--landing-copper))]">YOUR_KEY</code> with your API key.
+            </p>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.5)] mb-6">
+              Or use the SDK:{' '}
+              <code className="text-[hsl(var(--landing-copper))]">npm install @umarise/anchor</code>
+              {' '}→{' '}
+              <a href="/sdk-download" className="text-[hsl(var(--landing-copper))] underline underline-offset-2 hover:text-[hsl(var(--landing-cream)/0.8)] transition-colors">
+                docs &amp; quick start
+              </a>
             </p>
 
             <div className="space-y-6">
