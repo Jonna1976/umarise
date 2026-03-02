@@ -359,24 +359,28 @@ export default function SdkDownload() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="max-w-lg text-center space-y-6 px-4">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
-          <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+    <div className="min-h-[100dvh] bg-landing-deep text-landing-cream flex items-center justify-center px-6">
+      <div className="max-w-lg text-center space-y-8">
+        <div className="inline-flex items-center gap-2 bg-landing-muted/10 text-landing-copper px-3 py-1 rounded-full text-sm font-medium tracking-wide">
+          <span className="w-2 h-2 bg-landing-copper rounded-full animate-pulse" />
           Live on npm
         </div>
 
-        <h1 className="text-3xl font-bold">@umarise/anchor</h1>
-        <p className="text-muted-foreground">v1.0.0 — Hash-in, proof-out. Zero dependencies.</p>
+        <h1 className="font-serif text-4xl md:text-5xl tracking-tight text-landing-cream/90">
+          @umarise/anchor
+        </h1>
+        <p className="text-landing-muted/65 tracking-wide">
+          v1.0.0 — Hash-in, proof-out. Zero dependencies.
+        </p>
 
-        <div className="bg-muted/50 border border-border rounded-lg p-4 text-left space-y-2">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Install</p>
-          <code className="block text-sm font-mono text-foreground">npm install @umarise/anchor</code>
+        <div className="bg-landing-muted/8 border border-landing-muted/15 rounded-lg p-4 text-left space-y-2">
+          <p className="text-xs text-landing-muted/50 uppercase tracking-widest">Install</p>
+          <code className="block text-sm font-mono text-landing-cream/90">npm install @umarise/anchor</code>
         </div>
 
-        <div className="bg-muted/50 border border-border rounded-lg p-4 text-left space-y-2">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Quick Start</p>
-          <pre className="text-sm font-mono text-foreground overflow-x-auto whitespace-pre leading-relaxed">{`import { UmariseCore, hashBytes } from '@umarise/anchor';
+        <div className="bg-landing-muted/8 border border-landing-muted/15 rounded-lg p-4 text-left space-y-2">
+          <p className="text-xs text-landing-muted/50 uppercase tracking-widest">Quick Start</p>
+          <pre className="text-sm font-mono text-landing-cream/80 overflow-x-auto whitespace-pre leading-relaxed">{`import { UmariseCore, hashBytes } from '@umarise/anchor';
 
 const core = new UmariseCore({ apiKey: 'um_...' });
 const hash = await hashBytes(fileBuffer);
@@ -388,7 +392,7 @@ const origin = await core.attest(hash);`}</pre>
             href="https://www.npmjs.com/package/@umarise/anchor"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center justify-center gap-2 bg-landing-copper text-landing-deep px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
             View on npm →
           </a>
@@ -396,7 +400,7 @@ const origin = await core.attest(hash);`}</pre>
             href="https://github.com/Jonna1976/umarise-anchor-sdk-node"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-muted text-foreground px-5 py-2.5 rounded-lg font-medium hover:bg-muted/80 transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-landing-muted/10 text-landing-cream/80 px-5 py-2.5 rounded-lg font-medium border border-landing-muted/15 hover:bg-landing-muted/15 transition-colors"
           >
             Source on GitHub
           </a>
@@ -404,17 +408,19 @@ const origin = await core.attest(hash);`}</pre>
 
         <a
           href="/api-reference"
-          className="inline-flex items-center gap-1 text-sm text-primary hover:underline transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-landing-copper hover:underline underline-offset-2 transition-colors tracking-wide"
         >
           Full docs →
         </a>
 
-        <button
-          onClick={handleDownloadZip}
-          className="text-xs text-muted-foreground underline hover:text-foreground transition-colors"
-        >
-          Download als ZIP (offline)
-        </button>
+        <div>
+          <button
+            onClick={handleDownloadZip}
+            className="text-xs text-landing-muted/40 underline underline-offset-2 hover:text-landing-muted/60 transition-colors"
+          >
+            Download als ZIP (offline)
+          </button>
+        </div>
       </div>
     </div>
   );
