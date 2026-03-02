@@ -5,7 +5,7 @@ import JSZip from 'jszip';
 import { toast } from 'sonner';
 import Circumpunct from '@/components/itexisted/Circumpunct';
 import Kaartenbak from '@/components/itexisted/Kaartenbak';
-import { fetchOriginByToken, fetchProofStatus } from '@/lib/coreApi';
+import { fetchProofStatus } from '@/lib/coreApi';
 import { isWebAuthnSupported, isPlatformAuthenticatorAvailable, signHash } from '@/lib/webauthn';
 import { getPasskeyCredential } from '@/lib/passkeyStore';
 import { getDeviceId } from '@/lib/deviceId';
@@ -66,16 +66,22 @@ export default function ItExistedProofEntry() {
         return;
       }
 
-      // Resolve from registry
-      const token = cert.short_token || cert.origin_id.slice(0, 8).toUpperCase();
+      // Resolve from registry — prefer origin_id, fallback to hash
       let proofStatus: 'pending' | 'anchored' = 'pending';
       let bitcoinBlockHeight: number | null = null;
 
       try {
-        const resolved = await fetchOriginByToken(token);
-        if (resolved) {
+        // Use origin_id to resolve (not short_token which may differ from UUID prefix)
+        const resolveUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/v1-core-resolve?origin_id=${encodeURIComponent(cert.origin_id)}`;
+        const resolveRes = await fetch(resolveUrl);
+        if (resolveRes.ok) {
+          const resolved = await resolveRes.json();
           proofStatus = resolved.proof_status === 'anchored' ? 'anchored' : 'pending';
           bitcoinBlockHeight = resolved.bitcoin_block_height ?? null;
+          // Update short_token from registry if missing in cert
+          if (!cert.short_token && resolved.short_token) {
+            cert.short_token = resolved.short_token;
+          }
         }
       } catch {
         // Fallback: try proof status directly
