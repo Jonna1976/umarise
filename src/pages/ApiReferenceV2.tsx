@@ -182,7 +182,7 @@ export default function ApiReferenceV2() {
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
             <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Two commands. Replace YOUR_KEY with your API key.</p>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
-              Test hash: SHA-256 of an empty file. Safe to use for testing — this record already exists.
+              Test hash: SHA-256 of an empty file. Safe to use for testing - this record already exists.
             </p>
 
             <div className="space-y-4">
@@ -232,7 +232,7 @@ export default function ApiReferenceV2() {
   "proof_status": "pending"
 }`} />
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
-                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> → <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10–20 minutes.
+                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> → <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
                 Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve?origin_id=...</code> every 60 seconds until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.
               </p>
             </Endpoint>
@@ -333,7 +333,7 @@ export default function ApiReferenceV2() {
                     ['/v1-core-resolve', '1,000/min', 'Per IP'],
                     ['/v1-core-verify', '1,000/min', 'Per IP'],
                     ['/v1-core-proof', '1,000/min', 'Per IP'],
-                    ['/v1-core-health', 'No limit', '—'],
+                    ['/v1-core-health', 'No limit', '-'],
                   ].map(([ep, limit, scope]) => (
                     <tr key={ep} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                       <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{ep}</td>
@@ -392,7 +392,7 @@ result = UmariseCore().verify(file_hash)`} />
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                <span className="text-amber-400/80 font-mono">Note:</span> REST API is production-ready. SDKs in final testing — use curl examples as fallback.
+                <span className="text-amber-400/80 font-mono">Note:</span> REST API is production-ready. SDKs in final testing - use curl examples as fallback.
               </p>
             </div>
           </Section>
