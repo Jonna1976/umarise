@@ -913,7 +913,50 @@ async function verifyZip(file) {
     steps.push({ label: 'Captured at (claimed)', status: 'info', detail: d.toISOString() });
   }
 
-  // 6. Find artifact file
+  // 5b. Certificate version (v1.3+)
+  if (cert.version) {
+    steps.push({ label: 'Certificate version: ' + cert.version, status: 'info' });
+  }
+
+  // 5c. Signing algorithm (v1.3+)
+  if (cert.sig_algorithm) {
+    steps.push({ label: 'Signature algorithm', status: 'ok', detail: cert.sig_algorithm });
+  } else if (cert.device_signature) {
+    steps.push({ label: 'Device signature present (algorithm implicit)', status: 'info' });
+  }
+
+  // 5d. Device binding (Layer 2)
+  if (cert.device_signature && cert.device_public_key) {
+    steps.push({ label: 'Device-signed (Layer 2)', status: 'ok', detail: 'WebAuthn hardware binding present' });
+  } else if (cert.device_public_key) {
+    steps.push({ label: 'Device key present (Layer 2)', status: 'info' });
+  }
+
+  // 5e. Identity binding (v1.3+)
+  if (cert.identity_binding && cert.identity_binding.level) {
+    const ib = cert.identity_binding;
+    const levelLabels = {
+      'L1': 'L1 — self-asserted (passkey only)',
+      'L2': 'L2 — KYC / video-ident verified',
+      'L3': 'L3 — notarial verification'
+    };
+    const levelLabel = levelLabels[ib.level] || ib.level;
+    steps.push({ label: 'Identity binding: ' + levelLabel, status: 'info' });
+    
+    if (ib.reference_hash_sha256) {
+      steps.push({ label: 'Identity evidence hash', status: 'ok', detail: ib.reference_hash_sha256 });
+    }
+    if (ib.issuer_type && ib.issuer_type !== 'self') {
+      steps.push({ label: 'Identity issuer: ' + ib.issuer_type + (ib.issuer_id ? ' (' + ib.issuer_id + ')' : ''), status: 'info' });
+    }
+  }
+
+  // 5f. Spec version (v1.3+)
+  if (cert.meta && cert.meta.spec_version) {
+    steps.push({ label: 'Spec: ' + cert.meta.spec_version, status: 'info' });
+  }
+
+
   const artifactFiles = Object.keys(zip.files).filter(n =>
     n !== 'certificate.json' &&
     n !== 'attestation.json' &&
