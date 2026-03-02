@@ -50,13 +50,13 @@ export default function Circumpunct({ className = '' }: { className?: string }) 
           style={{ background: 'none', border: 'none', cursor: 'pointer' }}
           aria-label="View proof"
         >
-          <svg viewBox="0 0 24 24" width={16} height={16} style={{ opacity: 0.4, transition: 'opacity 0.2s' }}
-            onMouseEnter={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.8'; }}
-            onMouseLeave={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.4'; }}>
+          <svg viewBox="0 0 24 24" width={18} height={18} style={{ opacity: 0.55, transition: 'opacity 0.2s' }}
+            onMouseEnter={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.9'; }}
+            onMouseLeave={(e) => { (e.currentTarget as SVGSVGElement).style.opacity = '0.55'; }}>
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"
-              fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
-            <path d="M14 2v6h6" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
-            <path d="M9 15l2 2 4-4" fill="none" stroke="rgba(197,147,90,0.7)" strokeWidth="0.9" />
+              fill="none" stroke="rgba(197,147,90,0.85)" strokeWidth="1.2" />
+            <path d="M14 2v6h6" fill="none" stroke="rgba(197,147,90,0.85)" strokeWidth="1.2" />
+            <path d="M9 15l2 2 4-4" fill="none" stroke="rgba(197,147,90,0.85)" strokeWidth="1.2" />
           </svg>
         </button>
       )}
