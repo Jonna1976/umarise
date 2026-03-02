@@ -528,7 +528,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What does this add beyond raw OpenTimestamps?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  OTS is the transport layer to Bitcoin. This API adds: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">IEC specification</a> as a semantic framework that defines exactly what a proof does and doesn't establish.
+                  OpenTimestamps is a protocol — like HTTP is a protocol. You wouldn't say your web application "is HTTP." OTS defines how to get a hash into Bitcoin. This API uses OTS as its transport layer and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> as a semantic framework that defines exactly what a proof does and doesn't establish.
                 </p>
               </div>
 
