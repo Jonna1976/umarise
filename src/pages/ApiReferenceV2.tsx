@@ -224,7 +224,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">2.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Anchor the hash</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Paste the hash from step 1.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Replace YOUR_KEY with your API key and paste the hash from step 1.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-origins \\
   -H "Content-Type: application/json" \\
