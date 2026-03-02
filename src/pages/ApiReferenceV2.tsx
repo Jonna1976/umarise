@@ -182,10 +182,29 @@ export default function ApiReferenceV2() {
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
-              Three steps in your terminal. Replace <code className="text-[hsl(var(--landing-copper))]">YOUR_KEY</code> with your API key.
+              Five steps in your terminal. Replace <code className="text-[hsl(var(--landing-copper))]">YOUR_KEY</code> with your API key.
             </p>
 
             <div className="space-y-6">
+              {/* Step 0 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-sm font-bold">0.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Check API status</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Optional. Confirm the API is online.</p>
+                <Code
+                  code={`curl "${BASE}/v1-core-health"`}
+                  copy={`curl "${BASE}/v1-core-health"`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    → <span className="text-emerald-400">200</span>{' '}
+                    {`{ "status": "operational", "version": "v1" }`}
+                  </p>
+                </div>
+              </div>
+
               {/* Step 1 */}
               <div>
                 <div className="flex items-baseline gap-2 mb-1.5">
