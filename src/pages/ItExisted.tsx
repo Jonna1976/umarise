@@ -141,7 +141,7 @@ export default function ItExisted() {
             style={{ lineHeight: '2.2' }}>
 
             {/* Single statement */}
-            <p className="font-playfair text-[37px] md:text-[52px] font-light leading-snug" style={{ color: 'hsl(var(--itx-gold))' }}>
+            <p className="font-playfair text-[30px] md:text-[42px] font-light leading-snug" style={{ color: 'hsl(var(--itx-gold))' }}>
               Anchor what
               <br />
               matters.
