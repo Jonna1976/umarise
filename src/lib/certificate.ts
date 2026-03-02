@@ -13,6 +13,8 @@
  * - `signature` — hash signed by private key (verifiable with claimed_by, no server lookup)
  * - `device_signature` — WebAuthn signature over the hash (v1.1)
  * - `device_public_key` — SPKI public key of the signing device (v1.1)
+ * - `sig_algorithm` — explicit signing algorithm identifier (v1.3)
+ * - `identity_binding` — assurance level and onboarding evidence reference (v1.3)
  * 
  * This format must be identical to what verify.umarise.com reads.
  * Once created, a certificate is never modified.
@@ -20,11 +22,30 @@
  * Version history:
  * - 1.0: Initial schema (hash, origin_id, claimed_by, signature)
  * - 1.1: Added device_signature + device_public_key (passkey signing of hash)
+ * - 1.2: Added attestation_included (Layer 3)
+ * - 1.3: Added sig_algorithm, identity_binding, meta (AES preparation)
  */
 
+/** Identity assurance level */
+export type IdentityLevel = 'L1' | 'L2' | 'L3';
+
+/** Identity binding — links the anchor to a verified person */
+export interface IdentityBinding {
+  /** Assurance level: L1 = passkey only, L2 = KYC/video-ident, L3 = notarial */
+  level: IdentityLevel;
+  /** SHA-256 hash of onboarding evidence (KYC session, notarial act). Null for L1. */
+  reference_hash_sha256: string | null;
+  /** ISO 8601 timestamp of identity verification. Null for L1. */
+  issued_at: string | null;
+  /** Type of identity issuer */
+  issuer_type: 'self' | 'kyc_provider' | 'notary' | 'other';
+  /** Identifier of the issuer (DID, KvK number, internal ID). Null for L1. */
+  issuer_id: string | null;
+}
+
 export interface OriginCertificate {
-  /** Schema version — "1.0" legacy, "1.1" device-signed, "1.2" with attestation */
-  version: '1.0' | '1.1' | '1.2';
+  /** Schema version — "1.0" legacy, "1.1" device-signed, "1.2" attestation, "1.3" AES-ready */
+  version: '1.0' | '1.1' | '1.2' | '1.3';
 
   /** 8-character hex identifier (without prefix), e.g. "1916F13F" */
   origin_id: string;
@@ -61,6 +82,20 @@ export interface OriginCertificate {
 
   /** Whether an attestation.json file is included in this ZIP (v1.2+) */
   attestation_included?: boolean;
+
+  /** Explicit signing algorithm identifier (v1.3+) */
+  sig_algorithm?: string | null;
+
+  /** Identity assurance binding (v1.3+) */
+  identity_binding?: IdentityBinding;
+
+  /** Certificate metadata (v1.3+) */
+  meta?: {
+    /** Specification version reference */
+    spec_version: string;
+    /** Implementation identifier */
+    implementation: string;
+  };
 }
 
 /**
@@ -91,10 +126,22 @@ export function createCertificate(
   // Strip prefix if present (um- → raw hex)
   const cleanId = originId.toUpperCase().replace(/^UM-/i, '');
 
-  // Version bump: 1.2 if attestation, 1.1 if device signature, 1.0 otherwise
-  const version = attestationIncluded ? '1.2'
-    : (deviceSignature || devicePublicKey) ? '1.1'
-    : '1.0';
+  const hasDeviceBinding = !!(deviceSignature || devicePublicKey);
+
+  // Version: 1.3 always (new certificates include sig_algorithm + identity_binding)
+  const version = '1.3';
+
+  // Determine sig_algorithm from device binding presence
+  const sigAlgorithm = hasDeviceBinding ? 'WebAuthn_ECDSA_P256_SHA256' : null;
+
+  // Default identity binding: L1 (passkey-only, no external verification)
+  const identityBinding: IdentityBinding = {
+    level: 'L1',
+    reference_hash_sha256: null,
+    issued_at: null,
+    issuer_type: 'self',
+    issuer_id: null,
+  };
 
   return {
     version,
@@ -110,6 +157,12 @@ export function createCertificate(
     device_signature: deviceSignature,
     device_public_key: devicePublicKey,
     attestation_included: attestationIncluded || undefined,
+    sig_algorithm: sigAlgorithm,
+    identity_binding: identityBinding,
+    meta: {
+      spec_version: 'anchoring-spec.org/v1.3',
+      implementation: 'umarise-anchor/1.3.0',
+    },
   };
 }
 
