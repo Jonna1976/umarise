@@ -402,6 +402,9 @@ result = UmariseCore().verify(file_hash)`} />
             <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono">
               Core v1 · Frozen protocol · <Link to="/status" className="underline hover:text-[hsl(var(--landing-cream)/0.6)]">Status</Link> · <Link to="/legal" className="underline hover:text-[hsl(var(--landing-cream)/0.6)]">Legal</Link>
             </p>
+            <p className="text-[hsl(var(--landing-cream)/0.25)] text-xs font-mono mt-1">
+              Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-[hsl(var(--landing-cream)/0.5)]">verify-anchoring.org</a>
+            </p>
           </div>
         </div>
       </div>
