@@ -367,11 +367,41 @@ export default function SdkDownload() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">@umarise/anchor SDK</h1>
-        <p className="text-muted-foreground">Download start automatisch…</p>
-        <p className="text-sm text-muted-foreground">
-          Na download: <code className="bg-muted px-2 py-1 rounded">cd umarise-anchor-sdk && npm install && npm run build && npm publish --access public</code>
+      <div className="max-w-lg text-center space-y-6 px-4">
+        <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-sm font-medium">
+          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          Live on npm
+        </div>
+
+        <h1 className="text-3xl font-bold">@umarise/anchor</h1>
+        <p className="text-muted-foreground">v1.0.0 — Hash-in, proof-out. Zero dependencies.</p>
+
+        <div className="bg-muted/50 border border-border rounded-lg p-4 text-left space-y-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Install</p>
+          <code className="block text-sm font-mono text-foreground">npm install @umarise/anchor</code>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href="https://www.npmjs.com/package/@umarise/anchor"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity"
+          >
+            View on npm →
+          </a>
+          <a
+            href="https://github.com/Jonna1976/umarise-anchor-sdk-node"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-muted text-foreground px-5 py-2.5 rounded-lg font-medium hover:bg-muted/80 transition-colors"
+          >
+            Source on GitHub
+          </a>
+        </div>
+
+        <p className="text-xs text-muted-foreground pt-2">
+          ZIP download is ook beschikbaar voor offline gebruik.
         </p>
       </div>
     </div>
