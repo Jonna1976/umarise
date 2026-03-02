@@ -163,6 +163,29 @@ export default function ApiReferenceV2() {
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code>
             </p>
+
+            {/* Verify Now — instant gratification */}
+            <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
+              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Try it now — no key needed</p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+                This hash is already anchored to Bitcoin block 935,037. Copy, paste, verify:
+              </p>
+              <Code
+                code={`curl -X POST ${BASE}/v1-core-verify \\
+  -H "Content-Type: application/json" \\
+  -d '{"hash":"sha256:1d10e0d184c100b7327d9594a33cd266958ea6420b6cc3f5212921188858dd0a"}'`}
+                copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:1d10e0d184c100b7327d9594a33cd266958ea6420b6cc3f5212921188858dd0a"}'`}
+              />
+              <div className="mt-2 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                  {">"} <span className="text-emerald-400">200</span>{' '}
+                  {`{ "origin_id": "349d6734-...", "captured_at": "2026-02-02T14:09:41Z", "proof_status": "anchored" }`}
+                </p>
+              </div>
+              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
+                Typical response time: &lt;200ms. No account, no key, no SDK required.
+              </p>
+            </div>
           </Section>
 
           {/* -- Authentication -- */}
@@ -174,6 +197,7 @@ export default function ApiReferenceV2() {
             <Code code={`X-API-Key: um_your_key_here`} />
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
               Request a key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a>
+              <span className="text-[hsl(var(--landing-cream)/0.35)]"> — typically issued within 24 hours.</span>
             </p>
           </Section>
 
@@ -349,6 +373,9 @@ export default function ApiReferenceV2() {
                 <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> to <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
                 Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve?origin_id=...</code> every 60 seconds until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.
               </p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-1">
+                Typical response time: &lt;500ms.
+              </p>
             </Endpoint>
           </Section>
 
@@ -392,6 +419,7 @@ export default function ApiReferenceV2() {
             <Endpoint method="GET" path="/v1-core-proof" title="Download the OpenTimestamps (.ots) proof file." auth="public">
               <Param name="origin_id" type="uuid" required desc="Origin to download proof for" />
               <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mt-3 mb-1">Returns binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code>. 202 if still pending.</p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mb-2">Typical response time: &lt;200ms.</p>
               <Code code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ID" -o proof.ots`} />
             </Endpoint>
           </Section>
@@ -493,7 +521,8 @@ const result = await verify(hash);`} />
 import os
 
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
-origin = core.attest(hash_buffer(open("doc.pdf","rb").read()))
+file_hash = hash_buffer(open("doc.pdf","rb").read())
+origin = core.attest(file_hash)
 
 # Verify (public, no key needed)
 result = UmariseCore().verify(file_hash)`} />
@@ -506,7 +535,7 @@ result = UmariseCore().verify(file_hash)`} />
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                <span className="text-amber-400/80 font-mono">Note:</span> REST API is production-ready. SDKs in final testing - use curl examples as fallback.
+                <span className="text-emerald-400/80 font-mono">v1.0.0</span> — REST API and SDKs are production-ready. Released under the <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain).
               </p>
             </div>
           </Section>
