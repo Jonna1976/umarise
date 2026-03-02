@@ -353,6 +353,26 @@ Deno.serve(async (req: Request) => {
       response_time_ms: Date.now() - startTime,
     });
 
+    // TTFA: Log first_attestation_at if not yet set for this partner key
+    try {
+      const { data: keyRecord } = await supabase
+        .from('partner_api_keys')
+        .select('first_attestation_at')
+        .eq('key_prefix', apiKeyPrefix)
+        .single();
+      
+      if (keyRecord && !keyRecord.first_attestation_at) {
+        await supabase
+          .from('partner_api_keys')
+          .update({ first_attestation_at: capturedAt })
+          .eq('key_prefix', apiKeyPrefix);
+        console.log('[v1-core-origins] TTFA logged for partner:', authResult.partnerName);
+      }
+    } catch (ttfaErr) {
+      // Non-critical: don't fail the request if TTFA logging fails
+      console.warn('[v1-core-origins] TTFA logging failed:', ttfaErr);
+    }
+
     const successResp = successResponse(response, 201, {
       'Location': `/v1/core/resolve?origin_id=${data.origin_id}`,
     });
