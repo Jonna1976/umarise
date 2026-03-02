@@ -75,7 +75,6 @@ const NAV = [
   { id: 'intro', label: 'Introduction' },
   { id: 'auth', label: 'Authentication' },
   { id: 'quick-start', label: 'Quick Start' },
-  { id: 'health', label: 'GET /health' },
   { id: 'origins', label: 'POST /origins' },
   { id: 'resolve', label: 'GET /resolve' },
   { id: 'verify', label: 'POST /verify' },
@@ -311,12 +310,8 @@ export default function ApiReferenceV2() {
 
           {/* ── Endpoints ── */}
 
-          <Section id="health">
-            <Endpoint method="GET" path="/v1-core-health" title="Check API status." auth="public">
-              <Code code={`// 200 OK
-{ "status": "operational", "version": "v1", "timestamp": "..." }`} />
-            </Endpoint>
-          </Section>
+
+
 
           <Section id="origins">
             <Endpoint method="POST" path="/v1-core-origins" title="Create an attestation. Returns an immutable origin record." auth="key">
