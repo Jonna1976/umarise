@@ -398,6 +398,43 @@ done`}
                 copy={`while true; do STATUS=$(curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | grep -o '"proof_status":"[^"]*"'); echo "$STATUS"; [[ "$STATUS" == *"anchored"* ]] && break; sleep 60; done`}
               />
             </div>
+            {/* Real-world integration example */}
+            <div className="mt-8 pt-6 border-t border-[hsl(var(--landing-cream)/0.08)]">
+              <h3 className="text-sm font-serif text-[hsl(var(--landing-cream))] mb-1">Real-world integration</h3>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
+                A production Node.js service anchoring uploads in 15 lines. Hash locally, POST the hash, store the origin_id.
+              </p>
+              <Code code={`const crypto = require('crypto');
+const fetch = require('node-fetch');
+
+app.post('/upload', async (req, res) => {
+  const fileBuffer = req.file.buffer;
+
+  // 1. Hash locally - your content never leaves your server
+  const hash = crypto.createHash('sha256')
+    .update(fileBuffer).digest('hex');
+
+  // 2. Anchor the hash
+  const resp = await fetch('${BASE}/v1-core-origins', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': process.env.CORE_API_KEY
+    },
+    body: JSON.stringify({ hash: 'sha256:' + hash })
+  });
+
+  const { origin_id, captured_at } = await resp.json();
+
+  // 3. Store the origin_id alongside your record
+  await db.files.update(record.id, { origin_id });
+
+  res.json({ origin_id, captured_at });
+});`} />
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
+                This pattern works with any language or framework. The API receives only the hash - never the original content.
+              </p>
+            </div>
           </Section>
 
           {/* -- Endpoints -- */}
