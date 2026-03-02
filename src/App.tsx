@@ -55,6 +55,7 @@ import SdkSpec from "./pages/SdkSpec";
 import SdkSource from "./pages/SdkSource";
 import CreationIntegrity from "./pages/CreationIntegrity";
 import Pricing from "./pages/Pricing";
+import ForLaw from "./pages/ForLaw";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
             <Route path="/sdk-source" element={<SdkSource />} />
             <Route path="/creation-integrity" element={<CreationIntegrity />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/for/law" element={<ForLaw />} />
 
 
             
