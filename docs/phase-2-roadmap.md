@@ -38,11 +38,11 @@
   - [ ] Schedule 5-minute demo calls (not product demos)
   - [ ] Use Partner Question Set from phase-1-completion.md
 
-- [ ] **API Hardening**
-  - [ ] Document `/resolve-origin` rate limits
-  - [ ] Add API versioning header (`X-Origin-API-Version: 1`)
-  - [ ] Create API key provisioning for partners (optional)
-  - [ ] Monitor resolve-origin usage via audit_logs
+- [x] **API Hardening**
+  - [x] Document rate limits in integration-contract.md (v1.2)
+  - [x] Add API versioning header (`X-API-Version: v1` on all responses)
+  - [x] Create API key provisioning for partners (v1-internal-partner-create)
+  - [x] Monitor resolve-origin usage via core_request_log
 
 - [ ] **Pilot Execution**
   - [ ] Recruit 3 MKB teams (3-50 employees)
@@ -52,8 +52,8 @@
 
 - [ ] **Reference Implementation**
   - [ ] Publish demo video showing Capture → Verify flow
-  - [ ] Create minimal integration example (curl commands)
-  - [ ] Document proof bundle verification script
+  - [x] Create minimal integration example (curl commands on /api-reference)
+  - [x] Document proof bundle verification script (scripts/verify-anchor.sh + .py)
 
 ### Deliverables
 
