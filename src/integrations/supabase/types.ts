@@ -601,6 +601,8 @@ export type Database = {
       }
       partner_api_keys: {
         Row: {
+          first_attestation_at: string | null
+          first_error_code: string | null
           id: string
           issued_at: string
           issued_by: string | null
@@ -609,8 +611,11 @@ export type Database = {
           partner_name: string
           rate_limit_tier: string
           revoked_at: string | null
+          sdk_used: string | null
         }
         Insert: {
+          first_attestation_at?: string | null
+          first_error_code?: string | null
           id?: string
           issued_at?: string
           issued_by?: string | null
@@ -619,8 +624,11 @@ export type Database = {
           partner_name: string
           rate_limit_tier?: string
           revoked_at?: string | null
+          sdk_used?: string | null
         }
         Update: {
+          first_attestation_at?: string | null
+          first_error_code?: string | null
           id?: string
           issued_at?: string
           issued_by?: string | null
@@ -629,6 +637,7 @@ export type Database = {
           partner_name?: string
           rate_limit_tier?: string
           revoked_at?: string | null
+          sdk_used?: string | null
         }
         Relationships: []
       }
