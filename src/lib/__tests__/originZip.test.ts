@@ -36,7 +36,7 @@ describe('buildOriginZip', () => {
     const certContent = await zip.file('certificate.json')!.async('string');
     const cert = JSON.parse(certContent);
 
-    expect(cert.version).toBe('1.0');
+    expect(cert.version).toBe('1.3');
     expect(cert.origin_id).toBe('1916F13F');
     expect(cert.hash).toBe('a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8a1b2c3d4e5f6a7b8');
     expect(cert.hash_algo).toBe('SHA-256');
@@ -46,6 +46,14 @@ describe('buildOriginZip', () => {
     expect(cert.proof_status).toBe('pending');
     expect(cert.claimed_by).toBeNull();
     expect(cert.signature).toBeNull();
+
+    // v1.3 fields
+    expect(cert.sig_algorithm).toBeNull(); // no device binding
+    expect(cert.identity_binding).toBeDefined();
+    expect(cert.identity_binding.level).toBe('L1');
+    expect(cert.identity_binding.issuer_type).toBe('self');
+    expect(cert.meta).toBeDefined();
+    expect(cert.meta.spec_version).toBe('anchoring-spec.org/v1.3');
   });
 
   // NOTE: Image-in-ZIP test requires real browser environment (blob URL + fetch).
@@ -135,7 +143,7 @@ describe('buildOriginZip', () => {
 
     // certificate.json should be v1.2 with attestation_included
     const certJson = JSON.parse(await zip.files['certificate.json'].async('text'));
-    expect(certJson.version).toBe('1.2');
+    expect(certJson.version).toBe('1.3');
     expect(certJson.attestation_included).toBe(true);
 
     // VERIFY.txt should mention attestation
