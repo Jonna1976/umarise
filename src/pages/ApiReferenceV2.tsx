@@ -344,9 +344,19 @@ export default function ApiReferenceV2() {
             </div>
 
             <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                <span className="text-amber-400/80 font-mono">Tip:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min). If still pending, wait 5 min and retry step 4.
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2">
+                <span className="text-amber-400/80 font-mono">Production polling:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min).
               </p>
+              <Code
+                code={`# Poll until anchored (bash)
+while true; do
+  STATUS=$(curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | grep -o '"proof_status":"[^"]*"')
+  echo "$STATUS"
+  [[ "$STATUS" == *"anchored"* ]] && break
+  sleep 60
+done`}
+                copy={`while true; do STATUS=$(curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | grep -o '"proof_status":"[^"]*"'); echo "$STATUS"; [[ "$STATUS" == *"anchored"* ]] && break; sleep 60; done`}
+              />
             </div>
           </Section>
 
@@ -369,11 +379,24 @@ export default function ApiReferenceV2() {
   "captured_at": "2026-02-16T10:00:00.000Z",
   "proof_status": "pending"
 }`} />
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
-                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> to <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
-                Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve?origin_id=...</code> every 60 seconds until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.
-              </p>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-1">
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response fields</h4>
+              <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation. Use for resolve/proof calls." />
+              <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
+              <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was registered. Immutable." />
+              <Param name="proof_status" type="string" desc={`"pending" → "anchored" after Bitcoin confirmation (10-20 min).`} />
+
+              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <div className="space-y-2">
+                <Code code={`// 401 — Missing or invalid API key
+{ "error": { "code": "UNAUTHORIZED", "message": "Invalid API key" } }`} />
+                <Code code={`// 409 — Hash already attested with this key
+{ "error": { "code": "DUPLICATE_HASH", "message": "Hash already attested", "existing_origin_id": "..." } }`} />
+                <Code code={`// 400 — Invalid hash format
+{ "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
+              </div>
+
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
                 Typical response time: &lt;500ms.
               </p>
             </Endpoint>
@@ -502,13 +525,29 @@ export default function ApiReferenceV2() {
               <div>
                 <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Node.js / TypeScript</p>
                 <Code code={`npm install @umarise/anchor`} />
-                <Code code={`import { anchor, verify, hashBuffer } from '@umarise/anchor';
+                <Code code={`import { anchor, verify, resolve, hashBuffer } from '@umarise/anchor';
+import { readFileSync } from 'fs';
 
+// 1. Hash locally
 const hash = await hashBuffer(readFileSync('doc.pdf'));
-await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
 
-// Verify (public, no key needed)
-const result = await verify(hash);`} />
+// 2. Anchor (requires API key)
+const origin = await anchor(hash, {
+  apiKey: process.env.UMARISE_API_KEY
+});
+console.log(origin.origin_id); // save this
+
+// 3. Poll until anchored
+let status = origin;
+while (status.proof_status === 'pending') {
+  await new Promise(r => setTimeout(r, 60_000));
+  status = await resolve(origin.origin_id);
+}
+console.log('Anchored at block', status.bitcoin_block_height);
+
+// 4. Verify anytime (public, no key)
+const proof = await verify(hash);
+console.log(proof.captured_at);`} />
                 <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
                   GitHub
@@ -518,14 +557,25 @@ const result = await verify(hash);`} />
                 <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Python</p>
                 <Code code={`pip install umarise`} />
                 <Code code={`from umarise import UmariseCore, hash_buffer
-import os
+import os, time
 
+# 1. Hash locally
+file_hash = hash_buffer(open("doc.pdf", "rb").read())
+
+# 2. Anchor (requires API key)
 core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
-file_hash = hash_buffer(open("doc.pdf","rb").read())
 origin = core.attest(file_hash)
+print(origin["origin_id"])  # save this
 
-# Verify (public, no key needed)
-result = UmariseCore().verify(file_hash)`} />
+# 3. Poll until anchored
+while origin["proof_status"] == "pending":
+    time.sleep(60)
+    origin = core.resolve(origin["origin_id"])
+print(f"Anchored at block {origin['bitcoin_block_height']}")
+
+# 4. Verify anytime (public, no key)
+result = UmariseCore().verify(file_hash)
+print(result["captured_at"])`} />
                 <a href="https://github.com/Jonna1976/umarise-python" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
                   GitHub
