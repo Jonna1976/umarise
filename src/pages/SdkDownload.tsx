@@ -374,6 +374,15 @@ export default function SdkDownload() {
           <code className="block text-sm font-mono text-foreground">npm install @umarise/anchor</code>
         </div>
 
+        <div className="bg-muted/50 border border-border rounded-lg p-4 text-left space-y-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Quick Start</p>
+          <pre className="text-sm font-mono text-foreground overflow-x-auto whitespace-pre leading-relaxed">{`import { UmariseCore, hashBytes } from '@umarise/anchor';
+
+const core = new UmariseCore({ apiKey: 'um_...' });
+const hash = await hashBytes(fileBuffer);
+const origin = await core.attest(hash);`}</pre>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <a
             href="https://www.npmjs.com/package/@umarise/anchor"
@@ -392,6 +401,13 @@ export default function SdkDownload() {
             Source on GitHub
           </a>
         </div>
+
+        <a
+          href="/api-reference"
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline transition-colors"
+        >
+          Full docs →
+        </a>
 
         <button
           onClick={handleDownloadZip}
