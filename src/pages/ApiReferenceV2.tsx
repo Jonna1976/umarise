@@ -4,7 +4,7 @@ import { ArrowLeft, Copy, Check, Globe, Key } from 'lucide-react';
 
 const BASE = 'https://core.umarise.com';
 
-/* ── Primitives ── */
+/* -- Primitives -- */
 
 function CopyBtn({ text }: { text: string }) {
   const [ok, setOk] = useState(false);
@@ -69,7 +69,7 @@ function Endpoint({ method, path, title, auth, children }: {
   );
 }
 
-/* ── Sidebar nav ── */
+/* -- Sidebar nav -- */
 
 const NAV = [
   { id: 'intro', label: 'Introduction' },
@@ -107,7 +107,7 @@ function Sidebar({ active }: { active: string }) {
   );
 }
 
-/* ── Active section tracker ── */
+/* -- Active section tracker -- */
 
 function useActiveSection() {
   const [active, setActive] = useState('intro');
@@ -131,7 +131,7 @@ function useActiveSection() {
   return active;
 }
 
-/* ── Page ── */
+/* -- Page -- */
 
 export default function ApiReferenceV2() {
   const active = useActiveSection();
@@ -154,7 +154,7 @@ export default function ApiReferenceV2() {
 
         <div className="flex-1 min-w-0 space-y-16">
 
-          {/* ── Introduction ── */}
+          {/* -- Introduction -- */}
           <Section id="intro">
             <h1 className="text-3xl font-serif text-[hsl(var(--landing-cream))] mb-2">API Reference</h1>
             <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm max-w-lg">
@@ -165,7 +165,7 @@ export default function ApiReferenceV2() {
             </p>
           </Section>
 
-          {/* ── Authentication ── */}
+          {/* -- Authentication -- */}
           <Section id="auth">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Authentication</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-3">
@@ -177,7 +177,7 @@ export default function ApiReferenceV2() {
             </p>
           </Section>
 
-          {/* ── Quick Start ── */}
+          {/* -- Quick Start -- */}
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
@@ -198,7 +198,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    → <span className="text-emerald-400">200</span>{' '}
+                    {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "status": "operational", "version": "v1" }`}
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    → <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  yourfile.pdf
+                    {">"} <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  yourfile.pdf
                   </p>
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">Copy the 64-character hash before the filename. Use it in step 2.</p>
                 </div>
@@ -239,7 +239,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    → <span className="text-emerald-400">201</span>{' '}
+                    {">"} <span className="text-emerald-400">201</span>{' '}
                     {`{ "origin_id": "...", "proof_status": "pending" }`}
                   </p>
                 </div>
@@ -260,7 +260,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    → <span className="text-emerald-400">200</span>{' '}
+                    {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "origin_id": "...", "captured_at": "...", "proof_status": "anchored" }`}
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    → <span className="text-emerald-400">200</span>{' '}
+                    {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "proof_status": "anchored", "bitcoin_block_height": 935037 }`}
                   </p>
                 </div>
@@ -302,7 +302,7 @@ export default function ApiReferenceV2() {
                     <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
                       verify-anchoring.org
                     </a>
-                    {' '}→ use the <span className="font-mono text-[hsl(var(--landing-cream)/0.7)]">Hash + OTS</span> box.
+                    {' '}- use the <span className="font-mono text-[hsl(var(--landing-cream)/0.7)]">Hash + OTS</span> box.
                   </p>
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">
                     Paste your 64-char hash + upload the .ots file. No ZIP needed.
@@ -318,7 +318,7 @@ export default function ApiReferenceV2() {
             </div>
           </Section>
 
-          {/* ── Endpoints ── */}
+          {/* -- Endpoints -- */}
 
 
 
@@ -338,7 +338,7 @@ export default function ApiReferenceV2() {
   "proof_status": "pending"
 }`} />
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
-                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> → <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
+                <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes from <code className="text-[hsl(var(--landing-copper))]">pending</code> to <code className="text-[hsl(var(--landing-copper))]">anchored</code> after 10-20 minutes.
                 Poll <code className="text-[hsl(var(--landing-copper))]">GET /v1-core-resolve?origin_id=...</code> every 60 seconds until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.
               </p>
             </Endpoint>
@@ -388,7 +388,7 @@ export default function ApiReferenceV2() {
             </Endpoint>
           </Section>
 
-          {/* ── Errors ── */}
+          {/* -- Errors -- */}
           <Section id="errors">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-4">Errors</h2>
             <div className="overflow-x-auto">
@@ -421,7 +421,7 @@ export default function ApiReferenceV2() {
             </div>
           </Section>
 
-          {/* ── Rate Limits ── */}
+          {/* -- Rate Limits -- */}
           <Section id="rate-limits">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-4">Rate Limits</h2>
             <div className="overflow-x-auto">
@@ -455,7 +455,7 @@ export default function ApiReferenceV2() {
             </p>
           </Section>
 
-          {/* ── SDKs ── */}
+          {/* -- SDKs -- */}
           <Section id="sdks">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">SDKs</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-4">
@@ -475,7 +475,7 @@ await anchor(hash, { apiKey: process.env.UMARISE_API_KEY });
 const result = await verify(hash);`} />
                 <a href="https://github.com/Jonna1976/umarise-anchor" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
-                  GitHub →
+                  GitHub
                 </a>
               </div>
               <div>
@@ -491,7 +491,7 @@ origin = core.attest(hash_buffer(open("doc.pdf","rb").read()))
 result = UmariseCore().verify(file_hash)`} />
                 <a href="https://github.com/Jonna1976/umarise-python" target="_blank" rel="noopener noreferrer"
                   className="inline-block mt-2 text-xs font-mono text-[hsl(var(--landing-copper))] hover:underline">
-                  GitHub →
+                  GitHub
                 </a>
               </div>
             </div>
@@ -503,16 +503,16 @@ result = UmariseCore().verify(file_hash)`} />
             </div>
           </Section>
 
-          {/* ── FAQ ── */}
+          {/* -- FAQ -- */}
           <Section id="faq">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-6">Frequently Asked Questions</h2>
             <div className="space-y-6">
 
               {/* Q1 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple — can't anyone build this?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple - can't anyone build this?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That is the point — anchoring is infrastructure, not a product. The specification exists so anyone can implement it. The API exists so no one has to build Merkle-batching, OTS calendar management, and Bitcoin monitoring from scratch.
+                  Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That is the point - anchoring is infrastructure, not a product. The specification exists so anyone can implement it. The API exists so no one has to build Merkle-batching, OTS calendar management, and Bitcoin monitoring from scratch.
                 </p>
               </div>
 
@@ -520,7 +520,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already hash our files with SHA-256. How is this different?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  SHA-256 proves <em>integrity</em> — the bytes have not changed. Anchoring proves <em>chronology</em> — these bytes existed on or before time T. A hash without external time binding is self-attested: it could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable temporal reference.
+                  SHA-256 proves <em>integrity</em> - the bytes have not changed. Anchoring proves <em>chronology</em> - these bytes existed on or before time T. A hash without external time binding is self-attested: it could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable temporal reference.
                 </p>
               </div>
 
@@ -528,7 +528,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What does this add beyond raw OpenTimestamps?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  OpenTimestamps is a protocol — like HTTP is a protocol. A web application is not "HTTP." OTS defines how to commit a hash to Bitcoin. The Core API uses OTS as transport and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> — a semantic framework defining exactly what a proof does and does not establish.
+                  OpenTimestamps is a protocol - like HTTP is a protocol. A web application is not "HTTP." OTS defines how to commit a hash to Bitcoin. The Core API uses OTS as transport and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> - a semantic framework defining exactly what a proof does and does not establish.
                 </p>
               </div>
 
@@ -536,7 +536,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"There are other cryptographic timestamping services. Why this one?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer — if the Certificate Authority or service disappears, verification may break. The Core API anchors to Bitcoin via OpenTimestamps: verification is trustless. The .ots proof file + original artifact + any SHA-256 calculator + the public Bitcoin blockchain = complete verification, indefinitely. No account required. No dependency on the issuing infrastructure.
+                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer - if the Certificate Authority or service disappears, verification may break. The Core API anchors to Bitcoin via OpenTimestamps: verification is trustless. The .ots proof file + original artifact + any SHA-256 calculator + the public Bitcoin blockchain = complete verification, indefinitely. No account required. No dependency on the issuing infrastructure.
                 </p>
               </div>
 
@@ -552,7 +552,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can we bulk-anchor existing files retroactively?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Yes. The API accepts hashes, not files. Hash locally, POST each hash to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. The backend batches hashes into Merkle trees automatically. Rate limit: 100 requests/min per API key. The anchor timestamp reflects when the hash was submitted, not when the file was originally created — anchoring proves "existed no later than T." It cannot backdate.
+                  Yes. The API accepts hashes, not files. Hash locally, POST each hash to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. The backend batches hashes into Merkle trees automatically. Rate limit: 100 requests/min per API key. The anchor timestamp reflects when the hash was submitted, not when the file was originally created - anchoring proves "existed no later than T." It cannot backdate.
                 </p>
               </div>
 
@@ -568,15 +568,15 @@ result = UmariseCore().verify(file_hash)`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can the API operator see our data?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  No. The API receives SHA-256 hashes only — never files. A SHA-256 hash is a one-way function: without the original artifact, the hash is meaningless. There is no mechanism in the infrastructure to store, receive, or reconstruct file content. The hash crosses the network boundary. The content does not.
+                  No. The API receives SHA-256 hashes only - never files. A SHA-256 hash is a one-way function: without the original artifact, the hash is meaningless. There is no mechanism in the infrastructure to store, receive, or reconstruct file content. The hash crosses the network boundary. The content does not.
                 </p>
               </div>
 
               {/* Q9 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone — including the operator — modify or delete an existing record?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone - including the operator - modify or delete an existing record?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  No. Database-level immutability triggers block UPDATE and DELETE operations, including for internal service roles. Row-level security blocks all client-side mutations. Bitcoin anchoring makes retroactive modification mathematically detectable. This is enforced by architecture, not policy — no administrative override exists that can alter a committed record.
+                  No. Database-level immutability triggers block UPDATE and DELETE operations, including for internal service roles. Row-level security blocks all client-side mutations. Bitcoin anchoring makes retroactive modification mathematically detectable. This is enforced by architecture, not policy - no administrative override exists that can alter a committed record.
                 </p>
               </div>
 
@@ -584,7 +584,7 @@ result = UmariseCore().verify(file_hash)`} />
               <div>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already use an RFC 3161 TSA. Should we switch?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority — if the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS: trustless, no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
+                  Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority - if the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS: trustless, no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
                 </p>
               </div>
 
@@ -593,7 +593,7 @@ result = UmariseCore().verify(file_hash)`} />
             {/* Bitcoin disclaimer */}
             <div className="mt-8 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.45)]">
-                Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
+                Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
               </p>
             </div>
           </Section>
