@@ -220,7 +220,64 @@ Retrieval happens at the identity layer, not the content layer. Umarise is invok
 
 ---
 
-## 8. Current Implementation Status
+## 8. Rate Limits
+
+All endpoints are rate-limited per minute window. Rate limit status is communicated via standard headers on every response:
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Maximum requests allowed per window |
+| `X-RateLimit-Remaining` | Requests remaining in current window |
+| `X-RateLimit-Reset` | Unix timestamp when the window resets |
+| `X-API-Version` | API version (`v1`) |
+
+### Public Endpoints (rate-limited by IP)
+
+| Endpoint | Method | Limit |
+|----------|--------|-------|
+| `/v1-core-resolve` | GET | 1,000/min |
+| `/v1-core-verify` | POST | 1,000/min |
+| `/v1-core-proof` | GET | 1,000/min |
+| `/v1-core-health` | GET | No limit |
+
+### Partner Endpoints (rate-limited by API key)
+
+| Endpoint | Method | Standard | Premium |
+|----------|--------|----------|---------|
+| `/v1-core-origins` | POST | 100/min | 1,000/min |
+| `/v1-core-origins-proof` | GET | 100/min | 1,000/min |
+| `/v1-core-origins-export` | GET | 60/min | 60/min |
+| `/v1-core-proofs-export` | GET | 10/min | 50/min |
+
+### Rate Limit Exceeded Response
+
+When a rate limit is exceeded, the API returns `429 Too Many Requests`:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Retry after 45 seconds.",
+    "retry_after_seconds": 45,
+    "limit": 100,
+    "window": "1m"
+  }
+}
+```
+
+The response includes a `Retry-After` header with the number of seconds to wait.
+
+---
+
+## 9. API Versioning
+
+All responses include the `X-API-Version: v1` header. The current and only supported version is `v1`.
+
+Breaking changes will be introduced under a new version prefix (e.g., `/v2-core-*`). The `v1` API is frozen and will remain available indefinitely.
+
+---
+
+## 10. Current Implementation Status
 
 | Primitive | Status | Endpoint |
 |-----------|--------|----------|
@@ -240,5 +297,5 @@ Edge Functions: https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1
 
 ---
 
-*Contract version: 1.1*  
-*Last updated: January 2026*
+*Contract version: 1.2*  
+*Last updated: March 2026*

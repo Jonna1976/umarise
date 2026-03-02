@@ -21,6 +21,7 @@ export type CoreErrorCode =
   | 'UNAUTHORIZED'
   | 'API_KEY_REVOKED'
   | 'NOT_FOUND'
+  | 'DUPLICATE_HASH'
   | 'RATE_LIMIT_EXCEEDED'
   | 'INTERNAL_ERROR';
 
