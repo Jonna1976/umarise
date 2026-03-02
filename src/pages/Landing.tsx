@@ -63,6 +63,7 @@ export default function Landing() {
             <Link to="/creation-integrity" className="hover:text-landing-muted/75 transition-colors whitespace-nowrap">Creation Integrity</Link>
             <Link to="/why" className="hover:text-landing-muted/75 transition-colors">Why</Link>
             <Link to="/core" className="hover:text-landing-muted/75 transition-colors">Core</Link>
+            <Link to="/pricing" className="hover:text-landing-muted/75 transition-colors">Pricing</Link>
           </div>
 
           {/* Verification & legal */}
