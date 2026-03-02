@@ -181,31 +181,73 @@ export default function ApiReferenceV2() {
           {/* ── Quick Start ── */}
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
-            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Two commands. Replace YOUR_KEY with your API key.</p>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
-              Test hash: SHA-256 of an empty file. Safe to use for testing - this record already exists.
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
+              Three steps in your terminal. Replace <code className="text-[hsl(var(--landing-copper))]">YOUR_KEY</code> with your API key.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Step 1 */}
               <div>
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-1.5">1. Create an attestation</p>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">1.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Hash your file locally</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Your content never leaves your device.</p>
+                <Code
+                  code={`shasum -a 256 yourfile.pdf
+# → a1b2c3d4e5f6...  yourfile.pdf`}
+                  copy="shasum -a 256 yourfile.pdf"
+                />
+              </div>
+
+              {/* Step 2 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">2.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Anchor the hash</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Paste the hash from step 1.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-origins \\
   -H "Content-Type: application/json" \\
   -H "X-API-Key: YOUR_KEY" \\
-  -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
-                  copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: YOUR_KEY" -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+  -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
+                  copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: YOUR_KEY" -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
                 />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    → <span className="text-emerald-400">201</span>{' '}
+                    {`{ "origin_id": "...", "proof_status": "pending" }`}
+                  </p>
+                </div>
               </div>
+
+              {/* Step 3 */}
               <div>
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-1.5">2. Verify it</p>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">3.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify anytime</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
-  -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
-                  copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}'`}
+  -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
+                  copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
                 />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    → <span className="text-emerald-400">200</span>{' '}
+                    {`{ "origin_id": "...", "captured_at": "...", "proof_status": "anchored" }`}
+                  </p>
+                </div>
               </div>
+            </div>
+
+            <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                <span className="text-amber-400/80 font-mono">Tip:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (10-20 min).
+              </p>
             </div>
           </Section>
 
