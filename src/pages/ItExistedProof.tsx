@@ -12,6 +12,9 @@ import InlineAttestation from '@/components/itexisted/InlineAttestation';
 import Circumpunct from '@/components/itexisted/Circumpunct';
 import Kaartenbak from '@/components/itexisted/Kaartenbak';
 import { useKaartenbak } from '@/contexts/KaartenbakContext';
+import { supabase } from '@/integrations/supabase/client';
+import { getDeviceId } from '@/lib/deviceId';
+import { revokeAssociation, restoreAssociation } from '@/lib/pageService';
 
 /** Countdown: shows time remaining until ~2h after capture */
 function CountdownTimer({ capturedAt }: { capturedAt: string }) {
@@ -66,6 +69,12 @@ export default function ItExistedProof() {
   const [downloadedZipBlob, setDownloadedZipBlob] = useState<Blob | null>(null);
   const [downloadedZipName, setDownloadedZipName] = useState<string | null>(null);
   const [saveConfirmed, setSaveConfirmed] = useState(false);
+
+  // Ownership detection for revoke/restore
+  const [ownerPageId, setOwnerPageId] = useState<string | null>(null);
+  const [isRevoked, setIsRevoked] = useState(false);
+  const [revokeLoading, setRevokeLoading] = useState(false);
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
 
   // Artifact file state — persist match across refreshes via localStorage (survives tab close)
   const storageKey = `artifact_matched_${token}`;
@@ -199,6 +208,61 @@ export default function ItExistedProof() {
     const t = setInterval(load, 20000);
     return () => clearInterval(t);
   }, [state?.proofStatus, token]);
+
+  // Check if current device owns this origin (for revoke/restore)
+  useEffect(() => {
+    if (!state?.originId) return;
+    const deviceUserId = getDeviceId();
+    if (!deviceUserId) return;
+
+    supabase
+      .from('pages')
+      .select('id, association_revoked_at')
+      .eq('origin_id', state.originId)
+      .eq('device_user_id', deviceUserId)
+      .eq('is_trashed', false)
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setOwnerPageId(data[0].id);
+          setIsRevoked(!!data[0].association_revoked_at);
+        } else {
+          setOwnerPageId(null);
+          setIsRevoked(false);
+        }
+      });
+  }, [state?.originId]);
+
+  const handleRevoke = async () => {
+    if (!ownerPageId) return;
+    setRevokeLoading(true);
+    const success = await revokeAssociation(ownerPageId);
+    if (success) {
+      setIsRevoked(true);
+      setShowRevokeConfirm(false);
+      toast.success('Association released', {
+        description: 'The origin remains safely recorded.',
+      });
+    } else {
+      toast.error('Something went wrong');
+    }
+    setRevokeLoading(false);
+  };
+
+  const handleRestore = async () => {
+    if (!ownerPageId) return;
+    setRevokeLoading(true);
+    const success = await restoreAssociation(ownerPageId);
+    if (success) {
+      setIsRevoked(false);
+      toast.success('Association restored', {
+        description: 'The origin is back in your codex.',
+      });
+    } else {
+      toast.error('Something went wrong');
+    }
+    setRevokeLoading(false);
+  };
 
   const captured = useMemo(() => (state ? new Date(state.capturedAt) : new Date()), [state?.capturedAt]);
   const shareUrl = `${window.location.origin}/itexisted/proof/${token.toUpperCase()}`;
@@ -771,6 +835,68 @@ export default function ItExistedProof() {
             </div>
           </div>
 
+          {/* ── REVOKE / RESTORE ASSOCIATION (owner only) ── */}
+          {ownerPageId && (
+            <>
+              <div className="w-full mt-12 mb-4" style={{ borderTop: '1px solid rgba(245,240,232,0.06)' }} />
+              
+              {isRevoked ? (
+                <div className="w-full">
+                  <div className="rounded-[8px] p-4" style={{ background: 'rgba(197,147,90,0.04)', border: '1px solid rgba(197,147,90,0.15)' }}>
+                    <p className="font-mono text-[11px] tracking-[3px] uppercase mb-2" style={{ color: 'rgba(197,147,90,0.6)' }}>
+                      Association released
+                    </p>
+                    <p className="font-garamond text-[15px] italic mb-4" style={{ color: 'rgba(245,240,232,0.4)' }}>
+                      The origin remains safely recorded and verifiable. Only your involvement is withdrawn.
+                    </p>
+                    <button
+                      onClick={handleRestore}
+                      disabled={revokeLoading}
+                      className="font-mono text-[12px] tracking-[2px] uppercase transition-colors"
+                      style={{ color: 'rgba(197,147,90,0.5)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      {revokeLoading ? 'Restoring...' : '↩ Restore association'}
+                    </button>
+                  </div>
+                </div>
+              ) : showRevokeConfirm ? (
+                <div className="w-full">
+                  <div className="rounded-[8px] p-4" style={{ background: 'rgba(245,240,232,0.02)', border: '1px solid rgba(245,240,232,0.08)' }}>
+                    <p className="font-garamond text-[17px] mb-2" style={{ color: 'rgba(245,240,232,0.7)' }}>
+                      Release this origin?
+                    </p>
+                    <p className="font-garamond text-[15px] italic mb-4" style={{ color: 'rgba(245,240,232,0.35)' }}>
+                      The origin remains safely recorded. You may reconnect at any time.
+                    </p>
+                    <div className="flex gap-4">
+                      <button
+                        onClick={handleRevoke}
+                        disabled={revokeLoading}
+                        className="font-mono text-[12px] tracking-[2px] uppercase py-2 px-4 rounded-[6px] transition-all"
+                        style={{ border: '1px solid rgba(197,147,90,0.3)', background: 'rgba(197,147,90,0.08)', color: 'rgba(197,147,90,0.7)', cursor: 'pointer' }}>
+                        {revokeLoading ? 'Releasing...' : 'Release'}
+                      </button>
+                      <button
+                        onClick={() => setShowRevokeConfirm(false)}
+                        disabled={revokeLoading}
+                        className="font-mono text-[12px] tracking-[2px] uppercase transition-colors"
+                        style={{ color: 'rgba(245,240,232,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full">
+                  <button
+                    onClick={() => setShowRevokeConfirm(true)}
+                    className="font-mono text-[11px] tracking-[2px] uppercase transition-colors"
+                    style={{ color: 'rgba(245,240,232,0.2)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Release association
+                  </button>
+                </div>
+              )}
+            </>
+          )}
 
         </div>
       </motion.div>
