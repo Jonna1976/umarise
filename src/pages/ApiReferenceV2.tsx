@@ -301,6 +301,10 @@ export default function ApiReferenceV2() {
                     <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
                       verify-anchoring.org
                     </a>
+                    {' '}→ use the <span className="font-mono text-[hsl(var(--landing-cream)/0.7)]">Hash + OTS</span> box.
+                  </p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">
+                    Paste your 64-char hash + upload the .ots file. No ZIP needed.
                   </p>
                 </div>
               </div>

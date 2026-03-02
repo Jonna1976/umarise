@@ -331,6 +331,91 @@ footer a:hover { color: var(--text-muted); }
   font-size: 12px;
 }
 
+/* ─── Dev box ─── */
+.dev-separator {
+  margin: 2.5rem 0 0;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+.dev-box-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-dim);
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+}
+.dev-box-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.dev-box-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+.hash-input {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 3px;
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.hash-input:focus {
+  border-color: var(--accent-dim);
+}
+.hash-input::placeholder {
+  color: var(--text-dim);
+}
+.ots-drop-zone {
+  position: relative;
+  min-height: 100px;
+  border: 1px dashed var(--border-light);
+  border-radius: 3px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.25rem;
+  margin-top: 0.75rem;
+}
+.ots-drop-zone:hover { border-color: var(--accent-dim); }
+.ots-drop-zone.dragging { border-color: var(--accent); border-style: solid; background: #c4956a08; }
+.ots-drop-zone.has-file { border-color: var(--green); border-style: solid; }
+.ots-drop-zone input { display: none; }
+.dev-verify-btn {
+  margin-top: 1rem;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.dev-verify-btn:hover { opacity: 0.85; }
+.dev-verify-btn:disabled { opacity: 0.4; cursor: default; }
+
 @media (max-width: 768px) {
   body { font-size: 16px; }
   .header h1 { font-size: 24px; }
@@ -359,6 +444,29 @@ footer a:hover { color: var(--text-muted); }
   </div>
 
   <div id="output"></div>
+
+  <!-- ─── Hash + OTS Verification (for API integrators) ─── -->
+  <div class="dev-separator">
+    <span class="dev-box-label">For API Integrators</span>
+    <h2 class="dev-box-title">Hash + OTS Verification</h2>
+    <p class="dev-box-desc">
+      If you used the Core API directly, you have a SHA-256 hash and an <code style="font-family:var(--mono);font-size:0.85em">.ots</code> proof file — but no ZIP.<br>
+      Paste your hash and upload the <code style="font-family:var(--mono);font-size:0.85em">.ots</code> file to verify against the Bitcoin blockchain.
+    </p>
+
+    <input type="text" id="hash-input" class="hash-input" placeholder="Paste SHA-256 hash (64 hex characters)" maxlength="71" spellcheck="false" autocomplete="off">
+
+    <div id="ots-drop-zone" class="ots-drop-zone">
+      <input type="file" id="ots-file-input" accept=".ots">
+      <div class="drop-label" id="ots-drop-label">
+        Drop your <code style="font-family:var(--mono);font-size:0.85em">.ots</code> file here or click to select
+      </div>
+    </div>
+
+    <button id="dev-verify-btn" class="dev-verify-btn" disabled>Verify against Bitcoin</button>
+
+    <div id="dev-output"></div>
+  </div>
 
   <!-- What this site is -->
   <div class="independence" style="margin-top:2.5rem">
@@ -1046,6 +1154,145 @@ function formatSize(bytes) {
   if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / 1048576).toFixed(1) + ' MB';
 }
+
+// ─── Hash + OTS Dev Box Logic ───
+const hashInput = document.getElementById('hash-input');
+const otsDropZone = document.getElementById('ots-drop-zone');
+const otsFileInput = document.getElementById('ots-file-input');
+const otsDropLabel = document.getElementById('ots-drop-label');
+const devVerifyBtn = document.getElementById('dev-verify-btn');
+const devOutput = document.getElementById('dev-output');
+let otsFileData = null;
+
+function normalizeHash(raw) {
+  let h = raw.trim().toLowerCase();
+  if (h.startsWith('sha256:')) h = h.slice(7);
+  // Handle "hash  filename" format from shasum output
+  if (h.includes(' ')) h = h.split(/\s+/)[0];
+  return h;
+}
+
+function isValidHash(h) {
+  return /^[a-f0-9]{64}$/.test(h);
+}
+
+function updateDevBtn() {
+  const h = normalizeHash(hashInput.value);
+  devVerifyBtn.disabled = !(isValidHash(h) && otsFileData);
+}
+
+hashInput.addEventListener('input', updateDevBtn);
+
+// OTS drop zone events
+let otsDragCounter = 0;
+otsDropZone.addEventListener('click', () => { otsFileInput.value = ''; otsFileInput.click(); });
+otsFileInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) setOtsFile(f);
+});
+otsDropZone.addEventListener('dragenter', e => { e.preventDefault(); otsDragCounter++; otsDropZone.classList.add('dragging'); });
+otsDropZone.addEventListener('dragleave', e => { e.preventDefault(); otsDragCounter--; if (otsDragCounter === 0) otsDropZone.classList.remove('dragging'); });
+otsDropZone.addEventListener('dragover', e => e.preventDefault());
+otsDropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  otsDragCounter = 0;
+  otsDropZone.classList.remove('dragging');
+  const f = e.dataTransfer.files[0];
+  if (f) setOtsFile(f);
+});
+
+function setOtsFile(f) {
+  f.arrayBuffer().then(buf => {
+    otsFileData = buf;
+    otsDropLabel.innerHTML = '✓ <strong>' + escHtml(f.name) + '</strong> (' + formatSize(f.size) + ')';
+    otsDropZone.classList.add('has-file');
+    updateDevBtn();
+  });
+}
+
+devVerifyBtn.addEventListener('click', async () => {
+  if (devVerifyBtn.disabled) return;
+  const hashHex = normalizeHash(hashInput.value);
+  if (!isValidHash(hashHex)) return;
+  if (!otsFileData) return;
+
+  devVerifyBtn.disabled = true;
+  devOutput.innerHTML = '<div class="verifying-state" style="padding:1.5rem 0"><div class="spinner"></div><p>Verifying against Bitcoin ledger…</p></div>';
+
+  const steps = [];
+  steps.push({ label: 'SHA-256 hash provided', status: 'ok', detail: hashHex });
+
+  // Check OTS header
+  const header = new Uint8Array(otsFileData.slice(0, 15));
+  const otsHeaderStr = Array.from(header.slice(1, 15)).map(b => String.fromCharCode(b)).join('');
+  if (header[0] === 0x00 && otsHeaderStr === 'OpenTimestamps') {
+    steps.push({ label: 'Valid OpenTimestamps header confirmed', status: 'ok' });
+  } else {
+    steps.push({ label: 'OTS file header not recognized', status: 'warn' });
+  }
+
+  steps.push({ label: 'Contacting public Bitcoin block explorers…', status: 'info' });
+
+  const otsResult = await verifyOtsProof(otsFileData, hashHex);
+
+  // Store for download
+  window._lastOtsBlob = new Blob([otsFileData], { type: 'application/octet-stream' });
+  window._lastOtsName = 'proof.ots';
+
+  if (otsResult.verified) {
+    steps.pop();
+    steps.push({ label: 'Bitcoin ledger verification confirmed', status: 'ok' });
+    steps.push({ label: 'Block height: ' + otsResult.height, status: 'ok' });
+    steps.push({ label: 'Ledger timestamp: ' + formatTimestamp(otsResult.timestamp), status: 'ok' });
+
+    const ledgerDetails =
+      '<div class="ledger-details">' +
+        '<span class="label">Bitcoin block</span> ' + otsResult.height + '<br>' +
+        '<span class="label">Ledger timestamp</span> ' + formatTimestamp(otsResult.timestamp) + '<br>' +
+        '<span class="label">Interpretation</span> This hash provably existed before block ' + otsResult.height + ' was mined.' +
+      '</div>';
+
+    devOutput.innerHTML = renderSteps(steps) +
+      renderBanner('verified', 'Valid — ledger-confirmed',
+        'Hash anchored in the Bitcoin blockchain.' +
+        ledgerDetails +
+        '<br><span style="font-size:0.78rem;color:var(--text-dim)">VALID does not imply authorship, ownership, or truth.</span>' +
+        '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+      );
+  } else if (otsResult.pending) {
+    steps.pop();
+    steps.push({ label: 'Bitcoin anchoring pending', status: 'warn', detail: 'Not yet confirmed in a Bitcoin block' });
+
+    devOutput.innerHTML = renderSteps(steps) +
+      renderBanner('pending', 'Ledger pending',
+        'The .ots proof has been submitted but is not yet confirmed in a Bitcoin block. ' +
+        'This typically resolves within a few hours. Re-verify later.' +
+        '<br><br><button onclick="downloadOts()" style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px solid var(--accent-dim);padding:0.4rem 0.8rem;border-radius:2px;cursor:pointer">Download .ots proof</button>'
+      );
+  } else if (otsResult.error) {
+    steps.pop();
+    steps.push({ label: 'OTS verification could not complete', status: 'warn', detail: otsResult.error });
+
+    devOutput.innerHTML = renderSteps(steps) +
+      renderBanner('pending', 'Ledger unverifiable',
+        'Could not verify against the Bitcoin blockchain at this time. ' +
+        'You can verify independently with <code style="font-family:var(--mono);font-size:0.8rem">ots verify proof.ots</code> or at ' +
+        '<a href="https://opentimestamps.org" target="_blank" rel="noopener" style="color:var(--accent)">opentimestamps.org</a>.'
+      );
+  } else {
+    steps.pop();
+    steps.push({ label: 'No Bitcoin attestation found in proof', status: 'warn' });
+
+    devOutput.innerHTML = renderSteps(steps) +
+      renderBanner('pending', 'Ledger unverifiable',
+        'The .ots file does not contain a completed Bitcoin attestation. ' +
+        'It may need to be upgraded first.'
+      );
+  }
+
+  devVerifyBtn.disabled = false;
+  updateDevBtn();
+});
 </script>
 
 </body>
