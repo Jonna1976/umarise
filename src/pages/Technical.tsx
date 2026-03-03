@@ -279,16 +279,16 @@ export default function Technical() {
                 What the mechanism protects against
               </h3>
               <p className="text-landing-muted/70 mb-3">
-                An Anchor Record is designed to resist one specific class of attack: retroactive substitution. An adversary who later claims that different bytes existed at an earlier time cannot produce a valid anchor proof for those bytes, because the SHA-256 hash of different bytes produces a different value, and no valid Bitcoin-anchored OTS proof exists for that value at the claimed time.
+                An Anchor Record resists one specific class of attack: retroactive substitution. An adversary who later claims that different bytes existed at an earlier time cannot produce a valid anchor proof for those bytes, because the SHA-256 hash of different bytes produces a different value, and no valid Bitcoin-anchored OTS proof exists for that value at the claimed time.
               </p>
               <p className="text-landing-muted/60 text-sm mb-3">
                 For a successful attack against an existing Anchor Record, an adversary would need to simultaneously:
               </p>
               <ul className="space-y-1 text-landing-muted/60 text-sm pl-4">
                 {securityProtects.map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <span className="text-landing-copper mt-0.5">—</span>
-                    <span>{item}</span>
+                   <li key={item} className="flex items-start gap-2">
+                     <span className="text-landing-muted/30 mt-0.5">·</span>
+                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
@@ -322,8 +322,8 @@ export default function Technical() {
               </p>
               <ul className="space-y-1 text-landing-muted/70 text-sm pl-4">
                 {securityAssumptions.map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <span className="text-landing-copper mt-0.5">—</span>
+                   <li key={item} className="flex items-start gap-2">
+                     <span className="text-landing-muted/30 mt-0.5">·</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -356,7 +356,7 @@ export default function Technical() {
                 </table>
               </div>
               <p className="mt-4 text-landing-muted/60 text-sm">
-                These mechanisms are complementary. An Anchor Record can serve as the root of a C2PA provenance chain, or as an independent verification layer beneath any of the above.
+                These mechanisms are complementary. An Anchor Record operates at a different layer than any of the above.
               </p>
             </div>
           </section>
@@ -391,7 +391,7 @@ export default function Technical() {
               </div>
             </div>
             <p className="text-landing-cream/70 mb-4">
-              This asymmetry is an integrity constraint, not a commercial restriction. An Anchor Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry itself.
+              This asymmetry is an integrity constraint. An Anchor Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry.
             </p>
             <p className="text-landing-muted/60">
               The same principle applies to comparable registries. DNS allows anyone to resolve a domain, but not anyone to register one. Certificate Authorities allow anyone to verify a certificate, but not anyone to issue one. The constraint protects the record.
@@ -467,26 +467,6 @@ export default function Technical() {
             <p className="mt-4 text-landing-muted/50 text-sm">
               These endpoints are public. No authentication, no sign-up, and no personally identifiable information is required to verify a record.
             </p>
-          </section>
-
-          {/* For Partners */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              For Partners
-            </h2>
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-5">
-              <p className="text-landing-muted/60 text-sm mb-3">
-                One-liner for internal stakeholders and downstream customers:
-              </p>
-              <blockquote className="border-l-2 border-landing-copper/40 pl-4 py-2">
-                <p className="text-landing-cream/85 text-sm italic leading-relaxed">
-                  "Umarise provides an anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation."
-                </p>
-              </blockquote>
-              <p className="text-landing-muted/50 text-xs mt-3">
-                Vendor-neutral. IEC-conformant. Forward to legal, compliance, or technical counterparts.
-              </p>
-            </div>
           </section>
 
           {/* Disclaimer */}

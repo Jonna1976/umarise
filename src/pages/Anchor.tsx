@@ -62,7 +62,7 @@ export default function Anchor() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Scope</h2>
             <p className="text-landing-cream/90">
-              This document describes anchor attestation: the immutable recording that specific digital bytes existed at a specific moment in time, without storing, interpreting, or governing those bytes.
+              This document describes anchor attestation: the recording that specific digital bytes existed at a specific moment in time, without storing, interpreting, or governing those bytes.
             </p>
             <p className="mt-4">
               Anchor attestation applies where internal records, timestamps, or signatures are insufficient as proof, and where a write-once, independently verifiable and externally anchored record is required.
@@ -123,7 +123,7 @@ export default function Anchor() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Anchor Record</h2>
             <p className="text-landing-cream/90 mb-4">
-              An Anchor Record is a minimal, independently verifiable and externally anchored attestation that:
+              An Anchor Record is an externally anchored, independently verifiable attestation that:
             </p>
             <p className="text-landing-cream mb-4 pl-4">
               Specific bytes existed at a specific moment.
@@ -158,7 +158,7 @@ export default function Anchor() {
           {/* Invariants */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
-            <p className="mb-4">The following properties MUST hold:</p>
+            <p className="mb-4">The following properties hold:</p>
             <ul className="space-y-2 pl-4">
               <li>Anchor Records are write-once</li>
               <li>Anchor Records are immutably recorded</li>
@@ -267,7 +267,7 @@ export default function Anchor() {
               <li>Version control requires trust in the repository</li>
             </ul>
             <p className="text-landing-cream/90 mt-6">
-              Anchor attestation provides a write-once, independently verifiable and externally anchored record.
+              Anchor attestation provides a write-once, externally anchored record.
             </p>
           </section>
 
@@ -275,7 +275,7 @@ export default function Anchor() {
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Reference</h2>
             <p className="mb-6">
-              Umarise Core implements an anchor infrastructure conforming to this specification.
+              Umarise Core implements the anchor infrastructure described in this document.
             </p>
           </section>
 
