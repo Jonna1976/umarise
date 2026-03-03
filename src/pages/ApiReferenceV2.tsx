@@ -164,29 +164,29 @@ export default function ApiReferenceV2() {
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
             </p>
 
-            {/* Live example: C2PA.pdf */}
+            {/* Live example: DocPro.pdf */}
             <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Live example · C2PA.pdf anchored to Bitcoin block 939,025</p>
+              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Live example · DocPro.pdf anchored to Bitcoin block 938,978</p>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
                 Public endpoint, no key required. Copy, paste, verify:
               </p>
               <Code
                 code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
-  -d '{"hash":"sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd"}'`}
-                copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd"}'`}
+  -d '{"hash":"sha256:a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e"}'`}
+                copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e"}'`}
               />
               <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
                 <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
-  "origin_id":  "bb737713-03cd-4481-ad20-a4cc33122271",
-  "short_token": "74785B22",
-  "hash":       "76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd",
+  "origin_id":  "352eddba-a6be-4880-83c7-a0c22de39614",
+  "short_token": "9377D98B",
+  "hash":       "a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e",
   "hash_algo":  "sha256",
-  "captured_at": "2026-03-02T15:00:39.11319+00:00",
+  "captured_at": "2026-03-02T07:50:07.805+00:00",
   "proof_status": "anchored",
-  "bitcoin_block_height": 939025,
-  "anchored_at": "2026-03-02T18:00:03.524+00:00",
-  "proof_url":  "${BASE}/v1-core-proof?origin_id=bb737713-03cd-4481-ad20-a4cc33122271"
+  "bitcoin_block_height": 938978,
+  "anchored_at": "2026-03-02T10:00:03.831+00:00",
+  "proof_url":  "${BASE}/v1-core-proof?origin_id=352eddba-a6be-4880-83c7-a0c22de39614"
 }`}</pre>
               </div>
               <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
