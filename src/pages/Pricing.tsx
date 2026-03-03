@@ -134,9 +134,9 @@ export default function Pricing() {
 
         <Link
           to="/"
-          className="inline-block text-sm text-landing-muted/45 hover:text-landing-muted/65 transition-colors mb-16"
+          className="inline-flex items-center gap-1.5 text-sm text-landing-muted/45 hover:text-landing-muted/65 transition-colors mb-16"
         >
-          umarise.com
+          ↑ umarise.com
         </Link>
 
         {/* Title */}

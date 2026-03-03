@@ -531,7 +531,7 @@ export default function Verify() {
             href="/"
             className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm"
           >
-            ← Back
+            ↑ umarise.com
           </a>
         </div>
         <div className="max-w-2xl mx-auto px-6 pb-10 pt-6">

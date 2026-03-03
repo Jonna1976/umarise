@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown, ArrowUp, Search, X } from 'lucide-react';
+import { ArrowUp, AlertTriangle, Clock, Zap, ListChecks, PlayCircle, FileCode2, Key, Bot, ChevronDown, Search, X } from 'lucide-react';
 import { CopyBlock, CodeTabs, Param, Badge, MethodBadge, SectionHeader, ErrorList, Note } from '@/components/api-reference/shared';
 import ApiKeySection from '@/components/api-reference/ApiKeySection';
 import AIIntegrationSection from '@/components/api-reference/AIIntegrationSection';
@@ -235,7 +235,7 @@ export default function ApiReference() {
       <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
-            <ArrowLeft className="w-4 h-4" /><span className="text-sm">Back</span>
+            <ArrowUp className="w-4 h-4" /><span className="text-sm">umarise.com</span>
           </Link>
           <span className="font-serif text-lg text-[hsl(var(--landing-cream)/0.9)]">Umarise</span>
         </div>

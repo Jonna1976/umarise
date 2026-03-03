@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, Terminal, Code2, Shield, ExternalLink, Layers, Clock, FileCheck } from 'lucide-react';
+import { ArrowUp, Copy, Check, Terminal, Code2, Shield, ExternalLink, Layers, Clock, FileCheck } from 'lucide-react';
 
 function CopyBtn({ text }: { text: string }) {
   const [ok, setOk] = useState(false);
@@ -37,7 +37,7 @@ export default function PartnerIntegration() {
       <nav className="sticky top-0 z-50 bg-[hsl(var(--landing-deep)/0.95)] backdrop-blur-md border-b border-[hsl(var(--landing-cream)/0.06)]">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm">
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowUp className="w-4 h-4" />
             umarise.com
           </Link>
           <a href="mailto:partners@umarise.com" className="text-sm text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream))] transition-colors">

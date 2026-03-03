@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 /**
  * Umarise: Technical Description
@@ -70,21 +70,7 @@ const verificationEndpoints = [
 export default function Technical() {
   return (
     <div className="min-h-screen bg-landing-deep text-landing-cream">
-      {/* Header */}
-      <header className="border-b border-landing-muted/10">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-landing-muted/50 hover:text-landing-cream transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Back</span>
-          </Link>
-          <span className="font-serif text-lg text-landing-cream/80">
-            Umarise
-          </span>
-        </div>
-      </header>
+      <PageHeader />
 
       {/* Content */}
       <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
