@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 
 /**
- * Investor One-Pager — GTM Strategy v3.1
+ * Investor One-Pager — GTM Strategy v3.1 (final)
  * Exportable internal document. English. No em dashes. Infrastructure tone.
  */
 export default function InvestorOnePager() {
@@ -55,10 +55,10 @@ export default function InvestorOnePager() {
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic.' },
+                { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic. You see the lock. You move on.' },
                 { label: 'DNS', desc: 'You type a name. You reach a server. The translation happens invisibly. Nobody knows how DNS works. Everyone depends on it.' },
-                { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates. Made SSL so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction.' },
-                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply — anyone could read it with any device.' },
+                { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates for everyone. Before Let\'s Encrypt, SSL cost money and required manual renewal. Let\'s Encrypt made it so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction from something that should have been free all along.' },
+                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply — and anyone could read it with any device. No license, no vendor, no platform.' },
               ].map(({ label, desc }) => (
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
@@ -73,8 +73,8 @@ export default function InvestorOnePager() {
           <section>
             <SectionTitle>The problem</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-              Every digital file can be modified after the fact. Existing solutions for temporal proof
-              (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
+              Every digital file can be modified after the fact. Existing solutions for temporal
+              proof (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
               The proof depends on the continued existence of the provider.
             </p>
           </section>
@@ -203,15 +203,19 @@ export default function InvestorOnePager() {
                 </p>
               </HighlightBox>
             </div>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
+            <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200 space-y-3">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 The goal is not to find customers who pay. The goal is to find people who adopt anchoring-spec.org
                 as a standard in their workflow, platform, or curriculum — and integrate it.
                 Revenue follows adoption. Not the other way around.
               </p>
-              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 italic print:text-stone-700">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed italic print:text-stone-700">
                 The question is not: "Who wants to pay for anchoring?"
                 The question is: "Who wants anchoring-spec.org as a standard in what they build?"
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                We are pre-seeding. The infrastructure is ready. The network is not yet activated.
+                That is what we need.
               </p>
             </div>
           </section>
@@ -221,8 +225,12 @@ export default function InvestorOnePager() {
             <SectionTitle>How to plant a seed</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
               Seeding is not building. Seeding is showing.
-              One researcher. One file. One ZIP. One person who sees it work. That is a seed.
             </p>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              One researcher. One file. One ZIP. One person who sees it work.
+              That is a seed.
+            </p>
+
             <div className="space-y-3 mb-5">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">The sequence</p>
               {[
@@ -236,6 +244,7 @@ export default function InvestorOnePager() {
                 </div>
               ))}
             </div>
+
             <div className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5 mb-5">
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic print:text-stone-600">
                 "Here is the PDF. Here is the .ots proof. Here is verify-anchoring.org.
@@ -245,7 +254,8 @@ export default function InvestorOnePager() {
                 That is the whole message. The primitive speaks for itself.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+
+            <div className="grid grid-cols-2 gap-3 mb-5">
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-4 print:bg-stone-50 print:border-stone-200">
                 <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-2">What not to build</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
@@ -259,25 +269,37 @@ export default function InvestorOnePager() {
                 </p>
               </div>
             </div>
-          </section>
 
-          {/* Seeds */}
-          <section>
-            <SectionTitle>The seeds need to be in the ground before it does</SectionTitle>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(40,15%,88%,0.02)] p-6 print:bg-stone-50 print:border-stone-200">
-              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              The forcing event will come from outside.
+              The seeds need to be in the ground before it does.
+            </p>
+
+            <HighlightBox>
+              <p className="text-sm font-medium text-[hsl(40,15%,88%,0.85)] mb-3 print:text-stone-800">
                 No campaign. No social. No impressions.
               </p>
-              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
-                The temptation is obvious: one student, one ZIP, one story — that is a perfect campaign.
-                Every student recognizes it. Resist it. A campaign makes it a product. A silent seed makes
-                it a primitive. One PhD student showing a colleague how it works is worth more than ten
-                thousand impressions. Because the colleague sees it work. Not sees it sold.
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
+                The temptation is obvious: one student, one ZIP, one story —
+                that is a perfect campaign. Every student recognizes it.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
-                The reflex installs through experience, not exposure. That is the only distribution that holds.
+                Resist it.
               </p>
-            </div>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                A campaign makes it a product. A silent seed makes it a primitive.
+                One PhD student showing a colleague how it works is worth more
+                than ten thousand impressions. Because the colleague sees it work.
+                Not sees it sold.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                The reflex installs through experience, not exposure.
+                That is the only distribution that holds.
+              </p>
+              <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 italic print:text-stone-500">
+                See presence-guide for where and how to show it.
+              </p>
+            </HighlightBox>
           </section>
 
           {/* Reflex, not habit */}
@@ -286,6 +308,8 @@ export default function InvestorOnePager() {
             <div className="space-y-3 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 Anchoring is not a habit. It is a reflex.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 Habits are built through repetition — daily triggers, streaks, rewards.
                 Reflexes are installed by one moment that counts.
               </p>
@@ -293,6 +317,10 @@ export default function InvestorOnePager() {
                 The lawyer who cannot prove when a document existed. The designer whose concept
                 was claimed by someone else. The researcher whose dataset was disputed.
                 One moment of need — and the reflex is installed permanently.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                This means the product does not need to be used daily.
+                It needs to be there when it matters.
               </p>
             </div>
             <HighlightBox>
@@ -304,6 +332,7 @@ export default function InvestorOnePager() {
                 QR needed 26 years and one forcing event — COVID — to become a reflex.
                 Anchoring needs one forcing event: the first major case where an anchor wins
                 and the absence of one loses. The AI Act. A plagiarism ruling. A contract dispute.
+                The event will come from outside. The infrastructure needs to be in place before it does.
               </p>
               <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
                 Three minutes for permanent proof. That is the proposition.
@@ -386,10 +415,18 @@ export default function InvestorOnePager() {
                 <p className="text-sm text-[hsl(40,15%,88%,0.9)] font-medium mt-3 italic print:text-stone-800">
                   "What are you already storing that a timestamp would make defensible?"
                 </p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
+                  Early adopters: universities anchoring research datasets, AI platforms anchoring
+                  model outputs, content platforms anchoring publications, corporates anchoring
+                  contracts and internal records.
+                </p>
               </div>
             </div>
 
             {/* What connectors are */}
+            <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
+              What both connectors are — and are not
+            </p>
             <div className="space-y-3 mb-4">
               {[
                 { title: 'Not an investor', desc: 'No equity, no board seat, no cap table.' },
@@ -400,6 +437,9 @@ export default function InvestorOnePager() {
               ))}
             </div>
 
+            <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
+              How it works
+            </p>
             <DataTable
               headers={['The connector', 'Umarise']}
               rows={[
@@ -422,13 +462,16 @@ export default function InvestorOnePager() {
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
                 But Umarise does not build those services. Umarise guards the primitive.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
                 The instinct to add — a dashboard, an account system, a workflow tool,
                 a compliance feature — is always logical in the moment.
                 It is always wrong for the primitive.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
                 The moment the primitive becomes a platform, it stops being infrastructure.
-                A primitive with a dashboard is a SaaS. A primitive without one is the SSL certificate for proof of existence.
+                A primitive with a dashboard is a SaaS.
+                A primitive without one is the SSL certificate for proof of existence.
               </p>
               <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
                 You build the services. We guard the primitive.
@@ -534,8 +577,6 @@ function DataTable({
                   className={`p-3 ${
                     rightAlignLast && ci === row.length - 1
                       ? 'text-right font-mono text-[hsl(25,35%,42%,0.7)]'
-                      : ci > 0 && !rightAlignLast
-                      ? ''
                       : ''
                   }`}
                 >
