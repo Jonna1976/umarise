@@ -282,16 +282,16 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">1.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Hash your file locally</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Your content never leaves your device.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Use the full file path, or run <code className="text-[hsl(var(--landing-copper))]">cd</code> to the file directory first. Your content never leaves your device.</p>
                 <Code
-                  code={`shasum -a 256 yourfile.pdf`}
-                  copy="shasum -a 256 yourfile.pdf"
+                  code={`shasum -a 256 /path/to/yourfile.pdf`}
+                  copy="shasum -a 256 /path/to/yourfile.pdf"
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    {">"} <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  yourfile.pdf
+                    {">"} <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  /path/to/yourfile.pdf
                   </p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">Copy the 64-character hash before the filename. Use it in step 2.</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">Can’t find the file? Try: <code className="text-[hsl(var(--landing-copper))]">find ~ -name "yourfile.pdf" 2&gt;/dev/null</code></p>
                 </div>
               </div>
 
