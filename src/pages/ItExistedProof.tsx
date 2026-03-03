@@ -483,8 +483,8 @@ export default function ItExistedProof() {
 
     if (!resolvedArtifact) {
       console.warn('[onDownload] ⚠ No artifact available — blocking download');
-      toast.error('Add your original file in Step 1 first. The ZIP must contain the original to be valid.');
-      setOpenStep('verify-file');
+      // Reset status so the drop zone becomes visible again
+      await resetArtifactFlow('Add your original file in Step 1 first. The ZIP must contain the original to be valid.');
       return;
     }
 
