@@ -162,15 +162,12 @@ export default function ApiReferenceV2() {
               An anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation.
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
-              Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · Version: <code className="text-[hsl(var(--landing-copper))]">v1</code> (frozen)
-            </p>
-            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-1">
-              All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>.
+              Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · Version: <code className="text-[hsl(var(--landing-copper))]">v1</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
             </p>
 
             {/* Verify Now - instant gratification */}
             <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Try it now - no key needed</p>
+              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Verify a live anchor - public endpoint, no key required</p>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
                 This hash is already anchored to Bitcoin block 935,037. Copy, paste, verify:
               </p>
