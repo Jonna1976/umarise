@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
- * Umarise Core: Public Specification
+ * Umarise Core: System Description
  * 
- * Minimal, normative, infrastructure-grade.
- * No SDK, no onboarding, no marketing.
+ * Minimal, factual, infrastructure-grade.
  */
 export default function CoreSpec() {
   return (
@@ -48,7 +47,7 @@ export default function CoreSpec() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Purpose</h2>
             <p className="text-landing-cream/90">
-              Umarise Core provides immutable attestation that a cryptographic hash existed at a specific moment in time.
+              Umarise Core records that a cryptographic hash existed at a specific moment in time.
             </p>
             <p className="mt-4 text-landing-muted/60">
               Core accepts hashes only.<br />
@@ -56,119 +55,20 @@ export default function CoreSpec() {
             </p>
           </section>
 
-          {/* Related Documentation */}
+          {/* Data Boundary */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Related Documentation</h2>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/api-reference" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                  API Reference
-                </Link>
-                <span className="text-landing-muted/50 ml-2">: endpoints, fields, error codes</span>
-              </li>
-              <li>
-                <Link to="/anchor" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                  Anchor One-Pager
-                </Link>
-                <span className="text-landing-muted/50 ml-2">: when and why anchor attestation applies</span>
-              </li>
-              <li>
-                 <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                   Anchoring Specification (IEC v1.0)
-                 </a>
-                 <span className="text-landing-muted/50 ml-2">: the independent specification</span>
-              </li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Data Boundary</h2>
+            <p className="text-landing-cream/90 mb-4">
+              An Anchor Record contains:
+            </p>
+            <ul className="space-y-1 text-landing-muted/70 mb-6">
+              <li><span className="text-landing-copper">hash</span>: what existed</li>
+              <li><span className="text-landing-copper">hash_algo</span>: how it was computed</li>
+              <li><span className="text-landing-copper">timestamp</span>: when it existed</li>
+              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
             </ul>
-          </section>
-
-          {/* API Contract */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-2">
-              API Contract
-            </h2>
-            <p className="text-landing-muted/50 text-sm mb-4">
-              Full reference: <Link to="/api-reference" className="text-landing-copper hover:text-landing-copper/80 transition-colors">API Reference</Link>
-            </p>
-            
-            <div className="space-y-6 font-mono text-sm">
-              {/* POST /v1-core-origins */}
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">
-                  POST /v1-core-origins
-                </div>
-                <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at, proof_status, proof_url }"}</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Permissioned (X-API-Key header)</span></div>
-                </div>
-              </div>
-
-              {/* GET /v1-core-resolve */}
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">
-                  GET /v1-core-resolve
-                </div>
-                <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id or hash</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at }"}</span> <span className="text-landing-muted/50">or 404</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
-                </div>
-              </div>
-
-              {/* POST /v1-core-verify */}
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">
-                  POST /v1-core-verify
-                </div>
-                <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">{"{ hash }"}</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ origin_id, hash, hash_algo, captured_at, proof_status, proof_url }"}</span> <span className="text-landing-muted/50">or 404</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
-                </div>
-              </div>
-
-              {/* GET /v1-core-proof */}
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">
-                  GET /v1-core-proof?origin_id=&#123;uuid&#125;
-                </div>
-                <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Input:</span> <span className="text-landing-cream/80">origin_id (query parameter)</span></div>
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">Binary .ots file</span> <span className="text-landing-muted/50">(200), pending status (202), or 404</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
-                  <div><span className="text-landing-muted/50">Note:</span> <span className="text-landing-muted/60">Returns the OpenTimestamps proof file for trustless, independent verification against the Bitcoin blockchain.</span></div>
-                </div>
-              </div>
-
-              {/* GET /v1-core-health */}
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <div className="text-landing-copper mb-3">GET /v1-core-health</div>
-                <div className="space-y-2 text-landing-muted/70">
-                  <div><span className="text-landing-muted/50">Output:</span> <span className="text-landing-cream/80">{"{ status, version, timestamp }"}</span></div>
-                  <div><span className="text-landing-muted/50">Access:</span> <span className="text-landing-cream/80">Public</span></div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Access Model */}
-          <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Access Model</h2>
-            <p className="text-landing-cream text-lg mb-4">
-              Verification is public. Attestation is permissioned.
-            </p>
-            <ul className="space-y-2 text-landing-muted/70 mb-6">
-              <li><span className="text-landing-cream/80">GET /v1-core-resolve</span>: public</li>
-              <li><span className="text-landing-cream/80">POST /v1-core-verify</span>: public</li>
-              <li><span className="text-landing-cream/80">GET /v1-core-proof</span>: public</li>
-              <li><span className="text-landing-cream/80">GET /v1-core-health</span>: public</li>
-              <li><span className="text-landing-cream/80">POST /v1-core-origins</span>: requires API key</li>
-            </ul>
-            <p className="text-landing-muted/60 mb-2">
-              API key issuance is an infrastructural action, not a product flow.
-            </p>
-            <p className="text-landing-muted/50 text-sm">
-              Write access is permissioned. Read access is public.
+            <p className="text-landing-muted/60">
+              Artifacts, bytes, files, and content remain with the originating party.
             </p>
           </section>
 
@@ -177,44 +77,69 @@ export default function CoreSpec() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Invariants</h2>
             <ul className="space-y-2 text-landing-muted/70 mb-6">
               <li>Anchor Records are write-once</li>
-              <li>Anchor Records are immutably recorded</li>
-              <li>Verification is binary (match / no-match)</li>
+              <li>Anchor Records are append-only</li>
+              <li>Verification is binary: match or no match</li>
             </ul>
-             <p className="text-landing-muted/60 mb-4">
-               Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that creates verifiable proofs anchored in the Bitcoin blockchain — our current ledger. The architecture is ledger-agnostic by design.
-             </p>
-             <p className="text-landing-muted/50 text-sm mb-4">
-               Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
-             </p>
-             <p className="text-landing-muted/60 mb-6">
-               The .ots proof file is independently verifiable against the Bitcoin blockchain without Umarise infrastructure. Verification depends on mathematics and a public ledger, not on this service.
-             </p>
             <div className="bg-landing-muted/5 border border-landing-copper/20 rounded p-4">
-              <p className="text-landing-copper/80 font-medium mb-2">Law of Anchoring:</p>
               <p className="text-landing-cream/90">
-                If the bytes change, the anchor no longer matches.<br />
-                There are no exceptions.
+                If the bytes change, the anchor no longer matches. No exceptions.
               </p>
             </div>
           </section>
 
+          {/* Anchoring */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Anchoring</h2>
+            <p className="text-landing-muted/60 mb-4">
+              Anchor Records are externally anchored via OpenTimestamps, an open-source protocol that binds proofs to the Bitcoin blockchain.
+            </p>
+            <p className="text-landing-muted/60 mb-4">
+              Bitcoin is used as a public, append-only timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
+            </p>
+            <p className="text-landing-muted/60">
+              The resulting .ots proof file is independently verifiable without Umarise infrastructure. Verification depends on cryptography and a public ledger.
+            </p>
+          </section>
+
           {/* Resolution Semantics */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Resolution Semantics</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Resolution</h2>
             <ul className="space-y-2 text-landing-muted/70">
               <li>Multiple attestations of the same hash are permitted</li>
               <li>Resolution returns the earliest attestation by <span className="text-landing-copper">captured_at</span></li>
             </ul>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              This behavior is canonical.
+          </section>
+
+          {/* Access Model */}
+          <section className="border-l-2 border-landing-copper/30 pl-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Access Model</h2>
+            <p className="text-landing-cream/90 mb-4">
+              Verification is public. Attestation is permissioned.
             </p>
+            <p className="text-landing-muted/50 text-sm">
+              Write access requires an API key. Read access is open.
+            </p>
+          </section>
+
+          {/* Non-Responsibilities */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
+            <p className="text-landing-muted/60 mb-4">Umarise Core does not:</p>
+            <ul className="space-y-1 text-landing-muted/60 text-sm">
+              <li>store content</li>
+              <li>interpret meaning</li>
+              <li>apply policy</li>
+              <li>enforce governance</li>
+              <li>resolve disputes</li>
+              <li>determine outcomes</li>
+            </ul>
           </section>
 
           {/* Stability */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Stability</h2>
             <p className="text-landing-cream/90 mb-4">
-              Core v1 is <span className="text-landing-copper">STABLE. IMMUTABLE INTERFACE</span>.
+              Core v1 is a stable, frozen interface.
             </p>
             <ul className="space-y-1 text-landing-muted/60 text-sm mb-4">
               <li>No new fields</li>
@@ -227,52 +152,39 @@ export default function CoreSpec() {
             </p>
           </section>
 
-          {/* Non-Responsibilities */}
+          {/* Related Documentation */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
-            <p className="text-landing-muted/60 mb-4">Umarise Core does not:</p>
-            <ul className="space-y-1 text-landing-muted/60 text-sm mb-6">
-              <li>store content</li>
-              <li>interpret meaning</li>
-              <li>apply policy</li>
-              <li>enforce governance</li>
-              <li>resolve disputes</li>
-              <li>determine outcomes</li>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Documentation</h2>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/api-reference" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  API Reference
+                </Link>
+                <span className="text-landing-muted/50 ml-2">- endpoints, fields, error codes</span>
+              </li>
+              <li>
+                <Link to="/anchor" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  Anchor
+                </Link>
+                <span className="text-landing-muted/50 ml-2">- when and why anchor attestation applies</span>
+              </li>
+              <li>
+                <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  Anchoring Specification (IEC v1.0)
+                </a>
+                <span className="text-landing-muted/50 ml-2">- independent specification</span>
+              </li>
             </ul>
-            <p className="text-landing-muted/50 text-sm">
-              All interpretation and decision-making remain external.
-            </p>
           </section>
 
-          {/* Data Boundary */}
+          {/* Contact */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Data Boundary</h2>
-            <p className="text-landing-cream/90 mb-4">
-              An Anchor Record contains:
-            </p>
-            <ul className="space-y-1 text-landing-muted/70 mb-6">
-              <li><span className="text-landing-copper">hash</span>: what existed</li>
-              <li><span className="text-landing-copper">hash_algo</span>: how it was computed</li>
-              <li><span className="text-landing-copper">timestamp</span>: when it existed</li>
-              <li><span className="text-landing-copper">origin_id</span>: a stable external reference</li>
-            </ul>
-            <p className="text-landing-muted/60">
-              Artifacts, bytes, files, and content remain entirely with the originating party.
-            </p>
-          </section>
-
-          {/* Note */}
-          <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Note</h2>
-             <p className="text-landing-muted/60 mb-4">
-               Umarise Core may be used independently of any Umarise application. The proof primitive stands on its own.
-             </p>
-            <p className="mt-4">
+            <p>
               <a
                 href="mailto:partners@umarise.com"
                 className="text-landing-copper/70 hover:text-landing-copper transition-colors"
               >
-                Contact: partners@umarise.com
+                partners@umarise.com
               </a>
             </p>
           </section>
@@ -282,7 +194,7 @@ export default function CoreSpec() {
 
       {/* Footer */}
       <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
-        <p>© {new Date().getFullYear()} Umarise</p>
+        <p>&copy; {new Date().getFullYear()} Umarise</p>
       </footer>
     </div>
   );
