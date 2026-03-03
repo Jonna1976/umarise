@@ -71,7 +71,7 @@ export default function Landing() {
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Integrate</p>
               <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
               <Link to="/api-reference" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">API Reference</Link>
-              <Link to="/partner-integration" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Partner Integration</Link>
+              <Link to="/partnerships" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Partnerships</Link>
               <Link to="/sdk" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">SDK</Link>
             </div>
 
