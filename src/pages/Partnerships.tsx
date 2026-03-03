@@ -13,9 +13,9 @@ export default function Partnerships() {
 
         <Link
           to="/"
-          className="inline-block text-sm text-landing-muted/45 hover:text-landing-muted/65 transition-colors mt-16 mb-20"
+          className="inline-flex items-center gap-1.5 text-sm text-landing-muted/45 hover:text-landing-muted/65 transition-colors mt-16 mb-20"
         >
-          umarise.com
+          ↑ umarise.com
         </Link>
 
         <main className="flex-1 flex flex-col justify-center" style={{ paddingBottom: '25vh' }}>

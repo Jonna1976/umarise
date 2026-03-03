@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 /**
@@ -24,8 +24,8 @@ export default function Why() {
             to="/"
             className="flex items-center gap-2 text-why-cream/40 hover:text-why-cream transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-garamond">Back</span>
+            <ArrowUp className="w-4 h-4" />
+            <span className="text-sm font-garamond">umarise.com</span>
           </Link>
           <span className="font-playfair text-lg text-why-cream/60">Umarise</span>
         </div>
