@@ -140,6 +140,11 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
+  .four-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+  }
 
   /* Key element */
   .origin-key {
@@ -654,7 +659,7 @@
   <div class="section">
     <div class="section-label">6 · Verification</div>
 
-    <div class="three-col">
+    <div class="four-col">
       <div class="verify-track">
         <div class="tag tag-convenience">Track A</div>
         <h4>In-app</h4>
@@ -662,10 +667,16 @@
         <div class="detail">Registry lookup + hash check via Core API. Convenience verifier.</div>
       </div>
       <div class="verify-track">
-        <div class="tag tag-reference">Track B</div>
-        <h4>Reference Verifier</h4>
+        <div class="tag tag-reference">Track B1</div>
+        <h4>ZIP Verifier</h4>
         <div class="mono">verify-anchoring.org</div>
-        <div class="detail">100% client-side. Zero API calls. V(B,P,L) with local OTS library. IEC Section 9 compliant.</div>
+        <div class="detail">Drop ZIP. Client-side artifact hash-check + OTS verification via local library. Zero API calls.</div>
+      </div>
+      <div class="verify-track">
+        <div class="tag tag-reference">Track B2</div>
+        <h4>Hash + OTS Verifier</h4>
+        <div class="mono">verify-anchoring.org</div>
+        <div class="detail">Paste SHA-256 hash + upload .ots file. For API integrators without a ZIP. normalizeHash() accepts sha256: prefix and raw shasum output.</div>
       </div>
       <div class="verify-track">
         <div class="tag tag-convenience">Track C</div>
