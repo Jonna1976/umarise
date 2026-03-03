@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 
 /**
- * Investor One-Pager
+ * Investor One-Pager — GTM Strategy v3.1
  * Exportable internal document. English. No em dashes. Infrastructure tone.
  */
 export default function InvestorOnePager() {
@@ -37,14 +37,36 @@ export default function InvestorOnePager() {
 
         <div className="space-y-12">
 
-          {/* One-liner */}
+          {/* Opening statement */}
           <section>
-            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
+            <HighlightBox>
               <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
-                Umarise is an open infrastructure primitive that proves specific bytes existed at a specific moment
-                with a single API call. No storage, no accounts, no dependency on the issuer after creation.
+                Anchor it before it matters. Umarise is the SSL certificate for proof of existence —
+                invisible infrastructure that makes trust automatic, verifiable by anyone, dependent on no one.
               </p>
+            </HighlightBox>
+          </section>
+
+          {/* What infrastructure looks like */}
+          <section>
+            <SectionTitle>What infrastructure looks like when it works</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Four primitives you use every day without thinking about them:
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic.' },
+                { label: 'DNS', desc: 'You type a name. You reach a server. The translation happens invisibly. Nobody knows how DNS works. Everyone depends on it.' },
+                { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates. Made SSL so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction.' },
+                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply — anyone could read it with any device.' },
+              ].map(({ label, desc }) => (
+                <FeatureCard key={label} label={label} desc={desc} />
+              ))}
             </div>
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 print:text-stone-500">
+              These four became infrastructure by being useful, open, and simple. Not by being sold.
+              Umarise is the same primitive for temporal proof.
+            </p>
           </section>
 
           {/* Problem */}
@@ -70,10 +92,7 @@ export default function InvestorOnePager() {
                 { label: 'Survives the maker', desc: 'The proof ZIP remains verifiable even if Umarise ceases to exist.' },
                 { label: 'One API call', desc: 'Integration takes one afternoon. No SDK required, no onboarding call.' },
               ].map(({ label, desc }) => (
-                <div key={label} className="p-4 rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] print:bg-stone-50 print:border-stone-200">
-                  <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">{label}</p>
-                  <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">{desc}</p>
-                </div>
+                <FeatureCard key={label} label={label} desc={desc} />
               ))}
             </div>
           </section>
@@ -88,10 +107,7 @@ export default function InvestorOnePager() {
                 { title: 'Category claim', desc: '"Creation Integrity" · first-in-time published and cryptographically anchored on 2 March 2026.' },
                 { title: 'Independent verifier', desc: 'verify-anchoring.org · public domain, no tracking, no backend. Competitors must reference it.' },
               ].map(({ title, desc }) => (
-                <div key={title} className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5">
-                  <p className="font-medium text-sm text-[hsl(40,15%,88%,0.85)] print:text-stone-800">{title}</p>
-                  <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-0.5 print:text-stone-500">{desc}</p>
-                </div>
+                <BorderItem key={title} title={title} desc={desc} />
               ))}
             </div>
           </section>
@@ -99,36 +115,20 @@ export default function InvestorOnePager() {
           {/* Market */}
           <section>
             <SectionTitle>Market</SectionTitle>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">Sector</th>
-                    <th className="text-right p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs w-28 print:text-stone-600">TAM (EU)</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
-                  {[
-                    ['Legal tech · IP, contracts, burden of proof', '€2.3B'],
-                    ['AI/GenAI output verification', '€500M+'],
-                    ['Creative industry · origin claims', '€1.2B'],
-                    ['Compliance & audit · eIDAS, QTSP', '€3.1B'],
-                    ['Supply chain · certificates of origin', '€800M'],
-                    ['Science · dataset integrity', '€400M'],
-                    ['Government · archiving, FOIA', '€600M'],
-                  ].map(([sector, tam]) => (
-                    <tr key={sector} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
-                      <td className="p-3">{sector}</td>
-                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.8)]">{tam}</td>
-                    </tr>
-                  ))}
-                  <tr className="border-t-2 border-[hsl(40,15%,88%,0.15)] print:border-stone-300">
-                    <td className="p-3 font-medium text-[hsl(40,15%,88%,0.9)]">Total TAM</td>
-                    <td className="p-3 text-right font-mono font-medium text-[hsl(25,35%,42%,0.9)]">€8.9B</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              headers={['Sector', 'TAM (EU)']}
+              rows={[
+                ['Legal tech · IP, contracts, burden of proof', '€2.3B'],
+                ['AI/GenAI output verification', '€500M+'],
+                ['Creative industry · origin claims', '€1.2B'],
+                ['Compliance & audit · eIDAS, QTSP', '€3.1B'],
+                ['Supply chain · certificates of origin', '€800M'],
+                ['Science · dataset integrity', '€400M'],
+                ['Government · archiving, FOIA', '€600M'],
+              ]}
+              totalRow={['Total TAM', '€8.9B']}
+              rightAlignLast
+            />
           </section>
 
           {/* Valuation */}
@@ -137,159 +137,128 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 text-center print:bg-stone-50 print:border-stone-200">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Build value</p>
-                <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">
-                  €250-390K
-                </p>
+                <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">€250-390K</p>
               </div>
-              <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-5 text-center print:bg-amber-50 print:border-amber-200">
+              <HighlightBox className="p-5 text-center">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Strategic value</p>
-                <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">
-                  €8-17M
-                </p>
-              </div>
+                <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">€8-17M</p>
+              </HighlightBox>
             </div>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
-              <table className="w-full text-sm">
-                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
-                  {[
-                    ['Category claim "Creation Integrity"', '€1-3M'],
-                    ['Normative specification (anchoring-spec.org)', '€2-5M'],
-                    ['Independent verifier (verify-anchoring.org)', '€500K-1M'],
-                    ['Frozen v1 API contract (Stripe model)', '€1-2M'],
-                    ['Structural moat: uncopyable for SaaS', '€3-5M'],
-                    ['Terminology ownership (14 definitions)', '€500K-1M'],
-                  ].map(([asset, value]) => (
-                    <tr key={asset} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
-                      <td className="p-3">{asset}</td>
-                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.7)]">{value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              rows={[
+                ['Category claim "Creation Integrity"', '€1-3M'],
+                ['Normative specification (anchoring-spec.org)', '€2-5M'],
+                ['Independent verifier (verify-anchoring.org)', '€500K-1M'],
+                ['Frozen v1 API contract (Stripe model)', '€1-2M'],
+                ['Structural moat: uncopyable for SaaS', '€3-5M'],
+                ['Terminology ownership (14 definitions)', '€500K-1M'],
+              ]}
+              rightAlignLast
+            />
           </section>
 
           {/* Revenue */}
           <section>
             <SectionTitle>Revenue model</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              No subscriptions. No recurring fees. Two revenue streams:
+              No subscriptions. No recurring fees.
             </p>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Stream</th>
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Model</th>
-                    <th className="text-right p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Price</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
-                  {[
-                    ['API key', 'One-time', '€240'],
-                    ['Anchoring credits · Starter', 'Prepaid bundle', '€50 (500)'],
-                    ['Anchoring credits · Standard', 'Prepaid bundle', '€500 (5,000)'],
-                    ['Anchoring credits · Volume', 'Prepaid bundle', '€5,000 (50,000)'],
-                    ['L3 Attestation', 'Per transaction', '€1.95'],
-                    ['L4 QES (via QTSP)', 'On request', 'TBD'],
-                  ].map(([stream, model, price]) => (
-                    <tr key={stream} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
-                      <td className="p-3">{stream}</td>
-                      <td className="p-3 text-[hsl(40,15%,88%,0.5)]">{model}</td>
-                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.7)]">{price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              headers={['Stream', 'Model', 'Price']}
+              rows={[
+                ['API key', 'One-time', '€240'],
+                ['Anchoring credits · Starter', 'Prepaid bundle', '€50 (500 anchors)'],
+                ['Anchoring credits · Standard', 'Prepaid bundle', '€500 (5,000 anchors)'],
+                ['Anchoring credits · Volume', 'Prepaid bundle', '€5,000 (50,000 anchors)'],
+                ['L3 Attestation', 'Per transaction', '€1.95'],
+                ['L4 QES (via QTSP)', 'On request', 'TBD'],
+              ]}
+              rightAlignLast
+            />
             <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
               Uniform price: €0.10 per anchor. Credits do not expire. Top-up via Stripe Payment Link, automatically credited, no portal.
             </p>
           </section>
 
-          {/* Traction */}
+          {/* Where we are */}
           <section>
-            <SectionTitle>Status · March 2026</SectionTitle>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { metric: '30/31', label: 'Audit score' },
-                { metric: 'v1.0', label: 'API frozen' },
-                { metric: '2', label: 'SDKs (Node, Python)' },
-              ].map(({ metric, label }) => (
-                <div key={label} className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-4 text-center print:bg-stone-50 print:border-stone-200">
-                  <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.9)]">{metric}</p>
-                  <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-1">{label}</p>
-                </div>
-              ))}
+            <SectionTitle>Where we are</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Two phases. One completed.
+            </p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
+                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Phase 1</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Infrastructure primitive — complete.</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                  The API is frozen. The specification is published. The verifier is independent. The proof survives the maker. The primitive works.
+                </p>
+              </div>
+              <HighlightBox className="p-5">
+                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Phase 2</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Adoption seeding — not yet started.</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                  This is not partner sales. This is infrastructure politics.
+                  TCP/IP was not sold. It was adopted by the right people at the right moments.
+                </p>
+              </HighlightBox>
             </div>
-            <div className="mt-4 space-y-1.5">
-              {[
-                'Normative specification live (anchoring-spec.org)',
-                'Independent verifier live (verify-anchoring.org)',
-                'Category "Creation Integrity" claimed and anchored',
-                'Sandbox mode live (um_test_ + dry_run)',
-                'QTSP/eIDAS blueprint ready',
-                'Consumer reference app live (itexisted.app)',
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3 text-sm">
-                  <span className="text-emerald-400/70 mt-0.5 shrink-0">✓</span>
-                  <span className="text-[hsl(40,15%,88%,0.6)] print:text-stone-600">{item}</span>
-                </div>
-              ))}
+            <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                The goal is not to find customers who pay. The goal is to find people who adopt anchoring-spec.org
+                as a standard in their workflow, platform, or curriculum — and integrate it.
+                Revenue follows adoption. Not the other way around.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 italic print:text-stone-700">
+                The question is not: "Who wants to pay for anchoring?"
+                The question is: "Who wants anchoring-spec.org as a standard in what they build?"
+              </p>
             </div>
           </section>
 
-          {/* What we need */}
+          {/* How to plant a seed */}
           <section>
-            <SectionTitle>What we need</SectionTitle>
-            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 mb-4 print:bg-amber-50 print:border-amber-200">
-              <p className="text-sm text-[hsl(40,15%,88%,0.8)] leading-relaxed print:text-stone-700">
-                The technology is complete. The specification is published. The verifier is independent.
-                What is missing is not capital. It is a connector: someone with a network across legal,
-                compliance, or creative industries who can ask one question in the right rooms:
-              </p>
-              <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-['Playfair_Display'] italic text-center print:text-stone-900">
-                "Who in your pipeline needs proof of existence?"
-              </p>
-            </div>
-            <div className="space-y-3 mb-4">
+            <SectionTitle>How to plant a seed</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Seeding is not building. Seeding is showing.
+              One researcher. One file. One ZIP. One person who sees it work. That is a seed.
+            </p>
+            <div className="space-y-3 mb-5">
+              <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">The sequence</p>
               {[
-                { title: 'Not an investor', desc: 'No equity, no board seat, no cap table. Revenue share or referral fee per activated partner.' },
-                { title: 'Not a salesperson', desc: 'Partners integrate themselves. The connector opens doors, Umarise handles onboarding through docs and SDK.' },
-                { title: 'Not a co-founder', desc: 'A bridge builder who translates "cryptographic anchoring" into the language of the room they are in.' },
-              ].map(({ title, desc }) => (
-                <div key={title} className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5">
-                  <p className="font-medium text-sm text-[hsl(40,15%,88%,0.85)] print:text-stone-800">{title}</p>
-                  <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-0.5 print:text-stone-500">{desc}</p>
+                'One PhD student anchors a dissertation draft — 20 minutes, no account',
+                'They receive a ZIP: hash + .ots proof + Bitcoin anchor + certificate',
+                'That ZIP goes to one rector or dean — not as a pitch deck, as a working proof',
+              ].map((step, i) => (
+                <div key={i} className="flex items-start gap-3 text-sm">
+                  <span className="font-mono text-[hsl(25,35%,42%,0.7)] mt-0.5 shrink-0 w-5 text-right">{i + 1}.</span>
+                  <span className="text-[hsl(40,15%,88%,0.7)] print:text-stone-600">{step}</span>
                 </div>
               ))}
             </div>
-            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">The connector</th>
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">Umarise</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
-                  {[
-                    ['Opens the conversation', 'Provides the one-pager and demo'],
-                    ['Identifies the use case', 'Maps it to the API contract'],
-                    ['Introduces the decision maker', 'Handles technical onboarding'],
-                    ['Follows up on adoption', 'Delivers SDK, docs, and support'],
-                  ].map(([connector, umarise]) => (
-                    <tr key={connector} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
-                      <td className="p-3">{connector}</td>
-                      <td className="p-3">{umarise}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5 mb-5">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic print:text-stone-600">
+                "Here is the PDF. Here is the .ots proof. Here is verify-anchoring.org.
+                Verify it yourself. No account needed."
+              </p>
+              <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-2 print:text-stone-500">
+                That is the whole message. The primitive speaks for itself.
+              </p>
             </div>
-            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
-              Target: 5 activated partners within 12 months. Self-sustaining revenue at that point. No funding required.
-            </p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-4 print:bg-stone-50 print:border-stone-200">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-2">What not to build</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                  No university portal. No researcher dashboard. No integration with Overleaf or Jupyter — that is partner work, not primitive work.
+                </p>
+              </div>
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-4 print:bg-stone-50 print:border-stone-200">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-2">What the first seed proves</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                  Not that it scales. That it works. One real anchor by one real researcher is worth more than a hundred slide decks.
+                </p>
+              </div>
+            </div>
           </section>
 
           {/* Seeds */}
@@ -311,19 +280,155 @@ export default function InvestorOnePager() {
             </div>
           </section>
 
+          {/* Reflex, not habit */}
+          <section>
+            <SectionTitle>How adoption works — reflex, not habit</SectionTitle>
+            <div className="space-y-3 mb-4">
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                Anchoring is not a habit. It is a reflex.
+                Habits are built through repetition — daily triggers, streaks, rewards.
+                Reflexes are installed by one moment that counts.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                The lawyer who cannot prove when a document existed. The designer whose concept
+                was claimed by someone else. The researcher whose dataset was disputed.
+                One moment of need — and the reflex is installed permanently.
+              </p>
+            </div>
+            <HighlightBox>
+              <p className="text-sm text-[hsl(40,15%,88%,0.8)] leading-relaxed print:text-stone-700">
+                <strong>QR proved you were somewhere. Anchoring proves something existed.</strong><br />
+                Structurally the same mechanism. Different object.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+                QR needed 26 years and one forcing event — COVID — to become a reflex.
+                Anchoring needs one forcing event: the first major case where an anchor wins
+                and the absence of one loses. The AI Act. A plagiarism ruling. A contract dispute.
+              </p>
+              <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
+                Three minutes for permanent proof. That is the proposition.
+              </p>
+            </HighlightBox>
+          </section>
+
+          {/* Status */}
+          <section>
+            <SectionTitle>Status · March 2026</SectionTitle>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[
+                { metric: '30/31', label: 'Audit score' },
+                { metric: 'v1.0', label: 'API frozen' },
+                { metric: '2', label: 'SDKs (Node, Python)' },
+              ].map(({ metric, label }) => (
+                <div key={label} className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-4 text-center print:bg-stone-50 print:border-stone-200">
+                  <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.9)]">{metric}</p>
+                  <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-1">{label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-1.5">
+              {[
+                'Normative specification live (anchoring-spec.org)',
+                'Independent verifier live (verify-anchoring.org)',
+                'Category "Creation Integrity" claimed and anchored',
+                'Sandbox mode live (um_test_ + dry_run)',
+                'QTSP/eIDAS blueprint ready',
+                'Consumer reference app live (itexisted.app)',
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3 text-sm">
+                  <span className="text-emerald-400/70 mt-0.5 shrink-0">✓</span>
+                  <span className="text-[hsl(40,15%,88%,0.6)] print:text-stone-600">{item}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* What we need */}
+          <section>
+            <SectionTitle>What we need</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-6 print:text-stone-600">
+              Two connectors — one for each adoption path.
+            </p>
+
+            {/* Path 1 */}
+            <div className="mb-6">
+              <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
+                Adoption path 1 — Layers on top of the primitive
+              </p>
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
+                <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                  Notaries, digital signing, legal tech, attestation, compliance.
+                  They understand the primitive. They build their layer on top.
+                  We stay the foundation. They own their layer.
+                </p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.9)] font-medium mt-3 print:text-stone-800">
+                  Build your layer on top. We stay the primitive.
+                </p>
+              </div>
+            </div>
+
+            {/* Path 2 */}
+            <div className="mb-6">
+              <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
+                Adoption path 2 — Places Umarise under their existing system
+              </p>
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
+                <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+                  Large enterprises, mid-size companies, social media platforms, AI platforms,
+                  universities, foundations, research institutions.
+                  They change nothing in their workflow. Umarise is added silently underneath.
+                </p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+                  This path needs a connector who opens doors at the decision-maker level —
+                  an ecosystem thinker with a broad network who can place one question
+                  in the right room at the right moment.
+                </p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.9)] font-medium mt-3 italic print:text-stone-800">
+                  "What are you already storing that a timestamp would make defensible?"
+                </p>
+              </div>
+            </div>
+
+            {/* What connectors are */}
+            <div className="space-y-3 mb-4">
+              {[
+                { title: 'Not an investor', desc: 'No equity, no board seat, no cap table.' },
+                { title: 'Not a salesperson', desc: 'Adopters integrate themselves. The connector plants the question, Umarise handles everything after the door opens.' },
+                { title: 'Not a co-founder', desc: 'A bridge builder who translates "cryptographic anchoring" into the language of the room they are in.' },
+              ].map(({ title, desc }) => (
+                <BorderItem key={title} title={title} desc={desc} />
+              ))}
+            </div>
+
+            <DataTable
+              headers={['The connector', 'Umarise']}
+              rows={[
+                ['Plants the question', 'Provides the one-pager and demo'],
+                ['Identifies the use case', 'Maps it to the API contract'],
+                ['Introduces the decision maker', 'Handles technical onboarding'],
+                ['Follows up on adoption', 'Delivers SDK, docs, and support'],
+              ]}
+            />
+          </section>
+
           {/* The line */}
           <section>
             <SectionTitle>The line that does not move</SectionTitle>
-            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
+            <HighlightBox>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
-                Services on top of the primitive create value. That is good. Partners should build them.
-                But Umarise does not build those services. Umarise guards the primitive.
+                Services on top of the primitive create value. That is good.
+                Partners should build them. Notaries, signing providers, attestation services —
+                they add layers. That is exactly how infrastructure works.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
-                The instinct to add — a dashboard, an account system, a workflow tool — is always logical
-                in the moment. It is always wrong for the primitive. The moment the primitive becomes a
-                platform, it stops being infrastructure. A primitive with a dashboard is a SaaS. A primitive
-                without one is the SSL certificate for proof of existence.
+                But Umarise does not build those services. Umarise guards the primitive.
+                The instinct to add — a dashboard, an account system, a workflow tool,
+                a compliance feature — is always logical in the moment.
+                It is always wrong for the primitive.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                The moment the primitive becomes a platform, it stops being infrastructure.
+                A primitive with a dashboard is a SaaS. A primitive without one is the SSL certificate for proof of existence.
               </p>
               <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
                 You build the services. We guard the primitive.
@@ -331,7 +436,7 @@ export default function InvestorOnePager() {
               <p className="text-sm text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
                 If it looks even one millimeter like a platform: no. That line does not move.
               </p>
-            </div>
+            </HighlightBox>
           </section>
 
           {/* Contact */}
@@ -354,10 +459,109 @@ export default function InvestorOnePager() {
   );
 }
 
+/* ── Shared sub-components ── */
+
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h2 className="font-['Playfair_Display'] text-lg font-light text-[hsl(40,15%,88%,0.9)] mb-5 print:text-stone-900">
       {children}
     </h2>
+  );
+}
+
+function HighlightBox({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function FeatureCard({ label, desc }: { label: string; desc: string }) {
+  return (
+    <div className="p-4 rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] print:bg-stone-50 print:border-stone-200">
+      <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">{label}</p>
+      <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">{desc}</p>
+    </div>
+  );
+}
+
+function BorderItem({ title, desc }: { title: string; desc: string }) {
+  return (
+    <div className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5">
+      <p className="font-medium text-sm text-[hsl(40,15%,88%,0.85)] print:text-stone-800">{title}</p>
+      <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-0.5 print:text-stone-500">{desc}</p>
+    </div>
+  );
+}
+
+function DataTable({
+  headers,
+  rows,
+  totalRow,
+  rightAlignLast,
+}: {
+  headers?: string[];
+  rows: string[][];
+  totalRow?: string[];
+  rightAlignLast?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
+      <table className="w-full text-sm">
+        {headers && (
+          <thead>
+            <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
+              {headers.map((h, i) => (
+                <th
+                  key={h}
+                  className={`p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600 ${
+                    rightAlignLast && i === headers.length - 1 ? 'text-right' : 'text-left'
+                  }`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
+          {rows.map((row, ri) => (
+            <tr key={ri} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
+              {row.map((cell, ci) => (
+                <td
+                  key={ci}
+                  className={`p-3 ${
+                    rightAlignLast && ci === row.length - 1
+                      ? 'text-right font-mono text-[hsl(25,35%,42%,0.7)]'
+                      : ci > 0 && !rightAlignLast
+                      ? ''
+                      : ''
+                  }`}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+          {totalRow && (
+            <tr className="border-t-2 border-[hsl(40,15%,88%,0.15)] print:border-stone-300">
+              {totalRow.map((cell, ci) => (
+                <td
+                  key={ci}
+                  className={`p-3 font-medium ${
+                    ci === 0
+                      ? 'text-[hsl(40,15%,88%,0.9)]'
+                      : 'text-right font-mono text-[hsl(25,35%,42%,0.9)]'
+                  }`}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
