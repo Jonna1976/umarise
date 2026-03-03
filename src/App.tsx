@@ -95,7 +95,8 @@ const App = () => (
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
             <Route path="/audit-export" element={<AuditExport />} />
-            <Route path="/investor" element={<InvestorOnePager />} />
+            <Route path="/connector" element={<InvestorOnePager />} />
+            <Route path="/investor" element={<Navigate to="/connector" replace />} />
             <Route path="/partner-outreach-export" element={<PartnerOutreachExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/anchor" element={<Anchor />} />

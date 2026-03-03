@@ -28,7 +28,7 @@ export default function InvestorOnePager() {
             Confidential
           </p>
           <h1 className="font-['Playfair_Display'] text-3xl font-light text-[hsl(40,15%,88%,0.95)] mb-2 print:text-stone-900">
-            Umarise · Strategic One-Pager
+            Umarise · GTM Strategy
           </h1>
           <p className="text-sm text-[hsl(40,15%,88%,0.45)]">
             The SSL certificate for proof of existence · March 2026
