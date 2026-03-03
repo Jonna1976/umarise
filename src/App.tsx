@@ -65,7 +65,7 @@ import Partnerships from "./pages/Partnerships";
 import AuditExport from "./pages/AuditExport";
 import InvestorOnePager from "./pages/InvestorOnePager";
 import PartnerOutreachExport from "./pages/PartnerOutreachExport";
-import Developers from "./pages/Developers";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -139,7 +139,6 @@ const App = () => (
             <Route path="/sdk-download" element={<SdkDownload />} />
             <Route path="/partner-integration" element={<PartnerIntegration />} />
             <Route path="/partnerships" element={<Partnerships />} />
-            <Route path="/developers" element={<Developers />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
