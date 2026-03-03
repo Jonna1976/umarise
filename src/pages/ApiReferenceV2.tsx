@@ -321,9 +321,28 @@ export default function ApiReferenceV2() {
               <div>
                 <div className="flex items-baseline gap-2 mb-1.5">
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">3.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Wait for Bitcoin anchoring</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Poll until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Typical: ~15 min, ledger-dependent.</p>
+                <Code
+                  code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
+                  copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                    {">"} <span className="text-emerald-400">200</span>{' '}
+                    {`{ "proof_status": "anchored", "bitcoin_block_height": 935037 }`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify anytime</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify. Rate-limited at 1,000 requests/min per IP.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify. Works before and after anchoring — <code className="text-[hsl(var(--landing-copper))]">proof_status</code> indicates the current state.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -334,25 +353,6 @@ export default function ApiReferenceV2() {
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
                     {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "origin_id": "...", "captured_at": "...", "proof_status": "anchored" }`}
-                  </p>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div>
-                <div className="flex items-baseline gap-2 mb-1.5">
-                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Check anchoring status</p>
-                </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Wait for Bitcoin confirmation (typical: ~15 min, ledger-dependent), then poll.</p>
-                <Code
-                  code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
-                  copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
-                />
-                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    {">"} <span className="text-emerald-400">200</span>{' '}
-                    {`{ "proof_status": "anchored", "bitcoin_block_height": 935037 }`}
                   </p>
                 </div>
               </div>
