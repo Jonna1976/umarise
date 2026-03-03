@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 /**
- * Umarise: Anchor One-Pager
- * Normative Overview
+ * Umarise: Anchor
+ * Overview
  * 
  * A formal description of the anchor attestation mechanism.
  * Not marketing, not onboarding. A reference document.
@@ -32,7 +32,7 @@ export default function Anchor() {
         {/* Title */}
         <div className="mb-16">
           <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-            Anchor One-Pager
+            Anchor
           </h1>
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
             Overview
@@ -168,12 +168,11 @@ export default function Anchor() {
 
           {/* Law of Anchoring */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Law of Anchoring</h2>
             <p className="text-landing-cream text-lg">
               If the bytes change, the Anchor Record no longer matches.
             </p>
             <p className="text-landing-cream/70 mt-2">
-              There are no exceptions.
+              No exceptions.
             </p>
           </section>
 
@@ -218,16 +217,13 @@ export default function Anchor() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
             <p className="mb-4">The anchor mechanism does not:</p>
             <ul className="space-y-1 pl-4 text-landing-muted/60">
-              <li>store content</li>
-              <li>interpret meaning</li>
-              <li>apply policy</li>
-              <li>enforce governance</li>
-              <li>resolve disputes</li>
-              <li>determine outcomes</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>store content</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>interpret meaning</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>apply policy</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>enforce governance</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>resolve disputes</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>determine outcomes</li>
             </ul>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              All interpretation, decision-making, and enforcement remain external to the anchor layer.
-            </p>
           </section>
 
           {/* Correct Usage Boundary */}
@@ -254,10 +250,10 @@ export default function Anchor() {
               <li>the externally anchored record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
-              Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to the Bitcoin blockchain — our current ledger. The architecture is ledger-agnostic by design. The immutable record is independent of application-layer policy.
+              Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to the Bitcoin blockchain. The architecture is ledger-agnostic. The immutable record is independent of application-layer policy.
             </p>
             <p className="mt-2 text-landing-muted/50 text-sm">
-              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
+              Bitcoin is used as a public, append-only timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
             </p>
           </section>
 

@@ -126,12 +126,12 @@ export default function CoreSpec() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Non-Responsibilities</h2>
             <p className="text-landing-muted/60 mb-4">Umarise Core does not:</p>
             <ul className="space-y-1 text-landing-muted/60 text-sm">
-              <li>store content</li>
-              <li>interpret meaning</li>
-              <li>apply policy</li>
-              <li>enforce governance</li>
-              <li>resolve disputes</li>
-              <li>determine outcomes</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>store content</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>interpret meaning</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>apply policy</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>enforce governance</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>resolve disputes</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>determine outcomes</li>
             </ul>
           </section>
 
