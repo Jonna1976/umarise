@@ -383,20 +383,28 @@ export default function ApiReferenceV2() {
               </div>
             </div>
 
-            <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2">
-                <span className="text-amber-400/80 font-mono">Production polling:</span> <code className="text-[hsl(var(--landing-copper))]">proof_status</code> starts as <code className="text-[hsl(var(--landing-copper))]">"pending"</code> and becomes <code className="text-[hsl(var(--landing-copper))]">"anchored"</code> after Bitcoin confirmation (typical: 10-20 min, ledger-dependent).
+            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3">
+                <span className="text-amber-400/80 font-mono">Smart polling with Retry-After:</span> When <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>, the response includes a <code className="text-[hsl(var(--landing-copper))]">Retry-After: 900</code> header (15 minutes). Use this to schedule your next check — no guessing needed.
               </p>
               <Code
-                code={`# Poll until anchored (bash)
+                code={`# Smart polling using Retry-After header (bash)
 while true; do
-  STATUS=$(curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | grep -o '"proof_status":"[^"]*"')
+  RESPONSE=$(curl -si "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID")
+  STATUS=$(echo "$RESPONSE" | grep -o '"proof_status":"[^"]*"')
   echo "$STATUS"
   [[ "$STATUS" == *"anchored"* ]] && break
-  sleep 60
+  RETRY=$(echo "$RESPONSE" | grep -i retry-after | grep -o '[0-9]*')
+  sleep \${RETRY:-900}
 done`}
-                copy={`while true; do STATUS=$(curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | grep -o '"proof_status":"[^"]*"'); echo "$STATUS"; [[ "$STATUS" == *"anchored"* ]] && break; sleep 60; done`}
+                copy={`while true; do RESPONSE=$(curl -si "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"); STATUS=$(echo "$RESPONSE" | grep -o '"proof_status":"[^"]*"'); echo "$STATUS"; [[ "$STATUS" == *"anchored"* ]] && break; RETRY=$(echo "$RESPONSE" | grep -i retry-after | grep -o '[0-9]*'); sleep \${RETRY:-900}; done`}
               />
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
+                Typical anchoring time: 10-20 minutes. In rare cases of Bitcoin network congestion, this may take longer. The <code className="text-[hsl(var(--landing-copper))]">Retry-After</code> header always reflects the recommended wait time.
+              </p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">
+                <span className="text-amber-400/70">Coming soon:</span> Webhook callbacks — register a URL and we POST when your proof is anchored. Zero polling.
+              </p>
             </div>
             {/* Real-world integration example */}
             <div className="mt-8 pt-6 border-t border-[hsl(var(--landing-cream)/0.08)]">
@@ -461,7 +469,7 @@ app.post('/upload', async (req, res) => {
               <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation. Use for resolve/proof calls." />
               <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was registered. Immutable." />
-              <Param name="proof_status" type="string" desc={`"pending" > "anchored" after Bitcoin confirmation (typical: 10-20 min, ledger-dependent).`} />
+              <Param name="proof_status" type="string" desc={`"pending" → "anchored" after Bitcoin confirmation. When pending, response includes Retry-After: 900 header.`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <div className="space-y-2">
@@ -504,7 +512,7 @@ app.post('/upload', async (req, res) => {
               <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation." />
               <Param name="hash" type="string" desc="SHA-256 hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was first registered. Immutable." />
-              <Param name="proof_status" type="string" desc={`"pending" or "anchored". Anchored = Bitcoin-confirmed.`} />
+              <Param name="proof_status" type="string" desc={`"pending" or "anchored". When pending, Retry-After: 900 header is included.`} />
               <Param name="bitcoin_block_height" type="integer" desc="Bitcoin block number. Present only when anchored." />
               <Param name="anchored_at" type="ISO 8601" desc="Timestamp of Bitcoin confirmation. Present only when anchored." />
 
@@ -672,11 +680,13 @@ const origin = await anchor(hash, {
 });
 console.log(origin.origin_id); // save this
 
-// 3. Poll until anchored
+// 3. Poll using Retry-After header
 let status = origin;
 while (status.proof_status === 'pending') {
-  await new Promise(r => setTimeout(r, 60_000));
-  status = await resolve(origin.origin_id);
+  const res = await fetch(\`${BASE}/v1-core-resolve?origin_id=\${origin.origin_id}\`);
+  const retryAfter = parseInt(res.headers.get('retry-after') || '900');
+  await new Promise(r => setTimeout(r, retryAfter * 1000));
+  status = await res.json();
 }
 console.log('Anchored at block', status.bitcoin_block_height);
 
@@ -702,10 +712,12 @@ core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 origin = core.attest(file_hash)
 print(origin["origin_id"])  # save this
 
-# 3. Poll until anchored
+# 3. Poll using Retry-After header
 while origin["proof_status"] == "pending":
-    time.sleep(60)
-    origin = core.resolve(origin["origin_id"])
+    r = requests.get(f"{BASE}/v1-core-resolve", params={"origin_id": origin["origin_id"]})
+    retry_after = int(r.headers.get("Retry-After", 900))
+    time.sleep(retry_after)
+    origin = r.json()
 print(f"Anchored at block {origin['bitcoin_block_height']}")
 
 # 4. Verify anytime (public, no key)
