@@ -48,7 +48,7 @@ const layers = [
       'Signed attestation certificate',
       'Advanced Electronic Signature level',
     ],
-    price: 'EUR 4.95',
+    price: 'EUR 1.95',
     priceSub: 'Per attestation',
     accent: true,
   },
@@ -83,7 +83,7 @@ const access = [
   },
   {
     name: 'Verified Signers',
-    price: 'From EUR 4.95',
+    price: 'From EUR 1.95',
     description: 'L3 identity binding per signer. KYC or notary attestation.',
     items: ['KYC identity verification', 'Notary-backed attestation', 'identity_binding in certificate', 'Court-admissible evidence'],
   },

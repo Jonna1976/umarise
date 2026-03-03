@@ -63,6 +63,8 @@ import SdkDownload from "./pages/SdkDownload";
 import PartnerIntegration from "./pages/PartnerIntegration";
 import Partnerships from "./pages/Partnerships";
 import AuditExport from "./pages/AuditExport";
+import InvestorOnePager from "./pages/InvestorOnePager";
+import PartnerOutreachExport from "./pages/PartnerOutreachExport";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +95,8 @@ const App = () => (
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
             <Route path="/audit-export" element={<AuditExport />} />
+            <Route path="/investor" element={<InvestorOnePager />} />
+            <Route path="/partner-outreach-export" element={<PartnerOutreachExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/anchor" element={<Anchor />} />
             <Route path="/origin" element={<Anchor />} />
