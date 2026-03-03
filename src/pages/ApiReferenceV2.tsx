@@ -83,7 +83,6 @@ const NAV = [
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
   { id: 'faq', label: 'FAQ' },
-  { id: 'faq', label: 'FAQ' },
 ];
 
 function Sidebar({ active }: { active: string }) {
@@ -247,7 +246,7 @@ export default function ApiReferenceV2() {
             <p className="text-sm text-[hsl(var(--landing-cream)/0.5)] mb-6">
               Or use the SDK:{' '}
               <code className="text-[hsl(var(--landing-copper))]">npm install @umarise/anchor</code>
-              {' '}→{' '}
+              {' '}&gt;{' '}
               <a href="/sdk-download" className="text-[hsl(var(--landing-copper))] underline underline-offset-2 hover:text-[hsl(var(--landing-cream)/0.8)] transition-colors">
                 docs &amp; quick start
               </a>
@@ -346,7 +345,7 @@ export default function ApiReferenceV2() {
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
-                    This file completes your evidence bundle. Without it, only a registry check is possible — not independent Bitcoin verification.
+                    This file completes your evidence bundle. Without it, only a registry check is possible - not independent Bitcoin verification.
                   </p>
                 </div>
               </div>
@@ -390,7 +389,7 @@ export default function ApiReferenceV2() {
                   code={`# Compose an Anchor ZIP from API components
 mkdir evidence && cd evidence
 
-# 1. Your original file (never uploaded — already on your device)
+# 1. Your original file (never uploaded - already on your device)
 cp /path/to/yourfile.pdf artifact.pdf
 
 # 2. Certificate from resolve endpoint
@@ -422,7 +421,7 @@ zip -r ../evidence-bundle.zip .`}
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3">
-                <span className="text-amber-400/80 font-mono">Smart polling with Retry-After:</span> When <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>, the response includes a <code className="text-[hsl(var(--landing-copper))]">Retry-After: 3600</code> header (~1 hour). Use this to schedule your next check — no guessing needed.
+                <span className="text-amber-400/80 font-mono">Smart polling with Retry-After:</span> When <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>, the response includes a <code className="text-[hsl(var(--landing-copper))]">Retry-After: 3600</code> header (~1 hour). Use this to schedule your next check - no guessing needed.
               </p>
               <Code
                 code={`# Smart polling using Retry-After header (bash)
@@ -440,7 +439,7 @@ done`}
                 Typical anchoring time: 10-20 minutes. In rare cases of Bitcoin network congestion, this may take longer. The <code className="text-[hsl(var(--landing-copper))]">Retry-After</code> header always reflects the recommended wait time.
               </p>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">
-                <span className="text-amber-400/70">Coming soon:</span> Webhook callbacks — register a URL and we POST when your proof is anchored. Zero polling.
+                <span className="text-amber-400/70">Coming soon:</span> Webhook callbacks - register a URL and the system POSTs when your proof is anchored. Zero polling.
               </p>
             </div>
             {/* Real-world integration example */}
@@ -506,7 +505,7 @@ app.post('/upload', async (req, res) => {
               <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation. Use for resolve/proof calls." />
               <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was registered. Immutable." />
-              <Param name="proof_status" type="string" desc={`"pending" → "anchored" after Bitcoin confirmation. When pending, response includes Retry-After: 900 header.`} />
+              <Param name="proof_status" type="string" desc={`"pending" > "anchored" after Bitcoin confirmation. When pending, response includes Retry-After: 3600 header.`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <div className="space-y-2">
@@ -549,7 +548,7 @@ app.post('/upload', async (req, res) => {
               <Param name="origin_id" type="uuid" desc="Unique identifier for this attestation." />
               <Param name="hash" type="string" desc="SHA-256 hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="Timestamp when the hash was first registered. Immutable." />
-              <Param name="proof_status" type="string" desc={`"pending" or "anchored". When pending, Retry-After: 900 header is included.`} />
+              <Param name="proof_status" type="string" desc={`"pending" or "anchored". When pending, Retry-After: 3600 header is included.`} />
               <Param name="bitcoin_block_height" type="integer" desc="Bitcoin block number. Present only when anchored." />
               <Param name="anchored_at" type="ISO 8601" desc="Timestamp of Bitcoin confirmation. Present only when anchored." />
 
