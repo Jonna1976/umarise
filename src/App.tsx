@@ -62,6 +62,7 @@ import ForResearch from "./pages/ForResearch";
 import SdkDownload from "./pages/SdkDownload";
 import PartnerIntegration from "./pages/PartnerIntegration";
 import Partnerships from "./pages/Partnerships";
+import AuditExport from "./pages/AuditExport";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/privacy-export" element={<PrivacyExport />} />
             <Route path="/iso-export" element={<IsoExport />} />
             <Route path="/partner-onboarding-export" element={<PartnerOnboardingExport />} />
+            <Route path="/audit-export" element={<AuditExport />} />
             <Route path="/cto-overview" element={<CTOOverview />} />
             <Route path="/anchor" element={<Anchor />} />
             <Route path="/origin" element={<Anchor />} />
