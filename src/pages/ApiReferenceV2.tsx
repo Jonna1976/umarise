@@ -164,32 +164,12 @@ export default function ApiReferenceV2() {
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
             </p>
 
-            {/* Verify Now - instant gratification */}
-            <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Verify a live anchor - public endpoint, no key required</p>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
-                This hash is already anchored to Bitcoin block 935,037. Copy, paste, verify:
-              </p>
-              <Code
-                code={`curl -X POST ${BASE}/v1-core-verify \\
-  -H "Content-Type: application/json" \\
-  -d '{"hash":"sha256:1d10e0d184c100b7327d9594a33cd266958ea6420b6cc3f5212921188858dd0a"}'`}
-                copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:1d10e0d184c100b7327d9594a33cd266958ea6420b6cc3f5212921188858dd0a"}'`}
-              />
-              <div className="mt-2 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                  {">"} <span className="text-emerald-400">200</span>{' '}
-                  {`{ "origin_id": "349d6734-...", "captured_at": "2026-02-02T14:09:41Z", "proof_status": "anchored" }`}
-                </p>
-              </div>
-              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
-                Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
-              </p>
-            </div>
-
             {/* Live example: C2PA.pdf */}
-            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs font-mono text-[hsl(var(--landing-copper))] uppercase tracking-wider mb-3">Live example · C2PA.pdf anchored to Bitcoin block 939,025</p>
+            <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
+              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Live example · C2PA.pdf anchored to Bitcoin block 939,025</p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+                Public endpoint, no key required. Copy, paste, verify:
+              </p>
               <Code
                 code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -210,7 +190,7 @@ export default function ApiReferenceV2() {
 }`}</pre>
               </div>
               <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
-                This is a real anchored record. The response is deterministic — anyone can verify this hash independently.
+                Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
               </p>
             </div>
           </Section>
