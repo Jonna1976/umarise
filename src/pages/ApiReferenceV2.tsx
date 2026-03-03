@@ -186,6 +186,33 @@ export default function ApiReferenceV2() {
                 Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
               </p>
             </div>
+
+            {/* Live example: C2PA.pdf */}
+            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs font-mono text-[hsl(var(--landing-copper))] uppercase tracking-wider mb-3">Live example · C2PA.pdf anchored to Bitcoin block 939,025</p>
+              <Code
+                code={`curl -X POST ${BASE}/v1-core-verify \\
+  -H "Content-Type: application/json" \\
+  -d '{"hash":"sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd"}'`}
+                copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd"}'`}
+              />
+              <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+                <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
+  "origin_id":  "bb737713-03cd-44e1-a026-a8cc33122271",
+  "short_token": "74785B22",
+  "hash":       "sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd",
+  "hash_algo":  "sha256",
+  "captured_at": "2026-03-02T15:00:39.113+00:00",
+  "proof_status": "anchored",
+  "bitcoin_block_height": 939025,
+  "anchored_at": "2026-03-03T02:18:58.077+00:00",
+  "proof_url":  "${BASE}/v1-core-proof?origin_id=bb737713-03cd-44e1-a026-a8cc33122271"
+}`}</pre>
+              </div>
+              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
+                This is a real anchored record. The response is deterministic — anyone can verify this hash independently.
+              </p>
+            </div>
           </Section>
 
           {/* -- Authentication -- */}
