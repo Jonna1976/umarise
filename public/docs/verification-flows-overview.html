@@ -277,11 +277,11 @@
 
   <div class="tracks">
 
-    <!-- Track A -->
-    <div class="track" data-label="Track A · In-app">
+    <!-- Track A1 -->
+    <div class="track" data-label="Track A1 · In-app">
       <h3>In-app Verify</h3>
-      <div class="url">itexisted.app/verify<br>umarise.com/verify</div>
-      <div class="audience">Gebruiker — convenience check</div>
+      <div class="url">itexisted.app/verify</div>
+      <div class="audience">Gebruiker — stateless convenience check</div>
       <ul class="flow-steps">
         <li>ZIP openen</li>
         <li>certificate.json uitlezen</li>
@@ -292,6 +292,22 @@
         <li>VERIFIED · PENDING · ERROR</li>
       </ul>
       <div class="dependency"><strong>Afhankelijkheid:</strong> Umarise registry (online)</div>
+    </div>
+
+    <!-- Track A2 -->
+    <div class="track" data-label="Track A2 · B2B API">
+      <h3>Core API Verify</h3>
+      <div class="url">umarise.com/verify</div>
+      <div class="audience">Partner / integrator — via Core API</div>
+      <ul class="flow-steps">
+        <li>SHA-256 hash invoeren of ZIP uploaden</li>
+        <li>v1-core-verify endpoint <span class="step-label">registry lookup</span></li>
+        <li>v1-core-resolve → origin metadata</li>
+        <li>v1-core-proof → OTS proof status <span class="step-label">bestaans-check</span></li>
+        <li>VERIFIED · PENDING · NOT FOUND</li>
+      </ul>
+      <div class="result">Publiek endpoint — geen API-key vereist</div>
+      <div class="dependency"><strong>Afhankelijkheid:</strong> Umarise Core API (online)</div>
     </div>
 
     <!-- Track B1 -->
@@ -352,7 +368,8 @@
       <thead>
         <tr>
           <th></th>
-          <th>Track A</th>
+          <th>Track A1</th>
+          <th>Track A2</th>
           <th>Track B1</th>
           <th>Track B2</th>
           <th>Track C</th>
@@ -362,6 +379,7 @@
         <tr>
           <td>Input</td>
           <td>ZIP</td>
+          <td>Hash of ZIP</td>
           <td>ZIP</td>
           <td>Hash + .ots</td>
           <td>ZIP</td>
@@ -369,12 +387,14 @@
         <tr>
           <td>Hash-bron</td>
           <td>Registry lookup</td>
+          <td>Core API</td>
           <td>Artifact bytes</td>
           <td>Handmatig</td>
           <td>Artifact bytes</td>
         </tr>
         <tr>
           <td>Bitcoin-check</td>
+          <td>Core API</td>
           <td>Core API</td>
           <td>Lokale OTS</td>
           <td>Lokale OTS</td>
@@ -383,13 +403,15 @@
         <tr>
           <td>Artifact integriteit</td>
           <td>Triple-Gate</td>
+          <td><span class="tag-no">n.v.t.</span></td>
           <td>SHA-256</td>
           <td><span class="tag-no">n.v.t.</span></td>
           <td>sha256sum</td>
         </tr>
         <tr>
           <td>Umarise nodig</td>
-          <td><span class="tag-yes">Ja</span></td>
+          <td><span class="tag-yes">Ja (registry)</span></td>
+          <td><span class="tag-yes">Ja (Core API)</span></td>
           <td><span class="tag-no">Nee</span></td>
           <td><span class="tag-no">Nee</span></td>
           <td><span class="tag-no">Nee</span></td>
