@@ -56,9 +56,12 @@ export default function PartnerIntegration() {
             <br />
             <span className="text-[hsl(var(--landing-cream)/0.5)]">Verify independently, forever.</span>
           </h1>
-          <p className="text-[hsl(var(--landing-cream)/0.6)] text-lg max-w-2xl leading-relaxed">
+          <p className="text-[hsl(var(--landing-cream)/0.6)] text-lg max-w-2xl leading-relaxed mb-6">
             Umarise provides an anchoring primitive that enables independent verification that specific bytes existed at or before a ledger-derived point in time - without post-creation reliance on any single party.
           </p>
+          <blockquote className="border-l-2 border-[hsl(var(--landing-copper)/0.4)] pl-5 text-[hsl(var(--landing-cream)/0.55)] text-base italic leading-relaxed max-w-2xl">
+            "We don't store your documents and we don't manage your workflows. We only give you cryptographic proof that they existed at a specific moment."
+          </blockquote>
         </header>
 
         {/* Two Tracks Visual */}
