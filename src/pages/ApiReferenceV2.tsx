@@ -381,6 +381,46 @@ export default function ApiReferenceV2() {
                   </p>
                 </div>
               </div>
+
+              {/* Step 6 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">6.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Build your evidence bundle <span className="text-xs text-[hsl(var(--landing-cream)/0.4)]">(optional)</span></p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Compose a self-contained ZIP for third parties. All components come from previous steps.</p>
+                <Code
+                  code={`# Compose an Anchor ZIP from API components
+mkdir evidence && cd evidence
+
+# 1. Your original file (never uploaded — already on your device)
+cp /path/to/yourfile.pdf artifact.pdf
+
+# 2. Certificate from resolve endpoint
+curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | \\
+  jq '{origin_id, hash, captured_at, hash_algo, short_token, proof_status}' \\
+  > certificate.json
+
+# 3. Binary .ots proof (already downloaded in step 4)
+cp ../proof.ots proof.ots
+
+# 4. Bundle into ZIP
+zip -r ../evidence-bundle.zip .`}
+                  copy={`mkdir evidence && cd evidence && cp /path/to/yourfile.pdf artifact.pdf && curl -s "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID" | jq '{origin_id, hash, captured_at, hash_algo, short_token, proof_status}' > certificate.json && cp ../proof.ots proof.ots && zip -r ../evidence-bundle.zip .`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
+                    Drop this ZIP at{' '}
+                    <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
+                      verify-anchoring.org
+                    </a>
+                    {' '}- the ZIP box verifies hash integrity + Bitcoin timestamp in one step.
+                  </p>
+                  <p className="text-xs text-amber-400/70 mt-1">
+                    ⚠ The .ots file must be saved as binary. Using text mode will corrupt the proof.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
