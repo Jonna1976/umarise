@@ -236,7 +236,7 @@ Calendar: anchor in Bitcoin                   → Bitcoin Blockchain
 Worker: .ots proof opslaan                    → core_ots_proofs (immutable)</div>
 
 <h3>Path B — B2C (itexisted.app)</h3>
-<div class="flow-block">itexisted.app: SHA-256 hash van bestand berekenen (in-browser)
+<div class="flow-block">itexisted.app: SHA-256 hash van bestand berekenen (in-browser, Web Crypto API)
   ↓
 itexisted.app: INSERT page met hash           → pages (Supabase RLS, device_user_id)
   ↓
@@ -248,9 +248,15 @@ INSERT hash + origin_id + timestamp           → origin_attestations (write-onc
   ↓
 itexisted.app: proof ophalen                  → v1-core-resolve (origin_id lookup)
   ↓
+itexisted.app: artifact cachen (ephemeral)    → artifactCache (IndexedDB, overleeft page refresh)
+  ↓
 itexisted.app: ZIP genereren (client-side)    → certificate.json + artifact + .ots proof
   ↓
-Gebruiker: ZIP downloaden                     → volledig lokaal, zero-storage</div>
+Gebruiker: ZIP downloaden                     → volledig lokaal, zero-storage
+
+NB: Geen thumbnails, geen storage bucket, geen image compression.
+    Alleen de artifact bytes worden tijdelijk gecachet in IndexedDB
+    voor de duur van de proof-flow. Geen persistente opslag.</div>
 
 <h3>Verificatie (drie tracks, publiek)</h3>
 <div class="flow-block">Track 1 — In-app (itexisted.app)
@@ -312,7 +318,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
     <tr><th>Component</th><th>Can See</th><th>Cannot See</th></tr>
   </thead>
   <tbody>
-    <tr><td>Client device (itexisted.app)</td><td>Full file content + hash + ZIP</td><td>Nothing hidden</td></tr>
+    <tr><td>Client device (itexisted.app)</td><td>Full file content + hash + ZIP + ephemeral artifact cache</td><td>Nothing hidden</td></tr>
     <tr><td>Cloudflare</td><td>Hash in transit (TLS terminated)</td><td>File content</td></tr>
     <tr><td>Supabase Edge Functions</td><td>Hash, API key hash, timestamps</td><td>File content, raw API key</td></tr>
     <tr><td>Supabase PostgreSQL</td><td>Hash, origin_id, timestamps, key hash</td><td>File content, raw API key</td></tr>
@@ -336,7 +342,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
   <tbody>
     <tr><td>Supabase DB</td><td>Hashes, origin_ids, timestamps, key hashes, proofs</td><td>RLS (7 tables), write-once triggers, DDL audit</td></tr>
     <tr><td>Hetzner disk</td><td>.ots proof files, ledger (JSONL), sync log</td><td>Append-only flag on ledger, standard Linux permissions</td></tr>
-    <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security, IndexedDB cache</td></tr>
+    <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security, ephemeral artifactCache (IndexedDB)</td></tr>
   </tbody>
 </table>
 
