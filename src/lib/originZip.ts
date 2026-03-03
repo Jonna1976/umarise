@@ -218,10 +218,31 @@ export async function buildOriginZip(input: OriginZipInput): Promise<Blob> {
 
   const proofOtsSection = hasProof
     ? '- proof.ots         : OpenTimestamps proof (anchored to Bitcoin)'
-    : '- proof.ots         : Not yet available. Anchoring in progress.\n' +
-      '                       Re-download ZIP after anchoring completes, or fetch\n' +
-      `                       proof separately:\n` +
-      `                       curl https://core.umarise.com/v1-core-proof?origin_id=${cleanId} -o proof.ots`;
+    : '- proof.ots         : NOT INCLUDED — see "Pending Proof" section below';
+
+  const pendingProofSection = hasProof
+    ? ''
+    : `
+PENDING PROOF — WHY proof.ots IS NOT INCLUDED:
+   This ZIP was generated before Bitcoin anchoring completed.
+   Anchoring typically takes 10–20 minutes (one Bitcoin block confirmation).
+
+   This is a deliberate design trade-off, not an error:
+     • The certificate.json already contains the hash and captured_at timestamp.
+     • The origin_id is registered and will be anchored to Bitcoin.
+     • Including a "pending" .ots file would be misleading — it would not yet
+       constitute independent proof.
+
+   To complete this proof bundle:
+     Option A: Re-download the ZIP after anchoring completes (proof_status = "anchored").
+     Option B: Fetch the .ots proof separately:
+       curl https://core.umarise.com/v1-core-proof?origin_id=${cleanId} -o proof.ots
+     Option C: Check status via:
+       curl https://core.umarise.com/v1-core-resolve?origin_id=${cleanId}
+
+   Once you have proof.ots, this bundle becomes fully self-contained and
+   independently verifiable without any Umarise infrastructure.
+`;
 
   const attestationSection = hasAttestation
     ? '- attestation.json  : Layer 3 attestation — third-party confirmation of human action'
@@ -271,7 +292,7 @@ NOTE ON ARTIFACT INCLUSION:
    When an artifact IS included, it is hash-enforced: if the file does not
    match the hash in certificate.json, it is excluded automatically.
    A present artifact is always the exact original.
-
+${pendingProofSection}
 VERIFY ONLINE:
   https://verify-anchoring.org
   Drop this ZIP or the original file.
@@ -283,7 +304,7 @@ VERIFY INDEPENDENTLY (no platform needed):
 
   2. Verify Bitcoin proof (requires ots-cli: https://github.com/opentimestamps/opentimestamps-client):
      ots verify proof.ots
-
+${!hasProof ? '     (Download proof.ots first — see "Pending Proof" section above)\n' : ''}
   3. Or use the included verification scripts:
      bash verify-anchor.sh this-file.zip
      python verify-anchor.py this-file.zip
