@@ -272,9 +272,9 @@ Deno.serve(async (req: Request) => {
         return new Response(
           JSON.stringify({
             status: 'pending',
-            message: 'Proof is awaiting Bitcoin confirmation. Retry after 15 minutes.',
+            message: 'Proof is awaiting Bitcoin confirmation. Typical: ~1 hour, ledger-dependent.',
             origin_id: originId,
-            retry_after_seconds: 900,
+            retry_after_seconds: 3600,
           }),
           {
             status: 202,
@@ -314,9 +314,9 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           status: 'pending',
-          message: 'Proof is awaiting Bitcoin confirmation. Retry after 15 minutes.',
+          message: 'Proof is awaiting Bitcoin confirmation. Typical: ~1 hour, ledger-dependent.',
           origin_id: originId,
-          retry_after_seconds: 900,
+          retry_after_seconds: 3600,
         }),
         {
           status: 202,
