@@ -34,6 +34,12 @@ export default function Landing() {
             Independently verifiable.
           </p>
 
+          {/* Punt van geen terugkeer — Musk */}
+          <p className="font-serif text-lg text-landing-cream/50 tracking-wide mt-8 leading-relaxed" style={{ fontWeight: 300 }}>
+            Na augustus 2026 bestaat er een permanente klasse die hun pre-AI content
+            kunnen bewijzen. En een klasse die dat niet kunnen. Die kloof wordt nooit gedicht.
+          </p>
+
           {/* Category descriptor + spec reference */}
           <p className="text-sm text-landing-muted/55 tracking-widest uppercase mt-6">
             Anchoring Infrastructure
@@ -69,7 +75,7 @@ export default function Landing() {
             {/* Integrate */}
             <div className="flex flex-col gap-3">
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Integrate</p>
-              <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
+              <Link to="/developers" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Developers</Link>
               <Link to="/api-reference" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">API Reference</Link>
               <Link to="/partner-integration" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Integration</Link>
               <Link to="/partnerships" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Partnerships</Link>
