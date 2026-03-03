@@ -2,8 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 
 /**
- * Investor One-Pager — Exportable Internal Document
- * Strategic valuation and market positioning.
+ * Investor One-Pager
+ * Exportable internal document. English. No em dashes. Infrastructure tone.
  */
 export default function InvestorOnePager() {
   const handlePrint = () => window.print();
@@ -25,13 +25,13 @@ export default function InvestorOnePager() {
         {/* Header */}
         <header className="mb-14 pb-8 border-b border-[hsl(40,15%,88%,0.1)] print:border-stone-300">
           <p className="font-mono text-[11px] uppercase tracking-[4px] text-[hsl(25,35%,42%,0.6)] mb-3">
-            Vertrouwelijk
+            Confidential
           </p>
           <h1 className="font-['Playfair_Display'] text-3xl font-light text-[hsl(40,15%,88%,0.95)] mb-2 print:text-stone-900">
-            Umarise — Investor One-Pager
+            Umarise · Investor One-Pager
           </h1>
           <p className="text-sm text-[hsl(40,15%,88%,0.45)]">
-            Het SSL-certificaat voor bewijs van bestaan — Maart 2026
+            The SSL certificate for proof of existence · March 2026
           </p>
         </header>
 
@@ -41,34 +41,34 @@ export default function InvestorOnePager() {
           <section>
             <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
               <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
-                Umarise is een open infrastructuurprimitief dat met één API call bewijst dat specifieke bytes bestonden op een specifiek moment — 
-                zonder opslag, zonder accounts, zonder afhankelijkheid van de uitgever na creatie.
+                Umarise is an open infrastructure primitive that proves specific bytes existed at a specific moment
+                with a single API call. No storage, no accounts, no dependency on the issuer after creation.
               </p>
             </div>
           </section>
 
           {/* Problem */}
           <section>
-            <SectionTitle>Het probleem</SectionTitle>
+            <SectionTitle>The problem</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-              Elk digitaal bestand kan achteraf worden gewijzigd. Bestaande oplossingen voor temporeel bewijs 
-              (DocuSign, Woleet, Originstamp) vereisen accounts, dashboards en vendor lock-in. 
-              Het bewijs is afhankelijk van het voortbestaan van de leverancier.
+              Every digital file can be modified after the fact. Existing solutions for temporal proof
+              (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
+              The proof depends on the continued existence of the provider.
             </p>
           </section>
 
           {/* Solution */}
           <section>
-            <SectionTitle>De oplossing</SectionTitle>
+            <SectionTitle>The solution</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Een verankerings-primitive dat functioneert als DNS voor temporeel bewijs:
+              An anchoring primitive that functions as DNS for temporal proof:
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Zero-storage', desc: 'Alleen de hash wordt verwerkt. Originele bestanden verlaten het apparaat niet.' },
-                { label: 'Bitcoin-verankerd', desc: 'Elke hash wordt via OpenTimestamps onherroepelijk in de Bitcoin blockchain vastgelegd.' },
-                { label: 'Overleeft de maker', desc: 'De ZIP met bewijs blijft verifieerbaar, zelfs als Umarise verdwijnt.' },
-                { label: 'Eén API call', desc: 'Integratie kost een middag. Geen SDK vereist, geen onboarding-call.' },
+                { label: 'Zero-storage', desc: 'Only the hash is processed. Original files never leave the device.' },
+                { label: 'Bitcoin-anchored', desc: 'Every hash is irrevocably anchored to the Bitcoin blockchain via OpenTimestamps.' },
+                { label: 'Survives the maker', desc: 'The proof ZIP remains verifiable even if Umarise ceases to exist.' },
+                { label: 'One API call', desc: 'Integration takes one afternoon. No SDK required, no onboarding call.' },
               ].map(({ label, desc }) => (
                 <div key={label} className="p-4 rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] print:bg-stone-50 print:border-stone-200">
                   <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">{label}</p>
@@ -80,13 +80,13 @@ export default function InvestorOnePager() {
 
           {/* Moat */}
           <section>
-            <SectionTitle>Structurele moat</SectionTitle>
+            <SectionTitle>Structural moat</SectionTitle>
             <div className="space-y-3">
               {[
-                { title: 'Bewijs dat ons niet nodig heeft', desc: 'SaaS-concurrenten kunnen dit niet kopiëren zonder hun eigen verdienmodel (custody, accounts) te ondermijnen.' },
-                { title: 'Eigen specificatie', desc: 'anchoring-spec.org — normatieve standaard onder Unlicense. Wie het veld definieert, bezit het veld.' },
-                { title: 'Categorie-claim', desc: '"Creation Integrity" — first-in-time gepubliceerd en cryptografisch verankerd op 2 maart 2026.' },
-                { title: 'Onafhankelijke verifier', desc: 'verify-anchoring.org — publiek domein, zonder tracking, zonder backend. Concurrenten moeten hiernaar verwijzen.' },
+                { title: 'Proof that does not need us', desc: 'SaaS competitors cannot copy this without undermining their own revenue model (custody, accounts).' },
+                { title: 'Own specification', desc: 'anchoring-spec.org · normative standard under Unlicense. Whoever defines the field, owns the field.' },
+                { title: 'Category claim', desc: '"Creation Integrity" · first-in-time published and cryptographically anchored on 2 March 2026.' },
+                { title: 'Independent verifier', desc: 'verify-anchoring.org · public domain, no tracking, no backend. Competitors must reference it.' },
               ].map(({ title, desc }) => (
                 <div key={title} className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5">
                   <p className="font-medium text-sm text-[hsl(40,15%,88%,0.85)] print:text-stone-800">{title}</p>
@@ -98,7 +98,7 @@ export default function InvestorOnePager() {
 
           {/* Market */}
           <section>
-            <SectionTitle>Markt</SectionTitle>
+            <SectionTitle>Market</SectionTitle>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
               <table className="w-full text-sm">
                 <thead>
@@ -109,13 +109,13 @@ export default function InvestorOnePager() {
                 </thead>
                 <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
                   {[
-                    ['Legal tech — IP, contracten, bewijslast', '€2,3 mrd'],
-                    ['AI/GenAI output verificatie', '€500M+'],
-                    ['Creatieve industrie — oorsprong claimen', '€1,2 mrd'],
-                    ['Compliance & audit — eIDAS, QTSP', '€3,1 mrd'],
-                    ['Supply chain — certificaten van oorsprong', '€800M'],
-                    ['Wetenschap — dataset-integriteit', '€400M'],
-                    ['Overheid — archivering, WOB', '€600M'],
+                    ['Legal tech · IP, contracts, burden of proof', '€2.3B'],
+                    ['AI/GenAI output verification', '€500M+'],
+                    ['Creative industry · origin claims', '€1.2B'],
+                    ['Compliance & audit · eIDAS, QTSP', '€3.1B'],
+                    ['Supply chain · certificates of origin', '€800M'],
+                    ['Science · dataset integrity', '€400M'],
+                    ['Government · archiving, FOIA', '€600M'],
                   ].map(([sector, tam]) => (
                     <tr key={sector} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
                       <td className="p-3">{sector}</td>
@@ -123,8 +123,8 @@ export default function InvestorOnePager() {
                     </tr>
                   ))}
                   <tr className="border-t-2 border-[hsl(40,15%,88%,0.15)] print:border-stone-300">
-                    <td className="p-3 font-medium text-[hsl(40,15%,88%,0.9)]">Totale TAM</td>
-                    <td className="p-3 text-right font-mono font-medium text-[hsl(25,35%,42%,0.9)]">€8,9 mrd</td>
+                    <td className="p-3 font-medium text-[hsl(40,15%,88%,0.9)]">Total TAM</td>
+                    <td className="p-3 text-right font-mono font-medium text-[hsl(25,35%,42%,0.9)]">€8.9B</td>
                   </tr>
                 </tbody>
               </table>
@@ -133,16 +133,16 @@ export default function InvestorOnePager() {
 
           {/* Valuation */}
           <section>
-            <SectionTitle>Waardering</SectionTitle>
+            <SectionTitle>Valuation</SectionTitle>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 text-center print:bg-stone-50 print:border-stone-200">
-                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Bouwwaarde</p>
+                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Build value</p>
                 <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">
                   €250-390K
                 </p>
               </div>
               <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-5 text-center print:bg-amber-50 print:border-amber-200">
-                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Strategische waarde</p>
+                <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Strategic value</p>
                 <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.95)]">
                   €8-17M
                 </p>
@@ -152,12 +152,12 @@ export default function InvestorOnePager() {
               <table className="w-full text-sm">
                 <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
                   {[
-                    ['Categorie-claim "Creation Integrity"', '€1-3M'],
-                    ['Normatieve specificatie (anchoring-spec.org)', '€2-5M'],
-                    ['Onafhankelijke verifier (verify-anchoring.org)', '€500K-1M'],
-                    ['Bevroren v1 API-contract (Stripe-model)', '€1-2M'],
-                    ['Structurele moat: onkopieërbaar voor SaaS', '€3-5M'],
-                    ['Terminologie-eigendom (14 definities)', '€500K-1M'],
+                    ['Category claim "Creation Integrity"', '€1-3M'],
+                    ['Normative specification (anchoring-spec.org)', '€2-5M'],
+                    ['Independent verifier (verify-anchoring.org)', '€500K-1M'],
+                    ['Frozen v1 API contract (Stripe model)', '€1-2M'],
+                    ['Structural moat: uncopyable for SaaS', '€3-5M'],
+                    ['Terminology ownership (14 definitions)', '€500K-1M'],
                   ].map(([asset, value]) => (
                     <tr key={asset} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
                       <td className="p-3">{asset}</td>
@@ -171,50 +171,50 @@ export default function InvestorOnePager() {
 
           {/* Revenue */}
           <section>
-            <SectionTitle>Revenue-model</SectionTitle>
+            <SectionTitle>Revenue model</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Geen abonnementen. Geen recurring fees. Twee inkomstenstromen:
+              No subscriptions. No recurring fees. Two revenue streams:
             </p>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
-                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Stroom</th>
+                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Stream</th>
                     <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Model</th>
-                    <th className="text-right p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Prijs</th>
+                    <th className="text-right p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs print:text-stone-600">Price</th>
                   </tr>
                 </thead>
                 <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
                   {[
-                    ['API-sleutel', 'Eenmalig', '€240'],
-                    ['Anchoring credits — Starter', 'Prepaid bundel', '€50 (500)'],
-                    ['Anchoring credits — Standard', 'Prepaid bundel', '€500 (5.000)'],
-                    ['Anchoring credits — Volume', 'Prepaid bundel', '€5.000 (50.000)'],
-                    ['L3 Attestatie', 'Per transactie', '€1,95'],
-                    ['L4 QES (via QTSP)', 'Op aanvraag', 'TBD'],
-                  ].map(([stroom, model, prijs]) => (
-                    <tr key={stroom} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
-                      <td className="p-3">{stroom}</td>
+                    ['API key', 'One-time', '€240'],
+                    ['Anchoring credits · Starter', 'Prepaid bundle', '€50 (500)'],
+                    ['Anchoring credits · Standard', 'Prepaid bundle', '€500 (5,000)'],
+                    ['Anchoring credits · Volume', 'Prepaid bundle', '€5,000 (50,000)'],
+                    ['L3 Attestation', 'Per transaction', '€1.95'],
+                    ['L4 QES (via QTSP)', 'On request', 'TBD'],
+                  ].map(([stream, model, price]) => (
+                    <tr key={stream} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
+                      <td className="p-3">{stream}</td>
                       <td className="p-3 text-[hsl(40,15%,88%,0.5)]">{model}</td>
-                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.7)]">{prijs}</td>
+                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.7)]">{price}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
             <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
-              Uniforme prijs: €0,10 per anchor. Credits verlopen niet. Bijkopen via Stripe Payment Link — automatisch bijgeschreven, geen portal.
+              Uniform price: €0.10 per anchor. Credits do not expire. Top-up via Stripe Payment Link, automatically credited, no portal.
             </p>
           </section>
 
           {/* Traction */}
           <section>
-            <SectionTitle>Status — Maart 2026</SectionTitle>
+            <SectionTitle>Status · March 2026</SectionTitle>
             <div className="grid grid-cols-3 gap-3">
               {[
                 { metric: '30/31', label: 'Audit score' },
-                { metric: 'v1.0', label: 'API bevroren' },
-                { metric: '2', label: 'SDK\'s (Node, Python)' },
+                { metric: 'v1.0', label: 'API frozen' },
+                { metric: '2', label: 'SDKs (Node, Python)' },
               ].map(({ metric, label }) => (
                 <div key={label} className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-4 text-center print:bg-stone-50 print:border-stone-200">
                   <p className="font-['Playfair_Display'] text-2xl font-light text-[hsl(40,15%,88%,0.9)]">{metric}</p>
@@ -224,11 +224,11 @@ export default function InvestorOnePager() {
             </div>
             <div className="mt-4 space-y-1.5">
               {[
-                'Normatieve specificatie live (anchoring-spec.org)',
-                'Onafhankelijke verifier live (verify-anchoring.org)',
-                'Categorie "Creation Integrity" geclaimd en verankerd',
-                'Sandbox-modus live (um_test_ + dry_run)',
-                'QTSP/eIDAS blueprint gereed',
+                'Normative specification live (anchoring-spec.org)',
+                'Independent verifier live (verify-anchoring.org)',
+                'Category "Creation Integrity" claimed and anchored',
+                'Sandbox mode live (um_test_ + dry_run)',
+                'QTSP/eIDAS blueprint ready',
                 'Consumer reference app live (itexisted.app)',
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3 text-sm">
@@ -241,15 +241,15 @@ export default function InvestorOnePager() {
 
           {/* Ask */}
           <section>
-            <SectionTitle>De vraag</SectionTitle>
+            <SectionTitle>The ask</SectionTitle>
             <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
               <p className="text-sm text-[hsl(40,15%,88%,0.8)] leading-relaxed print:text-stone-700">
-                De techniek is af. De spec is gepubliceerd. De verifier is onafhankelijk. 
-                Het enige dat ontbreekt is adoptie — en dat is precies waarvoor funding wordt gezocht.
+                The technology is complete. The specification is published. The verifier is independent.
+                The only missing element is adoption, which is exactly what funding is sought for.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
-                Funding wordt ingezet voor: eerste partner-onboardings, terminologie-adoptie (E5), 
-                en het activeren van het revenue-model via founding-tier partners.
+                Funding will be allocated to: initial partner onboarding, terminology adoption (E5),
+                and activating the revenue model through founding-tier partners.
               </p>
             </div>
           </section>
@@ -266,8 +266,8 @@ export default function InvestorOnePager() {
         </div>
 
         <footer className="mt-16 pt-8 border-t border-[hsl(40,15%,88%,0.08)] text-xs text-[hsl(40,15%,88%,0.3)] print:border-stone-300 print:text-stone-500">
-          <p>Vertrouwelijk document — niet publiceren</p>
-          <p className="mt-1">Umarise — {new Date().getFullYear()}</p>
+          <p>Confidential document · do not distribute</p>
+          <p className="mt-1">Umarise · {new Date().getFullYear()}</p>
         </footer>
       </div>
     </div>
