@@ -299,16 +299,24 @@ SELECT COUNT(*), status FROM core_ots_proofs GROUP BY status;
 supabase functions deploy --project-ref ubcqdjaytlxjqtinlzhi
 
 # Als bulk deploy problemen geeft, per functie:
+# ⚠️ 10 AI/Companion functies zijn DEPRECATED (maart 2026) en worden NIET gedeployed:
+#    analyze-page, analyze-patterns, analyze-personality,
+#    generate-embeddings, generate-memory-summary, generate-personality-art,
+#    generate-recommendations, generate-share-content, generate-year-reflection,
+#    api-support-chat
+# Zie: docs/core-vs-companion.md
+
 for fn in v1-core-health v1-core-origins v1-core-resolve v1-core-verify \
            v1-core-proof v1-core-origins-proof v1-core-proofs-export \
            v1-core-origins-export v1-internal-metrics v1-internal-partner-create \
+           v1-internal-webhook-dispatch v1-stripe-credit-webhook \
+           v1-attestation-checkout v1-attestation-confirm v1-attestation-request \
+           v1-attestation-verify v1-attestation-webhook \
            companion-origins companion-resolve companion-verify companion-data \
-           analyze-page analyze-patterns analyze-personality \
-           generate-embeddings generate-memory-summary generate-personality-art \
-           generate-recommendations generate-share-content generate-year-reflection \
            search-pages hetzner-ai-proxy hetzner-health hetzner-storage-proxy \
            origin-image-proxy resolve-origin notify-ots-complete \
-           migrate-legacy-pages health-check-cron api-support-chat; do
+           migrate-legacy-pages health-check-cron internal-e2e-test \
+           internal-generate-partner-key; do
   echo "Deploying $fn..."
   supabase functions deploy $fn --project-ref ubcqdjaytlxjqtinlzhi
 done
