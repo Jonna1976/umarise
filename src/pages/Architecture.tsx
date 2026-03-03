@@ -366,7 +366,7 @@ const Architecture = () => {
   │   ✓ ZIP verified            ← automatic           │
   │                                                  │
   │   ── Want to add a trust layer? ──               │
-  │   [ Request attestation ]   ← optional, €4.95    │
+  │   [ Request attestation ]   ← optional, €1.95    │
   │                                                  │
   │   (⊕) Anchor another file  ← LOOP ──────────►   │
   │                                                  │
@@ -397,7 +397,7 @@ const Architecture = () => {
                   { aspect: 'Token', impl: '8-char short_token from registry', why: 'Human-shareable, persistent URL' },
                   { aspect: 'Verification', impl: 'Auto-verified after download (no user action)', why: 'Verification is automatic, not a step' },
                   { aspect: 'ZIP', impl: 'artifact + certificate.json + VERIFY.txt + proof.ots', why: 'Self-contained evidence bundle' },
-                  { aspect: 'Attestation', impl: 'Separate section below proof (Layer 3, €4.95)', why: 'Optional certified third-party confirmation' },
+                  { aspect: 'Attestation', impl: 'Separate section below proof (Layer 3, €1.95)', why: 'Optional certified third-party confirmation' },
                   { aspect: 'Loop', impl: '⊕ Anchor another → Homepage', why: 'Closed ritual cycle, no dead ends' },
                   { aspect: 'Routing', impl: 'hostname === "itexisted.app" → ItExisted component', why: 'Single codebase, hostname-based rendering' },
                   { aspect: 'Typography', impl: 'Playfair Display (headers) + EB Garamond (body) + DM Mono (data)', why: 'Museum aesthetic — WCAG AA compliant' },
@@ -434,6 +434,7 @@ const Architecture = () => {
             <div className="font-mono text-xs text-landing-cream/60 space-y-1">
               <p><span className="text-emerald-400/70">GET</span> <span className="text-landing-cream/80">/</span> → Homepage (ItExisted component via hostname routing)</p>
               <p><span className="text-emerald-400/70">GET</span> <span className="text-landing-cream/80">/proof/:token</span> → Proof Page (ItExistedProof)</p>
+              <p><span className="text-emerald-400/70">GET</span> <span className="text-landing-cream/80">/verify</span> → Public verification (ItExistedVerify, host-aware)</p>
               <p><span className="text-landing-muted/40">GET</span> <span className="text-landing-cream/50">/anchored</span> → Legacy redirect (ItExistedAnchored)</p>
             </div>
           </div>
