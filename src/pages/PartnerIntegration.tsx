@@ -124,22 +124,50 @@ export default function PartnerIntegration() {
 
         {/* Architecture diagram */}
         <section className="mb-20">
-          <div className="border border-[hsl(var(--landing-cream)/0.06)] rounded-xl p-8 bg-[hsl(220,10%,6%)]">
-            <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream)/0.6)] leading-relaxed text-center overflow-x-auto">{`Track A: Retroactive                     Track B: Prospective
-"Anchor what already exists"              "Anchor everything going forward"
+          <div className="border border-[hsl(var(--landing-cream)/0.06)] rounded-xl p-8 md:p-12 bg-[hsl(220,10%,6%)]">
+            <div className="grid grid-cols-2 gap-8 md:gap-16 text-center font-mono text-[13px] text-[hsl(var(--landing-cream)/0.6)]">
+              {/* Headers */}
+              <div>
+                <p className="text-[hsl(var(--landing-copper))] font-medium mb-1">Track A: Retroactive</p>
+                <p className="text-[hsl(var(--landing-cream)/0.4)] text-[11px] italic">"Anchor what already exists"</p>
+              </div>
+              <div>
+                <p className="text-emerald-400 font-medium mb-1">Track B: Prospective</p>
+                <p className="text-[hsl(var(--landing-cream)/0.4)] text-[11px] italic">"Anchor everything going forward"</p>
+              </div>
 
-  Existing archive                          Your application
-  (photos, docs, badges)                    (badges, contracts, reports)
-        |                                         |
-  Local SHA-256 hashing                     SDK/API call at creation
-        |                                         |
-        +----------------+  +--------------------+
-                         |  |
-                   POST /v1-core-origins
-                         |
-                   Bitcoin (OTS) ~24h
-                         |
-                   Verifiable proof`}</pre>
+              {/* Sources */}
+              <div className="space-y-1">
+                <p className="text-[hsl(var(--landing-cream)/0.8)]">Existing archive</p>
+                <p className="text-[hsl(var(--landing-cream)/0.4)] text-[11px]">(photos, docs, badges)</p>
+                <div className="flex justify-center py-2"><div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)]" /></div>
+                <p>Local SHA-256 hashing</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[hsl(var(--landing-cream)/0.8)]">Your application</p>
+                <p className="text-[hsl(var(--landing-cream)/0.4)] text-[11px]">(badges, contracts, reports)</p>
+                <div className="flex justify-center py-2"><div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)]" /></div>
+                <p>SDK/API call at creation</p>
+              </div>
+            </div>
+
+            {/* Convergence */}
+            <div className="flex justify-center py-3">
+              <div className="flex items-end gap-0">
+                <div className="w-[calc(25%-1rem)] md:w-32 h-px border-t border-dashed border-[hsl(var(--landing-cream)/0.15)]" />
+                <div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)]" />
+                <div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)] ml-1" />
+                <div className="w-[calc(25%-1rem)] md:w-32 h-px border-t border-dashed border-[hsl(var(--landing-cream)/0.15)]" />
+              </div>
+            </div>
+
+            <div className="text-center font-mono text-[13px] space-y-1">
+              <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium">POST /v1-core-origins</p>
+              <div className="flex justify-center py-2"><div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)]" /></div>
+              <p className="text-[hsl(var(--landing-cream)/0.6)]">Bitcoin (OTS) ~24h</p>
+              <div className="flex justify-center py-2"><div className="w-px h-6 bg-[hsl(var(--landing-cream)/0.15)]" /></div>
+              <p className="text-[hsl(var(--landing-cream)/0.9)] font-medium">Verifiable proof</p>
+            </div>
           </div>
         </section>
 
