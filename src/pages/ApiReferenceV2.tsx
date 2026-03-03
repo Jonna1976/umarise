@@ -82,7 +82,6 @@ const NAV = [
   { id: 'errors', label: 'Errors' },
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
-  { id: 'integration', label: 'Integration' },
   { id: 'faq', label: 'FAQ' },
 ];
 
@@ -771,108 +770,6 @@ print(result["captured_at"])`} />
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 <span className="text-emerald-400/80 font-mono">v1.0.0</span> - REST API and SDKs are production-ready. Released under the <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain).
               </p>
-            </div>
-          </Section>
-
-          {/* -- Integration -- */}
-          <Section id="integration">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">Integration</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
-              Two complementary anchoring strategies using the same API and credentials.
-            </p>
-
-            <div className="grid sm:grid-cols-2 gap-4 mb-8">
-              <div className="p-5 rounded-lg border border-[hsl(var(--landing-copper)/0.2)] bg-[hsl(var(--landing-copper)/0.03)]">
-                <p className="text-xs font-mono text-[hsl(var(--landing-copper))] uppercase tracking-wider mb-2">Track A · Retroactive</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-2">Anchor what already exists.</p>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] leading-relaxed">
-                  CLI scripts, batch processing (~100 files/min). Files never leave the device - only SHA-256 hashes are transmitted.
-                </p>
-                <Code code={`export CORE_API_KEY=um_your_key
-./anchor-dir.sh "/path/to/folder"
-./check-status.sh anchored-results.csv`} />
-              </div>
-              <div className="p-5 rounded-lg border border-emerald-500/15 bg-emerald-500/[0.02]">
-                <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Track B · Prospective</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-2">Anchor at the moment of creation.</p>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] leading-relaxed">
-                  SDK (Node.js, Python) or direct API. Three lines to production. Time to first attestation: &lt;20 minutes.
-                </p>
-                <Code code={`import { anchor } from '@umarise/anchor';
-const result = await anchor(fileBuffer, {
-  apiKey: 'um_your_key'
-});`} />
-              </div>
-            </div>
-
-            <h3 className="text-sm font-serif text-[hsl(var(--landing-cream))] mb-3">Per anchored artifact</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-              {[
-                { label: 'origin_id', desc: 'Unique identifier' },
-                { label: 'short_token', desc: '8-char lookup code' },
-                { label: 'captured_at', desc: 'Committed timestamp' },
-                { label: 'hash', desc: 'SHA-256 fingerprint' },
-                { label: '.ots proof', desc: 'Bitcoin proof file' },
-                { label: 'proof_url', desc: 'Download endpoint' },
-              ].map(({ label, desc }) => (
-                <div key={label} className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <code className="text-[hsl(var(--landing-copper))] text-xs font-mono">{label}</code>
-                  <p className="text-[hsl(var(--landing-cream)/0.5)] text-[11px] mt-0.5">{desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <h3 className="text-sm font-serif text-[hsl(var(--landing-cream))] mb-3">Applications by sector</h3>
-            <div className="overflow-x-auto mb-8">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-[hsl(var(--landing-cream)/0.08)]">
-                    <th className="text-left py-2 pr-3 text-[hsl(var(--landing-cream)/0.5)] font-mono">Sector</th>
-                    <th className="text-left py-2 pr-3 text-[hsl(var(--landing-copper)/0.7)] font-mono">Retroactive</th>
-                    <th className="text-left py-2 text-emerald-400/70 font-mono">Prospective</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[hsl(var(--landing-cream)/0.6)]">
-                  {[
-                    ['Education', 'Anchor diploma archive', 'Anchor each badge at issuance'],
-                    ['Legal', 'Timestamp contract archive', 'Anchor every signed document'],
-                    ['Creative', 'Prove portfolio predates disputes', 'Anchor each design at creation'],
-                    ['Compliance', 'Anchor audit trail', 'Log every compliance event'],
-                    ['Research', 'Timestamp existing datasets', 'Anchor each experiment result'],
-                    ['AI/ML', 'Prove training data provenance', 'Anchor every AI output'],
-                  ].map(([sector, a, b]) => (
-                    <tr key={sector} className="border-b border-[hsl(var(--landing-cream)/0.04)] last:border-0">
-                      <td className="py-1.5 pr-3 text-[hsl(var(--landing-cream)/0.8)]">{sector}</td>
-                      <td className="py-1.5 pr-3">{a}</td>
-                      <td className="py-1.5">{b}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <h3 className="text-sm font-serif text-[hsl(var(--landing-cream))] mb-3">Security properties</h3>
-            <div className="grid sm:grid-cols-2 gap-3 mb-6">
-              {[
-                { title: 'Zero storage', desc: 'Only SHA-256 hashes are transmitted. Original bytes never leave the client.' },
-                { title: 'Write-once immutability', desc: 'Database triggers block UPDATE and DELETE at engine level.' },
-                { title: 'Hashed credentials', desc: 'API keys stored as HMAC-SHA256. IPs hashed before logging.' },
-                { title: 'Rate limiting', desc: 'Enforced before business logic via database function.' },
-              ].map(({ title, desc }) => (
-                <div key={title} className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-[hsl(var(--landing-cream)/0.9)] text-xs font-medium mb-0.5">{title}</p>
-                  <p className="text-[hsl(var(--landing-cream)/0.5)] text-[11px] leading-relaxed">{desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.2)] bg-[hsl(var(--landing-copper)/0.03)]">
-              <p className="text-xs font-mono text-[hsl(var(--landing-copper))] uppercase tracking-wider mb-2">Getting started</p>
-              <div className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.7)]">
-                <p><span className="text-[hsl(var(--landing-copper))] font-mono text-xs">01</span> Request an API key at <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a></p>
-                <p><span className="text-[hsl(var(--landing-copper))] font-mono text-xs">02</span> Choose a track: CLI scripts (retroactive) or SDK (prospective)</p>
-                <p><span className="text-[hsl(var(--landing-copper))] font-mono text-xs">03</span> Verify the first proof at <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">verify-anchoring.org</a></p>
-              </div>
             </div>
           </Section>
 
