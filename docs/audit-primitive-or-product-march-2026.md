@@ -12,9 +12,9 @@
 | C. Onboarding | 5 | **5** | ✅ Sandbox (dry_run + test key) live |
 | D. Grens bewaking | 6 | **6** | ✅ Zuiver primitief |
 | E. Spec en taal | 5 | **4** | Terminologie gepubliceerd, adoptie-bewijs volgt |
-| F. Laag 3 en 4 | 4 | **1** | attestation.json gedocumenteerd |
+| F. Laag 3 en 4 | 4 | **2** | attestation.json + onafhankelijk script |
 | **Totaal (A-E)** | **27** | **26** | |
-| **Totaal (A-F)** | **31** | **27** | |
+| **Totaal (A-F)** | **31** | **28** | |
 
 ---
 
@@ -36,7 +36,7 @@
 ### Niet-blokkerend (partner-services, later)
 
 - [x] Documenteer attestation.json format publiek (F1) — op /technical
-- [ ] Maak notaris-attestatie onafhankelijk van Umarise endpoint (F2)
+- [x] Maak notaris-attestatie onafhankelijk van Umarise endpoint (F2) — scripts/attest-origin.sh
 - [ ] Schrijf QTSP/QES integratie-blueprint (F3/F4)
 
 ---
@@ -93,7 +93,7 @@ Alle zes checks geslaagd.
 | # | Vraag | Score |
 |---|-------|-------|
 | 1 | attestation.json format publiek? | ✅ |
-| 2 | Notaris-attestatie onafhankelijk? | ❌ |
+| 2 | Notaris-attestatie onafhankelijk? | ✅ (scripts/attest-origin.sh) |
 | 3 | QTSP blueprint? | ❌ |
 | 4 | QES als open spec? | ❌ |
 
@@ -109,3 +109,4 @@ Alle zes checks geslaagd.
 | 3 mrt 2026 | Sandbox: dry_run + um_test_ keys live op /v1-core-origins | C2 ✅ |
 | 3 mrt 2026 | Terminologie (14 definities) gepubliceerd op /technical | E5 gedeeltelijk |
 | 3 mrt 2026 | attestation.json v1.0 veldspecificatie op /technical | F1 ✅ |
+| 3 mrt 2026 | scripts/attest-origin.sh: onafhankelijk attestatie-script (keygen/attest/verify) | F2 ✅ |
