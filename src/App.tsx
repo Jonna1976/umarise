@@ -59,6 +59,7 @@ import Pricing from "./pages/Pricing";
 import ForLaw from "./pages/ForLaw";
 import ForResearch from "./pages/ForResearch";
 import SdkDownload from "./pages/SdkDownload";
+import PartnerIntegration from "./pages/PartnerIntegration";
 
 const queryClient = new QueryClient();
 
@@ -126,6 +127,7 @@ const App = () => (
             <Route path="/for/law" element={<ForLaw />} />
             <Route path="/for/research" element={<ForResearch />} />
             <Route path="/sdk-download" element={<SdkDownload />} />
+            <Route path="/partner-integration" element={<PartnerIntegration />} />
 
 
             
