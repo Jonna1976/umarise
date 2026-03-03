@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture Overview — Umarise</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0d12;
+    --surface: #13131a;
+    --surface-alt: #17171f;
+    --border: rgba(232,227,216,0.06);
+    --border-accent: rgba(184,149,90,0.18);
+    --copper: #b8955a;
+    --copper-dim: rgba(184,149,90,0.12);
+    --cream: #e8e3d8;
+    --cream-80: rgba(232,227,216,0.8);
+    --cream-50: rgba(232,227,216,0.5);
+    --cream-30: rgba(232,227,216,0.3);
+    --cream-15: rgba(232,227,216,0.15);
+    --cream-08: rgba(232,227,216,0.08);
+    --green: #5cb888;
+    --blue: #6b9fd4;
+    --red-dim: rgba(220,100,100,0.6);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--cream);
+    min-height: 100vh;
+    padding: 56px 32px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  /* Header */
+  .header { margin-bottom: 56px; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    margin-bottom: 8px;
+  }
+  .header .sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--cream-30);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+  }
+
+  /* Navigation */
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border-accent);
+  }
+  .nav-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cream-30);
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--cream-50); }
+  .nav-tab.active {
+    color: var(--copper);
+    border-bottom-color: var(--copper);
+  }
+
+  /* Sections */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Section label */
+  .section { margin-bottom: 40px; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--copper);
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--copper-dim);
+  }
+
+  /* Flow connector */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .flow-line { width: 1px; height: 20px; background: var(--copper-dim); }
+  .flow-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--cream-30);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 3px 0;
+  }
+  .flow-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--copper); }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 3px;
+  }
+  .card-accent { border-color: var(--border-accent); }
+  .card h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.1px; margin-bottom: 4px; }
+  .card .mono { font-family: 'DM Mono', monospace; font-size: 13px; }
+  .card .detail { font-size: 12px; color: var(--cream-50); margin-top: 3px; line-height: 1.5; }
+  .card .note { font-size: 11px; color: var(--cream-30); margin-top: 6px; line-height: 1.4; }
+
+  /* Grid layouts */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .four-col { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+
+  /* Hash display */
+  .hash {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+    text-align: center;
+    padding: 10px;
+    background: rgba(92,184,136,0.04);
+    border: 1px solid rgba(92,184,136,0.1);
+    border-radius: 3px;
+  }
+
+  /* DB display */
+  .db { text-align: center; padding: 20px; }
+  .db-name { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; color: var(--copper); margin-bottom: 6px; }
+  .db-fields { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--cream-30); line-height: 1.7; }
+
+  /* ZIP box */
+  .zip-box {
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    padding: 24px;
+    background: var(--surface);
+  }
+  .zip-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.1px; }
+  .zip-file { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--cream-08); }
+  .zip-file:last-child { border-bottom: none; }
+  .zip-file-name { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--cream-80); min-width: 140px; flex-shrink: 0; }
+  .zip-file-desc { font-size: 12px; color: var(--cream-50); line-height: 1.5; }
+  .zip-file-fields { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--cream-30); margin-top: 3px; line-height: 1.7; }
+
+  /* Layers */
+  .layer { display: flex; align-items: stretch; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .layer-id { width: 36px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--bg); }
+  .layer-content { flex: 1; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-left: none; border-radius: 0 3px 3px 0; }
+  .layer-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .layer-desc { font-size: 12px; color: var(--cream-50); line-height: 1.4; }
+  .layer-price { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--cream-30); margin-top: 2px; }
+  .l1 .layer-id { background: var(--green); }
+  .l2 .layer-id { background: var(--blue); }
+  .l3 .layer-id { background: var(--copper); }
+  .l3 .layer-content { border-color: var(--border-accent); }
+  .l4 .layer-id { background: var(--cream-30); }
+
+  /* Verification tracks */
+  .verify-track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 16px;
+  }
+  .verify-track h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .verify-track .mono { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--cream-50); }
+  .verify-track .detail { font-size: 12px; color: var(--cream-30); margin-top: 3px; }
+  .verify-track .tag {
+    font-family: 'DM Mono', monospace; font-size: 8px; text-transform: uppercase;
+    letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; display: inline-block; margin-bottom: 6px;
+  }
+  .tag-normative { background: rgba(184,149,90,0.15); color: var(--copper); }
+  .tag-reference { background: rgba(92,184,136,0.1); color: var(--green); }
+  .tag-convenience { background: rgba(107,159,212,0.1); color: var(--blue); }
+
+  /* Data tables */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table th {
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 1.5px; color: var(--copper);
+    text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border-accent);
+  }
+  .data-table td { padding: 8px 12px; color: var(--cream-80); border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .data-table td:first-child { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--cream-50); white-space: nowrap; }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* Spec ref */
+  .spec-ref {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    background: var(--surface-alt); border: 1px solid var(--border-accent); border-radius: 3px; margin-top: 8px;
+  }
+  .spec-ref .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--copper); flex-shrink: 0; }
+  .spec-ref .text { font-size: 10px; color: var(--cream-50); line-height: 1.4; }
+  .spec-ref .url { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--copper); }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+  /* Verification detail (page 2) */
+  .track-card {
+    background: var(--surface);
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .track-card::before {
+    content: attr(data-label);
+    position: absolute; top: -0.6rem; left: 1rem;
+    background: var(--surface); padding: 0 0.5rem;
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 1.5px; color: var(--copper);
+  }
+  .track-card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .track-card .url { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--copper); margin-bottom: 10px; word-break: break-all; }
+  .track-card .audience { font-size: 12px; color: var(--cream-50); font-style: italic; margin-bottom: 12px; }
+
+  .flow-steps { list-style: none; padding: 0; position: relative; }
+  .flow-steps::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: rgba(184,149,90,0.2); }
+  .flow-steps li { position: relative; padding-left: 1.5rem; margin-bottom: 0.4rem; font-size: 13px; color: var(--cream-80); }
+  .flow-steps li::before {
+    content: ''; position: absolute; left: 3px; top: 0.5rem;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--surface); border: 1.5px solid rgba(184,149,90,0.4);
+  }
+  .flow-steps li:last-child::before { background: var(--copper); border-color: var(--copper); }
+  .flow-steps li .step-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--cream-30); margin-left: 0.3rem; }
+
+  .result-box {
+    margin-top: 10px; padding: 6px 10px;
+    background: rgba(184,149,90,0.05); border-left: 2px solid rgba(184,149,90,0.3);
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--copper);
+  }
+  .dep { margin-top: 8px; font-size: 11px; color: var(--cream-30); }
+  .dep strong { color: var(--cream-50); font-weight: 500; }
+
+  .tracks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Comparison table (page 2) */
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .cmp-table th {
+    font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--copper); text-align: left;
+    padding: 8px 10px; border-bottom: 1px solid var(--border-accent); white-space: nowrap;
+  }
+  .cmp-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--cream-80); vertical-align: top; }
+  .cmp-table tr:hover td { background: rgba(184,149,90,0.03); }
+  .tag-yes { color: var(--green); font-family: 'DM Mono', monospace; font-size: 11px; }
+  .tag-no { color: var(--cream-30); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+  /* Principle box */
+  .principle {
+    background: var(--surface); border: 1px solid var(--border-accent); border-radius: 4px;
+    padding: 20px 28px; margin-bottom: 32px; text-align: center;
+  }
+  .principle blockquote {
+    font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic;
+    color: var(--cream-80); border: none; margin: 0; padding: 0;
+  }
+
+  /* Footer */
+  .footer {
+    font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--cream-15); text-align: center;
+    margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 700px) {
+    body { padding: 32px 16px; }
+    .two-col, .three-col, .four-col, .tracks-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 24px; }
+  }
+
+  @media print {
+    body { padding: 20px; background: #fff; color: #111; }
+    .nav-tabs { display: none; }
+    .page { display: block !important; }
+    .page + .page { page-break-before: always; }
+    .card, .verify-track, .zip-box, .track-card { border-color: #ddd; background: #f9f9f9; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Architecture Overview</h1>
+    <div class="sub">Data Flow + Verification Flows · v2.0 · March 2026</div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('dataflow')">Data Flow</div>
+    <div class="nav-tab" onclick="showPage('verification')">Verification Flows</div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- PAGE 1: DATA FLOW                               -->
+  <!-- ════════════════════════════════════════════════ -->
+  <div id="page-dataflow" class="page active">
+
+    <!-- 1. Origin -->
+    <div class="section">
+      <div class="section-label">1 · Origin</div>
+      <div class="card card-accent">
+        <div style="padding:4px 0;">
+          <div style="font-size:18px; font-weight:600; letter-spacing:-0.2px;">Original File</div>
+          <div style="font-size:13px; color:var(--cream-50); margin-top:2px;">The original bytes are the key. Without them, no proof completes.</div>
+        </div>
+      </div>
+      <div class="flow"><div class="flow-line"></div><div class="flow-label">SHA-256 · Web Crypto API · in-browser</div><div class="flow-dot"></div></div>
+      <div class="hash">sha256:a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e</div>
+      <div style="text-align:center; font-size:10px; color:var(--cream-30); margin-top:4px;">One-way function. Content cannot be derived from the hash.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 2. Registry -->
+    <div class="section">
+      <div class="section-label">2 · Registry</div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Path A — Partner API</h3>
+          <div class="mono" style="color:var(--blue);">POST /v1-core-origins</div>
+          <div class="detail">X-API-Key header · hash-only, no bytes</div>
+          <div class="note">Partner system sends hash. Core never receives content.</div>
+        </div>
+        <div class="card">
+          <h3>Path B — itexisted.app</h3>
+          <div class="mono" style="color:var(--green);">INSERT → pages</div>
+          <div class="detail">DB trigger: bridge_page_to_core</div>
+          <div class="note">Browser hashes locally, inserts via RLS. Artifact cached in ephemeral IndexedDB.</div>
+        </div>
+      </div>
+      <div class="flow"><div class="flow-line"></div><div class="flow-label">Both paths converge</div><div class="flow-dot"></div></div>
+      <div class="card db">
+        <div class="db-name">origin_attestations</div>
+        <div class="db-fields">origin_id · hash · hash_algo · captured_at · short_token · api_key_prefix</div>
+        <div class="detail" style="margin-top:8px;">Write-once. Lovable Cloud (PostgreSQL).</div>
+        <div class="note">No content column. Architectural constraint, not policy.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 3. Bitcoin Anchoring -->
+    <div class="section">
+      <div class="section-label">3 · Bitcoin Anchoring</div>
+      <div class="card">
+        <h3>OTS Worker</h3>
+        <div class="detail">Hetzner VPS · Hourly cron · Node.js</div>
+        <div class="mono" style="margin-top:6px; font-size:11px; color:var(--cream-50); line-height:1.6;">
+          1. Read unstamped hashes from origin_attestations<br>
+          2. Aggregate into Merkle tree<br>
+          3. Submit batch to 3 OTS Calendar Servers<br>
+          4. Calendar anchors Merkle root in Bitcoin transaction
+        </div>
+      </div>
+      <div class="flow"><div class="flow-line"></div><div class="flow-label">Block confirmed</div><div class="flow-dot"></div></div>
+      <div class="card db">
+        <div class="db-name">Bitcoin Blockchain</div>
+        <div class="db-fields">Block height · Merkle root · Immutable timestamp</div>
+        <div class="note">Public. Immutable. Anyone can verify independently.</div>
+      </div>
+      <div class="flow"><div class="flow-line"></div><div class="flow-label">.ots proof stored</div><div class="flow-dot"></div></div>
+      <div class="card db">
+        <div class="db-name">core_ots_proofs</div>
+        <div class="db-fields">origin_id · ots_proof (binary) · status · bitcoin_block_height · anchored_at</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 4. ZIP Generation -->
+    <div class="section">
+      <div class="section-label">4 · ZIP Generation · Client-side, zero-storage</div>
+      <div class="zip-box">
+        <div class="zip-title">ZIP Bundle — Self-contained proof artifact</div>
+        <div style="font-size:10px; color:var(--cream-30); margin-bottom:14px;">Generated in-browser via JSZip. Nothing leaves the device.</div>
+        <div class="zip-file"><div class="zip-file-name">artifact.{ext}</div><div><div class="zip-file-desc">Original bytes. Zero modifications.</div></div></div>
+        <div class="zip-file"><div class="zip-file-name">certificate.json</div><div><div class="zip-file-desc">Immutable metadata record. v1.3 schema.</div><div class="zip-file-fields">version · origin_id · hash · hash_algo · captured_at · verify_url · proof_included · proof_status · claimed_by · signature · device_signature · device_public_key</div></div></div>
+        <div class="zip-file"><div class="zip-file-name">VERIFY.txt</div><div><div class="zip-file-desc">Human-readable verification instructions.</div></div></div>
+        <div class="zip-file"><div class="zip-file-name">proof.ots</div><div><div class="zip-file-desc">Binary OpenTimestamps proof. Included when anchored.</div></div></div>
+        <div class="zip-file"><div class="zip-file-name">attestation.json</div><div><div class="zip-file-desc">Layer 3 only. Included when attestation confirmed.</div></div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 5. Proof Layers -->
+    <div class="section">
+      <div class="section-label">5 · Proof Layers</div>
+      <div class="layer l1"><div class="layer-id">L1</div><div class="layer-content"><div class="layer-name">Anchored Existence</div><div class="layer-desc">SHA-256 hash anchored via OpenTimestamps to Bitcoin.</div><div class="layer-price">Free · No account required</div></div></div>
+      <div class="layer l2"><div class="layer-id">L2</div><div class="layer-content"><div class="layer-name">Anchored Signature</div><div class="layer-desc">L1 + WebAuthn device-bound signature.</div><div class="layer-price">Included with every anchor</div></div></div>
+      <div class="layer l3"><div class="layer-id">L3</div><div class="layer-content"><div class="layer-name">Anchored Identity</div><div class="layer-desc">L2 + verified identity binding via attestant.</div><div class="layer-price">EUR 4.95 per attestation</div></div></div>
+      <div class="layer l4"><div class="layer-id">L4</div><div class="layer-content"><div class="layer-name">Anchored QES</div><div class="layer-desc">L3 + Qualified Electronic Signature via QTSP.</div><div class="layer-price">On request · Requires QTSP integration</div></div></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 6. Boundary Analysis -->
+    <div class="section">
+      <div class="section-label">6 · What Crosses Each Boundary</div>
+      <table class="data-table">
+        <thead><tr><th>Boundary</th><th>What crosses</th><th>What does not cross</th></tr></thead>
+        <tbody>
+          <tr><td>Client → Cloudflare</td><td>SHA-256 hash (64 hex chars), API key</td><td>File content, photos, PII</td></tr>
+          <tr><td>Cloudflare → Supabase</td><td>Hash, API key, request metadata</td><td>File content (never received)</td></tr>
+          <tr><td>Supabase → Hetzner</td><td>Hash, origin_id, timestamps</td><td>File content, API keys</td></tr>
+          <tr><td>Hetzner → OTS</td><td>Merkle root of hash batch</td><td>Individual hashes (aggregated)</td></tr>
+          <tr><td>OTS → Bitcoin</td><td>OTS commitment transaction</td><td>No Umarise data</td></tr>
+          <tr><td>Bitcoin → anyone</td><td>Block with Merkle root</td><td>Immutable, public</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 7. Component Visibility -->
+    <div class="section">
+      <div class="section-label">7 · What Each Component Can See</div>
+      <table class="data-table">
+        <thead><tr><th>Component</th><th>Can see</th><th>Cannot see</th></tr></thead>
+        <tbody>
+          <tr><td>Client device</td><td>Full file content + hash</td><td>Nothing hidden</td></tr>
+          <tr><td>Cloudflare</td><td>Hash in transit (TLS)</td><td>File content</td></tr>
+          <tr><td>Edge Functions</td><td>Hash, API key hash, timestamps</td><td>File content, raw API key</td></tr>
+          <tr><td>PostgreSQL</td><td>Hash, origin_id, timestamps</td><td>File content, raw API key</td></tr>
+          <tr><td>Hetzner Worker</td><td>Hash, origin_id, timestamps</td><td>File content, API keys</td></tr>
+          <tr><td>OTS Calendar</td><td>Merkle root (aggregated)</td><td>Individual hashes</td></tr>
+          <tr><td>Bitcoin Network</td><td>OTS commitment tx</td><td>Nothing about Umarise</td></tr>
+          <tr><td>verify-anchoring.org</td><td>ZIP contents (client-side only)</td><td>Nothing leaves browser</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 8. Critical Invariant -->
+    <div class="section">
+      <div class="section-label">8 · Critical Invariant</div>
+      <div class="card card-accent">
+        <h3>No column for content exists in any table.</h3>
+        <div class="detail">This is architectural, not policy. There is no mechanism to store file content even if someone tried.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- PAGE 2: VERIFICATION FLOWS                      -->
+  <!-- ════════════════════════════════════════════════ -->
+  <div id="page-verification" class="page">
+
+    <div class="principle">
+      <blockquote>Deze bytes bestonden no later than Bitcoin block T.</blockquote>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Tracks</div>
+
+      <div class="tracks-grid">
+
+        <!-- Track A -->
+        <div class="track-card" data-label="Track A · In-app">
+          <h3>In-app Verify</h3>
+          <div class="url">itexisted.app/verify<br>umarise.com/verify</div>
+          <div class="audience">Gebruiker — convenience check</div>
+          <ul class="flow-steps">
+            <li>ZIP openen</li>
+            <li>certificate.json uitlezen</li>
+            <li>origin_id → registry lookup</li>
+            <li>SHA-256 hash vergelijken <span class="step-label">record-check</span></li>
+            <li>Bitcoin anchor status ophalen <span class="step-label">bestaans-check</span></li>
+            <li>Artifact hash-check <span class="step-label">Triple-Gate</span></li>
+            <li>VERIFIED · PENDING · ERROR</li>
+          </ul>
+          <div class="dep"><strong>Afhankelijkheid:</strong> Umarise registry (online)</div>
+        </div>
+
+        <!-- Track B1 -->
+        <div class="track-card" data-label="Track B1 · ZIP Verifier">
+          <h3>ZIP Verifier</h3>
+          <div class="url">verify-anchoring.org</div>
+          <div class="audience">Iedereen — browser, zero-API</div>
+          <ul class="flow-steps">
+            <li>ZIP uploaden in browser</li>
+            <li>certificate.json uitlezen</li>
+            <li>Artifact localiseren</li>
+            <li>SHA-256 herberekenen <span class="step-label">integriteit</span></li>
+            <li>Vergelijken met certificate hash</li>
+            <li>.ots proof → lokale OTS library <span class="step-label">bestaan</span></li>
+            <li>Valid · Mismatch · Ledger confirmed</li>
+          </ul>
+          <div class="dep"><strong>Afhankelijkheid:</strong> Geen</div>
+        </div>
+
+        <!-- Track B2 -->
+        <div class="track-card" data-label="Track B2 · Hash+OTS">
+          <h3>Hash + OTS Verifier</h3>
+          <div class="url">verify-anchoring.org</div>
+          <div class="audience">API-integrators — handmatige input</div>
+          <ul class="flow-steps">
+            <li>SHA-256 hash plakken</li>
+            <li>normalizeHash() <span class="step-label">sha256: / raw</span></li>
+            <li>.ots proof file uploaden</li>
+            <li>Lokale OTS library verificatie <span class="step-label">bestaan</span></li>
+            <li>Ledger-confirmed · Invalid</li>
+          </ul>
+          <div class="dep"><strong>Afhankelijkheid:</strong> Geen</div>
+        </div>
+
+        <!-- Track C -->
+        <div class="track-card" data-label="Track C · CLI offline">
+          <h3>CLI Verificatie</h3>
+          <div class="url">scripts/verify-anchor.sh<br>scripts/verify-anchor.py</div>
+          <div class="audience">Advocaat, auditor, rechter — offline</div>
+          <ul class="flow-steps">
+            <li>ZIP uitpakken</li>
+            <li>sha256sum artifact berekenen <span class="step-label">integriteit</span></li>
+            <li>Vergelijken met certificate.json</li>
+            <li>ots verify proof.ots <span class="step-label">bestaan</span></li>
+            <li>Intact + no later than block T</li>
+          </ul>
+          <div class="dep"><strong>Afhankelijkheid:</strong> Geen (internet alleen voor ots verify)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Comparison -->
+    <div class="section">
+      <div class="section-label">Vergelijking</div>
+      <table class="cmp-table">
+        <thead>
+          <tr><th></th><th>Track A</th><th>Track B1</th><th>Track B2</th><th>Track C</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Input</td><td>ZIP</td><td>ZIP</td><td>Hash + .ots</td><td>ZIP</td></tr>
+          <tr><td>Hash-bron</td><td>Registry lookup</td><td>Artifact bytes</td><td>Handmatig</td><td>Artifact bytes</td></tr>
+          <tr><td>Bitcoin-check</td><td>Core API</td><td>Lokale OTS</td><td>Lokale OTS</td><td>ots-cli</td></tr>
+          <tr><td>Artifact integriteit</td><td>Triple-Gate</td><td>SHA-256</td><td><span class="tag-no">n.v.t.</span></td><td>sha256sum</td></tr>
+          <tr><td>Umarise nodig</td><td><span class="tag-yes">Ja</span></td><td><span class="tag-no">Nee</span></td><td><span class="tag-no">Nee</span></td><td><span class="tag-no">Nee</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Normative reference -->
+    <div class="section">
+      <div class="spec-ref">
+        <div class="dot"></div>
+        <div class="text">
+          Alle tracks implementeren de verificatiefunctie uit de normative specification:<br>
+          <span class="url">anchoring-spec.org</span> — IEC v1.0, Section 9 · V(B, P, L) → { valid | invalid | unverifiable }
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Umarise · Architecture Overview v2.0 · March 2026
+  </div>
+
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
