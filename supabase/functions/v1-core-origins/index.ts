@@ -42,6 +42,7 @@ const RATE_LIMITS: Record<string, number> = {
 
 interface CoreOriginRequest {
   hash: string;
+  dry_run?: boolean;
 }
 
 interface CoreOriginResponse {
@@ -49,8 +50,9 @@ interface CoreOriginResponse {
   hash: string;
   hash_algo: 'sha256';
   captured_at: string;
-  proof_status: 'pending';
+  proof_status: 'pending' | 'dry_run';
   proof_url: string;
+  dry_run?: boolean;
 }
 
 // Compute HMAC-SHA256 of the API key using CORE_API_SECRET
@@ -80,13 +82,32 @@ interface PartnerKeyRecord {
   rate_limit_tier: string | null;
 }
 
-// Validate partner API key
+// Check if API key is a test key (um_test_ prefix)
+function isTestKey(apiKey: string): boolean {
+  return apiKey.startsWith('um_test_');
+}
+
+// Validate partner API key (supports both production and test keys)
 async function validatePartnerApiKey(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   apiKey: string,
   coreApiSecret: string
-): Promise<{ valid: boolean; partnerName?: string; keyPrefix?: string; rateLimitTier?: string; error?: string }> {
+): Promise<{ valid: boolean; partnerName?: string; keyPrefix?: string; rateLimitTier?: string; isTest?: boolean; error?: string }> {
+  // Test key: um_test_ + any 64 hex chars — always valid, always sandbox
+  if (isTestKey(apiKey)) {
+    if (apiKey.length < 32) {
+      return { valid: false, error: 'Invalid test key format' };
+    }
+    return {
+      valid: true,
+      partnerName: 'sandbox',
+      keyPrefix: apiKey.substring(0, 11),
+      rateLimitTier: 'standard',
+      isTest: true,
+    };
+  }
+
   if (!apiKey || apiKey.length < 32) {
     return { valid: false, error: 'Invalid API key format' };
   }
@@ -126,6 +147,7 @@ async function validatePartnerApiKey(
     partnerName: matchingKey.partner_name, 
     keyPrefix,
     rateLimitTier: matchingKey.rate_limit_tier || 'standard',
+    isTest: false,
   };
 }
 
@@ -286,6 +308,49 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // === DRY RUN MODE ===
+    // dry_run: true in body OR test key → simulate without writing to DB
+    const isDryRun = body.dry_run === true || authResult.isTest === true;
+
+    if (isDryRun) {
+      const simulatedOriginId = crypto.randomUUID();
+      const simulatedCapturedAt = new Date().toISOString();
+
+      const dryRunResponse: CoreOriginResponse = {
+        origin_id: simulatedOriginId,
+        hash: normalized.hash,
+        hash_algo: 'sha256',
+        captured_at: simulatedCapturedAt,
+        proof_status: 'dry_run',
+        proof_url: `/v1-core-origins-proof?origin_id=${simulatedOriginId}`,
+        dry_run: true,
+      };
+
+      console.log('[v1-core-origins] DRY RUN:', {
+        hash: normalized.hash.substring(0, 20) + '...',
+        partner: authResult.partnerName,
+        test_key: authResult.isTest,
+      });
+
+      logRequest(supabase, {
+        endpoint: '/v1/core/origins',
+        method: 'POST',
+        api_key_prefix: apiKeyPrefix,
+        status_code: 200,
+        response_time_ms: Date.now() - startTime,
+      });
+
+      const dryRunResp = successResponse(dryRunResponse, 200, {
+        'X-Dry-Run': 'true',
+      });
+
+      return new Response(dryRunResp.body, {
+        status: 200,
+        headers: addRateLimitHeaders(Object.fromEntries(dryRunResp.headers.entries()), rateLimitResult),
+      });
+    }
+
+    // === PRODUCTION MODE ===
     // Create the attestation (includes api_key_prefix for duplicate detection)
     const capturedAt = new Date().toISOString();
     

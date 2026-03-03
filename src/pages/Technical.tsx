@@ -121,6 +121,36 @@ const assuranceLevels = [
   },
 ];
 
+const attestationJsonFields = [
+  { field: 'schema_version', type: 'string', description: '"1.0"', required: true },
+  { field: 'attestation_id', type: 'uuid', description: 'Unique identifier for this attestation', required: true },
+  { field: 'origin_id', type: 'uuid', description: 'The origin being attested', required: true },
+  { field: 'attested_by', type: 'string', description: 'Name of the certified independent attestant', required: true },
+  { field: 'attested_at', type: 'ISO 8601', description: 'Timestamp of attestation confirmation', required: true },
+  { field: 'signature', type: 'string', description: 'Cryptographic signature by the attestant over attestation_id + origin_id + hash + attested_at', required: true },
+  { field: 'attestant_public_key', type: 'string', description: 'SPKI public key for independent signature verification', required: true },
+  { field: 'attestant_certificate', type: 'string', description: 'Certificate identifier or description of the attestant\'s qualification', required: false },
+  { field: 'verify_url', type: 'url', description: 'Public URL for online attestation verification', required: true },
+  { field: 'verification_note', type: 'string', description: 'Human-readable instruction for independent verification', required: true },
+];
+
+const glossaryTerms = [
+  { term: 'Anchor', definition: 'The act of cryptographically committing a SHA-256 hash to a public ledger (Bitcoin via OpenTimestamps). The anchor establishes existence in time.' },
+  { term: 'Anchor Record', definition: 'A database entry linking a SHA-256 hash to a point in time, with a corresponding .ots proof file after Bitcoin confirmation.' },
+  { term: 'Anchoring', definition: 'The process of embedding a cryptographic commitment in a public, append-only ledger. Defined normatively in the Anchoring Specification (IEC v1.0).' },
+  { term: 'Artifact', definition: 'The original file whose hash was anchored. Never stored by the system — only the hash is retained. Included in the Evidence Kit at the owner\'s discretion.' },
+  { term: 'Attestation', definition: 'A Layer 3 assertion by a certified independent party confirming the timestamps and integrity of an anchor. Stored as attestation.json.' },
+  { term: 'Certificate', definition: 'The certificate.json file (v1.3) carrying all metadata required for independent verification: hash, timestamps, identity binding, and revocation status.' },
+  { term: 'Evidence Kit', definition: 'The self-contained ZIP bundle containing artifact (optional), certificate.json, proof.ots, attestation.json (if attested), and VERIFY.txt. The primary deliverable.' },
+  { term: 'Hash', definition: 'A SHA-256 digest (64 hexadecimal characters) computed client-side. The only data transmitted to and stored by the system.' },
+  { term: 'IEC', definition: 'Independent Existence Commitment — the formal name for the Anchoring Specification. Canonical reference: anchoring-spec.org.' },
+  { term: 'Origin', definition: 'A unique registration event. Each origin has an origin_id (UUID) and a short_token (8-character human-readable reference).' },
+  { term: 'Origin ID', definition: 'A UUID assigned by the registry upon hash registration. Stable external reference used for lookups, proof retrieval, and verification.' },
+  { term: 'OTS', definition: 'OpenTimestamps — an open protocol for creating Bitcoin-anchored timestamps. Produces .ots proof files that are independently verifiable.' },
+  { term: 'Proof', definition: 'The .ots file containing the complete cryptographic path from the submitted hash to a Bitcoin block. Independently verifiable without Umarise.' },
+  { term: 'Short Token', definition: 'An 8-character uppercase hexadecimal string derived from the origin_id. Used for human-readable references in filenames and certificates.' },
+];
+
 export default function Technical() {
   return (
     <div className="min-h-screen bg-landing-deep text-landing-cream">
@@ -580,6 +610,59 @@ export default function Technical() {
             </p>
           </section>
 
+          {/* Section 13: Attestation Format */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Attestation Format (v1.0)
+            </h2>
+            <p className="mb-4">
+              When a Layer 3 attestation is confirmed, the Evidence Kit includes an <code className="font-mono text-sm text-landing-copper">attestation.json</code> file. This file carries the attestant's cryptographic signature and can be verified independently.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-landing-muted/20">
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Field</th>
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Type</th>
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Req</th>
+                    <th className="text-left py-2 text-landing-muted/50 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-landing-muted/70">
+                  {attestationJsonFields.map((row) => (
+                    <tr key={row.field} className="border-b border-landing-muted/10">
+                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap font-mono text-xs">{row.field}</td>
+                      <td className="py-2 pr-4 text-landing-muted/50 whitespace-nowrap">{row.type}</td>
+                      <td className="py-2 pr-4">{row.required ? <span className="text-landing-copper">yes</span> : <span className="text-landing-muted/40">no</span>}</td>
+                      <td className="py-2">{row.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4 text-landing-muted/50 text-sm">
+              To verify an attestation independently: extract <code className="font-mono text-xs text-landing-copper">attestant_public_key</code>, then verify <code className="font-mono text-xs text-landing-copper">signature</code> against the concatenation of attestation_id + origin_id + hash + attested_at.
+            </p>
+          </section>
+
+          {/* Section 14: Terminology */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Terminology
+            </h2>
+            <p className="mb-4">
+              Canonical definitions used throughout documentation, SDKs, and the API. These terms have specific meanings in the context of anchoring and should not be conflated with their general usage.
+            </p>
+            <div className="space-y-3">
+              {glossaryTerms.map((item) => (
+                <div key={item.term} className="border-b border-landing-muted/10 pb-3">
+                  <dt className="text-landing-copper font-mono text-sm">{item.term}</dt>
+                  <dd className="text-landing-muted/70 text-sm mt-1">{item.definition}</dd>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* Disclaimer */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
@@ -598,7 +681,7 @@ export default function Technical() {
               It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
             </p>
             <p className="text-landing-muted/50 text-sm mt-4">
-              Document version 1.2, March 2026
+              Document version 1.3, March 2026
             </p>
           </section>
 
