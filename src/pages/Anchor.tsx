@@ -215,10 +215,10 @@ export default function Anchor() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Correct Usage Boundary</h2>
             <p className="mb-4">Use of anchor attestation is appropriate only where:</p>
-            <ul className="space-y-2 pl-4">
-              <li>a specific moment must not be renegotiated later</li>
-              <li>internal logs, timestamps, or signatures are insufficient as proof</li>
-              <li>external, independent verification outweighs flexibility</li>
+            <ul className="space-y-1 pl-4 text-landing-muted/60">
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>a specific moment must not be renegotiated later</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>internal logs, timestamps, or signatures are insufficient as proof</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>external, independent verification outweighs flexibility</li>
             </ul>
             <p className="mt-6 text-landing-muted/50 text-sm italic">
               Where revision, exception handling, discretionary override, or semantic interpretation is required, this mechanism is not appropriate.
@@ -229,10 +229,10 @@ export default function Anchor() {
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Failure and Persistence Properties</h2>
             <p className="mb-4">Verification of an Anchor Record depends solely on:</p>
-            <ul className="space-y-1 pl-4 text-landing-muted/70">
-              <li>the hash</li>
-              <li>the timestamp</li>
-              <li>the externally anchored record</li>
+            <ul className="space-y-1 pl-4 text-landing-muted/60">
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>the hash</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>the timestamp</li>
+              <li className="flex items-baseline gap-2"><span className="text-landing-muted/30">·</span>the externally anchored record</li>
             </ul>
             <p className="mt-4 text-landing-cream/70">
               Anchor Records are enforced as immutable by database-level constraints and externally anchored via OpenTimestamps to the Bitcoin blockchain. The architecture is ledger-agnostic. The immutable record is independent of application-layer policy.
