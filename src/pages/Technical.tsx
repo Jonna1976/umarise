@@ -67,6 +67,60 @@ const verificationEndpoints = [
   { endpoint: '/v1-core-proof', purpose: 'Retrieve the .ots proof file for a hash' },
 ];
 
+const certificateFields = [
+  { field: 'version', type: 'string', description: '"1.3"', required: true },
+  { field: 'hash', type: 'string', description: 'SHA-256 hash of the artifact, prefixed with "sha256:"', required: true },
+  { field: 'hash_algorithm', type: 'string', description: '"sha256"', required: true },
+  { field: 'origin_id', type: 'uuid', description: 'Stable external reference assigned by the registry', required: true },
+  { field: 'short_token', type: 'string', description: 'Human-readable 8-character reference derived from origin_id', required: true },
+  { field: 'captured_at', type: 'ISO 8601', description: 'Claimed capture timestamp (device clock)', required: true },
+  { field: 'created_at', type: 'ISO 8601', description: 'Server-side registration timestamp', required: true },
+  { field: 'sig_algorithm', type: 'string', description: 'Signature algorithm used for device binding (e.g. "WebAuthn_ECDSA_P256_SHA256")', required: false },
+  { field: 'identity_binding', type: 'object', description: 'Assurance level metadata (see Assurance Levels below)', required: false },
+  { field: 'identity_binding.level', type: 'string', description: '"L1" | "L2" | "L3"', required: false },
+  { field: 'identity_binding.method', type: 'string', description: '"self" | "passkey" | "kyc" | "notary"', required: false },
+  { field: 'identity_binding.evidence_hash', type: 'string', description: 'SHA-256 of the identity evidence document (L3 only)', required: false },
+  { field: 'revocation', type: 'object', description: 'Association release metadata', required: false },
+  { field: 'revocation.revoked', type: 'boolean', description: 'Whether the creator has released their association', required: false },
+  { field: 'revocation.revoked_at', type: 'ISO 8601', description: 'Timestamp of revocation', required: false },
+  { field: 'revocation.reason', type: 'string', description: '"association_released" | "key_compromised" | "other"', required: false },
+];
+
+const assuranceLevels = [
+  {
+    level: 'L1',
+    name: 'Anchored Existence',
+    method: 'Self-asserted',
+    establishes: 'These bytes existed at or before time T.',
+    binding: 'None. Hash only.',
+    cost: 'Free',
+  },
+  {
+    level: 'L2',
+    name: 'Anchored Signature',
+    method: 'WebAuthn passkey',
+    establishes: 'These bytes existed at or before time T, claimed by a specific hardware-bound key.',
+    binding: 'Device-bound ECDSA P-256 signature via Secure Enclave / TPM. Biometric gate required.',
+    cost: 'Free',
+  },
+  {
+    level: 'L3',
+    name: 'Anchored Identity',
+    method: 'External attestation (KYC / notary)',
+    establishes: 'These bytes existed at or before time T, associated with a verified identity.',
+    binding: 'A certified independent attestant confirms the anchor timestamps based on ledger data. Evidence hash stored in identity_binding.',
+    cost: '€4.95 per attestation',
+  },
+  {
+    level: 'L4',
+    name: 'Anchored QES',
+    method: 'Qualified Electronic Signature (future)',
+    establishes: 'These bytes existed at or before time T, signed with a Qualified Electronic Signature under eIDAS.',
+    binding: 'Umarise anchor embedded under a XAdES/PAdES container issued by a QTSP.',
+    cost: 'Partner-defined',
+  },
+];
+
 export default function Technical() {
   return (
     <div className="min-h-screen bg-landing-deep text-landing-cream">
@@ -424,7 +478,78 @@ export default function Technical() {
             </p>
           </section>
 
-          {/* Section 10: Verification Endpoints */}
+          {/* Section 10: Certificate Format */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Certificate Format (v1.3)
+            </h2>
+            <p className="mb-4">
+              Each proof ZIP contains a <code className="font-mono text-sm text-landing-copper">certificate.json</code> file. This file carries all metadata required for independent verification. The format is stable and versioned.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-landing-muted/20">
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Field</th>
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Type</th>
+                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Req</th>
+                    <th className="text-left py-2 text-landing-muted/50 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-landing-muted/70">
+                  {certificateFields.map((row) => (
+                    <tr key={row.field} className="border-b border-landing-muted/10">
+                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap font-mono text-xs">{row.field}</td>
+                      <td className="py-2 pr-4 text-landing-muted/50 whitespace-nowrap">{row.type}</td>
+                      <td className="py-2 pr-4">{row.required ? <span className="text-landing-copper">yes</span> : <span className="text-landing-muted/40">no</span>}</td>
+                      <td className="py-2">{row.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-4 text-landing-muted/50 text-sm">
+              Optional fields are present only when the corresponding capability (device binding, identity attestation, or revocation) has been exercised. Their absence does not affect L1 verification.
+            </p>
+          </section>
+
+          {/* Section 11: Assurance Levels */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
+              Assurance Levels (L1–L4)
+            </h2>
+            <p className="mb-4">
+              Assurance levels define what additional properties are established beyond existence. Each level builds on the previous. The core anchoring primitive (L1) remains the foundation.
+            </p>
+            <p className="mb-6 text-landing-muted/50 text-sm">
+              L1 and L2 are properties of the proof itself. L3 and L4 are partner-services that add external validation. All levels share the same underlying anchor.
+            </p>
+            <div className="space-y-4">
+              {assuranceLevels.map((level) => (
+                <div key={level.level} className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <span className="font-mono text-sm text-landing-copper">{level.level}</span>
+                    <h3 className="text-sm font-medium text-landing-cream/90">{level.name}</h3>
+                    <span className="text-landing-muted/40 text-xs ml-auto">{level.cost}</span>
+                  </div>
+                  <p className="text-landing-muted/70 text-sm mb-2">
+                    {level.establishes}
+                  </p>
+                  <p className="text-landing-muted/50 text-xs">
+                    <span className="text-landing-muted/40">Method:</span> {level.method}
+                  </p>
+                  <p className="text-landing-muted/50 text-xs mt-1">
+                    <span className="text-landing-muted/40">Binding:</span> {level.binding}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-landing-muted/50 text-sm">
+              IEC Section 8 explicitly excludes identity and authorship from the anchoring primitive. L2–L4 are implementation-level extensions that add these properties as optional layers. They do not modify the underlying anchor.
+            </p>
+          </section>
+
+          {/* Section 12: Verification Endpoints */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
               Verification Endpoints
@@ -473,7 +598,7 @@ export default function Technical() {
               It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
             </p>
             <p className="text-landing-muted/50 text-sm mt-4">
-              Document version 1.1, February 2026
+              Document version 1.2, March 2026
             </p>
           </section>
 
