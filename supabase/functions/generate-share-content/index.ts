@@ -1,3 +1,6 @@
+// ⚠️ DEPRECATED · March 2026
+// This function is part of the Companion/Codex AI layer (itexisted.app).
+// Retained as reference code. Not deployed. See: docs/core-vs-companion.md
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCompanionCorsHeaders, companionPreflightResponse } from '../_shared/companionCors.ts';
 
