@@ -75,9 +75,9 @@ Gebruik het `anchor-dir.sh` script om alle bestanden in een map te verankeren:
 
 ---
 
-## Stap 3: Status controleren
+## Stap 3: Wachten op Bitcoin-verankering
 
-Alle verankerde bestanden starten met `proof_status: pending`. De Bitcoin-ankers worden automatisch door de OTS-worker verwerkt (doorgaans binnen 24 uur).
+Alle verankerde bestanden starten met `proof_status: pending`. De Bitcoin-ankers worden automatisch door de OTS-worker verwerkt (doorgaans binnen 24 uur). **Pas wanneer de status `anchored` is, zijn de .ots bewijsbestanden beschikbaar voor download en onafhankelijke verificatie.**
 
 Controleer de status van alle bestanden in één keer:
 
@@ -121,6 +121,8 @@ curl "https://core.umarise.com/v1-core-proof?origin_id=d42175a6-2aae-4318-b7a1-8
 ---
 
 ## Stap 5: Onafhankelijk verifiëren
+
+> **Voorwaarde:** Verificatie tegen de Bitcoin-blockchain is pas mogelijk nadat de status `anchored` is (zie Stap 3). Zonder het `.ots` bewijsbestand kan alleen de hash-integriteit worden gecontroleerd, niet het tijdstempel.
 
 De kracht van dit systeem: verificatie vereist **geen Umarise-account of -infrastructuur**.
 
