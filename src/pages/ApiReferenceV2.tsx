@@ -83,7 +83,7 @@ const NAV = [
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
   { id: 'faq', label: 'FAQ' },
-  { id: 'changelog', label: 'Changelog' },
+  { id: 'faq', label: 'FAQ' },
 ];
 
 function Sidebar({ active }: { active: string }) {
@@ -905,36 +905,11 @@ print(result["captured_at"])`} />
             </p>
           </div>
 
-          {/* -- Changelog -- */}
-          <Section id="changelog">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-4">Changelog</h2>
-            <div className="space-y-4">
-              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
-                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-03-02</span>
-                <div>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">Documentation: Stripe-level DX</p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Added response field descriptions on all endpoints. Added error responses per endpoint. Added request headers table and response envelope docs. Added polling guidance with timing caveats. Added partner one-liner.</p>
-                </div>
-              </div>
-              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
-                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-02-27</span>
-                <div>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">API Reference v2</p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Redesigned API documentation. Added "Verify Now" instant demo. Structured Quick Start (5 steps). End-to-end SDK examples for Node.js and Python.</p>
-                </div>
-              </div>
-              <div className="flex gap-4 pb-4 border-b border-[hsl(var(--landing-cream)/0.06)]">
-                <span className="text-xs font-mono text-[hsl(var(--landing-cream)/0.4)] shrink-0 w-24">2026-02-16</span>
-                <div>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] font-medium">Core v1 API launch</p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">Initial release. POST /origins, GET /resolve, POST /verify, GET /proof. Partner API keys. Rate limiting. OpenTimestamps integration.</p>
-                </div>
-              </div>
-            </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-4 font-mono">
+          <div className="text-center py-4">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] font-mono">
               The v1 contract is frozen. No breaking changes. Additions are backward-compatible.
             </p>
-          </Section>
+          </div>
 
           {/* Footer */}
           <div className="pt-8 border-t border-[hsl(var(--landing-cream)/0.06)] text-center">
