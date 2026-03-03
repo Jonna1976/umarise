@@ -272,12 +272,13 @@ Deno.serve(async (req: Request) => {
         return new Response(
           JSON.stringify({
             status: 'pending',
-            message: 'Proof is awaiting Bitcoin confirmation',
+            message: 'Proof is awaiting Bitcoin confirmation. Retry after 15 minutes.',
             origin_id: originId,
+            retry_after_seconds: 900,
           }),
           {
             status: 202,
-            headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
+            headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1', 'Retry-After': '900' },
           }
         );
       }
@@ -313,12 +314,13 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           status: 'pending',
-          message: 'Proof is awaiting Bitcoin confirmation',
+          message: 'Proof is awaiting Bitcoin confirmation. Retry after 15 minutes.',
           origin_id: originId,
+          retry_after_seconds: 900,
         }),
         {
           status: 202,
-          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1' },
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json', 'X-API-Version': 'v1', 'Retry-After': '900' },
         }
       );
     }

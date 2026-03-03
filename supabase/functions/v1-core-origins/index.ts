@@ -375,6 +375,7 @@ Deno.serve(async (req: Request) => {
 
     const successResp = successResponse(response, 201, {
       'Location': `/v1/core/resolve?origin_id=${data.origin_id}`,
+      'Retry-After': '900',
     });
     
     return new Response(successResp.body, {

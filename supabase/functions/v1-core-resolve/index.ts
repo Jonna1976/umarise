@@ -238,7 +238,10 @@ Deno.serve(async (req: Request) => {
       ip_hash: ipHash,
     });
 
-    const response = successResponse(origin, 200, { 'Cache-Control': 'public, max-age=3600' });
+    const extraHeaders: Record<string, string> = proofStatus === 'pending'
+      ? { 'Cache-Control': 'public, max-age=60', 'Retry-After': '900' }
+      : { 'Cache-Control': 'public, max-age=3600' };
+    const response = successResponse(origin, 200, extraHeaders);
     return new Response(response.body, {
       status: 200,
       headers: addRateLimitHeaders(Object.fromEntries(response.headers.entries()), rateLimitResult),
