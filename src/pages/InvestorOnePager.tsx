@@ -172,6 +172,9 @@ export default function InvestorOnePager() {
           {/* Revenue */}
           <section>
             <SectionTitle>Revenue-model</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Geen abonnementen. Geen recurring fees. Twee inkomstenstromen:
+            </p>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
               <table className="w-full text-sm">
                 <thead>
@@ -183,9 +186,10 @@ export default function InvestorOnePager() {
                 </thead>
                 <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
                   {[
-                    ['API Access — Founding', 'Maandelijks', '€199/mo'],
-                    ['API Access — Standard', 'Maandelijks', '€349/mo'],
-                    ['API Access — Scale', 'Maandelijks', '€799/mo'],
+                    ['API-sleutel', 'Eenmalig', '€240'],
+                    ['Anchoring credits — Starter', 'Prepaid bundel', '€50 (500)'],
+                    ['Anchoring credits — Standard', 'Prepaid bundel', '€500 (5.000)'],
+                    ['Anchoring credits — Volume', 'Prepaid bundel', '€5.000 (50.000)'],
                     ['L3 Attestatie', 'Per transactie', '€1,95'],
                     ['L4 QES (via QTSP)', 'Op aanvraag', 'TBD'],
                   ].map(([stroom, model, prijs]) => (
@@ -198,6 +202,9 @@ export default function InvestorOnePager() {
                 </tbody>
               </table>
             </div>
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
+              Uniforme prijs: €0,10 per anchor. Credits verlopen niet. Bijkopen via Stripe Payment Link — automatisch bijgeschreven, geen portal.
+            </p>
           </section>
 
           {/* Traction */}
