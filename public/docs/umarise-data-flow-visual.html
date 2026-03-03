@@ -375,9 +375,48 @@
     color: var(--copper);
   }
 
+  /* Tables */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .data-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--copper);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-accent);
+  }
+  .data-table td {
+    padding: 8px 12px;
+    color: var(--cream-80);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .data-table td:first-child {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--cream-50);
+    white-space: nowrap;
+  }
+  .data-table td:last-child {
+    color: var(--cream-30);
+  }
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
   @media print {
     body { padding: 20px; background: #fff; color: #111; }
     .card, .verify-track, .zip-box { border-color: #ddd; background: #f9f9f9; }
+    .data-table th { color: #333; border-color: #ccc; }
+    .data-table td { color: #111; border-color: #eee; }
   }
 </style>
 </head>
@@ -387,7 +426,7 @@
   <!-- Header -->
   <div class="header">
     <h1>Data Flow Diagram</h1>
-    <div class="sub">From original bytes to proof layers · v1.2 · March 2026</div>
+    <div class="sub">From original bytes to proof layers · v1.3 · March 2026</div>
   </div>
 
   <!-- ═══ 1. ORIGIN ═══ -->
@@ -648,9 +687,125 @@
     </div>
   </div>
 
+  <div class="divider"></div>
+
+  <!-- ═══ 7. VERIFICATION ENDPOINTS ═══ -->
+  <div class="section">
+    <div class="section-label">7 · Verification Endpoints (public, no API key)</div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="mono" style="color:var(--blue);">POST /v1-core-verify</div>
+        <div class="detail">Lookup hash in origin_attestations</div>
+      </div>
+      <div class="card">
+        <div class="mono" style="color:var(--blue);">GET /v1-core-resolve</div>
+        <div class="detail">Lookup first-in-time record</div>
+      </div>
+      <div class="card">
+        <div class="mono" style="color:var(--blue);">GET /v1-core-proof</div>
+        <div class="detail">Download .ots from core_ots_proofs</div>
+      </div>
+      <div class="card">
+        <div class="mono" style="color:var(--blue);">GET /v1-core-health</div>
+        <div class="detail">DB ping</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ 8. BOUNDARY ANALYSIS ═══ -->
+  <div class="section">
+    <div class="section-label">8 · What Crosses Each Boundary</div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Boundary</th><th>What crosses</th><th>What does not cross</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Client → Cloudflare</td><td>SHA-256 hash (64 hex chars), API key</td><td>File content, photos, PII</td></tr>
+        <tr><td>Cloudflare → Supabase</td><td>Hash, API key, request metadata</td><td>File content (never received)</td></tr>
+        <tr><td>Supabase → Hetzner</td><td>Hash, origin_id, timestamps</td><td>File content, API keys</td></tr>
+        <tr><td>Hetzner → OTS</td><td>Merkle root of hash batch</td><td>Individual hashes (aggregated)</td></tr>
+        <tr><td>OTS → Bitcoin</td><td>OTS commitment transaction</td><td>No Umarise data</td></tr>
+        <tr><td>Bitcoin → anyone</td><td>Block with Merkle root</td><td>Immutable, public</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ 9. COMPONENT VISIBILITY ═══ -->
+  <div class="section">
+    <div class="section-label">9 · What Each Component Can See</div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Component</th><th>Can see</th><th>Cannot see</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Client device</td><td>Full file content + hash</td><td>Nothing hidden</td></tr>
+        <tr><td>Cloudflare</td><td>Hash in transit (TLS terminated)</td><td>File content</td></tr>
+        <tr><td>Edge Functions</td><td>Hash, API key hash, timestamps</td><td>File content, raw API key</td></tr>
+        <tr><td>PostgreSQL</td><td>Hash, origin_id, timestamps, key hash</td><td>File content, raw API key</td></tr>
+        <tr><td>Hetzner OTS Worker</td><td>Hash, origin_id, timestamps</td><td>File content, API keys</td></tr>
+        <tr><td>OTS Calendar Servers</td><td>Merkle root (aggregated)</td><td>Individual hashes</td></tr>
+        <tr><td>Bitcoin Network</td><td>OTS commitment transaction</td><td>Nothing about Umarise</td></tr>
+        <tr><td>Public verifier</td><td>Hash, .ots proof, Bitcoin block</td><td>File content</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ 10. DATA AT REST & IN TRANSIT ═══ -->
+  <div class="section">
+    <div class="section-label">10 · Data at Rest</div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Location</th><th>Data stored</th><th>Protection</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Lovable Cloud (DB)</td><td>Hashes, origin_ids, timestamps, key hashes, proofs</td><td>RLS (7 tables), write-once triggers, DDL audit</td></tr>
+        <tr><td>Hetzner disk</td><td>.ots proof files, ledger (JSONL), sync log</td><td>Append-only flag on ledger, Linux permissions</td></tr>
+        <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:20px;">
+      <div class="section-label">Data in Transit</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Path</th><th>Encryption</th><th>Content</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Client → API</td><td>TLS 1.3 (Cloudflare)</td><td>Hash + API key</td></tr>
+        <tr><td>API → DB</td><td>Internal (encrypted)</td><td>Hash + metadata</td></tr>
+        <tr><td>Worker → DB</td><td>HTTPS</td><td>Read: hashes · Write: proofs</td></tr>
+        <tr><td>Worker → OTS</td><td>HTTPS to calendar servers</td><td>Merkle root</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ 11. CRITICAL INVARIANT ═══ -->
+  <div class="section">
+    <div class="section-label">11 · Critical Invariant</div>
+
+    <div class="card card-accent">
+      <h3>No column for content exists in any table.</h3>
+      <div class="detail">This is architectural, not policy. There is no mechanism to store file content even if someone tried. The hash is a one-way function: content cannot be derived from it.</div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <div class="footer">
-    Umarise · Data Flow Diagram v1.2 · March 2026
+    Umarise · Data Flow Diagram v1.3 · March 2026
   </div>
 
 </div>
