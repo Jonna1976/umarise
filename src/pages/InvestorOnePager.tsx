@@ -258,7 +258,7 @@ export default function InvestorOnePager() {
           <section>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-6 text-center print:bg-stone-50 print:border-stone-200">
               <p className="font-mono text-sm text-[hsl(40,15%,88%,0.5)]">
-                info@umarise.com
+                partners@umarise.com
               </p>
             </div>
           </section>
