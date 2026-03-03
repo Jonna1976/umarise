@@ -246,17 +246,17 @@ export default function PartnerOnboardingExport() {
             <SectionTitle>Partner-facing documentatie (publiek)</SectionTitle>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: '/partner-integration', desc: 'One-pager met dual-track uitleg' },
-                { label: '/api-reference', desc: 'Technische API documentatie' },
-                { label: '/sdk-spec', desc: 'SDK specificatie (Node.js, Python)' },
-                { label: '/technical', desc: 'Technische beschrijving anchor record' },
-                { label: '/partnerships', desc: 'Contact pagina (pricing TBD)' },
-                { label: 'verify-anchoring.org', desc: 'Onafhankelijke verifier' },
-              ].map(({ label, desc }) => (
-                <div key={label} className="p-4 rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] print:bg-stone-50 print:border-stone-200">
+                { label: '/partner-integration', href: '/partner-integration', desc: 'One-pager met dual-track uitleg' },
+                { label: '/api-reference', href: '/api-reference', desc: 'Technische API documentatie' },
+                { label: '/sdk-spec', href: '/sdk-spec', desc: 'SDK specificatie (Node.js, Python)' },
+                { label: '/technical', href: '/technical', desc: 'Technische beschrijving anchor record' },
+                { label: '/partnerships', href: '/partnerships', desc: 'Contact pagina (pricing TBD)' },
+                { label: 'verify-anchoring.org', href: 'https://verify-anchoring.org', desc: 'Onafhankelijke verifier' },
+              ].map(({ label, href, desc }) => (
+                <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined} className="block p-4 rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] hover:border-[hsl(25,35%,42%,0.3)] hover:bg-[hsl(25,35%,42%,0.04)] transition-colors print:bg-stone-50 print:border-stone-200">
                   <code className="text-[hsl(25,35%,42%,0.8)] text-xs font-mono">{label}</code>
                   <p className="text-[hsl(40,15%,88%,0.45)] text-xs mt-1">{desc}</p>
-                </div>
+                </a>
               ))}
             </div>
           </section>
