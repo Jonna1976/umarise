@@ -183,7 +183,7 @@ export default function ApiReferenceV2() {
                 </p>
               </div>
               <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
-                Typical response time: &lt;200ms. No account, no key, no SDK required.
+                Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
               </p>
             </div>
           </Section>
