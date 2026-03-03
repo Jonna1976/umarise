@@ -840,36 +840,24 @@ build/
         <section className="mt-12 border border-border rounded-lg p-6 bg-muted/30">
           <h2 className="text-lg font-bold font-mono mb-4">⏱ Integration Timeline</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            With API key and repo access, a developer can integrate in <strong className="text-foreground">1–2 hours</strong>.
+            With API key and repo access, a developer can integrate in <strong className="text-foreground">one afternoon</strong>.
           </p>
           <div className="grid gap-2 text-sm font-mono">
             <div className="flex justify-between border-b border-border/50 pb-1">
-              <span className="text-muted-foreground">npm install @umarise/anchor</span>
-              <span className="text-foreground">1 min</span>
+              <span className="text-muted-foreground">Install SDK, configure API key, first anchor</span>
+              <span className="text-foreground">~15 min</span>
             </div>
             <div className="flex justify-between border-b border-border/50 pb-1">
-              <span className="text-muted-foreground">Configure API key</span>
-              <span className="text-foreground">5 min</span>
-            </div>
-            <div className="flex justify-between border-b border-border/50 pb-1">
-              <span className="text-muted-foreground">First anchor() call</span>
-              <span className="text-foreground">10 min</span>
-            </div>
-            <div className="flex justify-between border-b border-border/50 pb-1">
-              <span className="text-muted-foreground">Add verify() check</span>
-              <span className="text-foreground">10 min</span>
-            </div>
-            <div className="flex justify-between border-b border-border/50 pb-1">
-              <span className="text-muted-foreground">Integrate into codebase</span>
-              <span className="text-foreground">30 min</span>
+              <span className="text-muted-foreground">Add verify check, integrate into codebase</span>
+              <span className="text-foreground">~45 min</span>
             </div>
             <div className="flex justify-between pt-1">
               <span className="font-bold text-foreground">Test & deploy</span>
-              <span className="font-bold text-foreground">15 min</span>
+              <span className="font-bold text-foreground">~15 min</span>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-4">
-            Using the <a href="/api-reference" className="text-primary hover:underline">AI integration prompt</a> can cut this in half.
+            Validated by external integration test (DataVault, Node.js/Docker). No onboarding call needed.
           </p>
         </section>
 
