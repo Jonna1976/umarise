@@ -138,9 +138,7 @@ const App = () => (
             <Route path="/sdk-download" element={<SdkDownload />} />
             <Route path="/partner-integration" element={<PartnerIntegration />} />
             <Route path="/partnerships" element={<Partnerships />} />
-import ItExistedVerify from "./pages/ItExistedVerify";
 
-            
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
             <Route path="/pilot-tracker" element={<InternalGate><PilotTracker /></InternalGate>} />
