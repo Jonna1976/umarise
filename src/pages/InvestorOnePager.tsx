@@ -292,6 +292,48 @@ export default function InvestorOnePager() {
             </p>
           </section>
 
+          {/* Seeds */}
+          <section>
+            <SectionTitle>The seeds need to be in the ground before it does</SectionTitle>
+            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(40,15%,88%,0.02)] p-6 print:bg-stone-50 print:border-stone-200">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
+                No campaign. No social. No impressions.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                The temptation is obvious: one student, one ZIP, one story — that is a perfect campaign.
+                Every student recognizes it. Resist it. A campaign makes it a product. A silent seed makes
+                it a primitive. One PhD student showing a colleague how it works is worth more than ten
+                thousand impressions. Because the colleague sees it work. Not sees it sold.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                The reflex installs through experience, not exposure. That is the only distribution that holds.
+              </p>
+            </div>
+          </section>
+
+          {/* The line */}
+          <section>
+            <SectionTitle>The line that does not move</SectionTitle>
+            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
+                Services on top of the primitive create value. That is good. Partners should build them.
+                But Umarise does not build those services. Umarise guards the primitive.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
+                The instinct to add — a dashboard, an account system, a workflow tool — is always logical
+                in the moment. It is always wrong for the primitive. The moment the primitive becomes a
+                platform, it stops being infrastructure. A primitive with a dashboard is a SaaS. A primitive
+                without one is the SSL certificate for proof of existence.
+              </p>
+              <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
+                You build the services. We guard the primitive.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
+                If it looks even one millimeter like a platform: no. That line does not move.
+              </p>
+            </div>
+          </section>
+
           {/* Contact */}
           <section>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-6 text-center print:bg-stone-50 print:border-stone-200">
