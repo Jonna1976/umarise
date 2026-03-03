@@ -38,7 +38,7 @@ const partnerEndpoints = [
 
 const attestationEndpoints = [
   { num: 8, method: 'POST', endpoint: '/v1-attestation-request', desc: 'Create attestation request (manual)' },
-  { num: 9, method: 'POST', endpoint: '/v1-attestation-checkout', desc: 'Stripe Checkout session (€4.95)' },
+  { num: 9, method: 'POST', endpoint: '/v1-attestation-checkout', desc: 'Stripe Checkout session (€1.95)' },
   { num: 10, method: 'POST', endpoint: '/v1-attestation-webhook', desc: 'Stripe webhook (payment → pending request)' },
   { num: 11, method: 'POST', endpoint: '/v1-attestation-confirm', desc: 'Confirm attestation with signature (internal)' },
   { num: 12, method: 'GET', endpoint: '/v1-attestation-verify', desc: 'Public attestation verification' },
@@ -76,7 +76,7 @@ const dbIntegrity = [
 const securityHardening = {
   corsPolicy: [
     { layer: 'Core API (v1-core-*)', policy: 'Access-Control-Allow-Origin: *', reason: 'B2B partner compatibility — curl, SDKs, integrations' },
-    { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked to anchoring.app, umarise.com, *.lovable.app' },
+    { layer: 'App Layer (companion-*)', policy: 'Dynamic origin reflection', reason: 'Locked to itexisted.app, umarise.com, *.lovable.app' },
     { layer: 'Public Proxies', policy: 'Dynamic origin reflection', reason: 'companion-verify, companion-resolve, origin-image-proxy' },
     { layer: 'AI Functions', policy: 'Dynamic origin reflection', reason: 'Same lock as App Layer' },
     { layer: 'Proxy Functions', policy: 'Dynamic origin reflection', reason: 'hetzner-storage-proxy, hetzner-ai-proxy' },
@@ -247,8 +247,8 @@ const Architecture = () => {
         <h1 className="text-3xl font-light text-landing-cream tracking-wide mb-2">
           Architecture Overview
         </h1>
-        <p className="text-landing-muted/50 text-sm">
-          28 February 2026 — itexisted.app 2-Screen Loop + Layer 3 Attestation
+         <p className="text-landing-muted/50 text-sm">
+          3 March 2026 — itexisted.app 2-Screen Loop + Layer 3 Attestation
         </p>
       </div>
 
@@ -275,10 +275,10 @@ const Architecture = () => {
 │  Link-first: Persistent URL = the product            │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
-│               anchoring.app                           │
+│               itexisted.app                          │
 │                                                      │
-│  Ritual PWA: Camera + Gallery + ZIP download         │
-│  Local:     IndexedDB thumbnails, device-isolated    │
+│  Stateless consumer: Camera + file-drop + ZIP        │
+│  301 redirect from anchoring.app                     │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
 │               core.umarise.com                       │
@@ -287,7 +287,7 @@ const Architecture = () => {
 │  Partner:    origins, origins-proof, proofs-export    │
 │  Attestation: request, checkout, webhook, verify     │
 │  Internal:   partner-create, metrics, confirm         │
-│  Status:     v1 frozen (6 Feb 2026)                  │
+│  Status:     v1 frozen (24 Feb 2026)                 │
 │              Layer 3 live (24 Feb 2026)               │
 │                                                      │
 ├─────────────────────────────────────────────────────┤
@@ -501,7 +501,7 @@ const Architecture = () => {
                 <div>
                   <p className="text-sm text-landing-cream/90 font-medium">THIRD-PARTY ATTESTATION</p>
                   <p className="text-xs text-landing-cream/50">Certified independent attestant confirms anchor. Signature + public key + certificate stored on-chain.</p>
-                  <p className="text-xs text-landing-muted/40 mt-1">Payment via Stripe Checkout (€4.95). Cryptographically verifiable. Immutable once confirmed.</p>
+                  <p className="text-xs text-landing-muted/40 mt-1">Payment via Stripe Checkout (€1.95). Cryptographically verifiable. Immutable once confirmed.</p>
                 </div>
               </div>
             </div>
@@ -1211,7 +1211,7 @@ const Architecture = () => {
             <div className="space-y-2">
               {[
                 ['API resolution by origin_id', 'Requires the Umarise registry database — not reproducible without the original data'],
-                ['Dashboard & UI', 'The anchoring.app and umarise.com interfaces require live infrastructure'],
+                ['Dashboard & UI', 'The itexisted.app and umarise.com interfaces require live infrastructure'],
                 ['New attestations', 'Creating new origin records requires the Core API to be operational'],
               ].map(([item, reason]) => (
                 <div key={item as string} className="flex items-start gap-3 p-3 bg-red-500/[0.02] border border-red-500/10 rounded-lg">
@@ -1254,10 +1254,10 @@ const Architecture = () => {
           <div className="space-y-3">
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
-                <code className="text-sm text-landing-cream/90 font-mono">anchoring.app</code>
-                <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">B2C PWA</span>
+                <code className="text-sm text-landing-cream/90 font-mono">itexisted.app</code>
+                <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400/70 font-mono">B2C Stateless</span>
               </div>
-              <p className="text-xs text-landing-cream/50">Primary domain for the consumer-facing ritual experience (/prototype)</p>
+              <p className="text-xs text-landing-cream/50">Stateless consumer interface. 301 redirect from anchoring.app. Two screens, one loop.</p>
             </div>
             <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
@@ -1345,7 +1345,7 @@ const Architecture = () => {
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 24 Feb (latest)</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
               <li>• <strong className="text-landing-cream/70">Layer 3 Attestation:</strong> Five edge functions live — request, checkout, webhook, confirm, verify</li>
-              <li>• <strong className="text-landing-cream/70">Stripe Checkout:</strong> €4.95 per attestation, iDEAL + card, idempotent webhook processing</li>
+              <li>• <strong className="text-landing-cream/70">Stripe Checkout:</strong> €1.95 per attestation, iDEAL + card, idempotent webhook processing</li>
               <li>• <strong className="text-landing-cream/70">Attestation immutability:</strong> prevent_confirmed_attestation_update trigger protects confirmed records</li>
               <li>• <strong className="text-landing-cream/70">Bitcoin disclaimer:</strong> Added to all public pages (Technical, Legal, Reviewer, Origin, Anchor, Why, Core)</li>
               <li>• <strong className="text-landing-cream/70">Domain consolidation:</strong> All URLs updated to umarise.com (was anchoring.app)</li>
@@ -1360,7 +1360,7 @@ const Architecture = () => {
               <li>• <strong className="text-landing-cream/70">Integration Checklist v2:</strong> 24 self-contained steps with inline instructions, code examples, and curl commands</li>
               <li>• <strong className="text-landing-cream/70">Partner onboarding step 9:</strong> Updated to reflect Quick Start → Checklist → Production flow</li>
               <li>• <strong className="text-landing-cream/70">Verification Independence Tools:</strong> Bash + Python scripts for offline ZIP validation</li>
-              <li>• <strong className="text-landing-cream/70">Domain Architecture:</strong> anchoring.app (B2C) + umarise.com (B2B) + core.umarise.com (API)</li>
+              <li>• <strong className="text-landing-cream/70">Domain Architecture:</strong> itexisted.app (B2C) + umarise.com (B2B) + core.umarise.com (API)</li>
               <li>• <strong className="text-landing-cream/70">Routes updated:</strong> /anchor (was /origin), /reviewer added, /legal → Technical Specification</li>
               <li>• <strong className="text-landing-cream/70">Full English translation</strong></li>
             </ul>
@@ -1368,7 +1368,7 @@ const Architecture = () => {
           <div className="p-4 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg mb-4">
             <p className="text-xs text-landing-muted/40 uppercase tracking-wider mb-2">Added 15 Feb</p>
             <ul className="space-y-1 text-xs text-landing-cream/50">
-              <li>• <strong className="text-landing-cream/70">CORS lock:</strong> All 21 App Layer functions locked to anchoring.app + umarise.com + *.lovable.app</li>
+              <li>• <strong className="text-landing-cream/70">CORS lock:</strong> All 21 App Layer functions locked to itexisted.app + umarise.com + *.lovable.app</li>
               <li>• <strong className="text-landing-cream/70">Rate limit migration:</strong> All in-memory rate limits replaced by DB-persistent (core_check_rate_limit)</li>
               <li>• <strong className="text-landing-cream/70">Privacy architecture:</strong> SHA-256 hashed IPs, no PII, device-isolated auth</li>
               <li>• <strong className="text-landing-cream/70">Security matrix:</strong> Full edge function inventory (35 functions, 14 rate limited)</li>
