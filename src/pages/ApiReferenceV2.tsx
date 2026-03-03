@@ -198,15 +198,15 @@ export default function ApiReferenceV2() {
               />
               <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
                 <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
-  "origin_id":  "bb737713-03cd-44e1-a026-a8cc33122271",
+  "origin_id":  "bb737713-03cd-4481-ad20-a4cc33122271",
   "short_token": "74785B22",
-  "hash":       "sha256:76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd",
+  "hash":       "76bcb1437a0abeedc353d2565a4edba8c233f873862f77a2326f62b88b1df3cd",
   "hash_algo":  "sha256",
-  "captured_at": "2026-03-02T15:00:39.113+00:00",
+  "captured_at": "2026-03-02T15:00:39.11319+00:00",
   "proof_status": "anchored",
   "bitcoin_block_height": 939025,
-  "anchored_at": "2026-03-03T02:18:58.077+00:00",
-  "proof_url":  "${BASE}/v1-core-proof?origin_id=bb737713-03cd-44e1-a026-a8cc33122271"
+  "anchored_at": "2026-03-02T18:00:03.524+00:00",
+  "proof_url":  "${BASE}/v1-core-proof?origin_id=bb737713-03cd-4481-ad20-a4cc33122271"
 }`}</pre>
               </div>
               <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
