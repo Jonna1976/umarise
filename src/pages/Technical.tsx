@@ -124,10 +124,10 @@ export default function Technical() {
               What an Anchor Record Is
             </h2>
             <p className="text-landing-cream/90 mb-4">
-              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The architecture is ledger-agnostic by design. The result is a cryptographic proof that specific bytes existed at a specific moment.
+              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The architecture is ledger-agnostic. The result is a cryptographic proof that specific bytes existed at a specific moment.
             </p>
             <p className="text-landing-muted/60 text-sm mt-2">
-              Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger — not as a currency. No wallets, no coins, no financial transactions.
+              Bitcoin is used as a public, append-only timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
             </p>
             <p>
               An Anchor Record does not contain the original file. It contains only the hash.
@@ -302,7 +302,7 @@ export default function Technical() {
                 What the mechanism does not protect against
               </h3>
               <p className="text-landing-muted/70 mb-3">
-                An Anchor Record does not protect against an adversary who anchors false content before a dispute arises. If someone creates a document, anchors it today, and later claims it predates something it does not, the anchor proves only that those specific bytes existed today — not that they are authentic, original, or truthful.
+                An Anchor Record does not protect against an adversary who anchors false content before a dispute arises. If someone creates a document, anchors it today, and later claims it predates something it does not, the anchor proves only that those specific bytes existed today - not that they are authentic, original, or truthful.
               </p>
               <p className="text-landing-muted/60 text-sm">
                 This is the same limitation that applies to any timestamping mechanism, including notarization and RFC 3161 timestamps. The anchor establishes when. It does not establish what the bytes mean, whether they are genuine, or who created them.
@@ -310,7 +310,7 @@ export default function Technical() {
             </div>
 
             <p className="text-landing-cream/70 mb-4">
-              This limitation is by design. Establishing meaning, authenticity, and authorship requires additional evidence. The anchor provides one building block.
+              This limitation is structural. Establishing meaning, authenticity, and authorship requires additional evidence. The anchor provides one building block.
             </p>
 
             <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 mb-6">

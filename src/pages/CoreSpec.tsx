@@ -46,7 +46,7 @@ export default function CoreSpec() {
           {/* Purpose */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Purpose</h2>
-            <p className="text-landing-cream/90">
+            <p className="text-landing-cream text-lg">
               Umarise Core records that a cryptographic hash existed at a specific moment in time.
             </p>
             <p className="mt-4 text-landing-muted/60">
@@ -113,7 +113,7 @@ export default function CoreSpec() {
           {/* Access Model */}
           <section className="border-l-2 border-landing-copper/30 pl-6">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Access Model</h2>
-            <p className="text-landing-cream/90 mb-4">
+            <p className="text-landing-cream text-lg mb-4">
               Verification is public. Attestation is permissioned.
             </p>
             <p className="text-landing-muted/50 text-sm">
@@ -138,7 +138,7 @@ export default function CoreSpec() {
           {/* Stability */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Stability</h2>
-            <p className="text-landing-cream/90 mb-4">
+            <p className="text-landing-cream text-lg mb-4">
               Core v1 is a stable, frozen interface.
             </p>
             <ul className="space-y-1 text-landing-muted/60 text-sm mb-4">
