@@ -12,9 +12,9 @@
 | C. Onboarding | 5 | **5** | ✅ Sandbox (dry_run + test key) live |
 | D. Grens bewaking | 6 | **6** | ✅ Zuiver primitief |
 | E. Spec en taal | 5 | **4** | Terminologie gepubliceerd, adoptie-bewijs volgt |
-| F. Laag 3 en 4 | 4 | **2** | attestation.json + onafhankelijk script |
+| F. Laag 3 en 4 | 4 | **4** | attestation.json + script + QTSP blueprint + L4 spec |
 | **Totaal (A-E)** | **27** | **26** | |
-| **Totaal (A-F)** | **31** | **28** | |
+| **Totaal (A-F)** | **31** | **30** | |
 
 ---
 
@@ -37,7 +37,7 @@
 
 - [x] Documenteer attestation.json format publiek (F1) — op /technical
 - [x] Maak notaris-attestatie onafhankelijk van Umarise endpoint (F2) — scripts/attest-origin.sh
-- [ ] Schrijf QTSP/QES integratie-blueprint (F3/F4)
+- [x] Schrijf QTSP/QES integratie-blueprint (F3/F4) — docs/qtsp-integration-blueprint.md
 
 ---
 
@@ -88,14 +88,14 @@ Alle zes checks geslaagd.
 | 4 | npm/Python package? | ✅ |
 | 5 | Terminologie-adoptie door externen? | ❌ (gepubliceerd, bewijs volgt) |
 
-### F. Laag 3 en 4 — 1/4 (niet-blokkerend)
+### F. Laag 3 en 4 — 4/4 ✅
 
 | # | Vraag | Score |
 |---|-------|-------|
 | 1 | attestation.json format publiek? | ✅ |
 | 2 | Notaris-attestatie onafhankelijk? | ✅ (scripts/attest-origin.sh) |
-| 3 | QTSP blueprint? | ❌ |
-| 4 | QES als open spec? | ❌ |
+| 3 | QTSP blueprint? | ✅ (docs/qtsp-integration-blueprint.md) |
+| 4 | QES als open spec? | ✅ (L4 sectie in blueprint) |
 
 ---
 
@@ -110,3 +110,4 @@ Alle zes checks geslaagd.
 | 3 mrt 2026 | Terminologie (14 definities) gepubliceerd op /technical | E5 gedeeltelijk |
 | 3 mrt 2026 | attestation.json v1.0 veldspecificatie op /technical | F1 ✅ |
 | 3 mrt 2026 | scripts/attest-origin.sh: onafhankelijk attestatie-script (keygen/attest/verify) | F2 ✅ |
+| 3 mrt 2026 | QTSP Integration Blueprint: XAdES/PAdES embedding protocol + L4 spec | F3 ✅, F4 ✅ |
