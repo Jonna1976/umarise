@@ -80,6 +80,7 @@ interface PartnerKeyRecord {
   partner_name: string;
   revoked_at: string | null;
   rate_limit_tier: string | null;
+  credit_balance: number | null;
 }
 
 // Check if API key is a test key (um_test_ prefix)
@@ -93,7 +94,7 @@ async function validatePartnerApiKey(
   supabase: any,
   apiKey: string,
   coreApiSecret: string
-): Promise<{ valid: boolean; partnerName?: string; keyPrefix?: string; rateLimitTier?: string; isTest?: boolean; error?: string }> {
+): Promise<{ valid: boolean; partnerName?: string; keyPrefix?: string; rateLimitTier?: string; isTest?: boolean; creditBalance?: number | null; error?: string }> {
   // Test key: um_test_ + any 64 hex chars — always valid, always sandbox
   if (isTestKey(apiKey)) {
     if (apiKey.length < 32) {
@@ -105,6 +106,7 @@ async function validatePartnerApiKey(
       keyPrefix: apiKey.substring(0, 11),
       rateLimitTier: 'standard',
       isTest: true,
+      creditBalance: null, // sandbox = unlimited
     };
   }
 
@@ -118,7 +120,7 @@ async function validatePartnerApiKey(
 
   const { data: keyRecords, error: lookupError } = await supabase
     .from('partner_api_keys')
-    .select('id, key_hash, partner_name, revoked_at, rate_limit_tier')
+    .select('id, key_hash, partner_name, revoked_at, rate_limit_tier, credit_balance')
     .eq('key_prefix', keyPrefix);
 
   if (lookupError) {
@@ -148,6 +150,7 @@ async function validatePartnerApiKey(
     keyPrefix,
     rateLimitTier: matchingKey.rate_limit_tier || 'standard',
     isTest: false,
+    creditBalance: matchingKey.credit_balance,
   };
 }
 
@@ -350,6 +353,31 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // === CREDIT CHECK ===
+    // creditBalance === null means unlimited (founding/legacy partners)
+    // creditBalance === 0 means depleted
+    const creditBalance = authResult.creditBalance;
+    
+    if (creditBalance !== null && creditBalance !== undefined && creditBalance <= 0) {
+      console.log('[v1-core-origins] Insufficient credits:', {
+        partner: authResult.partnerName,
+        balance: creditBalance,
+      });
+      logRequest(supabase, {
+        endpoint: '/v1/core/origins',
+        method: 'POST',
+        api_key_prefix: apiKeyPrefix,
+        status_code: 402,
+        response_time_ms: Date.now() - startTime,
+        error_code: 'INSUFFICIENT_CREDITS',
+      });
+      return errorResponse(
+        'INSUFFICIENT_CREDITS',
+        'No credits remaining. Purchase a new bundle at your Stripe Payment Link or contact partners@umarise.com',
+        402
+      );
+    }
+
     // === PRODUCTION MODE ===
     // Create the attestation (includes api_key_prefix for duplicate detection)
     const capturedAt = new Date().toISOString();
@@ -419,29 +447,58 @@ Deno.serve(async (req: Request) => {
     });
 
     // TTFA: Log first_attestation_at if not yet set for this partner key
+    // Also decrement credit_balance if credits are tracked
+    let newCreditBalance: number | null = creditBalance;
     try {
       const { data: keyRecord } = await supabase
         .from('partner_api_keys')
-        .select('first_attestation_at')
+        .select('first_attestation_at, credit_balance')
         .eq('key_prefix', apiKeyPrefix)
         .single();
       
-      if (keyRecord && !keyRecord.first_attestation_at) {
-        await supabase
-          .from('partner_api_keys')
-          .update({ first_attestation_at: capturedAt })
-          .eq('key_prefix', apiKeyPrefix);
-        console.log('[v1-core-origins] TTFA logged for partner:', authResult.partnerName);
+      if (keyRecord) {
+        const updates: Record<string, unknown> = {};
+        
+        if (!keyRecord.first_attestation_at) {
+          updates.first_attestation_at = capturedAt;
+        }
+        
+        // Decrement credit_balance if it's not null (null = unlimited)
+        if (keyRecord.credit_balance !== null && keyRecord.credit_balance !== undefined) {
+          updates.credit_balance = keyRecord.credit_balance - 1;
+          newCreditBalance = keyRecord.credit_balance - 1;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          await supabase
+            .from('partner_api_keys')
+            .update(updates)
+            .eq('key_prefix', apiKeyPrefix);
+          
+          if (updates.first_attestation_at) {
+            console.log('[v1-core-origins] TTFA logged for partner:', authResult.partnerName);
+          }
+        }
       }
     } catch (ttfaErr) {
-      // Non-critical: don't fail the request if TTFA logging fails
-      console.warn('[v1-core-origins] TTFA logging failed:', ttfaErr);
+      // Non-critical: don't fail the request if TTFA/credit logging fails
+      console.warn('[v1-core-origins] TTFA/credit update failed:', ttfaErr);
     }
 
-    const successResp = successResponse(response, 201, {
+    // Build credit headers
+    const creditHeaders: Record<string, string> = {
       'Location': `/v1/core/resolve?origin_id=${data.origin_id}`,
       'Retry-After': '900',
-    });
+    };
+    
+    if (newCreditBalance !== null && newCreditBalance !== undefined) {
+      creditHeaders['X-Credits-Remaining'] = String(newCreditBalance);
+      if (newCreditBalance < 50) {
+        creditHeaders['X-Credits-Low'] = 'true';
+      }
+    }
+
+    const successResp = successResponse(response, 201, creditHeaders);
     
     return new Response(successResp.body, {
       status: 201,

@@ -601,6 +601,7 @@ export type Database = {
       }
       partner_api_keys: {
         Row: {
+          credit_balance: number | null
           first_attestation_at: string | null
           first_error_code: string | null
           id: string
@@ -616,6 +617,7 @@ export type Database = {
           webhook_url: string | null
         }
         Insert: {
+          credit_balance?: number | null
           first_attestation_at?: string | null
           first_error_code?: string | null
           id?: string
@@ -631,6 +633,7 @@ export type Database = {
           webhook_url?: string | null
         }
         Update: {
+          credit_balance?: number | null
           first_attestation_at?: string | null
           first_error_code?: string | null
           id?: string
