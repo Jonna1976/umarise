@@ -74,6 +74,7 @@ function Endpoint({ method, path, title, auth, children }: {
 const NAV = [
   { id: 'intro', label: 'Introduction' },
   { id: 'auth', label: 'Authentication' },
+  { id: 'sandbox', label: 'Sandbox' },
   { id: 'quick-start', label: 'Quick Start' },
   { id: 'origins', label: 'POST /origins' },
   { id: 'resolve', label: 'GET /resolve' },
@@ -242,6 +243,78 @@ export default function ApiReferenceV2() {
 
 // Error (4xx/5xx)
 { "error": { "code": "ERROR_CODE", "message": "Human-readable description" } }`} />
+          </Section>
+
+          {/* -- Sandbox -- */}
+          <Section id="sandbox">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Sandbox</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-4">
+              Test the full anchoring flow without writing to the production ledger. Two mechanisms available:
+            </p>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-4 mb-2">Test Keys</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+              API keys with the <code className="text-[hsl(var(--landing-copper))]">um_test_</code> prefix are sandbox keys. They validate authentication and input parsing but never create database records or submit to OpenTimestamps.
+            </p>
+            <Code code={`X-API-Key: um_test_your_sandbox_key`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
+              Request a test key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — issued alongside your production key.
+            </p>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Dry Run Parameter</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+              Add <code className="text-[hsl(var(--landing-copper))]">"dry_run": true</code> to any <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code> request. Works with both test and production keys.
+            </p>
+            <Code
+              code={`curl -X POST ${BASE}/v1-core-origins \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-Key: um_test_your_key" \\
+  -d '{"hash":"sha256:abc123...","dry_run":true}'`}
+              copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: um_test_your_key" -d '{"hash":"sha256:abc123...","dry_run":true}'`}
+            />
+            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
+  "origin_id":    "dry-run-00000000-0000-0000-0000-000000000000",
+  "short_token":  "DRYRUN00",
+  "hash":         "abc123...",
+  "hash_algo":    "sha256",
+  "proof_status": "dry_run",
+  "captured_at":  "2026-03-03T12:00:00.000Z"
+}`}</pre>
+            </div>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Sandbox Behavior</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Aspect</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Production</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Sandbox</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Input validation', '✓', '✓'],
+                    ['Rate limit check', '✓', '✓'],
+                    ['Database write', '✓', '✗'],
+                    ['OTS submission', '✓', '✗'],
+                    ['Response format', 'Identical', 'Identical'],
+                    ['X-Dry-Run header', '—', 'true'],
+                    ['proof_status', 'pending → anchored', 'dry_run'],
+                  ].map(([aspect, prod, sandbox]) => (
+                    <tr key={aspect} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+                      <td className="py-2 pr-4 text-[hsl(var(--landing-cream)/0.7)] text-xs">{aspect}</td>
+                      <td className="py-2 pr-4 font-mono text-xs">{prod}</td>
+                      <td className="py-2 font-mono text-xs">{sandbox}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
+              Use sandbox mode to validate your integration before going live. Switch to a production key when ready — no code changes needed.
+            </p>
           </Section>
 
           {/* -- Quick Start -- */}
