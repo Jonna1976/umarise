@@ -342,42 +342,11 @@ export function SealedScreen({
 
         {/* Hash — full, one line */}
         <p
-          className="font-mono text-[13px] tracking-[0.5px] mb-3.5 max-w-[260px] text-center break-all leading-[1.6]"
+          className="font-mono text-[13px] tracking-[0.5px] mb-5 max-w-[260px] text-center break-all leading-[1.6]"
           style={{ color: 'hsl(var(--ritual-gold-muted))', opacity: 0.45 }}
         >
           {hash}
         </p>
-
-        {/* Proof components — one line */}
-        <div className="flex items-center gap-3 mb-5">
-          <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
-            certificate
-          </span>
-          <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-          <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
-            hash
-          </span>
-          {anchoredState ? (
-            <>
-              <span className="w-[2px] h-[2px] rounded-full" style={{ background: 'rgba(197,147,90,0.35)' }} />
-              <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)' }}>
-                proof.ots
-              </span>
-            </>
-          ) : (
-            <>
-              <motion.span
-                className="w-[3px] h-[3px] rounded-full"
-                style={{ background: 'rgba(197,147,90,0.6)' }}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-              <span className="font-mono text-[12px] tracking-[1px]" style={{ color: 'rgba(197,147,90,0.55)', opacity: 0.7 }}>
-                proof.ots
-              </span>
-            </>
-          )}
-        </div>
       </motion.div>
 
       {/* ── PENDING COUNTDOWN ── */}
@@ -438,24 +407,37 @@ export function SealedScreen({
         </motion.div>
       )}
 
-      {/* ── SAVE BUTTON ── */}
+      {/* ── SAVE BUTTON — "Save your origin" ── */}
       <motion.button
         onClick={handleSave}
         disabled={isSaving || isResolvingOrigin || !anchoredState}
-        className="font-playfair text-[17px] px-10 py-3 rounded-full transition-all disabled:opacity-40"
+        className="font-garamond text-[15px] px-10 py-3.5 rounded-full transition-all disabled:opacity-40"
         style={{
-          fontWeight: 300,
-          background: saved ? 'hsl(var(--ritual-gold) / 0.15)' : 'hsl(var(--ritual-gold) / 0.08)',
-          border: `1px solid hsl(var(--ritual-gold) / ${saved ? '0.5' : anchoredState ? '0.3' : '0.15'})`,
-          color: `hsl(var(--ritual-gold) / ${saved ? '1' : anchoredState ? '0.8' : '0.4'})`,
+          background: saved ? 'rgba(197,147,90,0.15)' : 'rgba(197,147,90,0.08)',
+          border: `1px solid rgba(197,147,90,${saved ? '0.5' : anchoredState ? '0.3' : '0.15'})`,
+          color: `rgba(197,147,90,${saved ? '1' : anchoredState ? '0.8' : '0.4'})`,
         }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.2 }}
         whileTap={!saved && anchoredState ? { scale: 0.97 } : {}}
       >
-        {saved ? '✓' : isSaving ? 'Saving...' : isResolvingOrigin ? 'Save (checking proof...)' : anchoredState ? (artifactStatus === 'matched' ? 'Save incl. original' : 'Save') : 'Save (waiting for Bitcoin)'}
+        {saved ? '✓' : isSaving ? 'Saving...' : isResolvingOrigin ? 'Checking proof...' : anchoredState ? 'Save your origin' : 'Waiting for Bitcoin...'}
       </motion.button>
+
+      {/* ── SECONDARY: Download proof package ── */}
+      {anchoredState && !saved && (
+        <motion.button
+          onClick={handleSave}
+          className="mt-3 font-garamond italic text-[12px] transition-colors hover:opacity-80"
+          style={{ color: 'hsl(var(--ritual-cream) / 0.35)', opacity: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          transition={{ duration: 0.6, delay: 1.6 }}
+        >
+          Download proof package
+        </motion.button>
+      )}
 
       {/* ── POST-SEAL HINT ── */}
       <motion.div
