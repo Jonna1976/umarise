@@ -158,8 +158,8 @@ export default function ApiReferenceV2() {
           {/* -- Introduction -- */}
           <Section id="intro">
             <h1 className="text-3xl font-serif text-[hsl(var(--landing-cream))] mb-2">API Reference</h1>
-            <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm max-w-lg">
-              Umarise Core anchors SHA-256 hashes to Bitcoin. Immutable proof that data existed at a specific moment.
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] max-w-xl leading-relaxed">
+              An anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation.
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · Version: <code className="text-[hsl(var(--landing-copper))]">v1</code> (frozen)
@@ -890,20 +890,6 @@ print(result["captured_at"])`} />
           </Section>
 
           {/* -- For Partners -- */}
-          <div className="p-5 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.03)]">
-            <h3 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">For Partners</h3>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed mb-3">
-              One-liner for internal stakeholders and downstream customers:
-            </p>
-            <blockquote className="border-l-2 border-[hsl(var(--landing-copper)/0.4)] pl-4 py-2">
-              <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] italic leading-relaxed">
-                "Umarise provides an anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation."
-              </p>
-            </blockquote>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
-              Vendor-neutral. IEC-conformant. Forward to legal, compliance, or technical counterparts.
-            </p>
-          </div>
 
           <div className="text-center py-4">
             <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] font-mono">
