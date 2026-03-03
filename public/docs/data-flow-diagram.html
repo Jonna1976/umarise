@@ -132,19 +132,7 @@
     margin-bottom: 8px;
   }
 
-  /* Mermaid container */
-  .mermaid-container {
-    background: #fff;
-    border: 1px solid var(--border);
-    padding: 24px;
-    margin: 20px 0 28px;
-    overflow-x: auto;
-  }
-  .mermaid {
-    text-align: center;
-  }
-
-  /* Flow block for print fallback */
+  /* Flow block */
   .flow-block {
     font-family: 'DM Mono', monospace;
     font-size: 13px;
@@ -183,7 +171,6 @@
     table { font-size: 13px; break-inside: avoid; }
     .highlight-box { break-inside: avoid; }
     h2, h3 { break-after: avoid; }
-    .mermaid-container { break-inside: avoid; }
   }
 </style>
 </head>
@@ -193,11 +180,30 @@
   <h1>Data Flow Diagram</h1>
   <div class="subtitle">Umarise Core API — Two paths, one truth. Content never leaves the device.</div>
   <div class="meta">
-    <span>Version 1.0</span>
-    <span>27 February 2026</span>
+    <span>Version 1.1</span>
+    <span>3 March 2026</span>
     <span>Status: For External Reviewers</span>
   </div>
 </div>
+
+<!-- ─── DOMAIN TOPOLOGY ────────────────────────────── -->
+
+<h2>Domain Topology</h2>
+<table>
+  <thead>
+    <tr><th>Domain</th><th>Role</th><th>Notes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>itexisted.app</code></td><td>B2C consumer interface (PWA)</td><td>Stateless, no accounts, client-side ZIP generation</td></tr>
+    <tr><td><code>anchoring.app</code></td><td>301 redirect</td><td>Permanently redirects to itexisted.app</td></tr>
+    <tr><td><code>umarise.com</code></td><td>B2B hub &amp; documentation</td><td>API reference, partnerships, SDK</td></tr>
+    <tr><td><code>core.umarise.com</code></td><td>Core API</td><td>All /v1-core-* and /v1-attestation-* endpoints</td></tr>
+    <tr><td><code>anchoring-spec.org</code></td><td>Normative specification (IEC)</td><td>Public domain, GitHub Pages</td></tr>
+    <tr><td><code>verify-anchoring.org</code></td><td>Reference verifier</td><td>100% client-side, zero-API, public domain</td></tr>
+  </tbody>
+</table>
+
+<hr>
 
 <!-- ─── OVERVIEW ────────────────────────────────────── -->
 
@@ -211,7 +217,7 @@
 <h2>Full Data Flow</h2>
 
 <h3>Path A — B2B (Partner API)</h3>
-<div class="flow-block">Client: SHA-256 hash van bestand berekenen (lokaal)
+<div class="flow-block">Partner system: SHA-256 hash van bestand berekenen (lokaal)
   ↓
 POST /v1-core-origins + X-API-Key            → Cloudflare WAF + TLS
   ↓
@@ -229,22 +235,48 @@ Calendar: anchor in Bitcoin                   → Bitcoin Blockchain
   ↓
 Worker: .ots proof opslaan                    → core_ots_proofs (immutable)</div>
 
-<h3>Path B — B2C (App via Supabase RLS)</h3>
-<div class="flow-block">Client: SHA-256 hash van bestand berekenen (lokaal)
+<h3>Path B — B2C (itexisted.app)</h3>
+<div class="flow-block">itexisted.app: SHA-256 hash van bestand berekenen (in-browser)
   ↓
-App: INSERT page met hash                     → pages (Supabase RLS)
+itexisted.app: INSERT page met hash           → pages (Supabase RLS, device_user_id)
   ↓
 DB trigger: bridge_page_to_core               → automatisch
   ↓
 INSERT hash + origin_id + timestamp           → origin_attestations (write-once)
   ↓
-  … daarna identiek aan Path A (OTS Worker → Bitcoin)</div>
+  … daarna identiek aan Path A (OTS Worker → Bitcoin)
+  ↓
+itexisted.app: proof ophalen                  → v1-core-resolve (origin_id lookup)
+  ↓
+itexisted.app: ZIP genereren (client-side)    → certificate.json + artifact + .ots proof
+  ↓
+Gebruiker: ZIP downloaden                     → volledig lokaal, zero-storage</div>
 
-<h3>Verificatie (publiek, geen API key)</h3>
-<div class="flow-block">POST /v1-core-verify   → lookup in origin_attestations
-GET  /v1-core-resolve  → lookup (first-in-time) in origin_attestations
+<h3>Verificatie (drie tracks, publiek)</h3>
+<div class="flow-block">Track 1 — In-app (itexisted.app)
+  ZIP of bestand droppen                      → client-side hash check + registry lookup
+  ↓
+POST /v1-core-verify                          → lookup in origin_attestations
+  ↓
+Result: origin_id, captured_at, proof_status  → weergave in UI
+
+Track 2 — Referentie Verifier (verify-anchoring.org)
+  ZIP uploaden                                → 100% client-side, zero-API
+  ↓
+V(B, P, L) verificatie                        → SHA-256 + .ots parsing + Bitcoin block check
+  ↓
+Result: onafhankelijk bewijs                  → geen Umarise dependency
+
+Track 3 — CLI Scripts
+  verify-anchor.sh / verify-anchor.py         → zero-dependency, offline
+  ↓
+ots verify + sha256sum                        → terminal output</div>
+
+<h3>Public API Endpoints (geen API key)</h3>
+<div class="flow-block">POST /v1-core-verify   → hash lookup in origin_attestations
+GET  /v1-core-resolve  → origin_id lookup (first-in-time)
 GET  /v1-core-proof    → download .ots uit core_ots_proofs
-GET  /v1-core-health   → DB ping</div>
+GET  /v1-core-health   → DB ping + uptime status</div>
 
 <h3>Monitoring</h3>
 <div class="flow-block">OTS Worker              → append naar attestation-ledger (JSONL)
@@ -261,7 +293,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
     <tr><th>Boundary</th><th>What Crosses</th><th>What Does NOT Cross</th></tr>
   </thead>
   <tbody>
-    <tr><td>Client → Cloudflare</td><td>SHA-256 hash (64 hex chars), API key</td><td>File content, photos, PII</td></tr>
+    <tr><td>Client → Cloudflare</td><td>SHA-256 hash (64 hex chars), API key or device_user_id</td><td>File content, photos, PII</td></tr>
     <tr><td>Cloudflare → Supabase</td><td>Hash, API key, request metadata</td><td>File content (never received)</td></tr>
     <tr><td>Supabase → Hetzner</td><td>Hash, origin_id, timestamps (read by worker)</td><td>File content, API keys</td></tr>
     <tr><td>Hetzner → OTS Calendars</td><td>Merkle root of hash batch</td><td>Individual hashes (aggregated)</td></tr>
@@ -280,7 +312,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
     <tr><th>Component</th><th>Can See</th><th>Cannot See</th></tr>
   </thead>
   <tbody>
-    <tr><td>Client device</td><td>Full file content + hash</td><td>Nothing hidden</td></tr>
+    <tr><td>Client device (itexisted.app)</td><td>Full file content + hash + ZIP</td><td>Nothing hidden</td></tr>
     <tr><td>Cloudflare</td><td>Hash in transit (TLS terminated)</td><td>File content</td></tr>
     <tr><td>Supabase Edge Functions</td><td>Hash, API key hash, timestamps</td><td>File content, raw API key</td></tr>
     <tr><td>Supabase PostgreSQL</td><td>Hash, origin_id, timestamps, key hash</td><td>File content, raw API key</td></tr>
@@ -288,6 +320,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
     <tr><td>OTS Calendar Servers</td><td>Merkle root (aggregated hashes)</td><td>Individual hashes</td></tr>
     <tr><td>Bitcoin Network</td><td>OTS commitment transaction</td><td>Nothing about Umarise</td></tr>
     <tr><td>Public verifier</td><td>Hash, .ots proof, Bitcoin block</td><td>File content</td></tr>
+    <tr><td>verify-anchoring.org</td><td>ZIP contents (client-side only)</td><td>Nothing leaves the browser</td></tr>
   </tbody>
 </table>
 
@@ -303,7 +336,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
   <tbody>
     <tr><td>Supabase DB</td><td>Hashes, origin_ids, timestamps, key hashes, proofs</td><td>RLS (7 tables), write-once triggers, DDL audit</td></tr>
     <tr><td>Hetzner disk</td><td>.ots proof files, ledger (JSONL), sync log</td><td>Append-only flag on ledger, standard Linux permissions</td></tr>
-    <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security</td></tr>
+    <tr><td>Client device</td><td>Full file, hash, certificate.json, .ots proof, ZIP</td><td>User's device security, IndexedDB cache</td></tr>
   </tbody>
 </table>
 
@@ -317,7 +350,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
     <tr><th>Path</th><th>Encryption</th><th>Content</th></tr>
   </thead>
   <tbody>
-    <tr><td>Client → API</td><td>TLS 1.3 (Cloudflare)</td><td>Hash + API key</td></tr>
+    <tr><td>Client → API</td><td>TLS 1.3 (Cloudflare)</td><td>Hash + API key or device_user_id</td></tr>
     <tr><td>API → DB</td><td>Internal Supabase (encrypted)</td><td>Hash + metadata</td></tr>
     <tr><td>Worker → DB</td><td>Supabase client (HTTPS)</td><td>Read: hashes; Write: proofs</td></tr>
     <tr><td>Worker → OTS</td><td>HTTPS to calendar servers</td><td>Merkle root</td></tr>
@@ -336,7 +369,7 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
 </div>
 
 <div class="doc-footer">
-  Data Flow Diagram — Umarise Core API v1.0 — 27 February 2026
+  Data Flow Diagram — Umarise Core API v1.1 — 3 March 2026
 </div>
 
 
