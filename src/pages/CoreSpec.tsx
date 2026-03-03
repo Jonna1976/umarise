@@ -36,6 +36,9 @@ export default function CoreSpec() {
           <p className="text-landing-muted/50 text-sm uppercase tracking-wide">
             v1. Stable Interface
           </p>
+          <p className="text-landing-muted/40 text-xs mt-2 italic">
+            The specification is normative. This implementation is not.
+          </p>
         </div>
 
         {/* Document content */}
@@ -53,33 +56,39 @@ export default function CoreSpec() {
             </p>
           </section>
 
-          {/* Normative Documents */}
+          {/* Related Documentation */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Normative Documents</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">Related Documentation</h2>
             <ul className="space-y-3">
+              <li>
+                <Link to="/api-reference" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                  API Reference
+                </Link>
+                <span className="text-landing-muted/50 ml-2">: endpoints, fields, error codes</span>
+              </li>
               <li>
                 <Link to="/anchor" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
                   Anchor One-Pager
                 </Link>
-                <span className="text-landing-muted/50 ml-2">: when and why anchor attestation is correct</span>
+                <span className="text-landing-muted/50 ml-2">: when and why anchor attestation applies</span>
               </li>
               <li>
-                 <Link to="/legal" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
-                   Technical Specification
-                 </Link>
-                 <span className="text-landing-muted/50 ml-2">: the normative definition of an Anchor Record</span>
+                 <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-landing-copper hover:text-landing-copper/80 transition-colors">
+                   Anchoring Specification (IEC v1.0)
+                 </a>
+                 <span className="text-landing-muted/50 ml-2">: the independent specification</span>
               </li>
             </ul>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              These documents define correct use and constraints.
-            </p>
           </section>
 
           {/* API Contract */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              API Contract <span className="normal-case">(Non-Normative Summary)</span>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-2">
+              API Contract
             </h2>
+            <p className="text-landing-muted/50 text-sm mb-4">
+              Full reference: <Link to="/api-reference" className="text-landing-copper hover:text-landing-copper/80 transition-colors">API Reference</Link>
+            </p>
             
             <div className="space-y-6 font-mono text-sm">
               {/* POST /v1-core-origins */}
