@@ -340,9 +340,27 @@ export default function ApiReferenceV2() {
               <div>
                 <div className="flex items-baseline gap-2 mb-1.5">
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify anytime</p>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Download the .ots proof</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. Anyone can verify. Works before and after anchoring — <code className="text-[hsl(var(--landing-copper))]">proof_status</code> indicates the current state.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Binary OpenTimestamps proof file. Available once <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.</p>
+                <Code
+                  code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
+                  copy={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
+                />
+                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
+                    This file completes your evidence bundle. Without it, only a registry check is possible — not independent Bitcoin verification.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 5 */}
+              <div>
+                <div className="flex items-baseline gap-2 mb-1.5">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">5.</span>
+                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify independently</p>
+                </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. No Umarise infrastructure required. Verify against Bitcoin using your hash + .ots proof.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -354,30 +372,12 @@ export default function ApiReferenceV2() {
                     {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "origin_id": "...", "captured_at": "...", "proof_status": "anchored" }`}
                   </p>
-                </div>
-              </div>
-
-              {/* Step 5 */}
-              <div>
-                <div className="flex items-baseline gap-2 mb-1.5">
-                  <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">5.</span>
-                  <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Download the .ots proof</p>
-                </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Binary OpenTimestamps proof file. Independently verifiable.</p>
-                <Code
-                  code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
-                  copy={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
-                />
-                <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
-                    Verify independently at{' '}
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
+                    Or verify fully offline at{' '}
                     <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
                       verify-anchoring.org
                     </a>
-                    {' '}- use the <span className="font-mono text-[hsl(var(--landing-cream)/0.7)]">Hash + OTS</span> box.
-                  </p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">
-                    Paste your 64-char hash + upload the .ots file. No ZIP needed.
+                    {' '}- drop your hash + .ots file. Zero API calls.
                   </p>
                 </div>
               </div>
