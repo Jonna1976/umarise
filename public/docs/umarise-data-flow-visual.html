@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Umarise Data Flow — From Original File to Proof Layers</title>
+<title>Umarise — Data Flow Diagram</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
 
   :root {
-    --bg: #0a0e1a;
-    --bg-card: #111827;
-    --bg-card-alt: #0f1525;
-    --copper: #c5935a;
-    --copper-dim: rgba(197,147,90,0.25);
-    --cream: #f5f0e8;
-    --cream-60: rgba(245,240,232,0.6);
-    --cream-40: rgba(245,240,232,0.4);
-    --cream-20: rgba(245,240,232,0.2);
-    --cream-10: rgba(245,240,232,0.1);
-    --green: #34d399;
-    --blue: #60a5fa;
-    --gold: #c5935a;
-    --silver: #94a3b8;
-    --red: #f87171;
-    --border: rgba(245,240,232,0.08);
+    --bg: #0d0d12;
+    --surface: #13131a;
+    --surface-alt: #17171f;
+    --border: rgba(232,227,216,0.06);
+    --border-accent: rgba(184,149,90,0.18);
+    --copper: #b8955a;
+    --copper-dim: rgba(184,149,90,0.12);
+    --cream: #e8e3d8;
+    --cream-80: rgba(232,227,216,0.8);
+    --cream-50: rgba(232,227,216,0.5);
+    --cream-30: rgba(232,227,216,0.3);
+    --cream-15: rgba(232,227,216,0.15);
+    --cream-08: rgba(232,227,216,0.08);
+    --green: #5cb888;
+    --blue: #6b9fd4;
+    --red-dim: rgba(220,100,100,0.6);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,258 +33,298 @@
     background: var(--bg);
     color: var(--cream);
     min-height: 100vh;
-    padding: 48px 32px 80px;
+    padding: 56px 32px 80px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
+  .container { max-width: 820px; margin: 0 auto; }
 
   /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 56px;
-  }
+  .header { margin-bottom: 56px; }
   .header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
     margin-bottom: 8px;
   }
-  .header .subtitle {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--cream-40);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
-
-  /* Section label */
-  .section-label {
+  .header .sub {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
+    color: var(--cream-30);
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+  }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 3px;
     color: var(--copper);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     padding-bottom: 6px;
     border-bottom: 1px solid var(--copper-dim);
   }
 
-  /* Flow arrow */
-  .arrow {
+  /* Flow connector */
+  .flow {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 0;
-    color: var(--cream-40);
+    padding: 10px 0;
   }
-  .arrow-line {
-    width: 2px;
-    height: 24px;
-    background: linear-gradient(180deg, var(--copper), var(--copper-dim));
+  .flow-line {
+    width: 1px;
+    height: 20px;
+    background: var(--copper-dim);
   }
-  .arrow-label {
+  .flow-label {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--copper);
-    letter-spacing: 1px;
+    font-size: 9px;
+    color: var(--cream-30);
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin: 4px 0;
+    margin: 3px 0;
   }
-  .arrow-head {
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 6px solid var(--copper);
+  .flow-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--copper);
   }
 
   /* Card */
   .card {
-    background: var(--bg-card);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 4px;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 3px;
   }
-  .card-accent {
-    border-color: var(--copper-dim);
-    background: linear-gradient(135deg, var(--bg-card), rgba(197,147,90,0.04));
-  }
+  .card-accent { border-color: var(--border-accent); }
   .card h3 {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 600;
-    margin-bottom: 6px;
+    letter-spacing: -0.1px;
+    margin-bottom: 4px;
   }
   .card .mono {
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
+    font-size: 12px;
   }
   .card .detail {
-    font-size: 12px;
-    color: var(--cream-60);
-    margin-top: 4px;
+    font-size: 11px;
+    color: var(--cream-50);
+    margin-top: 3px;
+    line-height: 1.5;
   }
   .card .note {
-    font-size: 11px;
-    color: var(--cream-40);
-    font-style: italic;
-    margin-top: 8px;
-  }
-
-  /* Key icon */
-  .key-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 16px;
-  }
-  .key-icon .icon {
-    font-size: 36px;
-  }
-  .key-icon .label {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--copper);
-  }
-  .key-icon .sub {
-    font-size: 12px;
-    color: var(--cream-60);
+    font-size: 10px;
+    color: var(--cream-30);
+    margin-top: 6px;
+    line-height: 1.4;
   }
 
   /* Two columns */
   .two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* Key element */
+  .origin-key {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+  }
+  .origin-key .symbol {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--copper);
+    opacity: 0.7;
+  }
+  .origin-key .label {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
+  .origin-key .sub {
+    font-size: 11px;
+    color: var(--cream-50);
+    margin-top: 2px;
   }
 
   /* Hash display */
-  .hash-display {
+  .hash {
     font-family: 'DM Mono', monospace;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--green);
     text-align: center;
-    padding: 12px;
-    background: rgba(52,211,153,0.06);
-    border: 1px solid rgba(52,211,153,0.15);
-    border-radius: 6px;
+    padding: 10px;
+    background: rgba(92,184,136,0.04);
+    border: 1px solid rgba(92,184,136,0.1);
+    border-radius: 3px;
   }
 
-  /* DB icon */
-  .db-card {
+  /* DB display */
+  .db {
     text-align: center;
-    padding: 24px;
+    padding: 20px;
   }
   .db-name {
     font-family: 'DM Mono', monospace;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--copper);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .db-fields {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--cream-40);
-    line-height: 1.8;
+    font-size: 10px;
+    color: var(--cream-30);
+    line-height: 1.7;
   }
 
   /* ZIP box */
   .zip-box {
-    border: 2px solid var(--copper);
-    border-radius: 12px;
-    padding: 28px;
-    background: linear-gradient(135deg, rgba(197,147,90,0.06), rgba(197,147,90,0.02));
+    border: 1px solid var(--border-accent);
+    border-radius: 4px;
+    padding: 24px;
+    background: var(--surface);
   }
   .zip-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    letter-spacing: -0.1px;
   }
   .zip-file {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--cream-10);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--cream-08);
   }
   .zip-file:last-child { border-bottom: none; }
   .zip-file-name {
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
-    color: var(--cream);
-    min-width: 160px;
+    color: var(--cream-80);
+    min-width: 140px;
     flex-shrink: 0;
   }
   .zip-file-desc {
-    font-size: 12px;
-    color: var(--cream-60);
+    font-size: 11px;
+    color: var(--cream-50);
     line-height: 1.5;
   }
   .zip-file-fields {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--cream-40);
-    margin-top: 4px;
-    line-height: 1.6;
+    font-size: 9px;
+    color: var(--cream-30);
+    margin-top: 3px;
+    line-height: 1.7;
   }
 
-  /* Layers staircase */
+  /* Layers */
   .layer {
     display: flex;
     align-items: stretch;
-    border-radius: 6px;
+    border-radius: 3px;
     overflow: hidden;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .layer-id {
-    width: 48px;
+    width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     color: var(--bg);
   }
   .layer-content {
     flex: 1;
-    padding: 12px 16px;
-    background: var(--bg-card);
+    padding: 10px 14px;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-left: none;
-    border-radius: 0 6px 6px 0;
+    border-radius: 0 3px 3px 0;
   }
   .layer-name {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     margin-bottom: 2px;
   }
   .layer-desc {
-    font-size: 11px;
-    color: var(--cream-60);
+    font-size: 10px;
+    color: var(--cream-50);
+    line-height: 1.4;
   }
   .layer-price {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--cream-40);
+    font-size: 9px;
+    color: var(--cream-30);
     margin-top: 2px;
   }
 
-  .layer-l1 .layer-id { background: var(--green); }
-  .layer-l2 .layer-id { background: var(--blue); }
-  .layer-l3 .layer-id { background: var(--gold); }
-  .layer-l3 .layer-content { border-color: var(--copper-dim); }
-  .layer-l4 .layer-id { background: var(--silver); }
+  .l1 .layer-id { background: var(--green); }
+  .l2 .layer-id { background: var(--blue); }
+  .l3 .layer-id { background: var(--copper); }
+  .l3 .layer-content { border-color: var(--border-accent); }
+  .l4 .layer-id { background: var(--cream-30); }
+
+  /* Verification track */
+  .verify-track {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 16px;
+  }
+  .verify-track h4 {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .verify-track .mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--cream-50);
+  }
+  .verify-track .detail {
+    font-size: 10px;
+    color: var(--cream-30);
+    margin-top: 3px;
+  }
+  .verify-track .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .tag-normative { background: rgba(184,149,90,0.15); color: var(--copper); }
+  .tag-reference { background: rgba(92,184,136,0.1); color: var(--green); }
+  .tag-convenience { background: rgba(107,159,212,0.1); color: var(--blue); }
 
   /* Divider */
   .divider {
@@ -296,22 +336,48 @@
   /* Footer */
   .footer {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 2px;
-    color: var(--cream-20);
+    color: var(--cream-15);
     text-align: center;
     margin-top: 48px;
-    padding-top: 20px;
+    padding-top: 16px;
     border-top: 1px solid var(--border);
   }
 
-  /* Print */
+  /* Spec ref */
+  .spec-ref {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    margin-top: 8px;
+  }
+  .spec-ref .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--copper);
+    flex-shrink: 0;
+  }
+  .spec-ref .text {
+    font-size: 10px;
+    color: var(--cream-50);
+    line-height: 1.4;
+  }
+  .spec-ref .url {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--copper);
+  }
+
   @media print {
     body { padding: 20px; background: #fff; color: #111; }
-    .card { border-color: #ddd; background: #f9f9f9; }
-    .zip-box { border-color: #c5935a; }
-    .arrow-line { background: #c5935a; }
+    .card, .verify-track, .zip-box { border-color: #ddd; background: #f9f9f9; }
   }
 </style>
 </head>
@@ -320,178 +386,182 @@
 
   <!-- Header -->
   <div class="header">
-    <h1>Umarise Data Flow</h1>
-    <div class="subtitle">From Original File to Proof Layers · v1.1 · 3 March 2026</div>
+    <h1>Data Flow Diagram</h1>
+    <div class="sub">From original bytes to proof layers · v1.2 · March 2026</div>
   </div>
 
-  <!-- ═══ SECTION 1: ORIGIN ═══ -->
-  <div class="section-label">1 · Origin</div>
+  <!-- ═══ 1. ORIGIN ═══ -->
+  <div class="section">
+    <div class="section-label">1 · Origin</div>
 
-  <div class="card card-accent">
-    <div class="key-icon">
-      <span class="icon">🔑</span>
-      <div>
-        <div class="label">Original File</div>
-        <div class="sub">The original bytes are the key. Without them, no proof can be completed.</div>
+    <div class="card card-accent">
+      <div class="origin-key">
+        <span class="symbol">◉</span>
+        <div>
+          <div class="label">Original File</div>
+          <div class="sub">The original bytes are the key. Without them, no proof completes.</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="arrow">
-    <div class="arrow-line"></div>
-    <div class="arrow-label">SHA-256 · Web Crypto API · in-browser</div>
-    <div class="arrow-head"></div>
-  </div>
+    <div class="flow">
+      <div class="flow-line"></div>
+      <div class="flow-label">SHA-256 · Web Crypto API · in-browser</div>
+      <div class="flow-dot"></div>
+    </div>
 
-  <div class="hash-display">
-    sha256:a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e
-  </div>
-  <div style="text-align:center; font-size:11px; color:var(--cream-40); margin-top:6px; font-style:italic;">
-    One-way function. Content cannot be derived from the hash.
+    <div class="hash">
+      sha256:a3dccbd78865422db16db34fe0e47625b725a52e198f37867d0643ee3096a66e
+    </div>
+    <div style="text-align:center; font-size:10px; color:var(--cream-30); margin-top:4px;">
+      One-way function. Content cannot be derived from the hash.
+    </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- ═══ SECTION 2: REGISTRY ═══ -->
-  <div class="section-label">2 · Registry</div>
+  <!-- ═══ 2. REGISTRY ═══ -->
+  <div class="section">
+    <div class="section-label">2 · Registry</div>
 
-  <div class="two-col">
+    <div class="two-col">
+      <div class="card">
+        <h3>Path A — Partner API</h3>
+        <div class="mono" style="color:var(--blue);">POST /v1-core-origins</div>
+        <div class="detail">X-API-Key header · hash-only, no bytes</div>
+        <div class="note">Partner system sends hash. Core never receives content.</div>
+      </div>
+      <div class="card">
+        <h3>Path B — itexisted.app</h3>
+        <div class="mono" style="color:var(--green);">INSERT → pages</div>
+        <div class="detail">DB trigger: bridge_page_to_core</div>
+        <div class="note">Browser hashes locally, inserts via RLS. Artifact cached in ephemeral IndexedDB (artifactCache.ts).</div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-line"></div>
+      <div class="flow-label">Both paths converge</div>
+      <div class="flow-dot"></div>
+    </div>
+
+    <div class="card db">
+      <div class="db-name">origin_attestations</div>
+      <div class="db-fields">
+        origin_id · hash · hash_algo · captured_at · short_token · api_key_prefix
+      </div>
+      <div class="detail" style="margin-top:8px;">Write-once. Lovable Cloud (PostgreSQL).</div>
+      <div class="note">No content column. Architectural constraint, not policy.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ 3. ANCHORING ═══ -->
+  <div class="section">
+    <div class="section-label">3 · Bitcoin Anchoring</div>
+
     <div class="card">
-      <h3>Path A — Partner API</h3>
-      <div class="mono" style="color:var(--blue);">POST /v1-core-origins</div>
-      <div class="detail">+ X-API-Key header</div>
-      <div class="note">Partner system sends hash. No bytes.</div>
+      <h3>OTS Worker</h3>
+      <div class="detail">Hetzner VPS · Hourly cron · Node.js</div>
+      <div class="mono" style="margin-top:6px; font-size:11px; color:var(--cream-50); line-height:1.6;">
+        1. Read unstamped hashes from origin_attestations<br>
+        2. Aggregate into Merkle tree<br>
+        3. Submit batch to 3 OTS Calendar Servers<br>
+        4. Calendar anchors Merkle root in Bitcoin transaction
+      </div>
     </div>
-    <div class="card">
-      <h3>Path B — itexisted.app</h3>
-      <div class="mono" style="color:var(--green);">INSERT → pages table</div>
-      <div class="detail">DB trigger: bridge_page_to_core</div>
-      <div class="note">Browser hashes locally, inserts via RLS.</div>
+
+    <div class="flow">
+      <div class="flow-line"></div>
+      <div class="flow-label">Block confirmed</div>
+      <div class="flow-dot"></div>
     </div>
-  </div>
 
-  <div class="arrow">
-    <div class="arrow-line"></div>
-    <div class="arrow-label">Both paths converge</div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <div class="card db-card">
-    <div class="db-name">⛁ origin_attestations</div>
-    <div class="db-fields">
-      origin_id · hash · hash_algo · captured_at · short_token · api_key_prefix
+    <div class="card db">
+      <div class="db-name">Bitcoin Blockchain</div>
+      <div class="db-fields">Block height · Merkle root · Immutable timestamp</div>
+      <div class="note">Public. Immutable. Anyone can verify independently.</div>
     </div>
-    <div class="detail" style="margin-top:10px;">Write-once. Hosted on Lovable Cloud (Supabase PostgreSQL).</div>
-    <div class="note">No content column exists. This is architectural, not policy.</div>
-  </div>
 
-  <div class="divider"></div>
-
-  <!-- ═══ SECTION 3: ANCHORING ═══ -->
-  <div class="section-label">3 · Bitcoin Anchoring</div>
-
-  <div class="card">
-    <h3>OTS Worker</h3>
-    <div class="detail">Hetzner VPS · Hourly cron · Node.js</div>
-    <div class="mono" style="margin-top:8px; font-size:12px; color:var(--cream-60);">
-      1. Read unstamped hashes from origin_attestations<br>
-      2. Aggregate into Merkle tree<br>
-      3. Submit batch to 3 OTS Calendar Servers<br>
-      4. Calendar anchors Merkle root in Bitcoin transaction
+    <div class="flow">
+      <div class="flow-line"></div>
+      <div class="flow-label">.ots proof stored</div>
+      <div class="flow-dot"></div>
     </div>
-  </div>
 
-  <div class="arrow">
-    <div class="arrow-line"></div>
-    <div class="arrow-label">Bitcoin block confirmed</div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <div class="card db-card">
-    <div class="db-name">₿ Bitcoin Blockchain</div>
-    <div class="db-fields">
-      Block height · Merkle root · Immutable timestamp
-    </div>
-    <div class="note">Public. Immutable. Anyone can verify independently.</div>
-  </div>
-
-  <div class="arrow">
-    <div class="arrow-line"></div>
-    <div class="arrow-label">.ots proof stored</div>
-    <div class="arrow-head"></div>
-  </div>
-
-  <div class="card db-card">
-    <div class="db-name">⛁ core_ots_proofs</div>
-    <div class="db-fields">
-      origin_id · ots_proof (binary) · status · bitcoin_block_height · anchored_at
+    <div class="card db">
+      <div class="db-name">core_ots_proofs</div>
+      <div class="db-fields">
+        origin_id · ots_proof (binary) · status · bitcoin_block_height · anchored_at
+      </div>
     </div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- ═══ SECTION 4: ZIP GENERATION ═══ -->
-  <div class="section-label">4 · ZIP Generation (client-side, zero-storage)</div>
+  <!-- ═══ 4. ZIP GENERATION ═══ -->
+  <div class="section">
+    <div class="section-label">4 · ZIP Generation · Client-side, zero-storage</div>
 
-  <div class="zip-box">
-    <div class="zip-title">
-      <span>📦</span> ZIP Bundle — Self-contained proof artifact
-    </div>
-    <div style="font-size:11px; color:var(--cream-40); margin-bottom:16px;">
-      Generated entirely in-browser via JSZip. Nothing leaves the device. The ZIP is the end product.
-    </div>
-
-    <div class="zip-file">
-      <div class="zip-file-name">artifact.{ext}</div>
-      <div>
-        <div class="zip-file-desc">Original bytes — hash-enforced, zero modifications. If the file doesn't match the certificate hash, it is excluded automatically. A present artifact is always the exact original.</div>
+    <div class="zip-box">
+      <div class="zip-title">ZIP Bundle — Self-contained proof artifact</div>
+      <div style="font-size:10px; color:var(--cream-30); margin-bottom:14px;">
+        Generated in-browser via JSZip. Nothing leaves the device.
       </div>
-    </div>
 
-    <div class="zip-file">
-      <div class="zip-file-name">certificate.json</div>
-      <div>
-        <div class="zip-file-desc">Immutable metadata. Once created, never modified. v1.3 schema.</div>
-        <div class="zip-file-fields">
-          version · origin_id · hash · hash_algo · captured_at · verify_url<br>
-          proof_included · proof_status · claimed_by · signature<br>
-          device_signature · device_public_key · sig_algorithm<br>
-          identity_binding { level, reference_hash, issuer_type, issuer_id }<br>
-          revocation { revoked, revoked_at, reason }<br>
-          meta { spec_version: "anchoring-spec.org/v1.3", implementation }
+      <div class="zip-file">
+        <div class="zip-file-name">artifact.{ext}</div>
+        <div>
+          <div class="zip-file-desc">Original bytes. Zero modifications. If hash mismatch → excluded. A present artifact is always the exact original.</div>
         </div>
       </div>
-    </div>
 
-    <div class="zip-file">
-      <div class="zip-file-name">VERIFY.txt</div>
-      <div>
-        <div class="zip-file-desc">Human-readable verification instructions for non-technical recipients.</div>
-        <div class="zip-file-fields">
-          → sha256sum artifact.* (compare with certificate hash)<br>
-          → ots verify proof.ots (requires ots-cli)<br>
-          → Links to verify-anchoring.org (independent verifier)<br>
-          → Links to anchoring-spec.org/v1.3 (normative spec)<br>
-          → Layer 2 device binding status<br>
-          → Layer 3 attestation verification (if present)
+      <div class="zip-file">
+        <div class="zip-file-name">certificate.json</div>
+        <div>
+          <div class="zip-file-desc">Immutable metadata record. v1.3 schema.</div>
+          <div class="zip-file-fields">
+            version · origin_id · hash · hash_algo · captured_at · verify_url<br>
+            proof_included · proof_status · claimed_by · signature<br>
+            device_signature · device_public_key · sig_algorithm<br>
+            identity_binding { level, reference_hash, issuer_type, issuer_id }<br>
+            revocation { revoked, revoked_at, reason }<br>
+            meta { spec_version, implementation }
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="zip-file">
-      <div class="zip-file-name">proof.ots</div>
-      <div>
-        <div class="zip-file-desc">Binary OpenTimestamps proof. Only included when anchored. If pending at time of sharing, retrieve later via /v1-core-proof.</div>
+      <div class="zip-file">
+        <div class="zip-file-name">VERIFY.txt</div>
+        <div>
+          <div class="zip-file-desc">Human-readable verification instructions.</div>
+          <div class="zip-file-fields">
+            → sha256sum artifact.* (compare with certificate hash)<br>
+            → ots verify proof.ots (requires ots-cli)<br>
+            → https://verify-anchoring.org (independent verifier)<br>
+            → https://anchoring-spec.org/v1.3 (normative specification)<br>
+            → Layer 2 device binding status<br>
+            → Layer 3 attestation status (if present)
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="zip-file">
-      <div class="zip-file-name">attestation.json</div>
-      <div>
-        <div class="zip-file-desc">Layer 3 only. Included when attestation is confirmed (€4.95).</div>
-        <div class="zip-file-fields">
-          attestation_id · attested_by · attested_at · signature<br>
-          attestant_public_key · attestant_certificate · verify_url
+      <div class="zip-file">
+        <div class="zip-file-name">proof.ots</div>
+        <div>
+          <div class="zip-file-desc">Binary OpenTimestamps proof. Included when anchored. If pending: retrieve later via /v1-core-proof.</div>
+        </div>
+      </div>
+
+      <div class="zip-file">
+        <div class="zip-file-name">attestation.json</div>
+        <div>
+          <div class="zip-file-desc">Layer 3 only. Included when attestation confirmed.</div>
+          <div class="zip-file-fields">
+            attestation_id · attested_by · attested_at · signature<br>
+            attestant_public_key · attestant_certificate · verify_url
+          </div>
         </div>
       </div>
     </div>
@@ -499,48 +569,89 @@
 
   <div class="divider"></div>
 
-  <!-- ═══ SECTION 5: PROOF LAYERS ═══ -->
-  <div class="section-label">5 · Proof Layers</div>
+  <!-- ═══ 5. PROOF LAYERS ═══ -->
+  <div class="section">
+    <div class="section-label">5 · Proof Layers</div>
 
-  <div class="layer layer-l1">
-    <div class="layer-id">L1</div>
-    <div class="layer-content">
-      <div class="layer-name">Anchored Existence</div>
-      <div class="layer-desc">SHA-256 hash anchored via OpenTimestamps to Bitcoin. Proof that these exact bytes existed no later than a specific block.</div>
-      <div class="layer-price">No cost · No account required</div>
+    <div class="layer l1">
+      <div class="layer-id">L1</div>
+      <div class="layer-content">
+        <div class="layer-name">Anchored Existence</div>
+        <div class="layer-desc">SHA-256 hash anchored via OpenTimestamps to Bitcoin. These exact bytes existed no later than block T.</div>
+        <div class="layer-price">Free · No account required</div>
+      </div>
+    </div>
+
+    <div class="layer l2">
+      <div class="layer-id">L2</div>
+      <div class="layer-content">
+        <div class="layer-name">Anchored Signature</div>
+        <div class="layer-desc">L1 + WebAuthn device-bound signature. Anchor cryptographically tied to a specific hardware key.</div>
+        <div class="layer-price">Included with every anchor</div>
+      </div>
+    </div>
+
+    <div class="layer l3">
+      <div class="layer-id">L3</div>
+      <div class="layer-content">
+        <div class="layer-name">Anchored Identity</div>
+        <div class="layer-desc">L2 + verified identity binding. Independent attestant confirms signer–anchor link via KYC or notary.</div>
+        <div class="layer-price">EUR 4.95 per attestation</div>
+      </div>
+    </div>
+
+    <div class="layer l4">
+      <div class="layer-id">L4</div>
+      <div class="layer-content">
+        <div class="layer-name">Anchored QES</div>
+        <div class="layer-desc">L3 + Qualified Electronic Signature via QTSP. ETSI-conform (XAdES/PAdES). eIDAS legal equivalence.</div>
+        <div class="layer-price">On request · Requires QTSP integration</div>
+      </div>
     </div>
   </div>
 
-  <div class="layer layer-l2">
-    <div class="layer-id">L2</div>
-    <div class="layer-content">
-      <div class="layer-name">Anchored Signature</div>
-      <div class="layer-desc">L1 + WebAuthn device-bound signature. The anchor is cryptographically tied to a specific hardware key (Face ID, fingerprint, device PIN).</div>
-      <div class="layer-price">No cost · Included with every anchor</div>
-    </div>
-  </div>
+  <div class="divider"></div>
 
-  <div class="layer layer-l3">
-    <div class="layer-id">L3</div>
-    <div class="layer-content">
-      <div class="layer-name">Anchored Identity</div>
-      <div class="layer-desc">L2 + verified identity binding. A certified independent attestant confirms the link between signer and anchor via KYC or notary verification.</div>
-      <div class="layer-price">EUR 4.95 per attestation</div>
-    </div>
-  </div>
+  <!-- ═══ 6. VERIFICATION ═══ -->
+  <div class="section">
+    <div class="section-label">6 · Verification</div>
 
-  <div class="layer layer-l4">
-    <div class="layer-id">L4</div>
-    <div class="layer-content">
-      <div class="layer-name">Anchored QES</div>
-      <div class="layer-desc">L3 + Qualified Electronic Signature via QTSP. ETSI-conform format (XAdES/PAdES). Legal equivalence to a handwritten signature under eIDAS.</div>
-      <div class="layer-price">On request · Requires QTSP integration</div>
+    <div class="three-col">
+      <div class="verify-track">
+        <div class="tag tag-convenience">Track A</div>
+        <h4>In-app</h4>
+        <div class="mono">itexisted.app/verify</div>
+        <div class="detail">Registry lookup + hash check via Core API. Convenience verifier.</div>
+      </div>
+      <div class="verify-track">
+        <div class="tag tag-reference">Track B</div>
+        <h4>Reference Verifier</h4>
+        <div class="mono">verify-anchoring.org</div>
+        <div class="detail">100% client-side. Zero API calls. V(B,P,L) with local OTS library. IEC Section 9 compliant.</div>
+      </div>
+      <div class="verify-track">
+        <div class="tag tag-convenience">Track C</div>
+        <h4>CLI</h4>
+        <div class="mono">verify-anchor.sh / .py</div>
+        <div class="detail">Zero-dependency terminal scripts. Offline verification.</div>
+      </div>
+    </div>
+
+    <div class="spec-ref">
+      <div class="dot"></div>
+      <div class="text">
+        All verification tracks implement the function defined in the normative specification:<br>
+        <span class="url">anchoring-spec.org</span> — Anchoring Specification (IEC v1.0) · Public domain · Unlicense
+      </div>
+    </div>
+    <div class="note" style="text-align:center; font-size:9px; color:var(--cream-30); margin-top:8px;">
+      The specification is normative. Implementations are not.
     </div>
   </div>
 
   <!-- Footer -->
   <div class="footer">
-    Umarise Data Flow Diagram · v1.1 · 3 March 2026 · For External Reviewers
+    Umarise · Data Flow Diagram v1.2 · March 2026
   </div>
 
 </div>
