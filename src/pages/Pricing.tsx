@@ -25,7 +25,7 @@ export default function Pricing() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="font-serif text-4xl md:text-5xl tracking-tight leading-[1.15] mb-8">
-              <span className="text-landing-cream/90">Pricing.</span>
+              <span className="text-landing-cream/90">Partnerships.</span>
             </h1>
 
             <p className="text-base text-landing-muted/60 leading-relaxed mb-2">
