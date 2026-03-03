@@ -73,7 +73,9 @@ Artifact hash-check (Triple-Gate)           ← integriteits-check
 
 100% client-side, zero-API, zero-CDN verificatie conform de Anchoring Specification (IEC v1.0, Section 9: Independence Requirement).
 
-### Flow
+Twee input-modi op dezelfde pagina:
+
+### B1: ZIP Verifier (eindgebruikers)
 
 ```
 ZIP uploaden in browser
@@ -95,12 +97,28 @@ Output:
   ✗ Invalid
 ```
 
+### B2: Hash + OTS Verifier (API-integrators)
+
+Voor partners die de Core API direct gebruiken en een SHA-256 hash + .ots proof file hebben, maar geen ZIP.
+
+```
+SHA-256 hash plakken in invoerveld
+  ↓
+.ots proof file uploaden
+  ↓
+Hash normaliseren (sha256: prefix / raw shasum)
+  ↓
+.ots proof verifiëren tegen Bitcoin         ← bestaans-check (lokale OTS library)
+  ↓
+✓ Ledger-confirmed of ✗ Invalid
+```
+
 ### Wat wordt bewezen
 
 | Stap | Vraag | Bron |
 |------|-------|------|
-| Integriteits-check | Is dit bestand ongewijzigd? | sha256sum artifact vs certificate.json |
-| Bestaans-check | No later than welk moment bestond deze hash? | .ots proof vs publieke Bitcoin blockchain (lokale OTS library v0.4.9) |
+| Integriteits-check (B1) | Is dit bestand ongewijzigd? | sha256sum artifact vs certificate.json |
+| Bestaans-check (B1+B2) | No later than welk moment bestond deze hash? | .ots proof vs publieke Bitcoin blockchain (lokale OTS library v0.4.9) |
 
 ### Wat NIET nodig is
 
@@ -117,6 +135,7 @@ Output:
 - Repo: `github.com/AnchoringTrust/verify-anchoring` (Unlicense)
 - OTS library: opentimestamps v0.4.9, lokaal gebundeld (`vendor/opentimestamps.min.js`)
 - JSZip: v3.10.1, lokaal gebundeld (`vendor/jszip.min.js`)
+- Hash normalisatie: `normalizeHash()` — accepteert `sha256:` prefix en raw `shasum` terminal output
 - Externe netwerk-calls: alleen Bitcoin block explorers
 
 ---
@@ -169,15 +188,16 @@ Vergelijken met hash uit certificate.json   ← artifact-authenticiteit
 
 ## Vergelijking
 
-| | Track A: In-app | Track B: Referentie Verifier | Track C: CLI |
-|---|---|---|---|
-| **Doelgroep** | Gebruiker zelf | Iedereen (browser) | Derde partij (technisch) |
-| **Toegang** | itexisted.app, ZIP uploaden | verify-anchoring.org, ZIP uploaden | Terminal / command line |
-| **Hash-bron** | Registry lookup (origin_id) | Artifact bytes in ZIP | Artifact bytes in ZIP |
-| **Bitcoin-check** | Via Core API (core_ots_proofs) | Lokale OTS library (in-browser) | Via ots-cli → Bitcoin blockchain |
-| **Artifact integriteit** | Triple-Gate (artifactCache) | SHA-256 hash-check | sha256sum |
-| **Umarise nodig?** | Ja (registry lookup) | Nee | Nee |
-| **Bewijst** | "Dit record is geregistreerd en geanchord" | "Deze hash is verankerd in Bitcoin no later than [datum]" | "Dit bestand is ongewijzigd en bestond no later than [datum]" |
+| | Track A: In-app | Track B1: ZIP Verifier | Track B2: Hash+OTS Verifier | Track C: CLI |
+|---|---|---|---|---|
+| **Doelgroep** | Gebruiker zelf | Iedereen (browser) | API-integrators (browser) | Derde partij (technisch) |
+| **Toegang** | itexisted.app | verify-anchoring.org | verify-anchoring.org | Terminal / command line |
+| **Input** | ZIP uploaden | ZIP uploaden | SHA-256 hash + .ots file | ZIP uitpakken |
+| **Hash-bron** | Registry lookup (origin_id) | Artifact bytes in ZIP | Handmatig ingevoerd | Artifact bytes in ZIP |
+| **Bitcoin-check** | Via Core API | Lokale OTS library | Lokale OTS library | Via ots-cli → blockchain |
+| **Artifact integriteit** | Triple-Gate (artifactCache) | SHA-256 hash-check | N.v.t. (geen artifact) | sha256sum |
+| **Umarise nodig?** | Ja | Nee | Nee | Nee |
+| **Bewijst** | "Record is geregistreerd en geanchord" | "Hash is verankerd no later than [datum]" | "Hash is verankerd no later than [datum]" | "Bestand is ongewijzigd en bestond no later than [datum]" |
 
 ---
 
