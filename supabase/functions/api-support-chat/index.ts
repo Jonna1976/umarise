@@ -112,10 +112,10 @@ PROOF LIFECYCLE:
 5. Verification: ots verify proof.ots (CLI) or itexisted.app
 
 RATE LIMITS:
-- POST /v1-core-origins: per API key, 15 min window
-- POST /v1-core-verify: per IP (hashed), 15 min window
-- GET /v1-core-resolve: per IP (hashed), 15 min window
-- GET /v1-core-proof: per IP (hashed), 15 min window
+- POST /v1-core-origins: per API key, 1 min window
+- POST /v1-core-verify: per IP (hashed), 1 min window
+- GET /v1-core-resolve: per IP (hashed), 1 min window
+- GET /v1-core-proof: per IP (hashed), 1 min window
 - GET /v1-core-health: no rate limit
 - IP addresses are never stored — rate limiting uses SHA-256 hashed IPs
 
@@ -128,8 +128,8 @@ API KEY ONBOARDING:
 
 POLLING PATTERN (no webhooks in v1):
 - After POST /v1-core-origins, proof_status is "pending"
-- Poll GET /v1-core-resolve?origin_id=<uuid> every 60 seconds
-- Average anchor time: 10-20 minutes (1-2 Bitcoin confirmations)
+- Poll GET /v1-core-resolve?origin_id=<uuid> using the retry_after_seconds value from the response
+- Typical anchor time: ~1 hour (ledger-dependent, may be faster during low congestion)
 - When proof_status changes to "anchored", the .ots proof is available via GET /v1-core-proof
 - Webhooks are not available in v1. Polling is the supported pattern.
 

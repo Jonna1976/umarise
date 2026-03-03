@@ -320,7 +320,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">3.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Wait for Bitcoin anchoring</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Poll until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Typical: ~15 min, ledger-dependent.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Poll until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Typical: ~1 hour, ledger-dependent.</p>
                 <Code
                   code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
                   copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
@@ -422,7 +422,7 @@ zip -r ../evidence-bundle.zip .`}
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3">
-                <span className="text-amber-400/80 font-mono">Smart polling with Retry-After:</span> When <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>, the response includes a <code className="text-[hsl(var(--landing-copper))]">Retry-After: 900</code> header (15 minutes). Use this to schedule your next check — no guessing needed.
+                <span className="text-amber-400/80 font-mono">Smart polling with Retry-After:</span> When <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"pending"</code>, the response includes a <code className="text-[hsl(var(--landing-copper))]">Retry-After: 3600</code> header (~1 hour). Use this to schedule your next check — no guessing needed.
               </p>
               <Code
                 code={`# Smart polling using Retry-After header (bash)
@@ -752,7 +752,7 @@ print(origin["origin_id"])  # save this
 # 3. Poll using Retry-After header
 while origin["proof_status"] == "pending":
     r = requests.get(f"{BASE}/v1-core-resolve", params={"origin_id": origin["origin_id"]})
-    retry_after = int(r.headers.get("Retry-After", 900))
+    retry_after = int(r.headers.get("Retry-After", 3600))
     time.sleep(retry_after)
     origin = r.json()
 print(f"Anchored at block {origin['bitcoin_block_height']}")
