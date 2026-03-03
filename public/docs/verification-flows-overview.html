@@ -255,10 +255,64 @@
     border-radius: 3px;
   }
 
+  .trust-hierarchy {
+    background: #0f0f1a;
+    border: 1px solid #b8955a22;
+    border-radius: 8px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .trust-level {
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+
+  .trust-level:last-of-type { margin-bottom: 0.8rem; }
+
+  .trust-bar {
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+  }
+
+  .trust-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .trust-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #b8955a;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .trust-desc {
+    font-size: 0.85rem;
+    color: #e8e3d8aa;
+    text-align: right;
+  }
+
+  .trust-footnote {
+    margin-top: 1.2rem;
+    font-size: 0.8rem;
+    color: #e8e3d855;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+  }
+
   @media (max-width: 600px) {
     .container { padding: 2rem 1rem; }
     h1 { font-size: 1.6rem; }
     .tracks { grid-template-columns: 1fr; }
+    .trust-content { flex-direction: column; gap: 0.2rem; }
+    .trust-desc { text-align: left; }
   }
 </style>
 </head>
@@ -422,10 +476,40 @@
 
   <hr class="separator">
 
+  <h2>Trust Hierarchy</h2>
+
+  <div class="trust-hierarchy">
+    <div class="trust-level" data-level="3">
+      <div class="trust-bar" style="background: linear-gradient(90deg, #b8955a 0%, #b8955a 100%); width: 100%;"></div>
+      <div class="trust-content">
+        <span class="trust-label">A1 · A2</span>
+        <span class="trust-desc">Vertrouwt Umarise (registry / Core API)</span>
+      </div>
+    </div>
+    <div class="trust-level" data-level="2">
+      <div class="trust-bar" style="background: linear-gradient(90deg, #5cb888 0%, #5cb888 100%); width: 66%;"></div>
+      <div class="trust-content">
+        <span class="trust-label">B1 · B2</span>
+        <span class="trust-desc">Vertrouwt verify-anchoring.org (onafhankelijk, open-source)</span>
+      </div>
+    </div>
+    <div class="trust-level" data-level="1">
+      <div class="trust-bar" style="background: linear-gradient(90deg, #e8e3d8 0%, #e8e3d8 100%); width: 33%;"></div>
+      <div class="trust-content">
+        <span class="trust-label">C</span>
+        <span class="trust-desc">Vertrouwt alleen eigen OS-tools + Bitcoin</span>
+      </div>
+    </div>
+    <p class="trust-footnote">↑ Elke laag verwijdert één vertrouwensafhankelijkheid.<br>
+    Alle tracks bewijzen dezelfde waarheid — het verschil is de route.</p>
+  </div>
+
+  <hr class="separator">
+
   <div class="footer-ref">
     Normatieve referentie: <code>anchoring-spec.org</code> — IEC v1.0, Section 9<br>
     <code>V(B, P, L) → { valid | invalid | unverifiable }</code><br><br>
-    Versie 2.0 · 3 maart 2026
+    Versie 2.1 · 3 maart 2026
   </div>
 
 </div>
