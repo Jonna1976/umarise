@@ -107,7 +107,7 @@ export default function ReviewerPackage() {
             <MaterialLink title="Core API Reference" description="v1 stable interface, endpoints, and access model" href="/core" internal />
             <MaterialLink title="Technical Review Kit" description="Stack-level documentation with live API tester" href="/review" internal />
             <MaterialLink title="Verification Tool" description="Independent proof verification (client-side)" href="/verify" internal />
-            <MaterialLink title="Anchor One-Pager" description="When and why anchor attestation is correct" href="/anchor" internal />
+            <MaterialLink title="Anchor" description="When and why anchor attestation applies" href="/anchor" internal />
             <MaterialLink title="Why This Exists" description="The problem statement and category definition" href="/why" internal />
           </div>
           <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-4 font-mono">
