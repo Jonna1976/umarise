@@ -374,6 +374,30 @@ PostgreSQL              → DDL events → core_ddl_audit</div>
   This is architectural, not policy. There is no mechanism to store file content even if someone tried. The hash is a one-way function: content cannot be derived from it.
 </div>
 
+<hr>
+
+<!-- ─── LEGACY NOTE ────────────────────────────────── -->
+
+<h2>Legacy Note</h2>
+
+<p>The codebase contains residual components from <code>anchoring.app</code>, the predecessor gallery interface that has been permanently redirected (301) to <code>itexisted.app</code>. These components are <strong>not part of the current architecture</strong> and are excluded from this diagram:</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Original Purpose</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>indexedDB.ts</code> (marks store)</td><td>Local-first gallery with thumbnails</td><td>Legacy — anchoring.app gallery</td></tr>
+    <tr><td><code>thumbnailService.ts</code></td><td>400px JPEG thumbnail generation for gallery display</td><td>Legacy — not used by itexisted.app</td></tr>
+    <tr><td><code>imageCompression.ts</code></td><td>Camera capture compression for gallery</td><td>Legacy — not used by itexisted.app</td></tr>
+    <tr><td>Supabase <code>thumbnails</code> bucket</td><td>Remote thumbnail storage for cross-device sync</td><td>Legacy — no uploads from itexisted.app</td></tr>
+    <tr><td><code>thumbnail_uri</code> column</td><td>URL reference to uploaded thumbnail</td><td>Legacy — populated only by gallery flow</td></tr>
+    <tr><td><code>CameraView.tsx</code></td><td>In-app camera capture UI</td><td>Legacy — itexisted.app uses file-drop</td></tr>
+  </tbody>
+</table>
+
+<p>These components remain in the codebase for backward compatibility but do not participate in Path A (Partner API) or Path B (itexisted.app). The only client-side storage used by the current architecture is <code>artifactCache.ts</code>, which provides ephemeral IndexedDB caching during the proof-flow.</p>
+
 <div class="doc-footer">
   Data Flow Diagram — Umarise Core API v1.1 — 3 March 2026
 </div>
