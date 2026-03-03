@@ -807,9 +807,9 @@ print(result["captured_at"])`} />
 
               {/* Q1 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple - can't anyone build this?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple. Can't anyone build this?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That is the point - anchoring is infrastructure, not a product. The specification exists so anyone can implement it. The API exists so no one has to build Merkle-batching, OTS calendar management, and Bitcoin monitoring from scratch.
+                  Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That is the point. Anchoring is infrastructure, not a product. The specification exists so anyone can implement it. The API exists so no one has to build Merkle-batching, OTS calendar management, and Bitcoin monitoring from scratch.
                 </p>
               </div>
 
@@ -817,7 +817,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already hash our files with SHA-256. How is this different?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  SHA-256 proves <em>integrity</em> - the bytes have not changed. Anchoring proves <em>chronology</em> - these bytes existed on or before time T. A hash without external time binding is self-attested: it could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable temporal reference.
+                  SHA-256 proves <em>integrity</em>: the bytes have not changed. Anchoring proves <em>chronology</em>: these bytes existed on or before time T. A hash without external time binding is self-attested. It could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable temporal reference.
                 </p>
               </div>
 
@@ -825,7 +825,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What does this add beyond raw OpenTimestamps?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  OpenTimestamps is a protocol - like HTTP is a protocol. A web application is not "HTTP." OTS defines how to commit a hash to Bitcoin. The Core API uses OTS as transport and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> - a semantic framework defining exactly what a proof does and does not establish.
+                  OpenTimestamps is a protocol, like HTTP is a protocol. A web application is not "HTTP." OTS defines how to commit a hash to Bitcoin. The Core API uses OTS as transport and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a>. This is a semantic framework defining exactly what a proof does and does not establish.
                 </p>
               </div>
 
@@ -833,7 +833,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"There are other cryptographic timestamping services. Why this one?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer - if the Certificate Authority or service disappears, verification may break. The Core API anchors to Bitcoin via OpenTimestamps: verification is trustless. The .ots proof file + original artifact + any SHA-256 calculator + the public Bitcoin blockchain = complete verification, indefinitely. No account required. No dependency on the issuing infrastructure.
+                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer. If the Certificate Authority or service disappears, verification may break. The Core API anchors to Bitcoin via OpenTimestamps, making verification trustless. The .ots proof file combined with the original artifact, any SHA-256 calculator, and the public Bitcoin blockchain provides complete verification, indefinitely. No account required. No dependency on the issuing infrastructure.
                 </p>
               </div>
 
@@ -849,7 +849,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can we bulk-anchor existing files retroactively?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Yes. The API accepts hashes, not files. Hash locally, POST each hash to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. The backend batches hashes into Merkle trees automatically. Rate limit: 100 requests/min per API key. The anchor timestamp reflects when the hash was submitted, not when the file was originally created - anchoring proves "existed no later than T." It cannot backdate.
+                  Yes. The API accepts hashes, not files. Hash locally, POST each hash to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. The backend batches hashes into Merkle trees automatically. Rate limit: 100 requests/min per API key. The anchor timestamp reflects when the hash was submitted, not when the file was originally created. Anchoring proves "existed no later than T." It cannot backdate.
                 </p>
               </div>
 
@@ -857,7 +857,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What if the infrastructure provider disappears?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Once anchored, the proof is self-contained. The .ots file + original artifact + <code className="text-[hsl(var(--landing-copper))]">sha256sum</code> + the public Bitcoin blockchain = complete verification. No API, no account, no issuer infrastructure required. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is open source, zero-backend, and forkable. The proof survives the issuer.
+                  Once anchored, the proof is self-contained. The .ots file combined with the original artifact, <code className="text-[hsl(var(--landing-copper))]">sha256sum</code>, and the public Bitcoin blockchain provides complete verification. No API, no account, no issuer infrastructure required. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is open source, zero-backend, and forkable. The proof survives the issuer.
                 </p>
               </div>
 
@@ -865,15 +865,15 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can the API operator see our data?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  No. The API receives SHA-256 hashes only - never files. A SHA-256 hash is a one-way function: without the original artifact, the hash is meaningless. There is no mechanism in the infrastructure to store, receive, or reconstruct file content. The hash crosses the network boundary. The content does not.
+                  No. The API receives SHA-256 hashes only, never files. A SHA-256 hash is a one-way function: without the original artifact, the hash is meaningless. There is no mechanism in the infrastructure to store, receive, or reconstruct file content. The hash crosses the network boundary. The content does not.
                 </p>
               </div>
 
               {/* Q9 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone - including the operator - modify or delete an existing record?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone, including the operator, modify or delete an existing record?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  No. Database-level immutability triggers block UPDATE and DELETE operations, including for internal service roles. Row-level security blocks all client-side mutations. Bitcoin anchoring makes retroactive modification mathematically detectable. This is enforced by architecture, not policy - no administrative override exists that can alter a committed record.
+                  No. Database-level immutability triggers block UPDATE and DELETE operations, including for internal service roles. Row-level security blocks all client-side mutations. Bitcoin anchoring makes retroactive modification mathematically detectable. This is enforced by architecture, not policy. No administrative override exists that can alter a committed record.
                 </p>
               </div>
 
@@ -881,7 +881,7 @@ print(result["captured_at"])`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already use an RFC 3161 TSA. Should we switch?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority - if the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS: trustless, no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
+                  Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority. If the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS, making it trustless with no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
                 </p>
               </div>
 
@@ -889,7 +889,7 @@ print(result["captured_at"])`} />
               <div>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"How does Umarise anchoring differ from C2PA?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Umarise anchoring and C2PA operate at different verification layers. An anchoring proof asserts only: the exact byte sequence (or its cryptographic hash) existed at or before time T. Time T is derived from a publicly verifiable ledger. Verification requires recomputing the hash, validating the ledger inclusion proof, and confirming ledger timestamp finality.
+                  Umarise anchoring and C2PA operate at different verification layers. An anchoring proof asserts only that the exact byte sequence (or its cryptographic hash) existed at or before time T. Time T is derived from a publicly verifiable ledger. Verification requires recomputing the hash, validating the ledger inclusion proof, and confirming ledger timestamp finality.
                 </p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
                   Anchoring does not assert authorship, identity, ownership, originality, tool usage, editing history, or whether content is AI-generated.
@@ -898,7 +898,7 @@ print(result["captured_at"])`} />
                   C2PA, by contrast, asserts that a specific identity signed a manifest describing provenance and production history. C2PA binds time to identity via PKI. Anchoring binds time directly to exact bytes via ledger inclusion.
                 </p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
-                  Anchoring proofs MAY be embedded as C2PA assertions when both identity provenance and independently verifiable temporal existence are required.
+                  Anchoring proofs may be embedded as C2PA assertions when both identity provenance and independently verifiable temporal existence are required.
                 </p>
               </div>
 
@@ -907,7 +907,7 @@ print(result["captured_at"])`} />
             {/* Bitcoin disclaimer */}
             <div className="mt-8 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.45)]">
-                Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
+                Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger, not as a currency. No wallets, no coins, no financial transactions.
               </p>
             </div>
           </Section>
