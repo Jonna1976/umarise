@@ -41,6 +41,7 @@ import Install from "./pages/Install";
 import Architecture from "./pages/Architecture";
 import ReviewerPackage from "./pages/ReviewerPackage";
 
+import ItExistedVerify from "./pages/ItExistedVerify";
 import WitnessConfirmation from "./pages/WitnessConfirmation";
 import Verify from "./pages/Verify";
 import Legal from "./pages/Legal";
@@ -103,7 +104,7 @@ const App = () => (
             
             <Route path="/verify" element={
               typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
-                ? <Navigate to="/" replace />
+                ? <ItExistedVerify />
                 : <Verify />
             } />
             <Route path="/reviewer" element={<InternalGate><ReviewerPackage /></InternalGate>} />
@@ -130,7 +131,7 @@ const App = () => (
             <Route path="/sdk-download" element={<SdkDownload />} />
             <Route path="/partner-integration" element={<PartnerIntegration />} />
             <Route path="/partnerships" element={<Partnerships />} />
-
+import ItExistedVerify from "./pages/ItExistedVerify";
 
             
             {/* PROTECTED ROUTES - Behind PinGate */}
