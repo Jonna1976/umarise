@@ -165,7 +165,7 @@ export default function ApiReferenceV2() {
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · Version: <code className="text-[hsl(var(--landing-copper))]">v1</code> (frozen)
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs mt-1">
-              All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>. The v1 contract is frozen - no breaking changes.
+              All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>.
             </p>
 
             {/* Verify Now - instant gratification */}
