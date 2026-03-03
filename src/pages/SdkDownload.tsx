@@ -404,6 +404,12 @@ const origin = await core.attest(hash);`}</pre>
           >
             Source on GitHub
           </a>
+          <a
+            href="/sdk-source"
+            className="inline-flex items-center justify-center gap-2 bg-landing-muted/10 text-landing-cream/80 px-5 py-2.5 rounded-lg font-medium border border-landing-muted/15 hover:bg-landing-muted/15 transition-colors"
+          >
+            View source
+          </a>
         </div>
 
         <a
