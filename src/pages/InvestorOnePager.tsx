@@ -242,16 +242,45 @@ export default function InvestorOnePager() {
           {/* Ask */}
           <section>
             <SectionTitle>The ask</SectionTitle>
-            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
+            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 mb-4 print:bg-amber-50 print:border-amber-200">
               <p className="text-sm text-[hsl(40,15%,88%,0.8)] leading-relaxed print:text-stone-700">
                 The technology is complete. The specification is published. The verifier is independent.
-                The only missing element is adoption, which is exactly what funding is sought for.
-              </p>
-              <p className="text-sm text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
-                Funding will be allocated to: initial partner onboarding, terminology adoption (E5),
-                and activating the revenue model through founding-tier partners.
+                The only missing element is adoption. Seeking <span className="font-medium text-[hsl(40,15%,88%,0.95)]">€150K</span> to
+                activate the first revenue cycle within 12 months.
               </p>
             </div>
+            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
+                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">Allocation</th>
+                    <th className="text-right p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs w-24 print:text-stone-600">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
+                  {[
+                    ['Partner onboarding (5 founding partners)', '€40K'],
+                    ['Developer relations, docs, SDK polish', '€25K'],
+                    ['Terminology adoption program (E5)', '€20K'],
+                    ['QTSP/eIDAS pilot preparation', '€15K'],
+                    ['Legal (trademark, IP registration)', '€15K'],
+                    ['Operations (12 months runway)', '€35K'],
+                  ].map(([item, amount]) => (
+                    <tr key={item} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
+                      <td className="p-3">{item}</td>
+                      <td className="p-3 text-right font-mono text-[hsl(25,35%,42%,0.7)]">{amount}</td>
+                    </tr>
+                  ))}
+                  <tr className="border-t-2 border-[hsl(40,15%,88%,0.15)] print:border-stone-300">
+                    <td className="p-3 font-medium text-[hsl(40,15%,88%,0.9)]">Total</td>
+                    <td className="p-3 text-right font-mono font-medium text-[hsl(25,35%,42%,0.9)]">€150K</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
+              Target: 5 paying partners, 50K anchors processed, and self-sustaining revenue within 12 months.
+            </p>
           </section>
 
           {/* Contact */}
