@@ -239,19 +239,57 @@ export default function InvestorOnePager() {
             </div>
           </section>
 
-          {/* Position */}
+          {/* What we need */}
           <section>
-            <SectionTitle>Position</SectionTitle>
-            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 print:bg-amber-50 print:border-amber-200">
+            <SectionTitle>What we need</SectionTitle>
+            <div className="rounded-lg border border-[hsl(25,35%,42%,0.2)] bg-[hsl(25,35%,42%,0.04)] p-6 mb-4 print:bg-amber-50 print:border-amber-200">
               <p className="text-sm text-[hsl(40,15%,88%,0.8)] leading-relaxed print:text-stone-700">
                 The technology is complete. The specification is published. The verifier is independent.
-                Revenue is activated through one-time API keys (€240) and prepaid anchor credits.
-                No subscriptions, no recurring fees, no external funding required.
+                What is missing is not capital. It is a connector: someone with a network across legal,
+                compliance, or creative industries who can ask one question in the right rooms:
               </p>
-              <p className="text-sm text-[hsl(40,15%,88%,0.5)] mt-3 print:text-stone-500">
-                Self-sustaining at 5 paying integrators. Currently onboarding founding-tier partners.
+              <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-['Playfair_Display'] italic text-center print:text-stone-900">
+                "Who in your pipeline needs proof of existence?"
               </p>
             </div>
+            <div className="space-y-3 mb-4">
+              {[
+                { title: 'Not an investor', desc: 'No equity, no board seat, no cap table. Revenue share or referral fee per activated partner.' },
+                { title: 'Not a salesperson', desc: 'Partners integrate themselves. The connector opens doors, Umarise handles onboarding through docs and SDK.' },
+                { title: 'Not a co-founder', desc: 'A bridge builder who translates "cryptographic anchoring" into the language of the room they are in.' },
+              ].map(({ title, desc }) => (
+                <div key={title} className="border-l-2 border-[hsl(25,35%,42%,0.4)] pl-5">
+                  <p className="font-medium text-sm text-[hsl(40,15%,88%,0.85)] print:text-stone-800">{title}</p>
+                  <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-0.5 print:text-stone-500">{desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] overflow-hidden print:border-stone-200">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-[hsl(220,10%,10%)] print:bg-stone-100">
+                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">The connector</th>
+                    <th className="text-left p-3 text-[hsl(40,15%,88%,0.5)] font-mono text-xs uppercase tracking-wider print:text-stone-600">Umarise</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[hsl(40,15%,88%,0.7)] print:text-stone-700">
+                  {[
+                    ['Opens the conversation', 'Provides the one-pager and demo'],
+                    ['Identifies the use case', 'Maps it to the API contract'],
+                    ['Introduces the decision maker', 'Handles technical onboarding'],
+                    ['Follows up on adoption', 'Delivers SDK, docs, and support'],
+                  ].map(([connector, umarise]) => (
+                    <tr key={connector} className="border-t border-[hsl(40,15%,88%,0.06)] print:border-stone-200">
+                      <td className="p-3">{connector}</td>
+                      <td className="p-3">{umarise}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
+              Target: 5 activated partners within 12 months. Self-sustaining revenue at that point. No funding required.
+            </p>
           </section>
 
           {/* Contact */}
