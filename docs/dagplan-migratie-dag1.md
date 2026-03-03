@@ -294,6 +294,8 @@ SELECT COUNT(*), status FROM core_ots_proofs GROUP BY status;
 
 ## BLOK 4 — Edge Functions deployen (± 30 min)
 
+> 📋 **Referentie:** Zie [`docs/edge-functions-overview.md`](edge-functions-overview.md) voor een volledig overzicht per categorie (Core, Attestation, Companion, Internal, Infrastructure, Stripe, AI Proxy) en de 10 deprecated functies.
+
 ```bash
 # Deploy alle functions naar nieuw project
 supabase functions deploy --project-ref ubcqdjaytlxjqtinlzhi
