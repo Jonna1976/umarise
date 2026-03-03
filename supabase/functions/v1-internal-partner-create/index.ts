@@ -10,7 +10,8 @@
  * Request Body:
  *   {
  *     "partner_name": "Acme Corp",
- *     "rate_limit_tier": "standard" | "premium" | "unlimited" (optional, defaults to "standard")
+ *     "rate_limit_tier": "standard" | "premium" | "unlimited" (optional, defaults to "standard"),
+ *     "webhook_url": "https://acme.com/webhooks/umarise" (optional)
  *   }
  * 
  * Response:
@@ -45,6 +46,7 @@ type RateLimitTier = 'standard' | 'premium' | 'unlimited';
 interface CreatePartnerRequest {
   partner_name: string;
   rate_limit_tier?: RateLimitTier;
+  webhook_url?: string;
 }
 
 interface CreatePartnerResponse {
@@ -54,6 +56,8 @@ interface CreatePartnerResponse {
   api_key: string;
   key_prefix: string;
   rate_limit_tier: RateLimitTier;
+  webhook_url: string | null;
+  webhook_secret: string | null;
   warning: string;
 }
 
@@ -155,6 +159,19 @@ Deno.serve(async (req: Request) => {
     const keyPrefix = apiKey.substring(0, 11); // "um_" + first 8 hex chars
     const keyHash = await computeKeyHash(apiKey, coreApiSecret);
 
+    // Handle webhook configuration
+    const webhookUrl = body.webhook_url && typeof body.webhook_url === 'string' && body.webhook_url.startsWith('https://')
+      ? body.webhook_url.trim()
+      : null;
+
+    // Generate webhook secret if URL provided
+    let webhookSecret: string | null = null;
+    if (webhookUrl) {
+      const secretBytes = new Uint8Array(32);
+      crypto.getRandomValues(secretBytes);
+      webhookSecret = `whsec_${encodeHex(secretBytes)}`;
+    }
+
     // Connect to database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -168,6 +185,9 @@ Deno.serve(async (req: Request) => {
         key_prefix: keyPrefix,
         key_hash: keyHash,
         issued_by: 'v1-internal-partner-create',
+        rate_limit_tier: rateLimitTier,
+        webhook_url: webhookUrl,
+        webhook_secret: webhookSecret,
       })
       .select('id, partner_name')
       .single();
@@ -187,7 +207,9 @@ Deno.serve(async (req: Request) => {
       api_key: apiKey,
       key_prefix: keyPrefix,
       rate_limit_tier: rateLimitTier,
-      warning: 'Store this API key securely. It cannot be retrieved again.',
+      webhook_url: webhookUrl,
+      webhook_secret: webhookSecret,
+      warning: 'Store this API key and webhook secret securely. They cannot be retrieved again.',
     };
 
     console.log('[v1-internal-partner-create] Partner created:', {
@@ -195,6 +217,7 @@ Deno.serve(async (req: Request) => {
       partner_name: partnerName,
       key_prefix: keyPrefix,
       rate_limit_tier: rateLimitTier,
+      has_webhook: !!webhookUrl,
     });
 
     return new Response(

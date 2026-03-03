@@ -612,6 +612,8 @@ export type Database = {
           rate_limit_tier: string
           revoked_at: string | null
           sdk_used: string | null
+          webhook_secret: string | null
+          webhook_url: string | null
         }
         Insert: {
           first_attestation_at?: string | null
@@ -625,6 +627,8 @@ export type Database = {
           rate_limit_tier?: string
           revoked_at?: string | null
           sdk_used?: string | null
+          webhook_secret?: string | null
+          webhook_url?: string | null
         }
         Update: {
           first_attestation_at?: string | null
@@ -638,6 +642,8 @@ export type Database = {
           rate_limit_tier?: string
           revoked_at?: string | null
           sdk_used?: string | null
+          webhook_secret?: string | null
+          webhook_url?: string | null
         }
         Relationships: []
       }
@@ -743,6 +749,42 @@ export type Database = {
           time_filter_used?: string | null
           time_to_select_ms?: number | null
           top_5_page_ids?: string[] | null
+        }
+        Relationships: []
+      }
+      webhook_delivery_log: {
+        Row: {
+          attempt: number
+          created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          id: string
+          origin_id: string
+          partner_key_prefix: string
+          status_code: number | null
+          webhook_url: string
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          origin_id: string
+          partner_key_prefix: string
+          status_code?: number | null
+          webhook_url: string
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          origin_id?: string
+          partner_key_prefix?: string
+          status_code?: number | null
+          webhook_url?: string
         }
         Relationships: []
       }
