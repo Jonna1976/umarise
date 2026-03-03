@@ -465,11 +465,11 @@ app.post('/upload', async (req, res) => {
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <div className="space-y-2">
-                <Code code={`// 401 — Missing or invalid API key
+                <Code code={`// 401 - Missing or invalid API key
 { "error": { "code": "UNAUTHORIZED", "message": "Invalid API key" } }`} />
-                <Code code={`// 409 — Hash already attested with this key
+                <Code code={`// 409 - Hash already attested with this key
 { "error": { "code": "DUPLICATE_HASH", "message": "Hash already attested", "existing_origin_id": "..." } }`} />
-                <Code code={`// 400 — Invalid hash format
+                <Code code={`// 400 - Invalid hash format
 { "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
               </div>
 
@@ -509,9 +509,9 @@ app.post('/upload', async (req, res) => {
               <Param name="anchored_at" type="ISO 8601" desc="Timestamp of Bitcoin confirmation. Present only when anchored." />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
-              <Code code={`// 404 — Origin or hash not found
+              <Code code={`// 404 - Origin or hash not found
 { "error": { "code": "NOT_FOUND", "message": "No attestation found" } }`} />
-              <Code code={`// 400 — Missing parameter
+              <Code code={`// 400 - Missing parameter
 { "error": { "code": "INVALID_REQUEST_BODY", "message": "Provide origin_id or hash" } }`} />
 
               <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
@@ -541,9 +541,9 @@ app.post('/upload', async (req, res) => {
               <Param name="proof_status" type="string" desc={`"pending" or "anchored".`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
-              <Code code={`// 404 — Hash not found in registry
+              <Code code={`// 404 - Hash not found in registry
 { "error": { "code": "NOT_FOUND", "message": "No attestation found for this hash" } }`} />
-              <Code code={`// 400 — Invalid hash format
+              <Code code={`// 400 - Invalid hash format
 { "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
 
               <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
@@ -566,7 +566,7 @@ app.post('/upload', async (req, res) => {
               <Code code={`{ "error": { "code": "PROOF_PENDING", "message": "Proof is pending Bitcoin confirmation" } }`} />
 
               <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
-              <Code code={`// 404 — Origin not found
+              <Code code={`// 404 - Origin not found
 { "error": { "code": "NOT_FOUND", "message": "No attestation found for this origin_id" } }`} />
 
               <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mt-4">
