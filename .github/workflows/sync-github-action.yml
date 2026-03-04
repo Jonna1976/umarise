@@ -19,6 +19,8 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.ANCHOR_ACTION_PAT }}@github.com/AnchoringTrust/anchor-action.git target-repo
           cd target-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
             git checkout -B main origin/main
