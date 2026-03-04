@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
+import fourLayersSvg from '@/assets/umarise-four-layers.svg';
 
 /**
  * Infrastructure Doctrine — Internal reference document
@@ -37,7 +38,11 @@ export default function InfrastructureDoctrine() {
 
         <div className="space-y-12">
 
-          {/* Core thesis */}
+          {/* Four Layers diagram */}
+          <section>
+            <img src={fourLayersSvg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="w-full rounded-lg border border-[hsl(40,15%,88%,0.1)] print:border-stone-300" />
+          </section>
+
           <section>
             <HighlightBox>
               <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
