@@ -134,6 +134,15 @@ export default function InfrastructureDoctrine() {
               <BorderItem title="No artifact lists" desc="No document views, no projects, no partner-facing dashboards" />
               <BorderItem title="Channel through partners" desc="Large customers via partners. They do the portal work. Umarise stays a background dependency." />
             </div>
+            <div className="mt-4 pl-4">
+              <a
+                href="https://github.com/user/repo/blob/main/docs/sla-template-v1.md"
+                onClick={(e) => { e.preventDefault(); window.open('/docs/sla-template-v1.md', '_blank'); }}
+                className="text-xs text-[hsl(25,35%,42%,0.7)] hover:text-[hsl(25,35%,42%)] underline underline-offset-2 print:text-stone-500"
+              >
+                → SLA Template v1.0 (internal)
+              </a>
+            </div>
           </section>
 
           {/* Pricing justification */}
