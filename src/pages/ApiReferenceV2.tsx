@@ -164,6 +164,9 @@ export default function ApiReferenceV2() {
             <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
             </p>
+            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono mt-2">
+              Target uptime: 99.9% · <Link to="/status" className="text-[hsl(var(--landing-copper))] hover:underline">Current status</Link>
+            </p>
 
             {/* Live example: DocPro.pdf */}
             <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
