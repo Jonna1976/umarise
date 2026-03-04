@@ -212,6 +212,7 @@ export default function InfrastructureDoctrine() {
                 ['Incident runbook', 'First production incident', 'Reliability process'],
                 ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise'],
                 ['Priority OTS batching', 'First Certified tier partner signs', 'Faster primitive, same contract'],
+                ['Stripe credit purchase', 'Partner wants self-service top-up', 'Payment Link → webhook → balance update, no portal'],
               ]}
             />
           </section>
