@@ -4,16 +4,18 @@
  * Umarise CLI — anchor files to Bitcoin, verify proofs offline.
  * 
  * Usage:
- *   umarise anchor <file>
- *   umarise verify <file> [proof]
+ *   umarise proof  <file>          — full lifecycle (anchor + resolve + verify)
+ *   umarise anchor <file>          — hash and anchor only
+ *   umarise verify <file> [proof]  — verify a file against its .proof bundle
  * 
  * Configuration:
- *   UMARISE_API_KEY — environment variable (required for anchor)
+ *   UMARISE_API_KEY — environment variable (required for anchor/proof)
  */
 
 import { Command } from 'commander';
 import { anchorCommand } from '../src/commands/anchor.js';
 import { verifyCommand } from '../src/commands/verify.js';
+import { proofCommand } from '../src/commands/proof.js';
 
 const program = new Command();
 
@@ -41,6 +43,19 @@ program
   .action(async (file, proof, opts) => {
     try {
       await verifyCommand(file, proof, opts);
+    } catch (err) {
+      console.error(`\n✗ ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('proof <file>')
+  .description('Full proof lifecycle: anchor, resolve, download, verify — one command')
+  .option('--api-key <key>', 'API key (overrides UMARISE_API_KEY env var)')
+  .action(async (file, opts) => {
+    try {
+      await proofCommand(file, opts);
     } catch (err) {
       console.error(`\n✗ ${err.message}`);
       process.exit(1);
