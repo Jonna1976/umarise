@@ -85,26 +85,36 @@ function SandboxKeyGenerator({ onKeyGenerated }: { onKeyGenerated?: (key: string
 
 function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
   const [loading, setLoading] = useState(false);
+  const [hashing, setHashing] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [statusCode, setStatusCode] = useState<number | null>(null);
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [usedKey, setUsedKey] = useState('');
   const [usedHash, setUsedHash] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [fileSize, setFileSize] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [mode, setMode] = useState<'file' | 'random'>('file');
 
-  const runTest = async () => {
-    // Auto-generate key if none provided
+  const hashFile = async (file: File): Promise<string> => {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const sendRequest = async (hash: string) => {
     const keyBytes = new Uint8Array(32);
     crypto.getRandomValues(keyBytes);
     const keyToUse = sandboxKey || `um_test_${Array.from(keyBytes).map(b => b.toString(16).padStart(2, '0')).join('')}`;
     setUsedKey(keyToUse);
-
-    // Auto-generate random hash (simulates hashing a file)
-    const hashBytes = new Uint8Array(32);
-    crypto.getRandomValues(hashBytes);
-    const testHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    setUsedHash(testHash);
-
+    setUsedHash(hash);
     setLoading(true);
     setResponse(null);
     setError(null);
@@ -114,11 +124,8 @@ function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
     try {
       const res = await fetch(`${BASE}/v1-core-origins`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': keyToUse,
-        },
-        body: JSON.stringify({ hash: `sha256:${testHash}` }),
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': keyToUse },
+        body: JSON.stringify({ hash: `sha256:${hash}` }),
       });
       const elapsed = Math.round(performance.now() - start);
       setResponseTime(elapsed);
@@ -133,6 +140,43 @@ function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
     }
   };
 
+  const handleFile = async (file: File) => {
+    setFileName(file.name);
+    setFileSize(formatSize(file.size));
+    setHashing(true);
+    setResponse(null);
+    setError(null);
+    try {
+      const hash = await hashFile(file);
+      setHashing(false);
+      await sendRequest(hash);
+    } catch {
+      setHashing(false);
+      setError('Failed to hash file');
+    }
+  };
+
+  const handleRandom = async () => {
+    setFileName('');
+    setFileSize('');
+    const hashBytes = new Uint8Array(32);
+    crypto.getRandomValues(hashBytes);
+    const testHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    await sendRequest(testHash);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
   return (
     <div className="mt-6 p-4 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
       <div className="flex items-center justify-between mb-3">
@@ -145,28 +189,93 @@ function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
         )}
       </div>
       <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
-        One click. We auto-generate a sandbox key (<code className="text-[hsl(var(--landing-copper))]">um_test_</code>) and a random SHA-256 hash, then call the live API. You see the real response.
+        Drop any file. We compute SHA-256 <strong className="text-[hsl(var(--landing-cream)/0.7)]">in your browser</strong>, generate a sandbox key, and send it to the live API. Your file never leaves your device.
       </p>
-      <button
-        onClick={runTest}
-        disabled={loading}
-        className="w-full sm:w-auto px-6 py-2.5 rounded text-sm font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="w-3.5 h-3.5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-            Calling core.umarise.com...
-          </span>
-        ) : '▶ Send test request to live API'}
-      </button>
 
+      {/* Mode tabs */}
+      <div className="flex gap-1 mb-4">
+        <button
+          onClick={() => setMode('file')}
+          className={`px-3 py-1 rounded text-xs font-mono transition-colors ${mode === 'file' ? 'bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]' : 'text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)]'}`}
+        >
+          Upload file
+        </button>
+        <button
+          onClick={() => setMode('random')}
+          className={`px-3 py-1 rounded text-xs font-mono transition-colors ${mode === 'random' ? 'bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]' : 'text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)]'}`}
+        >
+          Random hash
+        </button>
+      </div>
+
+      {mode === 'file' ? (
+        <div
+          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragLeave={() => setIsDragOver(false)}
+          onDrop={handleDrop}
+          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${isDragOver ? 'border-emerald-400/60 bg-emerald-500/5' : 'border-[hsl(var(--landing-cream)/0.12)] hover:border-[hsl(var(--landing-cream)/0.25)]'}`}
+          onClick={() => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = (e) => {
+              const file = (e.target as HTMLInputElement).files?.[0];
+              if (file) handleFile(file);
+            };
+            input.click();
+          }}
+        >
+          {hashing ? (
+            <div className="flex items-center justify-center gap-2 text-[hsl(var(--landing-cream)/0.7)]">
+              <span className="w-4 h-4 border-2 border-[hsl(var(--landing-copper)/0.3)] border-t-[hsl(var(--landing-copper))] rounded-full animate-spin" />
+              <span className="text-xs font-mono">Computing SHA-256 of {fileName}...</span>
+            </div>
+          ) : loading ? (
+            <div className="flex items-center justify-center gap-2 text-emerald-400">
+              <span className="w-4 h-4 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+              <span className="text-xs font-mono">Calling core.umarise.com...</span>
+            </div>
+          ) : (
+            <>
+              <div className="text-2xl mb-2">📄</div>
+              <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.6)]">
+                Drop any file here or <span className="text-[hsl(var(--landing-copper))] underline">click to browse</span>
+              </p>
+              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.3)] mt-1">
+                PDF, image, code, ZIP — anything. Hashed locally, never uploaded.
+              </p>
+            </>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={handleRandom}
+          disabled={loading}
+          className="w-full sm:w-auto px-6 py-2.5 rounded text-sm font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-3.5 h-3.5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+              Calling core.umarise.com...
+            </span>
+          ) : '▶ Send random hash to live API'}
+        </button>
+      )}
+
+      {/* Results */}
       {(usedKey || usedHash) && response && (
-        <div className="mt-4 space-y-1">
+        <div className="mt-4 space-y-1 p-3 rounded bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)]">
+          {fileName && (
+            <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.5)]">
+              <span className="text-[hsl(var(--landing-cream)/0.7)]">📄 {fileName}</span> ({fileSize})
+            </p>
+          )}
           <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
-            <span className="text-[hsl(var(--landing-cream)/0.5)]">Key:</span> {usedKey.substring(0, 19)}...{usedKey.substring(usedKey.length - 8)}
+            <span className="text-[hsl(var(--landing-cream)/0.5)]">SHA-256:</span> {usedHash.substring(0, 24)}...{usedHash.substring(56)}
+            {fileName && <span className="text-emerald-400/60 ml-2">← computed in your browser</span>}
           </p>
           <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
-            <span className="text-[hsl(var(--landing-cream)/0.5)]">Hash:</span> sha256:{usedHash.substring(0, 16)}...{usedHash.substring(56)}
+            <span className="text-[hsl(var(--landing-cream)/0.5)]">Key:</span> {usedKey.substring(0, 19)}...{usedKey.substring(usedKey.length - 8)}
+            <span className="text-[hsl(var(--landing-copper))/0.6] ml-2">← auto-generated sandbox key</span>
           </p>
         </div>
       )}
