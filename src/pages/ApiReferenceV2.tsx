@@ -1077,7 +1077,7 @@ umarise anchor document.pdf`} />
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already hash our files with SHA-256. How is this different?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  SHA-256 proves <em>integrity</em>: the bytes have not changed. Anchoring proves <em>chronology</em>: these bytes existed on or before time T. A hash without external time binding is self-attested. It could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable temporal reference.
+                  SHA-256 proves <em>integrity</em>: the bytes have not changed. Anchoring proves <em>chronology</em>: these bytes existed no later than Bitcoin block height H. A hash without external time binding is self-attested. It could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable reference that no single party controls.
                 </p>
               </div>
 
