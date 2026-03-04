@@ -51,6 +51,36 @@ function Param({ name, type, required, desc }: { name: string; type: string; req
   );
 }
 
+function SandboxKeyGenerator() {
+  const [key, setKey] = useState('');
+  const [copied, setCopied] = useState(false);
+  const generate = () => {
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    setKey(`um_test_${hex}`);
+    setCopied(false);
+  };
+  const copy = () => {
+    if (key) { navigator.clipboard.writeText(key); setCopied(true); setTimeout(() => setCopied(false), 1500); }
+  };
+  return (
+    <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,8%)] flex flex-col sm:flex-row items-start sm:items-center gap-2">
+      <button onClick={generate} className="px-3 py-1.5 rounded text-xs font-mono bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity shrink-0">
+        Generate sandbox key
+      </button>
+      {key && (
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <code className="text-xs font-mono text-emerald-400 truncate">{key}</code>
+          <button onClick={copy} className="shrink-0 p-1 rounded hover:bg-[hsl(var(--landing-cream)/0.1)]">
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.5)]" />}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Section({ id, children }: { id: string; children: React.ReactNode }) {
   return <section id={id} className="scroll-mt-20">{children}</section>;
 }
@@ -256,41 +286,46 @@ export default function ApiReferenceV2() {
           <Section id="sandbox">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Sandbox</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-4">
-              Test the full anchoring flow without writing to the production ledger. Two mechanisms available:
+              Test the full anchoring flow without writing to the production ledger. <strong className="text-[hsl(var(--landing-cream))]">No sign-up required.</strong>
             </p>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-4 mb-2">Test Keys</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-4 mb-2">1. Generate a test key</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              API keys with the <code className="text-[hsl(var(--landing-copper))]">um_test_</code> prefix are sandbox keys. They validate authentication and input parsing but never create database records or submit to OpenTimestamps.
+              Any string starting with <code className="text-[hsl(var(--landing-copper))]">um_test_</code> followed by ≥ 24 hex characters is a valid sandbox key. Generate one yourself:
             </p>
-            <Code code={`X-API-Key: um_test_your_sandbox_key`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
-              Request a test key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — issued alongside your production key.
+            <Code code={`# Generate a sandbox key (run in any terminal)\necho "um_test_$(openssl rand -hex 32)"`} />
+            <SandboxKeyGenerator />
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">2. Test your first anchor</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+              Use your sandbox key exactly like a production key. The API validates everything — authentication, input parsing, rate limits — but writes nothing to the ledger.
+            </p>
+            <Code
+              code={`# Anchor a file hash in sandbox mode\ncurl -X POST ${BASE}/v1-core-origins \\\n  -H "Content-Type: application/json" \\\n  -H "X-API-Key: um_test_<your_key>" \\\n  -d '{"hash":"sha256:'$(sha256sum myfile.pdf | cut -d' ' -f1)'"}'`}
+              copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: um_test_YOUR_KEY" -d '{"hash":"sha256:YOUR_HASH"}'`}
+            />
+            <div className="mt-3 p-3 rounded border border-emerald-500/20 bg-emerald-500/5">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
+  "origin_id":    "a1b2c3d4-...",
+  "hash":         "your_hash...",
+  "hash_algo":    "sha256",
+  "proof_status": "dry_run",      ← sandbox indicator
+  "dry_run":      true,
+  "captured_at":  "2026-03-04T12:00:00.000Z"
+}`}</pre>
+            </div>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">3. Go live</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+              When ready, request a production key at <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a>. Replace <code className="text-[hsl(var(--landing-copper))]">um_test_</code> with <code className="text-[hsl(var(--landing-copper))]">um_</code> — zero code changes needed.
             </p>
 
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Dry Run Parameter</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              Add <code className="text-[hsl(var(--landing-copper))]">"dry_run": true</code> to any <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code> request. Works with both test and production keys.
+              Production key holders can also add <code className="text-[hsl(var(--landing-copper))]">"dry_run": true</code> to any request. Same sandbox behavior, no credits consumed.
             </p>
-            <Code
-              code={`curl -X POST ${BASE}/v1-core-origins \\
-  -H "Content-Type: application/json" \\
-  -H "X-API-Key: um_test_your_key" \\
-  -d '{"hash":"sha256:abc123...","dry_run":true}'`}
-              copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: um_test_your_key" -d '{"hash":"sha256:abc123...","dry_run":true}'`}
-            />
-            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
-  "origin_id":    "dry-run-00000000-0000-0000-0000-000000000000",
-  "short_token":  "DRYRUN00",
-  "hash":         "abc123...",
-  "hash_algo":    "sha256",
-  "proof_status": "dry_run",
-  "captured_at":  "2026-03-03T12:00:00.000Z"
-}`}</pre>
-            </div>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Sandbox Behavior</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Sandbox vs Production</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -302,10 +337,12 @@ export default function ApiReferenceV2() {
                 </thead>
                 <tbody>
                   {[
+                    ['Sign-up required', 'Yes (API key)', 'No'],
                     ['Input validation', '✓', '✓'],
                     ['Rate limit check', '✓', '✓'],
                     ['Database write', '✓', '✗'],
-                    ['OTS submission', '✓', '✗'],
+                    ['Bitcoin anchoring', '✓', '✗'],
+                    ['Credits consumed', '✓', '✗'],
                     ['Response format', 'Identical', 'Identical'],
                     ['X-Dry-Run header', '—', 'true'],
                     ['proof_status', 'pending → anchored', 'dry_run'],
@@ -319,9 +356,6 @@ export default function ApiReferenceV2() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-3">
-              Use sandbox mode to validate your integration before going live. Switch to a production key when ready — no code changes needed.
-            </p>
           </Section>
 
           {/* -- Quick Start -- */}
