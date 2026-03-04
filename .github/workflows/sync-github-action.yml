@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'cli/github-action/**'
+      - '.github/workflows/sync-github-action.yml'
+  workflow_dispatch:
 
 jobs:
   sync:
