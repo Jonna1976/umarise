@@ -1,0 +1,41 @@
+name: Sync anchor-action to dedicated repo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'cli/github-action/**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: umarise/anchor-action
+          token: ${{ secrets.ANCHOR_ACTION_PAT }}
+          path: target-repo
+
+      - name: Sync files
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            cli/github-action/ target-repo/
+
+      - name: Commit and push
+        working-directory: target-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "Sync from Lovable project — $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
