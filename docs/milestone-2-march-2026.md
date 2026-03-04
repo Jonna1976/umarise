@@ -73,7 +73,7 @@ curl .../v1-core-resolve?origin_id=352eddba-...
 → proof_status: "pending" (wacht op Bitcoin block)
 ```
 
-Status: anchoring in progress. Verwachte voltooiing: 10-60 minuten na registratie.
+Status: anchoring in progress. Verwachte voltooiing: ~2 uur na registratie.
 
 ## Technische details
 
