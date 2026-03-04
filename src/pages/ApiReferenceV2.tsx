@@ -85,6 +85,7 @@ const NAV = [
   { id: 'errors', label: 'Errors' },
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
+  { id: 'cli', label: 'CLI & CI/CD' },
   { id: 'faq', label: 'FAQ' },
   { id: 'checklist', label: 'Checklist' },
 ];
@@ -855,6 +856,73 @@ print(result["captured_at"])`} />
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 <span className="text-emerald-400/80 font-mono">v1.0.0</span> - REST API and SDKs are production-ready. Released under the <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain).
+              </p>
+            </div>
+          </Section>
+
+          {/* -- CLI & CI/CD -- */}
+          <Section id="cli">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">CLI &amp; CI/CD</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
+              Anchor files from the terminal or automate every build with one line of YAML.
+            </p>
+
+            {/* Install */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Install</h4>
+            <Code code={`npm install -g @umarise/cli`} />
+
+            {/* Anchor */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Anchor a file</h4>
+            <Code code={`export UMARISE_API_KEY=um_your_key
+umarise anchor document.pdf`} />
+            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash computed: sha256:a1b2c3...
+✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
+✓ proof saved: document.pdf.proof`}</pre>
+            </div>
+
+            {/* Verify */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Verify a file</h4>
+            <Code code={`umarise verify document.pdf`} />
+            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash matches
+✓ anchored in Bitcoin block 883421
+✓ no later than: 2026-03-04
+✓ proof valid — independent of Umarise`}</pre>
+            </div>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
+              No API key required for verification. It is a public utility.
+            </p>
+
+            {/* GitHub Action */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">GitHub Action</h4>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              One line in your workflow. Every build gets a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file uploaded as a GitHub Actions artifact.
+            </p>
+            <Code code={`- uses: umarise/anchor-action@v1
+  with:
+    file: build/output.tar.gz
+  env:
+    UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+              Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> to your repository: Settings → Secrets and variables → Actions → New repository secret.
+            </p>
+
+            {/* Offline verify */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Offline Verification</h4>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              The <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> and <code className="text-[hsl(var(--landing-copper))]">proof.ots</code>. Verify with standard tools — no Umarise server needed:
+            </p>
+            <Code code={`unzip document.pdf.proof
+sha256sum document.pdf              # compare with certificate.json
+ots verify proof.ots                # verify against Bitcoin`} />
+
+            {/* API key link */}
+            <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                Get your API key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> · 
+                Source: <a href="https://github.com/umarise/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/umarise/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
+                License: <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain)
               </p>
             </div>
           </Section>
