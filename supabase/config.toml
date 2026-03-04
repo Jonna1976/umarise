@@ -139,3 +139,6 @@ verify_jwt = false
 [functions.v1-attestation-webhook]
 verify_jwt = false
 
+[functions.v1-stripe-credit-webhook]
+verify_jwt = false
+
