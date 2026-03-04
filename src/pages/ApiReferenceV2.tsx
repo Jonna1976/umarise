@@ -948,7 +948,7 @@ release.tar.gz.proof    1.2 KB`}</pre>
   script:
     - tar czf release.tar.gz dist/
     - npm install -g @umarise/cli
-    - umarise anchor release.tar.gz
+    - umarise proof release.tar.gz
   artifacts:
     paths:
       - release.tar.gz
@@ -967,7 +967,7 @@ release.tar.gz.proof    1.2 KB`}</pre>
 - name: Save and anchor image
   run: |
     docker save myapp:\${{ github.sha }} | gzip > image.tar.gz
-    umarise anchor image.tar.gz
+    umarise proof image.tar.gz
   env:
     UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`} />
 
@@ -1029,14 +1029,26 @@ ots verify proof.ots             # verify against Bitcoin`} />
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">CLI — local usage</h4>
             <Code code={`npm install -g @umarise/cli`} />
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Anchor a file</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Full lifecycle — one command</h4>
             <Code code={`export UMARISE_API_KEY=um_your_key
-umarise anchor document.pdf`} />
+umarise proof document.pdf`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash computed: sha256:a1b2c3...
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`# First run:
+✓ hash: sha256:a1b2c3...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
-✓ proof saved: document.pdf.proof`}</pre>
+⏳ proof pending — run again later
+
+# Second run (after ~2 hours):
+✓ hash: sha256:a1b2c3... (already anchored)
+✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+✓ anchored in Bitcoin block 935037
+✓ no later than: 2026-03-04
+✓ saved: document.pdf.proof
+✓ proof valid — independent of Umarise`}</pre>
             </div>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
+              Same command, always does the right thing. No daemon. No state files.
+            </p>
 
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Verify a file</h4>
             <Code code={`umarise verify document.pdf`} />

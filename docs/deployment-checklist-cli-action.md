@@ -70,6 +70,7 @@
 - [x] `action.yml` → `runs.using: node20`
 - [x] `action.yml` → `runs.main: dist/index.js`
 - [x] `src/index.js` builds with `ncc build src/index.js -o dist`
+- [x] `src/index.js` uses `umarise proof` (full lifecycle) — updated 2026-03-04
 - [x] `dist/index.js` committed — built and pushed 2026-03-04
 - [x] `README.md` with usage example
 - [x] `LICENSE` (Unlicense)
