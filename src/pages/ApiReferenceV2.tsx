@@ -899,7 +899,7 @@ umarise anchor document.pdf`} />
             <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-3">
               One line in your workflow. Every build gets a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file uploaded as a GitHub Actions artifact.
             </p>
-            <Code code={`- uses: umarise/anchor-action@v1
+            <Code code={`- uses: AnchoringTrust/anchor-action@v1
   with:
     file: build/output.tar.gz
   env:
@@ -921,7 +921,7 @@ ots verify proof.ots                # verify against Bitcoin`} />
             <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 Get your API key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> · 
-                Source: <a href="https://github.com/umarise/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/umarise/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
+                Source: <a href="https://github.com/AnchoringTrust/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/AnchoringTrust/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
                 License: <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain)
               </p>
             </div>
