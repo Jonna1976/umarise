@@ -154,6 +154,7 @@ function GetStartedFlow() {
               {'  '}umarise proof ~/Desktop/research-paper.docx
             </p>
           </div>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] italic">Tip: drag your file into the terminal after typing <code className="text-[hsl(var(--landing-copper))]">umarise proof</code> to auto-fill the path.</p>
 
           <div className="space-y-2">
             <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 1: anchors the hash</p>
@@ -212,6 +213,7 @@ function GetStartedFlow() {
               {'  '}umarise verify ~/Desktop/research-paper.docx
             </p>
           </div>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] italic">Tip: drag your file into the terminal after typing <code className="text-[hsl(var(--landing-copper))]">umarise verify</code> to auto-fill the path.</p>
           <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
