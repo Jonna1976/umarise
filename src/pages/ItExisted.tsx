@@ -171,16 +171,13 @@ export default function ItExisted() {
             transition={{ duration: 0.8 }}
             className="flex flex-col items-center justify-center text-center">
 
-            {/* Only the breathing circle — pure calm, no text */}
-            <div className="w-[172px] h-[172px] md:w-[220px] md:h-[220px] rounded-full border-[1.5px] border-dashed flex items-center justify-center"
-              style={{ borderColor: 'hsl(var(--itx-gold) / 0.25)' }}>
-              <motion.div
-                className="w-[6px] h-[6px] rounded-full"
-                style={{ background: 'hsl(var(--itx-gold) / 0.5)' }}
-                animate={{ opacity: [0.3, 0.8, 0.3], scale: [1, 1.3, 1] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-              />
-            </div>
+            {/* Small circumpunct — same size as top-right icon, pure calm */}
+            <svg viewBox="0 0 26 26" width={26} height={26} style={{ overflow: 'visible' }}>
+              <circle cx="13" cy="13" r="11" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="0.9" />
+              <circle cx="13" cy="13" r="3.5" fill="#C5935A">
+                <animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite" />
+              </circle>
+            </svg>
 
           </motion.div>
         )}
