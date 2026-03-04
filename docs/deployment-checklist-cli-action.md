@@ -108,7 +108,7 @@
 After all packages are published:
 
 - [x] `npx @umarise/cli anchor test.pdf` → works from npm
-- [ ] `.proof` verifiable at `https://verify-anchoring.org` — *post-publish*
+- [x] `.proof` verifiable at `https://verify-anchoring.org` — ✅ verified 2026-03-04, Bitcoin block 935037, ledger timestamp 2026-02-04 20:56:02 UTC
 - [ ] `.proof` verifiable via `npx @umarise/cli verify test.pdf test.pdf.proof` — *post-publish*
 - [x] GitHub Action produces same `.proof` format as CLI
 - [x] `/api-reference` install commands match published package names
@@ -131,8 +131,8 @@ After all packages are published:
 
 | Category | Done | Remaining | Notes |
 |---|---|---|---|
-| Code completeness | 38/44 | 6 | Remaining items are post-publish verification |
+| Code completeness | 39/44 | 5 | Remaining items are post-publish verification |
 | Blocking bugs | 0 | 0 | All fixed |
 | Manual pre-publish | 3/3 | 0 | `chmod +x`, `npm pack`, `ncc build` — all done |
 | Publish steps | 7/7 | 0 | npm publish ×2, git tags, GH release, Marketplace |
-| Post-publish verification | 1/4 | 3 | npm install verified; verify-anchoring + CLI --help pending |
+| Post-publish verification | 2/4 | 2 | npm install + verify-anchoring.org verified; CLI verify pending |
