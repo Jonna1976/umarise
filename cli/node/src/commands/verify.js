@@ -49,12 +49,18 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
       new OTS.Ops.OpSHA256(), hashBytes
     );
 
-    // Suppress noisy calendar timeout errors from the OTS library
+    // Suppress noisy OTS library output (calendar errors, lite-client messages)
     const originalError = console.error;
+    const originalLog = console.log;
     console.error = (...args) => {
       const msg = args.join(' ');
       if (msg.includes('RequestError') || msg.includes('AggregateError') || msg.includes('Response error')) return;
       originalError.apply(console, args);
+    };
+    console.log = (...args) => {
+      const msg = args.join(' ');
+      if (msg.includes('Lite-client verification') || msg.includes('attestation(s) from')) return;
+      originalLog.apply(console, args);
     };
 
     // Verify against Bitcoin blockchain
@@ -66,6 +72,7 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
       });
     } finally {
       console.error = originalError;
+      console.log = originalLog;
     }
 
     // result is a map of attestation timestamps (unix) or empty
