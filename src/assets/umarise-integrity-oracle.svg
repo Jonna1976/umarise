@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 540" font-family="Georgia, serif">
+
+  <!-- Background -->
+  <rect width="780" height="540" fill="#fafaf8"/>
+
+  <!-- Title -->
+  <text x="390" y="32" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a1a" letter-spacing="1.5">UMARISE · INTEGRITY ORACLE</text>
+  <text x="390" y="50" text-anchor="middle" font-size="10" fill="#888888">Push proofs at write-time. Pull verification at dispute-time.</text>
+
+  <!-- BRIDGE BUILDERS (top, dashed, with explicit arrows down) -->
+  <rect x="210" y="62" width="360" height="46" rx="4" fill="#f7f4ef" stroke="#c8b99a" stroke-width="1.2" stroke-dasharray="5,3"/>
+  <text x="390" y="82" text-anchor="middle" font-size="9" font-weight="bold" fill="#8a6f4e" letter-spacing="1.5">BRIDGE BUILDERS</text>
+  <text x="390" y="98" text-anchor="middle" font-size="9" fill="#8a6f4e">Platform owners · golden paths · default-on switches</text>
+
+  <!-- Bridge builder arrows to Systems of Record and Customer Storage -->
+  <line x1="260" y1="108" x2="130" y2="148" stroke="#c8b99a" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <polygon points="125,152 135,144 133,154" fill="#c8b99a"/>
+  <line x1="480" y1="108" x2="590" y2="148" stroke="#c8b99a" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <polygon points="595,152 585,144 587,154" fill="#c8b99a"/>
+
+  <!-- LEFT: Systems of Record -->
+  <rect x="20" y="148" width="185" height="220" rx="4" fill="#e4edf5" stroke="#6a9ab8" stroke-width="1.2"/>
+  <text x="112" y="170" text-anchor="middle" font-size="9" font-weight="bold" fill="#2a5f80" letter-spacing="1.5">SYSTEMS OF RECORD</text>
+
+  <rect x="32" y="180" width="161" height="22" rx="3" fill="#d0e2f0" stroke="#9ab8d0" stroke-width="1"/>
+  <text x="112" y="195" text-anchor="middle" font-size="9" fill="#2a5f80">CI/CD · build and release</text>
+
+  <rect x="32" y="208" width="161" height="22" rx="3" fill="#d0e2f0" stroke="#9ab8d0" stroke-width="1"/>
+  <text x="112" y="223" text-anchor="middle" font-size="9" fill="#2a5f80">Model registry · datasets</text>
+
+  <rect x="32" y="236" width="161" height="22" rx="3" fill="#d0e2f0" stroke="#9ab8d0" stroke-width="1"/>
+  <text x="112" y="251" text-anchor="middle" font-size="9" fill="#2a5f80">Logging / SIEM</text>
+
+  <rect x="32" y="264" width="161" height="22" rx="3" fill="#d0e2f0" stroke="#9ab8d0" stroke-width="1"/>
+  <text x="112" y="279" text-anchor="middle" font-size="9" fill="#2a5f80">DMS / eSign</text>
+
+  <rect x="32" y="292" width="161" height="22" rx="3" fill="#d0e2f0" stroke="#9ab8d0" stroke-width="1"/>
+  <text x="112" y="307" text-anchor="middle" font-size="9" fill="#2a5f80">App backends</text>
+
+  <text x="112" y="336" text-anchor="middle" font-size="8" fill="#4a7a9a" font-style="italic">PUSH at write-time</text>
+  <text x="112" y="350" text-anchor="middle" font-size="8" fill="#4a7a9a" font-style="italic">Invisible by default</text>
+
+  <!-- PUSH arrows -->
+  <line x1="206" y1="191" x2="294" y2="230" stroke="#6a9ab8" stroke-width="1.2"/>
+  <line x1="206" y1="219" x2="294" y2="242" stroke="#6a9ab8" stroke-width="1.2"/>
+  <line x1="206" y1="247" x2="294" y2="254" stroke="#6a9ab8" stroke-width="1.2"/>
+  <line x1="206" y1="275" x2="294" y2="266" stroke="#6a9ab8" stroke-width="1.2"/>
+  <line x1="206" y1="303" x2="294" y2="278" stroke="#6a9ab8" stroke-width="1.2"/>
+  <polygon points="290,226 298,232 292,238" fill="#6a9ab8"/>
+  <polygon points="290,238 298,244 292,250" fill="#6a9ab8"/>
+  <polygon points="290,250 298,256 292,262" fill="#6a9ab8"/>
+  <polygon points="290,262 298,268 292,272" fill="#6a9ab8"/>
+  <polygon points="290,274 298,278 292,284" fill="#6a9ab8"/>
+  <text x="238" y="238" text-anchor="middle" font-size="8" fill="#6a9ab8">hash</text>
+  <text x="238" y="250" text-anchor="middle" font-size="8" fill="#6a9ab8">and push</text>
+
+  <!-- CENTER: Core API -->
+  <rect x="295" y="148" width="210" height="220" rx="4" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="400" cy="200" r="18" fill="none" stroke="#d4a843" stroke-width="1.8"/>
+  <circle cx="400" cy="200" r="3.5" fill="#d4a843"/>
+
+  <text x="400" y="236" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff" letter-spacing="2">CORE API</text>
+  <text x="400" y="256" text-anchor="middle" font-size="10" fill="#aaaaaa">anchor(hash)</text>
+  <text x="400" y="274" text-anchor="middle" font-size="10" fill="#d4a843">→ origin_id + proof.ots</text>
+  <line x1="315" y1="286" x2="485" y2="286" stroke="#333333" stroke-width="0.8"/>
+  <text x="400" y="302" text-anchor="middle" font-size="8" fill="#666666">Stateless · No user data</text>
+  <text x="400" y="318" text-anchor="middle" font-size="8" fill="#555555" font-style="italic">anchoring-spec.org</text>
+  <text x="400" y="334" text-anchor="middle" font-size="8" fill="#555555" font-style="italic">verify-anchoring.org</text>
+  <text x="400" y="354" text-anchor="middle" font-size="8" fill="#444444">Frozen. No new endpoints.</text>
+
+  <!-- Return proof arrow -->
+  <line x1="506" y1="258" x2="558" y2="220" stroke="#d4a843" stroke-width="1.5"/>
+  <polygon points="560,215 562,225 554,222" fill="#d4a843"/>
+  <text x="536" y="230" text-anchor="middle" font-size="8" fill="#d4a843">return</text>
+  <text x="536" y="242" text-anchor="middle" font-size="8" fill="#d4a843">origin_id</text>
+  <text x="536" y="254" text-anchor="middle" font-size="8" fill="#d4a843">+ proof.ots</text>
+
+  <!-- RIGHT: Customer Storage -->
+  <rect x="565" y="148" width="195" height="150" rx="4" fill="#e8f0e8" stroke="#8aaf8a" stroke-width="1.2"/>
+  <text x="662" y="172" text-anchor="middle" font-size="9" font-weight="bold" fill="#3d6e3d" letter-spacing="1.5">CUSTOMER STORAGE</text>
+  <text x="662" y="192" text-anchor="middle" font-size="9" fill="#3d6e3d">Proof bundle stored</text>
+  <text x="662" y="208" text-anchor="middle" font-size="9" fill="#3d6e3d">next to artefact</text>
+  <line x1="580" y1="220" x2="745" y2="220" stroke="#8aaf8a" stroke-width="0.8"/>
+  <text x="662" y="238" text-anchor="middle" font-size="8" fill="#3d6e3d">artefact</text>
+  <text x="662" y="252" text-anchor="middle" font-size="8" fill="#3d6e3d">certificate.json  (client-side)</text>
+  <text x="662" y="266" text-anchor="middle" font-size="8" fill="#3d6e3d">proof.ots</text>
+  <text x="662" y="284" text-anchor="middle" font-size="8" fill="#5a8e5a" font-style="italic">Proof travels with artefact</text>
+
+  <!-- Divider -->
+  <line x1="20" y1="390" x2="760" y2="390" stroke="#e0ddd8" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="390" y="406" text-anchor="middle" font-size="9" fill="#aaaaaa" font-style="italic">PULL at dispute/audit time · independent of Umarise</text>
+
+  <!-- Arrow from Customer Storage down to verifier -->
+  <line x1="662" y1="298" x2="662" y2="418" stroke="#8aaf8a" stroke-width="1.2"/>
+  <line x1="662" y1="418" x2="510" y2="418" stroke="#8aaf8a" stroke-width="1.2"/>
+  <polygon points="506,414 514,418 506,422" fill="#8aaf8a"/>
+  <text x="600" y="412" text-anchor="middle" font-size="8" fill="#5a8e5a">artefact + proof</text>
+
+  <!-- BOTTOM: Open Verifier -->
+  <rect x="290" y="418" width="215" height="82" rx="4" fill="#f0ece4" stroke="#c8b99a" stroke-width="1.2"/>
+  <text x="397" y="438" text-anchor="middle" font-size="9" font-weight="bold" fill="#8a6f4e" letter-spacing="1.5">OPEN VERIFIER</text>
+  <text x="397" y="456" text-anchor="middle" font-size="9" fill="#8a6f4e">CLI / SDK · offline capable</text>
+  <text x="397" y="472" text-anchor="middle" font-size="9" fill="#8a6f4e">Checks Bitcoin via OTS</text>
+  <text x="397" y="488" text-anchor="middle" font-size="8" fill="#b8a888" font-style="italic">Verification report for audit/litigation</text>
+
+  <!-- Verifier to Public Anchors -->
+  <line x1="506" y1="459" x2="558" y2="459" stroke="#c8b99a" stroke-width="1.2"/>
+  <polygon points="558,455 566,459 558,463" fill="#c8b99a"/>
+
+  <!-- PUBLIC ANCHORS -->
+  <rect x="565" y="418" width="195" height="82" rx="4" fill="#f7f4ef" stroke="#c8b99a" stroke-width="1.2"/>
+  <text x="662" y="438" text-anchor="middle" font-size="9" font-weight="bold" fill="#8a6f4e" letter-spacing="1.5">PUBLIC ANCHORS</text>
+  <text x="662" y="456" text-anchor="middle" font-size="9" fill="#8a6f4e">Bitcoin via OpenTimestamps</text>
+  <text x="662" y="474" text-anchor="middle" font-size="8" fill="#b8a888" font-style="italic">No single controller</text>
+  <text x="662" y="490" text-anchor="middle" font-size="8" fill="#b8a888" font-style="italic">Trust root: cryptography</text>
+
+  <!-- Bottom quote -->
+  <line x1="20" y1="516" x2="760" y2="516" stroke="#e0ddd8" stroke-width="1"/>
+  <text x="390" y="532" text-anchor="middle" font-size="9" fill="#aaaaaa" font-style="italic">"Umarise turns 'my system says so' into 'these exact bytes were anchored at time T'."</text>
+
+</svg>
