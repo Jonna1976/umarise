@@ -122,39 +122,46 @@ function GetStartedFlow() {
         )}
       </div>
 
+      {/* Step 2: Install CLI */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18.</p>
-        <div className="ml-7"><Code code={`npm install -g @umarise/cli`} /></div>
+        <div className="ml-7 space-y-3">
+          <Code code={`npm install -g @umarise/cli`} />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">Then set your key (once per terminal session):</p>
+          <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
+        </div>
       </div>
 
+      {/* Step 3: Anchor */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor any file</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor your file</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command. Your file is hashed locally — never uploaded.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Your file is hashed locally — never uploaded. The hash is registered in the origin registry.</p>
         <div className="ml-7 space-y-3">
-          <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}\numarise proof document.pdf`} />
+          <Code code={`umarise anchor document.pdf`} />
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
+            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash computed: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
-⏳ proof pending — run again in ~1 hour`}</pre>
+✓ proof saved: document.pdf.proof`}</pre>
           </div>
         </div>
       </div>
 
+      {/* Step 4: Verify */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify — offline, no key needed</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Run again after anchoring completes. Anyone can verify without an API key.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Anyone can verify. No API key, no account, no Umarise dependency.</p>
         <div className="ml-7 space-y-3">
-          <Code code={`umarise verify document.pdf`} />
+          <Code code={`umarise verify document.pdf document.pdf.proof`} />
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
@@ -164,10 +171,30 @@ function GetStartedFlow() {
         </div>
       </div>
 
+      {/* Step 5: Save .proof */}
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">5</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save the .proof file next to your original</h3>
+        </div>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> ZIP is already created next to your file. Move it wherever you want — it's yours.</p>
+        <div className="ml-7">
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`~/projects/
+  ├── document.pdf           ← your original file
+  └── document.pdf.proof     ← self-contained evidence bundle
+                                ├── certificate.json
+                                └── proof.ots`}</pre>
+          </div>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">Store both files together. The .proof file contains everything needed for independent verification — forever.</p>
+        </div>
+      </div>
+
+      {/* Done */}
       <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-        <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">That's it</p>
+        <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Done. No email. No signup. No dashboard.</p>
         <p className="text-sm text-[hsl(var(--landing-cream)/0.7)]">
-          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> file = independently verifiable evidence. No account. No dashboard. No vendor lock-in.
+          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. You choose where to store it. We never see your file.
         </p>
       </div>
     </div>
