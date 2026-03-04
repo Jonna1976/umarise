@@ -144,7 +144,16 @@ function GetStartedFlow() {
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command, same command every time. Your file is hashed locally — never uploaded.</p>
         <div className="ml-7 space-y-4">
-          <Code code={`umarise proof document.pdf`} />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-1">Replace <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">document.pdf</code> with the path to any file you want to anchor:</p>
+          <Code code={`umarise proof ./path/to/your-file.pdf`} copy="umarise proof " />
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
+              <span className="text-[hsl(var(--landing-cream)/0.7)]">Examples:</span>{'\n'}
+              {'  '}umarise proof contract.pdf{'\n'}
+              {'  '}umarise proof ./designs/logo-final.png{'\n'}
+              {'  '}umarise proof ~/Desktop/research-paper.docx
+            </p>
+          </div>
 
           <div className="space-y-2">
             <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 1 — anchors the hash</p>
