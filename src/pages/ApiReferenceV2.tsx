@@ -201,9 +201,8 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. Anyone with the file + .proof can verify.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. The .proof file must be in the same folder as your original file.</p>
         <div className="ml-7 space-y-3">
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-1">Replace <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">your-file.pdf</code> with the path to the file you want to verify:</p>
           <Code code={`umarise verify ./path/to/your-file.pdf`} copy="umarise verify " />
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
@@ -213,8 +212,7 @@ function GetStartedFlow() {
               {'  '}umarise verify ~/Desktop/research-paper.docx
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file. You can also specify the proof path explicitly:</p>
-          <Code code={`umarise verify your-file.pdf path/to/your-file.pdf.proof`} copy="umarise verify " />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
