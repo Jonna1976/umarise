@@ -1026,14 +1026,50 @@ ots verify proof.ots             # verify against Bitcoin`} />
             <div className="border-t border-[hsl(var(--landing-cream)/0.08)] my-10" />
 
             {/* CLI standalone */}
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">CLI — local usage</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">CLI — install</h4>
             <Code code={`npm install -g @umarise/cli`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2 mb-8">
+              Requires Node.js ≥ 18. Published as <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">@umarise/cli</a> (v1.1.0).
+            </p>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Full lifecycle — one command</h4>
+            {/* Command reference */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-3">Commands</h4>
+            <div className="overflow-x-auto mb-8">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Command</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">API Key</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['umarise proof <file>', 'Required', 'Full lifecycle: anchor → resolve → download proof. Idempotent — run the same command twice, it picks up where it left off.'],
+                    ['umarise anchor <file>', 'Required', 'Hash and anchor only. Creates .proof with certificate.json (proof.ots added if available).'],
+                    ['umarise verify <file> [proof]', 'No', 'Verify a file against its .proof bundle. Offline-first via OTS, with online fallback.'],
+                  ].map(([cmd, key, desc]) => (
+                    <tr key={cmd} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+                      <td className="py-2.5 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs whitespace-nowrap">{cmd}</td>
+                      <td className="py-2.5 pr-4 text-xs whitespace-nowrap">{key}</td>
+                      <td className="py-2.5 text-[hsl(var(--landing-cream)/0.7)] text-xs">{desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* umarise proof — the recommended command */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">
+              <code className="text-[hsl(var(--landing-copper))]">umarise proof</code> — recommended
+            </h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              One command, stateless, idempotent. Handles the entire lifecycle: hash → anchor → resolve → download proof → write <code className="text-[hsl(var(--landing-copper))]">.proof</code> ZIP. If the proof isn't ready yet, it tells you to run again later. Same command, always does the right thing.
+            </p>
             <Code code={`export UMARISE_API_KEY=um_your_key
 umarise proof document.pdf`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`# First run:
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`# First run (new file):
 ✓ hash: sha256:a1b2c3...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
 ⏳ proof pending — run again later
@@ -1047,10 +1083,30 @@ umarise proof document.pdf`} />
 ✓ proof valid — independent of Umarise`}</pre>
             </div>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
-              Same command, always does the right thing. No daemon. No state files.
+              No daemon. No state files. No background process. The idempotency means you can safely run it in cron or CI — it won't create duplicates.
             </p>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Verify a file</h4>
+            {/* umarise anchor */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">
+              <code className="text-[hsl(var(--landing-copper))]">umarise anchor</code> — anchor only
+            </h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              Hash and register. Creates a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file immediately with <code className="text-[hsl(var(--landing-copper))]">certificate.json</code>. The OTS proof is included if already available, otherwise the certificate alone is written.
+            </p>
+            <Code code={`umarise anchor build.tar.gz`} />
+            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash computed: sha256:a1b2c3...
+✓ anchored: origin_id abc-123
+✓ proof saved: build.tar.gz.proof`}</pre>
+            </div>
+
+            {/* umarise verify */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">
+              <code className="text-[hsl(var(--landing-copper))]">umarise verify</code> — verify offline
+            </h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              Verify a file against its <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle. Offline-first: uses the local OTS library to verify directly against Bitcoin. Falls back to the public API if offline verification isn't possible.
+            </p>
             <Code code={`umarise verify document.pdf`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash matches
@@ -1059,8 +1115,23 @@ umarise proof document.pdf`} />
 ✓ proof valid — independent of Umarise`}</pre>
             </div>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
-              No API key required for verification. It is a public utility.
+              No API key required. Verification is a public utility.
             </p>
+
+            {/* .proof file format */}
+            <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">.proof file format</h4>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+                A <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a standard ZIP archive containing:
+              </p>
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] leading-relaxed mb-3">{`document.pdf.proof (ZIP)
+ ├ certificate.json    ← metadata + hash + origin_id
+ └ proof.ots           ← OpenTimestamps binary proof`}</pre>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                The certificate follows the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification v1.0</a>. 
+                Anyone can verify without Umarise using <code className="text-[hsl(var(--landing-copper))]">sha256sum</code> + <code className="text-[hsl(var(--landing-copper))]">ots verify</code>.
+              </p>
+            </div>
 
             {/* Links */}
             <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
