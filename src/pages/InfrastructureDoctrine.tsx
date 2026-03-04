@@ -155,20 +155,48 @@ export default function InfrastructureDoctrine() {
             </HighlightBox>
           </section>
 
+          {/* Live capabilities */}
+          <section>
+            <SectionTitle>Current live capabilities</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.5)] mb-4 print:text-stone-500">
+              Complete set for first partner onboarding.
+            </p>
+            <DataTable
+              headers={['Capability', 'Implementation', 'Status']}
+              rows={[
+                ['Primitive (hash + anchor + proof)', 'Core API v1, contract frozen', '✅'],
+                ['Sandbox / test keys', 'um_test_ prefix, auto-valid, unlimited', '✅'],
+                ['SDKs', 'Python + Node.js, public domain', '✅'],
+                ['Docs + quickstarts', '/api-reference, live demo, AI integration guide', '✅'],
+                ['Reference verifier', 'verify-anchoring.org, zero-backend', '✅'],
+                ['Integration checklist', '/api-reference checklist section', '✅'],
+                ['Per-key usage metrics', 'core_request_log + v1-internal-metrics', '✅'],
+                ['Credit spend awareness', 'X-Credits-Remaining, X-Credits-Low headers', '✅'],
+                ['Status page + monitoring', '/status, 5-min health checks, sparkline', '✅'],
+                ['Rate limiting per tier', 'core_rate_limits, configurable per key', '✅'],
+                ['Integration templates', 'Python + Node test suites', '✅'],
+                ['AI integration path', 'AI prompt + support chatbot on /api-reference', '✅'],
+                ['Uptime commitment', 'Target 99.9%, public status page', '✅'],
+              ]}
+            />
+          </section>
+
           {/* Phase 2 items */}
           <section>
             <SectionTitle>Phase 2: when paying partners ask</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.5)] mb-4 print:text-stone-500">
-              Not needed for adoption. Needed for procurement at scale.
+              Not needed for adoption. Triggered by specific partner requests.
             </p>
             <DataTable
-              headers={['Capability', 'Trigger']}
+              headers={['Capability', 'Trigger', 'Doctrine check']}
               rows={[
-                ['SOC2 / ISO 27001 certification', 'Enterprise security questionnaire requires it'],
-                ['Spend alerts (webhook/email at credit threshold)', 'Partner requests automated budget monitoring'],
-                ['Formal SLA document with response times', 'Partner procurement requires contractual uptime'],
-                ['Enterprise support tiers', 'Multiple paying partners need differentiated support'],
-                ['Incident runbook + communication protocol', 'First production incident requires formal process'],
+                ['Self-service request logs', 'Partner wants usage visibility', 'Plumbing ✅ — usage endpoint, not dashboard'],
+                ['Spend/email alerts', 'Partner misses credit threshold', 'Plumbing ✅ — email at threshold, not graphs'],
+                ['SOC2 / ISO 27001', 'Enterprise security questionnaire', 'Compliance cover ✅'],
+                ['Formal SLA document', 'Partner procurement requires it', 'Assurance ✅'],
+                ['Enterprise support tiers', 'Multiple paying partners', 'Support ✅'],
+                ['Incident runbook', 'First production incident', 'Reliability ✅'],
+                ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise ✅'],
               ]}
             />
           </section>
