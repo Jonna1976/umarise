@@ -206,6 +206,7 @@ export default function InfrastructureDoctrine() {
                 ['Enterprise support tiers', 'Multiple paying partners', 'Human-led support'],
                 ['Incident runbook', 'First production incident', 'Reliability process'],
                 ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise'],
+                ['Priority OTS batching', 'First Certified tier partner signs', 'Faster primitive, same contract'],
               ]}
             />
           </section>
