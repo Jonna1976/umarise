@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUp, Copy, Check, Globe, Key } from 'lucide-react';
+import IntegrationChecklist from '@/components/api-reference/IntegrationChecklist';
+import SupportChatWidget from '@/components/api-reference/SupportChatWidget';
 
 const BASE = 'https://core.umarise.com';
 
@@ -84,6 +86,7 @@ const NAV = [
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'checklist', label: 'Checklist' },
 ];
 
 function Sidebar({ active }: { active: string }) {
@@ -968,6 +971,11 @@ print(result["captured_at"])`} />
             </div>
           </Section>
 
+          {/* -- Integration Checklist -- */}
+          <Section id="checklist">
+            <IntegrationChecklist />
+          </Section>
+
           {/* -- For Partners -- */}
 
           <div className="text-center py-4">
@@ -987,6 +995,7 @@ print(result["captured_at"])`} />
           </div>
         </div>
       </div>
+      <SupportChatWidget />
     </div>
   );
 }
