@@ -49,11 +49,24 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
       new OTS.Ops.OpSHA256(), hashBytes
     );
 
+    // Suppress noisy calendar timeout errors from the OTS library
+    const originalError = console.error;
+    console.error = (...args) => {
+      const msg = args.join(' ');
+      if (msg.includes('RequestError') || msg.includes('AggregateError') || msg.includes('Response error')) return;
+      originalError.apply(console, args);
+    };
+
     // Verify against Bitcoin blockchain
-    const result = await OTS.verify(detachedOts, detached, {
-      ignoreBitcoinNode: true,
-      timeout: 10000,
-    });
+    let result;
+    try {
+      result = await OTS.verify(detachedOts, detached, {
+        ignoreBitcoinNode: true,
+        timeout: 10000,
+      });
+    } finally {
+      console.error = originalError;
+    }
 
     // result is a map of attestation timestamps (unix) or empty
     if (result && Object.keys(result).length > 0) {
