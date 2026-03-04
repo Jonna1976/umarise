@@ -13,6 +13,7 @@
     "LICENSE"
   ],
   "dependencies": {
+    "@lacrypta/typescript-opentimestamps": "^1.0.0",
     "@umarise/anchor": "^1.0.0",
     "commander": "^12.0.0",
     "jszip": "^3.10.1"
