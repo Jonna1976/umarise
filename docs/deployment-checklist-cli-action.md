@@ -5,7 +5,7 @@
 **Source:** `cli/node/`
 
 ### Pre-publish
-- [x] `package.json` version set to `1.0.0`
+- [x] `package.json` version set to `1.1.0`
 - [x] `package.json` name is `@umarise/cli`
 - [x] `package.json` bin points to `bin/umarise.js`
 - [x] `bin/umarise.js` has shebang `#!/usr/bin/env node`
@@ -33,7 +33,8 @@
 - [x] `npx @umarise/cli --help` works from clean install
 
 ### Post-publish
-- [ ] Git tag: `cli-v1.0.0` — *manual step*
+- [x] Git tag: `cli-v1.0.0` — done 2026-03-04
+- [x] Git tag: `cli-v1.1.0` — done 2026-03-04 (added `proof` command)
 - [ ] GitHub Release with notes referencing the tag — *manual step*
 - [x] `/api-reference` install command matches published version
 
@@ -81,9 +82,9 @@
 - [x] Push to `cli/github-action/` → sync fires and succeeds ✅
 
 ### Functional verification
-- [ ] Create test workflow in a scratch repo using the Action — *manual step*
-- [ ] Action installs `@umarise/cli` successfully — *requires live test*
-- [ ] Action produces `.proof` artifact in workflow run — *manual step*
+- [x] Create test workflow in a scratch repo using the Action — verified 2026-03-04 (Jonna1976/anchor-test)
+- [x] Action installs `@umarise/cli` successfully — verified 2026-03-04 (run 22684174015)
+- [x] Action produces `.proof` artifact in workflow run — verified 2026-03-04
 - [x] Outputs `origin-id`, `hash`, `proof-path` are set correctly
 - [x] `upload-artifact: false` skips artifact upload without error
 
