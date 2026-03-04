@@ -52,15 +52,26 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
     // Suppress noisy OTS library output (calendar errors, lite-client messages)
     const originalError = console.error;
     const originalLog = console.log;
-    console.error = (...args) => {
-      const msg = args.join(' ');
-      if (msg.includes('RequestError') || msg.includes('AggregateError') || msg.includes('Response error')) return;
-      originalError.apply(console, args);
+    const originalWarn = console.warn;
+    const originalInfo = console.info;
+    const originalStdoutWrite = process.stdout.write;
+    const originalStderrWrite = process.stderr.write;
+    const otsFilter = (msg) => {
+      const s = typeof msg === 'string' ? msg : String(msg);
+      return s.includes('RequestError') || s.includes('AggregateError') || s.includes('Response error')
+        || s.includes('Lite-client verification') || s.includes('attestation(s) from');
     };
-    console.log = (...args) => {
-      const msg = args.join(' ');
-      if (msg.includes('Lite-client verification') || msg.includes('attestation(s) from')) return;
-      originalLog.apply(console, args);
+    console.error = (...args) => { if (!otsFilter(args.join(' '))) originalError.apply(console, args); };
+    console.log = (...args) => { if (!otsFilter(args.join(' '))) originalLog.apply(console, args); };
+    console.warn = (...args) => { if (!otsFilter(args.join(' '))) originalWarn.apply(console, args); };
+    console.info = (...args) => { if (!otsFilter(args.join(' '))) originalInfo.apply(console, args); };
+    process.stdout.write = function(chunk, ...rest) {
+      if (otsFilter(chunk)) return true;
+      return originalStdoutWrite.apply(process.stdout, [chunk, ...rest]);
+    };
+    process.stderr.write = function(chunk, ...rest) {
+      if (otsFilter(chunk)) return true;
+      return originalStderrWrite.apply(process.stderr, [chunk, ...rest]);
     };
 
     // Verify against Bitcoin blockchain
@@ -73,6 +84,10 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
     } finally {
       console.error = originalError;
       console.log = originalLog;
+      console.warn = originalWarn;
+      console.info = originalInfo;
+      process.stdout.write = originalStdoutWrite;
+      process.stderr.write = originalStderrWrite;
     }
 
     // result is a map of attestation timestamps (unix) or empty
