@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import fourLayersImg from '@/assets/umarise-four-layers.png';
+import integrityOracleImg from '@/assets/umarise-integrity-oracle.svg';
 
 /**
  * Infrastructure Doctrine — Internal reference document
@@ -38,9 +39,10 @@ export default function InfrastructureDoctrine() {
 
         <div className="space-y-12">
 
-          {/* Four Layers diagram */}
-          <section className="flex justify-center">
-            <img src={fourLayersImg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="max-w-lg w-full rounded-lg opacity-70 hover:opacity-90 transition-opacity duration-500 print:opacity-100 print:max-w-md" />
+          {/* Diagrams side by side */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <img src={fourLayersImg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="w-full rounded-lg opacity-70 hover:opacity-90 transition-opacity duration-500 print:opacity-100" />
+            <img src={integrityOracleImg} alt="Umarise Integrity Oracle: push proofs at write-time, pull verification at dispute-time" className="w-full rounded-lg opacity-70 hover:opacity-90 transition-opacity duration-500 print:opacity-100" />
           </section>
 
           <section>
@@ -199,23 +201,23 @@ export default function InfrastructureDoctrine() {
           <section>
             <SectionTitle>Four-Layer Audit — 52/59 (88%)</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.5)] mb-4 print:text-stone-500">
-              4 maart 2026 · Comprehensive status across all layers.
+              4 March 2026 · Comprehensive status across all layers.
             </p>
             <DataTable
               headers={['Layer', 'Name', 'Score', 'Status']}
               rows={[
-                ['1', 'The Primitive', '30/31', '✅ E5 (terminologie-adoptie) open'],
-                ['2', 'Developer Infrastructure', '15/15', '✅ Compleet'],
-                ['3', 'Assurance', '5/8', '🔶 SLA + uptime live, SOC2/ISO/DPA volgt bij vraag'],
-                ['4', 'Expertise', '2/5', '🔶 Latent — docs klaar, diensten bij vraag'],
+                ['1', 'The Primitive', '30/31', '✅ E5 (terminology adoption) open'],
+                ['2', 'Developer Infrastructure', '15/15', '✅ Complete'],
+                ['3', 'Assurance', '5/8', '🔶 SLA + uptime live, SOC2/ISO/DPA on demand'],
+                ['4', 'Expertise', '2/5', '🔶 Latent — docs ready, services on demand'],
               ]}
             />
             <div className="mt-4 space-y-2">
               <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
-                <strong className="text-[hsl(40,15%,88%,0.7)]">L1 + L2 (seeding engine):</strong> 45/46 — 98% compleet
+                <strong className="text-[hsl(40,15%,88%,0.7)]">L1 + L2 (seeding engine):</strong> 45/46 — 98% complete
               </p>
               <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
-                <strong className="text-[hsl(40,15%,88%,0.7)]">L3 + L4 (revenue):</strong> 7/13 — per doctrine geactiveerd bij partner-triggers
+                <strong className="text-[hsl(40,15%,88%,0.7)]">L3 + L4 (revenue):</strong> 7/13 — activated per doctrine at partner triggers
               </p>
             </div>
           </section>
