@@ -51,252 +51,112 @@ function Param({ name, type, required, desc }: { name: string; type: string; req
   );
 }
 
-function SandboxKeyGenerator({ onKeyGenerated }: { onKeyGenerated?: (key: string) => void }) {
-  const [key, setKey] = useState('');
-  const [copied, setCopied] = useState(false);
-  const generate = () => {
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-    const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    const newKey = `um_test_${hex}`;
-    setKey(newKey);
-    setCopied(false);
-    onKeyGenerated?.(newKey);
-  };
-  const copy = () => {
-    if (key) { navigator.clipboard.writeText(key); setCopied(true); setTimeout(() => setCopied(false), 1500); }
-  };
-  return (
-    <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,8%)] flex flex-col sm:flex-row items-start sm:items-center gap-2">
-      <button onClick={generate} className="px-3 py-1.5 rounded text-xs font-mono bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity shrink-0">
-        Generate sandbox key
-      </button>
-      {key && (
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <code className="text-xs font-mono text-emerald-400 truncate">{key}</code>
-          <button onClick={copy} className="shrink-0 p-1 rounded hover:bg-[hsl(var(--landing-cream)/0.1)]">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.5)]" />}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
-function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
+
+function GetStartedFlow() {
+  const [generatedKey, setGeneratedKey] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hashing, setHashing] = useState(false);
-  const [response, setResponse] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [statusCode, setStatusCode] = useState<number | null>(null);
-  const [responseTime, setResponseTime] = useState<number | null>(null);
-  const [usedKey, setUsedKey] = useState('');
-  const [usedHash, setUsedHash] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [fileSize, setFileSize] = useState('');
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [mode, setMode] = useState<'file' | 'random'>('file');
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [step, setStep] = useState(0);
 
-  const hashFile = async (file: File): Promise<string> => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const sendRequest = async (hash: string) => {
-    const keyBytes = new Uint8Array(32);
-    crypto.getRandomValues(keyBytes);
-    const keyToUse = sandboxKey || `um_test_${Array.from(keyBytes).map(b => b.toString(16).padStart(2, '0')).join('')}`;
-    setUsedKey(keyToUse);
-    setUsedHash(hash);
+  const generateKey = async () => {
     setLoading(true);
-    setResponse(null);
-    setError(null);
-    setStatusCode(null);
-
-    const start = performance.now();
+    setError('');
     try {
-      const res = await fetch(`${BASE}/v1-core-origins`, {
+      const res = await fetch(`${BASE}/v1-developer-key`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-API-Key': keyToUse },
-        body: JSON.stringify({ hash: `sha256:${hash}` }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Developer' }),
       });
-      const elapsed = Math.round(performance.now() - start);
-      setResponseTime(elapsed);
-      setStatusCode(res.status);
       const data = await res.json();
-      setResponse(JSON.stringify(data, null, 2));
-    } catch (err) {
-      setResponseTime(Math.round(performance.now() - start));
-      setError(err instanceof Error ? err.message : 'Network error');
-    } finally {
-      setLoading(false);
-    }
+      if (!res.ok) { setError(data?.error?.message || 'Failed to generate key'); return; }
+      setGeneratedKey(data.api_key);
+      setStep(1);
+    } catch { setError('Network error — try again'); }
+    finally { setLoading(false); }
   };
 
-  const handleFile = async (file: File) => {
-    setFileName(file.name);
-    setFileSize(formatSize(file.size));
-    setHashing(true);
-    setResponse(null);
-    setError(null);
-    try {
-      const hash = await hashFile(file);
-      setHashing(false);
-      await sendRequest(hash);
-    } catch {
-      setHashing(false);
-      setError('Failed to hash file');
-    }
-  };
-
-  const handleRandom = async () => {
-    setFileName('');
-    setFileSize('');
-    const hashBytes = new Uint8Array(32);
-    crypto.getRandomValues(hashBytes);
-    const testHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    await sendRequest(testHash);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+  const copyKey = () => {
+    if (generatedKey) { navigator.clipboard.writeText(generatedKey); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   };
 
   return (
-    <div className="mt-6 p-4 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="text-[hsl(var(--landing-cream))] text-sm font-mono font-bold flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Try it now — no setup needed
-        </h4>
-        {responseTime !== null && (
-          <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.4)]">{responseTime}ms</span>
+    <div className="space-y-8">
+      <div className="p-5 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Get your API key</h3>
+        </div>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4 ml-7">One click. No email, no account, no waiting. 100 free anchors included.</p>
+        {!generatedKey ? (
+          <div className="ml-7">
+            <button onClick={generateKey} disabled={loading} className="px-6 py-2.5 rounded text-sm font-mono font-bold bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity disabled:opacity-50">
+              {loading ? (<span className="flex items-center gap-2"><span className="w-3.5 h-3.5 border-2 border-[hsl(220,10%,6%)/0.3] border-t-[hsl(220,10%,6%)] rounded-full animate-spin" />Generating...</span>) : 'Generate my API key'}
+            </button>
+            {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+          </div>
+        ) : (
+          <div className="ml-7 space-y-3">
+            <div className="flex items-center gap-2 p-3 rounded bg-[hsl(220,10%,8%)] border border-emerald-500/20">
+              <code className="text-xs font-mono text-emerald-400 truncate flex-1">{generatedKey}</code>
+              <button onClick={copyKey} className="shrink-0 p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.1)]">
+                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[hsl(var(--landing-cream)/0.5)]" />}
+              </button>
+            </div>
+            <p className="text-[10px] text-amber-400/70 font-mono">⚠ Copy this key now. It cannot be retrieved again.</p>
+          </div>
         )}
       </div>
-      <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
-        Drop any file. We compute SHA-256 <strong className="text-[hsl(var(--landing-cream)/0.7)]">in your browser</strong>, generate a sandbox key, and send it to the live API. Your file never leaves your device.
-      </p>
 
-      {/* Mode tabs */}
-      <div className="flex gap-1 mb-4">
-        <button
-          onClick={() => setMode('file')}
-          className={`px-3 py-1 rounded text-xs font-mono transition-colors ${mode === 'file' ? 'bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]' : 'text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)]'}`}
-        >
-          Upload file
-        </button>
-        <button
-          onClick={() => setMode('random')}
-          className={`px-3 py-1 rounded text-xs font-mono transition-colors ${mode === 'random' ? 'bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] border border-[hsl(var(--landing-copper)/0.3)]' : 'text-[hsl(var(--landing-cream)/0.4)] hover:text-[hsl(var(--landing-cream)/0.7)]'}`}
-        >
-          Random hash
-        </button>
+      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
+        </div>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18.</p>
+        <div className="ml-7"><Code code={`npm install -g @umarise/cli`} /></div>
       </div>
 
-      {mode === 'file' ? (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-          onDragLeave={() => setIsDragOver(false)}
-          onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${isDragOver ? 'border-emerald-400/60 bg-emerald-500/5' : 'border-[hsl(var(--landing-cream)/0.12)] hover:border-[hsl(var(--landing-cream)/0.25)]'}`}
-          onClick={() => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.onchange = (e) => {
-              const file = (e.target as HTMLInputElement).files?.[0];
-              if (file) handleFile(file);
-            };
-            input.click();
-          }}
-        >
-          {hashing ? (
-            <div className="flex items-center justify-center gap-2 text-[hsl(var(--landing-cream)/0.7)]">
-              <span className="w-4 h-4 border-2 border-[hsl(var(--landing-copper)/0.3)] border-t-[hsl(var(--landing-copper))] rounded-full animate-spin" />
-              <span className="text-xs font-mono">Computing SHA-256 of {fileName}...</span>
-            </div>
-          ) : loading ? (
-            <div className="flex items-center justify-center gap-2 text-emerald-400">
-              <span className="w-4 h-4 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-              <span className="text-xs font-mono">Calling core.umarise.com...</span>
-            </div>
-          ) : (
-            <>
-              <div className="text-2xl mb-2">📄</div>
-              <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.6)]">
-                Drop any file here or <span className="text-[hsl(var(--landing-copper))] underline">click to browse</span>
-              </p>
-              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.3)] mt-1">
-                PDF, image, code, ZIP — anything. Hashed locally, never uploaded.
-              </p>
-            </>
-          )}
+      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor any file</h3>
         </div>
-      ) : (
-        <button
-          onClick={handleRandom}
-          disabled={loading}
-          className="w-full sm:w-auto px-6 py-2.5 rounded text-sm font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="w-3.5 h-3.5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-              Calling core.umarise.com...
-            </span>
-          ) : '▶ Send random hash to live API'}
-        </button>
-      )}
-
-      {/* Results */}
-      {(usedKey || usedHash) && response && (
-        <div className="mt-4 space-y-1 p-3 rounded bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)]">
-          {fileName && (
-            <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.5)]">
-              <span className="text-[hsl(var(--landing-cream)/0.7)]">📄 {fileName}</span> ({fileSize})
-            </p>
-          )}
-          <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
-            <span className="text-[hsl(var(--landing-cream)/0.5)]">SHA-256:</span> {usedHash.substring(0, 24)}...{usedHash.substring(56)}
-            {fileName && <span className="text-emerald-400/60 ml-2">← computed in your browser</span>}
-          </p>
-          <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
-            <span className="text-[hsl(var(--landing-cream)/0.5)]">Key:</span> {usedKey.substring(0, 19)}...{usedKey.substring(usedKey.length - 8)}
-            <span className="text-[hsl(var(--landing-copper))/0.6] ml-2">← auto-generated sandbox key</span>
-          </p>
-        </div>
-      )}
-
-      {response && (
-        <div className="relative mt-3">
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`text-[10px] font-mono font-bold ${statusCode === 200 ? 'text-emerald-400' : 'text-amber-400'}`}>
-              {statusCode} {statusCode === 200 ? 'OK' : 'ERROR'}
-            </span>
-            <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.3)]">Live response from core.umarise.com</span>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command. Your file is hashed locally — never uploaded.</p>
+        <div className="ml-7 space-y-3">
+          <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}\numarise proof document.pdf`} />
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
+✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
+⏳ proof pending — run again in ~1 hour`}</pre>
           </div>
-          <CopyBtn text={response} />
-          <pre className="bg-[hsl(220,10%,4%)] border border-emerald-500/10 rounded p-3 pr-12 text-[12px] font-mono text-emerald-300/90 overflow-x-auto whitespace-pre leading-relaxed max-h-64 overflow-y-auto">{response}</pre>
         </div>
-      )}
-      {error && (
-        <div className="mt-3 p-3 rounded border border-red-500/20 bg-red-500/5">
-          <pre className="text-xs font-mono text-red-400">{error}</pre>
+      </div>
+
+      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify — offline, no key needed</h3>
         </div>
-      )}
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Run again after anchoring completes. Anyone can verify without an API key.</p>
+        <div className="ml-7 space-y-3">
+          <Code code={`umarise verify document.pdf`} />
+          <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
+            <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
+✓ anchored in Bitcoin block 939270
+✓ no later than: 2026-03-04
+✓ proof valid — independent of Umarise`}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
+        <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">That's it</p>
+        <p className="text-sm text-[hsl(var(--landing-cream)/0.7)]">
+          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> file = independently verifiable evidence. No account. No dashboard. No vendor lock-in.
+        </p>
+      </div>
     </div>
   );
 }
@@ -325,9 +185,9 @@ function Endpoint({ method, path, title, auth, children }: {
 
 const NAV = [
   { id: 'intro', label: 'Introduction' },
+  { id: 'get-started', label: 'Get Started' },
   { id: 'auth', label: 'Authentication' },
-  { id: 'sandbox', label: 'Sandbox' },
-  { id: 'quick-start', label: 'Quick Start' },
+  { id: 'quick-start', label: 'Quick Start (curl)' },
   { id: 'origins', label: 'POST /origins' },
   { id: 'resolve', label: 'GET /resolve' },
   { id: 'verify', label: 'POST /verify' },
@@ -390,7 +250,6 @@ function useActiveSection() {
 
 export default function ApiReferenceV2() {
   const active = useActiveSection();
-  const [sandboxKey, setSandboxKey] = useState('');
 
   return (
     <div className="min-h-screen bg-[hsl(var(--landing-deep))] text-[hsl(var(--landing-cream)/0.85)]">
@@ -462,8 +321,7 @@ export default function ApiReferenceV2() {
             </p>
             <Code code={`X-API-Key: um_your_key_here`} />
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
-              Request a key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a>
-              <span className="text-[hsl(var(--landing-cream)/0.35)]"> - typically issued within 24 hours.</span>
+              Generate a key instantly in the <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Get Started</a> section below — no email, no account.
             </p>
 
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
@@ -503,72 +361,13 @@ export default function ApiReferenceV2() {
 { "error": { "code": "ERROR_CODE", "message": "Human-readable description" } }`} />
           </Section>
 
-          {/* -- Sandbox -- */}
-          <Section id="sandbox">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Sandbox</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-4">
-              Test the full anchoring flow without writing to the production ledger. <strong className="text-[hsl(var(--landing-cream))]">No sign-up required.</strong>
+          {/* -- Get Started -- */}
+          <Section id="get-started">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Get Started</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-6">
+              Generate a key, install the CLI, anchor your first file. <strong className="text-[hsl(var(--landing-cream))]">Under 2 minutes.</strong>
             </p>
-
-            <SandboxLiveTest sandboxKey={sandboxKey} />
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Want your own key?</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              Any string starting with <code className="text-[hsl(var(--landing-copper))]">um_test_</code> followed by ≥ 24 hex characters is a valid sandbox key. Generate one for your own integration tests:
-            </p>
-            <Code code={`# Generate a sandbox key (run in any terminal)\necho "um_test_$(openssl rand -hex 32)"`} />
-            <SandboxKeyGenerator onKeyGenerated={setSandboxKey} />
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">2. Or use curl</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              Use your sandbox key exactly like a production key. The API validates everything — authentication, input parsing, rate limits — but writes nothing to the ledger.
-            </p>
-            <Code
-              code={`# Anchor a file hash in sandbox mode\ncurl -X POST ${BASE}/v1-core-origins \\\n  -H "Content-Type: application/json" \\\n  -H "X-API-Key: um_test_<your_key>" \\\n  -d '{"hash":"sha256:'$(sha256sum myfile.pdf | cut -d' ' -f1)'"}'`}
-              copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: um_test_YOUR_KEY" -d '{"hash":"sha256:YOUR_HASH"}'`}
-            />
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">3. Go live</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              When ready, request a production key at <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a>. Replace <code className="text-[hsl(var(--landing-copper))]">um_test_</code> with <code className="text-[hsl(var(--landing-copper))]">um_</code> — zero code changes needed.
-            </p>
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Dry Run Parameter</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              Production key holders can also add <code className="text-[hsl(var(--landing-copper))]">"dry_run": true</code> to any request. Same sandbox behavior, no credits consumed.
-            </p>
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Sandbox vs Production</h4>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Aspect</th>
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Production</th>
-                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Sandbox</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ['Sign-up required', 'Yes (API key)', 'No'],
-                    ['Input validation', '✓', '✓'],
-                    ['Rate limit check', '✓', '✓'],
-                    ['Database write', '✓', '✗'],
-                    ['Bitcoin anchoring', '✓', '✗'],
-                    ['Credits consumed', '✓', '✗'],
-                    ['Response format', 'Identical', 'Identical'],
-                    ['X-Dry-Run header', '—', 'true'],
-                    ['proof_status', 'pending → anchored', 'dry_run'],
-                  ].map(([aspect, prod, sandbox]) => (
-                    <tr key={aspect} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
-                      <td className="py-2 pr-4 text-[hsl(var(--landing-cream)/0.7)] text-xs">{aspect}</td>
-                      <td className="py-2 pr-4 font-mono text-xs">{prod}</td>
-                      <td className="py-2 font-mono text-xs">{sandbox}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <GetStartedFlow />
           </Section>
 
           {/* -- Quick Start -- */}
@@ -1454,7 +1253,7 @@ umarise proof document.pdf`} />
             {/* Links */}
             <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                Get your API key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> · 
+                <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Generate your API key</a> · 
                 Source: <a href="https://github.com/AnchoringTrust/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/AnchoringTrust/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
                 License: <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain)
               </p>
