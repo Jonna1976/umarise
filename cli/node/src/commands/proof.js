@@ -95,6 +95,52 @@ export async function proofCommand(filePath, opts) {
   zip.file('certificate.json', JSON.stringify(certificate, null, 2));
   zip.file('proof.ots', proofResult.proof);
 
+  // Add VERIFY.txt with independent verification instructions
+  const fileName = filePath.split('/').pop();
+  const verifyTxt = `VERIFICATION INSTRUCTIONS
+=========================
+
+This .proof file contains an independently verifiable existence proof.
+It proves that the file "${fileName}" existed no later than the anchored timestamp.
+
+Contents:
+- certificate.json  : Origin metadata (origin_id, hash, timestamp)
+- proof.ots         : OpenTimestamps proof (anchored to Bitcoin)
+- VERIFY.txt        : This file
+
+HOW TO VERIFY:
+
+  Step 1 — Verify hash integrity:
+    sha256sum ${fileName}
+    Compare output with the "hash" field in certificate.json (without "sha256:" prefix).
+
+  Step 2 — Verify Bitcoin proof:
+    Option A (CLI):
+      umarise verify ${fileName}
+    Option B (online):
+      https://verify-anchoring.org
+    Option C (manual, no platform needed):
+      ots verify proof.ots
+      (requires ots-cli: https://github.com/opentimestamps/opentimestamps-client)
+
+IMPORTANT:
+  You need the original file ("${fileName}") alongside this .proof bundle.
+  The proof says: "this hash existed before time T."
+  Without the original file, there is nothing to hash and compare.
+
+SPECIFICATION:
+  This proof conforms to the Anchoring Specification (IEC v1.0).
+  Canonical reference: https://anchoring-spec.org/v1.0/
+
+WHAT THIS PROVES:
+  The exact bytes of the file existed no later than the moment
+  of Bitcoin ledger inclusion. Nothing more, nothing less.
+
+WHAT THIS DOES NOT PROVE:
+  Authorship, ownership, accuracy, legality, or identity.
+`;
+  zip.file('VERIFY.txt', verifyTxt);
+
   const proofPath = `${absPath}.proof`;
   const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
   await writeFile(proofPath, zipBuffer);
