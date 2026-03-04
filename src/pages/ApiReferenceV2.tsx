@@ -203,7 +203,9 @@ function GetStartedFlow() {
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. Anyone with the file + .proof can verify.</p>
         <div className="ml-7 space-y-3">
-          <Code code={`umarise verify document.pdf document.pdf.proof`} />
+          <Code code={`umarise verify your-file.pdf`} copy="umarise verify " />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">your-file.pdf.proof</code> next to it. You can also specify the proof path explicitly:</p>
+          <Code code={`umarise verify your-file.pdf path/to/your-file.pdf.proof`} copy="umarise verify " />
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
