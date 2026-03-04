@@ -13,12 +13,20 @@ jobs:
       - name: Checkout source repo
         uses: actions/checkout@v4
 
-      - name: Checkout target repo
-        uses: actions/checkout@v4
-        with:
-          repository: AnchoringTrust/anchor-action
-          token: ${{ secrets.ANCHOR_ACTION_PAT }}
-          path: target-repo
+      - name: Clone target repo (robust for empty/new repos)
+        run: |
+          git clone https://x-access-token:${{ secrets.ANCHOR_ACTION_PAT }}@github.com/AnchoringTrust/anchor-action.git target-repo
+          cd target-repo
+
+          if git ls-remote --exit-code --heads origin main >/dev/null 2>&1; then
+            git checkout -B main origin/main
+          elif git ls-remote --exit-code --heads origin master >/dev/null 2>&1; then
+            git checkout -B main origin/master
+          else
+            git checkout --orphan main
+            git commit --allow-empty -m "Initialize main branch"
+            git push origin main
+          fi
 
       - name: Sync files
         run: |
