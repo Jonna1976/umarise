@@ -1110,13 +1110,55 @@ umarise proof document.pdf`} />
             <Code code={`umarise verify document.pdf`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash matches
-✓ anchored in Bitcoin block 883421
+✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
 ✓ proof valid — independent of Umarise`}</pre>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2 mb-4">
               No API key required. Verification is a public utility.
             </p>
+
+            {/* What verify does step by step */}
+            <div className="p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">What happens when you run verify</h4>
+              <div className="space-y-3">
+                <div className="flex gap-3 text-xs">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 1</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                    Reads <code className="text-[hsl(var(--landing-copper))]">document.pdf</code> and computes the SHA-256 hash.
+                  </span>
+                </div>
+                <div className="flex gap-3 text-xs">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 2</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                    Opens <code className="text-[hsl(var(--landing-copper))]">document.pdf.proof</code> (ZIP) and reads <code className="text-[hsl(var(--landing-copper))]">certificate.json</code>.
+                  </span>
+                </div>
+                <div className="flex gap-3 text-xs">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 3</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                    Compares the computed hash with the hash in the certificate. If they don't match → the file has been modified.
+                  </span>
+                </div>
+                <div className="flex gap-3 text-xs">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 4</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                    Extracts <code className="text-[hsl(var(--landing-copper))]">proof.ots</code> and verifies it against the Bitcoin blockchain using the OpenTimestamps library (offline, no API needed).
+                  </span>
+                </div>
+                <div className="flex gap-3 text-xs">
+                  <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Result</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                    If both checks pass: these exact bytes existed no later than Bitcoin block height H. Mathematically certain, independently verifiable, no trust required.
+                  </span>
+                </div>
+              </div>
+              <div className="mt-4 p-3 rounded border border-amber-500/20 bg-amber-500/5">
+                <p className="text-xs text-amber-400/80">
+                  <strong>Important:</strong> You always need the original file alongside the <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle. The proof says "this hash existed before time T" — without the file, there is nothing to hash and compare.
+                </p>
+              </div>
+            </div>
 
             {/* .proof file format */}
             <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
