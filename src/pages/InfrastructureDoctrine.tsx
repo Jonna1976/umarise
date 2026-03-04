@@ -195,6 +195,31 @@ export default function InfrastructureDoctrine() {
             />
           </section>
 
+          {/* Four-Layer Audit */}
+          <section>
+            <SectionTitle>Four-Layer Audit — 52/59 (88%)</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.5)] mb-4 print:text-stone-500">
+              4 maart 2026 · Comprehensive status across all layers.
+            </p>
+            <DataTable
+              headers={['Layer', 'Name', 'Score', 'Status']}
+              rows={[
+                ['1', 'The Primitive', '30/31', '✅ E5 (terminologie-adoptie) open'],
+                ['2', 'Developer Infrastructure', '15/15', '✅ Compleet'],
+                ['3', 'Assurance', '5/8', '🔶 SLA + uptime live, SOC2/ISO/DPA volgt bij vraag'],
+                ['4', 'Expertise', '2/5', '🔶 Latent — docs klaar, diensten bij vraag'],
+              ]}
+            />
+            <div className="mt-4 space-y-2">
+              <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                <strong className="text-[hsl(40,15%,88%,0.7)]">L1 + L2 (seeding engine):</strong> 45/46 — 98% compleet
+              </p>
+              <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
+                <strong className="text-[hsl(40,15%,88%,0.7)]">L3 + L4 (revenue):</strong> 7/13 — per doctrine geactiveerd bij partner-triggers
+              </p>
+            </div>
+          </section>
+
           {/* Phase 2 items */}
           <section>
             <SectionTitle>Phase 2: when paying partners ask</SectionTitle>
