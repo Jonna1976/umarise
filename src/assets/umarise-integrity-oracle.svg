@@ -75,16 +75,23 @@
   <text x="536" y="242" text-anchor="middle" font-size="8" fill="#d4a843">origin_id</text>
   <text x="536" y="254" text-anchor="middle" font-size="8" fill="#d4a843">+ proof.ots</text>
 
-  <!-- RIGHT: Customer Storage -->
-  <rect x="565" y="148" width="195" height="150" rx="4" fill="#e8f0e8" stroke="#8aaf8a" stroke-width="1.2"/>
-  <text x="662" y="172" text-anchor="middle" font-size="9" font-weight="bold" fill="#3d6e3d" letter-spacing="1.5">CUSTOMER STORAGE</text>
-  <text x="662" y="192" text-anchor="middle" font-size="9" fill="#3d6e3d">Proof bundle stored</text>
-  <text x="662" y="208" text-anchor="middle" font-size="9" fill="#3d6e3d">next to artefact</text>
-  <line x1="580" y1="220" x2="745" y2="220" stroke="#8aaf8a" stroke-width="0.8"/>
-  <text x="662" y="238" text-anchor="middle" font-size="8" fill="#3d6e3d">artefact</text>
-  <text x="662" y="252" text-anchor="middle" font-size="8" fill="#3d6e3d">certificate.json  (client-side)</text>
-  <text x="662" y="266" text-anchor="middle" font-size="8" fill="#3d6e3d">proof.ots</text>
-  <text x="662" y="284" text-anchor="middle" font-size="8" fill="#5a8e5a" font-style="italic">Proof travels with artefact</text>
+  <!-- RIGHT: Customer Storage — accentuated as the key architectural insight -->
+  <!-- Outer glow ring to draw attention -->
+  <rect x="560" y="143" width="205" height="163" rx="6" fill="none" stroke="#d4a843" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.6"/>
+  <rect x="565" y="148" width="195" height="153" rx="4" fill="#e8f0e8" stroke="#3d6e3d" stroke-width="2"/>
+  <text x="662" y="170" text-anchor="middle" font-size="9" font-weight="bold" fill="#3d6e3d" letter-spacing="1.5">CUSTOMER STORAGE</text>
+  <!-- Gold star marker for key insight -->
+  <circle cx="745" cy="162" r="7" fill="#d4a843"/>
+  <text x="745" y="166" text-anchor="middle" font-size="8" fill="#1a1a1a" font-weight="bold">!</text>
+  <text x="662" y="188" text-anchor="middle" font-size="9" fill="#3d6e3d">Proof bundle stored</text>
+  <text x="662" y="204" text-anchor="middle" font-size="9" fill="#3d6e3d">next to artefact</text>
+  <line x1="580" y1="216" x2="745" y2="216" stroke="#3d6e3d" stroke-width="0.8"/>
+  <text x="662" y="230" text-anchor="middle" font-size="8" fill="#3d6e3d">artefact</text>
+  <text x="662" y="244" text-anchor="middle" font-size="8" fill="#3d6e3d">certificate.json  (client-side)</text>
+  <text x="662" y="258" text-anchor="middle" font-size="8" fill="#3d6e3d">proof.ots</text>
+  <line x1="580" y1="268" x2="745" y2="268" stroke="#d4a843" stroke-width="0.8"/>
+  <text x="662" y="282" text-anchor="middle" font-size="9" font-weight="bold" fill="#d4a843" font-style="italic">Proof travels with artefact</text>
+  <text x="662" y="294" text-anchor="middle" font-size="8" fill="#5a8e5a" font-style="italic">Not in a database. Always.</text>
 
   <!-- Divider -->
   <line x1="20" y1="390" x2="760" y2="390" stroke="#e0ddd8" stroke-width="1" stroke-dasharray="4,4"/>
@@ -116,6 +123,6 @@
 
   <!-- Bottom quote -->
   <line x1="20" y1="516" x2="760" y2="516" stroke="#e0ddd8" stroke-width="1"/>
-  <text x="390" y="532" text-anchor="middle" font-size="9" fill="#aaaaaa" font-style="italic">"Umarise turns 'my system says so' into 'these exact bytes were anchored at time T'."</text>
+  <text x="390" y="532" text-anchor="middle" font-size="9" fill="#aaaaaa" font-style="italic">"Proof is a property of the artefact itself, not of a platform.  ·  Artefacts carry their own proof of existence."</text>
 
 </svg>
