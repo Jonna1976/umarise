@@ -51,15 +51,17 @@ function Param({ name, type, required, desc }: { name: string; type: string; req
   );
 }
 
-function SandboxKeyGenerator() {
+function SandboxKeyGenerator({ onKeyGenerated }: { onKeyGenerated?: (key: string) => void }) {
   const [key, setKey] = useState('');
   const [copied, setCopied] = useState(false);
   const generate = () => {
     const bytes = new Uint8Array(32);
     crypto.getRandomValues(bytes);
     const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-    setKey(`um_test_${hex}`);
+    const newKey = `um_test_${hex}`;
+    setKey(newKey);
     setCopied(false);
+    onKeyGenerated?.(newKey);
   };
   const copy = () => {
     if (key) { navigator.clipboard.writeText(key); setCopied(true); setTimeout(() => setCopied(false), 1500); }
@@ -75,6 +77,100 @@ function SandboxKeyGenerator() {
           <button onClick={copy} className="shrink-0 p-1 rounded hover:bg-[hsl(var(--landing-cream)/0.1)]">
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.5)]" />}
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [statusCode, setStatusCode] = useState<number | null>(null);
+  const [responseTime, setResponseTime] = useState<number | null>(null);
+
+  const runTest = async () => {
+    const keyToUse = sandboxKey || 'um_test_0000000000000000000000000000000000000000000000000000000000000000';
+    setLoading(true);
+    setResponse(null);
+    setError(null);
+    setStatusCode(null);
+
+    // Generate a random test hash
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    const testHash = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const start = performance.now();
+    try {
+      const res = await fetch(`${BASE}/v1-core-origins`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': keyToUse,
+        },
+        body: JSON.stringify({ hash: `sha256:${testHash}` }),
+      });
+      const elapsed = Math.round(performance.now() - start);
+      setResponseTime(elapsed);
+      setStatusCode(res.status);
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+    } catch (err) {
+      setResponseTime(Math.round(performance.now() - start));
+      setError(err instanceof Error ? err.message : 'Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mt-6 p-4 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-[hsl(var(--landing-cream))] text-sm font-mono font-bold flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          Live Sandbox Test
+        </h4>
+        {responseTime !== null && (
+          <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.4)]">{responseTime}ms</span>
+        )}
+      </div>
+      <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3">
+        Sends a real <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code> request to the live API with a random SHA-256 hash and your sandbox key.
+      </p>
+      <div className="flex items-center gap-2 mb-3">
+        <code className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.4)] truncate flex-1">
+          Key: {sandboxKey ? sandboxKey.substring(0, 20) + '...' : 'Generate a key first ↑'}
+        </code>
+        <button
+          onClick={runTest}
+          disabled={loading}
+          className="px-4 py-2 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span className="w-3 h-3 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+              Calling API...
+            </span>
+          ) : '▶ Send Request'}
+        </button>
+      </div>
+      {response && (
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`text-[10px] font-mono font-bold ${statusCode === 200 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {statusCode} {statusCode === 200 ? 'OK' : 'ERROR'}
+            </span>
+            <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.3)]">Response</span>
+          </div>
+          <CopyBtn text={response} />
+          <pre className="bg-[hsl(220,10%,4%)] border border-emerald-500/10 rounded p-3 pr-12 text-[12px] font-mono text-emerald-300/90 overflow-x-auto whitespace-pre leading-relaxed max-h-64 overflow-y-auto">{response}</pre>
+        </div>
+      )}
+      {error && (
+        <div className="p-3 rounded border border-red-500/20 bg-red-500/5">
+          <pre className="text-xs font-mono text-red-400">{error}</pre>
         </div>
       )}
     </div>
@@ -170,6 +266,7 @@ function useActiveSection() {
 
 export default function ApiReferenceV2() {
   const active = useActiveSection();
+  const [sandboxKey, setSandboxKey] = useState('');
 
   return (
     <div className="min-h-screen bg-[hsl(var(--landing-deep))] text-[hsl(var(--landing-cream)/0.85)]">
@@ -294,9 +391,11 @@ export default function ApiReferenceV2() {
               Any string starting with <code className="text-[hsl(var(--landing-copper))]">um_test_</code> followed by ≥ 24 hex characters is a valid sandbox key. Generate one yourself:
             </p>
             <Code code={`# Generate a sandbox key (run in any terminal)\necho "um_test_$(openssl rand -hex 32)"`} />
-            <SandboxKeyGenerator />
+            <SandboxKeyGenerator onKeyGenerated={setSandboxKey} />
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">2. Test your first anchor</h4>
+            <SandboxLiveTest sandboxKey={sandboxKey} />
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">2. Or use curl</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
               Use your sandbox key exactly like a production key. The API validates everything — authentication, input parsing, rate limits — but writes nothing to the ledger.
             </p>
@@ -304,16 +403,6 @@ export default function ApiReferenceV2() {
               code={`# Anchor a file hash in sandbox mode\ncurl -X POST ${BASE}/v1-core-origins \\\n  -H "Content-Type: application/json" \\\n  -H "X-API-Key: um_test_<your_key>" \\\n  -d '{"hash":"sha256:'$(sha256sum myfile.pdf | cut -d' ' -f1)'"}'`}
               copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: um_test_YOUR_KEY" -d '{"hash":"sha256:YOUR_HASH"}'`}
             />
-            <div className="mt-3 p-3 rounded border border-emerald-500/20 bg-emerald-500/5">
-              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre-wrap leading-relaxed">{`{
-  "origin_id":    "a1b2c3d4-...",
-  "hash":         "your_hash...",
-  "hash_algo":    "sha256",
-  "proof_status": "dry_run",      ← sandbox indicator
-  "dry_run":      true,
-  "captured_at":  "2026-03-04T12:00:00.000Z"
-}`}</pre>
-            </div>
 
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">3. Go live</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
