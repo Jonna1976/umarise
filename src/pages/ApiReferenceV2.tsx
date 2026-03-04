@@ -878,7 +878,7 @@ print(result["captured_at"])`} />
  ├ release.tar.gz.proof    ← added automatically
  └ checksums.txt`}</pre>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
-                The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> + <code className="text-[hsl(var(--landing-copper))]">proof.ots</code>. Verifiable offline, independent of Umarise.
+                The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> + <code className="text-[hsl(var(--landing-copper))]">proof.ots</code> + <code className="text-[hsl(var(--landing-copper))]">VERIFY.txt</code>. Verifiable offline, independent of Umarise.
               </p>
             </div>
 
@@ -1126,11 +1126,40 @@ umarise proof document.pdf`} />
               </p>
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] leading-relaxed mb-3">{`document.pdf.proof (ZIP)
  ├ certificate.json    ← metadata + hash + origin_id
- └ proof.ots           ← OpenTimestamps binary proof`}</pre>
+ ├ proof.ots           ← OpenTimestamps binary proof
+ └ VERIFY.txt          ← human-readable verification instructions`}</pre>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 The certificate follows the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification v1.0</a>. 
                 Anyone can verify without Umarise using <code className="text-[hsl(var(--landing-copper))]">sha256sum</code> + <code className="text-[hsl(var(--landing-copper))]">ots verify</code>.
               </p>
+            </div>
+
+            {/* Storage & ownership */}
+            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">Where does the proof live?</h4>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+                The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original file. There is no cloud storage, no server, no account. You are the sole custodian.
+              </p>
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] leading-relaxed mb-3">{`~/project/
+ ├ document.pdf          ← your file
+ └ document.pdf.proof    ← the proof`}</pre>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2 font-medium">Common storage patterns:</p>
+              <div className="space-y-2 mb-3">
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Git repository</span> — commit <code className="text-[hsl(var(--landing-copper))]">.proof</code> files alongside source code. Anyone who clones the repo can verify.
+                </div>
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Release artifacts</span> — the GitHub Action adds <code className="text-[hsl(var(--landing-copper))]">.proof</code> files to your build output automatically.
+                </div>
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Backup / archive</span> — copy both files to any storage you trust.
+                </div>
+              </div>
+              <div className="p-3 rounded border border-emerald-500/20 bg-emerald-500/5">
+                <p className="text-xs font-mono text-emerald-400">
+                  Keep file + file.proof together. As long as you have both, anyone can verify — forever.
+                </p>
+              </div>
             </div>
 
             {/* Links */}
