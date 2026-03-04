@@ -160,32 +160,48 @@ function GetStartedFlow() {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 1: anchors the hash</p>
-            <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
+          <div className="p-4 rounded-lg border border-[hsl(var(--landing-copper)/0.25)] bg-[hsl(var(--landing-copper)/0.05)]">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">Same command, run it twice:</p>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] text-xs font-mono font-bold flex items-center justify-center">1</span>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] font-medium">Now: anchors your hash to Bitcoin</p>
+                </div>
+                <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)] ml-8">
+                  <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
 ⏳ proof pending, run again later`}</pre>
-            </div>
-          </div>
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 2 (~2 hours later): downloads proof & saves .proof ZIP</p>
-            <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
-              <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
+              <div className="flex items-center gap-2 ml-8">
+                <div className="w-px h-6 bg-[hsl(var(--landing-copper)/0.3)]" />
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] font-mono">~2 hours (Bitcoin confirmation)</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold flex items-center justify-center">2</span>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof ZIP</p>
+                </div>
+                <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)] ml-8">
+                  <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
 ✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
 ✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
 ✓ saved: document.pdf.proof
 ✓ proof valid, independent of Umarise`}</pre>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
-            <p className="text-sm text-amber-300 font-medium mb-1">⚠ Store your .proof file securely</p>
+            <p className="text-sm text-amber-300 font-medium mb-1">⚠ The .proof file only appears after Run 2</p>
             <p className="text-xs text-amber-400/70 leading-relaxed">
-              The <code className="text-amber-300">.proof</code> ZIP is only created after Bitcoin confirms (~2 hours). 
-              Keep it next to your original file. It's your self-contained, independently verifiable evidence bundle.
+              Bitcoin confirmation takes ~2 hours. Until then, your hash is registered but the .proof ZIP doesn't exist yet.
+              Run the same command again later. The ZIP is saved automatically next to your original file.
             </p>
           </div>
 
