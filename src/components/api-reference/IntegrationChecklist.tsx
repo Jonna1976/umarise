@@ -92,7 +92,7 @@ const FULL_CHECKLIST: ChecklistGroup[] = [
     items: [
       {
         label: 'Key received from partners@umarise.com',
-        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...\n\nPricing: €0.10 per anchor in prepaid bundles (500/5K/50K). One-time API key fee: €240.',
+        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...',
       },
       {
         label: 'Credit balance confirmed via response headers',
