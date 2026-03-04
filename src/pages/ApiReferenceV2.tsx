@@ -136,19 +136,52 @@ function GetStartedFlow() {
         </div>
       </div>
 
-      {/* Step 3: Anchor */}
+      {/* Step 3: Anchor + Proof (one command, two runs) */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor your file</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Your file is hashed locally — never uploaded. The hash is registered in the origin registry.</p>
-        <div className="ml-7 space-y-3">
-          <Code code={`umarise anchor document.pdf`} />
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash computed: sha256:a1b2c3d4e5f6...
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command, same command every time. Your file is hashed locally — never uploaded.</p>
+        <div className="ml-7 space-y-4">
+          <Code code={`umarise proof document.pdf`} />
+
+          <div className="space-y-2">
+            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 1 — anchors the hash</p>
+            <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
-✓ proof saved: document.pdf.proof`}</pre>
+⏳ proof pending — run again later`}</pre>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 2 (~2 hours later) — downloads proof & saves .proof ZIP</p>
+            <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
+              <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
+✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+✓ anchored in Bitcoin block 939270
+✓ no later than: 2026-03-04
+✓ saved: document.pdf.proof
+✓ proof valid — independent of Umarise`}</pre>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
+            <p className="text-sm text-amber-300 font-medium mb-1">⚠ Store your .proof file securely</p>
+            <p className="text-xs text-amber-400/70 leading-relaxed">
+              The <code className="text-amber-300">.proof</code> ZIP is only created after Bitcoin confirms (~2 hours). 
+              Keep it next to your original file — it's your self-contained, independently verifiable evidence bundle.
+            </p>
+          </div>
+
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.6)] whitespace-pre leading-relaxed">{`~/projects/
+  ├── document.pdf           ← your original file
+  └── document.pdf.proof     ← evidence bundle (ZIP)
+                                ├── certificate.json
+                                ├── proof.ots
+                                └── VERIFY.txt`}</pre>
           </div>
         </div>
       </div>
@@ -157,9 +190,9 @@ function GetStartedFlow() {
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify — offline, no key needed</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify — anyone, anytime, offline</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">Anyone can verify. No API key, no account, no Umarise dependency.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. Anyone with the file + .proof can verify.</p>
         <div className="ml-7 space-y-3">
           <Code code={`umarise verify document.pdf document.pdf.proof`} />
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
@@ -168,25 +201,6 @@ function GetStartedFlow() {
 ✓ no later than: 2026-03-04
 ✓ proof valid — independent of Umarise`}</pre>
           </div>
-        </div>
-      </div>
-
-      {/* Step 5: Save .proof */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
-        <div className="flex items-baseline gap-3 mb-3">
-          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">5</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save the .proof file next to your original</h3>
-        </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> ZIP is already created next to your file. Move it wherever you want — it's yours.</p>
-        <div className="ml-7">
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-            <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`~/projects/
-  ├── document.pdf           ← your original file
-  └── document.pdf.proof     ← self-contained evidence bundle
-                                ├── certificate.json
-                                └── proof.ots`}</pre>
-          </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">Store both files together. The .proof file contains everything needed for independent verification — forever.</p>
         </div>
       </div>
 
