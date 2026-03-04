@@ -9,25 +9,57 @@ npm install -g @umarise/cli
 ## Usage
 
 ```bash
-# Anchor a file (creates file.proof)
+# Full lifecycle — one command, run twice
 export UMARISE_API_KEY=um_your_key
-umarise anchor document.pdf
+umarise proof document.pdf
 
-# Verify a file against its proof
+# First run:
+# ✓ hash: sha256:a1b2c3...
+# ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
+# ⏳ proof pending — run again later
+
+# Second run (after ~2 hours):
+# ✓ hash: sha256:a1b2c3... (already anchored)
+# ✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+# ✓ anchored in Bitcoin block 935037
+# ✓ no later than: 2026-03-04
+# ✓ saved: document.pdf.proof
+# ✓ proof valid — independent of Umarise
+```
+
+Same command, always does the right thing. No daemon. No state files.
+
+## Commands
+
+### `umarise proof <file>` — recommended
+
+Full proof lifecycle in one command:
+1. Hash the file locally (SHA-256)
+2. Anchor the hash (or detect it's already anchored)
+3. Check if Bitcoin proof is ready
+4. If ready: download `.ots`, build `.proof` ZIP, verify locally
+
+Idempotent — run it as many times as you want on the same file.
+
+### `umarise anchor <file>` — plumbing
+
+Hash and anchor only. Creates a `.proof` ZIP immediately (proof may still be pending).
+
+```bash
+umarise anchor document.pdf
+```
+
+### `umarise verify <file> [proof]` — plumbing
+
+Verify a file against its `.proof` bundle. Tries offline verification first (OpenTimestamps), falls back to online.
+
+```bash
 umarise verify document.pdf
 # or explicitly:
 umarise verify document.pdf document.pdf.proof
 ```
 
 ## Output
-
-### Anchor
-
-```
-✓ hash computed: sha256:a1b2c3...
-✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
-✓ proof saved: document.pdf.proof
-```
 
 ### Verify
 
@@ -59,9 +91,9 @@ No Umarise server needed for verification.
 
 | Variable | Required | Description |
 |---|---|---|
-| `UMARISE_API_KEY` | For `anchor` | Partner API key (`um_...`) |
+| `UMARISE_API_KEY` | For `proof` and `anchor` | Partner API key (`um_...`) |
 
-Or pass `--api-key <key>` to the anchor command.
+Or pass `--api-key <key>` to the command.
 
 `verify` requires no API key — verification is a public utility.
 
