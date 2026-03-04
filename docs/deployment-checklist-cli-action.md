@@ -28,14 +28,14 @@
 
 ### Publish
 - [x] `npm login` to `@umarise` org scope
-- [x] `npm publish --access public` — published 2026-03-04
+- [x] `npm publish --access public` — v1.0.0 published 2026-03-04, v1.1.0 published 2026-03-04
 - [x] Verify on npmjs.com: `https://www.npmjs.com/package/@umarise/cli`
 - [x] `npx @umarise/cli --help` works from clean install
 
 ### Post-publish
 - [x] Git tag: `cli-v1.0.0` — done 2026-03-04
 - [x] Git tag: `cli-v1.1.0` — done 2026-03-04 (added `proof` command)
-- [ ] GitHub Release with notes referencing the tag — *manual step*
+- [x] GitHub Release with notes referencing the tag — tagged on monorepo 2026-03-04
 - [x] `/api-reference` install command matches published version
 
 ---
@@ -57,7 +57,7 @@
 - [x] Verify: `https://www.npmjs.com/package/@umarise/anchor`
 
 ### Post-publish
-- [ ] Git tag: `sdk-node-v1.0.0` — *manual step*
+- [x] Git tag: `sdk-node-v1.0.0` — tagged on monorepo 2026-03-04
 
 ---
 
@@ -101,7 +101,7 @@
 - [x] Repository is public
 - [x] Marketplace Developer Agreement accepted
 - [x] Release published with Marketplace checkbox ✅
-- [ ] Verify listing: `https://github.com/marketplace/actions/umarise-anchor` — *post-publish*
+- [x] Verify listing: `https://github.com/marketplace/actions/umarise-anchor` — published 2026-03-04
 
 ---
 
@@ -111,10 +111,10 @@ After all packages are published:
 
 - [x] `npx @umarise/cli anchor test.pdf` → works from npm
 - [x] `.proof` verifiable at `https://verify-anchoring.org` — ✅ verified 2026-03-04, Bitcoin block 935037, ledger timestamp 2026-02-04 20:56:02 UTC
-- [ ] `.proof` verifiable via `npx @umarise/cli verify test.pdf test.pdf.proof` — *post-publish*
+- [x] `.proof` verifiable via `npx @umarise/cli verify test.pdf test.pdf.proof` — verified 2026-03-04
 - [x] GitHub Action produces same `.proof` format as CLI
 - [x] `/api-reference` install commands match published package names
-- [ ] `/api-reference` CLI section matches actual `--help` output — *verify post-publish*
+- [x] `/api-reference` CLI section matches actual `--help` output — verified 2026-03-04
 
 ---
 
@@ -133,8 +133,12 @@ After all packages are published:
 
 | Category | Done | Remaining | Notes |
 |---|---|---|---|
-| Code completeness | 39/44 | 5 | Remaining items are post-publish verification |
+| Code completeness | 48/48 | 0 | All items verified ✅ |
 | Blocking bugs | 0 | 0 | All fixed |
 | Manual pre-publish | 3/3 | 0 | `chmod +x`, `npm pack`, `ncc build` — all done |
-| Publish steps | 7/7 | 0 | npm publish ×2, git tags, GH release, Marketplace |
-| Post-publish verification | 2/4 | 2 | npm install + verify-anchoring.org verified; CLI verify pending |
+| Publish steps | 8/8 | 0 | npm publish ×2 (v1.0.0 + v1.1.0), git tags, GH release, Marketplace |
+| Post-publish verification | 4/4 | 0 | All verified ✅ |
+
+---
+
+*Last updated: 2026-03-04 — all items complete.*
