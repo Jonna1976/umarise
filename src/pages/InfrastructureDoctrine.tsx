@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
-import fourLayersSvg from '@/assets/umarise-four-layers.svg';
+import fourLayersImg from '@/assets/umarise-four-layers.png';
 
 /**
  * Infrastructure Doctrine — Internal reference document
@@ -40,7 +40,7 @@ export default function InfrastructureDoctrine() {
 
           {/* Four Layers diagram */}
           <section className="flex justify-center">
-            <img src={fourLayersSvg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="max-w-md w-full rounded-lg opacity-60 hover:opacity-85 transition-opacity duration-500 print:opacity-100 print:max-w-sm" />
+            <img src={fourLayersImg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="max-w-lg w-full rounded-lg opacity-70 hover:opacity-90 transition-opacity duration-500 print:opacity-100 print:max-w-md" />
           </section>
 
           <section>
