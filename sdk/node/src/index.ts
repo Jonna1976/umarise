@@ -83,7 +83,7 @@ export class UmariseCore {
 
   constructor(config: UmariseCoreConfig = {}) {
     this.apiKey = config.apiKey;
-    this.baseUrl = (config.baseUrl || 'https://core.umarise.com').replace(/\/$/, '');
+    this.baseUrl = (config.baseUrl || 'https://lppltmdtiypbfzlszhhb.supabase.co/functions/v1').replace(/\/$/, '');
     this.timeout = config.timeout || 30_000;
   }
 
