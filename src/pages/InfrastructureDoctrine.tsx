@@ -190,13 +190,13 @@ export default function InfrastructureDoctrine() {
             <DataTable
               headers={['Capability', 'Trigger', 'Doctrine check']}
               rows={[
-                ['Self-service request logs', 'Partner wants usage visibility', 'Plumbing ✅ — usage endpoint, not dashboard'],
-                ['Spend/email alerts', 'Partner misses credit threshold', 'Plumbing ✅ — email at threshold, not graphs'],
-                ['SOC2 / ISO 27001', 'Enterprise security questionnaire', 'Compliance cover ✅'],
-                ['Formal SLA document', 'Partner procurement requires it', 'Assurance ✅'],
-                ['Enterprise support tiers', 'Multiple paying partners', 'Support ✅'],
-                ['Incident runbook', 'First production incident', 'Reliability ✅'],
-                ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise ✅'],
+                ['Self-service request logs', 'Partner wants usage visibility', 'Usage endpoint, not dashboard'],
+                ['Spend/email alerts', 'Partner misses credit threshold', 'Email at threshold, not graphs'],
+                ['SOC2 / ISO 27001', 'Enterprise security questionnaire', 'Compliance cover'],
+                ['Formal SLA document', 'Partner procurement requires it', 'Assurance document'],
+                ['Enterprise support tiers', 'Multiple paying partners', 'Human-led support'],
+                ['Incident runbook', 'First production incident', 'Reliability process'],
+                ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise'],
               ]}
             />
           </section>
