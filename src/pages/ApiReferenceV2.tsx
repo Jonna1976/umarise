@@ -78,7 +78,7 @@ function GetStartedFlow() {
   };
 
   const copyKey = () => {
-    if (generatedKey) { navigator.clipboard.writeText(generatedKey); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    if (generatedKey) { navigator.clipboard.writeText(generatedKey); setCopied(true); }
   };
 
   return (
@@ -100,23 +100,29 @@ function GetStartedFlow() {
           <div className="ml-7 space-y-3">
             <div className="flex items-center gap-2 p-3 rounded bg-[hsl(220,10%,8%)] border border-emerald-500/20">
               <code className="text-xs font-mono text-emerald-400 truncate flex-1">{generatedKey}</code>
-              <button onClick={copyKey} className="shrink-0 p-1.5 rounded hover:bg-[hsl(var(--landing-cream)/0.1)]">
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[hsl(var(--landing-cream)/0.5)]" />}
+              <button onClick={copyKey} className={`shrink-0 px-3 py-1.5 rounded text-xs font-mono font-bold transition-all ${copied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 animate-pulse'}`}>
+                {copied ? <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Copied</span> : <span className="flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy key</span>}
               </button>
             </div>
-            <div className="mt-3 p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
-              <p className="text-sm text-amber-300 font-medium mb-1">⚠ Save this key — it will not be shown again</p>
-              <p className="text-xs text-amber-400/70 leading-relaxed">
-                This key is not stored anywhere. Not by Umarise, not in a database, not in your browser. 
-                If you lose it, you'll need to generate a new one. Copy it now and store it securely 
-                (e.g. password manager, CI/CD secret, <code className="text-amber-300/80">.env</code> file).
-              </p>
-            </div>
+            {!copied && (
+              <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
+                <p className="text-sm text-amber-300 font-medium mb-1">⚠ Copy your key before continuing</p>
+                <p className="text-xs text-amber-400/70 leading-relaxed">
+                  This key is not stored anywhere. Not by Umarise, not in a database, not in your browser. 
+                  If you lose it, you'll need to generate a new one. Click <strong className="text-amber-300">Copy key</strong> to continue.
+                </p>
+              </div>
+            )}
+            {copied && (
+              <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
+                <p className="text-xs text-emerald-400 font-mono">✓ Key copied. Store it securely (password manager, CI/CD secret, or .env file).</p>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
@@ -125,7 +131,7 @@ function GetStartedFlow() {
         <div className="ml-7"><Code code={`npm install -g @umarise/cli`} /></div>
       </div>
 
-      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor any file</h3>
@@ -141,7 +147,7 @@ function GetStartedFlow() {
         </div>
       </div>
 
-      <div className={`p-5 rounded-lg border ${step >= 1 ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-50'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify — offline, no key needed</h3>
