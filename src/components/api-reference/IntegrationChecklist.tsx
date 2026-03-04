@@ -38,7 +38,7 @@ const AI_CHECKLIST: ChecklistItem[] = [
   },
 ];
 
-/* ── Full Checklist (19 items in 4 groups) ── */
+/* ── Full Checklist (21 items in 5 groups) ── */
 interface ChecklistGroup {
   title: string;
   stepOffset: number;
@@ -73,15 +73,33 @@ const FULL_CHECKLIST: ChecklistGroup[] = [
     ],
   },
   {
-    title: 'API key required',
+    title: 'Sandbox testing',
     stepOffset: 6,
     items: [
       {
-        label: 'Key received from partners@umarise.com',
-        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...',
+        label: 'Sandbox key generated (um_test_ + 64 hex chars)',
+        detail: 'Generate a test key locally: um_test_ followed by 64 hex characters.\nExample: um_test_0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n\nSandbox keys are always valid, require no registration, and have unlimited credits.',
       },
       {
-        label: 'First attestation created, origin_id received',
+        label: 'First sandbox attestation created successfully',
+        detail: `curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: um_test_YOUR_64_HEX_CHARS' -d '{"hash":"sha256:YOUR_HASH"}'\n\nSandbox attestations work identically to production but are labeled as test data.`,
+      },
+    ],
+  },
+  {
+    title: 'Production API key',
+    stepOffset: 8,
+    items: [
+      {
+        label: 'Key received from partners@umarise.com',
+        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...\n\nPricing: €0.10 per anchor in prepaid bundles (500/5K/50K). One-time API key fee: €240.',
+      },
+      {
+        label: 'Credit balance confirmed via response headers',
+        detail: 'Every API response includes:\n  X-Credits-Remaining: 4950\n  X-Credits-Low: true (when < 50 remaining)\n\nAt 0 credits: 402 INSUFFICIENT_CREDITS error.',
+      },
+      {
+        label: 'First production attestation created, origin_id received',
         detail: `curl -X POST ${BASE}/v1-core-origins -H 'Content-Type: application/json' -H 'X-API-Key: YOUR_KEY' -d '{"hash":"sha256:YOUR_HASH"}'`,
       },
       {
@@ -96,7 +114,7 @@ const FULL_CHECKLIST: ChecklistGroup[] = [
   },
   {
     title: 'SDK Integration',
-    stepOffset: 10,
+    stepOffset: 13,
     items: [
       {
         label: 'SDK downloaded and installed',
@@ -114,7 +132,7 @@ const FULL_CHECKLIST: ChecklistGroup[] = [
   },
   {
     title: 'Production Readiness',
-    stepOffset: 13,
+    stepOffset: 16,
     items: [
       {
         label: 'SHA-256 hash integrated into submission workflow',

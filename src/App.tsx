@@ -49,6 +49,7 @@ import Technical from "./pages/Technical";
 import Status from "./pages/Status";
 import ApiReference from "./pages/ApiReference";
 import ApiReferenceV2 from "./pages/ApiReferenceV2";
+import InfrastructureDoctrine from "./pages/InfrastructureDoctrine";
 import ItExisted from "./pages/ItExisted";
 import ItExistedAnchored from "./pages/ItExistedAnchored";
 import ItExistedProof from "./pages/ItExistedProof";
@@ -155,6 +156,7 @@ const App = () => (
             <Route path="/origin-mark" element={<InternalGate><UMarkMockup /></InternalGate>} />
             <Route path="/architecture" element={<InternalGate><Architecture /></InternalGate>} />
             <Route path="/sealed-preview" element={<InternalGate><SealedPreviewPage /></InternalGate>} />
+            <Route path="/infrastructure-doctrine" element={<InternalGate><InfrastructureDoctrine /></InternalGate>} />
             
             {/* Redirect old landing route */}
             <Route path="/landing" element={<Landing />} />
