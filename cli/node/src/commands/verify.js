@@ -58,12 +58,12 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
     // result is a map of attestation timestamps (unix) or empty
     if (result && Object.keys(result).length > 0) {
       // Extract block height from the info if available
-      const info = OTS.info(detachedOts);
+      const infoStr = OTS.info(detachedOts);
       let blockHeight = null;
 
       // Parse block height from info string (format: "Bitcoin block NNNN")
-      if (info) {
-        const blockMatch = info.match(/block\s+(\d+)/i);
+      if (infoStr) {
+        const blockMatch = infoStr.match(/block\s+(\d+)/i);
         if (blockMatch) {
           blockHeight = parseInt(blockMatch[1], 10);
         }
@@ -83,8 +83,8 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
     }
 
     // Check if proof is pending
-    const info = OTS.info(detachedOts);
-    if (info && info.indexOf('PendingAttestation') !== -1) {
+    const pendingInfo = OTS.info(detachedOts);
+    if (pendingInfo && pendingInfo.indexOf('PendingAttestation') !== -1) {
       return {
         verified: false,
         error: 'Proof is pending Bitcoin confirmation',

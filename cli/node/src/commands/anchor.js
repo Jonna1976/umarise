@@ -51,7 +51,7 @@ export async function anchorCommand(filePath, opts) {
     captured_at: origin.captured_at,
     proof_status: origin.proof_status || 'pending',
     issuer: 'https://core.umarise.com',
-    spec: 'https://spec.umarise.com',
+    spec: 'https://anchoring-spec.org/v1.0/',
   };
 
   const zip = new JSZip();
