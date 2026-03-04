@@ -60,10 +60,10 @@
 
 ---
 
-## Package C: `umarise/anchor-action` (GitHub Action)
+## Package C: `AnchoringTrust/anchor-action` (GitHub Action)
 
 **Source:** `cli/github-action/`  
-**Target repo:** `umarise/anchor-action`
+**Target repo:** `AnchoringTrust/anchor-action`
 
 ### Pre-publish
 - [x] `action.yml` present with correct inputs/outputs
@@ -87,7 +87,7 @@
 - [x] `upload-artifact: false` skips artifact upload without error — *conditional in code*
 
 ### Publish
-- [ ] Target repo `umarise/anchor-action` exists — *manual step*
+- [ ] Target repo `AnchoringTrust/anchor-action` exists — *manual step*
 - [ ] Files synced (or manually pushed for first release) — *sync workflow ready*
 - [ ] Git tag: `v1` (mutable, points to latest v1.x) — *manual step*
 - [ ] Git tag: `v1.0.0` (immutable release) — *manual step*
@@ -97,7 +97,7 @@
 - [x] `action.yml` has `branding` section (icon: shield, color: gray-dark)
 - [x] Repository is public — *will be after sync*
 - [ ] "Publish this Action to the GitHub Marketplace" checked during Release creation — *manual step*
-- [ ] Verify listing: `https://github.com/marketplace/actions/anchor-action` — *post-publish*
+- [ ] Verify listing: `https://github.com/marketplace/actions/anchoringtrust-anchor-action` — *post-publish*
 
 ---
 

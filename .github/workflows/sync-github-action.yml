@@ -16,7 +16,7 @@ jobs:
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
-          repository: umarise/anchor-action
+          repository: AnchoringTrust/anchor-action
           token: ${{ secrets.ANCHOR_ACTION_PAT }}
           path: target-repo
 
