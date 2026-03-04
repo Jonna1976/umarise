@@ -232,7 +232,6 @@ export default function InfrastructureDoctrine() {
                 ['Self-service request logs', 'Partner wants usage visibility', 'Usage endpoint, not dashboard'],
                 ['Spend/email alerts', 'Partner misses credit threshold', 'Email at threshold, not graphs'],
                 ['SOC2 / ISO 27001', 'Enterprise security questionnaire', 'Compliance cover'],
-                ['Formal SLA document', 'Partner procurement requires it', 'Assurance document'],
                 ['Enterprise support tiers', 'Multiple paying partners', 'Human-led support'],
                 ['Incident runbook', 'First production incident', 'Reliability process'],
                 ['Architecture review service', 'Partner requests integration guidance', 'Integration expertise'],
