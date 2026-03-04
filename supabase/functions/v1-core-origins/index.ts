@@ -382,6 +382,14 @@ Deno.serve(async (req: Request) => {
     // Create the attestation (includes api_key_prefix for duplicate detection)
     const capturedAt = new Date().toISOString();
     
+    // Generate short_token: 8-char uppercase alphanumeric
+    const shortTokenChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 for readability
+    const randomBytes = new Uint8Array(8);
+    crypto.getRandomValues(randomBytes);
+    const shortToken = Array.from(randomBytes)
+      .map(b => shortTokenChars[b % shortTokenChars.length])
+      .join('');
+    
     const { data, error: insertError } = await supabase
       .from('origin_attestations')
       .insert({
@@ -389,8 +397,9 @@ Deno.serve(async (req: Request) => {
         hash_algo: normalized.algo,
         captured_at: capturedAt,
         api_key_prefix: apiKeyPrefix,
+        short_token: shortToken,
       })
-      .select('origin_id, hash, hash_algo, captured_at')
+      .select('origin_id, hash, hash_algo, captured_at, short_token')
       .single();
 
     if (insertError) {
