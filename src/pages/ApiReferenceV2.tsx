@@ -863,15 +863,86 @@ print(result["captured_at"])`} />
           {/* -- CLI & CI/CD -- */}
           <Section id="cli">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">CLI &amp; CI/CD</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-6">
-              Anchor files from the terminal or automate every build with one line of YAML.
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-2">
+              Add proof to every build. One line of YAML. Your artifacts ship with a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file — like a <code className="text-[hsl(var(--landing-copper))]">.sig</code> or <code className="text-[hsl(var(--landing-copper))]">.sbom</code>, but anchored to Bitcoin.
+            </p>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-8">
+              No accounts. No dashboards. No vendor lock-in. The proof is the product.
             </p>
 
-            {/* Install */}
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Install</h4>
+            {/* What you'll see */}
+            <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5 mb-8">
+              <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3">What your build output looks like</p>
+              <pre className="text-sm font-mono text-[hsl(var(--landing-cream)/0.85)] leading-relaxed">{`build/
+ ├ release.tar.gz
+ ├ release.tar.gz.proof    ← added automatically
+ └ checksums.txt`}</pre>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+                The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> + <code className="text-[hsl(var(--landing-copper))]">proof.ots</code>. Verifiable offline, independent of Umarise.
+              </p>
+            </div>
+
+            {/* GitHub Actions */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">GitHub Actions</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">Copy-paste into your workflow. Done.</p>
+            <Code code={`name: Build & Anchor
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: tar czf release.tar.gz dist/
+
+      - name: Anchor to Bitcoin
+        uses: AnchoringTrust/anchor-action@v1
+        with:
+          file: release.tar.gz
+        env:
+          UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+              Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> to your repo: Settings → Secrets → Actions → New secret.
+              <br />The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file appears as a build artifact in every workflow run.
+            </p>
+
+            {/* GitLab CI */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">GitLab CI</h4>
+            <Code code={`anchor:
+  stage: .post
+  image: node:20-slim
+  script:
+    - npm install -g @umarise/cli
+    - umarise anchor release.tar.gz
+  artifacts:
+    paths:
+      - release.tar.gz.proof
+  variables:
+    UMARISE_API_KEY: $UMARISE_API_KEY`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+              Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> as a CI/CD variable in Settings → CI/CD → Variables.
+            </p>
+
+            {/* Generic shell */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Any CI system (shell)</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">Jenkins, CircleCI, Buildkite, or your own scripts — two lines:</p>
+            <Code code={`npm install -g @umarise/cli
+umarise anchor release.tar.gz`} />
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+              Set <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> as an environment variable. That's it.
+            </p>
+
+            <div className="border-t border-[hsl(var(--landing-cream)/0.08)] my-8" />
+
+            {/* CLI standalone */}
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">CLI — local usage</h4>
             <Code code={`npm install -g @umarise/cli`} />
 
-            {/* Anchor */}
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Anchor a file</h4>
             <Code code={`export UMARISE_API_KEY=um_your_key
 umarise anchor document.pdf`} />
@@ -894,31 +965,17 @@ umarise anchor document.pdf`} />
               No API key required for verification. It is a public utility.
             </p>
 
-            {/* GitHub Action */}
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">GitHub Action</h4>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-3">
-              One line in your workflow. Every build gets a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file uploaded as a GitHub Actions artifact.
-            </p>
-            <Code code={`- uses: AnchoringTrust/anchor-action@v1
-  with:
-    file: build/output.tar.gz
-  env:
-    UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
-              Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> to your repository: Settings → Secrets and variables → Actions → New repository secret.
-            </p>
-
             {/* Offline verify */}
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Offline Verification</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Offline Verification (no CLI needed)</h4>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-3">
-              The <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> and <code className="text-[hsl(var(--landing-copper))]">proof.ots</code>. Verify with standard tools — no Umarise server needed:
+              The <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle works with standard OS tools:
             </p>
             <Code code={`unzip document.pdf.proof
 sha256sum document.pdf              # compare with certificate.json
 ots verify proof.ots                # verify against Bitcoin`} />
 
-            {/* API key link */}
-            <div className="mt-6 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+            {/* Links */}
+            <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
                 Get your API key: <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> · 
                 Source: <a href="https://github.com/AnchoringTrust/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/AnchoringTrust/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
