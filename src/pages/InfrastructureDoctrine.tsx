@@ -39,8 +39,8 @@ export default function InfrastructureDoctrine() {
         <div className="space-y-12">
 
           {/* Four Layers diagram */}
-          <section>
-            <img src={fourLayersSvg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="w-full rounded-lg border border-[hsl(40,15%,88%,0.1)] print:border-stone-300" />
+          <section className="flex justify-center">
+            <img src={fourLayersSvg} alt="Umarise Four Layers: one primitive, three layers of assurance" className="max-w-md w-full rounded-lg opacity-60 hover:opacity-85 transition-opacity duration-500 print:opacity-100 print:max-w-sm" />
           </section>
 
           <section>
