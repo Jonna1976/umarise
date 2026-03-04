@@ -144,17 +144,21 @@ function GetStartedFlow() {
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command, same command every time. Your file is hashed locally, never uploaded.</p>
         <div className="ml-7 space-y-4">
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-1">Replace <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">document.pdf</code> with the path to any file you want to anchor:</p>
-          <Code code={`umarise proof ./path/to/your-file.pdf`} copy="umarise proof " />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
+          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.7)]">
+              <span className="text-[hsl(var(--landing-cream)/0.9)]">umarise proof </span>
+              <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
+            </p>
+          </div>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The terminal auto-fills the full path. Or type it manually:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
-              <span className="text-[hsl(var(--landing-cream)/0.7)]">Examples:</span>{'\n'}
               {'  '}umarise proof contract.pdf{'\n'}
               {'  '}umarise proof ./designs/logo-final.png{'\n'}
               {'  '}umarise proof ~/Desktop/research-paper.docx
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] italic">Tip: drag your file into the terminal after typing <code className="text-[hsl(var(--landing-copper))]">umarise proof</code> to auto-fill the path.</p>
 
           <div className="space-y-2">
             <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider">Run 1: anchors the hash</p>
@@ -204,16 +208,21 @@ function GetStartedFlow() {
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. The .proof file must be in the same folder as your original file.</p>
         <div className="ml-7 space-y-3">
-          <Code code={`umarise verify ./path/to/your-file.pdf`} copy="umarise verify " />
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
+          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.7)]">
+              <span className="text-[hsl(var(--landing-cream)/0.9)]">umarise verify </span>
+              <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
+            </p>
+          </div>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The terminal auto-fills the full path. Or type it manually:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
-              <span className="text-[hsl(var(--landing-cream)/0.7)]">Examples:</span>{'\n'}
               {'  '}umarise verify contract.pdf{'\n'}
               {'  '}umarise verify ./designs/logo-final.png{'\n'}
               {'  '}umarise verify ~/Desktop/research-paper.docx
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] italic">Tip: drag your file into the terminal after typing <code className="text-[hsl(var(--landing-copper))]">umarise verify</code> to auto-fill the path.</p>
           <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
