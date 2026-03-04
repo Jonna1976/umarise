@@ -89,18 +89,26 @@ function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
   const [error, setError] = useState<string | null>(null);
   const [statusCode, setStatusCode] = useState<number | null>(null);
   const [responseTime, setResponseTime] = useState<number | null>(null);
+  const [usedKey, setUsedKey] = useState('');
+  const [usedHash, setUsedHash] = useState('');
 
   const runTest = async () => {
-    const keyToUse = sandboxKey || 'um_test_0000000000000000000000000000000000000000000000000000000000000000';
+    // Auto-generate key if none provided
+    const keyBytes = new Uint8Array(32);
+    crypto.getRandomValues(keyBytes);
+    const keyToUse = sandboxKey || `um_test_${Array.from(keyBytes).map(b => b.toString(16).padStart(2, '0')).join('')}`;
+    setUsedKey(keyToUse);
+
+    // Auto-generate random hash (simulates hashing a file)
+    const hashBytes = new Uint8Array(32);
+    crypto.getRandomValues(hashBytes);
+    const testHash = Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+    setUsedHash(testHash);
+
     setLoading(true);
     setResponse(null);
     setError(null);
     setStatusCode(null);
-
-    // Generate a random test hash
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-    const testHash = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
     const start = performance.now();
     try {
@@ -130,46 +138,53 @@ function SandboxLiveTest({ sandboxKey }: { sandboxKey: string }) {
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-[hsl(var(--landing-cream))] text-sm font-mono font-bold flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          Live Sandbox Test
+          Try it now — no setup needed
         </h4>
         {responseTime !== null && (
           <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.4)]">{responseTime}ms</span>
         )}
       </div>
-      <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3">
-        Sends a real <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code> request to the live API with a random SHA-256 hash and your sandbox key.
+      <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4">
+        One click. We auto-generate a sandbox key (<code className="text-[hsl(var(--landing-copper))]">um_test_</code>) and a random SHA-256 hash, then call the live API. You see the real response.
       </p>
-      <div className="flex items-center gap-2 mb-3">
-        <code className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.4)] truncate flex-1">
-          Key: {sandboxKey ? sandboxKey.substring(0, 20) + '...' : 'Generate a key first ↑'}
-        </code>
-        <button
-          onClick={runTest}
-          disabled={loading}
-          className="px-4 py-2 rounded text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-              Calling API...
-            </span>
-          ) : '▶ Send Request'}
-        </button>
-      </div>
+      <button
+        onClick={runTest}
+        disabled={loading}
+        className="w-full sm:w-auto px-6 py-2.5 rounded text-sm font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-3.5 h-3.5 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+            Calling core.umarise.com...
+          </span>
+        ) : '▶ Send test request to live API'}
+      </button>
+
+      {(usedKey || usedHash) && response && (
+        <div className="mt-4 space-y-1">
+          <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
+            <span className="text-[hsl(var(--landing-cream)/0.5)]">Key:</span> {usedKey.substring(0, 19)}...{usedKey.substring(usedKey.length - 8)}
+          </p>
+          <p className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.35)]">
+            <span className="text-[hsl(var(--landing-cream)/0.5)]">Hash:</span> sha256:{usedHash.substring(0, 16)}...{usedHash.substring(56)}
+          </p>
+        </div>
+      )}
+
       {response && (
-        <div className="relative">
+        <div className="relative mt-3">
           <div className="flex items-center gap-2 mb-1">
             <span className={`text-[10px] font-mono font-bold ${statusCode === 200 ? 'text-emerald-400' : 'text-amber-400'}`}>
               {statusCode} {statusCode === 200 ? 'OK' : 'ERROR'}
             </span>
-            <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.3)]">Response</span>
+            <span className="text-[10px] font-mono text-[hsl(var(--landing-cream)/0.3)]">Live response from core.umarise.com</span>
           </div>
           <CopyBtn text={response} />
           <pre className="bg-[hsl(220,10%,4%)] border border-emerald-500/10 rounded p-3 pr-12 text-[12px] font-mono text-emerald-300/90 overflow-x-auto whitespace-pre leading-relaxed max-h-64 overflow-y-auto">{response}</pre>
         </div>
       )}
       {error && (
-        <div className="p-3 rounded border border-red-500/20 bg-red-500/5">
+        <div className="mt-3 p-3 rounded border border-red-500/20 bg-red-500/5">
           <pre className="text-xs font-mono text-red-400">{error}</pre>
         </div>
       )}
@@ -386,14 +401,14 @@ export default function ApiReferenceV2() {
               Test the full anchoring flow without writing to the production ledger. <strong className="text-[hsl(var(--landing-cream))]">No sign-up required.</strong>
             </p>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-4 mb-2">1. Generate a test key</h4>
+            <SandboxLiveTest sandboxKey={sandboxKey} />
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">Want your own key?</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
-              Any string starting with <code className="text-[hsl(var(--landing-copper))]">um_test_</code> followed by ≥ 24 hex characters is a valid sandbox key. Generate one yourself:
+              Any string starting with <code className="text-[hsl(var(--landing-copper))]">um_test_</code> followed by ≥ 24 hex characters is a valid sandbox key. Generate one for your own integration tests:
             </p>
             <Code code={`# Generate a sandbox key (run in any terminal)\necho "um_test_$(openssl rand -hex 32)"`} />
             <SandboxKeyGenerator onKeyGenerated={setSandboxKey} />
-
-            <SandboxLiveTest sandboxKey={sandboxKey} />
 
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">2. Or use curl</h4>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
