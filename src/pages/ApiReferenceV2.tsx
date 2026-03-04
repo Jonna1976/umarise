@@ -958,9 +958,18 @@ ots verify proof.ots                # verify against Bitcoin`} />
 
               {/* Q4 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"There are other cryptographic timestamping services. Why this one?"</p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Most proof systems store the proof. How is this different?"</p>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
-                  Most timestamping services (RFC 3161 TSAs, OriginStamp, etc.) require trust in the issuer. If the Certificate Authority or service disappears, verification may break. The Core API anchors to Bitcoin via OpenTimestamps, making verification trustless. The .ots proof file combined with the original artifact, any SHA-256 calculator, and the public Bitcoin blockchain provides complete verification, indefinitely. No account required. No dependency on the issuing infrastructure.
+                  Most proof systems store the proof. We return it.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  Other timestamping services keep verification dependent on their infrastructure. If the service disappears, the proof becomes difficult or impossible to verify.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  The Core API does the opposite. The proof bundle is returned to the caller and stored next to the artifact. Verification requires only the original file, the <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle, and the public Bitcoin blockchain. No Umarise server. No account. No dependency on anyone.
+                </p>
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                  The claim is mathematically precise: these exact bytes existed no later than Bitcoin block height H. Not "we say so." A fact verifiable by anyone, independently, forever.
                 </p>
               </div>
 
