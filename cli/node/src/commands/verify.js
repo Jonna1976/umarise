@@ -3,9 +3,12 @@
  * 
  * 1. Read file + .proof ZIP
  * 2. Compute SHA-256 hash → compare with certificate.json
- * 3. Verify proof.ots offline via OTS library (primary)
+ * 3. Verify proof.ots offline via OpenTimestamps library (primary)
  * 4. If offline fails: fallback to /v1-core-verify (online)
  * 5. Print result with block height
+ * 
+ * Uses the same OpenTimestamps library (opentimestamps v0.4.9) as
+ * verify-anchoring.org to ensure consistent verification results.
  */
 
 import { readFile } from 'fs/promises';
@@ -15,49 +18,87 @@ import { UmariseCore, hashBytes } from '@umarise/anchor';
 import JSZip from 'jszip';
 
 /**
- * Attempt offline OTS verification using @lacrypta/typescript-opentimestamps.
- * Returns { verified, blockHeight, anchoredAt } or null if OTS lib unavailable.
+ * Convert hex string to Uint8Array.
  */
-async function verifyOtsOffline(otsBytes, fileHash) {
+function hexToBytes(hex) {
+  const clean = hex.replace(/^sha256:/, '');
+  const bytes = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    bytes[i / 2] = parseInt(clean.substring(i, i + 2), 16);
+  }
+  return bytes;
+}
+
+/**
+ * Attempt offline OTS verification using the opentimestamps library.
+ * This is the same library used by verify-anchoring.org (v0.4.9).
+ * Returns { verified, blockHeight } or null if library unavailable.
+ */
+async function verifyOtsOffline(otsBytes, fileHashHex) {
   try {
-    const { read, verify, verifiers } = await import('@lacrypta/typescript-opentimestamps');
+    const OpenTimestamps = await import('opentimestamps');
+    const OTS = OpenTimestamps.default || OpenTimestamps;
 
-    const timestamp = read(new Uint8Array(otsBytes));
+    const hashBytes = hexToBytes(fileHashHex);
 
-    const { attestations, errors } = await verify(timestamp, verifiers);
+    // Deserialize the .ots proof
+    const detachedOts = OTS.DetachedTimestampFile.deserialize(otsBytes);
 
-    // attestations is Record<number, string[]> where keys are block heights
-    const blockHeights = Object.keys(attestations).map(Number).filter(n => n > 0);
+    // Create a detached timestamp from the file hash
+    const detached = OTS.DetachedTimestampFile.fromHash(
+      new OTS.Ops.OpSHA256(), hashBytes
+    );
 
-    if (blockHeights.length > 0) {
-      const blockHeight = Math.min(...blockHeights);
+    // Verify against Bitcoin blockchain
+    const result = await OTS.verify(detachedOts, detached, {
+      ignoreBitcoinNode: true,
+      timeout: 10000,
+    });
+
+    // result is a map of attestation timestamps (unix) or empty
+    if (result && Object.keys(result).length > 0) {
+      // Extract block height from the info if available
+      const info = OTS.info(detachedOts);
+      let blockHeight = null;
+
+      // Parse block height from info string (format: "Bitcoin block NNNN")
+      if (info) {
+        const blockMatch = info.match(/block\s+(\d+)/i);
+        if (blockMatch) {
+          blockHeight = parseInt(blockMatch[1], 10);
+        }
+      }
+
+      // Get the earliest attestation timestamp
+      const timestamps = Object.keys(result).map(Number);
+      const earliestTimestamp = Math.min(...timestamps);
+      const anchoredAt = new Date(earliestTimestamp * 1000).toISOString();
+
       return {
         verified: true,
         blockHeight,
-        anchoredAt: null, // OTS doesn't provide exact timestamp, only block height
+        anchoredAt,
         method: 'offline',
       };
     }
 
-    // If there are errors but no attestations, verification failed
-    const errorEntries = Object.entries(errors);
-    if (errorEntries.length > 0) {
-      const firstError = errorEntries[0][1][0];
+    // Check if proof is pending
+    const info = OTS.info(detachedOts);
+    if (info && info.indexOf('PendingAttestation') !== -1) {
       return {
         verified: false,
-        error: firstError?.message || 'OTS verification failed',
+        error: 'Proof is pending Bitcoin confirmation',
         method: 'offline',
       };
     }
 
-    // No attestations and no errors — proof may be pending
     return {
       verified: false,
-      error: 'No Bitcoin attestations found (proof may be pending)',
+      error: 'No Bitcoin attestations found in .ots proof',
       method: 'offline',
     };
   } catch (err) {
-    // Library not available or parse error — return null to trigger fallback
+    // Library not available or verification error → return null for fallback
     return null;
   }
 }
@@ -118,7 +159,11 @@ export async function verifyCommand(filePath, proofPath, opts) {
       blockHeight = otsResult.blockHeight;
       anchoredAt = otsResult.anchoredAt;
 
-      console.log(`✓ anchored in Bitcoin block ${blockHeight}`);
+      if (blockHeight) {
+        console.log(`✓ anchored in Bitcoin block ${blockHeight}`);
+      } else {
+        console.log(`✓ anchored in Bitcoin`);
+      }
 
       if (anchoredAt) {
         const date = anchoredAt.split('T')[0];
@@ -128,10 +173,9 @@ export async function verifyCommand(filePath, proofPath, opts) {
         console.log(`✓ no later than: ${date}`);
       }
     } else if (otsResult && !otsResult.verified) {
-      // OTS lib available but verification failed (pending or error)
       console.log(`⏳ offline: ${otsResult.error}`);
     }
-    // otsResult === null means lib unavailable → fall through to online
+    // otsResult === null → lib unavailable, fall through to online
   }
 
   // --- Step 3: Online verification (fallback) ---
@@ -173,7 +217,6 @@ export async function verifyCommand(filePath, proofPath, opts) {
         process.exit(1);
       }
     } catch (err) {
-      // Online also failed
       if (otsFile) {
         console.log(`⚠ online verification unavailable: ${err.message}`);
         console.log(`  proof.ots is present — verify manually with: ots verify proof.ots`);
