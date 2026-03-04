@@ -251,6 +251,7 @@ const NAV = [
   { id: 'sdks', label: 'SDKs' },
   { id: 'cli', label: 'CLI & CI/CD' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'privacy', label: 'Privacy' },
   { id: 'checklist', label: 'Checklist' },
 ];
 
@@ -1431,6 +1432,42 @@ umarise proof document.pdf`} />
             <div className="mt-8 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.45)]">
                 Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger, not as a currency. No wallets, no coins, no financial transactions.
+              </p>
+            </div>
+          </Section>
+
+          {/* -- Privacy by Architecture -- */}
+          <Section id="privacy">
+            <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))] mb-4">Privacy by Architecture</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mb-6">
+              We don't know who you are. That's not a policy — it's how the system works.
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 rounded border border-emerald-500/15 bg-emerald-500/5">
+                <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3">What we store</p>
+                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.7)]">
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">key_prefix</code> — first 8 chars (for lookup)</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">key_hash</code> — HMAC-SHA256 (not the key itself)</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">credit_balance</code> — current anchor credits</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">partner_name</code> — free text you chose at generation</li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,7%)]">
+                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider mb-3">What we don't store</p>
+                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.5)]">
+                  <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Email, name, or any PII</li>
+                  <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Your API key (only the hash)</li>
+                  <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Your files or their content</li>
+                  <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> IP addresses (hashed, then discarded)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] leading-relaxed">
+                Credit top-ups go through Stripe. Stripe knows who paid — we only see: <code className="text-[hsl(var(--landing-copper))]">key_prefix um_abc12 received 500 credits</code>. No account, no login, no dashboard. The key is an anonymous credit token, not a customer relationship.
               </p>
             </div>
           </Section>
