@@ -77,6 +77,12 @@ export default function InvestorOnePager() {
               proof (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
               The proof depends on the continued existence of the provider.
             </p>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+              But the problem is deeper than file integrity. Today, platforms manage three things
+              in a single product: time, verification, and identity. The timestamp is a platform log.
+              Verification runs through a platform interface. Identity is a platform account.
+              That is not independent structure. That is dependency.
+            </p>
           </section>
 
           {/* Solution */}
@@ -96,6 +102,55 @@ export default function InvestorOnePager() {
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
             </div>
+          </section>
+
+          {/* Three layers */}
+          <section>
+            <SectionTitle>Three structurally separated layers</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Most systems combine time, verification, and identity in one product.
+              This architecture separates them by design.
+            </p>
+            <div className="space-y-4 mb-5">
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 1 — Anchoring</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Existence</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  A cryptographic commitment to exact bytes is recorded in a public ledger.
+                  This proves: these exact bytes existed at or before time T. Not more. Not less.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 2 — Verification</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Independence</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Verification does not require our servers, an account, an API, or any database.
+                  The proof is publicly verifiable against Bitcoin. This is not service verification.
+                  This is publicly controllable verification.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(40,15%,88%,0.15)] pl-5 opacity-50">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.4)] mb-1">Layer 3 — Attestation</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.5)] print:text-stone-500">Identity (optional, not yet active)</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.35)] mt-1 print:text-stone-400">
+                  An identity declares something about the artifact. Not chronology, but a statement.
+                  Bound to a passkey or cryptographic key. Attestation is supplementary.
+                  It never contaminates Layer 1 or 2.
+                </p>
+              </div>
+            </div>
+
+            <DataTable
+              headers={['Layer', 'Dependent on Umarise?']}
+              rows={[
+                ['Anchoring (existence)', 'No'],
+                ['Verification (independence)', 'No'],
+                ['Attestation (identity)', 'Only for the declaration, not for the time'],
+              ]}
+            />
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
+              The core (existence + verification) remains independent. That is the structural separation.
+            </p>
           </section>
 
           {/* Moat */}
@@ -334,6 +389,13 @@ export default function InvestorOnePager() {
                 Anchoring needs one forcing event: the first major case where an anchor wins
                 and the absence of one loses. The AI Act. A plagiarism ruling. A contract dispute.
                 The event will come from outside. The infrastructure needs to be in place before it does.
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+                The standard sequence today: Generate. Edit. Share.<br />
+                The missing action: <strong className="text-[hsl(40,15%,88%,0.9)]">Lock in time.</strong>
+              </p>
+              <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+                When that action normalises, the primitive becomes infrastructure.
               </p>
               <p className="text-base text-[hsl(40,15%,88%,0.95)] mt-4 font-medium print:text-stone-900">
                 Three minutes for permanent proof. That is the proposition.
