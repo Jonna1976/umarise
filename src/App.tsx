@@ -103,7 +103,11 @@ const App = () => (
             <Route path="/anchor" element={<Anchor />} />
             <Route path="/origin" element={<Anchor />} />
             <Route path="/core" element={<CoreSpec />} />
-            <Route path="/proof" element={<ProofPage />} />
+            <Route path="/proof" element={
+              typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
+                ? <ItExistedProofEntry />
+                : <ProofPage />
+            } />
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
@@ -128,7 +132,7 @@ const App = () => (
             <Route path="/itexisted/proof/:token" element={<ItExistedProof />} />
             {/* itexisted.app root-level routes */}
             <Route path="/anchored" element={<ItExistedAnchored />} />
-            <Route path="/proof" element={<ItExistedProofEntry />} />
+            {/* /proof is host-aware above */}
             <Route path="/proof/:token" element={<ItExistedProof />} />
             <Route path="/sdk-spec" element={<SdkSpec />} />
             <Route path="/sdk-source" element={<SdkSource />} />
