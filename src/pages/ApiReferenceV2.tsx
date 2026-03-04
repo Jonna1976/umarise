@@ -1029,7 +1029,7 @@ ots verify proof.ots             # verify against Bitcoin`} />
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">CLI — install</h4>
             <Code code={`npm install -g @umarise/cli`} />
             <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2 mb-8">
-              Requires Node.js ≥ 18. Published as <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">@umarise/cli</a> (v1.1.0).
+              Requires Node.js ≥ 18. Published as <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">@umarise/cli</a> (v1.1.4).
             </p>
 
             {/* Command reference */}
