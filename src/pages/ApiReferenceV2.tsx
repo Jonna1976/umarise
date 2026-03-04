@@ -104,7 +104,14 @@ function GetStartedFlow() {
                 {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[hsl(var(--landing-cream)/0.5)]" />}
               </button>
             </div>
-            <p className="text-[10px] text-amber-400/70 font-mono">⚠ Copy this key now. It cannot be retrieved again.</p>
+            <div className="mt-3 p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
+              <p className="text-sm text-amber-300 font-medium mb-1">⚠ Save this key — it will not be shown again</p>
+              <p className="text-xs text-amber-400/70 leading-relaxed">
+                This key is not stored anywhere. Not by Umarise, not in a database, not in your browser. 
+                If you lose it, you'll need to generate a new one. Copy it now and store it securely 
+                (e.g. password manager, CI/CD secret, <code className="text-amber-300/80">.env</code> file).
+              </p>
+            </div>
           </div>
         )}
       </div>
