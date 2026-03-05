@@ -8,6 +8,7 @@ export interface KaartenbakItem {
   verifyUrl: string;
   status?: 'pending' | 'anchored';
   fileName?: string | null;
+  deviceSigned?: boolean;
 }
 
 interface KaartenbakState {

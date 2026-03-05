@@ -1,0 +1,1 @@
+ALTER TABLE public.origin_attestations ADD COLUMN device_signed boolean NOT NULL DEFAULT false;

@@ -13,6 +13,7 @@ import { OriginMark } from '../components/OriginMark';
 import { buildOriginZip } from '@/lib/originZip';
 import { fetchProofStatus, arrayBufferToBase64, fetchOriginByHash } from '@/lib/coreApi';
 import { calculateSHA256FromFile } from '@/lib/originHash';
+import HumanSignedBadge from '@/components/itexisted/HumanSignedBadge';
 
 /** Desktop-only download helper */
 function downloadBlob(blob: Blob | null, originId: string) {
@@ -332,13 +333,16 @@ export function SealedScreen({
           {shortId}
         </p>
 
-        {/* Date */}
-        <p
-          className="font-garamond text-[17px] mb-2.5"
-          style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
-        >
-          {formatDate(timestamp)}
-        </p>
+        {/* Date + Human Signed badge */}
+        <div className="flex items-center gap-2 mb-2.5">
+          <p
+            className="font-garamond text-[17px]"
+            style={{ color: 'hsl(var(--ritual-cream) / 0.55)' }}
+          >
+            {formatDate(timestamp)}
+          </p>
+          {deviceSignature && <HumanSignedBadge signed={true} size="sm" />}
+        </div>
 
         {/* Hash — full, one line */}
         <p

@@ -350,6 +350,7 @@ export type Database = {
           api_key_prefix: string | null
           captured_at: string
           created_at: string
+          device_signed: boolean
           hash: string
           hash_algo: string
           origin_id: string
@@ -359,6 +360,7 @@ export type Database = {
           api_key_prefix?: string | null
           captured_at?: string
           created_at?: string
+          device_signed?: boolean
           hash: string
           hash_algo?: string
           origin_id?: string
@@ -368,6 +370,7 @@ export type Database = {
           api_key_prefix?: string | null
           captured_at?: string
           created_at?: string
+          device_signed?: boolean
           hash?: string
           hash_algo?: string
           origin_id?: string

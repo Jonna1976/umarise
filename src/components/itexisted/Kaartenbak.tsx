@@ -6,6 +6,7 @@ import { useKaartenbak, KaartenbakItem } from '@/contexts/KaartenbakContext';
 import { loadArtifact } from '@/lib/artifactCache';
 import { fetchOriginByToken } from '@/lib/coreApi';
 import { toast } from 'sonner';
+import HumanSignedBadge from './HumanSignedBadge';
 
 /**
  * Kaartenbak — ephemeral bottom sheet panel.
@@ -261,6 +262,8 @@ export default function Kaartenbak() {
                       ✓
                     </span>
                   )}
+
+                  <HumanSignedBadge signed={item.deviceSigned ?? false} size="sm" />
 
                   <span style={{
                     fontFamily: "'DM Mono', monospace",
