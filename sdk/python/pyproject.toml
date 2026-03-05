@@ -7,7 +7,7 @@ name = "umarise"
 version = "1.0.0"
 description = "Minimal SDK for the Umarise Core v1 origin attestation API. Zero dependencies."
 readme = "README.md"
-license = {text = "Unlicense"}
+license = "Unlicense"
 requires-python = ">=3.8"
 authors = [
     {name = "Umarise", email = "partners@umarise.com"}
