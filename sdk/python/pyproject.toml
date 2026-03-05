@@ -16,7 +16,6 @@ keywords = ["umarise", "anchoring", "origin", "attestation", "proof", "opentimes
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: The Unlicense (Unlicense)",
     "Programming Language :: Python :: 3",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Libraries :: Python Modules",
