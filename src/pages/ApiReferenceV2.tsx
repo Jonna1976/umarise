@@ -416,12 +416,8 @@ export default function ApiReferenceV2() {
           {/* -- Headers & Envelope -- */}
           <Section id="headers">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Headers & Envelope</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-3">
-              One endpoint requires a key: <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code>. All other endpoints are public.
-            </p>
-            <Code code={`X-API-Key: um_your_key_here`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
-              Generate a key instantly in the <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Get Started</a> section below. No email, no account.
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-4">
+              Standard headers and response format for all endpoints.
             </p>
 
             <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
