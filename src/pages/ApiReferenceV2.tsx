@@ -1365,12 +1365,13 @@ umarise proof document.pdf`} />
             </p>
 
             <div className="space-y-6">
-              {/* itexisted.app */}
+              {/* Reference implementation example */}
               <div className="p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.02)]">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))]">B2C</span>
-                  <h3 className="text-[hsl(var(--landing-cream))] font-medium text-sm">itexisted.app</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[hsl(var(--landing-cream)/0.1)] text-[hsl(var(--landing-cream)/0.7)]">EXAMPLE</span>
+                  <h3 className="text-[hsl(var(--landing-cream))] font-medium text-sm">Origin ZIP verification</h3>
                 </div>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-3">For apps that generate origin ZIPs containing the artifact + proof bundle (e.g. consumer implementations of the Anchoring Specification).</p>
 
                 <div className="ml-0 space-y-3">
                   <div>
