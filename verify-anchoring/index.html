@@ -467,9 +467,10 @@ footer a:hover { color: var(--text-muted); }
     <input type="text" id="hash-input" class="hash-input" placeholder="Paste SHA-256 hash (64 hex characters)" maxlength="71" spellcheck="false" autocomplete="off">
 
     <div id="ots-drop-zone" class="ots-drop-zone">
-      <input type="file" id="ots-file-input" accept=".ots">
+      <input type="file" id="ots-file-input" accept=".ots,.proof">
       <div class="drop-label" id="ots-drop-label">
-        Drop your <code style="font-family:var(--mono);font-size:0.85em">.ots</code> file here or click to select
+        Drop your <code style="font-family:var(--mono);font-size:0.85em">.ots</code> or <code style="font-family:var(--mono);font-size:0.85em">.proof</code> file here or click to select
+        <small style="display:block;margin-top:0.3rem;font-size:13px;font-style:italic;color:var(--text-dim)">.proof files are auto-extracted — only proof.ots is used</small>
       </div>
     </div>
 
@@ -1278,13 +1279,41 @@ otsDropZone.addEventListener('drop', e => {
   if (f) setOtsFile(f);
 });
 
-function setOtsFile(f) {
-  f.arrayBuffer().then(buf => {
+async function setOtsFile(f) {
+  const buf = await f.arrayBuffer();
+  const magic = new Uint8Array(buf.slice(0, 4));
+  const isZip = (magic[0] === 0x50 && magic[1] === 0x4B && magic[2] === 0x03 && magic[3] === 0x04);
+
+  if (isZip && typeof JSZip !== 'undefined') {
+    // .proof file (CLI ZIP bundle) — extract proof.ots
+    try {
+      const zip = await JSZip.loadAsync(buf);
+      const otsFile = zip.file('proof.ots');
+      if (!otsFile) {
+        otsDropLabel.innerHTML = '<span style="color:var(--red)">✗ No proof.ots found inside ZIP</span>';
+        otsDropZone.classList.remove('has-file');
+        otsFileData = null;
+        updateDevBtn();
+        return;
+      }
+      const otsBuf = await otsFile.async('arraybuffer');
+      otsFileData = otsBuf;
+      otsDropLabel.innerHTML = '✓ <strong>proof.ots</strong> extracted from <strong>' + escHtml(f.name) + '</strong> (' + formatSize(otsBuf.byteLength) + ')';
+      otsDropZone.classList.add('has-file');
+      updateDevBtn();
+    } catch (err) {
+      otsDropLabel.innerHTML = '<span style="color:var(--red)">✗ Could not read ZIP: ' + escHtml(err.message) + '</span>';
+      otsDropZone.classList.remove('has-file');
+      otsFileData = null;
+      updateDevBtn();
+    }
+  } else {
+    // Raw .ots file
     otsFileData = buf;
     otsDropLabel.innerHTML = '✓ <strong>' + escHtml(f.name) + '</strong> (' + formatSize(f.size) + ')';
     otsDropZone.classList.add('has-file');
     updateDevBtn();
-  });
+  }
 }
 
 devVerifyBtn.addEventListener('click', async () => {
