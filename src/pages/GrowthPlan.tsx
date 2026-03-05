@@ -109,8 +109,8 @@ export default function GrowthPlan() {
                 <p className="text-xs text-landing-muted/40 mt-2">README: "Every artifact is anchored in Bitcoin. Verify at verify-anchoring.org"</p>
               </div>
               <div>
-                <h3 className="text-landing-cream/90 font-medium mb-1">2. .proof zichtbaar in GitHub releases</h3>
-                <p className="text-sm text-landing-muted/60">Als iemand een release opent en <code className="text-xs bg-landing-muted/10 px-1 rounded">release.tar.gz.proof</code> ziet → "wat is dit?" Dat is de marketing.</p>
+                <h3 className="text-landing-cream/90 font-medium mb-1">2. .proof zichtbaar in GitHub releases <span className="text-green-400 text-xs ml-1">✓</span></h3>
+                <p className="text-sm text-landing-muted/60">Release v0.1.0 live met example.txt + example.txt.proof als assets.</p>
               </div>
               <div>
                 <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard <span className="text-green-400 text-xs ml-1">✓</span></h3>
