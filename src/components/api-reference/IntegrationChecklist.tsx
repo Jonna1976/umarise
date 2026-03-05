@@ -17,8 +17,8 @@ const AI_CHECKLIST: ChecklistItem[] = [
     detail: 'Copy the prompt from the "Integrate with AI" section above. Paste it into Claude, ChatGPT, or your preferred AI assistant along with your existing code. The AI will write the integration.',
   },
   {
-    label: 'API key received from partners@umarise.com and configured',
-    detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Configure the key in your integration code.',
+    label: 'API key generated and configured',
+    detail: 'Generate your key at umarise.com/developers (one click, no account needed). Configure the key in your integration code. Key starts with um_.',
   },
   {
     label: 'origin_id stored in your database',
@@ -91,8 +91,8 @@ const FULL_CHECKLIST: ChecklistGroup[] = [
     stepOffset: 8,
     items: [
       {
-        label: 'Key received from partners@umarise.com',
-        detail: 'Email partners@umarise.com with your company name and use case. Response within 24 hours. Key starts with um_...',
+        label: 'Production API key generated and configured',
+        detail: 'Generate your key at umarise.com/developers (one click, no account needed). Key starts with um_. For higher rate limits or custom terms, contact partners@umarise.com.',
       },
       {
         label: 'Credit balance confirmed via response headers',

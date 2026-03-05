@@ -498,7 +498,13 @@ app.post('/upload', async (req, res) => {
                 <Code code={`// 401 - Missing or invalid API key
 { "error": { "code": "UNAUTHORIZED", "message": "Invalid API key" } }`} />
                 <Code code={`// 409 - Hash already attested with this key
-{ "error": { "code": "DUPLICATE_HASH", "message": "Hash already attested", "existing_origin_id": "..." } }`} />
+{
+  "error": {
+    "code": "DUPLICATE_HASH",
+    "message": "Hash already attested",
+    "existing_origin_id": "a1b2c3d4-e5f6-..."
+  }
+}`} />
                 <Code code={`// 400 - Invalid hash format
 { "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
               </div>
