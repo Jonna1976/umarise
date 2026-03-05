@@ -138,11 +138,11 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Tactische taken</h2>
             <div className="space-y-6">
               <div>
-                <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Direct</h3>
+                <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Direct — ✅ Afgerond 5 maart</h3>
                 <ul className="space-y-2">
-                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> npm/PyPI keywords optimaliseren</li>
-                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> SDK READMEs: install → anchor → verify in 30 seconden</li>
-                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Action README: CI/CD build artifact primitive</li>
+                  <li className="flex items-start gap-2"><span className="text-green-400">✓</span> <span className="line-through text-landing-muted/40">npm/PyPI keywords optimaliseren</span> <span className="text-xs text-landing-muted/30">@umarise/anchor@1.1.0 · @umarise/cli@1.2.0 · umarise-core-sdk v1.0.5</span></li>
+                  <li className="flex items-start gap-2"><span className="text-green-400">✓</span> <span className="line-through text-landing-muted/40">SDK READMEs: install → anchor → verify in 30 seconden</span></li>
+                  <li className="flex items-start gap-2"><span className="text-green-400">✓</span> <span className="line-through text-landing-muted/40">GitHub Action README: CI/CD build artifact primitive</span></li>
                 </ul>
               </div>
               <div>
