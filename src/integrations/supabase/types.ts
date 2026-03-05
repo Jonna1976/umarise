@@ -602,6 +602,7 @@ export type Database = {
       partner_api_keys: {
         Row: {
           credit_balance: number | null
+          environment: string
           first_attestation_at: string | null
           first_error_code: string | null
           id: string
@@ -618,6 +619,7 @@ export type Database = {
         }
         Insert: {
           credit_balance?: number | null
+          environment?: string
           first_attestation_at?: string | null
           first_error_code?: string | null
           id?: string
@@ -634,6 +636,7 @@ export type Database = {
         }
         Update: {
           credit_balance?: number | null
+          environment?: string
           first_attestation_at?: string | null
           first_error_code?: string | null
           id?: string
