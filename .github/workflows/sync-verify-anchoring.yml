@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'verify-anchoring/**'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -13,12 +14,13 @@ jobs:
       - name: Checkout source repo
         uses: actions/checkout@v4
 
-      - name: Checkout target repo
-        uses: actions/checkout@v4
-        with:
-          repository: AnchoringTrust/verify-anchoring
-          token: ${{ secrets.VERIFY_ANCHORING_PAT }}
-          path: target-repo
+      - name: Clone target repo with PAT
+        run: |
+          git clone https://x-access-token:${{ secrets.VERIFY_ANCHORING_PAT }}@github.com/AnchoringTrust/verify-anchoring.git target-repo
+          cd target-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B main origin/main
 
       - name: Sync files
         run: |
@@ -34,10 +36,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.VERIFY_ANCHORING_PAT }}@github.com/AnchoringTrust/verify-anchoring.git
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to sync"
           else
             git commit -m "Sync from Lovable project — $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git push
+            git push origin main
           fi
