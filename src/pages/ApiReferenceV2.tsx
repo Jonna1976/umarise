@@ -128,7 +128,7 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18. The CLI calls the hosted API — no server to install.</p>
         <div className="ml-7 space-y-3">
           <Code code={`npm install -g @umarise/cli`} />
           <p className="text-xs text-[hsl(var(--landing-cream)/0.8)]">Then set your key (once per terminal session):</p>
@@ -142,7 +142,7 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">One command, same command every time. Your file is hashed locally, never uploaded.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">One command, same command every time. Your file is hashed locally, only the hash is sent to the API. Requires internet.</p>
         <div className="ml-7 space-y-4">
           <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
@@ -222,7 +222,7 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">No API key. No account. No Umarise dependency. The .proof file must be in the same folder as your original file.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3 ml-7">No API key. No internet. No Umarise dependency. Fully offline — verifies locally against the Bitcoin proof.</p>
         <div className="ml-7 space-y-3">
           <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
