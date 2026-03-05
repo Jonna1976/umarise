@@ -335,6 +335,7 @@ export function useMarks() {
           thumbnail_uri: thumbnailPublicUrl || null,
           ocr_text: '',
           is_trashed: false,
+          device_signed: !!deviceSignature,
         } as any);
 
       if (supabaseError) {
@@ -518,6 +519,7 @@ export function useMarks() {
           thumbnail_uri: thumbnailPublicUrl || null,
           ocr_text: '',
           is_trashed: false,
+          device_signed: !!deviceSignature,
         } as any);
 
       if (supabaseError) {
