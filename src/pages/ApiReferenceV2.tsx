@@ -209,7 +209,7 @@ export default function ApiReferenceV2() {
 }`}</pre>
               </div>
               <p className="text-[10px] text-[hsl(var(--landing-cream)/0.8)] mt-2">
-                Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
+                Public endpoint. The response is identical for everyone.
               </p>
             </div>
           </Section>
@@ -816,7 +816,7 @@ print(result["captured_at"])`} />
               Add proof to every build. Your artifacts ship with a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file, like a <code className="text-[hsl(var(--landing-copper))]">.sig</code> or <code className="text-[hsl(var(--landing-copper))]">.sbom</code>, but anchored to Bitcoin.
             </p>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mb-8">
-              No accounts. No dashboards. No vendor lock-in. The proof is the product.
+              The .proof file is the deliverable. It verifies independently of Umarise.
             </p>
 
             {/* What you'll see */}
@@ -1064,7 +1064,7 @@ umarise proof document.pdf`} />
 ✓ proof valid, independent of Umarise`}</pre>
             </div>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mt-2 mb-4">
-              No API key required. Verification is a public utility.
+              No API key required.
             </p>
 
             {/* What verify does step by step */}
@@ -1437,7 +1437,7 @@ umarise proof document.pdf`} />
 
             <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
               <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] leading-relaxed">
-                Credit top-ups go through Stripe. Stripe knows who paid, we only see: <code className="text-[hsl(var(--landing-copper))]">key_prefix um_abc12 received 500 credits</code>. No account, no login, no dashboard. The key is an anonymous credit token, not a customer relationship.
+                Credit top-ups go through Stripe. Stripe knows who paid, we only see: <code className="text-[hsl(var(--landing-copper))]">key_prefix um_abc12 received 500 credits</code>. The key is an anonymous credit token.
               </p>
             </div>
           </Section>
