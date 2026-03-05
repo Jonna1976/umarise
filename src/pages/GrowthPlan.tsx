@@ -98,49 +98,69 @@ export default function GrowthPlan() {
             </div>
           </section>
 
-          {/* Fase 1 */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 1 — Vindbaarheid &amp; README</h2>
-            <p className="text-landing-muted/50 text-xs mb-4">Direct uitvoerbaar</p>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> <code className="text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded">package.json</code> keywords: proof of existence, bitcoin timestamp, opentimestamps, file integrity, anchoring, digital proof, sha256, immutable record</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> <code className="text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded">pyproject.toml</code> keywords &amp; classifiers (ultra-compatible metadata)</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> SDK READMEs: install → anchor → verify in 30 seconden</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Action README: positioneer als CI/CD build artifact primitive</li>
-            </ul>
+          {/* Executie-plan: 5 stappen */}
+          <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-6">Executieplan — 5 stappen</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">1. Proof showcase repo</h3>
+                <p className="text-sm text-landing-muted/60 mb-2">GitHub repo <code className="text-xs bg-landing-muted/10 px-1 rounded">anchoring-examples</code> met tastbare voorbeelden:</p>
+                <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono leading-relaxed">dataset.parquet + dataset.parquet.proof{'\n'}model.pt + model.pt.proof{'\n'}release.tar.gz + release.tar.gz.proof</pre>
+                <p className="text-xs text-landing-muted/40 mt-2">README: "Every artifact is anchored in Bitcoin. Verify at verify-anchoring.org"</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">2. .proof zichtbaar in GitHub releases</h3>
+                <p className="text-sm text-landing-muted/60">Als iemand een release opent en <code className="text-xs bg-landing-muted/10 px-1 rounded">release.tar.gz.proof</code> ziet → "wat is dit?" Dat is de marketing.</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard</h3>
+                <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono">uses: AnchoringTrust/anchor-action@v1</pre>
+                <p className="text-xs text-landing-muted/40 mt-1">artifact → artifact.proof, automatisch</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">4. Plaats het waar developers zoeken</h3>
+                <ul className="text-sm text-landing-muted/60 space-y-1 mt-1">
+                  <li>• GitHub — voorbeeldrepos, releases met .proof</li>
+                  <li>• npm — CLI package (@umarise/cli)</li>
+                  <li>• PyPI — Python SDK (umarise)</li>
+                  <li>• GitHub Marketplace — Action</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">5. Eén simpele pagina: /proof</h3>
+                <p className="text-sm text-landing-muted/60">Laat alleen zien: artifact + artifact.proof + verify knop. Niets meer.</p>
+              </div>
+            </div>
           </section>
 
-          {/* Fase 2 */}
+          {/* Tactische taken */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 2 — Content &amp; backlinks</h2>
-            <p className="text-landing-muted/50 text-xs mb-4">Week 1-2</p>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> dev.to blogpost: "How to anchor build artifacts to Bitcoin in your CI pipeline"</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Focus: CI/CD use case, niet juridisch — developers herkennen het probleem</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Cross-post naar Hashnode en Medium (canonical naar dev.to)</li>
-            </ul>
-          </section>
-
-          {/* Fase 3 */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 3 — GitHub visibility</h2>
-            <p className="text-landing-muted/50 text-xs mb-4">Week 2-4</p>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Repo topics: anchoring, bitcoin, opentimestamps, proof-of-existence, ci-cd, build-artifact, provenance</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Organization opzetten (umarise)</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Professionele org README met links naar SDKs, spec, verifier</li>
-            </ul>
-          </section>
-
-          {/* Fase 4 */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 4 — Community seeding</h2>
-            <p className="text-landing-muted/50 text-xs mb-4">Maand 1-3</p>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Stack Overflow: vragen over build provenance, artifact integrity, reproducible builds</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Reddit: r/devops, r/mlops, r/selfhosted — CI/CD en AI pipeline threads</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Dependency chain: open-source projecten die artifact provenance nodig hebben</li>
-            </ul>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Tactische taken</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Direct</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> npm/PyPI keywords optimaliseren</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> SDK READMEs: install → anchor → verify in 30 seconden</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Action README: CI/CD build artifact primitive</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Week 1-2</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> anchoring-examples repo opzetten met .proof bestanden</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> dev.to blogpost: "How to anchor build artifacts to Bitcoin in CI"</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Week 2-4</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub repo topics toevoegen</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Organization opzetten</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Community seeding: Stack Overflow, r/devops, r/mlops</li>
+                </ul>
+              </div>
+            </div>
           </section>
 
           {/* Metrics */}
