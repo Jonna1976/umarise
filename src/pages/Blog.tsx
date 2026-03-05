@@ -1,0 +1,164 @@
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+export default function Blog() {
+  useEffect(() => {
+    document.title = 'How to prove a file existed at a specific time — Umarise';
+    const setMeta = (name: string, content: string, property?: boolean) => {
+      const attr = property ? 'property' : 'name';
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute('content', content);
+    };
+    setMeta('description', 'Anchor any file to Bitcoin with one API call. CLI, Node.js SDK, Python SDK, and GitHub Action. Open protocol, zero vendor lock-in.');
+    setMeta('og:title', 'How to prove a file existed at a specific time — Umarise', true);
+    setMeta('og:description', 'Anchor any file to Bitcoin with one API call. Open protocol, zero vendor lock-in.', true);
+    setMeta('og:url', 'https://umarise.com/blog', true);
+    return () => { document.title = 'Umarise — Anchoring infrastructure for digital proof'; };
+  }, []);
+
+  return (
+    <main className="min-h-screen bg-landing-deep text-landing-cream">
+      <header className="border-b border-landing-muted/10">
+        <div className="max-w-2xl mx-auto px-6 py-4">
+          <Link to="/" className="font-serif text-lg text-landing-cream hover:text-landing-cream/80 transition-colors">
+            Umarise
+          </Link>
+        </div>
+      </header>
+
+      <article className="max-w-2xl mx-auto px-6 py-16 md:py-24">
+        <h1 className="font-serif text-3xl md:text-4xl font-light mb-3 tracking-tight text-landing-cream">
+          How to prove a file existed at a specific time
+        </h1>
+        <p className="text-landing-muted text-sm mb-12">March 2026</p>
+
+        <div className="space-y-8 text-[15px] text-landing-cream leading-relaxed">
+
+          <p>
+            You have a file. A contract, a photo, a design, a dataset. You need to prove it existed before a specific moment, without relying on a third party someone could argue is biased.
+          </p>
+          <p>
+            This is called proof of existence. The underlying cryptography is simple. A clean developer primitive for it has been missing.
+          </p>
+          <p>Here is one.</p>
+
+          {/* Install */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">Install</h2>
+
+          <div className="space-y-3">
+            <div>
+              <span className="text-landing-muted text-xs font-mono block mb-1">Node.js</span>
+              <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto">
+                npm install @umarise/anchor
+              </pre>
+            </div>
+            <div>
+              <span className="text-landing-muted text-xs font-mono block mb-1">Python</span>
+              <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto">
+                pip install umarise-core-sdk
+              </pre>
+            </div>
+          </div>
+
+          {/* Anchor */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">Anchor a file</h2>
+
+          <div className="space-y-3">
+            <div>
+              <span className="text-landing-muted text-xs font-mono block mb-1">Node.js</span>
+              <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`import { UmariseCore } from '@umarise/anchor';
+
+const core = new UmariseCore({ apiKey: 'um_...' });
+const origin = await core.attest('sha256:9f3a...');
+console.log(origin.origin_id);`}</pre>
+            </div>
+            <div>
+              <span className="text-landing-muted text-xs font-mono block mb-1">Python</span>
+              <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`from umarise import UmariseCore
+
+core = UmariseCore(api_key="um_...")
+origin = core.attest("sha256:9f3a...")
+print(origin["origin_id"])`}</pre>
+            </div>
+          </div>
+
+          <p>
+            The file never leaves your machine. You compute a SHA-256 hash locally and anchor it into Bitcoin via OpenTimestamps. What comes back is an origin record with an <code className="font-mono text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded text-landing-cream">origin_id</code>.
+          </p>
+
+          {/* Proof */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">What the proof contains</h2>
+
+          <p>
+            The <code className="font-mono text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded text-landing-cream">.proof</code> file (generated by the CLI) is a ZIP containing:
+          </p>
+
+          <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`certificate.json    ← origin_id, hash, timestamp
+proof.ots           ← OpenTimestamps binary proof`}</pre>
+
+          <p>
+            The proof is verifiable by anyone, without an account, without trusting the issuer, using a block explorer or the open verifier at{' '}
+            <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-landing-cream underline underline-offset-4 decoration-landing-muted/30 hover:decoration-landing-cream/50 transition-colors">
+              verify-anchoring.org
+            </a>.
+          </p>
+
+          {/* CLI */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">CLI</h2>
+
+          <p>The fastest path. No code needed:</p>
+
+          <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`npx @umarise/cli anchor contract-draft-v3.pdf
+# ✓ hash computed: sha256:9f3a...
+# ✓ anchored: origin_id abc4f2...
+# ✓ proof saved: contract-draft-v3.pdf.proof`}</pre>
+
+          <p>Verify (after Bitcoin confirmation, ~2 hours):</p>
+
+          <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`npx @umarise/cli verify contract-draft-v3.pdf.proof
+# ✓ Hash Match | Bitcoin Block #884201 | 2026-03-05 | VALID`}</pre>
+
+          {/* CI/CD */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">CI/CD</h2>
+
+          <p>Anchor every build artifact on publish:</p>
+
+          <pre className="bg-landing-muted/[0.08] border border-landing-muted/10 rounded-lg px-4 py-3 font-mono text-sm text-landing-cream overflow-x-auto whitespace-pre">{`# .github/workflows/anchor.yml
+- uses: AnchoringTrust/anchor-action@v1
+  with:
+    file: dist/release.tar.gz
+  env:
+    UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`}</pre>
+
+          <p>The <code className="font-mono text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded text-landing-cream">.proof</code> file is automatically uploaded as a build artifact.</p>
+
+          {/* Why now */}
+          <h2 className="font-serif text-xl text-landing-cream pt-4">Why this is useful now</h2>
+
+          <p>
+            AI generates convincing content locally, without network traces, without cost. A document, a photo, a contract. The question has shifted from "is this fake?" to "can you prove when this existed?"
+          </p>
+          <p>
+            Anchoring gives you a fact that sits outside your own system. The hash is in Bitcoin. The block is public. The proof is yours.
+          </p>
+
+          {/* Links */}
+          <div className="mt-12 pt-8 border-t border-landing-muted/10 space-y-2">
+            <h2 className="font-serif text-xl text-landing-cream mb-4">Open by design</h2>
+            <div className="space-y-1 font-mono text-sm">
+              <p><a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-landing-cream underline underline-offset-4 decoration-landing-muted/30 hover:decoration-landing-cream/50 transition-colors">Spec — anchoring-spec.org</a></p>
+              <p><a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-landing-cream underline underline-offset-4 decoration-landing-muted/30 hover:decoration-landing-cream/50 transition-colors">Verifier — verify-anchoring.org</a></p>
+              <p><Link to="/developers" className="text-landing-cream underline underline-offset-4 decoration-landing-muted/30 hover:decoration-landing-cream/50 transition-colors">Docs — umarise.com/developers</Link></p>
+            </div>
+          </div>
+
+        </div>
+      </article>
+
+      <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted">
+        <p>© {new Date().getFullYear()} Umarise</p>
+      </footer>
+    </main>
+  );
+}
