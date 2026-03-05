@@ -128,9 +128,14 @@ function useActiveSection() {
     const observer = new IntersectionObserver(
       entries => {
         const visible = entries.filter(e => e.isIntersecting);
-        if (visible.length) setActive(visible[0].target.id);
+        if (visible.length) {
+          // Pick the section closest to the top of the viewport
+          const sorted = visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          const best = sorted.find(e => e.boundingClientRect.top >= 0) || sorted[sorted.length - 1];
+          setActive(best.target.id);
+        }
       },
-      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0.1 }
     );
     ids.forEach(id => {
       const el = document.getElementById(id);
