@@ -47,18 +47,18 @@ function Step({ number, title, display, singleLine, expected, note }: StepProps)
 
       <div className="relative">
         <CopyCmd singleLine={singleLine} />
-        <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.85)] overflow-x-auto whitespace-pre">
+        <pre className="bg-[hsl(var(--landing-cream)/0.03)] border border-[hsl(var(--landing-cream)/0.08)] rounded p-4 pr-20 text-xs font-mono text-[hsl(var(--landing-cream)/0.9)] overflow-x-auto whitespace-pre">
 <HighlightedCode code={display} />
         </pre>
       </div>
 
       <div className="bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-3">
-        <p className="text-[10px] font-mono uppercase tracking-wider text-[hsl(var(--landing-cream)/0.5)] mb-1">Expected</p>
-        <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] whitespace-pre-wrap">{expected}</pre>
+        <p className="text-[10px] font-mono uppercase tracking-wider text-[hsl(var(--landing-cream)/0.65)] mb-1">Expected</p>
+        <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.8)] whitespace-pre-wrap">{expected}</pre>
       </div>
 
       {note && (
-        <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs leading-relaxed pl-9">{note}</p>
+        <p className="text-[hsl(var(--landing-cream)/0.8)] text-xs leading-relaxed pl-9">{note}</p>
       )}
     </div>
   );
@@ -71,16 +71,16 @@ export default function QuickStartSection() {
         <div className="flex items-center gap-2 mb-2">
           <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))]" />
           <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))]">Quick Start</h2>
-          <span className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono ml-auto">60 seconds to first attestation</span>
+          <span className="text-[hsl(var(--landing-cream)/0.7)] text-xs font-mono ml-auto">60 seconds to first attestation</span>
         </div>
 
         <div className="flex items-start gap-3 p-3 rounded border border-[hsl(var(--landing-copper)/0.2)] bg-[hsl(var(--landing-copper)/0.05)] mb-8">
           <Zap className="w-4 h-4 text-[hsl(var(--landing-copper))] mt-0.5 shrink-0" />
           <div className="text-sm">
-            <p className="text-[hsl(var(--landing-cream)/0.85)]">
+            <p className="text-[hsl(var(--landing-cream)/0.9)]">
               Requirements: <code className="text-[hsl(var(--landing-copper))]">curl</code> + an <strong className="text-[hsl(var(--landing-cream))]">API key</strong>.
             </p>
-            <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs mt-1">
+            <p className="text-[hsl(var(--landing-cream)/0.8)] text-xs mt-1">
               No key yet? Email <a href="mailto:partners@umarise.com" className="text-[hsl(var(--landing-copper))] hover:underline">partners@umarise.com</a> — response within 24 hours.
             </p>
           </div>
@@ -135,10 +135,10 @@ export default function QuickStartSection() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-[hsl(var(--landing-cream)/0.08)]">
-          <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm font-medium mb-3">
-            ✓ Done. Your first attestation has been created.
-          </p>
-          <div className="space-y-2 text-xs text-[hsl(var(--landing-cream)/0.6)]">
+        <p className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">
+          ✓ Done. Your first attestation has been created.
+        </p>
+          <div className="space-y-2 text-xs text-[hsl(var(--landing-cream)/0.8)]">
             <p className="font-mono">Next steps:</p>
             <div className="flex flex-wrap gap-3">
               <a href="#templates" className="text-[hsl(var(--landing-copper))] hover:underline font-mono">→ SDK Node.js</a>
@@ -152,13 +152,13 @@ export default function QuickStartSection() {
       <div className="flex items-center justify-between p-4 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.01)]">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-[hsl(var(--landing-cream)/0.6)]" />
-          <p className="text-[hsl(var(--landing-cream)/0.6)] text-xs font-mono">
+          <p className="text-[hsl(var(--landing-cream)/0.8)] text-xs font-mono">
             Ready to integrate? → Scroll to Templates for Python and Node.js SDKs with 15 automated tests.
           </p>
         </div>
         <a
           href="#templates"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.7)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono text-[hsl(var(--landing-cream)/0.8)] hover:text-[hsl(var(--landing-cream))] bg-[hsl(var(--landing-cream)/0.04)] hover:bg-[hsl(var(--landing-cream)/0.08)] transition-colors"
         >
           → Templates
         </a>
