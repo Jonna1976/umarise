@@ -103,7 +103,7 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-6">Executieplan — 5 stappen</h2>
             <div className="space-y-6">
               <div>
-                <h3 className="text-landing-cream/90 font-medium mb-1">1. Proof showcase repo</h3>
+                <h3 className="text-landing-cream/90 font-medium mb-1">1. Proof showcase repo <span className="text-green-400 text-xs ml-1">✓</span></h3>
                 <p className="text-sm text-landing-muted/60 mb-2">GitHub repo <code className="text-xs bg-landing-muted/10 px-1 rounded">anchoring-examples</code> met tastbare voorbeelden:</p>
                 <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono leading-relaxed">dataset.parquet + dataset.parquet.proof{'\n'}model.pt + model.pt.proof{'\n'}release.tar.gz + release.tar.gz.proof</pre>
                 <p className="text-xs text-landing-muted/40 mt-2">README: "Every artifact is anchored in Bitcoin. Verify at verify-anchoring.org"</p>
@@ -113,22 +113,22 @@ export default function GrowthPlan() {
                 <p className="text-sm text-landing-muted/60">Als iemand een release opent en <code className="text-xs bg-landing-muted/10 px-1 rounded">release.tar.gz.proof</code> ziet → "wat is dit?" Dat is de marketing.</p>
               </div>
               <div>
-                <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard</h3>
+                <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard <span className="text-green-400 text-xs ml-1">✓</span></h3>
                 <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono">uses: AnchoringTrust/anchor-action@v1</pre>
                 <p className="text-xs text-landing-muted/40 mt-1">artifact → artifact.proof, automatisch</p>
               </div>
               <div>
-                <h3 className="text-landing-cream/90 font-medium mb-1">4. Plaats het waar developers zoeken</h3>
+                <h3 className="text-landing-cream/90 font-medium mb-1">4. Plaats het waar developers zoeken <span className="text-green-400 text-xs ml-1">✓</span></h3>
                 <ul className="text-sm text-landing-muted/60 space-y-1 mt-1">
                   <li>• GitHub — voorbeeldrepos, releases met .proof</li>
                   <li>• npm — CLI package (@umarise/cli)</li>
-                  <li>• PyPI — Python SDK (umarise)</li>
+                  <li>• PyPI — Python SDK (umarise-core-sdk)</li>
                   <li>• GitHub Marketplace — Action</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-landing-cream/90 font-medium mb-1">5. Eén simpele pagina: /proof</h3>
-                <p className="text-sm text-landing-muted/60">Laat alleen zien: artifact + artifact.proof + verify knop. Niets meer.</p>
+                <h3 className="text-landing-cream/90 font-medium mb-1">5. Eén simpele pagina: /proof <span className="text-green-400 text-xs ml-1">✓</span></h3>
+                <p className="text-sm text-landing-muted/60">Laat alleen zien: artifact + artifact.proof + verify knop. Live op <code className="text-xs bg-landing-muted/10 px-1 rounded">/proof</code></p>
               </div>
             </div>
           </section>
@@ -148,7 +148,9 @@ export default function GrowthPlan() {
               <div>
                 <h3 className="text-landing-muted/50 text-xs uppercase tracking-wide mb-3">Week 1-2</h3>
                 <ul className="space-y-2">
-                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> anchoring-examples repo opzetten met .proof bestanden</li>
+                  <li className="flex items-start gap-2"><span className="text-green-400">✓</span> <span className="line-through text-landing-muted/40">anchoring-examples repo opzetten met README</span></li>
+                  <li className="flex items-start gap-2"><span className="text-green-400">✓</span> <span className="line-through text-landing-muted/40">/proof pagina live</span></li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Eerste GitHub release met .proof assets op anchoring-examples</li>
                   <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> dev.to blogpost: "How to anchor build artifacts to Bitcoin in CI"</li>
                 </ul>
               </div>
