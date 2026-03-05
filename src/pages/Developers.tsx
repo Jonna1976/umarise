@@ -9,7 +9,25 @@ import { ArrowRight, ExternalLink } from 'lucide-react';
 
 const steps = [
   {
-    id: '01',
+    id: '02',
+    title: 'Get your API key',
+    blocks: [
+      {
+        label: 'Generate instantly — no account needed',
+        code: 'curl -X POST https://core.umarise.com/v1-developer-key',
+      },
+      {
+        label: 'Response',
+        code: `{
+  "api_key": "um_live_abc123…",
+  "credits": 100
+}`,
+      },
+    ],
+    note: '100 free credits. No email. No signup. Key works immediately.',
+  },
+  {
+    id: '02',
     title: 'Install',
     blocks: [
       { label: 'One-shot (no install)', code: 'npx @umarise/cli proof file.pdf' },
@@ -18,7 +36,7 @@ const steps = [
     ],
   },
   {
-    id: '02',
+    id: '03',
     title: 'Anchor a file',
     blocks: [
       { label: 'CLI', code: 'export UMARISE_API_KEY=um_live_…\numarise proof report.pdf' },
@@ -32,7 +50,7 @@ const steps = [
     ],
   },
   {
-    id: '03',
+    id: '04',
     title: 'Verify',
     blocks: [
       { label: 'CLI', code: 'umarise verify report.pdf report.pdf.proof' },
@@ -47,7 +65,7 @@ const steps = [
     note: 'Verification works offline. No API key required.',
   },
   {
-    id: '04',
+    id: '05',
     title: 'CI/CD',
     blocks: [
       {
