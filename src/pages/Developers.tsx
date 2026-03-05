@@ -88,8 +88,8 @@ export default function Developers() {
         </section>
 
         {/* Footer */}
-        <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-xs">
-          No account. No dashboard. No vendor lock-in.
+      <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-xs">
+          Proof is self-contained. Verification works without Umarise.
         </footer>
       </main>
     </div>
