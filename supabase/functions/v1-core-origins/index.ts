@@ -43,6 +43,7 @@ const RATE_LIMITS: Record<string, number> = {
 interface CoreOriginRequest {
   hash: string;
   dry_run?: boolean;
+  device_signed?: boolean;
 }
 
 interface CoreOriginResponse {
@@ -398,8 +399,9 @@ Deno.serve(async (req: Request) => {
         captured_at: capturedAt,
         api_key_prefix: apiKeyPrefix,
         short_token: shortToken,
+        device_signed: body.device_signed === true,
       })
-      .select('origin_id, hash, hash_algo, captured_at, short_token')
+      .select('origin_id, hash, hash_algo, captured_at, short_token, device_signed')
       .single();
 
     if (insertError) {
