@@ -797,43 +797,8 @@ export default function ItExistedProof() {
 
           {/* ── Elegant gold gradient divider — Layer 1+2 / Layer 3 separation ── */}
           <div className="w-full mt-8 mb-8" style={{ height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(197,147,90,0.35) 25%, rgba(197,147,90,0.35) 75%, transparent 100%)' }} />
-          <div className="w-full mb-6" style={!saveConfirmed ? { opacity: 0.45, pointerEvents: 'none' as const } : fullLockedStyle}>
-            <h2 className="font-garamond italic text-[24px] mb-3"
-              style={{ color: 'rgba(245,240,232,0.85)', lineHeight: 1.3 }}>
-              Want to add a trust layer?
-            </h2>
-            <p className="font-garamond italic text-[17px] mb-6"
-              style={{ color: 'rgba(245,240,232,0.4)', lineHeight: 1.55 }}>
-              A notary or verified third party can attest to this anchor, adding identity and legal weight above the cryptographic proof.
-            </p>
-            <button
-              onClick={() => toggleStep('attest')}
-              className="w-full flex items-center justify-center gap-3 py-3.5 rounded-[8px] transition-all"
-              style={{
-                border: '1px solid rgba(197,147,90,0.3)',
-                background: 'rgba(197,147,90,0.04)',
-                cursor: 'pointer',
-              }}>
-              <svg viewBox="0 0 20 20" width={14} height={14} style={{ flexShrink: 0 }}>
-                <circle cx="10" cy="10" r="7" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.8" />
-                <circle cx="10" cy="10" r="2.5" fill="rgba(197,147,90,0.7)" />
-              </svg>
-              <span className="font-mono text-[13px] tracking-[4px] uppercase"
-                style={{ color: 'rgba(197,147,90,0.6)' }}>
-                Request attestation
-              </span>
-            </button>
-            <div style={{
-              maxHeight: openStep === 'attest' ? 800 : 0,
-              overflow: 'hidden',
-              opacity: openStep === 'attest' ? 1 : 0,
-              transition: 'max-height 0.4s ease, opacity 0.3s ease',
-            }}>
-              <div className="pt-5">
-                <InlineAttestation originId={state.originId} shortToken={state.shortToken} />
-              </div>
-            </div>
-          </div>
+          {/* ── ATTESTATION — temporarily disabled, pending organization ── */}
+          {/* TODO: Re-enable when attestation service is organized. Price TBD (€1.95). */}
 
           {/* ── REVOKE / RESTORE ASSOCIATION (owner only) ── */}
           {ownerPageId && (

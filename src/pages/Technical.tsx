@@ -109,7 +109,7 @@ const assuranceLevels = [
     method: 'External attestation (KYC / notary)',
     establishes: 'These bytes existed at or before time T, associated with a verified identity.',
     binding: 'A certified independent attestant confirms the anchor timestamps based on ledger data. Evidence hash stored in identity_binding.',
-    cost: '€4.95 per attestation',
+    cost: '€1.95 per attestation (coming soon)',
   },
   {
     level: 'L4',

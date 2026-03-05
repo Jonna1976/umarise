@@ -538,24 +538,8 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
               </div>
             )}
 
-            {attestationStatus === 'none' && (
-              <div>
-                <div className="flex items-center gap-2 py-2 pl-4 mb-2">
-                  <span className="font-mono text-[14px] tracking-[3px] flex-shrink-0" style={{ color: 'rgba(197,147,90,0.5)' }}>5.</span>
-                  <span className="font-mono text-[14px] tracking-[3px] uppercase" style={{ color: 'rgba(240,234,214,0.6)' }}>Attestation</span>
-                </div>
-                <div className="rounded px-6 py-4 flex flex-col items-center gap-2.5" style={{ border: '1px solid rgba(201,169,110,0.15)', background: 'rgba(201,169,110,0.04)' }}>
-                  <p className="font-garamond text-[18px] text-center leading-[1.6] max-w-[260px]" style={{ color: 'rgba(240,234,214,0.35)' }}>
-                    A certified independent attestant confirms it was you. €4,95. One-time.
-                  </p>
-                  <button onClick={() => setShowAttestationModal(true)}
-                    className="font-mono text-[14px] tracking-[3px] uppercase px-6 py-2.5 rounded-full bg-transparent cursor-pointer transition-all hover:bg-[rgba(201,169,110,0.08)]"
-                    style={{ border: '1px solid rgba(201,169,110,0.4)', color: 'hsl(var(--ritual-gold))', marginTop: '4px' }}>
-                    Request attestation →
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Attestation UI temporarily disabled — pending organization */}
+            {/* TODO: Re-enable when attestation service is organized. Price TBD (€1.95). */}
             </>)}
 
               </div>
@@ -574,10 +558,7 @@ export function MarkDetailModal({ mark, onClose }: MarkDetailModalProps) {
         </motion.div>
       </motion.div>
 
-      {showAttestationModal && mark.originUuid && (
-        <AttestationRequestModal originId={mark.originUuid} onClose={() => setShowAttestationModal(false)}
-          onConfirm={() => { setShowAttestationModal(false); setAttestationStatus('pending'); }} />
-      )}
+      {/* AttestationRequestModal temporarily disabled */}
     </AnimatePresence>
   );
 }
