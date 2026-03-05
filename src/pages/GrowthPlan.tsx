@@ -21,14 +21,53 @@ export default function GrowthPlan() {
             </ul>
           </section>
 
+          {/* Adoptie-these */}
+          <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-4">Adoptie-these</h2>
+            <p className="text-landing-cream/90 mb-4">
+              Infrastructure groeit via <strong>frequentie &gt; importantie</strong>.
+            </p>
+            <p className="mb-4">
+              De eerste 10k anchors komen van routine artifacts, niet van zeldzame juridische momenten.
+            </p>
+            <p className="text-landing-cream/70 text-sm italic">
+              artifact → artifact + proof — net zoals artifact → artifact + signature.
+            </p>
+          </section>
+
+          {/* Primaire kanalen */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Primaire adoptie-kanalen</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-landing-copper mb-2">1. CI / build artifacts</h3>
+                <p className="text-sm mb-2">Elke build produceert binaries, models, datasets, releases. GitHub Action is het sterkste kanaal.</p>
+                <code className="text-xs bg-landing-muted/10 px-2 py-1 rounded block">release.tar.gz → release.tar.gz.proof</code>
+              </div>
+              <div>
+                <h3 className="text-landing-copper mb-2">2. AI pipelines</h3>
+                <p className="text-sm">Dataset snapshots, training outputs, model checkpoints. Provenance is een groot probleem in AI.</p>
+              </div>
+              <div>
+                <h3 className="text-landing-copper mb-2">3. Open-source releases</h3>
+                <p className="text-sm">.proof naast SHA256 en GPG signature. Bewijs dat dit de originele release was.</p>
+              </div>
+              <div>
+                <h3 className="text-landing-copper mb-2">4. Research / data</h3>
+                <p className="text-sm">Datasets, analysis code, paper drafts. Prioriteit en provenance.</p>
+              </div>
+            </div>
+          </section>
+
           {/* Fase 1 */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 1 — npm/PyPI vindbaarheid</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 1 — Vindbaarheid &amp; README</h2>
             <p className="text-landing-muted/50 text-xs mb-4">Direct uitvoerbaar</p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> <code className="text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded">package.json</code> keywords: proof of existence, bitcoin timestamp, opentimestamps, file integrity, anchoring, digital proof, sha256, immutable record</li>
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> <code className="text-xs bg-landing-muted/10 px-1.5 py-0.5 rounded">pyproject.toml</code> keywords &amp; classifiers (ultra-compatible metadata)</li>
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> SDK READMEs: install → anchor → verify in 30 seconden</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Action README: positioneer als CI/CD build artifact primitive</li>
             </ul>
           </section>
 
@@ -37,8 +76,8 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 2 — Content &amp; backlinks</h2>
             <p className="text-landing-muted/50 text-xs mb-4">Week 1-2</p>
             <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> dev.to blogpost: "How to anchor files to Bitcoin with one API call"</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Structuur: probleem → oplossing → code snippet → live demo link</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> dev.to blogpost: "How to anchor build artifacts to Bitcoin in your CI pipeline"</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Focus: CI/CD use case, niet juridisch — developers herkennen het probleem</li>
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Cross-post naar Hashnode en Medium (canonical naar dev.to)</li>
             </ul>
           </section>
@@ -48,7 +87,7 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 3 — GitHub visibility</h2>
             <p className="text-landing-muted/50 text-xs mb-4">Week 2-4</p>
             <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Repo topics: anchoring, bitcoin, opentimestamps, proof-of-existence, digital-proof, file-integrity</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Repo topics: anchoring, bitcoin, opentimestamps, proof-of-existence, ci-cd, build-artifact, provenance</li>
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> GitHub Organization opzetten (umarise)</li>
               <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Professionele org README met links naar SDKs, spec, verifier</li>
             </ul>
@@ -59,9 +98,9 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Fase 4 — Community seeding</h2>
             <p className="text-landing-muted/50 text-xs mb-4">Maand 1-3</p>
             <ul className="space-y-2">
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Stack Overflow: beantwoord vragen over proof of existence, file timestamp, document integrity</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Reddit: r/crypto, r/bitcoin, r/selfhosted — relevante threads</li>
-              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Dependency chain: zoek projecten die timestamps/integrity nodig hebben</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Stack Overflow: vragen over build provenance, artifact integrity, reproducible builds</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Reddit: r/devops, r/mlops, r/selfhosted — CI/CD en AI pipeline threads</li>
+              <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Dependency chain: open-source projecten die artifact provenance nodig hebben</li>
             </ul>
           </section>
 
