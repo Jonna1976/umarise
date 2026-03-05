@@ -1,6 +1,64 @@
 import PageHeader from '@/components/PageHeader';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface LiveMetrics {
+  totalOrigins: number;
+  todayOrigins: number;
+  totalProofs: number;
+  anchoredProofs: number;
+  pendingProofs: number;
+  activePartners7d: number;
+  last30dOrigins: number;
+}
+
+function useLiveMetrics() {
+  const [metrics, setMetrics] = useState<LiveMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchMetrics = async () => {
+    try {
+      const [originsRes, todayRes, proofsRes, partnersRes, thirtyDayRes] = await Promise.all([
+        supabase.from('origin_attestations').select('*', { count: 'exact', head: true }),
+        supabase.from('origin_attestations').select('*', { count: 'exact', head: true }).gte('created_at', new Date().toISOString().split('T')[0]),
+        supabase.from('core_ots_proofs').select('origin_id, status'),
+        supabase.from('origin_attestations').select('api_key_prefix').not('api_key_prefix', 'is', null).gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+        supabase.from('origin_attestations').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
+      ]);
+
+      const proofs = proofsRes.data || [];
+      const partnerPrefixes = new Set((partnersRes.data || []).map(r => r.api_key_prefix));
+
+      setMetrics({
+        totalOrigins: originsRes.count || 0,
+        todayOrigins: todayRes.count || 0,
+        totalProofs: proofs.length,
+        anchoredProofs: proofs.filter(p => p.status === 'anchored').length,
+        pendingProofs: proofs.filter(p => p.status === 'pending').length,
+        activePartners7d: partnerPrefixes.size,
+        last30dOrigins: thirtyDayRes.count || 0,
+      });
+      setLastUpdated(new Date());
+    } catch (e) {
+      console.error('Failed to fetch metrics', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return { metrics, loading, lastUpdated, refresh: fetchMetrics };
+}
 
 export default function GrowthPlan() {
+  const { metrics, loading, lastUpdated, refresh } = useLiveMetrics();
+
   return (
     <div className="min-h-screen bg-landing-deep text-landing-cream">
       <PageHeader />
@@ -289,16 +347,46 @@ export default function GrowthPlan() {
             </div>
           </section>
 
-          {/* Metrics */}
+          {/* Live Metrics Dashboard */}
           <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Metrics</h2>
-            <ul className="space-y-2">
-              <li>• npm weekly downloads</li>
-              <li>• PyPI downloads</li>
-              <li>• Google Search Console: impressions, clicks, indexed pages</li>
-              <li>• GitHub stars + forks</li>
-              <li>• Anchors per day (Core API)</li>
-            </ul>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase">Live Metrics</h2>
+              <div className="flex items-center gap-3">
+                {lastUpdated && (
+                  <span className="text-xs text-landing-muted/30">
+                    {lastUpdated.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+                <button onClick={refresh} className="text-xs text-landing-copper hover:text-landing-cream transition-colors">
+                  ↻ Refresh
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="bg-landing-muted/5 border border-landing-muted/10 rounded-lg p-4 animate-pulse h-20" />
+                ))}
+              </div>
+            ) : metrics ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <MetricCard label="Total Origins" value={metrics.totalOrigins.toLocaleString()} />
+                <MetricCard label="Vandaag" value={metrics.todayOrigins.toString()} accent />
+                <MetricCard label="30 dagen" value={metrics.last30dOrigins.toLocaleString()} />
+                <MetricCard label="Partners (7d)" value={metrics.activePartners7d.toString()} accent />
+                <MetricCard label="Proofs Anchored" value={metrics.anchoredProofs.toLocaleString()} />
+                <MetricCard label="Pending" value={metrics.pendingProofs.toString()} status={metrics.pendingProofs === 0 ? 'green' : 'amber'} />
+                <MetricCard label="Anchor Rate" value={metrics.totalProofs > 0 ? `${Math.round((metrics.anchoredProofs / metrics.totalProofs) * 100)}%` : '—'} />
+                <MetricCard label="Avg/dag (30d)" value={metrics.last30dOrigins > 0 ? Math.round(metrics.last30dOrigins / 30).toString() : '—'} />
+              </div>
+            ) : (
+              <p className="text-landing-muted/40 text-sm">Kon metrics niet laden.</p>
+            )}
+
+            <div className="mt-6 text-xs text-landing-muted/30 space-y-1">
+              <p>Overige bronnen: npm weekly downloads · PyPI downloads · Google Search Console · GitHub stars + forks</p>
+            </div>
           </section>
 
         </div>
@@ -307,6 +395,21 @@ export default function GrowthPlan() {
       <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
         <p>© {new Date().getFullYear()} Umarise</p>
       </footer>
+    </div>
+  );
+}
+
+function MetricCard({ label, value, accent, status }: { label: string; value: string; accent?: boolean; status?: 'green' | 'amber' }) {
+  return (
+    <div className={`rounded-lg p-4 border ${accent ? 'border-landing-copper/30 bg-landing-copper/5' : 'border-landing-muted/10 bg-landing-muted/5'}`}>
+      <p className="text-xs text-landing-muted/50 mb-1">{label}</p>
+      <p className={`text-xl font-mono font-medium ${
+        status === 'green' ? 'text-green-400' : 
+        status === 'amber' ? 'text-amber-400' : 
+        accent ? 'text-landing-copper' : 'text-landing-cream'
+      }`}>
+        {value}
+      </p>
     </div>
   );
 }
