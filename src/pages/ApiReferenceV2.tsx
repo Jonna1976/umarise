@@ -285,7 +285,7 @@ function Endpoint({ method, path, title, auth, children }: {
 const NAV = [
   { id: 'intro', label: 'Introduction' },
   { id: 'get-started', label: 'Get Started' },
-  { id: 'auth', label: 'Authentication' },
+  { id: 'headers', label: 'Headers & Envelope' },
   { id: 'quick-start', label: 'Quick Start (curl)' },
   { id: 'origins', label: 'POST /origins' },
   { id: 'resolve', label: 'GET /resolve' },
@@ -413,9 +413,9 @@ export default function ApiReferenceV2() {
             </div>
           </Section>
 
-          {/* -- Authentication -- */}
-          <Section id="auth">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Authentication</h2>
+          {/* -- Headers & Envelope -- */}
+          <Section id="headers">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Headers & Envelope</h2>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-3">
               One endpoint requires a key: <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code>. All other endpoints are public.
             </p>
