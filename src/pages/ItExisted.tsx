@@ -75,7 +75,7 @@ export default function ItExisted() {
 
   const anchorFile = async (file: File, sigData: { deviceSignature: string; devicePublicKey: string } | null) => {
     try {
-      const mark = await createMarkFromFile(file, mapFileType(file.type), undefined, true);
+      const mark = await createMarkFromFile(file, mapFileType(file.type), undefined, true, sigData);
 
       if (!mark) {
         toast.error('Anchoring failed. Try again.');

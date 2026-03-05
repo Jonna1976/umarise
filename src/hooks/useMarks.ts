@@ -383,6 +383,7 @@ export function useMarks() {
     type: LocalMark['type'] = 'warm',
     onProgress?: (fraction: number) => void,
     skipPasskey?: boolean,
+    externalSignature?: { deviceSignature: string; devicePublicKey: string } | null,
   ): Promise<DisplayMark | null> => {
     // Auto-initialize device ID if not present
     let deviceUserId = getDeviceId();
@@ -431,6 +432,17 @@ export function useMarks() {
       // ── Step 3: Device signing (best-effort, non-blocking) ─────────────────
       let deviceSignature: string | null = null;
       let devicePublicKey: string | null = null;
+
+      // If caller already did passkey signing (e.g. ItExisted.tsx), use that result
+      if (externalSignature && externalSignature.deviceSignature && externalSignature.deviceSignature !== 'registered') {
+        deviceSignature = externalSignature.deviceSignature;
+        devicePublicKey = externalSignature.devicePublicKey;
+        console.log('[createMarkFromFile] Using external signature, sig length:', deviceSignature.length);
+      } else if (externalSignature && externalSignature.devicePublicKey) {
+        // Registration-only (no signing yet) — still mark as device_signed with publicKey
+        devicePublicKey = externalSignature.devicePublicKey;
+        console.log('[createMarkFromFile] Using external publicKey (registration only)');
+      }
 
       const webAuthnSupported = isWebAuthnSupported();
       console.log('[createMarkFromFile] WebAuthn supported:', webAuthnSupported, 'skipPasskey:', skipPasskey);
