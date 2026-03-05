@@ -40,7 +40,10 @@ interface MetricsResponse {
   attestations_7d: number;
   attestations_30d: number;
   active_partners: number;
+  active_partners_production: number;
+  active_partners_sandbox: number;
   active_partners_7d: number;
+  active_partners_7d_production: number;
   proofs_anchored: number;
   proofs_pending: number;
   proofs_by_partner: Record<string, number>;
@@ -102,11 +105,14 @@ Deno.serve(async (req: Request) => {
       attestations7dResult,
       attestations30dResult,
       activePartnersResult,
+      activePartnersProductionResult,
+      activePartnersSandboxResult,
       proofsAnchoredResult,
       proofsPendingResult,
       proofsByPartnerResult,
       activePartners7dResult,
       requestMetrics24hResult,
+      partnerEnvironmentsResult,
     ] = await Promise.all([
       supabase
         .from('origin_attestations')
@@ -128,6 +134,16 @@ Deno.serve(async (req: Request) => {
         .select('*', { count: 'exact', head: true })
         .is('revoked_at', null),
       supabase
+        .from('partner_api_keys')
+        .select('*', { count: 'exact', head: true })
+        .is('revoked_at', null)
+        .eq('environment', 'production'),
+      supabase
+        .from('partner_api_keys')
+        .select('*', { count: 'exact', head: true })
+        .is('revoked_at', null)
+        .eq('environment', 'sandbox'),
+      supabase
         .from('core_ots_proofs')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'anchored'),
@@ -146,6 +162,11 @@ Deno.serve(async (req: Request) => {
         .gte('captured_at', sevenDaysAgo.toISOString())
         .not('api_key_prefix', 'is', null),
       supabase.rpc('core_metrics_24h'),
+      // Get partner environments for 7d filtering
+      supabase
+        .from('partner_api_keys')
+        .select('key_prefix, environment')
+        .is('revoked_at', null),
     ]);
 
     // Aggregate proofs by partner
@@ -157,11 +178,25 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Count distinct active partners in 7d
+    // Build environment lookup from partner keys
+    const partnerEnvMap: Record<string, string> = {};
+    if (partnerEnvironmentsResult.data) {
+      for (const row of partnerEnvironmentsResult.data) {
+        partnerEnvMap[row.key_prefix] = row.environment;
+      }
+    }
+
+    // Count distinct active partners in 7d, split by environment
     const activePartners7dSet = new Set<string>();
+    const activePartners7dProductionSet = new Set<string>();
     if (activePartners7dResult.data) {
       for (const row of activePartners7dResult.data) {
-        if (row.api_key_prefix) activePartners7dSet.add(row.api_key_prefix);
+        if (row.api_key_prefix) {
+          activePartners7dSet.add(row.api_key_prefix);
+          if (partnerEnvMap[row.api_key_prefix] === 'production') {
+            activePartners7dProductionSet.add(row.api_key_prefix);
+          }
+        }
       }
     }
 
@@ -187,7 +222,10 @@ Deno.serve(async (req: Request) => {
       attestations_7d: attestations7dResult.count || 0,
       attestations_30d: attestations30dResult.count || 0,
       active_partners: activePartnersResult.count || 0,
+      active_partners_production: activePartnersProductionResult.count || 0,
+      active_partners_sandbox: activePartnersSandboxResult.count || 0,
       active_partners_7d: activePartners7dSet.size,
+      active_partners_7d_production: activePartners7dProductionSet.size,
       proofs_anchored: proofsAnchoredResult.count || 0,
       proofs_pending: proofsPendingResult.count || 0,
       proofs_by_partner: proofsByPartner,
