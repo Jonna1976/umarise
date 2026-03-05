@@ -569,7 +569,7 @@ const Architecture = () => {
             </div>
             <div className="mt-3 p-3 bg-landing-cream/[0.02] border border-landing-cream/5 rounded-lg">
               <p className="text-xs text-landing-muted/40">
-                <strong className="text-landing-cream/60">Flow:</strong> User requests attestation → Stripe Checkout (€4.95) → webhook creates pending request → certified independent attestant confirms with cryptographic signature → publicly verifiable via /v1-attestation-verify.
+                <strong className="text-landing-cream/60">Flow:</strong> User requests attestation → Stripe Checkout (€1.95) → webhook creates pending request → certified independent attestant confirms with cryptographic signature → publicly verifiable via /v1-attestation-verify. <em>(Currently disabled — pending organization.)</em>
               </p>
             </div>
           </div>
