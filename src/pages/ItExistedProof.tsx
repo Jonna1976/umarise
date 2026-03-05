@@ -302,15 +302,19 @@ export default function ItExistedProof() {
   /* ── LOADING ── */
   if (loading) {
     return (
+      <>
+      <Circumpunct />
+      <Kaartenbak />
       <main className="min-h-screen flex items-center justify-center"
         style={{ background: '#0a0f0a' }}>
-        <svg viewBox="0 0 26 26" width={26} height={26} style={{ overflow: 'visible' }}>
+        <svg viewBox="0 0 26 26" width={26} height={26} style={{ overflow: 'visible', opacity: 0.35 }}>
           <circle cx="13" cy="13" r="11" fill="none" stroke="rgba(197,147,90,0.35)" strokeWidth="0.9" />
           <circle cx="13" cy="13" r="3.5" fill="#C5935A">
             <animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite" />
           </circle>
         </svg>
       </main>
+      </>
     );
   }
 
