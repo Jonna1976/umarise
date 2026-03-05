@@ -30,9 +30,48 @@ export default function GrowthPlan() {
             <p className="mb-4">
               De eerste 10k anchors komen van routine artifacts, niet van zeldzame juridische momenten.
             </p>
-            <p className="text-landing-cream/70 text-sm italic">
+            <p className="text-landing-cream/70 text-sm italic mb-6">
               artifact → artifact + proof — net zoals artifact → artifact + signature.
             </p>
+            <div className="border-t border-landing-copper/15 pt-4 mt-4">
+              <p className="text-landing-cream/90 mb-2">
+                <strong>Distributie-regel:</strong> partnerships zijn 6-18 maanden. Developer adoptie is 6 minuten.
+              </p>
+              <p className="text-sm text-landing-muted/60 mb-2">
+                Focus op <strong>anchors per day</strong>, niet partners per quarter.
+              </p>
+              <p className="text-sm text-landing-muted/60">
+                Test: als een developer kan beginnen zonder met ons te praten → we zitten goed. ✓
+              </p>
+            </div>
+          </section>
+
+          {/* Distributiekanalen */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Hoe infrastructuur verspreidt</h2>
+            <div className="space-y-4 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">01</span>
+                <div>
+                  <p className="text-landing-cream/90 font-medium">Default in tools</p>
+                  <p className="text-landing-muted/60">CI tools, AI pipelines, dataset tools. Als het standaard draait, groeit het automatisch.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">02</span>
+                <div>
+                  <p className="text-landing-cream/90 font-medium">Automation</p>
+                  <p className="text-landing-muted/60">build → anchor, dataset export → anchor, model checkpoint → anchor. Systemen, niet mensen.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">03</span>
+                <div>
+                  <p className="text-landing-cream/90 font-medium">Developer copy-paste</p>
+                  <p className="text-landing-muted/60">Iemand ziet <code className="text-xs bg-landing-muted/10 px-1 rounded">uses: AnchoringTrust/anchor-action@v1</code> → "oh handig" → adoptie. Geen meetings.</p>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Primaire kanalen */}
