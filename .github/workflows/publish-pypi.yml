@@ -10,7 +10,8 @@ jobs:
     name: Build & Publish to PyPI
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # Required for Trusted Publishing
+      id-token: write
+      contents: read
     
     steps:
       - uses: actions/checkout@v4
