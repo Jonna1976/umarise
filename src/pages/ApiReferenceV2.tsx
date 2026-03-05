@@ -285,12 +285,12 @@ function Endpoint({ method, path, title, auth, children }: {
 const NAV = [
   { id: 'intro', label: 'Introduction' },
   { id: 'get-started', label: 'Get Started' },
-  { id: 'headers', label: 'Headers & Envelope' },
   { id: 'quick-start', label: 'Quick Start (curl)' },
   { id: 'origins', label: 'POST /origins' },
   { id: 'resolve', label: 'GET /resolve' },
   { id: 'verify', label: 'POST /verify' },
   { id: 'proof', label: 'GET /proof' },
+  { id: 'headers', label: 'Headers & Envelope' },
   { id: 'errors', label: 'Errors' },
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
@@ -411,50 +411,6 @@ export default function ApiReferenceV2() {
                 Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
               </p>
             </div>
-          </Section>
-
-          {/* -- Headers & Envelope -- */}
-          <Section id="headers">
-            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Headers & Envelope</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-4">
-              Standard headers and response format for all endpoints.
-            </p>
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Header</th>
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Required</th>
-                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ['Content-Type', 'POST only', 'application/json'],
-                    ['X-API-Key', 'POST /origins', 'Partner API key (um_...)'],
-                    ['X-API-Version', 'No', 'Returned in all responses. Currently v1.'],
-                  ].map(([header, req, desc]) => (
-                    <tr key={header} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
-                      <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{header}</td>
-                      <td className="py-2 pr-4 text-xs">{req}</td>
-                      <td className="py-2 text-[hsl(var(--landing-cream)/0.85)] text-xs">{desc}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Response Envelope</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-2">
-              Success responses return the resource directly. Error responses use a consistent envelope:
-            </p>
-            <Code code={`// Success (2xx)
-{ "origin_id": "...", "hash": "...", ... }
-
-// Error (4xx/5xx)
-{ "error": { "code": "ERROR_CODE", "message": "Human-readable description" } }`} />
           </Section>
 
           {/* -- Get Started -- */}
@@ -853,6 +809,50 @@ app.post('/upload', async (req, res) => {
                 Typical response time: &lt;200ms. Rate limit: 1,000/min per IP.
               </p>
             </Endpoint>
+          </Section>
+
+          {/* -- Headers & Envelope -- */}
+          <Section id="headers">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Headers & Envelope</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-4">
+              Standard headers and response format for all endpoints.
+            </p>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Header</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Required</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Content-Type', 'POST only', 'application/json'],
+                    ['X-API-Key', 'POST /origins', 'Partner API key (um_...)'],
+                    ['X-API-Version', 'No', 'Returned in all responses. Currently v1.'],
+                  ].map(([header, req, desc]) => (
+                    <tr key={header} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
+                      <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{header}</td>
+                      <td className="py-2 pr-4 text-xs">{req}</td>
+                      <td className="py-2 text-[hsl(var(--landing-cream)/0.85)] text-xs">{desc}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Response Envelope</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-2">
+              Success responses return the resource directly. Error responses use a consistent envelope:
+            </p>
+            <Code code={`// Success (2xx)
+{ "origin_id": "...", "hash": "...", ... }
+
+// Error (4xx/5xx)
+{ "error": { "code": "ERROR_CODE", "message": "Human-readable description" } }`} />
           </Section>
 
           {/* -- Errors -- */}
