@@ -72,6 +72,7 @@ import Changelog from "./pages/Changelog";
 import Ecosystem from "./pages/Ecosystem";
 import GrowthPlan from "./pages/GrowthPlan";
 import Blog from "./pages/Blog";
+import Passkey from "./pages/Passkey";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +157,7 @@ const App = () => (
             <Route path="/ecosystem" element={<Ecosystem />} />
             <Route path="/growth-plan" element={<InternalGate><GrowthPlan /></InternalGate>} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/passkey" element={<Passkey />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
