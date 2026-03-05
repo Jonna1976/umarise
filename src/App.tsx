@@ -71,6 +71,7 @@ import PartnerOutreachExport from "./pages/PartnerOutreachExport";
 import Changelog from "./pages/Changelog";
 import Ecosystem from "./pages/Ecosystem";
 import GrowthPlan from "./pages/GrowthPlan";
+import Blog from "./pages/Blog";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +155,7 @@ const App = () => (
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/ecosystem" element={<Ecosystem />} />
             <Route path="/growth-plan" element={<InternalGate><GrowthPlan /></InternalGate>} />
+            <Route path="/blog" element={<Blog />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
