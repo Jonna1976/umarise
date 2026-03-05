@@ -1,87 +1,82 @@
-# Umarise Core SDK — Node.js / TypeScript
+# @umarise/anchor
 
-Single-file SDK for [Umarise Core v1](https://umarise.com/core). Zero external dependencies.
+Anchor any file to Bitcoin with one API call. Hash-in, proof-out.
 
-**Requirements:** Node.js 18+ (uses native `fetch` and `crypto.subtle`)
+```
+artifact → artifact.proof
+```
 
-## Quick Start
+Zero dependencies. Node.js 18+.
+
+## Install
+
+```bash
+npm install @umarise/anchor
+```
+
+## Anchor a file
 
 ```typescript
 import { UmariseCore, hashBytes } from '@umarise/anchor';
 import { readFile } from 'fs/promises';
 
-// 1. Initialize (public endpoints need no API key)
+const core = new UmariseCore({ apiKey: process.env.UMARISE_API_KEY });
+
+const bytes = await readFile('./release.tar.gz');
+const hash = await hashBytes(bytes);
+const origin = await core.attest(hash);
+
+console.log(origin.origin_id); // done
+```
+
+## Verify a file (no API key needed)
+
+```typescript
 const core = new UmariseCore();
 
-// 2. Check API health
-const health = await core.health();
-console.log(health); // { status: 'operational', version: 'v1' }
-
-// 3. Hash a file locally (bytes never leave your system)
-const fileBytes = await readFile('./document.pdf');
-const hash = await hashBytes(fileBytes);
-console.log(hash); // sha256:a1b2c3...
-
-// 4. Verify: does this hash have an attestation?
+const bytes = await readFile('./release.tar.gz');
+const hash = await hashBytes(bytes);
 const result = await core.verify(hash);
+
 if (result) {
-  console.log('Attested at:', result.captured_at);
-  console.log('Origin ID:', result.origin_id);
-} else {
-  console.log('No attestation found');
+  console.log('Existed since:', result.captured_at);
 }
 ```
 
-## Partner Usage (requires API key)
+Verification is public. No account, no API key, no vendor dependency.
 
-```typescript
-const core = new UmariseCore({
-  apiKey: 'um_your_partner_key_here',
-});
+## CLI
 
-// Create an attestation
-const hash = await hashBytes(fileBytes);
-const origin = await core.attest(hash);
-console.log('Created:', origin.origin_id);
-// { origin_id: "...", hash: "sha256:...", hash_algo: "sha256",
-//   captured_at: "...", proof_status: "pending" }
-
-// Resolve it back
-const resolved = await core.resolve({ originId: origin.origin_id });
-
-// Or resolve by hash (returns earliest attestation)
-const byHash = await core.resolve({ hash });
+```bash
+npx @umarise/cli anchor release.tar.gz
+# → release.tar.gz.proof
 ```
 
-## Full API
+Verify offline:
+```bash
+npx @umarise/cli verify release.tar.gz.proof
+# Hash Match ✓ | Bitcoin Block #881234 | 2026-03-05 | VALID
+```
 
-### `new UmariseCore(config?)`
+## API
 
-| Option    | Default                       | Description                  |
-|-----------|-------------------------------|------------------------------|
-| `apiKey`  | —                             | Partner API key (`um_...`)   |
-| `baseUrl` | `https://core.umarise.com`    | API base URL                 |
-| `timeout` | `30000`                       | Request timeout (ms)         |
-
-### Methods
-
-| Method                | Auth     | Description                              |
-|-----------------------|----------|------------------------------------------|
-| `health()`            | Public   | API health check                         |
-| `resolve({ originId })` | Public | Lookup by origin ID                     |
-| `resolve({ hash })`  | Public   | Lookup by hash (returns earliest)        |
-| `verify(hash)`        | Public   | Check if hash has attestation            |
-| `proof(originId)`     | Public   | Download .ots proof file                 |
-| `attest(hash)`        | API Key  | Create new attestation                   |
+| Method | Auth | Description |
+|---|---|---|
+| `health()` | Public | API health check |
+| `resolve({ originId })` | Public | Lookup by origin ID |
+| `resolve({ hash })` | Public | Lookup by hash |
+| `verify(hash)` | Public | Check if hash is anchored |
+| `proof(originId)` | Public | Download .ots proof |
+| `attest(hash)` | API Key | Create anchor |
 
 ### `hashBytes(data)`
 
-Standalone utility. Hashes a `Buffer` or `Uint8Array` using SHA-256.
+SHA-256 hash of a `Buffer` or `Uint8Array`. Bytes never leave your system.
 
 ```typescript
 import { hashBytes } from '@umarise/anchor';
 const hash = await hashBytes(fileBuffer);
-// Returns: "sha256:a1b2c3..."
+// "sha256:a1b2c3..."
 ```
 
 ## Error Handling
@@ -95,56 +90,30 @@ try {
   if (err instanceof UmariseCoreError) {
     console.log(err.code);       // 'RATE_LIMIT_EXCEEDED'
     console.log(err.statusCode); // 429
-    console.log(err.retryAfterSeconds); // 42
   }
 }
 ```
 
-Error codes: `UNAUTHORIZED`, `API_KEY_REVOKED`, `INVALID_HASH_FORMAT`, `RATE_LIMIT_EXCEEDED`, `NOT_FOUND`, `INTERNAL_ERROR`, `TIMEOUT`.
+## CI/CD
 
-## Integration Example
+Use the [GitHub Action](https://github.com/AnchoringTrust/anchor-action) for automated anchoring:
 
-### Automated Attestation (e.g., LMS upload hook)
-
-```typescript
-import { UmariseCore, hashBytes } from '@umarise/anchor';
-import { readFile } from 'fs/promises';
-
-const core = new UmariseCore({ apiKey: process.env.UMARISE_API_KEY });
-
-async function attestUpload(filePath: string) {
-  // Step 1: Hash locally (file never leaves your system)
-  const bytes = await readFile(filePath);
-  const hash = await hashBytes(bytes);
-
-  // Step 2: Create attestation
-  const origin = await core.attest(hash);
-
-  // Step 3: Store origin_id with your record
-  return {
-    originId: origin.origin_id,
-    hash: origin.hash,
-    attestedAt: origin.captured_at,
-  };
-}
-
-// Later: verify independently
-async function verifyFile(filePath: string) {
-  const bytes = await readFile(filePath);
-  const hash = await hashBytes(bytes);
-  const result = await core.verify(hash);
-  return result !== null; // true = attested, false = unknown
-}
+```yaml
+- uses: AnchoringTrust/anchor-action@v1
+  with:
+    file: build.tar.gz
+  env:
+    UMARISE_API_KEY: ${{ secrets.UMARISE_API_KEY }}
 ```
 
-## What This SDK Does NOT Do
+Every build gets a `.proof` file. Verifiable offline, independent of Umarise.
 
-- Store files or bytes (hash-only)
-- Manage identities or accounts
-- Interpret content or meaning
-- Provide legal validity claims
+## Links
 
-The SDK creates and verifies **existence proofs**: a specific hash existed at a specific moment. Nothing more, nothing less.
+- [Get API key](https://umarise.com/developers)
+- [API Reference](https://umarise.com/api-reference)
+- [Independent Verifier](https://verify-anchoring.org)
+- [Anchoring Specification](https://anchoring-spec.org)
 
 ## License
 
