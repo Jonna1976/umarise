@@ -183,7 +183,7 @@ function GetStartedFlow() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold flex items-center justify-center">2</span>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof ZIP</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof bundle</p>
                 </div>
                 <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)] ml-8">
                   <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
