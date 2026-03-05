@@ -25,6 +25,7 @@ import { WidgetMockup } from "./components/dev/WidgetMockup";
 import UMarkMockup from "./components/dev/UMarkMockup";
 import PilotTracker from "./pages/PilotTracker";
 import ProofPage from "./pages/ProofPage";
+import ArtifactProof from "./pages/ArtifactProof";
 import PilotDocs from "./pages/PilotDocs";
 import PrivacyExport from "./pages/PrivacyExport";
 import IsoExport from "./pages/IsoExport";
@@ -110,8 +111,9 @@ const App = () => (
             <Route path="/proof" element={
               typeof window !== 'undefined' && window.location.hostname === 'itexisted.app'
                 ? <ItExistedProofEntry />
-                : <ProofPage />
+                : <ArtifactProof />
             } />
+            <Route path="/proof-of-behavior" element={<InternalGate><ProofPage /></InternalGate>} />
             <Route path="/pilot" element={<PilotDocs />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
