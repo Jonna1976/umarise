@@ -797,8 +797,23 @@ export default function ItExistedProof() {
 
           {/* ── Elegant gold gradient divider — Layer 1+2 / Layer 3 separation ── */}
           <div className="w-full mt-8 mb-8" style={{ height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(197,147,90,0.35) 25%, rgba(197,147,90,0.35) 75%, transparent 100%)' }} />
-          {/* ── ATTESTATION — temporarily disabled, pending organization ── */}
-          {/* TODO: Re-enable when attestation service is organized. Price TBD (€1.95). */}
+          {/* ── GUARDIAN PROOF — visible but disabled, coming soon ── */}
+          <div className="w-full opacity-35 pointer-events-none select-none">
+            <div className="flex flex-col items-center text-center py-4">
+              <p className="font-mono text-[11px] tracking-[4px] uppercase mb-3"
+                style={{ color: 'rgba(197,147,90,0.5)' }}>
+                Guardian Proof
+              </p>
+              <p className="font-garamond text-[15px] leading-[1.7] mb-3"
+                style={{ color: 'rgba(240,234,214,0.5)' }}>
+                A certified independent attestant reinforces your anchor with a signed digital statement.
+              </p>
+              <span className="font-mono text-[11px] tracking-[3px] uppercase px-4 py-1.5 rounded-full"
+                style={{ border: '1px solid rgba(197,147,90,0.2)', color: 'rgba(197,147,90,0.5)' }}>
+                Coming soon
+              </span>
+            </div>
+          </div>
 
           {/* ── REVOKE / RESTORE ASSOCIATION (owner only) ── */}
           {ownerPageId && (
