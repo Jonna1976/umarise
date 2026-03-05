@@ -44,9 +44,9 @@ function Param({ name, type, required, desc }: { name: string; type: string; req
   return (
     <div className="flex gap-3 py-2 border-b border-[hsl(var(--landing-cream)/0.04)] last:border-0 text-sm">
       <code className="text-[hsl(var(--landing-copper))] font-mono shrink-0">{name}</code>
-      <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-xs shrink-0 mt-0.5">{type}</span>
-      {required && <span className="text-amber-500/70 text-[10px] font-mono uppercase shrink-0 mt-1">required</span>}
-      <span className="text-[hsl(var(--landing-cream)/0.7)]">{desc}</span>
+      <span className="text-[hsl(var(--landing-cream)/0.55)] font-mono text-xs shrink-0 mt-0.5">{type}</span>
+      {required && <span className="text-amber-500/80 text-[10px] font-mono uppercase shrink-0 mt-1">required</span>}
+      <span className="text-[hsl(var(--landing-cream)/0.85)]">{desc}</span>
     </div>
   );
 }
@@ -88,7 +88,7 @@ function GetStartedFlow() {
           <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Get your API key</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-4 ml-7">One click. No email, no account, no waiting. 100 free anchors included.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-4 ml-7">One click. No email, no account, no waiting. 100 free anchors included.</p>
         {!generatedKey ? (
           <div className="ml-7">
             <button onClick={generateKey} disabled={loading} className="px-6 py-2.5 rounded text-sm font-mono font-bold bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity disabled:opacity-50">
@@ -128,10 +128,10 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18.</p>
         <div className="ml-7 space-y-3">
           <Code code={`npm install -g @umarise/cli`} />
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">Then set your key (once per terminal session):</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.55)]">Then set your key (once per terminal session):</p>
           <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
         </div>
       </div>
@@ -142,18 +142,18 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">One command, same command every time. Your file is hashed locally, never uploaded.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-3 ml-7">One command, same command every time. Your file is hashed locally, never uploaded.</p>
         <div className="ml-7 space-y-4">
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.7)]">
               <span className="text-[hsl(var(--landing-cream)/0.9)]">umarise proof </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The terminal auto-fills the full path. Or type it manually:</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.55)]">The terminal auto-fills the full path. Or type it manually:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] font-mono leading-relaxed">
               {'  '}umarise proof contract.pdf{'\n'}
               {'  '}umarise proof ./designs/logo-final.png{'\n'}
               {'  '}umarise proof ~/Desktop/research-paper.docx
@@ -166,7 +166,7 @@ function GetStartedFlow() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-6 h-6 rounded-full bg-[hsl(var(--landing-copper)/0.2)] text-[hsl(var(--landing-copper))] text-xs font-mono font-bold flex items-center justify-center">1</span>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] font-medium">Now: anchors your hash to Bitcoin</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] font-medium">Now: anchors your hash to Bitcoin</p>
                 </div>
                 <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)] ml-8">
                   <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
@@ -177,13 +177,13 @@ function GetStartedFlow() {
 
               <div className="flex items-center gap-2 ml-8">
                 <div className="w-px h-6 bg-[hsl(var(--landing-copper)/0.3)]" />
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] font-mono">~2 hours (Bitcoin confirmation)</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.55)] font-mono">~2 hours (Bitcoin confirmation)</p>
               </div>
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold flex items-center justify-center">2</span>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof ZIP</p>
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof ZIP</p>
                 </div>
                 <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)] ml-8">
                   <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
@@ -222,24 +222,24 @@ function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-3 ml-7">No API key. No account. No Umarise dependency. The .proof file must be in the same folder as your original file.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-3 ml-7">No API key. No account. No Umarise dependency. The .proof file must be in the same folder as your original file.</p>
         <div className="ml-7 space-y-3">
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.7)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.7)]">
               <span className="text-[hsl(var(--landing-cream)/0.9)]">umarise verify </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The terminal auto-fills the full path. Or type it manually:</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.55)]">The terminal auto-fills the full path. Or type it manually:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono leading-relaxed">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] font-mono leading-relaxed">
               {'  '}umarise verify contract.pdf{'\n'}
               {'  '}umarise verify ./designs/logo-final.png{'\n'}
               {'  '}umarise verify ~/Desktop/research-paper.docx
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream)/0.4)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
+          <p className="text-xs text-[hsl(var(--landing-cream)/0.55)]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
             <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
@@ -252,7 +252,7 @@ function GetStartedFlow() {
       {/* Done */}
       <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
         <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Done. No email. No signup. No dashboard.</p>
-        <p className="text-sm text-[hsl(var(--landing-cream)/0.7)]">
+        <p className="text-sm text-[hsl(var(--landing-cream)/0.85)]">
           Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. You choose where to store it. We never see your file.
         </p>
       </div>
@@ -274,7 +274,7 @@ function Endpoint({ method, path, title, auth, children }: {
         <code className="text-[hsl(var(--landing-cream)/0.9)] font-mono text-sm">{path}</code>
         <AuthBadge auth={auth} />
       </div>
-      <p className="text-[hsl(var(--landing-cream)/0.6)] text-sm mb-4">{title}</p>
+      <p className="text-[hsl(var(--landing-cream)/0.8)] text-sm mb-4">{title}</p>
       {children}
     </div>
   );
@@ -311,7 +311,7 @@ function Sidebar({ active }: { active: string }) {
             className={`block px-3 py-1.5 rounded text-xs font-mono transition-colors ${
               active === n.id
                 ? 'bg-[hsl(var(--landing-cream)/0.08)] text-[hsl(var(--landing-cream))]'
-                : 'text-[hsl(var(--landing-cream)/0.45)] hover:text-[hsl(var(--landing-cream)/0.8)]'
+                : 'text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream)/0.9)]'
             }`}
           >
             {n.label}
@@ -372,20 +372,20 @@ export default function ApiReferenceV2() {
           {/* -- Introduction -- */}
           <Section id="intro">
             <h1 className="text-3xl font-serif text-[hsl(var(--landing-cream))] mb-2">API Reference</h1>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] leading-relaxed">
               An anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation.
             </p>
-            <p className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono mt-3">
+            <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
             </p>
-            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono mt-2">
+            <p className="text-[hsl(var(--landing-cream)/0.55)] text-xs font-mono mt-2">
               Target uptime: 99.9% · <Link to="/status" className="text-[hsl(var(--landing-copper))] hover:underline">Current status</Link>
             </p>
 
             {/* Live example: DocPro.pdf */}
             <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
               <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Live example · DocPro.pdf anchored to Bitcoin block 938,978</p>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] mb-3">
                 Public endpoint, no key required. Copy, paste, verify:
               </p>
               <Code
@@ -407,7 +407,7 @@ export default function ApiReferenceV2() {
   "proof_url":  "${BASE}/v1-core-proof?origin_id=352eddba-a6be-4880-83c7-a0c22de39614"
 }`}</pre>
               </div>
-              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.4)] mt-2">
+              <p className="text-[10px] text-[hsl(var(--landing-cream)/0.55)] mt-2">
                 Run this command in any terminal. No account, no key, no SDK. The response is identical for everyone.
               </p>
             </div>
@@ -416,22 +416,22 @@ export default function ApiReferenceV2() {
           {/* -- Authentication -- */}
           <Section id="auth">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Authentication</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-3">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-3">
               One endpoint requires a key: <code className="text-[hsl(var(--landing-copper))]">POST /v1-core-origins</code>. All other endpoints are public.
             </p>
             <Code code={`X-API-Key: um_your_key_here`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
               Generate a key instantly in the <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Get Started</a> section below. No email, no account.
             </p>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
+            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Request Headers</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Header</th>
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Required</th>
-                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Description</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Header</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Required</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Description</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -443,15 +443,15 @@ export default function ApiReferenceV2() {
                     <tr key={header} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                       <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{header}</td>
                       <td className="py-2 pr-4 text-xs">{req}</td>
-                      <td className="py-2 text-[hsl(var(--landing-cream)/0.7)] text-xs">{desc}</td>
+                      <td className="py-2 text-[hsl(var(--landing-cream)/0.85)] text-xs">{desc}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Response Envelope</h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2">
+            <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-6 mb-2">Response Envelope</h4>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-2">
               Success responses return the resource directly. Error responses use a consistent envelope:
             </p>
             <Code code={`// Success (2xx)
@@ -464,7 +464,7 @@ export default function ApiReferenceV2() {
           {/* -- Get Started -- */}
           <Section id="get-started">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Get Started</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-6">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-6">
               Generate a key, install the CLI, anchor your first file. <strong className="text-[hsl(var(--landing-cream))]">Under 2 minutes.</strong>
             </p>
             <GetStartedFlow />
@@ -473,10 +473,10 @@ export default function ApiReferenceV2() {
           {/* -- Quick Start -- */}
           <Section id="quick-start">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Quick Start</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-4">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-4">
               Five steps in your terminal. Replace <code className="text-[hsl(var(--landing-copper))]">YOUR_KEY</code> with your API key.
             </p>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.5)] mb-6">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.65)] mb-6">
               Or use the SDK:{' '}
               <code className="text-[hsl(var(--landing-copper))]">npm install @umarise/anchor</code>
               {' '}&gt;{' '}
@@ -489,16 +489,16 @@ export default function ApiReferenceV2() {
               {/* Step 0 */}
               <div>
                 <div className="flex items-baseline gap-2 mb-1.5">
-                  <span className="text-[hsl(var(--landing-cream)/0.4)] font-mono text-sm font-bold">0.</span>
+                  <span className="text-[hsl(var(--landing-cream)/0.55)] font-mono text-sm font-bold">0.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Check API status</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Optional. Confirm the API is online.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Optional. Confirm the API is online.</p>
                 <Code
                   code={`curl "${BASE}/v1-core-health"`}
                   copy={`curl "${BASE}/v1-core-health"`}
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] font-mono">
                     {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "status": "operational", "version": "v1" }`}
                   </p>
@@ -511,14 +511,14 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">1.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Hash your file locally</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Use the full file path, or run <code className="text-[hsl(var(--landing-copper))]">cd</code> to the file directory first. Your content never leaves your device.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Use the full file path, or run <code className="text-[hsl(var(--landing-copper))]">cd</code> to the file directory first. Your content never leaves your device.</p>
                 <Code
                   code={`shasum -a 256 /path/to/yourfile.pdf`}
                   copy="shasum -a 256 /path/to/yourfile.pdf"
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
-                    {">"} <span className="text-[hsl(var(--landing-cream)/0.8)]">a1b2c3d4e5f6...64 hex chars...</span>  /path/to/yourfile.pdf
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] font-mono">
+                    {">"} <span className="text-[hsl(var(--landing-cream)/0.9)]">a1b2c3d4e5f6...64 hex chars...</span>  /path/to/yourfile.pdf
                   </p>
                   <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-1">Can’t find the file? Try: <code className="text-[hsl(var(--landing-copper))]">find ~ -name "yourfile.pdf" 2&gt;/dev/null</code></p>
                 </div>
@@ -530,7 +530,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">2.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Anchor the hash</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Replace YOUR_KEY with your API key and paste the hash from step 1.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Replace YOUR_KEY with your API key and paste the hash from step 1.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-origins \\
   -H "Content-Type: application/json" \\
@@ -539,7 +539,7 @@ export default function ApiReferenceV2() {
                   copy={`curl -X POST ${BASE}/v1-core-origins -H "Content-Type: application/json" -H "X-API-Key: YOUR_KEY" -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] font-mono">
                     {">"} <span className="text-emerald-400">201</span>{' '}
                     {`{ "origin_id": "...", "proof_status": "pending" }`}
                   </p>
@@ -552,13 +552,13 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">3.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Wait for Bitcoin anchoring</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Poll until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Typical: ~1 hour, ledger-dependent.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Poll until <code className="text-[hsl(var(--landing-copper))]">proof_status</code> changes to <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>. Typical: ~1 hour, ledger-dependent.</p>
                 <Code
                   code={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
                   copy={`curl "${BASE}/v1-core-resolve?origin_id=YOUR_ORIGIN_ID"`}
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] font-mono">
                     {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "proof_status": "anchored", "bitcoin_block_height": 935037 }`}
                   </p>
@@ -571,13 +571,13 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">4.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Download the .ots proof</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Binary OpenTimestamps proof file. Available once <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Binary OpenTimestamps proof file. Available once <code className="text-[hsl(var(--landing-copper))]">proof_status</code> is <code className="text-[hsl(var(--landing-copper))]">"anchored"</code>.</p>
                 <Code
                   code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
                   copy={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ORIGIN_ID" -o proof.ots`}
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)]">
                     This file completes your evidence bundle. Without it, only a registry check is possible - not independent Bitcoin verification.
                   </p>
                 </div>
@@ -589,7 +589,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">5.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Verify independently</p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">No API key needed. No Umarise infrastructure required. Verify against Bitcoin using your hash + .ots proof.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">No API key needed. No Umarise infrastructure required. Verify against Bitcoin using your hash + .ots proof.</p>
                 <Code
                   code={`curl -X POST ${BASE}/v1-core-verify \\
   -H "Content-Type: application/json" \\
@@ -597,11 +597,11 @@ export default function ApiReferenceV2() {
                   copy={`curl -X POST ${BASE}/v1-core-verify -H "Content-Type: application/json" -d '{"hash":"sha256:PASTE_64_CHAR_HASH_HERE"}'`}
                 />
                 <div className="mt-2 ml-5 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] font-mono">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] font-mono">
                     {">"} <span className="text-emerald-400">200</span>{' '}
                     {`{ "origin_id": "...", "captured_at": "...", "proof_status": "anchored" }`}
                   </p>
-                  <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-2">
+                  <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-2">
                     Or verify fully offline at{' '}
                     <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
                       verify-anchoring.org
@@ -617,7 +617,7 @@ export default function ApiReferenceV2() {
                   <span className="text-[hsl(var(--landing-copper))] font-mono text-sm font-bold">6.</span>
                   <p className="text-sm text-[hsl(var(--landing-cream)/0.8)]">Build your evidence bundle <span className="text-xs text-[hsl(var(--landing-cream)/0.4)]">(optional)</span></p>
                 </div>
-                <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-2 ml-5">Compose a self-contained ZIP for third parties. All components come from previous steps.</p>
+                <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-2 ml-5">Compose a self-contained ZIP for third parties. All components come from previous steps.</p>
                 <Code
                   code={`# Compose an Anchor ZIP from API components
 mkdir evidence && cd evidence
@@ -799,11 +799,11 @@ app.post('/upload', async (req, res) => {
 
           <Section id="verify">
             <Endpoint method="POST" path="/v1-core-verify" title="Check if a hash exists in the registry. Returns the earliest attestation for this hash." auth="public">
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Request</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-2">Request</h4>
               <Param name="hash" type="string" required desc="SHA-256 hash to verify (64 hex chars, optional sha256: prefix)" />
               <Code code={`{ "hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" }`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200 (match)</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200 (match)</h4>
               <Code code={`{
   "origin_id": "a1b2c3d4-...",
   "hash": "sha256:e3b0c44...",
@@ -811,19 +811,19 @@ app.post('/upload', async (req, res) => {
   "proof_status": "anchored"
 }`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response fields</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response fields</h4>
               <Param name="origin_id" type="uuid" desc="Unique identifier for the earliest attestation of this hash." />
               <Param name="hash" type="string" desc="Echoed hash with algorithm prefix." />
               <Param name="captured_at" type="ISO 8601" desc="When this hash was first registered." />
               <Param name="proof_status" type="string" desc={`"pending" or "anchored".`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <Code code={`// 404 - Hash not found in registry
 { "error": { "code": "NOT_FOUND", "message": "No attestation found for this hash" } }`} />
               <Code code={`// 400 - Invalid hash format
 { "error": { "code": "INVALID_HASH_FORMAT", "message": "Expected 64 hex characters" } }`} />
 
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
                 Typical response time: &lt;200ms. Rate limit: 1,000/min per IP. No API key required.
               </p>
             </Endpoint>
@@ -831,29 +831,29 @@ app.post('/upload', async (req, res) => {
 
           <Section id="proof">
             <Endpoint method="GET" path="/v1-core-proof" title="Download the OpenTimestamps (.ots) proof file." auth="public">
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-2">Query Parameters</h4>
               <Param name="origin_id" type="uuid" required desc="Origin to download proof for" />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200</h4>
-              <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-1">Binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code>. Save as <code className="text-[hsl(var(--landing-copper))]">.ots</code> file.</p>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 200</h4>
+              <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-1">Binary <code className="text-[hsl(var(--landing-copper))]">application/octet-stream</code>. Save as <code className="text-[hsl(var(--landing-copper))]">.ots</code> file.</p>
               <Code code={`curl "${BASE}/v1-core-proof?origin_id=YOUR_ID" -o proof.ots`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 202 (pending)</h4>
-              <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-1">Proof not yet available. Bitcoin anchoring in progress.</p>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Response · 202 (pending)</h4>
+              <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-1">Proof not yet available. Bitcoin anchoring in progress.</p>
               <Code code={`{ "error": { "code": "PROOF_PENDING", "message": "Proof is pending Bitcoin confirmation" } }`} />
 
-              <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
+              <h4 className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mt-5 mb-2">Error responses</h4>
               <Code code={`// 404 - Origin not found
 { "error": { "code": "NOT_FOUND", "message": "No attestation found for this origin_id" } }`} />
 
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mt-4">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.75)] mt-4">
                 Verify independently at{' '}
                 <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">
                   verify-anchoring.org
                 </a>
                 {' '}- no account required.
               </p>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] mt-1">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-1">
                 Typical response time: &lt;200ms. Rate limit: 1,000/min per IP.
               </p>
             </Endpoint>
@@ -866,9 +866,9 @@ app.post('/upload', async (req, res) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Code</th>
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">HTTP</th>
-                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Description</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Code</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">HTTP</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Description</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -884,7 +884,7 @@ app.post('/upload', async (req, res) => {
                     <tr key={code} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                       <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{code}</td>
                       <td className="py-2 pr-4 font-mono text-xs">{http}</td>
-                      <td className="py-2 text-[hsl(var(--landing-cream)/0.7)] text-xs">{desc}</td>
+                      <td className="py-2 text-[hsl(var(--landing-cream)/0.85)] text-xs">{desc}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -899,9 +899,9 @@ app.post('/upload', async (req, res) => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[hsl(var(--landing-cream)/0.1)]">
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Endpoint</th>
-                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Limit</th>
-                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.5)] font-mono text-xs">Scope</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Endpoint</th>
+                    <th className="text-left py-2 pr-4 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Limit</th>
+                    <th className="text-left py-2 text-[hsl(var(--landing-cream)/0.65)] font-mono text-xs">Scope</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -915,13 +915,13 @@ app.post('/upload', async (req, res) => {
                     <tr key={ep} className="border-b border-[hsl(var(--landing-cream)/0.04)]">
                       <td className="py-2 pr-4 font-mono text-[hsl(var(--landing-copper))] text-xs">{ep}</td>
                       <td className="py-2 pr-4 font-mono text-xs">{limit}</td>
-                      <td className="py-2 text-[hsl(var(--landing-cream)/0.6)] text-xs">{scope}</td>
+                      <td className="py-2 text-[hsl(var(--landing-cream)/0.75)] text-xs">{scope}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
               Headers: <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Limit</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Remaining</code>, <code className="text-[hsl(var(--landing-copper))]">X-RateLimit-Reset</code> (Unix timestamp)
             </p>
           </Section>
@@ -929,13 +929,13 @@ app.post('/upload', async (req, res) => {
           {/* -- SDKs -- */}
           <Section id="sdks">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">SDKs</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] mb-4">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-4">
               Thin wrappers around the REST API. Zero dependencies. Copy into your project or install from the package registry.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Node.js / TypeScript</p>
+                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.65)] mb-2">Node.js / TypeScript</p>
                 <Code code={`npm install @umarise/anchor`} />
                 <Code code={`import { anchor, verify, resolve, hashBuffer } from '@umarise/anchor';
 import { readFileSync } from 'fs';
@@ -968,7 +968,7 @@ console.log(proof.captured_at);`} />
                 </a>
               </div>
               <div>
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] mb-2">Python</p>
+                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.65)] mb-2">Python</p>
                 <Code code={`pip install umarise`} />
                 <Code code={`from umarise import UmariseCore, hash_buffer
 import os, time
@@ -1000,7 +1000,7 @@ print(result["captured_at"])`} />
             </div>
 
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
                 <span className="text-emerald-400/80 font-mono">v1.0.0</span> - REST API and SDKs are production-ready. Released under the <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain).
               </p>
             </div>
@@ -1009,10 +1009,10 @@ print(result["captured_at"])`} />
           {/* -- CLI & CI/CD -- */}
           <Section id="cli">
             <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-2">CI/CD Quick Start</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] mb-2">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] mb-2">
               Add proof to every build. Your artifacts ship with a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file, like a <code className="text-[hsl(var(--landing-copper))]">.sig</code> or <code className="text-[hsl(var(--landing-copper))]">.sbom</code>, but anchored to Bitcoin.
             </p>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mb-8">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mb-8">
               No accounts. No dashboards. No vendor lock-in. The proof is the product.
             </p>
 
@@ -1023,7 +1023,7 @@ print(result["captured_at"])`} />
  ├ release.tar.gz
  ├ release.tar.gz.proof    ← added automatically
  └ checksums.txt`}</pre>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
                 The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP containing <code className="text-[hsl(var(--landing-copper))]">certificate.json</code> + <code className="text-[hsl(var(--landing-copper))]">proof.ots</code> + <code className="text-[hsl(var(--landing-copper))]">VERIFY.txt</code>. Verifiable offline, independent of Umarise.
               </p>
             </div>
@@ -1035,7 +1035,7 @@ print(result["captured_at"])`} />
     file: \${{ env.BUILD_ARTIFACT }}
   env:
     UMARISE_API_KEY: \${{ secrets.UMARISE_API_KEY }}`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3 mb-10">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3 mb-10">
               Copy this into any existing workflow. That's the entire integration.
             </p>
 
@@ -1083,7 +1083,7 @@ jobs:
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] whitespace-pre leading-relaxed">{`release.tar.gz          2.4 MB
 release.tar.gz.proof    1.2 KB`}</pre>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
               Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> to your repo: Settings → Secrets → Actions → New secret.
             </p>
 
@@ -1101,7 +1101,7 @@ release.tar.gz.proof    1.2 KB`}</pre>
       - release.tar.gz.proof
   variables:
     UMARISE_API_KEY: $UMARISE_API_KEY`} />
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] mt-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] mt-3">
               Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> as a CI/CD variable in Settings → CI/CD → Variables.
             </p>
 
@@ -1120,7 +1120,7 @@ release.tar.gz.proof    1.2 KB`}</pre>
             {/* Downstream verification */}
             <div className="mt-10 p-4 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.02)]">
               <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-2">Verification by a downstream team</h4>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
                 A team that receives the release can verify without Umarise, without an API key, using only standard tools:
               </p>
               <Code code={`# With CLI
@@ -1209,7 +1209,7 @@ ots verify proof.ots             # verify against Bitcoin`} />
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mb-2">
               <code className="text-[hsl(var(--landing-copper))]">umarise proof</code>: recommended
             </h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
               One command, stateless, idempotent. Handles the entire lifecycle: hash → anchor → resolve → download proof → write <code className="text-[hsl(var(--landing-copper))]">.proof</code> ZIP. If the proof isn't ready yet, it tells you to run again later. Same command, always does the right thing.
             </p>
             <Code code={`export UMARISE_API_KEY=um_your_key
@@ -1228,7 +1228,7 @@ umarise proof document.pdf`} />
 ✓ saved: document.pdf.proof
 ✓ proof valid, independent of Umarise`}</pre>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.55)] mt-2">
               No daemon. No state files. No background process. The idempotency means you can safely run it in cron or CI. It won't create duplicates.
             </p>
 
@@ -1236,7 +1236,7 @@ umarise proof document.pdf`} />
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">
               <code className="text-[hsl(var(--landing-copper))]">umarise anchor</code>: anchor only
             </h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
               Hash and register. Creates a <code className="text-[hsl(var(--landing-copper))]">.proof</code> file immediately with <code className="text-[hsl(var(--landing-copper))]">certificate.json</code>. The OTS proof is included if already available, otherwise the certificate alone is written.
             </p>
             <Code code={`umarise anchor build.tar.gz`} />
@@ -1250,7 +1250,7 @@ umarise proof document.pdf`} />
             <h4 className="text-[hsl(var(--landing-cream)/0.5)] text-xs font-mono uppercase tracking-wider mt-8 mb-2">
               <code className="text-[hsl(var(--landing-copper))]">umarise verify</code>: verify offline
             </h4>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
               Verify a file against its <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle. Offline-first: uses the local OTS library to verify directly against Bitcoin. Falls back to the public API if offline verification isn't possible.
             </p>
             <Code code={`umarise verify document.pdf`} />
@@ -1260,7 +1260,7 @@ umarise proof document.pdf`} />
 ✓ no later than: 2026-03-04
 ✓ proof valid, independent of Umarise`}</pre>
             </div>
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.4)] mt-2 mb-4">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.55)] mt-2 mb-4">
               No API key required. Verification is a public utility.
             </p>
 
@@ -1270,31 +1270,31 @@ umarise proof document.pdf`} />
               <div className="space-y-3">
                 <div className="flex gap-3 text-xs">
                   <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 1</span>
-                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.8)]">
                     Reads <code className="text-[hsl(var(--landing-copper))]">document.pdf</code> and computes the SHA-256 hash.
                   </span>
                 </div>
                 <div className="flex gap-3 text-xs">
                   <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 2</span>
-                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.8)]">
                     Opens <code className="text-[hsl(var(--landing-copper))]">document.pdf.proof</code> (ZIP) and reads <code className="text-[hsl(var(--landing-copper))]">certificate.json</code>.
                   </span>
                 </div>
                 <div className="flex gap-3 text-xs">
                   <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 3</span>
-                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.8)]">
                     Compares the computed hash with the hash in the certificate. If they don't match → the file has been modified.
                   </span>
                 </div>
                 <div className="flex gap-3 text-xs">
                   <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Step 4</span>
-                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.8)]">
                     Extracts <code className="text-[hsl(var(--landing-copper))]">proof.ots</code> and verifies it against the Bitcoin blockchain using the OpenTimestamps library (offline, no API needed).
                   </span>
                 </div>
                 <div className="flex gap-3 text-xs">
                   <span className="text-[hsl(var(--landing-copper))] font-mono font-medium shrink-0">Result</span>
-                  <span className="text-[hsl(var(--landing-cream)/0.6)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.8)]">
                     If both checks pass: these exact bytes existed no later than Bitcoin block height H. Mathematically certain, independently verifiable, no trust required.
                   </span>
                 </div>
@@ -1309,14 +1309,14 @@ umarise proof document.pdf`} />
             {/* .proof file format */}
             <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">.proof file format</h4>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
                 A <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a standard ZIP archive containing:
               </p>
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] leading-relaxed mb-3">{`document.pdf.proof (ZIP)
  ├ certificate.json    ← metadata + hash + origin_id
  ├ proof.ots           ← OpenTimestamps binary proof
  └ VERIFY.txt          ← human-readable verification instructions`}</pre>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
                 The certificate follows the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification v1.0</a>. 
                 Anyone can verify without Umarise using <code className="text-[hsl(var(--landing-copper))]">sha256sum</code> + <code className="text-[hsl(var(--landing-copper))]">ots verify</code>.
               </p>
@@ -1325,22 +1325,22 @@ umarise proof document.pdf`} />
             {/* Storage & ownership */}
             <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
               <h4 className="text-[hsl(var(--landing-cream)/0.9)] text-sm font-medium mb-3">Where does the proof live?</h4>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-3">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-3">
                 The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original file. There is no cloud storage, no server, no account. You are the sole custodian.
               </p>
               <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.75)] leading-relaxed mb-3">{`~/project/
  ├ document.pdf          ← your file
  └ document.pdf.proof    ← the proof`}</pre>
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)] mb-2 font-medium">Common storage patterns:</p>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] mb-2 font-medium">Common storage patterns:</p>
               <div className="space-y-2 mb-3">
-                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Git repository</span>: commit <code className="text-[hsl(var(--landing-copper))]">.proof</code> files alongside source code. Anyone who clones the repo can verify.
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.85)] font-medium">Git repository</span>: commit <code className="text-[hsl(var(--landing-copper))]">.proof</code> files alongside source code. Anyone who clones the repo can verify.
                 </div>
-                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Release artifacts</span>: the GitHub Action adds <code className="text-[hsl(var(--landing-copper))]">.proof</code> files to your build output automatically.
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.85)] font-medium">Release artifacts</span>: the GitHub Action adds <code className="text-[hsl(var(--landing-copper))]">.proof</code> files to your build output automatically.
                 </div>
-                <div className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
-                  <span className="text-[hsl(var(--landing-cream)/0.7)] font-medium">Backup / archive</span>: copy both files to any storage you trust.
+                <div className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
+                  <span className="text-[hsl(var(--landing-cream)/0.85)] font-medium">Backup / archive</span>: copy both files to any storage you trust.
                 </div>
               </div>
               <div className="p-3 rounded border border-emerald-500/20 bg-emerald-500/5">
@@ -1352,7 +1352,7 @@ umarise proof document.pdf`} />
 
             {/* Links */}
             <div className="mt-8 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.65)]">
                 <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Generate your API key</a> · 
                 Source: <a href="https://github.com/AnchoringTrust/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/AnchoringTrust/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
                 License: <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain)
@@ -1368,7 +1368,7 @@ umarise proof document.pdf`} />
               {/* Q1 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"This looks simple. Can't anyone build this?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Yes. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is public domain. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is forkable. That is the point. Anchoring is infrastructure, not a product. The specification exists so anyone can implement it. The API exists so no one has to build Merkle-batching, OTS calendar management, and Bitcoin monitoring from scratch.
                 </p>
               </div>
@@ -1376,7 +1376,7 @@ umarise proof document.pdf`} />
               {/* Q2 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already hash our files with SHA-256. How is this different?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   SHA-256 proves <em>integrity</em>: the bytes have not changed. Anchoring proves <em>chronology</em>: these bytes existed no later than Bitcoin block height H. A hash without external time binding is self-attested. It could be generated today and claimed to be from last year. Anchoring binds the hash to Bitcoin's public ledger, creating an independently verifiable reference that no single party controls.
                 </p>
               </div>
@@ -1384,7 +1384,7 @@ umarise proof document.pdf`} />
               {/* Q3 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What does this add beyond raw OpenTimestamps?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   OpenTimestamps is a protocol, like HTTP is a protocol. A web application is not "HTTP." OTS defines how to commit a hash to Bitcoin. The Core API uses OTS as transport and adds everything above it: a standardized REST interface, automatic Merkle-batching, stable <code className="text-[hsl(var(--landing-copper))]">origin_id</code> references, resolve/verify/proof endpoints, idempotent registration, and the <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a>. This is a semantic framework defining exactly what a proof does and does not establish.
                 </p>
               </div>
@@ -1392,16 +1392,16 @@ umarise proof document.pdf`} />
               {/* Q4 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Most proof systems store the proof. How is this different?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Most proof systems store the proof. We return it.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   Other timestamping services keep verification dependent on their infrastructure. If the service disappears, the proof becomes difficult or impossible to verify.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   The Core API does the opposite. The proof bundle is returned to the caller and stored next to the artifact. Verification requires only the original file, the <code className="text-[hsl(var(--landing-copper))]">.proof</code> bundle, and the public Bitcoin blockchain. No Umarise server. No account. No dependency on anyone.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   The claim is mathematically precise: these exact bytes existed no later than Bitcoin block height H. Not "we say so." A fact verifiable by anyone, independently, forever.
                 </p>
               </div>
@@ -1409,7 +1409,7 @@ umarise proof document.pdf`} />
               {/* Q5 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Is this ledger-agnostic? We use a different blockchain."</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> defines <em>ledger qualification criteria</em>, not a specific blockchain. Bitcoin is the current ledger. Any ledger that is publicly accessible, append-only, provides independently verifiable time ordering, and is not controlled by the proof issuer qualifies under the specification.
                 </p>
               </div>
@@ -1417,7 +1417,7 @@ umarise proof document.pdf`} />
               {/* Q6 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can we bulk-anchor existing files retroactively?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Yes. The API accepts hashes, not files. Hash locally, POST each hash to <code className="text-[hsl(var(--landing-copper))]">/v1-core-origins</code>. The backend batches hashes into Merkle trees automatically. Rate limit: 100 requests/min per API key. The anchor timestamp reflects when the hash was submitted, not when the file was originally created. Anchoring proves "existed no later than T." It cannot backdate.
                 </p>
               </div>
@@ -1425,7 +1425,7 @@ umarise proof document.pdf`} />
               {/* Q7 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"What if the infrastructure provider disappears?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Once anchored, the proof is self-contained. The .ots file combined with the original artifact, <code className="text-[hsl(var(--landing-copper))]">sha256sum</code>, and the public Bitcoin blockchain provides complete verification. No API, no account, no issuer infrastructure required. The <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">reference verifier</a> is open source, zero-backend, and forkable. The proof survives the issuer.
                 </p>
               </div>
@@ -1433,7 +1433,7 @@ umarise proof document.pdf`} />
               {/* Q8 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can the API operator see our data?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   No. The API receives SHA-256 hashes only, never files. A SHA-256 hash is a one-way function: without the original artifact, the hash is meaningless. There is no mechanism in the infrastructure to store, receive, or reconstruct file content. The hash crosses the network boundary. The content does not.
                 </p>
               </div>
@@ -1441,7 +1441,7 @@ umarise proof document.pdf`} />
               {/* Q9 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"Can anyone, including the operator, modify or delete an existing record?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   No. Database-level immutability triggers block UPDATE and DELETE operations, including for internal service roles. Row-level security blocks all client-side mutations. Bitcoin anchoring makes retroactive modification mathematically detectable. This is enforced by architecture, not policy. No administrative override exists that can alter a committed record.
                 </p>
               </div>
@@ -1449,7 +1449,7 @@ umarise proof document.pdf`} />
               {/* Q10 */}
               <div className="border-b border-[hsl(var(--landing-cream)/0.06)] pb-6">
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"We already use an RFC 3161 TSA. Should we switch?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Not necessarily. RFC 3161 TSAs rely on a trusted Certificate Authority. If the CA is compromised or discontinued, verification depends on that infrastructure. The Core API anchors to Bitcoin via OTS, making it trustless with no CA dependency. The <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Anchoring Specification</a> is open: any timestamping solution meeting the ledger qualification criteria can be conformant regardless of transport. The relevant question is whether proofs remain verifiable independent of the issuer.
                 </p>
               </div>
@@ -1457,16 +1457,16 @@ umarise proof document.pdf`} />
               {/* Q11 */}
               <div>
                 <p className="text-sm text-[hsl(var(--landing-cream)/0.9)] font-medium mb-2">"How does Umarise anchoring differ from C2PA?"</p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
                   Umarise anchoring and C2PA operate at different verification layers. An anchoring proof asserts only that the exact byte sequence (or its cryptographic hash) existed at or before time T. Time T is derived from a publicly verifiable ledger. Verification requires recomputing the hash, validating the ledger inclusion proof, and confirming ledger timestamp finality.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   Anchoring does not assert authorship, identity, ownership, originality, tool usage, editing history, or whether content is AI-generated.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   C2PA, by contrast, asserts that a specific identity signed a manifest describing provenance and production history. C2PA binds time to identity via PKI. Anchoring binds time directly to exact bytes via ledger inclusion.
                 </p>
-                <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mt-2">
+                <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mt-2">
                   Anchoring proofs may be embedded as C2PA assertions when both identity provenance and independently verifiable temporal existence are required.
                 </p>
               </div>
@@ -1475,7 +1475,7 @@ umarise proof document.pdf`} />
 
             {/* Bitcoin disclaimer */}
             <div className="mt-8 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.45)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.6)]">
                 Umarise uses the Bitcoin blockchain as a public, immutable timestamp ledger, not as a currency. No wallets, no coins, no financial transactions.
               </p>
             </div>
@@ -1484,14 +1484,14 @@ umarise proof document.pdf`} />
           {/* -- Privacy by Architecture -- */}
           <Section id="privacy">
             <h2 className="text-xl font-serif text-[hsl(var(--landing-cream))] mb-4">Privacy by Architecture</h2>
-            <p className="text-sm text-[hsl(var(--landing-cream)/0.6)] leading-relaxed mb-6">
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] leading-relaxed mb-6">
               We don't know who you are. That's not a policy. It's how the system works.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded border border-emerald-500/15 bg-emerald-500/5">
                 <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3">What we store</p>
-                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.7)]">
+                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.85)]">
                   <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">key_prefix</code>: first 8 chars (for lookup)</li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">key_hash</code>: HMAC-SHA256 (not the key itself)</li>
                   <li className="flex items-start gap-2"><span className="text-emerald-400 mt-0.5">·</span> <code className="text-[hsl(var(--landing-copper))]">credit_balance</code>: current anchor credits</li>
@@ -1500,8 +1500,8 @@ umarise proof document.pdf`} />
               </div>
 
               <div className="p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,7%)]">
-                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.5)] uppercase tracking-wider mb-3">What we don't store</p>
-                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.5)]">
+                <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.65)] uppercase tracking-wider mb-3">What we don't store</p>
+                <ul className="space-y-2 text-sm text-[hsl(var(--landing-cream)/0.65)]">
                   <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Email, name, or any PII</li>
                   <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Your API key (only the hash)</li>
                   <li className="flex items-start gap-2"><span className="text-[hsl(var(--landing-cream)/0.3)] mt-0.5">✕</span> Your files or their content</li>
@@ -1511,7 +1511,7 @@ umarise proof document.pdf`} />
             </div>
 
             <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(var(--landing-cream)/0.02)]">
-              <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] leading-relaxed">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.65)] leading-relaxed">
                 Credit top-ups go through Stripe. Stripe knows who paid, we only see: <code className="text-[hsl(var(--landing-copper))]">key_prefix um_abc12 received 500 credits</code>. No account, no login, no dashboard. The key is an anonymous credit token, not a customer relationship.
               </p>
             </div>
@@ -1525,18 +1525,18 @@ umarise proof document.pdf`} />
           {/* -- For Partners -- */}
 
           <div className="text-center py-4">
-            <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] font-mono">
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.5)] font-mono">
               The v1 contract is frozen. No breaking changes. Additions are backward-compatible.
             </p>
           </div>
 
           {/* Footer */}
           <div className="pt-8 border-t border-[hsl(var(--landing-cream)/0.06)] text-center">
-            <p className="text-[hsl(var(--landing-cream)/0.3)] text-xs font-mono">
-              Core v1 · Frozen protocol · <Link to="/status" className="underline hover:text-[hsl(var(--landing-cream)/0.6)]">Status</Link> · <Link to="/legal" className="underline hover:text-[hsl(var(--landing-cream)/0.6)]">Legal</Link>
+            <p className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono">
+              Core v1 · Frozen protocol · <Link to="/status" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">Status</Link> · <Link to="/legal" className="underline hover:text-[hsl(var(--landing-cream)/0.7)]">Legal</Link>
             </p>
-            <p className="text-[hsl(var(--landing-cream)/0.25)] text-xs font-mono mt-1">
-              Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-[hsl(var(--landing-cream)/0.5)]">verify-anchoring.org</a>
+            <p className="text-[hsl(var(--landing-cream)/0.4)] text-xs font-mono mt-1">
+              Independent verification: <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-[hsl(var(--landing-cream)/0.6)]">verify-anchoring.org</a>
             </p>
           </div>
         </div>
