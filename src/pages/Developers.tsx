@@ -45,6 +45,9 @@ export default function Developers() {
           <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer">
             <img src="https://img.shields.io/npm/dm/@umarise/cli?label=CLI%20downloads&color=222&style=flat-square" alt="CLI monthly downloads" className="h-5" />
           </a>
+          <a href="https://pypi.org/project/umarise-core-sdk/" target="_blank" rel="noopener noreferrer">
+            <img src="https://img.shields.io/pypi/v/umarise-core-sdk?label=umarise-core-sdk&color=3775A9&style=flat-square" alt="umarise-core-sdk on PyPI" className="h-5" />
+          </a>
         </div>
 
         {/* Interactive Get Started Flow */}
