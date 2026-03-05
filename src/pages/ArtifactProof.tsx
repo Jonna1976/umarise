@@ -58,7 +58,7 @@ export default function ArtifactProof() {
 
         {/* Create your own */}
         <div className="mt-16 pt-10 border-t border-landing-muted/10">
-          <p className="text-landing-cream text-sm mb-4">Create your own proofs</p>
+          <p className="text-landing-cream text-sm mb-5">Create your own proofs</p>
           <div className="font-mono text-sm space-y-3">
             <div>
               <span className="text-landing-muted text-xs block mb-1">CLI</span>
@@ -68,13 +68,17 @@ export default function ArtifactProof() {
               <span className="text-landing-muted text-xs block mb-1">GitHub Action</span>
               <code className="text-landing-cream">uses: AnchoringTrust/anchor-action@v1</code>
             </div>
+            <div>
+              <span className="text-landing-muted text-xs block mb-1">Python</span>
+              <code className="text-landing-cream">pip install umarise-core-sdk</code>
+            </div>
           </div>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col gap-2">
             <Link
               to="/developers"
               className="text-sm text-landing-cream hover:text-landing-cream/80 transition-colors underline underline-offset-4 decoration-landing-muted/30"
             >
-              Developer documentation →
+              Get your API key (free) →
             </Link>
           </div>
         </div>
