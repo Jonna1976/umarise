@@ -1,4 +1,4 @@
-# umarise
+# umarise-core
 
 Minimal SDK for the Umarise Core v1 Anchoring API.
 Zero external dependencies. Python 3.8+.
@@ -6,7 +6,7 @@ Zero external dependencies. Python 3.8+.
 ## Install
 
 ```
-pip install umarise
+pip install umarise-core
 ```
 
 ## Usage
