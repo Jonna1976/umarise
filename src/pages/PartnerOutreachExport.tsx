@@ -112,7 +112,7 @@ curl -X POST https://core.umarise.com/v1-core-origins \\
 Sandbox: um_test_ prefix keys + dry_run=true parameter.
 Spec: anchoring-spec.org
 Verifier: verify-anchoring.org (publiek domein, geen backend)
-SDK: npm @umarise/anchor | pip install umarise
+SDK: npm @umarise/anchor | pip install umarise-core-sdk
 
 De API is bevroren (v1 contract). Backward compatibility is permanent.
 

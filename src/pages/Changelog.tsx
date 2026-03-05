@@ -9,6 +9,7 @@ const entries = [
   {
     date: '2026-03-05',
     items: [
+      'umarise-core-sdk v1.0.5 — Python SDK published on PyPI via Trusted Publishing',
       'npm badges added to /developers for live download stats',
       'PageHeader simplified — single "Umarise" home link',
       'Footer consistency across /developers and /api-reference',
