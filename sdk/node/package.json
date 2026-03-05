@@ -1,7 +1,7 @@
 {
   "name": "@umarise/anchor",
   "version": "1.0.0",
-  "description": "Umarise Core SDK. Hash-in, proof-out. Zero dependencies.",
+  "description": "Anchor any file to Bitcoin with one API call. Hash-in, proof-out. Zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -28,13 +28,23 @@
   },
   "keywords": [
     "anchoring",
+    "anchor",
     "sha256",
     "bitcoin",
+    "bitcoin-timestamp",
     "opentimestamps",
     "proof-of-existence",
+    "proof",
     "timestamp",
     "integrity",
-    "verification"
+    "verification",
+    "digital-proof",
+    "file-integrity",
+    "provenance",
+    "immutable",
+    "build-artifact",
+    "ci-cd",
+    "supply-chain"
   ],
   "author": "Umarise",
   "license": "Unlicense",
@@ -42,7 +52,7 @@
     "type": "git",
     "url": "https://github.com/umarise/anchor-sdk-node"
   },
-  "homepage": "https://umarise.com/technical",
+  "homepage": "https://umarise.com/developers",
   "engines": {
     "node": ">=18.0.0"
   }

@@ -5,19 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "umarise-core-sdk"
 version = "1.0.0"
-description = "Minimal SDK for the Umarise Core v1 origin attestation API. Zero dependencies."
+description = "Anchor any file to Bitcoin with one API call. Hash-in, proof-out. Zero dependencies."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
     {name = "Umarise", email = "partners@umarise.com"}
 ]
-keywords = ["umarise", "anchoring", "origin", "attestation", "proof", "opentimestamps", "sha256"]
+keywords = ["umarise", "anchoring", "anchor", "origin", "attestation", "proof", "proof-of-existence", "opentimestamps", "sha256", "bitcoin", "bitcoin-timestamp", "file-integrity", "digital-proof", "provenance", "build-artifact", "ci-cd", "supply-chain", "verification", "immutable"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     "Topic :: Security :: Cryptography",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Archiving",
     "Typing :: Typed",
 ]
 

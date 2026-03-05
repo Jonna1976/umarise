@@ -1,7 +1,7 @@
 {
   "name": "@umarise/cli",
   "version": "1.0.0",
-  "description": "CLI for Umarise Core. Anchor files to Bitcoin, verify proofs offline.",
+  "description": "Anchor files to Bitcoin from the command line. Generate .proof bundles for offline verification.",
   "type": "module",
   "bin": {
     "umarise": "./bin/umarise.js"
@@ -24,10 +24,21 @@
   "keywords": [
     "umarise",
     "anchoring",
+    "anchor",
     "bitcoin",
+    "bitcoin-timestamp",
     "proof-of-existence",
+    "proof",
     "cli",
-    "opentimestamps"
+    "opentimestamps",
+    "file-integrity",
+    "digital-proof",
+    "provenance",
+    "build-artifact",
+    "ci-cd",
+    "sha256",
+    "supply-chain",
+    "verification"
   ],
   "author": "Umarise",
   "license": "Unlicense",
