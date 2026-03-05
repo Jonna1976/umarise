@@ -94,7 +94,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 2: Install CLI */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] pointer-events-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
@@ -108,7 +108,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 3: Anchor + Proof */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] pointer-events-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
@@ -188,7 +188,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 4: Verify */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 pointer-events-none select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] pointer-events-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
