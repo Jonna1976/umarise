@@ -17,11 +17,8 @@ const sizes = {
 } as const;
 
 export default function HumanSignedBadge({ signed, size = 'sm', className = '' }: HumanSignedBadgeProps) {
-  const { box, icon } = sizes[size];
-  const stroke = signed ? '#C9A96E' : '#F0EAD6';
-  const opacity = signed ? 0.85 : 0.15;
-  const border = signed ? 'rgba(201, 169, 110, 0.35)' : 'rgba(240, 234, 214, 0.07)';
-  const bg = signed ? '#0F1A0F' : '#111';
+  const { icon } = sizes[size];
+  const stroke = signed ? '#C9A96E' : 'rgba(201, 169, 110, 0.25)';
 
   return (
     <div
@@ -31,13 +28,7 @@ export default function HumanSignedBadge({ signed, size = 'sm', className = '' }
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: box,
-        height: box,
-        background: bg,
-        border: `1px solid ${border}`,
-        borderRadius: 3,
         flexShrink: 0,
-        transition: 'border-color 0.25s',
       }}
     >
       <svg
@@ -49,7 +40,6 @@ export default function HumanSignedBadge({ signed, size = 'sm', className = '' }
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        style={{ opacity }}
       >
         <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4" />
         <path d="M14 13.12c0 2.38 0 6.38-1 8.88" />
