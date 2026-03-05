@@ -64,6 +64,7 @@ import SdkDownload from "./pages/SdkDownload";
 import PartnerIntegration from "./pages/PartnerIntegration";
 import Partnerships from "./pages/Partnerships";
 import AuditExport from "./pages/AuditExport";
+import Developers from "./pages/Developers";
 import InvestorOnePager from "./pages/InvestorOnePager";
 import PartnerOutreachExport from "./pages/PartnerOutreachExport";
 
@@ -144,6 +145,7 @@ const App = () => (
             <Route path="/sdk-download" element={<SdkDownload />} />
             <Route path="/partner-integration" element={<PartnerIntegration />} />
             <Route path="/partnerships" element={<Partnerships />} />
+            <Route path="/developers" element={<Developers />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
             <Route path="/app" element={<InternalGate><Index /></InternalGate>} />
