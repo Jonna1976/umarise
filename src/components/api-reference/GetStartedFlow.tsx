@@ -19,7 +19,7 @@ function Code({ code, copy }: { code: string; copy?: string }) {
   return (
     <div className="relative">
       <CopyBtn text={copy ?? code} />
-      <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 pr-12 text-[13px] font-mono text-[hsl(var(--landing-cream))] overflow-x-auto whitespace-pre leading-relaxed">{code}</pre>
+      <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 pr-14 text-[13px] font-mono text-[hsl(var(--landing-cream))] overflow-x-auto whitespace-pre leading-relaxed">{code}</pre>
     </div>
   );
 }
@@ -59,7 +59,7 @@ export default function GetStartedFlow() {
           <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Get your API key</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream))] mb-4 ml-7">One click. No email, no account, no waiting. 100 free anchors included.</p>
+        <p className="text-xs text-[hsl(var(--landing-cream))] mb-4 ml-7">Generates instantly. Includes 100 free anchors.</p>
         {!generatedKey ? (
           <div className="ml-7">
             <button onClick={generateKey} disabled={loading} className="px-6 py-2.5 rounded text-sm font-mono font-bold bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity disabled:opacity-50">
@@ -222,9 +222,8 @@ export default function GetStartedFlow() {
 
       {/* Done */}
       <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-        <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Done. No email. No signup. No dashboard.</p>
         <p className="text-sm text-[hsl(var(--landing-cream))]">
-          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. You choose where to store it. We never see your file.
+          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. You choose where to store it. The file never leaves your machine.
         </p>
       </div>
     </div>

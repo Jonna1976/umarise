@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
  */
 export default function PageHeader({ maxWidth = 'max-w-3xl' }: { maxWidth?: string }) {
   return (
-    <header className="border-b border-landing-muted/10">
+    <header className="border-b border-[hsl(var(--landing-muted)/0.06)]">
       <div className={`${maxWidth} mx-auto px-6 py-4`}>
         <Link
           to="/"
