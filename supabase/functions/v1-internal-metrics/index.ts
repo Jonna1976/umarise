@@ -12,7 +12,12 @@
  *     "total_attestations": 12847,
  *     "attestations_24h": 342,
  *     "attestations_7d": 2103,
+ *     "attestations_30d": 8920,
  *     "active_partners": 5,
+ *     "active_partners_7d": 3,
+ *     "proofs_anchored": 12100,
+ *     "proofs_pending": 47,
+ *     "proofs_by_partner": { "um_cry": 890, "um_jon": 312, "internal": 45 },
  *     "avg_response_time_ms_24h": 45,
  *     "error_rate_24h": 0.002,
  *     "requests_24h": 5420,
@@ -33,7 +38,12 @@ interface MetricsResponse {
   total_attestations: number;
   attestations_24h: number;
   attestations_7d: number;
+  attestations_30d: number;
   active_partners: number;
+  active_partners_7d: number;
+  proofs_anchored: number;
+  proofs_pending: number;
+  proofs_by_partner: Record<string, number>;
   avg_response_time_ms_24h: number;
   error_rate_24h: number;
   requests_24h: number;
@@ -83,41 +93,77 @@ Deno.serve(async (req: Request) => {
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    // Parallel queries for efficiency - use RPC for request metrics to bypass 1000 row limit
+    // Parallel queries for efficiency
     const [
       totalAttestationsResult,
       attestations24hResult,
       attestations7dResult,
+      attestations30dResult,
       activePartnersResult,
+      proofsAnchoredResult,
+      proofsPendingResult,
+      proofsByPartnerResult,
+      activePartners7dResult,
       requestMetrics24hResult,
     ] = await Promise.all([
-      // Total attestations
       supabase
         .from('origin_attestations')
         .select('*', { count: 'exact', head: true }),
-      
-      // Attestations in last 24h
       supabase
         .from('origin_attestations')
         .select('*', { count: 'exact', head: true })
         .gte('captured_at', twentyFourHoursAgo.toISOString()),
-      
-      // Attestations in last 7d
       supabase
         .from('origin_attestations')
         .select('*', { count: 'exact', head: true })
         .gte('captured_at', sevenDaysAgo.toISOString()),
-      
-      // Active partners (non-revoked API keys)
+      supabase
+        .from('origin_attestations')
+        .select('*', { count: 'exact', head: true })
+        .gte('captured_at', thirtyDaysAgo.toISOString()),
       supabase
         .from('partner_api_keys')
         .select('*', { count: 'exact', head: true })
         .is('revoked_at', null),
-      
-      // Request metrics for last 24h - using RPC to bypass 1000 row limit
+      supabase
+        .from('core_ots_proofs')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'anchored'),
+      supabase
+        .from('core_ots_proofs')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      // Proofs by partner: get attestations grouped by api_key_prefix
+      supabase
+        .from('origin_attestations')
+        .select('api_key_prefix'),
+      // Active partners in last 7d (distinct api_key_prefix with attestations)
+      supabase
+        .from('origin_attestations')
+        .select('api_key_prefix')
+        .gte('captured_at', sevenDaysAgo.toISOString())
+        .not('api_key_prefix', 'is', null),
       supabase.rpc('core_metrics_24h'),
     ]);
+
+    // Aggregate proofs by partner
+    const proofsByPartner: Record<string, number> = {};
+    if (proofsByPartnerResult.data) {
+      for (const row of proofsByPartnerResult.data) {
+        const key = row.api_key_prefix || 'internal';
+        proofsByPartner[key] = (proofsByPartner[key] || 0) + 1;
+      }
+    }
+
+    // Count distinct active partners in 7d
+    const activePartners7dSet = new Set<string>();
+    if (activePartners7dResult.data) {
+      for (const row of activePartners7dResult.data) {
+        if (row.api_key_prefix) activePartners7dSet.add(row.api_key_prefix);
+      }
+    }
 
     // Extract metrics from RPC result
     const requestMetrics = requestMetrics24hResult.data || {
@@ -139,7 +185,12 @@ Deno.serve(async (req: Request) => {
       total_attestations: totalAttestationsResult.count || 0,
       attestations_24h: attestations24hResult.count || 0,
       attestations_7d: attestations7dResult.count || 0,
+      attestations_30d: attestations30dResult.count || 0,
       active_partners: activePartnersResult.count || 0,
+      active_partners_7d: activePartners7dSet.size,
+      proofs_anchored: proofsAnchoredResult.count || 0,
+      proofs_pending: proofsPendingResult.count || 0,
+      proofs_by_partner: proofsByPartner,
       avg_response_time_ms_24h: avgResponseTime,
       error_rate_24h: errorRate,
       requests_24h: totalRequests24h,
@@ -150,7 +201,10 @@ Deno.serve(async (req: Request) => {
     console.log('[v1-internal-metrics] Metrics generated:', {
       total_attestations: metrics.total_attestations,
       attestations_24h: metrics.attestations_24h,
+      proofs_anchored: metrics.proofs_anchored,
+      proofs_pending: metrics.proofs_pending,
       active_partners: metrics.active_partners,
+      active_partners_7d: metrics.active_partners_7d,
     });
 
     return new Response(
