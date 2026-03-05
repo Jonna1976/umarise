@@ -10,7 +10,7 @@ function CopyBtn({ text }: { text: string }) {
       onClick={() => { navigator.clipboard.writeText(text); setOk(true); setTimeout(() => setOk(false), 1500); }}
       className="absolute top-2 right-2 p-1.5 rounded bg-[hsl(var(--landing-cream)/0.05)] hover:bg-[hsl(var(--landing-cream)/0.1)] transition-colors"
     >
-      {ok ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.7)]" />}
+      {ok ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream))]" />}
     </button>
   );
 }
@@ -78,7 +78,7 @@ export default function GetStartedFlow() {
             {!copied && (
               <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
                 <p className="text-sm text-amber-300 font-medium mb-1">⚠ Copy your key before continuing</p>
-                <p className="text-xs text-amber-400/70 leading-relaxed">
+                <p className="text-xs text-amber-400 leading-relaxed">
                   This key is not stored anywhere. Not by Umarise, not in a database, not in your browser. 
                   If you lose it, you'll need to generate a new one. Click <strong className="text-amber-300">Copy key</strong> to continue.
                 </p>
@@ -117,7 +117,7 @@ export default function GetStartedFlow() {
         <div className="ml-7 space-y-4">
           <p className="text-xs text-[hsl(var(--landing-cream))] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
-            <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.9)]">
+            <p className="text-sm font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
@@ -140,7 +140,7 @@ export default function GetStartedFlow() {
                   <p className="text-xs text-[hsl(var(--landing-cream))] font-medium">Now: anchors your hash to Bitcoin</p>
                 </div>
                 <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)] ml-8">
-                  <pre className="text-xs font-mono text-[hsl(var(--landing-cream)/0.9)] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
+                  <pre className="text-xs font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
 ⏳ proof pending, run again later`}</pre>
                 </div>
@@ -157,7 +157,7 @@ export default function GetStartedFlow() {
                   <p className="text-xs text-[hsl(var(--landing-cream))] font-medium">Later: run the <span className="text-[hsl(var(--landing-copper))]">exact same command</span> again to download & save the .proof bundle</p>
                 </div>
                 <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)] ml-8">
-                  <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
+                  <pre className="text-xs font-mono text-emerald-400 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
 ✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
 ✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
@@ -170,7 +170,7 @@ export default function GetStartedFlow() {
 
           <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
             <p className="text-sm text-amber-300 font-medium mb-1">⚠ The .proof file only appears after Run 2</p>
-            <p className="text-xs text-amber-400/70 leading-relaxed">
+            <p className="text-xs text-amber-400 leading-relaxed">
               Bitcoin confirmation takes ~2 hours. Until then, your hash is registered but the .proof ZIP doesn't exist yet.
               Run the same command again later. The ZIP is saved automatically next to your original file.
             </p>
@@ -197,7 +197,7 @@ export default function GetStartedFlow() {
         <div className="ml-7 space-y-3">
           <p className="text-xs text-[hsl(var(--landing-cream))] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
-            <p className="text-sm font-mono text-[hsl(var(--landing-cream)/0.9)]">
+            <p className="text-sm font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise verify </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
@@ -212,7 +212,7 @@ export default function GetStartedFlow() {
           </div>
           <p className="text-xs text-[hsl(var(--landing-cream))]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
           <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
-            <pre className="text-xs font-mono text-emerald-400/90 whitespace-pre leading-relaxed">{`✓ hash matches
+            <pre className="text-xs font-mono text-emerald-400 whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
 ✓ proof valid, independent of Umarise`}</pre>
