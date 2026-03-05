@@ -3,7 +3,7 @@ import { ExternalLink } from 'lucide-react';
 
 export default function ArtifactProof() {
   return (
-    <main className="min-h-screen bg-landing-bg text-landing-cream">
+    <main className="min-h-screen bg-landing-ink text-landing-cream">
       <header className="border-b border-landing-muted/10">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <Link to="/" className="font-serif text-lg text-landing-cream hover:text-landing-cream/80 transition-colors">
