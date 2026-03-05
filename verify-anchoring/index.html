@@ -435,24 +435,34 @@ footer a:hover { color: var(--text-muted); }
 </div>
 
 <main>
-  <div id="drop-zone" class="drop-zone">
-    <input type="file" id="file-input">
-    <div class="drop-label">
-      Drop an origin ZIP or click to select
-      <small>Origin ZIP recommended · Any file = hash only</small>
-    </div>
+  <!-- ─── Entry point selector ─── -->
+  <div style="display:flex;gap:0;margin-bottom:2rem;border:1px solid var(--border);border-radius:3px;overflow:hidden">
+    <button id="tab-zip" onclick="switchTab('zip')" style="flex:1;padding:0.75rem 1rem;font-family:var(--mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.2s;background:var(--accent);color:var(--bg)">
+      Origin ZIP
+    </button>
+    <button id="tab-hash" onclick="switchTab('hash')" style="flex:1;padding:0.75rem 1rem;font-family:var(--mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.2s;background:var(--surface);color:var(--text-muted)">
+      Hash + OTS
+    </button>
   </div>
 
-  <div id="output"></div>
+  <!-- ─── Tab A: Origin ZIP ─── -->
+  <div id="panel-zip">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:0.5rem;font-family:var(--mono)">For end-users and consumer apps that generate origin ZIPs containing the artifact + proof bundle.</p>
 
-  <!-- ─── Hash + OTS Verification (for API integrators) ─── -->
-  <div class="dev-separator">
-    <span class="dev-box-label">For API Integrators</span>
-    <h2 class="dev-box-title">Hash + OTS Verification</h2>
-    <p class="dev-box-desc">
-      If you used the Core API directly, you have a SHA-256 hash and an <code style="font-family:var(--mono);font-size:0.85em">.ots</code> proof file — but no ZIP.<br>
-      Paste your hash and upload the <code style="font-family:var(--mono);font-size:0.85em">.ots</code> file to verify against the Bitcoin blockchain.
-    </p>
+    <div id="drop-zone" class="drop-zone">
+      <input type="file" id="file-input">
+      <div class="drop-label">
+        Drop an origin ZIP or click to select
+        <small>Origin ZIP recommended · Any file = hash only</small>
+      </div>
+    </div>
+
+    <div id="output"></div>
+  </div>
+
+  <!-- ─── Tab B: Hash + OTS ─── -->
+  <div id="panel-hash" style="display:none">
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:0.5rem;font-family:var(--mono)">For API integrators with a SHA-256 hash and a raw <code style="font-family:var(--mono);font-size:0.85em">.ots</code> proof file. No ZIP needed.</p>
 
     <input type="text" id="hash-input" class="hash-input" placeholder="Paste SHA-256 hash (64 hex characters)" maxlength="71" spellcheck="false" autocomplete="off">
 
@@ -628,6 +638,30 @@ footer a:hover { color: var(--text-muted); }
 <!-- OpenTimestamps library — bundled locally for zero CDN dependency -->
 <script src="vendor/opentimestamps.min.js"></script>
 
+<script>
+// ─── Tab switching ───
+function switchTab(tab) {
+  const zipPanel = document.getElementById('panel-zip');
+  const hashPanel = document.getElementById('panel-hash');
+  const tabZip = document.getElementById('tab-zip');
+  const tabHash = document.getElementById('tab-hash');
+  if (tab === 'zip') {
+    zipPanel.style.display = 'block';
+    hashPanel.style.display = 'none';
+    tabZip.style.background = 'var(--accent)';
+    tabZip.style.color = 'var(--bg)';
+    tabHash.style.background = 'var(--surface)';
+    tabHash.style.color = 'var(--text-muted)';
+  } else {
+    zipPanel.style.display = 'none';
+    hashPanel.style.display = 'block';
+    tabHash.style.background = 'var(--accent)';
+    tabHash.style.color = 'var(--bg)';
+    tabZip.style.background = 'var(--surface)';
+    tabZip.style.color = 'var(--text-muted)';
+  }
+}
+</script>
 <script>
 // ─── SVG Icons ───
 const ICONS = {
