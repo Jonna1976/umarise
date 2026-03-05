@@ -295,6 +295,7 @@ const NAV = [
   { id: 'rate-limits', label: 'Rate Limits' },
   { id: 'sdks', label: 'SDKs' },
   { id: 'cli', label: 'CLI & CI/CD' },
+  { id: 'verification-paths', label: 'Verification Paths' },
   { id: 'faq', label: 'FAQ' },
   { id: 'privacy', label: 'Privacy' },
   { id: 'checklist', label: 'Checklist' },
@@ -1352,6 +1353,127 @@ umarise proof document.pdf`} />
                 <a href="#get-started" className="text-[hsl(var(--landing-copper))] hover:underline">Generate your API key</a> · 
                 Source: <a href="https://github.com/AnchoringTrust/cli" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">CLI</a> · <a href="https://github.com/AnchoringTrust/anchor-action" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Action</a> · 
                 License: <a href="https://unlicense.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">Unlicense</a> (Public Domain)
+              </p>
+            </div>
+          </Section>
+
+          {/* -- Verification Paths -- */}
+          <Section id="verification-paths">
+            <h2 className="text-lg font-serif text-[hsl(var(--landing-cream))] mb-3">Verification Paths</h2>
+            <p className="text-sm text-[hsl(var(--landing-cream)/0.8)] mb-6">
+              Three integration models, three verification flows. Same cryptographic guarantee.
+            </p>
+
+            <div className="space-y-6">
+              {/* itexisted.app */}
+              <div className="p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.02)]">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))]">B2C</span>
+                  <h3 className="text-[hsl(var(--landing-cream))] font-medium text-sm">itexisted.app</h3>
+                </div>
+
+                <div className="ml-0 space-y-3">
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">You have</p>
+                    <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">Origin ZIP — contains artifact + certificate.json + proof.ots + VERIFY.txt</p>
+                  </div>
+
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">Verify via</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">①</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">verify-anchoring.org</a> — drop ZIP, full autonomous verification in-browser
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">②</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          Manual: <code className="text-[hsl(var(--landing-copper))] text-xs">unzip</code> + <code className="text-[hsl(var(--landing-copper))] text-xs">sha256sum</code> + <code className="text-[hsl(var(--landing-copper))] text-xs">ots verify</code> — fully offline, highest independence
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* B2B Core API */}
+              <div className="p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.02)]">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[hsl(var(--landing-copper)/0.15)] text-[hsl(var(--landing-copper))]">B2B</span>
+                  <h3 className="text-[hsl(var(--landing-cream))] font-medium text-sm">Core API Integration</h3>
+                </div>
+
+                <div className="ml-0 space-y-3">
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">You have</p>
+                    <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">SHA-256 hash + <code className="text-[hsl(var(--landing-copper))] text-xs">.ots</code> proof file (via <code className="text-[hsl(var(--landing-copper))] text-xs">GET /v1-core-proof</code>)</p>
+                  </div>
+
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">Verify via</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">①</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          <code className="text-[hsl(var(--landing-copper))] text-xs">POST /v1-core-verify</code> — API confirms status (convenience, requires Umarise)
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">②</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">verify-anchoring.org</a> — paste hash + upload <code className="text-[hsl(var(--landing-copper))] text-xs">.ots</code> file (independent, in-browser)
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">③</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          <code className="text-[hsl(var(--landing-copper))] text-xs">ots verify</code> locally — fully offline, highest independence
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CLI */}
+              <div className="p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(var(--landing-cream)/0.02)]">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400">DEV</span>
+                  <h3 className="text-[hsl(var(--landing-cream))] font-medium text-sm">CLI — Developer go-to</h3>
+                </div>
+
+                <div className="ml-0 space-y-3">
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">You have</p>
+                    <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">Original file + <code className="text-[hsl(var(--landing-copper))] text-xs">.proof</code> bundle (contains certificate.json + proof.ots + VERIFY.txt — no artifact)</p>
+                  </div>
+
+                  <div>
+                    <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono uppercase tracking-wider mb-1">Verify via</p>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">①</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          <code className="text-[hsl(var(--landing-copper))] text-xs">umarise verify [file]</code> — terminal, 4 green checkmarks, no API key needed
+                        </p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-400 text-xs mt-0.5">②</span>
+                        <p className="text-[hsl(var(--landing-cream)/0.85)] text-sm">
+                          Unzip <code className="text-[hsl(var(--landing-copper))] text-xs">.proof</code> → use <code className="text-[hsl(var(--landing-copper))] text-xs">proof.ots</code> on <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:underline">verify-anchoring.org</a> or with <code className="text-[hsl(var(--landing-copper))] text-xs">ots verify</code>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.8)] leading-relaxed">
+                <strong className="text-[hsl(var(--landing-cream))]">Independence guarantee:</strong> Every path ultimately resolves to the same mathematical proof — a SHA-256 hash anchored in a Bitcoin block via OpenTimestamps. No path requires trust in Umarise.
               </p>
             </div>
           </Section>
