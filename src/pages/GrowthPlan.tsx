@@ -165,6 +165,130 @@ export default function GrowthPlan() {
             </div>
           </section>
 
+          {/* Enterprise Readiness */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Enterprise Readiness — SOC Traject</h2>
+
+            <div className="space-y-6">
+              <div className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+                <h3 className="text-landing-copper text-sm uppercase tracking-wide mb-4">SOC 2 Readiness — Technische Controls</h3>
+                <div className="space-y-2 text-sm">
+                  <p className="text-landing-cream font-medium mb-3">Security (CC6)</p>
+                  <ul className="space-y-1.5">
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> API key authenticatie</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Write-once database triggers</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> RLS policies</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Toegangscontroles documenteren</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> MFA voor productietoegang instellen</li>
+                  </ul>
+
+                  <p className="text-landing-cream font-medium mt-4 mb-3">Availability (A1)</p>
+                  <ul className="space-y-1.5">
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Health endpoint /v1-core-health</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Uptime monitoring instellen</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> SLA documenteren</li>
+                  </ul>
+
+                  <p className="text-landing-cream font-medium mt-4 mb-3">Processing Integrity (PI1)</p>
+                  <ul className="space-y-1.5">
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Write-once anchors (by design)</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Bitcoin anchor als extern bewijs</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Error handling en retry logic OTS worker</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Audit log van alle anchor requests</li>
+                  </ul>
+
+                  <p className="text-landing-cream font-medium mt-4 mb-3">Confidentiality & Privacy</p>
+                  <ul className="space-y-1.5">
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Geen klantdata opgeslagen (by design)</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Hash-only verwerking</li>
+                    <li className="flex items-start gap-2"><span className="text-green-400">✓</span> Geen PII verwerkt</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Data classification policy documenteren</li>
+                    <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Privacy policy formaliseren</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-landing-copper text-sm uppercase tracking-wide mb-4">SOC Traject — Fasering</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-3">
+                    <span className="text-landing-copper font-mono text-xs mt-0.5">Nu</span>
+                    <div>
+                      <p className="text-landing-cream font-medium">SOC 2 readiness assessment</p>
+                      <p className="text-landing-muted">Weten wat ontbreekt. Auditor selectie via Paul's netwerk.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-landing-copper font-mono text-xs mt-0.5">F1</span>
+                    <div>
+                      <p className="text-landing-cream font-medium">SOC 1 Type I (3-4 maanden)</p>
+                      <p className="text-landing-muted">Eerste auditeerbaar bewijs. Smallere scope, sneller.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-landing-copper font-mono text-xs mt-0.5">F2</span>
+                    <div>
+                      <p className="text-landing-cream font-medium">SOC 2 Type I (6-9 maanden)</p>
+                      <p className="text-landing-muted">Enterprise drempel gepasseerd.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-landing-copper font-mono text-xs mt-0.5">F3</span>
+                    <div>
+                      <p className="text-landing-cream font-medium">SOC 2 Type II (12-18 maanden)</p>
+                      <p className="text-landing-muted">Volwassen enterprise leverancier. Bewijs over 6-12 maanden.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-landing-copper text-sm uppercase tracking-wide mb-4">Organisatorische Controls — Nog te doen</h3>
+                <ul className="space-y-1.5 text-sm">
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Incident response plan documenteren</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Change management proces formeel vastleggen</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Vulnerability management proces</li>
+                  <li className="flex items-start gap-2"><span className="text-landing-muted/40">○</span> Monitoring en alerting aantoonbaar over tijd</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Paul's Acties */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Paul — Openstaande Acties</h2>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="text-landing-muted/40">○</span>
+                <div>
+                  <p className="text-landing-cream font-medium">SOC 2 auditor introductie</p>
+                  <p className="text-landing-muted">Warme intro via Philips netwerk naar gecertificeerde auditor.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-muted/40">○</span>
+                <div>
+                  <p className="text-landing-cream font-medium">Enterprise security review template</p>
+                  <p className="text-landing-muted">CAIQ/SIG of Philips-format als voorbereiding op enterprise gesprekken.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-muted/40">○</span>
+                <div>
+                  <p className="text-landing-cream font-medium">Eerste enterprise referentie</p>
+                  <p className="text-landing-muted">Early adopter uit netwerk als referentie voor SOC 2 audit en sales.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-muted/40">○</span>
+                <div>
+                  <p className="text-landing-cream font-medium">Organisatie advies</p>
+                  <p className="text-landing-muted">Welke functies (CISO, compliance officer) zijn nodig voor enterprise vertrouwen?</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Metrics */}
           <section className="border-t border-landing-muted/10 pt-12">
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Metrics</h2>
@@ -173,6 +297,7 @@ export default function GrowthPlan() {
               <li>• PyPI downloads</li>
               <li>• Google Search Console: impressions, clicks, indexed pages</li>
               <li>• GitHub stars + forks</li>
+              <li>• Anchors per day (Core API)</li>
             </ul>
           </section>
 
