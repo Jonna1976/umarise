@@ -432,29 +432,46 @@ export function useMarks() {
       let deviceSignature: string | null = null;
       let devicePublicKey: string | null = null;
 
-      if (isWebAuthnSupported() && !skipPasskey) {
+      const webAuthnSupported = isWebAuthnSupported();
+      console.log('[createMarkFromFile] WebAuthn supported:', webAuthnSupported, 'skipPasskey:', skipPasskey);
+      if (webAuthnSupported && !skipPasskey) {
         let credential = getPasskeyCredential();
+        console.log('[createMarkFromFile] Stored passkey credential:', credential ? credential.credentialId.substring(0, 12) + '…' : 'null');
         if (!credential) {
           try {
             const hasPlatform = await isPlatformAuthenticatorAvailable();
+            console.log('[createMarkFromFile] Platform authenticator available:', hasPlatform);
             if (hasPlatform) {
+              console.log('[createMarkFromFile] Auto-registering passkey...');
               credential = await registerPasskey(hash.substring(0, 8));
               savePasskeyCredential(credential);
-              const sig = await signHash(credential.credentialId, hash).catch(() => null);
+              console.log('[createMarkFromFile] Passkey registered:', credential.credentialId.substring(0, 12) + '…');
+              const sig = await signHash(credential.credentialId, hash).catch((e) => {
+                console.warn('[createMarkFromFile] Signing after registration failed:', e);
+                return null;
+              });
               if (sig) {
                 deviceSignature = sig.signature;
                 devicePublicKey = credential.publicKey;
+                console.log('[createMarkFromFile] ✓ Hash signed, sig length:', deviceSignature.length);
               } else {
                 devicePublicKey = credential.publicKey;
+                console.log('[createMarkFromFile] Registration ok but signing failed — publicKey set');
               }
             }
-          } catch { /* user cancelled — non-blocking */ }
+          } catch (e) {
+            console.warn('[createMarkFromFile] Passkey auto-registration skipped:', e);
+          }
         } else {
           try {
+            console.log('[createMarkFromFile] Signing hash with stored passkey...');
             const sig = await signHash(credential.credentialId, hash);
             deviceSignature = sig.signature;
             devicePublicKey = credential.publicKey;
-          } catch { /* non-blocking */ }
+            console.log('[createMarkFromFile] ✓ Hash signed, sig length:', deviceSignature.length);
+          } catch (e) {
+            console.warn('[createMarkFromFile] Passkey signing failed (non-blocking):', e);
+          }
         }
       }
 
