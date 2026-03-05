@@ -26,7 +26,7 @@ const included = [
   'Een sandbox API-sleutel (um_test_...) — gratis, onbeperkt, geen credits verbruikt',
   'Toegang tot de volledige API via umarise.com/api-reference',
   'Node.js SDK via npm install @umarise/anchor',
-  'Python SDK via pip install umarise',
+  'Python SDK via pip install umarise-core-sdk',
 ];
 
 const notIncluded = [

@@ -141,4 +141,20 @@ After all packages are published:
 
 ---
 
-*Last updated: 2026-03-04 — all items complete.*
+## Package D: `umarise-core-sdk` (PyPI)
+
+**Source:** `sdk/python/`
+
+### Status
+- [x] `pyproject.toml` name = `umarise-core-sdk`
+- [x] Zero external dependencies, Python 3.8+
+- [x] Trusted Publishing via GitHub Actions (OIDC)
+- [x] Workflow: `.github/workflows/publish-pypi.yml`
+- [x] Environment: `pypi` (GitHub → PyPI OIDC binding)
+- [x] Published: 2026-03-05 via tag `python-v1.0.5`
+- [x] Live: `https://pypi.org/project/umarise-core-sdk/`
+- [x] Install: `pip install umarise-core-sdk`
+
+---
+
+*Last updated: 2026-03-05 — all items complete including PyPI.*

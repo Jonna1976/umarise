@@ -766,7 +766,7 @@ console.log(proof.captured_at);`} />
               </div>
               <div>
                 <p className="text-xs font-mono text-[hsl(var(--landing-cream)/0.85)] mb-2">Python</p>
-                <Code code={`pip install umarise`} />
+                <Code code={`pip install umarise-core-sdk`} />
                 <Code code={`from umarise import UmariseCore, hash_buffer
 import os, time
 
