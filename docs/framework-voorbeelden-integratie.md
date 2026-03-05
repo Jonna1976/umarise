@@ -1,8 +1,7 @@
-# Framework-voorbeelden: Umarise integratie
+# Framework Examples: Umarise Integration
 
-Elk voorbeeld toont één ding: hoe je `attest_bytes()` of `attestBuffer()`
-aanroept in je bestaande upload handler. Kopieer het relevante voorbeeld,
-pas het aan, klaar.
+Every example shows one thing: how to anchor a file in your existing
+upload handler. Copy the relevant example, adapt, done.
 
 ---
 
@@ -10,33 +9,26 @@ pas het aan, klaar.
 
 ```python
 # views.py
-import umarise_integration as umarise
+from umarise import UmariseCore, hash_buffer
+import os
 
-umarise.API_KEY = "um_jouw_key"
+core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 
 def upload_thesis(request):
     file = request.FILES["thesis"]
-    
-    # Sla het bestand op zoals je normaal doet
-    submission = Submission.objects.create(
-        student=request.user,
-        file=file,
-    )
-    
-    # Attesteer — 1 regel
-    result = umarise.safe_attest(submission.file.path, str(submission.id))
-    
-    # Optioneel: wacht op Bitcoin-verankering in achtergrond
-    if result:
-        umarise.track_anchor(result["origin_id"], str(submission.id))
-    
-    return JsonResponse({"id": submission.id, "origin_id": result["origin_id"] if result else None})
-```
+    data = file.read()
 
-**Wat je aanpast in `umarise_integration.py`:**
-```python
-def save_origin_id(record_id, origin_id):
-    Submission.objects.filter(id=record_id).update(origin_id=origin_id)
+    # Save as usual
+    submission = Submission.objects.create(student=request.user, file=file)
+
+    # Anchor — 1 line
+    origin = core.attest(hash_buffer(data))
+
+    # Store origin_id alongside your record
+    submission.origin_id = origin.origin_id
+    submission.save(update_fields=["origin_id"])
+
+    return JsonResponse({"id": str(submission.id), "origin_id": origin.origin_id})
 ```
 
 ---
@@ -44,25 +36,24 @@ def save_origin_id(record_id, origin_id):
 ## Flask (Python)
 
 ```python
-# app.py
 from flask import Flask, request, jsonify
-import umarise_integration as umarise
+from umarise import UmariseCore, hash_buffer
+import os
 
 app = Flask(__name__)
-umarise.API_KEY = "um_jouw_key"
+core = UmariseCore(api_key=os.environ["UMARISE_API_KEY"])
 
 @app.route("/upload", methods=["POST"])
 def upload():
     file = request.files["document"]
     data = file.read()
-    
-    # Sla op in je eigen systeem
+
     record_id = save_to_database(file.filename, data)
-    
-    # Attesteer — 1 regel
-    result = umarise.attest_bytes(data, record_id)
-    
-    return jsonify({"record_id": record_id, "origin_id": result["origin_id"]})
+
+    # Anchor — 1 line
+    origin = core.attest(hash_buffer(data))
+
+    return jsonify({"record_id": record_id, "origin_id": origin.origin_id})
 ```
 
 ---
@@ -70,48 +61,56 @@ def upload():
 ## Express (Node.js)
 
 ```javascript
-// routes/upload.js
-const um = require("./umarise-integration.js");
+const { anchor, hashBuffer } = require("@umarise/anchor");
 const multer = require("multer");
+const fs = require("fs");
 const upload = multer({ dest: "uploads/" });
 
-um.API_KEY = "um_jouw_key";
-
 app.post("/upload", upload.single("document"), async (req, res) => {
-    // Sla op in je eigen systeem
     const recordId = await db.documents.create({ file: req.file.path });
-    
-    // Attesteer — 1 regel
-    const result = await um.safeAttest(req.file.path, String(recordId));
-    
-    // Optioneel: wacht op Bitcoin-verankering in achtergrond
-    if (result) {
-        um.trackAnchor(result.origin_id, String(recordId));
-    }
-    
-    res.json({ recordId, originId: result?.origin_id });
-});
-```
 
-**Wat je aanpast in `umarise-integration.js`:**
-```javascript
-async function saveOriginId(recordId, originId) {
-    await db.documents.update(recordId, { origin_id: originId });
-}
+    // Anchor — 1 line
+    const data = fs.readFileSync(req.file.path);
+    const result = await anchor(hashBuffer(data), process.env.UMARISE_API_KEY);
+
+    res.json({ recordId, originId: result.origin_id });
+});
 ```
 
 ---
 
-## Patroon
+## CI/CD (GitHub Actions)
 
-Elk framework volgt hetzelfde patroon:
+```yaml
+- uses: AnchoringTrust/anchor-action@v1
+  with:
+    file: dist/release.tar.gz
+  env:
+    UMARISE_API_KEY: ${{ secrets.UMARISE_API_KEY }}
+```
+
+---
+
+## Install
+
+| Language | Command |
+|----------|---------|
+| Python   | `pip install umarise-core-sdk` |
+| Node.js  | `npm install @umarise/anchor` |
+| CLI      | `npx @umarise/cli anchor <file>` |
+
+## Pattern
+
+Every framework follows the same pattern:
 
 ```
-1. Ontvang bestand (upload, API call, ingest)
-2. Sla op in je eigen systeem → je hebt een record_id
-3. umarise.safe_attest(bestand, record_id)  ← 1 regel
-4. Optioneel: umarise.track_anchor(origin_id, record_id)
+1. Receive file (upload, API call, ingest)
+2. hash = hash_buffer(file_bytes)     ← local, no network
+3. origin = core.attest(hash)         ← 1 API call
+4. Store origin.origin_id with your record
 ```
 
-`safe_attest` blokkeert je workflow nooit. Als Umarise tijdelijk
-onbereikbaar is, logt het de fout en gaat je app gewoon door.
+The SDK never blocks your workflow. If the API is temporarily
+unreachable, wrap in try/except and retry later.
+
+Full reference: [umarise.com/api-reference](https://umarise.com/api-reference)
