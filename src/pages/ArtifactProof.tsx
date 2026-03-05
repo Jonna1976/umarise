@@ -1,7 +1,22 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 
 export default function ArtifactProof() {
+  useEffect(() => {
+    document.title = 'What is a .proof file? — Umarise';
+    const setMeta = (name: string, content: string, property?: boolean) => {
+      const attr = property ? 'property' : 'name';
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute('content', content);
+    };
+    setMeta('description', 'A .proof file is a self-contained evidence bundle that proves a file existed at a specific moment, anchored in the Bitcoin blockchain. Verify independently, no account required.');
+    setMeta('og:title', 'What is a .proof file? — Umarise', true);
+    setMeta('og:description', 'Self-contained proof that a file existed at a specific moment. Anchored in Bitcoin. Verify independently.', true);
+    setMeta('og:url', 'https://umarise.com/proof', true);
+    return () => { document.title = 'Umarise — Anchoring infrastructure for digital proof'; };
+  }, []);
   return (
     <main className="min-h-screen bg-landing-deep text-landing-cream">
       <header className="border-b border-landing-muted/10">
