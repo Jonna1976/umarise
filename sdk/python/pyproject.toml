@@ -27,3 +27,6 @@ classifiers = [
 Homepage = "https://umarise.com"
 Documentation = "https://umarise.com/api-reference"
 Repository = "https://github.com/umarise/python-sdk"
+
+[tool.setuptools]
+license-files = []
