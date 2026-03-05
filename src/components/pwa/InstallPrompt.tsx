@@ -19,6 +19,12 @@ export function InstallPrompt() {
       return;
     }
 
+    // Don't show on developer/API pages
+    const path = window.location.pathname;
+    if (path === '/developers' || path === '/api-reference') {
+      return;
+    }
+
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
