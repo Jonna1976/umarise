@@ -473,6 +473,7 @@ export type Database = {
           confidence_score: number | null
           created_at: string
           device_fingerprint_hash: string | null
+          device_signed: boolean
           device_user_id: string
           embedding: Json | null
           embedding_vector: Json | null
@@ -515,6 +516,7 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           device_fingerprint_hash?: string | null
+          device_signed?: boolean
           device_user_id: string
           embedding?: Json | null
           embedding_vector?: Json | null
@@ -557,6 +559,7 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           device_fingerprint_hash?: string | null
+          device_signed?: boolean
           device_user_id?: string
           embedding?: Json | null
           embedding_vector?: Json | null
