@@ -373,7 +373,7 @@ export default function ApiReferenceV2() {
           <Section id="intro">
             <h1 className="text-3xl font-serif text-[hsl(var(--landing-cream))] mb-2">API Reference</h1>
             <p className="text-sm text-[hsl(var(--landing-cream)/0.85)] leading-relaxed">
-              An anchoring primitive that lets your users independently verify that specific bytes existed on or before a ledger-derived time - without relying on you or Umarise after creation.
+              An anchoring primitive that lets you independently verify that specific bytes existed on or before a ledger-derived time without relying on you or Umarise after creation.
             </p>
             <p className="text-[hsl(var(--landing-cream)/0.65)] text-xs font-mono mt-3">
               Base URL: <code className="text-[hsl(var(--landing-copper))]">{BASE}</code> · All responses include <code className="text-[hsl(var(--landing-copper))]">X-API-Version: v1</code>
