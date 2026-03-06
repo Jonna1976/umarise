@@ -50,12 +50,12 @@ export default function InvestorOnePager() {
 
           {/* Executive Summary — Open-Source & IP */}
           <section>
-            <SectionTitle>Executive summary — open-source & IP</SectionTitle>
+            <SectionTitle>Executive summary: open-source & IP</SectionTitle>
             <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
                 "The specification is public domain. The SDK is open-source. Verification is independent.
-                But the operational infrastructure — the batching engine, the key management, the immutability triggers,
-                the rate limiting — that is our protected IP. Just like Let's Encrypt: the protocol is open,
+                But the operational infrastructure, the batching engine, the key management, the immutability triggers,
+                the rate limiting, that is our protected IP. Just like Let's Encrypt: the protocol is open,
                 the client is open, but the Certificate Authority behind the scenes is not something you replicate over a weekend."
               </p>
             </div>
