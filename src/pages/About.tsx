@@ -28,9 +28,12 @@ export default function About() {
 
         {/* Jurisdiction */}
         <section className="mb-12">
-          <h2 className="font-mono text-xs text-landing-muted/50 tracking-[3px] uppercase mb-4">Jurisdiction</h2>
+          <h2 className="font-mono text-xs text-landing-muted/50 tracking-[3px] uppercase mb-4">Legal entity</h2>
           <p className="text-base text-landing-muted/90 leading-relaxed">
-            Umarise is based in the Netherlands, operating under Dutch and EU law.
+            Umarise is a trade name of Fasswell Invest B.V., based in the Netherlands, operating under Dutch and EU law.
+          </p>
+          <p className="text-base text-landing-muted/90 leading-relaxed mt-2">
+            <span className="font-mono text-sm text-landing-copper">KVK</span> 17254712
           </p>
         </section>
 
@@ -39,7 +42,7 @@ export default function About() {
           <h2 className="font-mono text-xs text-landing-muted/50 tracking-[3px] uppercase mb-4">Architecture</h2>
           <ul className="space-y-3 text-base text-landing-muted/90 leading-relaxed">
             <li><span className="text-landing-copper font-mono text-sm">core.umarise.com</span> — API layer</li>
-            <li><span className="text-landing-copper font-mono text-sm">umarise.com</span> — Documentation</li>
+            <li><span className="text-landing-copper font-mono text-sm">umarise.com</span> — Public interface</li>
             <li><span className="text-landing-copper font-mono text-sm">verify-anchoring.org</span> — Independent verification</li>
             <li><span className="text-landing-copper font-mono text-sm">anchoring-spec.org</span> — Open specification (IEC)</li>
           </ul>
