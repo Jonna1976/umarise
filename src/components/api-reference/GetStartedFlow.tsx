@@ -117,7 +117,7 @@ export default function GetStartedFlow() {
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor</h3>
         </div>
         <div className="ml-7 space-y-4">
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> into your terminal, then drag your file in:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
