@@ -12,7 +12,7 @@ export default function Landing() {
       <div className="w-full max-w-2xl flex flex-col min-h-[100dvh]">
         
         {/* Inscription area - positioned at ~30-35% from top */}
-        <main className="flex-1 flex flex-col justify-center" style={{ paddingBottom: '20vh' }}>
+        <main className="flex-1 flex flex-col justify-center" style={{ paddingBottom: '30vh' }}>
           {/* Title block */}
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.15] mb-10">
             <span className="text-landing-cream/90">Umarise.</span>
@@ -52,7 +52,7 @@ export default function Landing() {
           <p className="text-base text-landing-muted/90 tracking-wide mt-6">
             Anchoring Infrastructure
           </p>
-          <p className="text-xs text-landing-muted/90 mt-2 tracking-wide">
+          <p className="text-[13px] text-landing-muted/90 mt-2 tracking-wide">
             Implements the{' '}
             <a
               href="https://anchoring-spec.org"
