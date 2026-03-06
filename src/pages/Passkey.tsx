@@ -149,11 +149,11 @@ export default function Passkey() {
           Three Layers of Trust
         </h1>
         <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-4 max-w-xl leading-relaxed">
-          Anchoring bewijst bestaan. Device signing bewijst intentie. Attestatie bewijst identiteit.
+          Anchoring bewijst bestaan. Device signing bewijst aanwezigheid op het apparaat. Attestatie bewijst identiteit.
           Elke laag is onafhankelijk verifieerbaar en geen enkele laag vereist dat Umarise blijft bestaan.
         </p>
         <p className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono mb-12">
-          Geen biometrie, geen private keys, geen bestanden, geen identiteitsdocumenten opgeslagen.
+          Geen biometrie, geen private keys, geen bestanden, geen identiteitsdocumenten opgeslagen. Niet als beleid. Als architectuur.
         </p>
 
         <div className="space-y-6">
@@ -183,7 +183,7 @@ export default function Passkey() {
             number={2}
             title="Device Signing (Passkey)"
             icon={<Fingerprint className="w-5 h-5 text-[hsl(var(--landing-copper))]" />}
-            proves="Een mens met fysieke toegang tot een apparaat heeft dit bewust bevestigd met biometrie."
+            proves="Een persoon met fysieke toegang tot dit apparaat heeft dit bevestigd via biometrische activatie op het apparaat zelf."
             flow={[
               { label: 'Biometrie (lokaal)', arrow: true },
               { label: 'Passkey ontgrendelt private key', arrow: true },
@@ -254,7 +254,7 @@ export default function Passkey() {
               <tr className="border-b border-[hsl(var(--landing-cream)/0.05)]">
                 <td className="py-2.5 pr-4 text-[hsl(var(--landing-cream)/0.5)]">Bewijst</td>
                 <td className="py-2.5 px-3">Bytes bestonden op moment X</td>
-                <td className="py-2.5 px-3">Een mens deed dit bewust</td>
+                <td className="py-2.5 px-3">Aanwezigheid op dit apparaat</td>
                 <td className="py-2.5 px-3">Deze persoon deed dit</td>
               </tr>
               <tr className="border-b border-[hsl(var(--landing-cream)/0.05)]">
@@ -314,17 +314,20 @@ export default function Passkey() {
         {/* Analogy */}
         <div className="mt-10 p-5 rounded-lg bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)]">
           <h3 className="font-serif text-lg mb-3 text-[hsl(var(--landing-cream))]">Vergelijking</h3>
-          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed">
+          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed mb-3">
             Vergelijk het met een notaris: de notaris bewijst niet dat wat je zegt <em>waar</em> is.
             De notaris bewijst dat <em>jij</em> het zei, <em>op dat moment</em>, en dat je het later
             niet kunt ontkennen. Anchoring is de tijdstempel. De passkey is de handtekening.
             De attestant is de notaris.
           </p>
+          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed">
+            Persona weet wie je bent. Umarise weet het niet, en kan het niet weten. Dat is geen beleid. Dat is architectuur.
+          </p>
         </div>
 
         {/* Footer */}
         <footer className="mt-16 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-xs">
-          Geen biometrie opgeslagen. Geen private keys opgeslagen. Geen bestanden opgeslagen.
+          Geen biometrie opgeslagen. Geen private keys opgeslagen. Geen bestanden opgeslagen. Niet als beleid. Als architectuur.
         </footer>
       </main>
     </div>
