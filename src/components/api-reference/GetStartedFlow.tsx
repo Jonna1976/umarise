@@ -192,8 +192,8 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
           <p className="text-[13px] text-[hsl(var(--landing-cream))] mt-2">Expected output:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
             <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash matches
-✓ anchored in Bitcoin block 939270
-✓ no later than: 2026-03-04
+✓ anchored in Bitcoin block 939582
+✓ no later than: 2026-03-06
 ✓ proof valid, independent of Umarise`}</pre>
           </div>
         </div>
