@@ -212,6 +212,7 @@ Deno.serve(async (req: Request) => {
         status_code: status,
         response_time_ms: Date.now() - startTime,
         error_code: errorCode,
+        ip_hash: ipHash || undefined,
       });
 
       return errorResponse(errorCode, authResult.error || 'Unauthorized', status);
