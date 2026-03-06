@@ -144,7 +144,7 @@ export default function InvestorOnePager() {
             </p>
             <div className="space-y-4 mb-5">
               <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 1 — Anchoring</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 1: Anchoring</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Existence</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
                   A cryptographic commitment to exact bytes is recorded in a public ledger.
