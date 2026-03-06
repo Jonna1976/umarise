@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import PageHeader from '@/components/PageHeader';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -359,7 +360,9 @@ export default function SdkDownload() {
   }, []);
 
   return (
-    <div className="min-h-[100dvh] bg-landing-deep text-landing-cream flex items-center justify-center px-6">
+    <div className="min-h-[100dvh] bg-landing-deep text-landing-cream">
+      <PageHeader maxWidth="max-w-lg" />
+      <div className="flex items-center justify-center px-6 min-h-[calc(100dvh-64px)]">
       <div className="max-w-lg text-center space-y-8">
         <div className="inline-flex items-center gap-2 bg-landing-muted/10 text-landing-copper px-3 py-1 rounded-full text-sm font-medium tracking-wide">
           <span className="w-2 h-2 bg-landing-copper rounded-full animate-pulse" />
@@ -427,6 +430,7 @@ const origin = await core.attest(hash);`}</pre>
             Download als ZIP (offline)
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
