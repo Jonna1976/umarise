@@ -592,6 +592,7 @@ Deno.serve(async (req: Request) => {
         status_code: 500,
         response_time_ms: Date.now() - startTime,
         error_code: 'INTERNAL_ERROR',
+        ip_hash: ipHash || undefined,
       });
     }
 
