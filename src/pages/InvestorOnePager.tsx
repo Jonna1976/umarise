@@ -293,7 +293,7 @@ export default function InvestorOnePager() {
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200 space-y-3">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 The goal is not to find customers who pay. The goal is to find people who adopt anchoring-spec.org
-                as a standard in their workflow, platform, or curriculum — and integrate it.
+                as a standard in their workflow, platform, or curriculum, and integrate it.
                 Revenue follows adoption. Not the other way around.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed italic print:text-stone-700">
