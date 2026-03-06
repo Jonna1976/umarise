@@ -314,11 +314,14 @@ export default function Passkey() {
         {/* Analogy */}
         <div className="mt-10 p-5 rounded-lg bg-[hsl(var(--landing-cream)/0.02)] border border-[hsl(var(--landing-cream)/0.06)]">
           <h3 className="font-serif text-lg mb-3 text-[hsl(var(--landing-cream))]">Vergelijking</h3>
-          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed">
+          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed mb-3">
             Vergelijk het met een notaris: de notaris bewijst niet dat wat je zegt <em>waar</em> is.
             De notaris bewijst dat <em>jij</em> het zei, <em>op dat moment</em>, en dat je het later
             niet kunt ontkennen. Anchoring is de tijdstempel. De passkey is de handtekening.
             De attestant is de notaris.
+          </p>
+          <p className="text-sm text-[hsl(var(--landing-cream)/0.7)] leading-relaxed">
+            Persona weet wie je bent. Umarise weet het niet, en kan het niet weten. Dat is geen beleid. Dat is architectuur.
           </p>
         </div>
 
