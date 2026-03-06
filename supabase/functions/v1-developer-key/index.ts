@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Simple IP-based rate limit: max 3 keys per hour per IP
+    // Simple IP-based rate limit: max 10 keys per hour per IP
     const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                      req.headers.get('cf-connecting-ip') || 'unknown';
     const ipHash = encodeHex(new Uint8Array(
@@ -87,9 +87,9 @@ Deno.serve(async (req: Request) => {
       .eq('issued_by', `self-service:${ipHash.substring(0, 16)}`)
       .gte('issued_at', oneHourAgo);
 
-    if ((count ?? 0) >= 3) {
+    if ((count ?? 0) >= 10) {
       return new Response(
-        JSON.stringify({ error: { code: 'RATE_LIMITED', message: 'Maximum 3 keys per hour. Try again later.' } }),
+        JSON.stringify({ error: { code: 'RATE_LIMITED', message: 'Maximum 10 keys per hour. Try again later.' } }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '3600' } }
       );
     }
