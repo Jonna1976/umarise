@@ -3,6 +3,7 @@ import PageHeader from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import GetStartedFlow from '@/components/api-reference/GetStartedFlow';
+import ArtifactPairVisual from '@/components/developers/ArtifactPairVisual';
 
 /**
  * /developers — Developer onboarding quickstart.
