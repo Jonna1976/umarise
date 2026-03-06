@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
 
 /**
  * umarise.com/why — B2B
@@ -17,19 +17,7 @@ export default function Why() {
 
   return (
     <div className="min-h-screen bg-why-bg text-why-cream selection:bg-why-gold/20">
-      {/* Header */}
-      <header className="border-b border-why-separator/10">
-        <div className="max-w-[720px] mx-auto px-6 py-4 flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-why-cream/40 hover:text-why-cream transition-colors"
-          >
-            <ArrowUp className="w-4 h-4" />
-            <span className="text-sm font-garamond">umarise.com</span>
-          </Link>
-          <span className="font-playfair text-lg text-why-cream/60">Umarise</span>
-        </div>
-      </header>
+      <PageHeader maxWidth="max-w-[720px]" />
 
       <main className="max-w-[720px] mx-auto px-6">
 

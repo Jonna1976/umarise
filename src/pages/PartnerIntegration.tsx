@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUp, Copy, Check, Terminal, Code2, Shield, ExternalLink, Layers, Clock, FileCheck } from 'lucide-react';
+import { Copy, Check, Terminal, Code2, Shield, ExternalLink, Layers, Clock, FileCheck } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 function CopyBtn({ text }: { text: string }) {
   const [ok, setOk] = useState(false);
@@ -33,15 +34,7 @@ function TrackBadge({ track, label }: { track: 'a' | 'b'; label: string }) {
 export default function PartnerIntegration() {
   return (
     <div className="min-h-screen bg-[hsl(var(--landing-deep))] text-[hsl(var(--landing-cream))]">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-[hsl(var(--landing-deep)/0.95)] backdrop-blur-md border-b border-[hsl(var(--landing-cream)/0.06)]">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm">
-            <ArrowUp className="w-4 h-4" />
-            Umarise
-          </Link>
-        </div>
-      </nav>
+      <PageHeader maxWidth="max-w-5xl" />
 
       <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
 
