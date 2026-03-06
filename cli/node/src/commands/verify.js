@@ -149,7 +149,8 @@ export async function verifyCommand(filePath, proofPath, opts) {
   if (!existsSync(absProof)) {
     throw new Error(
       `Proof not found: ${proofPath || `${filePath}.proof`}\n` +
-      'Run "umarise anchor <file>" first to create a proof bundle.'
+      'If you already anchored this file, the proof may still be pending (~2 hours for Bitcoin confirmation).\n' +
+      'Run "umarise proof <file>" again later to download the .proof bundle.'
     );
   }
 
