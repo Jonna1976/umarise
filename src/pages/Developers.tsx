@@ -28,7 +28,7 @@ export default function Developers() {
         <h1 className="font-serif text-3xl md:text-4xl mb-2 text-[hsl(var(--landing-cream))]">
           Get Started
         </h1>
-        <p className="text-[hsl(var(--landing-muted))] text-sm mb-8">
+        <p className="text-[hsl(var(--landing-cream))] text-sm mb-8">
           Generate a key, install the CLI, anchor a file. Bitcoin confirmation takes ~2 hours.
         </p>
 
@@ -72,7 +72,9 @@ export default function Developers() {
 
         {/* Footer */}
         <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-[13px]">
-          Proof is self-contained. Verification works without Umarise.
+          <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="hover:text-[hsl(var(--landing-cream))] transition-colors">
+            Proof is self-contained. Verification works without Umarise. →
+          </a>
         </footer>
       </main>
     </div>

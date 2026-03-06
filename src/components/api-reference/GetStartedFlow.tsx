@@ -192,7 +192,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Done */}
-      <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
+      <div className={`p-4 rounded border transition-all duration-300 ${copied ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35]'}`}>
         <p className="text-[13px] text-[hsl(var(--landing-cream))]">
           Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your machine.
         </p>
