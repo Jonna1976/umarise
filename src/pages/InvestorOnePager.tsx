@@ -89,7 +89,7 @@ export default function InvestorOnePager() {
                 { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic. You see the lock. You move on.' },
                 { label: 'DNS', desc: 'You type a name. You reach a server. The translation happens invisibly. Nobody knows how DNS works. Everyone depends on it.' },
                 { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates for everyone. Before Let\'s Encrypt, SSL cost money and required manual renewal. Let\'s Encrypt made it so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction from something that should have been free all along.' },
-                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply — and anyone could read it with any device. No license, no vendor, no platform.' },
+                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply, and anyone could read it with any device. No license, no vendor, no platform.' },
               ].map(({ label, desc }) => (
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
