@@ -137,7 +137,7 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
             <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479`}</pre>
-            <p className="text-[13px] font-mono text-[hsl(var(--landing-copper))] mt-1">⏳ proof pending, run again later. Keep your terminal open</p>
+            <p className="text-[14px] font-mono text-[hsl(var(--landing-copper))] mt-2 font-bold">⏳ proof pending, wait for Bitcoin confirmation, run again later. Keep your terminal open.</p>
           </div>
         </div>
       </div>
@@ -149,7 +149,9 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save proof bundle</h3>
         </div>
         <div className="ml-7 space-y-4">
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run the same command again after ~2 hours (Bitcoin confirmation).</p>
+          <div className="mb-2">
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.1 Run the same command again after ~2 hours (Bitcoin confirmation)</p>
+          </div>
           <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <CopyBtn text="umarise proof " />
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
@@ -171,7 +173,7 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original.</p>
 
           <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)]">
-            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.1 Inspect the bundle</p>
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.2 Inspect the bundle</p>
             <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-3">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP. Unpack and inspect:</p>
             <Code code={`unzip document.pdf.proof\ncat certificate.json\ncat VERIFY.txt`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
