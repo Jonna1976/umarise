@@ -171,6 +171,7 @@ Deno.serve(async (req: Request) => {
 
   let supabase;
   let apiKeyPrefix: string | undefined;
+  let ipHash: string | null = null;
 
   try {
     const coreApiSecret = Deno.env.get('CORE_API_SECRET');
