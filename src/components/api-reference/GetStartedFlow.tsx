@@ -124,8 +124,8 @@ export default function GetStartedFlow() {
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
           </div>
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The terminal auto-fills the full file path.</p>
-          <Code code={`umarise proof document.pdf`} />
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The terminal auto-fills the full path. Or type it manually:</p>
+          <Code code={`umarise proof contract.pdf\numarise proof ./designs/logo-final.png\numarise proof ~/Desktop/research-paper.docx`} copy="umarise proof " />
 
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
             <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
