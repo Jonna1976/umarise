@@ -367,7 +367,7 @@ export default function InvestorOnePager() {
                 No campaign. No social. No impressions.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
-                The temptation is obvious: one student, one ZIP, one story —
+                The temptation is obvious: one student, one ZIP, one story,
                 that is a perfect campaign. Every student recognizes it.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
