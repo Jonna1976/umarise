@@ -144,7 +144,12 @@ export default function GetStartedFlow() {
         </div>
         <div className="ml-7 space-y-4">
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run the same command again after ~2 hours (Bitcoin confirmation).</p>
-          <Code code={`umarise proof document.pdf`} />
+          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
+              <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
+              <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
+            </p>
+          </div>
 
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
             <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
