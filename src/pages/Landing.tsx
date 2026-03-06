@@ -108,7 +108,7 @@ export default function Landing() {
           </div>
 
           {/* Bottom line */}
-          <div className="border-t border-landing-muted/75 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-landing-muted/75">
+          <div className="border-t border-landing-muted/30 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-landing-muted/75">
             <span>© {new Date().getFullYear()} Umarise</span>
             <a 
               href="mailto:partners@umarise.com" 
