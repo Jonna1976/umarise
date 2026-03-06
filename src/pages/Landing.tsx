@@ -89,6 +89,7 @@ export default function Landing() {
               <Link to="/api-reference" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">API Reference</Link>
               <Link to="/sdk" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">SDK</Link>
               <Link to="/partner-integration" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Integration</Link>
+              <Link to="/status" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Status</Link>
             </div>
 
             {/* Verify */}
