@@ -163,8 +163,7 @@ export default function GetStartedFlow() {
 ✓ proof valid, independent of Umarise`}</pre>
           </div>
 
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original. Keep them together. The proof travels with the artifact, independent of any platform.</p>
-          <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 text-[13px] font-mono text-[hsl(var(--landing-muted))] whitespace-pre leading-relaxed">{`artifact\nartifact.proof`}</pre>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original.</p>
         </div>
       </div>
 
