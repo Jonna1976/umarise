@@ -56,7 +56,7 @@ export default function GetStartedFlow() {
     <div className="space-y-8">
       <div className="p-5 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
         <div className="flex items-baseline gap-3 mb-3">
-          <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
+          <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓ 1' : '1'}</span>
           <h3 className={`font-medium ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-cream))]'}`}>Get your API key</h3>
         </div>
         
