@@ -15,6 +15,8 @@ const links = [
   { label: 'SDK on npm', href: 'https://www.npmjs.com/package/@umarise/anchor', internal: false },
   { label: 'GitHub Action', href: 'https://github.com/marketplace/actions/umarise-anchor', internal: false },
   { label: 'Verify a proof', href: 'https://verify-anchoring.org', internal: false },
+  { label: 'Why anchor attestation', href: '/why', internal: true },
+  { label: 'How anchoring works', href: '/anchor', internal: true },
 ];
 
 export default function Developers() {
@@ -67,14 +69,11 @@ export default function Developers() {
               )
             )}
           </ul>
-          <p className="text-[hsl(var(--landing-muted)/0.5)] text-[13px] mt-6">
-            <Link to="/why" className="hover:text-[hsl(var(--landing-cream))] transition-colors">Currently anchored to Bitcoin. The protocol is ledger-agnostic.</Link>
-          </p>
         </section>
 
         {/* Footer */}
-      <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-[13px]">
-          <Link to="/anchor" className="hover:text-[hsl(var(--landing-cream))] transition-colors">Proof is self-contained. Verification works without Umarise.</Link>
+        <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-[13px]">
+          Proof is self-contained. Verification works without Umarise.
         </footer>
       </main>
     </div>
