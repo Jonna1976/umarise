@@ -81,23 +81,17 @@ export default function ArtifactPairVisual() {
         ))}
       </motion.div>
 
-      {/* Verify line */}
-      <motion.div className="flex items-center gap-5 font-mono text-[11px] tracking-wider" {...fadeIn(0.3)}>
-        <span className="text-[hsl(var(--landing-cream))] opacity-30">artifact</span>
-        <span className="text-[hsl(var(--landing-copper))] opacity-40 tracking-[2px]">+</span>
-        <span className="text-[hsl(var(--landing-cream))] opacity-30">artifact.proof</span>
-        <span className="text-[hsl(var(--landing-copper))] opacity-40 tracking-[2px]">→</span>
-        <span className="text-[hsl(var(--landing-copper))] opacity-60">verify() — no API, no account</span>
-      </motion.div>
-
-      {/* Caption */}
-      <motion.div className="text-center flex flex-col gap-2" {...fadeIn(0.45)}>
-        <p className="font-serif text-lg text-[hsl(var(--landing-cream))] opacity-55 italic">
-          The proof travels with the artifact.
-        </p>
-        <p className="font-mono text-[10px] text-[hsl(var(--landing-cream))] opacity-20 tracking-[2px] uppercase">
-          independently verifiable · survives the issuer
-        </p>
+      {/* Truth table */}
+      <motion.div className="font-mono text-[11px] tracking-wider leading-relaxed space-y-1.5" {...fadeIn(0.3)}>
+        <div className="text-[hsl(var(--landing-cream))] opacity-30">
+          artifact + artifact.proof <span className="text-[hsl(var(--landing-copper))] opacity-60">= proof</span>
+        </div>
+        <div className="text-[hsl(var(--landing-cream))] opacity-20">
+          artifact alone <span className="opacity-60">= no proof</span>
+        </div>
+        <div className="text-[hsl(var(--landing-cream))] opacity-20">
+          artifact.proof alone <span className="opacity-60">= incomplete</span>
+        </div>
       </motion.div>
     </div>
   );
