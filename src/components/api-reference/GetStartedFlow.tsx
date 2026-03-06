@@ -85,7 +85,7 @@ export default function GetStartedFlow() {
             )}
             {copied && (
               <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-                <p className="text-xs font-mono text-emerald-400">✓ Key copied. Store it securely (password manager, CI/CD secret, or .env file).</p>
+                <p className="text-xs font-mono text-emerald-400">✓ Key copied. Store it securely.</p>
               </div>
             )}
           </div>
@@ -116,7 +116,6 @@ export default function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream))] mb-3 ml-7">One command, same command every time. Your file is hashed locally, only the hash is sent to the API. Requires internet.</p>
         <div className="ml-7 space-y-4">
           <p className="text-xs text-[hsl(var(--landing-cream))] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
