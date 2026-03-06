@@ -79,6 +79,69 @@ export default function GrowthPlan() {
             </ul>
           </section>
 
+          {/* Network Effects */}
+          <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-4">3 Network Effects</h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">1. Artifact standaard</h3>
+                <p className="text-sm text-landing-muted/70 mb-2">Tools gaan automatisch .proof toevoegen.</p>
+                <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono leading-relaxed">dataset.parquet + dataset.parquet.proof{'\n'}model.pt + model.pt.proof{'\n'}report.pdf + report.pdf.proof</pre>
+                <p className="text-xs text-landing-muted/50 mt-2">Als developers dit verwachten, wordt .proof normaal.</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">2. Verification ecosystem</h3>
+                <p className="text-sm text-landing-muted/70 mb-2">Meer software gaat .proof begrijpen: document systemen, AI pipelines, research tools, audit software, archieven.</p>
+                <p className="text-xs font-mono text-landing-muted/50">artifact + .proof → automatisch geverifieerd</p>
+                <p className="text-xs text-landing-muted/50 mt-1">Zoals: website + TLS · software + SBOM</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">3. Institutionele acceptatie</h3>
+                <p className="text-sm text-landing-muted/70">Als auditors, rechtbanken, universiteiten, archieven en compliance systemen .proof accepteren:</p>
+                <p className="text-xs font-mono text-landing-copper mt-2">artifact + .proof = geldig bewijs</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Protocol Strategy */}
+          <section>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Protocol, geen patent</h2>
+            <p className="text-sm text-landing-muted/70 mb-4">Succesvolle protocollen zijn open. Een standaard groeit alleen als iedereen het kan implementeren.</p>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs font-mono mb-6">
+              <span className="text-landing-muted/50">DNS</span><span className="text-landing-muted/40">geen patent</span>
+              <span className="text-landing-muted/50">HTTP</span><span className="text-landing-muted/40">geen patent</span>
+              <span className="text-landing-muted/50">TLS</span><span className="text-landing-muted/40">geen patent</span>
+              <span className="text-landing-muted/50">Git</span><span className="text-landing-muted/40">geen patent</span>
+              <span className="text-landing-muted/50">OpenTimestamps</span><span className="text-landing-muted/40">geen patent</span>
+            </div>
+            <h3 className="text-landing-cream/90 text-sm font-medium mb-2">Wat wél verdedigd wordt</h3>
+            <div className="space-y-2 text-sm text-landing-muted/70">
+              <div className="flex items-start gap-2"><span className="text-landing-copper font-mono text-xs">01</span> <span><strong className="text-landing-cream/80">Trademark</strong> — Umarise, Umarise Proof, Anchoring Trust</span></div>
+              <div className="flex items-start gap-2"><span className="text-landing-copper font-mono text-xs">02</span> <span><strong className="text-landing-cream/80">Reference implementatie</strong> — @umarise/cli, @umarise/anchor, GitHub Action</span></div>
+              <div className="flex items-start gap-2"><span className="text-landing-copper font-mono text-xs">03</span> <span><strong className="text-landing-cream/80">Distributie</strong> — npm, npx, GitHub Actions, SDK's</span></div>
+            </div>
+          </section>
+
+          {/* Strategie in 3 stappen */}
+          <section className="border border-landing-muted/10 rounded-lg p-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Strategie in 3 stappen</h2>
+            <div className="space-y-4 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">1</span>
+                <p className="text-landing-cream/90">Laat developers .proof genereren.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">2</span>
+                <p className="text-landing-cream/90">Laat tools .proof automatisch verifiëren.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-landing-copper font-mono text-xs mt-0.5">3</span>
+                <p className="text-landing-cream/90">Laat instituten .proof accepteren.</p>
+              </div>
+            </div>
+            <p className="text-xs text-landing-muted/50 mt-6 font-mono">artifact + .proof — net zoals website + TLS, software + SBOM</p>
+          </section>
+
           {/* Adoptie-these */}
           <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
             <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-4">Adoptie-these</h2>
