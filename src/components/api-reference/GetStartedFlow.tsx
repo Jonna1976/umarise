@@ -8,7 +8,7 @@ function CopyBtn({ text }: { text: string }) {
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(text); setOk(true); setTimeout(() => setOk(false), 1500); }}
-      className="absolute top-2 right-2 p-1.5 rounded bg-[hsl(var(--landing-cream)/0.05)] hover:bg-[hsl(var(--landing-cream)/0.1)] transition-colors"
+      className="absolute top-2 right-2 z-10 p-1.5 rounded bg-[hsl(220,10%,12%)] hover:bg-[hsl(220,10%,16%)] transition-colors border border-[hsl(var(--landing-cream)/0.1)]"
     >
       {ok ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[hsl(var(--landing-cream))]" />}
     </button>
@@ -128,7 +128,7 @@ export default function GetStartedFlow() {
             </p>
           </div>
           <p className="text-xs text-[hsl(var(--landing-cream))]">The terminal auto-fills the full path. Or type it manually:</p>
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,8%)]">
             <p className="text-xs text-[hsl(var(--landing-cream))] font-mono leading-relaxed">
               {'  '}umarise proof contract.pdf{'\n'}
               {'  '}umarise proof ./designs/logo-final.png{'\n'}
@@ -208,7 +208,7 @@ export default function GetStartedFlow() {
             </p>
           </div>
           <p className="text-xs text-[hsl(var(--landing-cream))]">The terminal auto-fills the full path. Or type it manually:</p>
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(var(--landing-cream)/0.02)]">
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,8%)]">
             <p className="text-xs text-[hsl(var(--landing-cream))] font-mono leading-relaxed">
               {'  '}umarise verify contract.pdf{'\n'}
               {'  '}umarise verify ./designs/logo-final.png{'\n'}
