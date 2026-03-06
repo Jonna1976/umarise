@@ -39,7 +39,7 @@ export default function Developers() {
         {/* Links */}
         {/* Artifact pattern */}
         <div className="mt-16 p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
-          <p className="text-[13px] text-[hsl(var(--landing-cream))] font-medium mb-3">The proof travels with the artifact.</p>
+          <p className="font-serif text-lg text-[hsl(var(--landing-cream))] mb-4">The proof travels with the artifact.</p>
           <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed mb-3">{`artifact\nartifact.proof`}</pre>
           <p className="text-[13px] text-[hsl(var(--landing-muted))]">Store them together. Commit to git, attach to a release, or ship to a client. The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file verifies independently. No API, no account, no platform dependency.</p>
         </div>
