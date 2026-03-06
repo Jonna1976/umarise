@@ -67,15 +67,14 @@ export async function proofCommand(filePath, opts) {
   // --- Resolve proof status ---
   const proofResult = await core.proof(originId);
 
-  if (proofResult.status === 'pending' || proofResult.status === 'not_found') {
-    const label = proofResult.status === 'pending'
-      ? 'proof pending — Bitcoin confirmation takes ~1-2 hours'
-      : 'proof not yet submitted — run again later';
-    console.log(`⏳ ${label}`);
-    console.log('');
-    console.log('  Run again later:');
-    console.log(`  umarise proof ${absPath}`);
-    return { originId, hash, status: proofResult.status };
+  if (proofResult.status === 'pending') {
+    console.log(`⏳ proof pending — run again later`);
+    return { originId, hash, status: 'pending' };
+  }
+
+  if (proofResult.status === 'not_found') {
+    console.log(`⏳ proof not yet submitted — run again later`);
+    return { originId, hash, status: 'not_found' };
   }
 
   // --- Proof is anchored — build .proof ZIP ---
