@@ -17,9 +17,9 @@ const slideIn = (delay = 0) => ({
 
 const layers = [
   { num: '1', label: 'artifact hash', value: 'sha256: 9f3a4b2c…e7f1d8a0', variant: 'default' },
-  { num: '2', label: 'timestamp anchor', value: 'Bitcoin block 884201 — 2026-03-06', variant: 'default' },
+  { num: '2', label: 'timestamp anchor', value: 'Bitcoin block 884201, 2026-03-06', variant: 'default' },
   { num: '3', label: 'device signature', value: 'passkey · human anchored', variant: 'gold' },
-  { num: '4', label: 'verification metadata', value: 'anchoring-spec.org · v1', variant: 'dim' },
+  { num: '4', label: 'verification metadata', value: 'anchoring-spec.org · v1', variant: 'default' },
 ] as const;
 
 export default function ArtifactPairVisual() {
