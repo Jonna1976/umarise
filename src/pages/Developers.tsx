@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import PageHeader from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink } from 'lucide-react';
@@ -19,6 +20,9 @@ const links = [
 ];
 
 export default function Developers() {
+  const [unlocked, setUnlocked] = useState(false);
+  const handleUnlock = useCallback((v: boolean) => setUnlocked(v), []);
+
   return (
     <div className="min-h-screen bg-[hsl(var(--landing-deep))] text-[hsl(var(--landing-cream))]">
       <PageHeader />
@@ -34,11 +38,11 @@ export default function Developers() {
 
 
         {/* Interactive Get Started Flow */}
-        <GetStartedFlow />
+        <GetStartedFlow onUnlock={handleUnlock} />
 
         {/* Links */}
         {/* Artifact pattern */}
-        <div className="mt-16 p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
+        <div className={`mt-16 p-5 rounded-lg border transition-all duration-300 ${unlocked ? 'border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
           <p className="font-serif text-base text-[hsl(var(--landing-cream))] mb-4">The proof travels with the artifact.</p>
           <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed mb-3">{`artifact\nartifact.proof`}</pre>
           <p className="text-[13px] text-[hsl(var(--landing-muted))]">Store them together. Commit to git, attach to a release, or ship to a client. The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file verifies independently. No API, no account, no platform dependency.</p>
@@ -78,7 +82,7 @@ export default function Developers() {
         </section>
 
         {/* Closing statement */}
-        <div className="mt-16 p-4 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
+        <div className={`mt-16 p-4 rounded border transition-all duration-300 ${unlocked ? 'border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
           <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-2">
             Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your device.
           </p>

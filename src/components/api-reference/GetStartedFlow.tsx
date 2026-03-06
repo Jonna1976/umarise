@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 
 const BASE = 'https://core.umarise.com';
@@ -24,7 +24,7 @@ function Code({ code, copy }: { code: string; copy?: string }) {
   );
 }
 
-export default function GetStartedFlow() {
+export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boolean) => void } = {}) {
   const [generatedKey, setGeneratedKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -51,6 +51,8 @@ export default function GetStartedFlow() {
   const copyKey = () => {
     if (generatedKey) { navigator.clipboard.writeText(generatedKey); setCopied(true); }
   };
+
+  useEffect(() => { onUnlock?.(copied); }, [copied, onUnlock]);
 
   return (
     <div className="space-y-8">
