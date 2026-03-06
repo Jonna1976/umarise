@@ -13,9 +13,13 @@
  */
 
 import { Command } from 'commander';
+import { createRequire } from 'module';
 import { anchorCommand } from '../src/commands/anchor.js';
 import { verifyCommand } from '../src/commands/verify.js';
 import { proofCommand } from '../src/commands/proof.js';
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json');
 
 const program = new Command();
 
@@ -32,7 +36,7 @@ for (let i = 2; i < args.length; i++) {
 program
   .name('umarise')
   .description('Anchor files to Bitcoin. Verify proofs offline.')
-  .version('1.0.0');
+  .version(version);
 
 program
   .command('anchor <file>')
