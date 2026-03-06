@@ -5,14 +5,14 @@ const fadeIn = (delay = 0) => ({
   initial: { opacity: 0, y: 8 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.6, delay, ease: 'easeOut' },
+  transition: { duration: 0.6, delay, ease: 'easeOut' as const },
 });
 
 const slideIn = (delay = 0) => ({
   initial: { opacity: 0, x: -6 },
   whileInView: { opacity: 1, x: 0 },
   viewport: { once: true },
-  transition: { duration: 0.4, delay, ease: 'easeOut' },
+  transition: { duration: 0.4, delay, ease: 'easeOut' as const },
 });
 
 const layers = [

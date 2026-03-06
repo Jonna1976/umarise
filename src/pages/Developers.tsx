@@ -85,15 +85,10 @@ export default function Developers() {
           </ul>
         </section>
 
-        {/* Closing statement */}
-        <div className="mt-16 p-4 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
-          <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-2">
-            Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your device.
-          </p>
-          <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[13px] text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
-            Proof is self-contained. Verification works without Umarise. →
-          </a>
-        </div>
+        {/* Artifact pair visual */}
+        <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
+          <ArtifactPairVisual />
+        </section>
       </main>
     </div>
   );
