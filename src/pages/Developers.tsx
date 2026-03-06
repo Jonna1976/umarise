@@ -35,11 +35,8 @@ export default function Developers() {
         <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm mb-1">
           Generate a key, install the CLI, anchor a file. Bitcoin confirmation takes ~2 hours.
         </p>
-        <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm mb-1">
-          Attach a verifiable creation proof to any artifact: build outputs, datasets, model weights, documents.
-        </p>
-        <p className="text-[hsl(var(--landing-cream)/0.35)] text-xs mb-8">
-          One command, any file type.
+        <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm mb-8">
+          Attach a verifiable creation proof to any artifact: build outputs, datasets, model weights, documents. One command, any file type.
         </p>
 
 
