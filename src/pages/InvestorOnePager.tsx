@@ -161,7 +161,7 @@ export default function InvestorOnePager() {
                 </p>
               </div>
               <div className="border-l-2 border-[hsl(40,15%,88%,0.15)] pl-5 opacity-50">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.4)] mb-1">Layer 3 — Attestation</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.4)] mb-1">Layer 3: Attestation</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.5)] print:text-stone-500">Identity (optional, not yet active)</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.35)] mt-1 print:text-stone-400">
                   An identity declares something about the artifact. Not chronology, but a statement.
