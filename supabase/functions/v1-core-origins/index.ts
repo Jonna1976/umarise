@@ -271,6 +271,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'INVALID_REQUEST_BODY',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('INVALID_REQUEST_BODY', 'Missing required field: hash', 400);
     }
