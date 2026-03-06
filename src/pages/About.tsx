@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUp } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
 
 /**
  * About Umarise
@@ -8,15 +8,7 @@ import { ArrowUp } from 'lucide-react';
 export default function About() {
   return (
     <div className="min-h-[100dvh] bg-landing-deep text-landing-cream">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-landing-deep/95 backdrop-blur-md border-b border-landing-muted/10">
-        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center">
-          <Link to="/" className="flex items-center gap-2 text-landing-muted/75 hover:text-landing-cream transition-colors text-sm">
-            <ArrowUp className="w-4 h-4" />
-            Umarise
-          </Link>
-        </div>
-      </nav>
+      <PageHeader maxWidth="max-w-2xl" />
 
       <main className="max-w-2xl mx-auto px-6 py-16 md:py-24">
         <h1 className="font-serif text-4xl md:text-5xl tracking-tight mb-12">

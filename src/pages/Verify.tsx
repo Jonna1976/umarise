@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import PageHeader from '@/components/PageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
 import { verifyOriginByHash, fetchProofStatus } from '@/lib/coreApi';
@@ -524,30 +525,20 @@ export default function Verify() {
       className="min-h-screen"
       style={{ background: 'hsl(var(--landing-deep))', color: 'hsl(var(--landing-cream))' }}
     >
-      {/* Header */}
-      <div className="border-b border-[hsl(var(--landing-cream)/0.08)]">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <a
-            href="/"
-            className="flex items-center gap-2 text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm"
-          >
-            ↑ umarise.com
-          </a>
-        </div>
-        <div className="max-w-2xl mx-auto px-6 pb-10 pt-6">
-          <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">
-            Origin Verification
-          </p>
-          <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">
-            Verify a proof
-          </h1>
-          <p className="text-[hsl(var(--landing-cream)/0.7)] max-w-xl">
-            Upload a file, an origin ZIP, or an .ots proof to check whether its existence has been recorded.
-          </p>
-          <p className="text-sm mt-2 text-[hsl(var(--landing-cream)/0.5)]">
-            The file never leaves your browser. Verification is performed client-side.
-          </p>
-        </div>
+      <PageHeader maxWidth="max-w-2xl" />
+      <div className="max-w-2xl mx-auto px-6 pb-10 pt-6">
+        <p className="text-[hsl(var(--landing-muted))] text-sm uppercase tracking-[0.2em] mb-3">
+          Origin Verification
+        </p>
+        <h1 className="text-4xl font-serif text-[hsl(var(--landing-cream))] mb-3">
+          Verify a proof
+        </h1>
+        <p className="text-[hsl(var(--landing-cream)/0.7)] max-w-xl">
+          Upload a file, an origin ZIP, or an .ots proof to check whether its existence has been recorded.
+        </p>
+        <p className="text-sm mt-2 text-[hsl(var(--landing-cream)/0.5)]">
+          The file never leaves your browser. Verification is performed client-side.
+        </p>
       </div>
 
       {/* Content */}
