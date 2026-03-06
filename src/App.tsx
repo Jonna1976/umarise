@@ -73,6 +73,7 @@ import Ecosystem from "./pages/Ecosystem";
 import GrowthPlan from "./pages/GrowthPlan";
 import Blog from "./pages/Blog";
 import Passkey from "./pages/Passkey";
+import About from "./pages/About";
 
 const queryClient = new QueryClient();
 
@@ -152,6 +153,7 @@ const App = () => (
             <Route path="/sdk-download" element={<SdkDownload />} />
             <Route path="/partner-integration" element={<PartnerIntegration />} />
             <Route path="/partnerships" element={<Partnerships />} />
+            <Route path="/about" element={<About />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/ecosystem" element={<Ecosystem />} />
