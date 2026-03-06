@@ -37,6 +37,37 @@ export default function InvestorOnePager() {
 
         <div className="space-y-12">
 
+          {/* The Missing Primitive */}
+          <section>
+            <SectionTitle>The missing primitive</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+              The internet has primitives for identity, payments, and messaging, but it doesn't have a simple way to prove when something actually existed. Files can be copied, edited, or backdated, and metadata can't be trusted. Umarise introduces a primitive for verifiable history. A file is hashed, the hash is anchored to an immutable timestamp, and a portable proof travels with the artifact. Anyone can independently verify that these exact bytes existed at or before time <em>T</em>.
+            </p>
+            <p className="text-sm text-[hsl(25,35%,42%)] font-medium mt-3 print:text-stone-800">
+              We're making "this existed at this moment" a first-class primitive of the internet.
+            </p>
+          </section>
+
+          {/* Executive Summary — Open-Source & IP */}
+          <section>
+            <SectionTitle>Executive summary — open-source & IP</SectionTitle>
+            <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5 mb-4">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
+                "The specification is public domain. The SDK is open-source. Verification is independent.
+                But the operational infrastructure — the batching engine, the key management, the immutability triggers,
+                the rate limiting — that is our protected IP. Just like Let's Encrypt: the protocol is open,
+                the client is open, but the Certificate Authority behind the scenes is not something you replicate over a weekend."
+              </p>
+            </div>
+            <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
+                "Our real moat isn't the code. It's the combination of (1) a growing Bitcoin-anchored registry
+                that cannot be reproduced, (2) an ecosystem of .proof files referencing our origin_id's,
+                and (3) specification authority as the first formal standard for anchoring. You can copy code. You can't copy history."
+              </p>
+            </div>
+          </section>
+
           {/* Opening statement */}
           <section>
             <HighlightBox>
