@@ -49,7 +49,7 @@ export default function Landing() {
           </p>
 
           {/* Category descriptor + spec reference */}
-          <p className="text-sm text-landing-muted/90 tracking-widest uppercase mt-6">
+          <p className="text-base text-landing-muted/90 tracking-wide mt-6">
             Anchoring Infrastructure
           </p>
           <p className="text-xs text-landing-muted/90 mt-2 tracking-wide">
