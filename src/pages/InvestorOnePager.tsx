@@ -519,7 +519,7 @@ export default function InvestorOnePager() {
 
             {/* What connectors are */}
             <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
-              What both connectors are — and are not
+              What both connectors are, and are not
             </p>
             <div className="space-y-3 mb-4">
               {[
