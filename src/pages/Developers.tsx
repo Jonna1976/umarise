@@ -15,6 +15,7 @@ const links = [
   { label: 'CLI on npm', href: 'https://www.npmjs.com/package/@umarise/cli', internal: false },
   { label: 'SDK on npm', href: 'https://www.npmjs.com/package/@umarise/anchor', internal: false },
   { label: 'GitHub Action', href: 'https://github.com/marketplace/actions/umarise-anchor', internal: false },
+  { label: 'Example repo (fork & go)', href: 'https://github.com/AnchoringTrust/anchoring-examples', internal: false },
   { label: 'Verify a proof', href: 'https://verify-anchoring.org', internal: false },
   { label: 'How anchoring works', href: '/anchor', internal: true },
 ];
