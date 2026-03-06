@@ -96,7 +96,7 @@ export default function GetStartedFlow() {
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">1</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install CLI</h3>
         </div>
         <div className="ml-7 space-y-4">
           <div>
@@ -104,7 +104,7 @@ export default function GetStartedFlow() {
             <Code code={`npm install -g @umarise/cli`} />
           </div>
           <div>
-            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">1.2 Paste into your terminal</p>
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">1.2 Paste API key into your terminal</p>
             <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
           </div>
         </div>
@@ -114,10 +114,10 @@ export default function GetStartedFlow() {
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor file</h3>
         </div>
         <div className="ml-7 space-y-4">
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> into your terminal, then drag your file in:</p>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Paste <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> into your terminal, then drag your file in:</p>
           <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <CopyBtn text="umarise proof " />
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
