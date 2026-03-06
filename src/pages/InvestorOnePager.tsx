@@ -502,7 +502,7 @@ export default function InvestorOnePager() {
                   They change nothing in their workflow. Umarise is added silently underneath.
                 </p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-                  This path needs a connector who opens doors at the decision-maker level —
+                  This path needs a connector who opens doors at the decision-maker level,
                   an ecosystem thinker with a broad network who can place one question
                   in the right room at the right moment.
                 </p>
