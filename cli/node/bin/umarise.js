@@ -19,6 +19,16 @@ import { proofCommand } from '../src/commands/proof.js';
 
 const program = new Command();
 
+// Fix common typo: "umarise proof/path" → "umarise proof /path"
+const args = process.argv.slice();
+for (let i = 2; i < args.length; i++) {
+  const match = args[i].match(/^(proof|anchor|verify)(\/.+)$/);
+  if (match) {
+    args.splice(i, 1, match[1], match[2]);
+    break;
+  }
+}
+
 program
   .name('umarise')
   .description('Anchor files to Bitcoin. Verify proofs offline.')
@@ -62,4 +72,4 @@ program
     }
   });
 
-program.parse();
+program.parse(args);
