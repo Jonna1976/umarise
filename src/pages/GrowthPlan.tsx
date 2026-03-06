@@ -70,11 +70,15 @@ export default function GrowthPlan() {
 
           {/* Status */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Status</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Status — 6 maart 2026</h2>
             <ul className="space-y-2">
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Custom domein umarise.com gekoppeld</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Google Search Console geverifieerd (DNS)</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Sitemap ingediend (sitemap.xml)</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> CLI full lifecycle bewezen: install → anchor → pending → re-run → .proof → verify → unzip</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Bitcoin block 939611 bevestigd (6 maart 2026)</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> .proof bundel bevat certificate.json + proof.ots + VERIFY.txt</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Offline verify werkt: hash match + OTS Bitcoin verificatie</li>
               <li className="flex items-center gap-2"><span className="text-landing-muted/40">○</span> Eerste indexering afwachten (2-7 dagen)</li>
             </ul>
           </section>
