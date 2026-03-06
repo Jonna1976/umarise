@@ -122,6 +122,25 @@ const OnePager = ({ onClose }: OnePagerProps) => {
             </p>
           </div>
 
+          {/* Executive Summary — IP & Moat */}
+          <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-6 print:bg-amber-50">
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-amber-500" />
+              Executive Summary — Open-Source & IP
+            </h2>
+            <blockquote className="border-l-2 border-amber-500/40 pl-4 mb-4 text-sm text-muted-foreground italic leading-relaxed">
+              "De specificatie is publiek domein. De SDK is open-source. De verificatie is onafhankelijk.
+              Maar de operationele infrastructuur — de batching engine, de key management, de immutability triggers,
+              de rate limiting — dat is ons beschermde IP. Precies zoals Let's Encrypt: het protocol is open,
+              de client is open, maar de Certificate Authority achter de schermen is niet iets dat je in een weekend nabootst."
+            </blockquote>
+            <blockquote className="border-l-2 border-amber-500/40 pl-4 text-sm text-muted-foreground italic leading-relaxed">
+              "Onze echte moat is niet de code. Het is de combinatie van (1) een groeiend Bitcoin-verankerd register
+              dat niet gereproduceerd kan worden, (2) een ecosysteem van .proof bestanden die naar onze origin_id's verwijzen,
+              en (3) de specificatie-autoriteit als eerste formele standaard voor anchoring. Code kun je kopiëren. Geschiedenis niet."
+            </blockquote>
+          </div>
+
           {/* Live Metrics */}
           <div className="grid grid-cols-4 gap-4 print:gap-2">
             <MetricCard
