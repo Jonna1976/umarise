@@ -141,7 +141,7 @@ export default function GetStartedFlow() {
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save proof</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save proof bundle</h3>
         </div>
         <div className="ml-7 space-y-4">
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run the same command again after ~2 hours (Bitcoin confirmation).</p>
@@ -163,7 +163,8 @@ export default function GetStartedFlow() {
 ✓ proof valid, independent of Umarise`}</pre>
           </div>
 
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original file.</p>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original. Keep them together — the proof travels with the artifact, independent of any platform.</p>
+          <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 text-[13px] font-mono text-[hsl(var(--landing-muted))] whitespace-pre leading-relaxed">{`artifact\nartifact.proof`}</pre>
         </div>
       </div>
 
