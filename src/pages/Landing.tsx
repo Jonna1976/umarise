@@ -105,6 +105,7 @@ export default function Landing() {
               <Link to="/legal" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Legal</Link>
               <Link to="/privacy" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Privacy</Link>
               <Link to="/terms" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Terms</Link>
+              <Link to="/about" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">About</Link>
             </div>
           </div>
 
