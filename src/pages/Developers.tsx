@@ -28,7 +28,7 @@ export default function Developers() {
           Get Started
         </h1>
         <p className="text-[hsl(var(--landing-muted))] text-sm mb-8">
-          Generate a key, install the CLI, anchor your first file. <strong className="text-[hsl(var(--landing-cream))]">Under 2 minutes.</strong>
+          Generate a key, install the CLI, anchor a file. Proof is confirmed after Bitcoin ledger inclusion (~2 hours). Currently anchored to Bitcoin; the protocol is ledger-agnostic.
         </p>
 
 
