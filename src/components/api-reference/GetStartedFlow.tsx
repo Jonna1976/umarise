@@ -110,30 +110,43 @@ export default function GetStartedFlow() {
         </div>
       </div>
 
-      {/* Step 3: Anchor + Proof */}
+      {/* Step 3: Anchor */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor</h3>
         </div>
         <div className="ml-7 space-y-4">
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> then drag your file into the terminal:</p>
+          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
+              <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
+              <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
+            </p>
+          </div>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The terminal auto-fills the full file path.</p>
           <Code code={`umarise proof document.pdf`} />
 
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run 1:</p>
           <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
             <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6...
 ✓ anchored: origin_id f47ac10b-58cc-4372-a567-0e02b2c3d479
 ⏳ proof pending, run again later`}</pre>
           </div>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-px h-6 bg-[hsl(var(--landing-copper)/0.3)]" />
-            <p className="text-[13px] text-[hsl(var(--landing-cream))] font-mono">~2 hours</p>
-          </div>
+      {/* Step 4: Save proof */}
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
+        <div className="flex items-baseline gap-3 mb-3">
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Save proof</h3>
+        </div>
+        <div className="ml-7 space-y-4">
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run the same command again after ~2 hours (Bitcoin confirmation).</p>
+          <Code code={`umarise proof document.pdf`} />
 
-          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run 2 (same command):</p>
-          <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
-            <pre className="text-[13px] font-mono text-emerald-400 whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+            <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash: sha256:a1b2c3d4e5f6... (already anchored)
 ✓ origin_id: f47ac10b-58cc-4372-a567-0e02b2c3d479
 ✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
@@ -141,40 +154,28 @@ export default function GetStartedFlow() {
 ✓ proof valid, independent of Umarise`}</pre>
           </div>
 
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
-            <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`~/projects/
-  ├── document.pdf           ← your file
-  └── document.pdf.proof     ← evidence bundle (ZIP)`}</pre>
-          </div>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original file.</p>
         </div>
       </div>
 
-      {/* Step 4: Verify */}
+      {/* Step 5: Verify */}
       <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
-          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
+          <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">5</span>
+          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream))] mb-3 ml-7">No API key. No internet. No Umarise dependency. Fully offline, verifies locally against the Bitcoin proof.</p>
-        <div className="ml-7 space-y-3">
-          <p className="text-xs text-[hsl(var(--landing-cream))] mb-1">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
+        <div className="ml-7 space-y-4">
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">No API key required. Works offline.</p>
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
           <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
-            <p className="text-sm font-mono text-[hsl(var(--landing-cream))]">
+            <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise verify </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
             </p>
           </div>
-          <p className="text-xs text-[hsl(var(--landing-cream))]">The terminal auto-fills the full path. Or type it manually:</p>
-          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.08)] bg-[hsl(220,10%,8%)]">
-            <p className="text-xs text-[hsl(var(--landing-cream))] font-mono leading-relaxed">
-              {'  '}umarise verify contract.pdf{'\n'}
-              {'  '}umarise verify ./designs/logo-final.png{'\n'}
-              {'  '}umarise verify ~/Desktop/research-paper.docx
-            </p>
-          </div>
-          <p className="text-xs text-[hsl(var(--landing-cream))]">The CLI automatically finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> next to your file (e.g. <code className="text-[hsl(var(--landing-copper))]">contract.pdf.proof</code>).</p>
-          <div className="p-3 rounded border border-emerald-500/10 bg-[hsl(220,10%,8%)]">
-            <pre className="text-xs font-mono text-emerald-400 whitespace-pre leading-relaxed">{`✓ hash matches
+          <p className="text-[13px] text-[hsl(var(--landing-cream))]">The CLI finds <code className="text-[hsl(var(--landing-copper))]">.proof</code> automatically next to your file.</p>
+          <div className="p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+            <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`✓ hash matches
 ✓ anchored in Bitcoin block 939270
 ✓ no later than: 2026-03-04
 ✓ proof valid, independent of Umarise`}</pre>
@@ -184,8 +185,8 @@ export default function GetStartedFlow() {
 
       {/* Done */}
       <div className="p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
-        <p className="text-sm text-[hsl(var(--landing-cream))]">
-          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. You choose where to store it. The file never leaves your machine.
+        <p className="text-[13px] text-[hsl(var(--landing-cream))]">
+          Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your machine.
         </p>
       </div>
     </div>
