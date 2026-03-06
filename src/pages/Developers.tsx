@@ -31,24 +31,6 @@ export default function Developers() {
           Generate a key, install the CLI, anchor your first file. <strong className="text-[hsl(var(--landing-cream))]">Under 2 minutes.</strong>
         </p>
 
-        {/* npm badges */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          <a href="https://www.npmjs.com/package/@umarise/anchor" target="_blank" rel="noopener noreferrer">
-            <img src="https://img.shields.io/npm/v/@umarise/anchor?label=%40umarise%2Fanchor&color=cb3837&style=flat-square" alt="@umarise/anchor on npm" className="h-5" />
-          </a>
-          <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer">
-            <img src="https://img.shields.io/npm/v/@umarise/cli?label=%40umarise%2Fcli&color=cb3837&style=flat-square" alt="@umarise/cli on npm" className="h-5" />
-          </a>
-          <a href="https://www.npmjs.com/package/@umarise/anchor" target="_blank" rel="noopener noreferrer">
-            <img src="https://img.shields.io/npm/dm/@umarise/anchor?label=SDK%20downloads&color=222&style=flat-square" alt="SDK monthly downloads" className="h-5" />
-          </a>
-          <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer">
-            <img src="https://img.shields.io/npm/dm/@umarise/cli?label=CLI%20downloads&color=222&style=flat-square" alt="CLI monthly downloads" className="h-5" />
-          </a>
-          <a href="https://pypi.org/project/umarise-core-sdk/" target="_blank" rel="noopener noreferrer">
-            <img src="https://img.shields.io/pypi/v/umarise-core-sdk?label=umarise-core-sdk&color=3775A9&style=flat-square" alt="umarise-core-sdk on PyPI" className="h-5" />
-          </a>
-        </div>
 
         {/* Interactive Get Started Flow */}
         <GetStartedFlow />

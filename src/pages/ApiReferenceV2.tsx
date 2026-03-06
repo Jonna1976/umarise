@@ -176,7 +176,25 @@ export default function ApiReferenceV2() {
               Target uptime: 99.9% · <Link to="/status" className="text-[hsl(var(--landing-copper))] hover:underline">Current status</Link>
             </p>
 
-            {/* Live example: DocPro.pdf */}
+            {/* npm badges */}
+            <div className="flex flex-wrap gap-3 mt-4">
+              <a href="https://www.npmjs.com/package/@umarise/anchor" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.shields.io/npm/v/@umarise/anchor?label=%40umarise%2Fanchor&color=cb3837&style=flat-square" alt="@umarise/anchor on npm" className="h-5" />
+              </a>
+              <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.shields.io/npm/v/@umarise/cli?label=%40umarise%2Fcli&color=cb3837&style=flat-square" alt="@umarise/cli on npm" className="h-5" />
+              </a>
+              <a href="https://www.npmjs.com/package/@umarise/anchor" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.shields.io/npm/dm/@umarise/anchor?label=SDK%20downloads&color=222&style=flat-square" alt="SDK monthly downloads" className="h-5" />
+              </a>
+              <a href="https://www.npmjs.com/package/@umarise/cli" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.shields.io/npm/dm/@umarise/cli?label=CLI%20downloads&color=222&style=flat-square" alt="CLI monthly downloads" className="h-5" />
+              </a>
+              <a href="https://pypi.org/project/umarise-core-sdk/" target="_blank" rel="noopener noreferrer">
+                <img src="https://img.shields.io/pypi/v/umarise-core-sdk?label=umarise-core-sdk&color=3775A9&style=flat-square" alt="umarise-core-sdk on PyPI" className="h-5" />
+              </a>
+            </div>
+
             <div className="mt-6 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
               <p className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-2">Live example · DocPro.pdf anchored to Bitcoin block 938,978</p>
               <p className="text-xs text-[hsl(var(--landing-cream)/0.9)] mb-3">
