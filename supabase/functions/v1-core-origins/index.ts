@@ -405,8 +405,56 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (insertError) {
-      // Check for unique constraint violation (duplicate hash per partner)
+      // Unique constraint violation = duplicate hash for this API key.
+      // Return existing origin_id idempotently instead of forcing client-side hash resolve
+      // (which may return an older origin from another key/partner).
       if (insertError.code === '23505') {
+        const rawHex = normalized.hash.startsWith('sha256:') ? normalized.hash.slice(7) : normalized.hash;
+
+        const { data: existing, error: existingError } = await supabase
+          .from('origin_attestations')
+          .select('origin_id, hash, hash_algo, captured_at')
+          .eq('api_key_prefix', apiKeyPrefix)
+          .in('hash', [normalized.hash, rawHex])
+          .order('captured_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (existing && !existingError) {
+          console.log('[v1-core-origins] Duplicate hash resolved idempotently:', {
+            hash: normalized.hash.substring(0, 20) + '...',
+            partner: authResult.partnerName,
+            origin_id: existing.origin_id,
+          });
+
+          logRequest(supabase, {
+            endpoint: '/v1/core/origins',
+            method: 'POST',
+            api_key_prefix: apiKeyPrefix,
+            status_code: 200,
+            response_time_ms: Date.now() - startTime,
+          });
+
+          const duplicateResponse: CoreOriginResponse = {
+            origin_id: existing.origin_id,
+            hash: existing.hash,
+            hash_algo: existing.hash_algo as 'sha256',
+            captured_at: existing.captured_at,
+            proof_status: 'pending',
+            proof_url: `/v1-core-origins-proof?origin_id=${existing.origin_id}`,
+          };
+
+          const duplicateSuccess = successResponse(duplicateResponse, 200, {
+            'Location': `/v1/core/resolve?origin_id=${existing.origin_id}`,
+            'Retry-After': '900',
+          });
+
+          return new Response(duplicateSuccess.body, {
+            status: 200,
+            headers: addRateLimitHeaders(Object.fromEntries(duplicateSuccess.headers.entries()), rateLimitResult),
+          });
+        }
+
         console.log('[v1-core-origins] Duplicate hash rejected:', {
           hash: normalized.hash.substring(0, 20) + '...',
           partner: authResult.partnerName,
