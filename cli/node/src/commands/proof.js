@@ -145,6 +145,15 @@ WHAT THIS DOES NOT PROVE:
   const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
   await writeFile(proofPath, zipBuffer);
 
+  // --- Auto-extract proof contents into subfolder ---
+  const { dirname, basename } = await import('path');
+  const { mkdir } = await import('fs/promises');
+  const extractDir = resolve(dirname(absPath), `${basename(absPath)}-proof`);
+  await mkdir(extractDir, { recursive: true });
+  await writeFile(resolve(extractDir, 'certificate.json'), JSON.stringify(certificate, null, 2));
+  await writeFile(resolve(extractDir, 'proof.ots'), proofResult.proof);
+  await writeFile(resolve(extractDir, 'VERIFY.txt'), verifyTxt);
+
   // --- Print result ---
   if (proofResult.bitcoin_block_height) {
     console.log(`✓ anchored in Bitcoin block ${proofResult.bitcoin_block_height}`);
@@ -154,10 +163,8 @@ WHAT THIS DOES NOT PROVE:
     console.log(`✓ no later than: ${date}`);
   }
   console.log(`✓ saved: ${filePath}.proof`);
+  console.log(`✓ extracted: ${basename(absPath)}-proof/`);
   console.log(`✓ proof valid — independent of Umarise`);
-  console.log('');
-  console.log('  Inspect the bundle:');
-  console.log(`  unzip ${absPath}.proof`);
 
-  return { originId, hash, status: 'anchored', proofPath };
+  return { originId, hash, status: 'anchored', proofPath, extractDir };
 }
