@@ -152,7 +152,7 @@ export default function InvestorOnePager() {
                 </p>
               </div>
               <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 2 — Verification</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 2: Verification</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Independence</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
                   Verification does not require our servers, an account, an API, or any database.
