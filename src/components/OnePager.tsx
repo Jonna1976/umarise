@@ -122,6 +122,20 @@ const OnePager = ({ onClose }: OnePagerProps) => {
             </p>
           </div>
 
+          {/* The Primitive */}
+          <div className="bg-muted/30 border border-border rounded-lg p-6 print:bg-gray-50">
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-500" />
+              The Missing Primitive
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              The internet has primitives for identity, payments, and messaging, but it doesn't have a simple way to prove when something actually existed. Files can be copied, edited, or backdated, and metadata can't be trusted. Umarise introduces a primitive for verifiable history. A file is hashed, the hash is anchored to an immutable timestamp, and a portable proof travels with the artifact. Anyone can independently verify that these exact bytes existed at or before time <em>T</em>.
+            </p>
+            <p className="text-sm text-amber-500 font-medium mt-3">
+              We're making "this existed at this moment" a first-class primitive of the internet.
+            </p>
+          </div>
+
           {/* Executive Summary — IP & Moat */}
           <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-6 print:bg-amber-50">
             <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -129,15 +143,15 @@ const OnePager = ({ onClose }: OnePagerProps) => {
               Executive Summary — Open-Source & IP
             </h2>
             <blockquote className="border-l-2 border-amber-500/40 pl-4 mb-4 text-sm text-muted-foreground italic leading-relaxed">
-              "De specificatie is publiek domein. De SDK is open-source. De verificatie is onafhankelijk.
-              Maar de operationele infrastructuur — de batching engine, de key management, de immutability triggers,
-              de rate limiting — dat is ons beschermde IP. Precies zoals Let's Encrypt: het protocol is open,
-              de client is open, maar de Certificate Authority achter de schermen is niet iets dat je in een weekend nabootst."
+              "The specification is public domain. The SDK is open-source. Verification is independent.
+              But the operational infrastructure — the batching engine, the key management, the immutability triggers,
+              the rate limiting — that is our protected IP. Just like Let's Encrypt: the protocol is open,
+              the client is open, but the Certificate Authority behind the scenes is not something you replicate over a weekend."
             </blockquote>
             <blockquote className="border-l-2 border-amber-500/40 pl-4 text-sm text-muted-foreground italic leading-relaxed">
-              "Onze echte moat is niet de code. Het is de combinatie van (1) een groeiend Bitcoin-verankerd register
-              dat niet gereproduceerd kan worden, (2) een ecosysteem van .proof bestanden die naar onze origin_id's verwijzen,
-              en (3) de specificatie-autoriteit als eerste formele standaard voor anchoring. Code kun je kopiëren. Geschiedenis niet."
+              "Our real moat isn't the code. It's the combination of (1) a growing Bitcoin-anchored registry
+              that cannot be reproduced, (2) an ecosystem of .proof files referencing our origin_id's,
+              and (3) specification authority as the first formal standard for anchoring. You can copy code. You can't copy history."
             </blockquote>
           </div>
 
