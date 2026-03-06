@@ -155,6 +155,38 @@ const OnePager = ({ onClose }: OnePagerProps) => {
             </blockquote>
           </div>
 
+          {/* Historical mirror: DNS / Git / TLS */}
+          <div className="bg-muted/30 border border-border rounded-lg p-6 print:bg-gray-50">
+            <h2 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Layers className="w-5 h-5 text-amber-500" />
+              Historical mirror
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              Three primitives became invisible infrastructure by being small, domainless, and composable:
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
+              <div>
+                <div className="font-medium text-foreground">DNS</div>
+                <div className="text-muted-foreground text-xs">name &rarr; address</div>
+              </div>
+              <div>
+                <div className="font-medium text-foreground">Git</div>
+                <div className="text-muted-foreground text-xs">content &rarr; verifiable history</div>
+              </div>
+              <div>
+                <div className="font-medium text-foreground">TLS</div>
+                <div className="text-muted-foreground text-xs">connection &rarr; trust</div>
+              </div>
+              <div>
+                <div className="font-medium text-amber-500">Umarise</div>
+                <div className="text-muted-foreground text-xs">artifact &rarr; proof of existence</div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground/80 italic">
+              If DNS resolves names and Git preserves history, <span className="text-amber-500 not-italic font-medium">Umarise anchors existence</span>.
+            </p>
+          </div>
+
           {/* Live Metrics */}
           <div className="grid grid-cols-4 gap-4 print:gap-2">
             <MetricCard

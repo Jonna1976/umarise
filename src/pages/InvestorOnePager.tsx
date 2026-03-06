@@ -68,6 +68,94 @@ export default function InvestorOnePager() {
             </div>
           </section>
 
+          {/* Historical mirror: DNS / Git / TLS */}
+          <section>
+            <SectionTitle>Historical mirror: where this pattern has worked before</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Three primitives became invisible infrastructure by being small, domainless, and composable.
+              Umarise follows the same structural pattern.
+            </p>
+
+            <div className="space-y-4 mb-5">
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">DNS</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">name &rarr; address</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Stateless resolution for every protocol: HTTP, SMTP, gRPC. No hosting, no identity, no accounts. Just resolve(name).
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Git</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">content &rarr; hash(object) + commit</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Content-addressed, append-only history. Relative history within a repo. Now used far beyond code: data versioning, ML lineage, blockchain structures.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">TLS</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">connection &rarr; cryptographic trust</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Started as encryption + certificate check for one connection. Now the trust layer for web, APIs, payments, identity federation.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.7)] pl-5 bg-[hsl(25,35%,42%,0.06)] rounded-r-lg py-2 pr-3">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.9)] mb-1">Umarise</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.9)] print:text-stone-800 font-medium">artifact &rarr; proof of existence at time T</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.55)] mt-1 print:text-stone-500">
+                  Hash, anchor, portable proof. Domainless, composable, openly verifiable. Usable under forensics, AI outputs, supply chains, contracts, logs, datasets.
+                </p>
+              </div>
+            </div>
+
+            <DataTable
+              headers={['Primitive', 'Surface area', 'Domain-bound?', 'Vendor-bound?']}
+              rows={[
+                ['DNS', 'resolve(name)', 'No', 'No'],
+                ['Git', 'hash(object) + commit', 'No', 'No'],
+                ['TLS', 'handshake + record layer', 'No', 'No'],
+                ['Umarise', 'anchor(hash) \u2192 .proof', 'No', 'No'],
+              ]}
+            />
+
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 print:text-stone-500">
+              These primitives became infrastructure because they were so small and reusable that every new category (cloud, CDNs, SaaS, DevOps, AI) adopted them without inventing an alternative for the same base problem.
+            </p>
+          </section>
+
+          {/* The history layer */}
+          <section>
+            <SectionTitle>The underdeveloped layer</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              The internet has a stack. Two layers are mature. One is not.
+            </p>
+            <DataTable
+              headers={['Layer', 'Question', 'Examples', 'Status']}
+              rows={[
+                ['Identity', 'Who are you?', 'OAuth, passkeys, KYC, wallets', 'Mature'],
+                ['Data', 'What is the data?', 'S3, Postgres, IPFS', 'Mature'],
+                ['History', 'When did this exist?', 'TSA, PoE, CoC, SLSA, C2PA', 'Fragmented'],
+              ]}
+            />
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-4 print:text-stone-600">
+              The history layer is fragmented across domain-specific, PKI-heavy, or platform-bound solutions. No single primitive covers it the way DNS covers naming or TLS covers transport trust.
+            </p>
+            <p className="text-sm text-[hsl(25,35%,42%)] font-medium mt-3 print:text-stone-800">
+              Umarise sits purely in the history layer: hash, anchor, proof. Domainless like DNS, cryptographic like TLS.
+            </p>
+          </section>
+
+          {/* One-line frame */}
+          <section>
+            <HighlightBox>
+              <p className="text-sm text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
+                If DNS resolves names and Git preserves history, <strong className="text-[hsl(40,15%,88%,0.95)]">Umarise anchors existence</strong>.
+              </p>
+              <p className="text-xs text-[hsl(40,15%,88%,0.45)] mt-3 print:text-stone-500">
+                A minimal cryptographic primitive for verifiable event history, analogous to how DNS provides naming, Git provides content-addressed history, and TLS provides transport trust.
+              </p>
+            </HighlightBox>
+          </section>
+
           {/* Opening statement */}
           <section>
             <HighlightBox>
