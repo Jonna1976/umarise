@@ -558,7 +558,7 @@ export default function InvestorOnePager() {
                 But Umarise does not build those services. Umarise guards the primitive.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
-                The instinct to add — a dashboard, an account system, a workflow tool,
+                The instinct to add, a dashboard, an account system, a workflow tool,
                 a compliance feature — is always logical in the moment.
                 It is always wrong for the primitive.
               </p>
