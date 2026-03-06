@@ -56,8 +56,8 @@ export default function GetStartedFlow() {
     <div className="space-y-8">
       <div className="p-5 rounded-lg border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,6%)]">
         <div className="flex items-baseline gap-3 mb-3">
-          <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>1</span>
-          <h3 className="text-[hsl(var(--landing-cream))] font-medium">Get your API key</h3>
+          <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
+          <h3 className={`font-medium ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-cream))]'}`}>Get your API key</h3>
         </div>
         
         {!generatedKey ? (
@@ -100,10 +100,16 @@ export default function GetStartedFlow() {
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
         </div>
         <p className="text-xs text-[hsl(var(--landing-cream))] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18. The CLI calls the hosted API, no server to install.</p>
-        <div className="ml-7 space-y-3">
-          <Code code={`npm install -g @umarise/cli`} />
-          <p className="text-xs text-[hsl(var(--landing-cream))]">Then set your key (once per terminal session):</p>
-          <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
+        <div className="ml-7 space-y-4">
+          <div>
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">2.1 Install</p>
+            <Code code={`npm install -g @umarise/cli`} />
+          </div>
+          <div>
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">2.2 Set your key <span className="font-normal text-[hsl(var(--landing-cream)/0.5)]">(once per terminal session)</span></p>
+            {generatedKey && <p className="text-xs text-emerald-400/80 mb-2">Your key from step 1 is automatically pasted below.</p>}
+            <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
+          </div>
         </div>
       </div>
 
