@@ -545,6 +545,80 @@ export default function InvestorOnePager() {
             </HighlightBox>
           </section>
 
+          {/* Strategic adoption targets */}
+          <section>
+            <SectionTitle>Strategic adoption targets</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Three organisations that fit Adoption Path 2 — anchoring placed silently underneath their existing systems.
+              Selected for visibility, technical fit, and narrative impact.
+            </p>
+
+            <div className="space-y-6 mb-6">
+              {/* Mistral AI */}
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
+                <div className="flex items-baseline justify-between mb-2">
+                  <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">Mistral AI</p>
+                  <span className="font-mono text-[10px] text-emerald-400/70">Highest feasibility</span>
+                </div>
+                <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mb-3 print:text-stone-600">
+                  French AI company, open-source LLMs, EU-based, developer culture.
+                </p>
+                <div className="space-y-2">
+                  <BorderItem title="Why now" desc="EU AI Act requires training data traceability. Mistral's open-source ethos demands verifiable transparency. Anchoring makes that transparency provable." />
+                  <BorderItem title="Integration" desc="umarise proof dataset-v3.parquet in data pipeline. Each model release ships with a .proof file alongside the model weights." />
+                  <BorderItem title="Narrative" desc="'Mistral anchors their training data' reaches every AI developer on Hacker News." />
+                </div>
+              </div>
+
+              {/* GPT-NL */}
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
+                <div className="flex items-baseline justify-between mb-2">
+                  <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">GPT-NL</p>
+                  <span className="font-mono text-[10px] text-[hsl(25,35%,42%,0.7)]">Highest impact</span>
+                </div>
+                <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mb-3 print:text-stone-600">
+                  Dutch government AI initiative, funded by EZK, building a sovereign language model.
+                </p>
+                <div className="space-y-2">
+                  <BorderItem title="Why now" desc="Public AI must account for what goes in. AI Act compliance is not optional for a government initiative. Anchoring proves which data existed before training." />
+                  <BorderItem title="Integration" desc="Every dataset used as training input is hashed and anchored. At audit: proof that data was unmodified at time of ingestion." />
+                  <BorderItem title="Narrative" desc="'The Dutch government AI anchors its inputs' is a reference nobody ignores." />
+                </div>
+              </div>
+
+              {/* EUI */}
+              <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
+                <div className="flex items-baseline justify-between mb-2">
+                  <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">European University Institute</p>
+                  <span className="font-mono text-[10px] text-[hsl(40,15%,88%,0.4)]">Academic validation</span>
+                </div>
+                <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mb-3 print:text-stone-600">
+                  Pan-European academic institute in Florence, policy research for the EU.
+                </p>
+                <div className="space-y-2">
+                  <BorderItem title="Why now" desc="Research data must be reproducibly unmodified. Anchoring proves datasets existed at a specific moment. Peer reviewers can verify independently." />
+                  <BorderItem title="Integration" desc="Research datasets anchored at publication. The .proof file becomes part of supplementary material." />
+                  <BorderItem title="Narrative" desc="Academic adoption gives credibility that no startup reference can match." />
+                </div>
+              </div>
+            </div>
+
+            {/* Priority matrix */}
+            <DataTable
+              headers={['Criterion', 'Mistral AI', 'GPT-NL', 'EUI']}
+              rows={[
+                ['Speed of integration', '★★★★★', '★★', '★★'],
+                ['Narrative impact', '★★★★', '★★★★★', '★★★'],
+                ['Technical match', '★★★★★', '★★★★', '★★★'],
+                ['Reachability', '★★★', '★★', '★★'],
+              ]}
+              totalRow={['Total', '17/20', '13/20', '10/20']}
+            />
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-3 print:text-stone-500">
+              Recommendation: start with Mistral AI (highest feasibility), use that result as reference for GPT-NL (highest impact).
+            </p>
+          </section>
+
           {/* Contact */}
           <section>
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-6 text-center print:bg-stone-50 print:border-stone-200">
