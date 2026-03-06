@@ -98,7 +98,6 @@ export default function GetStartedFlow() {
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream))] mb-3 ml-7">One-time setup. Requires Node.js ≥ 18. The CLI calls the hosted API, no server to install.</p>
         <div className="ml-7 space-y-4">
           <div>
             <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">2.1 Install</p>
