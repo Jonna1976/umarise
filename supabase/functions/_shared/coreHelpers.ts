@@ -230,6 +230,19 @@ export function successResponse(
   });
 }
 
+// Extract and hash client IP from request headers
+export async function getIpHash(req: Request): Promise<string | null> {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('x-real-ip')
+    || req.headers.get('cf-connecting-ip')
+    || null;
+  if (!ip) return null;
+  const data = new TextEncoder().encode(ip);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  const hex = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return `ip:${hex}`;
+}
+
 // Create service role Supabase client
 export function createServiceClient(): SupabaseClient {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');

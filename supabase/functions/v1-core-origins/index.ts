@@ -31,6 +31,7 @@ import {
   logRequest,
   normalizeHash,
   createServiceClient,
+  getIpHash,
 } from '../_shared/coreHelpers.ts';
 
 // Rate limits per tier (requests per minute)
