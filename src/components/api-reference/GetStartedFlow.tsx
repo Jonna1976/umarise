@@ -169,6 +169,17 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
           </div>
 
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is saved next to your original.</p>
+
+          <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)]">
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.1 Inspect the bundle</p>
+            <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-3">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP. Unpack and inspect:</p>
+            <Code code={`unzip document.pdf.proof\ncat certificate.json\ncat VERIFY.txt`} />
+            <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
+              <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`certificate.json  → origin metadata (hash, origin_id, timestamp, block)
+proof.ots         → binary OpenTimestamps proof (Bitcoin anchor)
+VERIFY.txt        → independent verification instructions`}</pre>
+            </div>
+          </div>
         </div>
       </div>
 
