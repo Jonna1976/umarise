@@ -118,7 +118,8 @@ export default function GetStartedFlow() {
         </div>
         <div className="ml-7 space-y-4">
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise proof</code> into your terminal, then drag your file in:</p>
-          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+          <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <CopyBtn text="umarise proof " />
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
@@ -144,7 +145,8 @@ export default function GetStartedFlow() {
         </div>
         <div className="ml-7 space-y-4">
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">Run the same command again after ~2 hours (Bitcoin confirmation).</p>
-          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+          <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <CopyBtn text="umarise proof " />
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise proof </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
@@ -174,7 +176,8 @@ export default function GetStartedFlow() {
         <div className="ml-7 space-y-4">
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">No API key required. Works offline.</p>
           <p className="text-[13px] text-[hsl(var(--landing-cream))]">Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">umarise verify</code> then drag your file into the terminal:</p>
-          <div className="p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+          <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+            <CopyBtn text="umarise verify " />
             <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
               <span className="text-[hsl(var(--landing-cream))]">umarise verify </span>
               <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag file here]</span>
