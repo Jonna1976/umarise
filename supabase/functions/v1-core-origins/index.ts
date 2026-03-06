@@ -31,6 +31,7 @@ import {
   logRequest,
   normalizeHash,
   createServiceClient,
+  getIpHash,
 } from '../_shared/coreHelpers.ts';
 
 // Rate limits per tier (requests per minute)
@@ -170,6 +171,7 @@ Deno.serve(async (req: Request) => {
 
   let supabase;
   let apiKeyPrefix: string | undefined;
+  let ipHash: string | null = null;
 
   try {
     const coreApiSecret = Deno.env.get('CORE_API_SECRET');
@@ -179,6 +181,7 @@ Deno.serve(async (req: Request) => {
     }
 
     supabase = createServiceClient();
+    ipHash = await getIpHash(req);
 
     // Validate partner API key
     const apiKey = req.headers.get('x-api-key');
@@ -190,6 +193,7 @@ Deno.serve(async (req: Request) => {
         status_code: 401,
         response_time_ms: Date.now() - startTime,
         error_code: 'UNAUTHORIZED',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('UNAUTHORIZED', 'Missing X-API-Key header', 401);
     }
@@ -208,6 +212,7 @@ Deno.serve(async (req: Request) => {
         status_code: status,
         response_time_ms: Date.now() - startTime,
         error_code: errorCode,
+        ip_hash: ipHash || undefined,
       });
 
       return errorResponse(errorCode, authResult.error || 'Unauthorized', status);
@@ -234,6 +239,7 @@ Deno.serve(async (req: Request) => {
         status_code: 429,
         response_time_ms: Date.now() - startTime,
         error_code: 'RATE_LIMIT_EXCEEDED',
+        ip_hash: ipHash || undefined,
       });
       
       return rateLimitResponse(rateLimitResult.resetInSeconds, rateLimitResult.limit);
@@ -251,6 +257,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'INVALID_REQUEST_BODY',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('INVALID_REQUEST_BODY', 'Invalid JSON body', 400);
     }
@@ -264,6 +271,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'INVALID_REQUEST_BODY',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('INVALID_REQUEST_BODY', 'Missing required field: hash', 400);
     }
@@ -277,6 +285,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'REJECTED_FIELD',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('REJECTED_FIELD', 'Core does not accept bytes. Provide hash only.', 400);
     }
@@ -290,6 +299,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'REJECTED_FIELD',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('REJECTED_FIELD', 'Core does not accept labels. Provide hash only.', 400);
     }
@@ -304,6 +314,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'INVALID_HASH_FORMAT',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse(
         'INVALID_HASH_FORMAT',
@@ -342,6 +353,7 @@ Deno.serve(async (req: Request) => {
         api_key_prefix: apiKeyPrefix,
         status_code: 200,
         response_time_ms: Date.now() - startTime,
+        ip_hash: ipHash || undefined,
       });
 
       const dryRunResp = successResponse(dryRunResponse, 200, {
@@ -371,6 +383,7 @@ Deno.serve(async (req: Request) => {
         status_code: 402,
         response_time_ms: Date.now() - startTime,
         error_code: 'INSUFFICIENT_CREDITS',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse(
         'INSUFFICIENT_CREDITS',
@@ -433,6 +446,7 @@ Deno.serve(async (req: Request) => {
             api_key_prefix: apiKeyPrefix,
             status_code: 200,
             response_time_ms: Date.now() - startTime,
+            ip_hash: ipHash || undefined,
           });
 
           const duplicateResponse: CoreOriginResponse = {
@@ -466,6 +480,7 @@ Deno.serve(async (req: Request) => {
           status_code: 409,
           response_time_ms: Date.now() - startTime,
           error_code: 'DUPLICATE_HASH',
+          ip_hash: ipHash || undefined,
         });
         return errorResponse('DUPLICATE_HASH', 'This hash has already been attested with this API key', 409);
       }
@@ -478,6 +493,7 @@ Deno.serve(async (req: Request) => {
         status_code: 500,
         response_time_ms: Date.now() - startTime,
         error_code: 'INTERNAL_ERROR',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('INTERNAL_ERROR', 'Failed to create attestation', 500);
     }
@@ -503,6 +519,7 @@ Deno.serve(async (req: Request) => {
       api_key_prefix: apiKeyPrefix,
       status_code: 201,
       response_time_ms: Date.now() - startTime,
+      ip_hash: ipHash || undefined,
     });
 
     // TTFA: Log first_attestation_at if not yet set for this partner key
@@ -575,6 +592,7 @@ Deno.serve(async (req: Request) => {
         status_code: 500,
         response_time_ms: Date.now() - startTime,
         error_code: 'INTERNAL_ERROR',
+        ip_hash: ipHash || undefined,
       });
     }
 
