@@ -254,7 +254,7 @@ export default function Passkey() {
               <tr className="border-b border-[hsl(var(--landing-cream)/0.05)]">
                 <td className="py-2.5 pr-4 text-[hsl(var(--landing-cream)/0.5)]">Bewijst</td>
                 <td className="py-2.5 px-3">Bytes bestonden op moment X</td>
-                <td className="py-2.5 px-3">Een mens deed dit bewust</td>
+                <td className="py-2.5 px-3">Aanwezigheid op dit apparaat</td>
                 <td className="py-2.5 px-3">Deze persoon deed dit</td>
               </tr>
               <tr className="border-b border-[hsl(var(--landing-cream)/0.05)]">
