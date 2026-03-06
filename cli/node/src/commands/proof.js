@@ -155,6 +155,9 @@ WHAT THIS DOES NOT PROVE:
   }
   console.log(`✓ saved: ${filePath}.proof`);
   console.log(`✓ proof valid — independent of Umarise`);
+  console.log('');
+  console.log('  Inspect the bundle:');
+  console.log(`  unzip ${absPath}.proof`);
 
   return { originId, hash, status: 'anchored', proofPath };
 }
