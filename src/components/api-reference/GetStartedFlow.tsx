@@ -59,7 +59,7 @@ export default function GetStartedFlow() {
           <span className={`font-mono text-lg font-bold ${step >= 1 ? 'text-emerald-400' : 'text-[hsl(var(--landing-copper))]'}`}>{step >= 1 ? '✓' : '1'}</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Get your API key</h3>
         </div>
-        <p className="text-xs text-[hsl(var(--landing-cream))] mb-4 ml-7">Generates instantly. Includes 100 free anchors.</p>
+        
         {!generatedKey ? (
           <div className="ml-7">
             <button onClick={generateKey} disabled={loading} className="px-6 py-2.5 rounded text-sm font-mono font-bold bg-[hsl(var(--landing-copper))] text-[hsl(220,10%,6%)] hover:opacity-90 transition-opacity disabled:opacity-50">
@@ -94,7 +94,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 2: Install CLI */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.10] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">2</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Install the CLI</h3>
@@ -108,7 +108,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 3: Anchor + Proof */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.10] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">3</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Anchor & save proof</h3>
@@ -188,7 +188,7 @@ export default function GetStartedFlow() {
       </div>
 
       {/* Step 4: Verify */}
-      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-40 select-none'}`}>
+      <div className={`p-5 rounded-lg border transition-all duration-300 ${copied ? 'border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.10] select-none'}`}>
         <div className="flex items-baseline gap-3 mb-3">
           <span className="text-[hsl(var(--landing-copper))] font-mono text-lg font-bold">4</span>
           <h3 className="text-[hsl(var(--landing-cream))] font-medium">Verify: anyone, anytime, offline</h3>
