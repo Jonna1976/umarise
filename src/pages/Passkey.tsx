@@ -183,7 +183,7 @@ export default function Passkey() {
             number={2}
             title="Device Signing (Passkey)"
             icon={<Fingerprint className="w-5 h-5 text-[hsl(var(--landing-copper))]" />}
-            proves="Een mens met fysieke toegang tot een apparaat heeft dit bewust bevestigd met biometrie."
+            proves="Een persoon met fysieke toegang tot dit apparaat heeft dit bevestigd via biometrische activatie op het apparaat zelf."
             flow={[
               { label: 'Biometrie (lokaal)', arrow: true },
               { label: 'Passkey ontgrendelt private key', arrow: true },
