@@ -150,7 +150,7 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
         </div>
         <div className="ml-7 space-y-4">
           <div className="mb-2">
-            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.1 Run the same command again after ~2 hours (Bitcoin confirmation)</p>
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.1 Run the same command again after ~2 hours (Bitcoin confirmation) and save the proof bundle</p>
           </div>
           <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
             <CopyBtn text="umarise proof " />
