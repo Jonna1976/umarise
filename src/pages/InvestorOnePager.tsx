@@ -551,7 +551,7 @@ export default function InvestorOnePager() {
             <HighlightBox>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
                 Services on top of the primitive create value. That is good.
-                Partners should build them. Notaries, signing providers, attestation services —
+                Partners should build them. Notaries, signing providers, attestation services,
                 they add layers. That is exactly how infrastructure works.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
