@@ -59,7 +59,8 @@ async function verifyOtsOffline(otsBytes, fileHashHex) {
     const otsFilter = (msg) => {
       const s = typeof msg === 'string' ? msg : String(msg);
       return s.includes('RequestError') || s.includes('AggregateError') || s.includes('Response error')
-        || s.includes('Lite-client verification') || s.includes('attestation(s) from');
+        || s.includes('Lite-client verification') || s.includes('attestation(s) from')
+        || s.includes('Calendar') || s.includes('Pending confirmation') || s.includes('Timestamped by');
     };
     console.error = (...args) => { if (!otsFilter(args.join(' '))) originalError.apply(console, args); };
     console.log = (...args) => { if (!otsFilter(args.join(' '))) originalLog.apply(console, args); };
