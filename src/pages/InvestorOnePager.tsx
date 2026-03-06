@@ -189,21 +189,8 @@ export default function InvestorOnePager() {
             </HighlightBox>
           </section>
 
-          {/* Problem */}
-          <section>
-            <SectionTitle>The problem</SectionTitle>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-              Every digital file can be modified after the fact. Existing solutions for temporal
-              proof (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
-              The proof depends on the continued existence of the provider.
-            </p>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-              But the problem is deeper than file integrity. Today, platforms manage three things
-              in a single product: time, verification, and identity. The timestamp is a platform log.
-              Verification runs through a platform interface. Identity is a platform account.
-              That is not independent structure. That is dependency.
-            </p>
-          </section>
+
+
 
           {/* Solution */}
           <section>
