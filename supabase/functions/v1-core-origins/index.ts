@@ -480,6 +480,7 @@ Deno.serve(async (req: Request) => {
           status_code: 409,
           response_time_ms: Date.now() - startTime,
           error_code: 'DUPLICATE_HASH',
+          ip_hash: ipHash || undefined,
         });
         return errorResponse('DUPLICATE_HASH', 'This hash has already been attested with this API key', 409);
       }
