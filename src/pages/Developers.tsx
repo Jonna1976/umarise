@@ -71,11 +71,7 @@ export default function Developers() {
         </section>
 
         {/* Footer */}
-        <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-[13px]">
-          <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="hover:text-[hsl(var(--landing-cream))] transition-colors">
-            Proof is self-contained. Verification works without Umarise. →
-          </a>
-        </footer>
+        <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)]" />
       </main>
     </div>
   );

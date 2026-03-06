@@ -196,9 +196,12 @@ export default function GetStartedFlow() {
 
       {/* Done */}
       <div className={`p-4 rounded border transition-all duration-300 ${copied ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35]'}`}>
-        <p className="text-[13px] text-[hsl(var(--landing-cream))]">
+        <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-2">
           Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your machine.
         </p>
+        <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[13px] text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
+          Proof is self-contained. Verification works without Umarise. →
+        </a>
       </div>
     </div>
   );
