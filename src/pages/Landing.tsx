@@ -74,11 +74,12 @@ export default function Landing() {
             {/* Protocol */}
             <div className="flex flex-col gap-3">
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Protocol</p>
+              <Link to="/why" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Why</Link>
               <Link to="/anchor" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Anchor</Link>
               <Link to="/technical" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Technical</Link>
               <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
               <Link to="/creation-integrity" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Creation Integrity</Link>
-              <Link to="/why" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Why</Link>
+              <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Specification (IEC) ↗</a>
             </div>
 
             {/* Integrate */}
@@ -88,7 +89,6 @@ export default function Landing() {
               <Link to="/api-reference" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">API Reference</Link>
               <Link to="/sdk" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">SDK</Link>
               <Link to="/partner-integration" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Integration</Link>
-              
             </div>
 
             {/* Verify */}
@@ -96,7 +96,6 @@ export default function Landing() {
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Verify</p>
               <Link to="/verify" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Verify an anchor</Link>
               <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Independent verifier ↗</a>
-              <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Specification (IEC) ↗</a>
             </div>
 
             {/* Legal */}
