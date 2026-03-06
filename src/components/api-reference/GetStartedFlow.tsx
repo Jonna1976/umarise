@@ -83,7 +83,15 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
               </p>
             )}
             {copied && (
-              <p className="text-xs font-mono text-emerald-400/70">✓ Key copied</p>
+              <div className="flex items-center gap-3">
+                <p className="text-xs font-mono text-emerald-400/70">✓ Key copied</p>
+                <button
+                  onClick={() => { setGeneratedKey(''); setCopied(false); setStep(0); onUnlock?.(false); }}
+                  className="text-xs font-mono text-[hsl(var(--landing-cream)/0.3)] hover:text-[hsl(var(--landing-cream)/0.6)] transition-colors"
+                >
+                  Generate new key
+                </button>
+              </div>
             )}
           </div>
         )}
