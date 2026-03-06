@@ -73,46 +73,46 @@ export default function Landing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
             {/* Protocol */}
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Protocol</p>
-              <Link to="/why" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Why</Link>
-              <Link to="/anchor" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Anchor</Link>
-              <Link to="/technical" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Technical</Link>
-              <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
-              <Link to="/creation-integrity" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Creation Integrity</Link>
-              <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Specification (IEC) ↗</a>
+              <p className="text-xs text-landing-muted/75 tracking-[3px] uppercase font-mono mb-1">Protocol</p>
+              <Link to="/why" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Why</Link>
+              <Link to="/anchor" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Anchor</Link>
+              <Link to="/technical" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Technical</Link>
+              <Link to="/core" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Core</Link>
+              <Link to="/creation-integrity" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Creation Integrity</Link>
+              <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Specification (IEC) ↗</a>
             </div>
 
             {/* Integrate */}
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Integrate</p>
-              <Link to="/developers" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Get Started</Link>
-              <Link to="/api-reference" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">API Reference</Link>
-              <Link to="/sdk" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">SDK</Link>
-              <Link to="/partner-integration" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Integration</Link>
+              <p className="text-xs text-landing-muted/75 tracking-[3px] uppercase font-mono mb-1">Integrate</p>
+              <Link to="/developers" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Get Started</Link>
+              <Link to="/api-reference" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">API Reference</Link>
+              <Link to="/sdk" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">SDK</Link>
+              <Link to="/partner-integration" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Integration</Link>
             </div>
 
             {/* Verify */}
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Verify</p>
-              <Link to="/verify" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Verify an anchor</Link>
-              <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Independent verifier ↗</a>
+              <p className="text-xs text-landing-muted/75 tracking-[3px] uppercase font-mono mb-1">Verify</p>
+              <Link to="/verify" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Verify an anchor</Link>
+              <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Independent verifier ↗</a>
             </div>
 
             {/* Legal */}
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Legal</p>
-              <Link to="/legal" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Legal</Link>
-              <Link to="/privacy" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Privacy</Link>
-              <Link to="/terms" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Terms</Link>
+              <p className="text-xs text-landing-muted/75 tracking-[3px] uppercase font-mono mb-1">Legal</p>
+              <Link to="/legal" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Legal</Link>
+              <Link to="/privacy" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Privacy</Link>
+              <Link to="/terms" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Terms</Link>
             </div>
           </div>
 
           {/* Bottom line */}
-          <div className="border-t border-landing-muted/8 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-landing-muted/35">
+          <div className="border-t border-landing-muted/75 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-landing-muted/75">
             <span>© {new Date().getFullYear()} Umarise</span>
             <a 
               href="mailto:partners@umarise.com" 
-              className="hover:text-landing-muted/55 transition-colors"
+              className="hover:text-landing-muted transition-colors"
             >
               partners@umarise.com
             </a>
