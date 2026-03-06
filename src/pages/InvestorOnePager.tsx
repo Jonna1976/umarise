@@ -321,9 +321,9 @@ export default function InvestorOnePager() {
             <div className="space-y-3 mb-5">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">The sequence</p>
               {[
-                'One PhD student anchors a dissertation draft — 20 minutes, no account',
+                'One PhD student anchors a dissertation draft, 20 minutes, no account',
                 'They receive a ZIP: hash + .ots proof + Bitcoin anchor + certificate',
-                'That ZIP goes to one rector or dean — not as a pitch deck, as a working proof',
+                'That ZIP goes to one rector or dean, not as a pitch deck, as a working proof',
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-3 text-sm">
                   <span className="font-mono text-[hsl(25,35%,42%,0.7)] mt-0.5 shrink-0 w-5 text-right">{i + 1}.</span>
