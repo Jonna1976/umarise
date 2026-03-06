@@ -327,7 +327,7 @@ export default function Passkey() {
 
         {/* Footer */}
         <footer className="mt-16 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)] text-[hsl(var(--landing-muted))] text-xs">
-          Geen biometrie opgeslagen. Geen private keys opgeslagen. Geen bestanden opgeslagen.
+          Geen biometrie opgeslagen. Geen private keys opgeslagen. Geen bestanden opgeslagen. Niet als beleid. Als architectuur.
         </footer>
       </main>
     </div>
