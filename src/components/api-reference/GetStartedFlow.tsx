@@ -78,17 +78,12 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
               </button>
             </div>
             {!copied && (
-              <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
-                <p className="text-[13px] text-amber-300 font-medium mb-1">⚠ Key not stored</p>
-                <p className="text-[13px] text-amber-400 leading-relaxed">
-                  This key is generated once and not persisted. Copy it now, store it in your <code className="text-amber-300">.env</code> or CI secrets.
-                </p>
-              </div>
+              <p className="text-xs text-[hsl(var(--landing-cream)/0.35)] font-mono">
+                Copy to continue. You can always generate a new one.
+              </p>
             )}
             {copied && (
-              <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5">
-                <p className="text-xs font-mono text-emerald-400">✓ Key copied. Store it securely.</p>
-              </div>
+              <p className="text-xs font-mono text-emerald-400/70">✓ Key copied</p>
             )}
           </div>
         )}
