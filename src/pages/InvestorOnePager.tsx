@@ -403,7 +403,7 @@ export default function InvestorOnePager() {
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 The lawyer who cannot prove when a document existed. The designer whose concept
                 was claimed by someone else. The researcher whose dataset was disputed.
-                One moment of need — and the reflex is installed permanently.
+                One moment of need, and the reflex is installed permanently.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 This means the product does not need to be used daily.
