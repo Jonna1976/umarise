@@ -1,0 +1,3 @@
+This file exists.
+Its hash is anchored to Bitcoin on every push.
+Verify the .proof file at https://verify-anchoring.org

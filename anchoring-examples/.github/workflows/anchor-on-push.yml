@@ -1,0 +1,21 @@
+name: Anchor on push
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create build artifact
+        run: tar czf build.tar.gz example-artifact.txt
+
+      - name: Anchor to Bitcoin
+        uses: AnchoringTrust/anchor-action@v1
+        with:
+          file: build.tar.gz
+        env:
+          UMARISE_API_KEY: ${{ secrets.UMARISE_API_KEY }}
