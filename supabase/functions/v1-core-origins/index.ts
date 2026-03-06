@@ -508,6 +508,7 @@ Deno.serve(async (req: Request) => {
       api_key_prefix: apiKeyPrefix,
       status_code: 201,
       response_time_ms: Date.now() - startTime,
+      ip_hash: ipHash || undefined,
     });
 
     // TTFA: Log first_attestation_at if not yet set for this partner key
