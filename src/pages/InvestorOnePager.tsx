@@ -580,7 +580,7 @@ export default function InvestorOnePager() {
           <section>
             <SectionTitle>Strategic adoption targets</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Three organisations that fit Adoption Path 2 — anchoring placed silently underneath their existing systems.
+              Three organisations that fit Adoption Path 2, anchoring placed silently underneath their existing systems.
               Selected for visibility, technical fit, and narrative impact.
             </p>
 
