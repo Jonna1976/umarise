@@ -110,6 +110,10 @@ AI generates convincing content locally, without network traces, without cost. A
 
 Anchoring gives you a fact that sits outside your own system. The hash is in Bitcoin. The block is public. The proof is yours.
 
+## How this works under the hood
+
+The transport layer is [OpenTimestamps](https://opentimestamps.org), an open protocol for Bitcoin timestamping. Umarise is the product layer: API, CLI, self-contained `.proof` bundles, SDKs on npm and PyPI, and a proof that survives the issuer. OpenTimestamps is the protocol. Umarise is the product.
+
 ---
 
 ## Open by design

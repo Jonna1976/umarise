@@ -59,11 +59,19 @@ export default function InvestorOnePager() {
                 the client is open, but the Certificate Authority behind the scenes is not something you replicate over a weekend."
               </p>
             </div>
-            <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+            <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
                 "Our real moat isn't the code. It's the combination of (1) a growing Bitcoin-anchored registry
                 that cannot be reproduced, (2) an ecosystem of .proof files referencing our origin_id's,
                 and (3) specification authority as the first formal standard for anchoring. You can copy code. You can't copy history."
+              </p>
+            </div>
+            <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+              <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
+                "OpenTimestamps is the protocol. Umarise is the product."
+              </p>
+              <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-1 print:text-stone-400">
+                Independent validation by Perplexity AI, March 2026: no other commercial service combines a one-command lifecycle, self-contained proof bundles, Bitcoin/OTS anchoring, a no-account model, and offline verification.
               </p>
             </div>
           </section>
