@@ -235,7 +235,15 @@ export async function getIpHash(req: Request): Promise<string | null> {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || req.headers.get('x-real-ip')
     || req.headers.get('cf-connecting-ip')
+    || req.headers.get('x-envoy-external-address')
+    || req.headers.get('x-client-info')
     || null;
+  
+  // Debug: log available headers (temporary)
+  const headerNames = [...req.headers.keys()].join(', ');
+  console.log('[ip-hash] Available headers:', headerNames);
+  console.log('[ip-hash] Resolved IP source:', ip ? 'found' : 'none');
+  
   if (!ip) return null;
   const data = new TextEncoder().encode(ip);
   const digest = await crypto.subtle.digest('SHA-256', data);
