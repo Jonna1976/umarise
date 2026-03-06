@@ -76,6 +76,7 @@ export default function Landing() {
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Protocol</p>
               <Link to="/anchor" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Anchor</Link>
               <Link to="/technical" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Technical</Link>
+              <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
               <Link to="/creation-integrity" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Creation Integrity</Link>
               <Link to="/why" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Why</Link>
             </div>
@@ -85,10 +86,9 @@ export default function Landing() {
               <p className="text-xs text-landing-muted/40 tracking-[3px] uppercase font-mono mb-1">Integrate</p>
               <Link to="/developers" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Get Started</Link>
               <Link to="/api-reference" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">API Reference</Link>
-              <Link to="/core" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Core</Link>
+              <Link to="/sdk" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">SDK</Link>
               <Link to="/partner-integration" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Integration</Link>
               <Link to="/partnerships" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">Partnerships</Link>
-              <Link to="/sdk" className="text-sm text-landing-muted/55 hover:text-landing-muted/80 transition-colors">SDK</Link>
             </div>
 
             {/* Verify */}
