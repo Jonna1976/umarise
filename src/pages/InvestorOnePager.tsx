@@ -68,61 +68,33 @@ export default function InvestorOnePager() {
             </div>
           </section>
 
-          {/* Historical mirror: DNS / Git / TLS */}
+          {/* Opening statement */}
           <section>
-            <SectionTitle>Historical mirror: where this pattern has worked before</SectionTitle>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Three primitives became invisible infrastructure by being small, domainless, and composable.
-              Umarise follows the same structural pattern.
+            <HighlightBox>
+              <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
+                Anchor it before it matters. Umarise is the SSL certificate for proof of existence,
+                invisible infrastructure that makes trust automatic, verifiable by anyone, dependent on no one.
+              </p>
+            </HighlightBox>
+          </section>
+
+          {/* Problem */}
+          <section>
+            <SectionTitle>The problem</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
+              Every digital file can be modified after the fact. Existing solutions for temporal
+              proof (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
+              The proof depends on the continued existence of the provider.
             </p>
-
-            <div className="space-y-4 mb-5">
-              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">DNS</p>
-                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">name &rarr; address</p>
-                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
-                  Stateless resolution for every protocol: HTTP, SMTP, gRPC. No hosting, no identity, no accounts. Just resolve(name).
-                </p>
-              </div>
-              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Git</p>
-                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">content &rarr; hash(object) + commit</p>
-                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
-                  Content-addressed, append-only history. Relative history within a repo. Now used far beyond code: data versioning, ML lineage, blockchain structures.
-                </p>
-              </div>
-              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">TLS</p>
-                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">connection &rarr; cryptographic trust</p>
-                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
-                  Started as encryption + certificate check for one connection. Now the trust layer for web, APIs, payments, identity federation.
-                </p>
-              </div>
-              <div className="border-l-2 border-[hsl(25,35%,42%,0.7)] pl-5 bg-[hsl(25,35%,42%,0.06)] rounded-r-lg py-2 pr-3">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.9)] mb-1">Umarise</p>
-                <p className="text-sm text-[hsl(40,15%,88%,0.9)] print:text-stone-800 font-medium">artifact &rarr; proof of existence at time T</p>
-                <p className="text-xs text-[hsl(40,15%,88%,0.55)] mt-1 print:text-stone-500">
-                  Hash, anchor, portable proof. Domainless, composable, openly verifiable. Usable under forensics, AI outputs, supply chains, contracts, logs, datasets.
-                </p>
-              </div>
-            </div>
-
-            <DataTable
-              headers={['Primitive', 'Surface area', 'Domain-bound?', 'Vendor-bound?']}
-              rows={[
-                ['DNS', 'resolve(name)', 'No', 'No'],
-                ['Git', 'hash(object) + commit', 'No', 'No'],
-                ['TLS', 'handshake + record layer', 'No', 'No'],
-                ['Umarise', 'anchor(hash) \u2192 .proof', 'No', 'No'],
-              ]}
-            />
-
-            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 print:text-stone-500">
-              These primitives became infrastructure because they were so small and reusable that every new category (cloud, CDNs, SaaS, DevOps, AI) adopted them without inventing an alternative for the same base problem.
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
+              But the problem is deeper than file integrity. Today, platforms manage three things
+              in a single product: time, verification, and identity. The timestamp is a platform log.
+              Verification runs through a platform interface. Identity is a platform account.
+              That is not independent structure. That is dependency.
             </p>
           </section>
 
-          {/* The history layer */}
+          {/* The underdeveloped layer */}
           <section>
             <SectionTitle>The underdeveloped layer</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
@@ -144,6 +116,67 @@ export default function InvestorOnePager() {
             </p>
           </section>
 
+          {/* Historical mirror: consolidated */}
+          <section>
+            <SectionTitle>Historical mirror: where this pattern has worked before</SectionTitle>
+            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
+              Four primitives became invisible infrastructure by being small, domainless, and composable.
+            </p>
+
+            <div className="space-y-4 mb-5">
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">DNS</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">name &rarr; address</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  You type a name. You reach a server. Stateless resolution for every protocol: HTTP, SMTP, gRPC. No hosting, no identity, no accounts. Nobody knows how DNS works. Everyone depends on it.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Git</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">content &rarr; hash(object) + commit</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Content-addressed, append-only history. Relative history within a repo. Now used far beyond code: data versioning, ML lineage, blockchain structures.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">TLS / Let's Encrypt</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">connection &rarr; cryptographic trust</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Started as encryption + certificate check for one connection. Let's Encrypt made it free and automatic. Now the trust layer for web, APIs, payments, identity federation. Nobody buys SSL. It is simply there, underneath.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">QR code</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">data &rarr; scannable pattern</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
+                  Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply, and anyone could read it with any device. No license, no vendor, no platform.
+                </p>
+              </div>
+              <div className="border-l-2 border-[hsl(25,35%,42%,0.7)] pl-5 bg-[hsl(25,35%,42%,0.06)] rounded-r-lg py-2 pr-3">
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.9)] mb-1">Umarise</p>
+                <p className="text-sm text-[hsl(40,15%,88%,0.9)] print:text-stone-800 font-medium">artifact &rarr; proof of existence at time T</p>
+                <p className="text-xs text-[hsl(40,15%,88%,0.55)] mt-1 print:text-stone-500">
+                  Hash, anchor, portable proof. Domainless, composable, openly verifiable. Usable under forensics, AI outputs, supply chains, contracts, logs, datasets.
+                </p>
+              </div>
+            </div>
+
+            <DataTable
+              headers={['Primitive', 'Surface area', 'Domain-bound?', 'Vendor-bound?']}
+              rows={[
+                ['DNS', 'resolve(name)', 'No', 'No'],
+                ['Git', 'hash(object) + commit', 'No', 'No'],
+                ['TLS', 'handshake + record layer', 'No', 'No'],
+                ['QR', 'encode(data)', 'No', 'No'],
+                ['Umarise', 'anchor(hash) \u2192 .proof', 'No', 'No'],
+              ]}
+            />
+
+            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 print:text-stone-500">
+              These primitives became infrastructure because they were so small and reusable that every new category (cloud, CDNs, SaaS, DevOps, AI) adopted them without inventing an alternative for the same base problem.
+            </p>
+          </section>
+
           {/* One-line frame */}
           <section>
             <HighlightBox>
@@ -156,53 +189,8 @@ export default function InvestorOnePager() {
             </HighlightBox>
           </section>
 
-          {/* Opening statement */}
-          <section>
-            <HighlightBox>
-              <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
-                Anchor it before it matters. Umarise is the SSL certificate for proof of existence,
-                invisible infrastructure that makes trust automatic, verifiable by anyone, dependent on no one.
-              </p>
-            </HighlightBox>
-          </section>
 
-          {/* What infrastructure looks like */}
-          <section>
-            <SectionTitle>What infrastructure looks like when it works</SectionTitle>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Four primitives you use every day without thinking about them:
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic. You see the lock. You move on.' },
-                { label: 'DNS', desc: 'You type a name. You reach a server. The translation happens invisibly. Nobody knows how DNS works. Everyone depends on it.' },
-                { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates for everyone. Before Let\'s Encrypt, SSL cost money and required manual renewal. Let\'s Encrypt made it so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction from something that should have been free all along.' },
-                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply, and anyone could read it with any device. No license, no vendor, no platform.' },
-              ].map(({ label, desc }) => (
-                <FeatureCard key={label} label={label} desc={desc} />
-              ))}
-            </div>
-            <p className="text-xs text-[hsl(40,15%,88%,0.4)] mt-4 print:text-stone-500">
-              These four became infrastructure by being useful, open, and simple. Not by being sold.
-              Umarise is the same primitive for temporal proof.
-            </p>
-          </section>
 
-          {/* Problem */}
-          <section>
-            <SectionTitle>The problem</SectionTitle>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-              Every digital file can be modified after the fact. Existing solutions for temporal
-              proof (DocuSign, Woleet, Originstamp) require accounts, dashboards, and vendor lock-in.
-              The proof depends on the continued existence of the provider.
-            </p>
-            <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-              But the problem is deeper than file integrity. Today, platforms manage three things
-              in a single product: time, verification, and identity. The timestamp is a platform log.
-              Verification runs through a platform interface. Identity is a platform account.
-              That is not independent structure. That is dependency.
-            </p>
-          </section>
 
           {/* Solution */}
           <section>
