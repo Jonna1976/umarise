@@ -28,7 +28,7 @@ export default function Landing() {
           </p>
 
           {/* Artifact block */}
-          <p className="font-mono text-[13px] font-light leading-[1.7] text-landing-cream/90 mt-8 mb-5">
+          <p className="font-mono text-[13px] font-light leading-[1.7] text-landing-muted/90 mt-8 mb-5">
             artifact
             <br />
             artifact.proof
