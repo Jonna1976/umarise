@@ -283,7 +283,7 @@ export default function InvestorOnePager() {
               </div>
               <HighlightBox className="p-5">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Phase 2</p>
-                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Adoption seeding — not yet started.</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Adoption seeding: not yet started.</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
                   This is not partner sales. This is infrastructure politics.
                   TCP/IP was not sold. It was adopted by the right people at the right moments.
