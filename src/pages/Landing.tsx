@@ -27,7 +27,21 @@ export default function Landing() {
             prove it existed outside your system.
           </p>
 
-          {/* Protocol rule - lower contrast, separated */}
+          {/* Artifact block */}
+          <p className="font-mono text-[13px] font-light leading-[1.7] text-landing-cream/45 mt-8 mb-5">
+            artifact
+            <br />
+            artifact.proof
+          </p>
+
+          {/* Get started link */}
+          <Link
+            to="/developers"
+            className="inline-block font-mono text-[13px] text-landing-copper/70 hover:text-landing-copper transition-colors tracking-[0.5px] mb-8"
+          >
+            → Get started
+          </Link>
+
           <p className="text-base text-landing-muted/65 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
