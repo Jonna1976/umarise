@@ -105,8 +105,7 @@ export default function GetStartedFlow() {
             <Code code={`npm install -g @umarise/cli`} />
           </div>
           <div>
-            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">2.2 Set your key <span className="font-normal text-[hsl(var(--landing-cream)/0.5)]">(once per terminal session)</span></p>
-            {generatedKey && <p className="text-xs text-emerald-400/80 mb-2">Your key from step 1 is automatically pasted below.</p>}
+            <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">2.2 Paste into your terminal</p>
             <Code code={`export UMARISE_API_KEY=${generatedKey || 'um_your_key_here'}`} />
           </div>
         </div>
