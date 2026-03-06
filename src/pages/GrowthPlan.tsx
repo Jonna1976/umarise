@@ -238,6 +238,11 @@ export default function GrowthPlan() {
                 <p className="text-sm text-landing-muted/60">Release v0.1.0 live met example.txt + example.txt.proof als assets.</p>
               </div>
               <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">2b. CLI end-to-end bewezen <span className="text-green-400 text-xs ml-1">✓</span></h3>
+                <p className="text-sm text-landing-muted/60 mb-2">Volledige lifecycle via terminal bevestigd op 6 maart 2026:</p>
+                <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono leading-relaxed whitespace-pre-wrap">$ umarise proof screenshot.png{'\n'}✓ hash: sha256:4dedc331...{'\n'}✓ anchored: origin_id 98d40a69-...{'\n'}⏳ proof pending — run again later{'\n\n'}$ umarise proof screenshot.png  # ~2h later{'\n'}✓ anchored in Bitcoin block 939611{'\n'}✓ no later than: 2026-03-06{'\n'}✓ saved: screenshot.png.proof{'\n'}✓ proof valid — independent of Umarise</pre>
+              </div>
+              <div>
                 <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard <span className="text-green-400 text-xs ml-1">✓</span></h3>
                 <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono">uses: AnchoringTrust/anchor-action@v1</pre>
                 <p className="text-xs text-landing-muted/40 mt-1">artifact → artifact.proof, automatisch</p>
