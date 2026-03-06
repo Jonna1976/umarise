@@ -77,10 +77,9 @@ export default function GetStartedFlow() {
             </div>
             {!copied && (
               <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-500/10">
-                <p className="text-sm text-amber-300 font-medium mb-1">⚠ Copy your key before continuing</p>
-                <p className="text-xs text-amber-400 leading-relaxed">
-                  This key is not stored anywhere. Not by Umarise, not in a database, not in your browser. 
-                  If you lose it, you'll need to generate a new one. Click <strong className="text-amber-300">Copy key</strong> to continue.
+                <p className="text-[13px] text-amber-300 font-medium mb-1">⚠ Key not stored</p>
+                <p className="text-[13px] text-amber-400 leading-relaxed">
+                  This key is generated once and not persisted. Copy it now, store it in your <code className="text-amber-300">.env</code> or CI secrets.
                 </p>
               </div>
             )}
