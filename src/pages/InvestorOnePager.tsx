@@ -128,7 +128,7 @@ export default function InvestorOnePager() {
                 { label: 'Bitcoin-anchored', desc: 'Every hash is irrevocably anchored to the Bitcoin blockchain via OpenTimestamps.' },
                 { label: 'Survives the maker', desc: 'The proof ZIP remains verifiable even if Umarise ceases to exist.' },
                 { label: 'One API call', desc: 'Integration takes one afternoon. No SDK required, no onboarding call.' },
-                { label: 'Zero branding', desc: 'Partners show nothing of Umarise to their end users. The primitive is invisible — like SSL, like DNS. No co-branding, no badge, no redirect.' },
+                { label: 'Zero branding', desc: 'Partners show nothing of Umarise to their end users. The primitive is invisible, like SSL, like DNS. No co-branding, no badge, no redirect.' },
               ].map(({ label, desc }) => (
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
