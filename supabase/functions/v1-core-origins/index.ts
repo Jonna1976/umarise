@@ -439,6 +439,7 @@ Deno.serve(async (req: Request) => {
             api_key_prefix: apiKeyPrefix,
             status_code: 200,
             response_time_ms: Date.now() - startTime,
+            ip_hash: ipHash || undefined,
           });
 
           const duplicateResponse: CoreOriginResponse = {
