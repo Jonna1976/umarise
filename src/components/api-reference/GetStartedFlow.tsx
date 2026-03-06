@@ -174,8 +174,16 @@ export default function GetStartedFlow({ onUnlock }: { onUnlock?: (unlocked: boo
 
           <div className="mt-4 pt-4 border-t border-[hsl(var(--landing-cream)/0.06)]">
             <p className="text-xs text-[hsl(var(--landing-copper))] font-mono font-bold mb-2">3.2 Inspect the bundle</p>
-            <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-3">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP. Unpack and inspect:</p>
-            <Code code={`unzip document.pdf.proof\ncat certificate.json\ncat VERIFY.txt`} />
+            <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-3">The <code className="text-[hsl(var(--landing-copper))]">.proof</code> file is a ZIP. Type <code className="text-[hsl(var(--landing-copper))] bg-[hsl(var(--landing-copper)/0.1)] px-1.5 py-0.5 rounded">unzip</code> then drag your .proof file into the terminal:</p>
+            <div className="relative p-4 rounded border border-[hsl(var(--landing-copper)/0.3)] bg-[hsl(220,10%,8%)]">
+              <CopyBtn text="unzip " />
+              <p className="text-[13px] font-mono text-[hsl(var(--landing-cream))]">
+                <span className="text-[hsl(var(--landing-cream))]">unzip </span>
+                <span className="text-[hsl(var(--landing-copper))] animate-pulse">[drag .proof file here]</span>
+              </p>
+            </div>
+            <p className="text-[13px] text-[hsl(var(--landing-cream))] mt-3 mb-2">Then inspect the contents:</p>
+            <Code code={`cat certificate.json\ncat VERIFY.txt`} />
             <div className="mt-3 p-3 rounded border border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,8%)]">
               <pre className="text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`certificate.json  → origin metadata (hash, origin_id, timestamp, block)
 proof.ots         → binary OpenTimestamps proof (Bitcoin anchor)
