@@ -1,6 +1,6 @@
 {
   "name": "@umarise/cli",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "description": "Anchor files to Bitcoin from the command line. Generate .proof bundles for offline verification.",
   "type": "module",
   "bin": {
