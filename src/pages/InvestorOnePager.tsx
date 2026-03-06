@@ -72,7 +72,7 @@ export default function InvestorOnePager() {
           <section>
             <HighlightBox>
               <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
-                Anchor it before it matters. Umarise is the SSL certificate for proof of existence —
+                Anchor it before it matters. Umarise is the SSL certificate for proof of existence,
                 invisible infrastructure that makes trust automatic, verifiable by anyone, dependent on no one.
               </p>
             </HighlightBox>
