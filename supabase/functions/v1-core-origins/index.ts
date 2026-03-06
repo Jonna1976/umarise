@@ -285,6 +285,7 @@ Deno.serve(async (req: Request) => {
         status_code: 400,
         response_time_ms: Date.now() - startTime,
         error_code: 'REJECTED_FIELD',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('REJECTED_FIELD', 'Core does not accept bytes. Provide hash only.', 400);
     }
