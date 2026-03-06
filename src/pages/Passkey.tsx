@@ -149,11 +149,11 @@ export default function Passkey() {
           Three Layers of Trust
         </h1>
         <p className="text-[hsl(var(--landing-cream)/0.7)] text-sm mb-4 max-w-xl leading-relaxed">
-          Anchoring bewijst bestaan. Device signing bewijst intentie. Attestatie bewijst identiteit.
+          Anchoring bewijst bestaan. Device signing bewijst aanwezigheid op het apparaat. Attestatie bewijst identiteit.
           Elke laag is onafhankelijk verifieerbaar en geen enkele laag vereist dat Umarise blijft bestaan.
         </p>
         <p className="text-[hsl(var(--landing-cream)/0.45)] text-xs font-mono mb-12">
-          Geen biometrie, geen private keys, geen bestanden, geen identiteitsdocumenten opgeslagen.
+          Geen biometrie, geen private keys, geen bestanden, geen identiteitsdocumenten opgeslagen. Niet als beleid. Als architectuur.
         </p>
 
         <div className="space-y-6">
