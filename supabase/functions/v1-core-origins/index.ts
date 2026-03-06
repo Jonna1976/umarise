@@ -383,6 +383,7 @@ Deno.serve(async (req: Request) => {
         status_code: 402,
         response_time_ms: Date.now() - startTime,
         error_code: 'INSUFFICIENT_CREDITS',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse(
         'INSUFFICIENT_CREDITS',
