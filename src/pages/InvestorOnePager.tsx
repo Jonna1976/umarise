@@ -391,7 +391,7 @@ export default function InvestorOnePager() {
 
           {/* Reflex, not habit */}
           <section>
-            <SectionTitle>How adoption works — reflex, not habit</SectionTitle>
+            <SectionTitle>How adoption works: reflex, not habit</SectionTitle>
             <div className="space-y-3 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 Anchoring is not a habit. It is a reflex.
