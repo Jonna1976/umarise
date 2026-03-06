@@ -193,6 +193,7 @@ Deno.serve(async (req: Request) => {
         status_code: 401,
         response_time_ms: Date.now() - startTime,
         error_code: 'UNAUTHORIZED',
+        ip_hash: ipHash || undefined,
       });
       return errorResponse('UNAUTHORIZED', 'Missing X-API-Key header', 401);
     }
