@@ -32,12 +32,14 @@ export default function Developers() {
         <h1 className="font-serif text-3xl md:text-4xl mb-2 text-[hsl(var(--landing-cream))]">
           Get Started
         </h1>
-        <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm mb-1">
-          Generate a key, install the CLI, anchor a file. Bitcoin confirmation takes ~2 hours.
-        </p>
-        <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm mb-8">
-          Attach a verifiable creation proof to any artifact: build outputs, datasets, model weights, documents. One command, any file type.
-        </p>
+        <div className="space-y-1 mb-8">
+          <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm">
+            Generate a key, install the CLI, anchor a file. Bitcoin confirmation takes ~2 hours.
+          </p>
+          <p className="text-[hsl(var(--landing-cream)/0.55)] text-sm">
+            Attach a verifiable creation proof to any artifact: build outputs, datasets, model weights, documents. One command, any file type.
+          </p>
+        </div>
 
 
         {/* Interactive Get Started Flow */}
