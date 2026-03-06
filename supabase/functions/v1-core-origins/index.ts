@@ -239,6 +239,7 @@ Deno.serve(async (req: Request) => {
         status_code: 429,
         response_time_ms: Date.now() - startTime,
         error_code: 'RATE_LIMIT_EXCEEDED',
+        ip_hash: ipHash || undefined,
       });
       
       return rateLimitResponse(rateLimitResult.resetInSeconds, rateLimitResult.limit);
