@@ -38,11 +38,8 @@ export default function PartnerIntegration() {
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-[hsl(var(--landing-cream)/0.6)] hover:text-[hsl(var(--landing-cream))] transition-colors text-sm">
             <ArrowUp className="w-4 h-4" />
-            umarise.com
+            Umarise
           </Link>
-          <a href="mailto:partners@umarise.com" className="text-sm text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream))] transition-colors">
-            partners@umarise.com
-          </a>
         </div>
       </nav>
 
