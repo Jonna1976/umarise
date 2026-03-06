@@ -28,7 +28,7 @@ export default function Developers() {
           Get Started
         </h1>
         <p className="text-[hsl(var(--landing-muted))] text-sm mb-8">
-          Generate a key, install the CLI, anchor a file. Proof is confirmed after Bitcoin ledger inclusion (~2 hours). Currently anchored to Bitcoin; the protocol is ledger-agnostic.
+          Generate a key, install the CLI, anchor a file. Bitcoin confirmation takes ~2 hours.
         </p>
 
 
@@ -67,6 +67,9 @@ export default function Developers() {
               )
             )}
           </ul>
+          <p className="text-[hsl(var(--landing-muted)/0.5)] text-xs mt-6">
+            Currently anchored to Bitcoin. The protocol is ledger-agnostic.
+          </p>
         </section>
 
         {/* Footer */}
