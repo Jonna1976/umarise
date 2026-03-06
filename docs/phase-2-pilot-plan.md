@@ -145,6 +145,10 @@ Week 4  │ Alle exit interviews af
 > Ik bouw een infrastructuurlaag die precies dat mogelijk maakt.
 > Geen product, geen platform — alleen: capture, hash, verify.
 >
+> (OpenTimestamps is het protocol. Umarise is het product.
+> De enige commerciële laag die het toegankelijk maakt:
+> API, CLI, self-contained .proof bestand, en offline verificatie.)
+>
 > Ik zoek 3 technische leads die dit willen evalueren.
 > Geen sales, alleen feedback.
 >
