@@ -49,9 +49,7 @@ export default function Developers() {
         </div>
 
         <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
-          <h2 className="font-serif text-xl mb-6 text-[hsl(var(--landing-cream))]">
-            References
-          </h2>
+          <h2 className="font-serif text-xl mb-6 text-[hsl(var(--landing-cream))]">References</h2>
           <ul className="space-y-3">
             {links.map((link) =>
               link.internal ? (
@@ -82,7 +80,7 @@ export default function Developers() {
         </section>
 
         {/* Closing statement */}
-        <div className={`mt-16 p-4 rounded border transition-all duration-300 ${unlocked ? 'border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]' : 'border-[hsl(var(--landing-cream)/0.06)] bg-[hsl(220,10%,7%)] opacity-[0.35] select-none'}`}>
+        <div className="mt-16 p-4 rounded border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
           <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-2">
             Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your device.
           </p>
