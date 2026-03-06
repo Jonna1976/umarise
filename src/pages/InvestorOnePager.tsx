@@ -50,12 +50,12 @@ export default function InvestorOnePager() {
 
           {/* Executive Summary — Open-Source & IP */}
           <section>
-            <SectionTitle>Executive summary — open-source & IP</SectionTitle>
+            <SectionTitle>Executive summary: open-source & IP</SectionTitle>
             <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] italic leading-relaxed print:text-stone-600">
                 "The specification is public domain. The SDK is open-source. Verification is independent.
-                But the operational infrastructure — the batching engine, the key management, the immutability triggers,
-                the rate limiting — that is our protected IP. Just like Let's Encrypt: the protocol is open,
+                But the operational infrastructure, the batching engine, the key management, the immutability triggers,
+                the rate limiting, that is our protected IP. Just like Let's Encrypt: the protocol is open,
                 the client is open, but the Certificate Authority behind the scenes is not something you replicate over a weekend."
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function InvestorOnePager() {
           <section>
             <HighlightBox>
               <p className="text-base text-[hsl(40,15%,88%,0.85)] leading-relaxed print:text-stone-800">
-                Anchor it before it matters. Umarise is the SSL certificate for proof of existence —
+                Anchor it before it matters. Umarise is the SSL certificate for proof of existence,
                 invisible infrastructure that makes trust automatic, verifiable by anyone, dependent on no one.
               </p>
             </HighlightBox>
@@ -89,7 +89,7 @@ export default function InvestorOnePager() {
                 { label: 'SSL/TLS', desc: 'Every website connection is encrypted. Nobody buys SSL. Nobody installs it manually. It is simply there, underneath, making trust automatic. You see the lock. You move on.' },
                 { label: 'DNS', desc: 'You type a name. You reach a server. The translation happens invisibly. Nobody knows how DNS works. Everyone depends on it.' },
                 { label: "Let's Encrypt", desc: 'Free, automated HTTPS certificates for everyone. Before Let\'s Encrypt, SSL cost money and required manual renewal. Let\'s Encrypt made it so cheap and simple that the entire web adopted it. Not because it was marketed. Because it removed friction from something that should have been free all along.' },
-                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply — and anyone could read it with any device. No license, no vendor, no platform.' },
+                { label: 'QR code', desc: 'Invented in 1994 for factory logistics. Nobody planned its adoption. It spread because it solved a real problem simply, and anyone could read it with any device. No license, no vendor, no platform.' },
               ].map(({ label, desc }) => (
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
@@ -128,7 +128,7 @@ export default function InvestorOnePager() {
                 { label: 'Bitcoin-anchored', desc: 'Every hash is irrevocably anchored to the Bitcoin blockchain via OpenTimestamps.' },
                 { label: 'Survives the maker', desc: 'The proof ZIP remains verifiable even if Umarise ceases to exist.' },
                 { label: 'One API call', desc: 'Integration takes one afternoon. No SDK required, no onboarding call.' },
-                { label: 'Zero branding', desc: 'Partners show nothing of Umarise to their end users. The primitive is invisible — like SSL, like DNS. No co-branding, no badge, no redirect.' },
+                { label: 'Zero branding', desc: 'Partners show nothing of Umarise to their end users. The primitive is invisible, like SSL, like DNS. No co-branding, no badge, no redirect.' },
               ].map(({ label, desc }) => (
                 <FeatureCard key={label} label={label} desc={desc} />
               ))}
@@ -144,7 +144,7 @@ export default function InvestorOnePager() {
             </p>
             <div className="space-y-4 mb-5">
               <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 1 — Anchoring</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 1: Anchoring</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Existence</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
                   A cryptographic commitment to exact bytes is recorded in a public ledger.
@@ -152,7 +152,7 @@ export default function InvestorOnePager() {
                 </p>
               </div>
               <div className="border-l-2 border-[hsl(25,35%,42%,0.5)] pl-5">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 2 — Verification</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-1">Layer 2: Verification</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.8)] print:text-stone-700">Independence</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] mt-1 print:text-stone-500">
                   Verification does not require our servers, an account, an API, or any database.
@@ -161,7 +161,7 @@ export default function InvestorOnePager() {
                 </p>
               </div>
               <div className="border-l-2 border-[hsl(40,15%,88%,0.15)] pl-5 opacity-50">
-                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.4)] mb-1">Layer 3 — Attestation</p>
+                <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.4)] mb-1">Layer 3: Attestation</p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.5)] print:text-stone-500">Identity (optional, not yet active)</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.35)] mt-1 print:text-stone-400">
                   An identity declares something about the artifact. Not chronology, but a statement.
@@ -276,14 +276,14 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Phase 1</p>
-                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Infrastructure primitive — complete.</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Infrastructure primitive: complete.</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
                   The API is frozen. The specification is published. The verifier is independent. The proof survives the maker. The primitive works.
                 </p>
               </div>
               <HighlightBox className="p-5">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(25,35%,42%,0.6)] mb-2">Phase 2</p>
-                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Adoption seeding — not yet started.</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Adoption seeding: not yet started.</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
                   This is not partner sales. This is infrastructure politics.
                   TCP/IP was not sold. It was adopted by the right people at the right moments.
@@ -293,7 +293,7 @@ export default function InvestorOnePager() {
             <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200 space-y-3">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 The goal is not to find customers who pay. The goal is to find people who adopt anchoring-spec.org
-                as a standard in their workflow, platform, or curriculum — and integrate it.
+                as a standard in their workflow, platform, or curriculum, and integrate it.
                 Revenue follows adoption. Not the other way around.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed italic print:text-stone-700">
@@ -321,9 +321,9 @@ export default function InvestorOnePager() {
             <div className="space-y-3 mb-5">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)]">The sequence</p>
               {[
-                'One PhD student anchors a dissertation draft — 20 minutes, no account',
+                'One PhD student anchors a dissertation draft, 20 minutes, no account',
                 'They receive a ZIP: hash + .ots proof + Bitcoin anchor + certificate',
-                'That ZIP goes to one rector or dean — not as a pitch deck, as a working proof',
+                'That ZIP goes to one rector or dean, not as a pitch deck, as a working proof',
               ].map((step, i) => (
                 <div key={i} className="flex items-start gap-3 text-sm">
                   <span className="font-mono text-[hsl(25,35%,42%,0.7)] mt-0.5 shrink-0 w-5 text-right">{i + 1}.</span>
@@ -346,7 +346,7 @@ export default function InvestorOnePager() {
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-4 print:bg-stone-50 print:border-stone-200">
                 <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-2">What not to build</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
-                  No university portal. No researcher dashboard. No integration with Overleaf or Jupyter — that is partner work, not primitive work.
+                  No university portal. No researcher dashboard. No integration with Overleaf or Jupyter, that is partner work, not primitive work.
                 </p>
               </div>
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-4 print:bg-stone-50 print:border-stone-200">
@@ -367,7 +367,7 @@ export default function InvestorOnePager() {
                 No campaign. No social. No impressions.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
-                The temptation is obvious: one student, one ZIP, one story —
+                The temptation is obvious: one student, one ZIP, one story,
                 that is a perfect campaign. Every student recognizes it.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
@@ -391,19 +391,19 @@ export default function InvestorOnePager() {
 
           {/* Reflex, not habit */}
           <section>
-            <SectionTitle>How adoption works — reflex, not habit</SectionTitle>
+            <SectionTitle>How adoption works: reflex, not habit</SectionTitle>
             <div className="space-y-3 mb-4">
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 Anchoring is not a habit. It is a reflex.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-                Habits are built through repetition — daily triggers, streaks, rewards.
+                Habits are built through repetition: daily triggers, streaks, rewards.
                 Reflexes are installed by one moment that counts.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 The lawyer who cannot prove when a document existed. The designer whose concept
                 was claimed by someone else. The researcher whose dataset was disputed.
-                One moment of need — and the reflex is installed permanently.
+                One moment of need, and the reflex is installed permanently.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
                 This means the product does not need to be used daily.
@@ -416,7 +416,7 @@ export default function InvestorOnePager() {
                 Structurally the same mechanism. Different object.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-                QR needed 26 years and one forcing event — COVID — to become a reflex.
+                QR needed 26 years and one forcing event, COVID, to become a reflex.
                 Anchoring needs one forcing event: the first major case where an anchor wins
                 and the absence of one loses. The AI Act. A plagiarism ruling. A contract dispute.
                 The event will come from outside. The infrastructure needs to be in place before it does.
@@ -470,13 +470,13 @@ export default function InvestorOnePager() {
           <section>
             <SectionTitle>What we need</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-6 print:text-stone-600">
-              Two connectors — one for each adoption path.
+              Two connectors, one for each adoption path.
             </p>
 
             {/* Path 1 */}
             <div className="mb-6">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
-                Adoption path 1 — Layers on top of the primitive
+                Adoption path 1: Layers on top of the primitive
               </p>
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
                 <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
@@ -493,7 +493,7 @@ export default function InvestorOnePager() {
             {/* Path 2 */}
             <div className="mb-6">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
-                Adoption path 2 — Places Umarise under their existing system
+                Adoption path 2: Places Umarise under their existing system
               </p>
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
                 <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
@@ -502,7 +502,7 @@ export default function InvestorOnePager() {
                   They change nothing in their workflow. Umarise is added silently underneath.
                 </p>
                 <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-                  This path needs a connector who opens doors at the decision-maker level —
+                  This path needs a connector who opens doors at the decision-maker level,
                   an ecosystem thinker with a broad network who can place one question
                   in the right room at the right moment.
                 </p>
@@ -519,7 +519,7 @@ export default function InvestorOnePager() {
 
             {/* What connectors are */}
             <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
-              What both connectors are — and are not
+              What both connectors are, and are not
             </p>
             <div className="space-y-3 mb-4">
               {[
@@ -551,15 +551,15 @@ export default function InvestorOnePager() {
             <HighlightBox>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed print:text-stone-600">
                 Services on top of the primitive create value. That is good.
-                Partners should build them. Notaries, signing providers, attestation services —
+                Partners should build them. Notaries, signing providers, attestation services,
                 they add layers. That is exactly how infrastructure works.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
                 But Umarise does not build those services. Umarise guards the primitive.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
-                The instinct to add — a dashboard, an account system, a workflow tool,
-                a compliance feature — is always logical in the moment.
+                The instinct to add, a dashboard, an account system, a workflow tool,
+                a compliance feature, is always logical in the moment.
                 It is always wrong for the primitive.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.7)] leading-relaxed mt-3 print:text-stone-600">
@@ -580,7 +580,7 @@ export default function InvestorOnePager() {
           <section>
             <SectionTitle>Strategic adoption targets</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-4 print:text-stone-600">
-              Three organisations that fit Adoption Path 2 — anchoring placed silently underneath their existing systems.
+              Three organisations that fit Adoption Path 2, anchoring placed silently underneath their existing systems.
               Selected for visibility, technical fit, and narrative impact.
             </p>
 
