@@ -416,7 +416,7 @@ export default function InvestorOnePager() {
                 Structurally the same mechanism. Different object.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mt-3 print:text-stone-600">
-                QR needed 26 years and one forcing event — COVID — to become a reflex.
+                QR needed 26 years and one forcing event, COVID, to become a reflex.
                 Anchoring needs one forcing event: the first major case where an anchor wins
                 and the absence of one loses. The AI Act. A plagiarism ruling. A contract dispute.
                 The event will come from outside. The infrastructure needs to be in place before it does.
