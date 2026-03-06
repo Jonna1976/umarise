@@ -493,7 +493,7 @@ export default function InvestorOnePager() {
             {/* Path 2 */}
             <div className="mb-6">
               <p className="font-mono text-[11px] tracking-[2px] uppercase text-[hsl(25,35%,42%,0.7)] mb-3">
-                Adoption path 2 — Places Umarise under their existing system
+                Adoption path 2: Places Umarise under their existing system
               </p>
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.06)] bg-[hsl(40,15%,88%,0.02)] p-5 print:bg-stone-50 print:border-stone-200">
                 <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
