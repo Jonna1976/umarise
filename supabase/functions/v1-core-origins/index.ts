@@ -182,6 +182,7 @@ Deno.serve(async (req: Request) => {
 
     supabase = createServiceClient();
     ipHash = await getIpHash(req);
+    console.log('[v1-core-origins] IP hash result:', ipHash ? 'resolved' : 'null');
 
     // Validate partner API key
     const apiKey = req.headers.get('x-api-key');
