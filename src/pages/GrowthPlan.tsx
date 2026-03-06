@@ -70,11 +70,15 @@ export default function GrowthPlan() {
 
           {/* Status */}
           <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Status</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Status — 6 maart 2026</h2>
             <ul className="space-y-2">
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Custom domein umarise.com gekoppeld</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Google Search Console geverifieerd (DNS)</li>
               <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Sitemap ingediend (sitemap.xml)</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> CLI full lifecycle bewezen: install → anchor → pending → re-run → .proof → verify → unzip</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Bitcoin block 939611 bevestigd (6 maart 2026)</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> .proof bundel bevat certificate.json + proof.ots + VERIFY.txt</li>
+              <li className="flex items-center gap-2"><span className="text-green-400">✓</span> Offline verify werkt: hash match + OTS Bitcoin verificatie</li>
               <li className="flex items-center gap-2"><span className="text-landing-muted/40">○</span> Eerste indexering afwachten (2-7 dagen)</li>
             </ul>
           </section>
@@ -232,6 +236,11 @@ export default function GrowthPlan() {
               <div>
                 <h3 className="text-landing-cream/90 font-medium mb-1">2. .proof zichtbaar in GitHub releases <span className="text-green-400 text-xs ml-1">✓</span></h3>
                 <p className="text-sm text-landing-muted/60">Release v0.1.0 live met example.txt + example.txt.proof als assets.</p>
+              </div>
+              <div>
+                <h3 className="text-landing-cream/90 font-medium mb-1">2b. CLI end-to-end bewezen <span className="text-green-400 text-xs ml-1">✓</span></h3>
+                <p className="text-sm text-landing-muted/60 mb-2">Volledige lifecycle via terminal bevestigd op 6 maart 2026:</p>
+                <pre className="text-xs bg-landing-muted/10 px-3 py-2 rounded font-mono leading-relaxed whitespace-pre-wrap">$ umarise proof screenshot.png{'\n'}✓ hash: sha256:4dedc331...{'\n'}✓ anchored: origin_id 98d40a69-...{'\n'}⏳ proof pending — run again later{'\n\n'}$ umarise proof screenshot.png  # ~2h later{'\n'}✓ anchored in Bitcoin block 939611{'\n'}✓ no later than: 2026-03-06{'\n'}✓ saved: screenshot.png.proof{'\n'}✓ proof valid — independent of Umarise</pre>
               </div>
               <div>
                 <h3 className="text-landing-cream/90 font-medium mb-1">3. GitHub Action standaard <span className="text-green-400 text-xs ml-1">✓</span></h3>
