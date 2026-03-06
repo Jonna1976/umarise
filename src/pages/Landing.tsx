@@ -21,14 +21,14 @@ export default function Landing() {
           </h1>
 
           {/* Core axiom */}
-          <p className="text-base text-landing-muted/75 leading-relaxed tracking-wide mb-8">
+          <p className="text-base text-landing-muted/90 leading-relaxed tracking-wide mb-8">
             When digital information matters,
             <br />
             prove it existed outside your system.
           </p>
 
           {/* Artifact block */}
-          <p className="font-mono text-[13px] font-light leading-[1.7] text-landing-cream/45 mt-8 mb-5">
+          <p className="font-mono text-[13px] font-light leading-[1.7] text-landing-cream/90 mt-8 mb-5">
             artifact
             <br />
             artifact.proof
@@ -37,28 +37,28 @@ export default function Landing() {
           {/* Get started link */}
           <Link
             to="/developers"
-            className="inline-block font-mono text-[13px] text-landing-copper/70 hover:text-landing-copper transition-colors tracking-[0.5px] mb-8"
+            className="inline-block font-mono text-[13px] text-landing-copper/90 hover:text-landing-copper transition-colors tracking-[0.5px] mb-8"
           >
             → Get started
           </Link>
 
-          <p className="text-base text-landing-muted/65 tracking-wide">
+          <p className="text-base text-landing-muted/90 tracking-wide">
             Verification is public. Attestation is permissioned.
             <br />
             Independently verifiable.
           </p>
 
           {/* Category descriptor + spec reference */}
-          <p className="text-sm text-landing-muted/55 tracking-widest uppercase mt-6">
+          <p className="text-sm text-landing-muted/90 tracking-widest uppercase mt-6">
             Anchoring Infrastructure
           </p>
-          <p className="text-xs text-landing-muted/35 mt-2 tracking-wide">
+          <p className="text-xs text-landing-muted/90 mt-2 tracking-wide">
             Implements the{' '}
             <a
               href="https://anchoring-spec.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-landing-muted/50 transition-colors"
+              className="underline underline-offset-2 hover:text-landing-muted transition-colors"
             >
               Anchoring Specification (IEC)
             </a>
