@@ -900,6 +900,9 @@ release.tar.gz.proof    1.2 KB`}</pre>
             <p className="text-xs text-[hsl(var(--landing-cream)/0.85)] mt-3">
               Add <code className="text-[hsl(var(--landing-copper))]">UMARISE_API_KEY</code> to your repo: Settings → Secrets → Actions → New secret.
             </p>
+            <p className="text-xs text-[hsl(var(--landing-cream)/0.55)] mt-1.5">
+              Or <a href="https://github.com/AnchoringTrust/anchoring-examples" target="_blank" rel="noopener noreferrer" className="text-[hsl(var(--landing-copper))] hover:text-[hsl(var(--landing-cream))] transition-colors">fork the example repo</a> — working pipeline, ready to go.
+            </p>
 
             {/* GitLab CI */}
             <h4 className="text-[hsl(var(--landing-cream)/0.8)] text-xs font-mono uppercase tracking-wider mt-10 mb-2">GitLab CI</h4>
