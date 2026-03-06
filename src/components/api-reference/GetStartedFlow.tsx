@@ -19,7 +19,7 @@ function Code({ code, copy }: { code: string; copy?: string }) {
   return (
     <div className="relative">
       <CopyBtn text={copy ?? code} />
-      <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 pr-14 text-[13px] font-mono text-[hsl(var(--landing-cream))] overflow-x-auto whitespace-pre leading-relaxed">{code}</pre>
+      <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 pr-14 text-[13px] font-mono text-[hsl(var(--landing-cream))] overflow-x-auto whitespace-pre leading-relaxed scrollbar-hide">{code}</pre>
     </div>
   );
 }
