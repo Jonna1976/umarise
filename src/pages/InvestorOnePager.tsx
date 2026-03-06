@@ -470,7 +470,7 @@ export default function InvestorOnePager() {
           <section>
             <SectionTitle>What we need</SectionTitle>
             <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed mb-6 print:text-stone-600">
-              Two connectors — one for each adoption path.
+              Two connectors, one for each adoption path.
             </p>
 
             {/* Path 1 */}
