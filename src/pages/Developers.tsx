@@ -37,6 +37,12 @@ export default function Developers() {
         <GetStartedFlow />
 
         {/* Links */}
+        {/* Artifact pattern */}
+        <div className="mt-16 p-5 rounded-lg border border-[hsl(var(--landing-cream)/0.1)] bg-[hsl(220,10%,6%)]">
+          <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-3">The proof travels with the artifact. Store, commit, or ship them together.</p>
+          <pre className="bg-[hsl(220,10%,8%)] border border-[hsl(var(--landing-cream)/0.06)] rounded p-4 text-[13px] font-mono text-[hsl(var(--landing-cream))] whitespace-pre leading-relaxed">{`artifact\nartifact.proof`}</pre>
+        </div>
+
         <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
           <h2 className="font-serif text-xl mb-6 text-[hsl(var(--landing-cream))]">
             References
