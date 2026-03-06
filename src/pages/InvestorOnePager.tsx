@@ -276,7 +276,7 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="rounded-lg border border-[hsl(40,15%,88%,0.08)] bg-[hsl(220,10%,10%)] p-5 print:bg-stone-50 print:border-stone-200">
                 <p className="font-mono text-[11px] tracking-[3px] uppercase text-[hsl(40,15%,88%,0.4)] mb-2">Phase 1</p>
-                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Infrastructure primitive — complete.</p>
+                <p className="text-sm font-medium text-[hsl(40,15%,88%,0.9)] mb-2">Infrastructure primitive: complete.</p>
                 <p className="text-xs text-[hsl(40,15%,88%,0.5)] print:text-stone-500">
                   The API is frozen. The specification is published. The verifier is independent. The proof survives the maker. The primitive works.
                 </p>
