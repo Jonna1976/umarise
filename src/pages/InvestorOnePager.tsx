@@ -397,7 +397,7 @@ export default function InvestorOnePager() {
                 Anchoring is not a habit. It is a reflex.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
-                Habits are built through repetition — daily triggers, streaks, rewards.
+                Habits are built through repetition: daily triggers, streaks, rewards.
                 Reflexes are installed by one moment that counts.
               </p>
               <p className="text-sm text-[hsl(40,15%,88%,0.6)] leading-relaxed print:text-stone-600">
