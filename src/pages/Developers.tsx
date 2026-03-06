@@ -70,8 +70,15 @@ export default function Developers() {
           </ul>
         </section>
 
-        {/* Footer */}
-        <footer className="mt-20 pt-6 border-t border-[hsl(var(--landing-muted)/0.1)]" />
+        {/* Closing statement */}
+        <div className="mt-16 p-4 rounded border border-emerald-500/20 bg-emerald-500/5">
+          <p className="text-[13px] text-[hsl(var(--landing-cream))] mb-2">
+            Your file + <code className="text-[hsl(var(--landing-copper))]">.proof</code> = independently verifiable evidence. The file never leaves your machine.
+          </p>
+          <a href="https://anchoring-spec.org/v1.0/" target="_blank" rel="noopener noreferrer" className="text-[13px] text-[hsl(var(--landing-muted))] hover:text-[hsl(var(--landing-cream))] transition-colors">
+            Proof is self-contained. Verification works without Umarise. →
+          </a>
+        </div>
       </main>
     </div>
   );
