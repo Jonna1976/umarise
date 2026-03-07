@@ -177,12 +177,38 @@ export default function Kaartenbak() {
                 }}>
                   {items.length > 0 ? 'Your anchors' : 'Drop ZIPs'}
                 </span>
-                <svg viewBox="0 0 24 24" width={18} height={18}
-                  style={{ cursor: 'pointer', opacity: 0.5, filter: 'drop-shadow(0 0 4px rgba(197,147,90,0.4))' }}
-                  onClick={() => setOpen(false)}>
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.9" />
-                  <circle cx="12" cy="12" r="3" fill="#C5935A" />
-                </svg>
+                <div className="flex items-center gap-3">
+                  {/* + new capture */}
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      navigate('/itexisted');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'rgba(197,147,90,0.55)',
+                      fontSize: 20,
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(197,147,90,0.9)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(197,147,90,0.55)'; }}
+                    aria-label="Anchor another file"
+                    title="New capture"
+                  >
+                    +
+                  </button>
+                  {/* Close */}
+                  <svg viewBox="0 0 24 24" width={18} height={18}
+                    style={{ cursor: 'pointer', opacity: 0.5, filter: 'drop-shadow(0 0 4px rgba(197,147,90,0.4))' }}
+                    onClick={() => setOpen(false)}>
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="rgba(197,147,90,0.5)" strokeWidth="0.9" />
+                    <circle cx="12" cy="12" r="3" fill="#C5935A" />
+                  </svg>
+                </div>
               </div>
 
               {/* Search */}
