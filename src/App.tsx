@@ -165,6 +165,8 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/proof-of-existence" element={<BlogProofOfExistence />} />
             <Route path="/blog/anchor-build-artifacts" element={<BlogAnchorBuildArtifacts />} />
+            <Route path="/blog/proof-objects" element={<BlogProofObjects />} />
+            <Route path="/blog/ai-provenance" element={<BlogAIProvenance />} />
             <Route path="/passkey" element={<Passkey />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
