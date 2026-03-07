@@ -197,6 +197,48 @@ export default function GrowthPlan() {
             </div>
           </section>
 
+          {/* Self-Proving Artifact Audit */}
+          <section className="border border-landing-muted/10 rounded-lg p-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-2">Self-Proving Artifact — Audit</h2>
+            <p className="text-xs text-landing-muted/40 mb-6">De ZIP-bundel als zelfstandig bewijsobject. Kan een derde partij zonder Umarise verifiëren?</p>
+
+            <div className="space-y-4 text-xs">
+              {/* ZIP contents */}
+              <div>
+                <p className="text-landing-cream/70 font-medium mb-2">Inhoud van de bundel</p>
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-landing-muted/50 font-mono">
+                  <span className="text-green-400/70">altijd</span><span>certificate.json — v1.3, immutable metadata</span>
+                  <span className="text-green-400/70">altijd</span><span>VERIFY.txt — menselijke verificatie-instructies</span>
+                  <span className="text-landing-muted/30">optioneel</span><span>artifact.&#123;ext&#125; — origineel, alleen bij hash match</span>
+                  <span className="text-landing-muted/30">optioneel</span><span>proof.ots — OTS binary, bij status=anchored</span>
+                  <span className="text-landing-muted/30">optioneel</span><span>attestation.json — Layer 3 signature</span>
+                </div>
+              </div>
+
+              {/* Key findings */}
+              <div className="border-t border-landing-muted/10 pt-4">
+                <p className="text-landing-cream/70 font-medium mb-2">Bevindingen</p>
+                <div className="space-y-1.5 text-landing-muted/50">
+                  <p><span className="text-green-400">✓</span> Hash enforcement: SHA-256 herberekend vóór inclusie. Mismatch → artifact wordt geweigerd.</p>
+                  <p><span className="text-green-400">✓</span> verify-anchoring.org: 100% client-side, nul API calls naar Umarise.</p>
+                  <p><span className="text-green-400">✓</span> Onafhankelijk verifieerbaar via <code className="bg-landing-muted/10 px-1 rounded">sha256sum</code> + <code className="bg-landing-muted/10 px-1 rounded">ots verify</code>.</p>
+                  <p><span className="text-green-400">✓</span> VERIFY.txt bevat 10 secties incl. scope-beperkingen ("What This Does Not Prove").</p>
+                  <p><span className="text-green-400">✓</span> Certificaat is pure JSON — geen branding, geen PDF, geen HTML.</p>
+                </div>
+              </div>
+
+              {/* What's missing */}
+              <div className="border-t border-landing-muted/10 pt-4">
+                <p className="text-landing-cream/70 font-medium mb-2">Ontbreekt voor volledig Self-Proving</p>
+                <div className="space-y-1.5 text-landing-muted/50">
+                  <p><span className="text-landing-muted/30">○</span> Extensie is nog <code className="bg-landing-muted/10 px-1 rounded">.zip</code>, niet <code className="bg-landing-muted/10 px-1 rounded">.proof</code></p>
+                  <p><span className="text-landing-muted/30">○</span> Artifact niet altijd aanwezig — vereist re-selectie door gebruiker</p>
+                </div>
+                <p className="text-landing-muted/30 italic mt-3">De container is technisch zelfstandig. De naamgeving en het gemak van artifact-inclusie zijn de laatste stappen.</p>
+              </div>
+            </div>
+          </section>
+
           {/* Network Effects */}
           <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
             <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-4">3 Network Effects</h2>
