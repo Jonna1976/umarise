@@ -118,9 +118,9 @@ export default function ArtifactPairVisual() {
         {/* LEFT: Artifact (slides right) */}
         <motion.div
           className="w-[160px] flex flex-col items-center gap-4"
-          variants={slideVariants}
-          initial="initial"
-          animate="animate"
+          initial={{ x: 0, opacity: 1 }}
+          animate={{ x: 220, opacity: 0 }}
+          transition={slideTransition}
         >
           <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[hsl(var(--landing-cream))] h-[14px] flex items-center">
             artifact
