@@ -1,694 +1,311 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
+import { ChevronDown } from 'lucide-react';
 
 /**
- * Umarise: Technical Description
- * Full technical specification of the Anchor Record mechanism.
- * Route: /technical
+ * /technical — How anchoring works.
+ * Stripe 2014 style: narrative, concise, expandable details.
  */
 
-const dataModel = [
-  { field: 'hash', type: 'text', description: 'SHA-256 hash of the submitted bytes' },
-  { field: 'hash_algorithm', type: 'text', description: 'Always "sha256"' },
-  { field: 'origin_id', type: 'text', description: 'Stable external reference' },
-  { field: 'created_at', type: 'timestamp', description: 'Server time when the hash was received' },
-  { field: 'ots_proof', type: 'text', description: 'Base64-encoded .ots file (after Bitcoin confirmation)' },
-  { field: 'ots_status', type: 'text', description: '"pending" or "anchored"' },
-  { field: 'bitcoin_block', type: 'integer', description: 'Block height (after confirmation)' },
-  { field: 'user_id', type: 'uuid', description: 'Nullable. Present only if a passkey was used.' },
-];
-
-const chainSteps = [
-  { label: 'Client', text: 'The submitting party computes the SHA-256 hash of the file locally. Only the hash is transmitted.' },
-  { label: 'Server', text: 'The hash is recorded with a timestamp and assigned an origin_id. Status: "pending".' },
-  { label: 'Batch aggregation', text: 'A background worker collects pending hashes and aggregates them into a Merkle tree.' },
-  { label: 'OpenTimestamps', text: 'The Merkle root of the batch is submitted to OTS calendar servers.' },
-  { label: 'Bitcoin', text: 'The Merkle root is embedded in a Bitcoin transaction. Confirmation takes 1 to 2 blocks (10 to 20 minutes).' },
-  { label: 'Proof file', text: 'An .ots file is generated containing the complete cryptographic path from the submitted hash to the Bitcoin block. Status changes to "anchored".' },
-];
-
-const scopeEstablished = [
-  'These specific bytes existed at this specific time',
-  'The hash is anchored in a Bitcoin block via OpenTimestamps',
-  'The .ots proof file is independently verifiable',
-  'The proof remains valid even if Umarise ceases to exist',
-];
-
-const scopeNotEstablished = [
-  'Who created the file',
-  'Whether this is the first or only attestation of these bytes',
-  'Whether the content is unique or novel',
-  'Authorship, ownership, or legal status of the content',
-];
-
-const securityProtects = [
-  'Produce a SHA-256 collision for the anchored hash',
-  'Rewrite the relevant Bitcoin block and all subsequent blocks',
-  'Compromise the OpenTimestamps calendar servers retroactively',
-];
-
-const securityAssumptions = [
-  'SHA-256 remaining collision-resistant',
-  "Bitcoin's blockchain remaining computationally infeasible to rewrite",
-  'The OpenTimestamps protocol operating correctly at the time of anchoring',
-];
-
-const scopeComparison = [
-  { mechanism: 'Anchor Record', establishes: 'Specific bytes existed at a specific time' },
-  { mechanism: 'RFC 3161 timestamp', establishes: 'Hash existed at time, certified by a trusted TSA' },
-  { mechanism: 'Notarization', establishes: 'Document existed at time, witnessed by a notary' },
-  { mechanism: 'C2PA', establishes: 'Content lifecycle, device, and identity chain' },
-  { mechanism: 'Jitter seal (proof-of-process)', establishes: 'Content was produced via specific keystrokes or process' },
-];
-
-const verificationEndpoints = [
-  { endpoint: '/v1-core-resolve', purpose: 'Look up an attestation by origin_id' },
-  { endpoint: '/v1-core-verify', purpose: 'Check whether a hash exists in the registry' },
-  { endpoint: '/v1-core-proof', purpose: 'Retrieve the .ots proof file for a hash' },
-];
-
-const certificateFields = [
-  { field: 'version', type: 'string', description: '"1.3"', required: true },
-  { field: 'hash', type: 'string', description: 'SHA-256 hash of the artifact, prefixed with "sha256:"', required: true },
-  { field: 'hash_algorithm', type: 'string', description: '"sha256"', required: true },
-  { field: 'origin_id', type: 'uuid', description: 'Stable external reference assigned by the registry', required: true },
-  { field: 'short_token', type: 'string', description: 'Human-readable 8-character reference derived from origin_id', required: true },
-  { field: 'captured_at', type: 'ISO 8601', description: 'Claimed capture timestamp (device clock)', required: true },
-  { field: 'created_at', type: 'ISO 8601', description: 'Server-side registration timestamp', required: true },
-  { field: 'sig_algorithm', type: 'string', description: 'Signature algorithm used for device binding (e.g. "WebAuthn_ECDSA_P256_SHA256")', required: false },
-  { field: 'identity_binding', type: 'object', description: 'Assurance level metadata (see Assurance Levels below)', required: false },
-  { field: 'identity_binding.level', type: 'string', description: '"L1" | "L2" | "L3"', required: false },
-  { field: 'identity_binding.method', type: 'string', description: '"self" | "passkey" | "kyc" | "notary"', required: false },
-  { field: 'identity_binding.evidence_hash', type: 'string', description: 'SHA-256 of the identity evidence document (L3 only)', required: false },
-  { field: 'revocation', type: 'object', description: 'Association release metadata', required: false },
-  { field: 'revocation.revoked', type: 'boolean', description: 'Whether the creator has released their association', required: false },
-  { field: 'revocation.revoked_at', type: 'ISO 8601', description: 'Timestamp of revocation', required: false },
-  { field: 'revocation.reason', type: 'string', description: '"association_released" | "key_compromised" | "other"', required: false },
-];
-
-const assuranceLevels = [
-  {
-    level: 'L1',
-    name: 'Anchored Existence',
-    method: 'Self-asserted',
-    establishes: 'These bytes existed at or before time T.',
-    binding: 'None. Hash only.',
-    cost: 'Free',
-  },
-  {
-    level: 'L2',
-    name: 'Anchored Signature',
-    method: 'WebAuthn passkey',
-    establishes: 'These bytes existed at or before time T, claimed by a specific hardware-bound key.',
-    binding: 'Device-bound ECDSA P-256 signature via Secure Enclave / TPM. Biometric gate required.',
-    cost: 'Free',
-  },
-  {
-    level: 'L3',
-    name: 'Anchored Identity',
-    method: 'External attestation (KYC / notary)',
-    establishes: 'These bytes existed at or before time T, associated with a verified identity.',
-    binding: 'A certified independent attestant confirms the anchor timestamps based on ledger data. Evidence hash stored in identity_binding.',
-    cost: '€1.95 per attestation (coming soon)',
-  },
-  {
-    level: 'L4',
-    name: 'Anchored QES',
-    method: 'Qualified Electronic Signature (future)',
-    establishes: 'These bytes existed at or before time T, signed with a Qualified Electronic Signature under eIDAS.',
-    binding: 'Umarise anchor embedded under a XAdES/PAdES container issued by a QTSP.',
-    cost: 'Partner-defined',
-  },
-];
-
-const attestationJsonFields = [
-  { field: 'schema_version', type: 'string', description: '"1.0"', required: true },
-  { field: 'attestation_id', type: 'uuid', description: 'Unique identifier for this attestation', required: true },
-  { field: 'origin_id', type: 'uuid', description: 'The origin being attested', required: true },
-  { field: 'attested_by', type: 'string', description: 'Name of the certified independent attestant', required: true },
-  { field: 'attested_at', type: 'ISO 8601', description: 'Timestamp of attestation confirmation', required: true },
-  { field: 'signature', type: 'string', description: 'Cryptographic signature by the attestant over attestation_id + origin_id + hash + attested_at', required: true },
-  { field: 'attestant_public_key', type: 'string', description: 'SPKI public key for independent signature verification', required: true },
-  { field: 'attestant_certificate', type: 'string', description: 'Certificate identifier or description of the attestant\'s qualification', required: false },
-  { field: 'verify_url', type: 'url', description: 'Public URL for online attestation verification', required: true },
-  { field: 'verification_note', type: 'string', description: 'Human-readable instruction for independent verification', required: true },
-];
-
-const glossaryTerms = [
-  { term: 'Anchor', definition: 'The act of cryptographically committing a SHA-256 hash to a public ledger (Bitcoin via OpenTimestamps). The anchor establishes existence in time.' },
-  { term: 'Anchor Record', definition: 'A database entry linking a SHA-256 hash to a point in time, with a corresponding .ots proof file after Bitcoin confirmation.' },
-  { term: 'Anchoring', definition: 'The process of embedding a cryptographic commitment in a public, append-only ledger. Defined normatively in the Anchoring Specification (IEC v1.0).' },
-  { term: 'Artifact', definition: 'The original file whose hash was anchored. Never stored by the system, only the hash is retained. Included in the Evidence Kit at the owner\'s discretion.' },
-  { term: 'Attestation', definition: 'A Layer 3 assertion by a certified independent party confirming the timestamps and integrity of an anchor. Stored as attestation.json.' },
-  { term: 'Certificate', definition: 'The certificate.json file (v1.3) carrying all metadata required for independent verification: hash, timestamps, identity binding, and revocation status.' },
-  { term: 'Evidence Kit', definition: 'The self-contained ZIP bundle containing artifact (optional), certificate.json, proof.ots, attestation.json (if attested), and VERIFY.txt. The primary deliverable.' },
-  { term: 'Hash', definition: 'A SHA-256 digest (64 hexadecimal characters) computed client-side. The only data transmitted to and stored by the system.' },
-  { term: 'IEC', definition: 'Independent Existence Commitment, the formal name for the Anchoring Specification. Canonical reference: anchoring-spec.org.' },
-  { term: 'Origin', definition: 'A unique registration event. Each origin has an origin_id (UUID) and a short_token (8-character human-readable reference).' },
-  { term: 'Origin ID', definition: 'A UUID assigned by the registry upon hash registration. Stable external reference used for lookups, proof retrieval, and verification.' },
-  { term: 'OTS', definition: 'OpenTimestamps, an open protocol for creating Bitcoin-anchored timestamps. Produces .ots proof files that are independently verifiable.' },
-  { term: 'Proof', definition: 'The .ots file containing the complete cryptographic path from the submitted hash to a Bitcoin block. Independently verifiable without Umarise.' },
-  { term: 'Short Token', definition: 'An 8-character uppercase hexadecimal string derived from the origin_id. Used for human-readable references in filenames and certificates.' },
-];
+function Expandable({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-landing-muted/10">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-4 text-left group"
+      >
+        <span className="text-sm font-medium text-landing-cream/70 group-hover:text-landing-cream transition-colors">
+          {title}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 text-landing-muted/40 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <div className="pb-6 text-sm text-landing-muted/70 leading-relaxed space-y-3">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Technical() {
   return (
     <div className="min-h-screen bg-landing-deep text-landing-cream">
       <PageHeader />
 
-      {/* Content */}
-      <main className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+      <main className="max-w-2xl mx-auto px-6 py-16 md:py-24">
         {/* Title */}
-        <div className="mb-16">
-          <h1 className="font-serif text-3xl md:text-4xl text-landing-cream mb-2">
-            Technical Description
-          </h1>
-          <p className="text-landing-muted/50 text-sm uppercase tracking-wide mb-6">
-            What an Anchor Record is, what it contains, and what it does not establish
+        <h1 className="font-serif text-3xl md:text-4xl mb-3">
+          How anchoring works
+        </h1>
+        <p className="text-landing-muted/60 text-[15px] leading-relaxed mb-20">
+          A file hash is committed to Bitcoin via OpenTimestamps. The result is a cryptographic proof that specific bytes existed at a specific time. No file is stored. No identity is required.
+        </p>
+
+        {/* Section 1: The chain */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            From bytes to Bitcoin
+          </h2>
+          <ol className="space-y-6">
+            {[
+              ['You compute a SHA-256 hash', 'The hash is computed on your machine. Only the 64-character hex string is transmitted. The file never leaves your device.'],
+              ['We record the hash', 'The hash receives a timestamp, an origin_id, and enters the registry. Status: pending.'],
+              ['Hashes are batched', 'A background worker aggregates pending hashes into a Merkle tree. The root is submitted to OpenTimestamps calendar servers.'],
+              ['Bitcoin confirms', 'The Merkle root is embedded in a Bitcoin transaction. Confirmation takes 1–2 blocks (10–20 minutes).'],
+              ['You receive a proof', 'A .ots file is generated containing the complete cryptographic path from your hash to the Bitcoin block. Status: anchored.'],
+            ].map(([title, desc], i) => (
+              <li key={i} className="flex gap-4">
+                <span className="font-mono text-sm text-landing-copper/60 mt-0.5 shrink-0 w-5">
+                  {i + 1}.
+                </span>
+                <div>
+                  <p className="text-landing-cream/90 text-[15px] font-medium">{title}</p>
+                  <p className="text-landing-muted/60 text-sm mt-1">{desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Section 2: The proof file */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            The proof file
+          </h2>
+          <p className="text-[15px] text-landing-muted/70 leading-relaxed mb-4">
+            The result is a <code className="font-mono text-sm text-landing-copper">.proof</code> ZIP containing:
           </p>
-          <div className="bg-landing-muted/5 border border-landing-muted/15 rounded px-5 py-4">
-            <p className="text-landing-cream/80 text-sm leading-relaxed">
-              Umarise implements the{' '}
-              <a
-                href="https://anchoring-spec.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-              >
-                Anchoring Specification (IEC v1.0)
-              </a>.
-              The specification defines the verification function, permitted outputs, and semantic scope of anchoring.
-            </p>
-            <p className="text-landing-muted/50 text-xs mt-2 italic">
-              The specification is normative. This implementation is not.
+          <pre className="bg-landing-muted/5 border border-landing-muted/10 rounded p-5 text-[13px] font-mono text-landing-cream/80 leading-relaxed mb-4">{`certificate.json   # hash, origin_id, timestamps
+proof.ots          # OpenTimestamps binary proof
+VERIFY.txt         # human-readable verification instructions`}</pre>
+          <p className="text-sm text-landing-muted/50">
+            The proof is independently verifiable. No account, no API, no platform dependency. Drag it onto{' '}
+            <a
+              href="https://verify-anchoring.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
+            >
+              verify-anchoring.org
+            </a>{' '}
+            or run <code className="text-landing-copper">ots verify proof.ots</code>.
+          </p>
+        </section>
+
+        {/* Section 3: Scope — the critical section */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            What an anchor proves
+          </h2>
+          <div className="border border-landing-muted/15 rounded-lg p-6 mb-4">
+            <p className="text-landing-cream/90 text-[15px] leading-relaxed">
+              These specific bytes existed at or before this specific time.
             </p>
           </div>
-        </div>
+          <p className="text-sm text-landing-muted/50 leading-relaxed mb-6">
+            That's it. An anchor does not prove who created the file, whether it's original, or what it means. It proves existence in time. A court, arbitrator, or evaluating party interprets the evidence.
+          </p>
 
-        {/* Document content */}
-        <div className="space-y-12 text-landing-muted/80 leading-relaxed">
+          <Expandable title="What the mechanism does not establish">
+            <ul className="space-y-1 pl-4">
+              <li>Who created the file</li>
+              <li>Whether this is the first attestation of these bytes</li>
+              <li>Whether the content is unique or novel</li>
+              <li>Authorship, ownership, or legal status</li>
+            </ul>
+          </Expandable>
 
-          {/* Section 1: What an Anchor Record Is */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              What an Anchor Record Is
-            </h2>
-            <p className="text-landing-cream/90 mb-4">
-              An Anchor Record is a database entry that links a SHA-256 hash to a point in time. The hash is anchored in the Bitcoin blockchain via the OpenTimestamps protocol. The architecture is ledger-agnostic. The result is a cryptographic proof that specific bytes existed at a specific moment.
-            </p>
-            <p className="text-landing-muted/60 text-sm mt-2">
-              Bitcoin is used as a public, append-only timestamp ledger - not as a currency. No wallets, no coins, no financial transactions.
+          <Expandable title="Comparison with related mechanisms">
+            <div className="space-y-2">
+              <p><span className="text-landing-copper">Anchor Record</span> — Specific bytes existed at a specific time</p>
+              <p><span className="text-landing-copper">RFC 3161</span> — Hash existed at time, certified by a trusted TSA</p>
+              <p><span className="text-landing-copper">Notarization</span> — Document existed at time, witnessed by a notary</p>
+              <p><span className="text-landing-copper">C2PA</span> — Content lifecycle, device, and identity chain</p>
+            </div>
+            <p className="mt-3 text-landing-muted/50 text-xs">These mechanisms are complementary. An anchor operates at a different layer.</p>
+          </Expandable>
+        </section>
+
+        {/* Section 4: Trust & Security */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            Trust model
+          </h2>
+          <div className="space-y-4 text-[15px] text-landing-muted/70 leading-relaxed">
+            <p>
+              <span className="text-landing-cream/90">Verifiable without trusting us:</span>{' '}
+              the timestamp. The .ots proof contains the full cryptographic path from your hash to a Bitcoin block. Verify it with open-source tools. We are not required.
             </p>
             <p>
-              An Anchor Record does not contain the original file. It contains only the hash.
+              <span className="text-landing-cream/90">Requires trusting us:</span>{' '}
+              data intake — that the correct hash was recorded at the correct time. This trust is reduced when you compute the SHA-256 hash on your own device before transmission.
             </p>
-          </section>
+          </div>
 
-          {/* Section 2: Data Model */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Data Model
-            </h2>
-            <p className="mb-4">
-              Each Anchor Record consists of the following fields. No other data is stored.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-landing-muted/20">
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Field</th>
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Type</th>
-                    <th className="text-left py-2 text-landing-muted/50 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-landing-muted/70">
-                  {dataModel.map((row) => (
-                    <tr key={row.field} className="border-b border-landing-muted/10">
-                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap">{row.field}</td>
-                      <td className="py-2 pr-4 text-landing-muted/50">{row.type}</td>
-                      <td className="py-2">{row.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              There is no column for the file itself, filename, file type, file size, or any metadata about the content. This is architectural: the system cannot store what it does not receive.
-            </p>
-          </section>
-
-          {/* Section 3: Cryptographic Chain */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Cryptographic Chain
-            </h2>
-            <p className="mb-4">
-              The path from bytes to Bitcoin follows these steps.
-            </p>
-            <ul className="space-y-4 pl-4">
-              {chainSteps.map((step) => (
-                <li key={step.label}>
-                  <span className="text-landing-copper">{step.label}</span>
-                  <span className="text-landing-muted/50 ml-2">:</span>
-                  <span className="ml-2">{step.text}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4">
-              The .ots file is a standard OpenTimestamps format. It can be verified using{' '}
-              <a
-                href="https://verify-anchoring.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-              >verify-anchoring.org</a>, the{' '}
-              <code className="font-mono text-sm text-landing-copper">ots verify</code>{' '}
-              command-line tool, or any Bitcoin full node.
-            </p>
-          </section>
-
-          {/* Section 4: Scope */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Scope
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Established by the record
-                </h3>
-                <ul className="space-y-1 text-landing-muted/70">
-                  {scopeEstablished.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-3">
-                  Not established by the record
-                </h3>
-                <ul className="space-y-1 text-landing-muted/60">
-                  {scopeNotEstablished.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <p className="text-landing-cream/70">
-              An Anchor Record provides building blocks. A court, arbitrator, or evaluating party draws conclusions from those building blocks in the context of a specific dispute.
-            </p>
-          </section>
-
-          {/* Section 5: Device Binding */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Device Binding (Optional)
-            </h2>
-            <p className="mb-4">
-              A passkey can optionally be associated with an Anchor Record. The passkey uses the WebAuthn standard and is bound to the device's secure enclave (TPM, Secure Enclave, or equivalent). A biometric gate (fingerprint, face recognition) is required for signing.
-            </p>
-            <p className="mb-4">
-              When present, a passkey establishes that someone with biometric access to a specific device claimed the record at the time of creation. It does not establish identity, name, or that a specific individual created the content. No username, email address, or sign-up is involved.
-            </p>
-            <p className="text-landing-muted/60">
-              The passkey is optional. Anchor Records can be created without any device binding.
-            </p>
-          </section>
-
-          {/* Section 6: Trust Model */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Trust Model
-            </h2>
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 mb-4">
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                Verifiable without trusting Umarise
-              </h3>
-              <p className="text-landing-muted/70">
-                The timestamp. The .ots proof file contains the complete cryptographic path from the submitted hash to a Bitcoin transaction. This can be verified independently using open-source tools. Umarise is not required for verification.
-              </p>
-            </div>
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                Requires trusting Umarise
-              </h3>
-              <p className="text-landing-muted/70">
-                Data intake: that the correct hash was recorded at the correct time. This trust requirement is reduced when the submitting party computes the SHA-256 hash on their own device before transmission, because in that configuration the submitting party controls the entire chain from bytes to Bitcoin.
-              </p>
-            </div>
-          </section>
-
-          {/* Section 7: Security Properties */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Security Properties
-            </h2>
-
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 mb-4">
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                What the mechanism protects against
-              </h3>
-              <p className="text-landing-muted/70 mb-3">
-                An Anchor Record resists one specific class of attack: retroactive substitution. An adversary who later claims that different bytes existed at an earlier time cannot produce a valid anchor proof for those bytes, because the SHA-256 hash of different bytes produces a different value, and no valid Bitcoin-anchored OTS proof exists for that value at the claimed time.
-              </p>
-              <p className="text-landing-muted/60 text-sm mb-3">
-                For a successful attack against an existing Anchor Record, an adversary would need to simultaneously:
-              </p>
-              <ul className="space-y-1 text-landing-muted/60 text-sm pl-4">
-                {securityProtects.map((item) => (
-                   <li key={item} className="flex items-start gap-2">
-                     <span className="text-landing-muted/30 mt-0.5">·</span>
-                     <span>{item}</span>
-                  </li>
-                ))}
+          <div className="mt-8">
+            <Expandable title="Security properties">
+              <p>An anchor resists retroactive substitution. An adversary who claims different bytes existed earlier cannot produce a valid proof, because different bytes produce a different SHA-256 hash, and no valid Bitcoin-anchored proof exists for that hash.</p>
+              <p className="mt-2">A successful attack would require simultaneously: producing a SHA-256 collision, rewriting Bitcoin's blockchain, and compromising OTS calendar servers retroactively. None of these is computationally feasible.</p>
+            </Expandable>
+            <Expandable title="Assumptions">
+              <ul className="space-y-1 pl-4">
+                <li>SHA-256 remaining collision-resistant</li>
+                <li>Bitcoin's blockchain remaining infeasible to rewrite</li>
+                <li>OpenTimestamps operating correctly at time of anchoring</li>
               </ul>
-              <p className="text-landing-muted/60 text-sm mt-3">
-                No combination of these is computationally feasible with current or near-term technology. SHA-256 has no known collision attacks. Bitcoin's accumulated proof-of-work makes historical block rewriting economically prohibitive.
-              </p>
-            </div>
+              <p className="mt-2 text-landing-muted/50 text-xs">These assumptions are well-established and do not depend on Umarise.</p>
+            </Expandable>
+          </div>
+        </section>
 
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 mb-4">
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-3">
-                What the mechanism does not protect against
-              </h3>
-              <p className="text-landing-muted/70 mb-3">
-                An Anchor Record does not protect against an adversary who anchors false content before a dispute arises. If someone creates a document, anchors it today, and later claims it predates something it does not, the anchor proves only that those specific bytes existed today - not that they are authentic, original, or truthful.
-              </p>
-              <p className="text-landing-muted/60 text-sm">
-                This is the same limitation that applies to any timestamping mechanism, including notarization and RFC 3161 timestamps. The anchor establishes when. It does not establish what the bytes mean, whether they are genuine, or who created them.
-              </p>
-            </div>
-
-            <p className="text-landing-cream/70 mb-4">
-              This limitation is structural. Establishing meaning, authenticity, and authorship requires additional evidence. The anchor provides one building block.
-            </p>
-
-            <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4 mb-6">
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                Assumptions
-              </h3>
-              <p className="text-landing-muted/60 text-sm mb-3">
-                The security properties of an Anchor Record depend on:
-              </p>
-              <ul className="space-y-1 text-landing-muted/70 text-sm pl-4">
-                {securityAssumptions.map((item) => (
-                   <li key={item} className="flex items-start gap-2">
-                     <span className="text-landing-muted/30 mt-0.5">·</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-landing-muted/60 text-sm mt-3">
-                These assumptions are well-established and independently maintained. They do not depend on Umarise.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                Scope compared to related mechanisms
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-landing-muted/20">
-                      <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Mechanism</th>
-                      <th className="text-left py-2 text-landing-muted/50 font-medium">What it establishes</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-landing-muted/70">
-                    {scopeComparison.map((row) => (
-                      <tr key={row.mechanism} className="border-b border-landing-muted/10">
-                        <td className="py-2 pr-4 text-landing-copper whitespace-nowrap">{row.mechanism}</td>
-                        <td className="py-2">{row.establishes}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="mt-4 text-landing-muted/60 text-sm">
-                These mechanisms are complementary. An Anchor Record operates at a different layer than any of the above.
-              </p>
-            </div>
-          </section>
-
-          {/* Section 8: Access Model */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Access Model
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Verification (public)
-                </h3>
-                <p className="text-landing-muted/70">
-                   Any party can look up, verify, and retrieve proof files for any Anchor Record. No credentials, no registration, no relationship with Umarise required. Verification is available at{' '}
-                   <a
-                    href="https://verify-anchoring.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-                  >verify-anchoring.org</a>.
-                </p>
-              </div>
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Attestation (permissioned)
-                </h3>
-                <p className="text-landing-muted/70">
-                  Creating an Anchor Record requires authorized access. Only identified registrants can submit hashes for attestation.
-                </p>
-              </div>
-            </div>
-            <p className="text-landing-cream/70 mb-4">
-              This asymmetry is an integrity constraint. An Anchor Record is irreversible. Once created, it becomes a permanent entry in the registry. Unrestricted write access would compromise the reliability of the registry.
-            </p>
-            <p className="text-landing-muted/60">
-              The same principle applies to comparable registries. DNS allows anyone to resolve a domain, but not anyone to register one. Certificate Authorities allow anyone to verify a certificate, but not anyone to issue one. The constraint protects the record.
-            </p>
-          </section>
-
-          {/* Section 9: Independent Verification */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Independent Verification
-            </h2>
-            <p className="mb-4">
-              A third party who receives a file and its certificate can verify the anchor independently. Two scenarios apply, depending on the anchoring status at the time the file was shared.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Anchor confirmed at time of sharing
-                </h3>
-                <p className="text-landing-muted/70">
-                  The .ots proof file is included in the ZIP. The third party has everything needed for independent verification: the file, certificate, and cryptographic proof.
-                </p>
-              </div>
-              <div className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                <h3 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-3">
-                  Anchor pending at time of sharing
-                </h3>
-                <p className="text-landing-muted/70">
-                  The .ots proof file is not yet available. The third party has the file and certificate containing the origin_id. Once Bitcoin anchoring is complete, the third party retrieves the .ots file via{' '}
-                   <a
-                    href="https://verify-anchoring.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-sm text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors"
-                  >verify-anchoring.org</a>{' '}
-                  using the origin_id from the certificate, or directly via the{' '}
-                  <code className="font-mono text-sm text-landing-copper">/v1-core-proof</code>{' '}
-                  endpoint.
-                </p>
-              </div>
-            </div>
-            <p className="text-landing-cream/70">
-              In both cases, final verification requires only the file, the .ots proof, and a Bitcoin node or standard OTS tooling. No contact with Umarise is required.
-            </p>
-          </section>
-
-          {/* Section 10: Certificate Format */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Certificate Format (v1.3)
-            </h2>
-            <p className="mb-4">
-              Each proof ZIP contains a <code className="font-mono text-sm text-landing-copper">certificate.json</code> file. This file carries all metadata required for independent verification. The format is stable and versioned.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-landing-muted/20">
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Field</th>
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Type</th>
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Req</th>
-                    <th className="text-left py-2 text-landing-muted/50 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-landing-muted/70">
-                  {certificateFields.map((row) => (
-                    <tr key={row.field} className="border-b border-landing-muted/10">
-                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap font-mono text-xs">{row.field}</td>
-                      <td className="py-2 pr-4 text-landing-muted/50 whitespace-nowrap">{row.type}</td>
-                      <td className="py-2 pr-4">{row.required ? <span className="text-landing-copper">yes</span> : <span className="text-landing-muted/40">no</span>}</td>
-                      <td className="py-2">{row.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              Optional fields are present only when the corresponding capability (device binding, identity attestation, or revocation) has been exercised. Their absence does not affect L1 verification.
-            </p>
-          </section>
-
-          {/* Section 11: Assurance Levels */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Assurance Levels (L1–L4)
-            </h2>
-            <p className="mb-4">
-              Assurance levels define what additional properties are established beyond existence. Each level builds on the previous. The core anchoring primitive (L1) remains the foundation.
-            </p>
-            <p className="mb-6 text-landing-muted/50 text-sm">
-              L1 and L2 are properties of the proof itself. L3 and L4 are partner-services that add external validation. All levels share the same underlying anchor.
-            </p>
-            <div className="space-y-4">
-              {assuranceLevels.map((level) => (
-                <div key={level.level} className="bg-landing-muted/5 border border-landing-muted/10 rounded p-4">
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <span className="font-mono text-sm text-landing-copper">{level.level}</span>
-                    <h3 className="text-sm font-medium text-landing-cream/90">{level.name}</h3>
-                    <span className="text-landing-muted/40 text-xs ml-auto">{level.cost}</span>
-                  </div>
-                  <p className="text-landing-muted/70 text-sm mb-2">
-                    {level.establishes}
-                  </p>
-                  <p className="text-landing-muted/50 text-xs">
-                    <span className="text-landing-muted/40">Method:</span> {level.method}
-                  </p>
-                  <p className="text-landing-muted/50 text-xs mt-1">
-                    <span className="text-landing-muted/40">Binding:</span> {level.binding}
-                  </p>
+        {/* Section 5: Assurance Levels */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            Assurance levels
+          </h2>
+          <p className="text-[15px] text-landing-muted/70 leading-relaxed mb-6">
+            The core anchor (L1) is always free. Additional layers add identity binding.
+          </p>
+          <div className="space-y-px rounded-lg overflow-hidden border border-landing-muted/10">
+            {[
+              { level: 'L1', name: 'Anchored Existence', desc: 'Hash + timestamp. No identity.', cost: 'Free' },
+              { level: 'L2', name: 'Anchored Signature', desc: 'Hash + timestamp + hardware-bound passkey.', cost: 'Free' },
+              { level: 'L3', name: 'Anchored Identity', desc: 'Hash + timestamp + certified third-party attestation.', cost: '€4.95' },
+              { level: 'L4', name: 'Anchored QES', desc: 'Hash + timestamp + Qualified Electronic Signature (eIDAS).', cost: 'Future' },
+            ].map((l) => (
+              <div key={l.level} className="flex items-baseline gap-4 px-5 py-3 bg-landing-muted/[0.03] hover:bg-landing-muted/[0.06] transition-colors">
+                <span className="font-mono text-sm text-landing-copper w-6 shrink-0">{l.level}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm text-landing-cream/80">{l.name}</span>
+                  <span className="text-landing-muted/40 mx-2">—</span>
+                  <span className="text-sm text-landing-muted/60">{l.desc}</span>
                 </div>
-              ))}
-            </div>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              IEC Section 8 explicitly excludes identity and authorship from the anchoring primitive. L2–L4 are implementation-level extensions that add these properties as optional layers. They do not modify the underlying anchor.
-            </p>
-          </section>
+                <span className="text-xs text-landing-muted/40 shrink-0">{l.cost}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          {/* Section 12: Verification Endpoints */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Verification Endpoints
-            </h2>
-            <p className="mb-4">
-              Any Anchor Record can be verified through the public API without authentication.
-            </p>
+        {/* Section 6: Verification */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            Verification
+          </h2>
+          <p className="text-[15px] text-landing-muted/70 leading-relaxed mb-6">
+            Any anchor can be verified without authentication. Three public endpoints:
+          </p>
+          <div className="space-y-2 font-mono text-sm">
+            {[
+              ['/v1-core-resolve', 'Look up an anchor by origin_id'],
+              ['/v1-core-verify', 'Check if a hash exists in the registry'],
+              ['/v1-core-proof', 'Retrieve the .ots proof file'],
+            ].map(([endpoint, desc]) => (
+              <div key={endpoint} className="flex gap-4">
+                <span className="text-landing-copper shrink-0">{endpoint}</span>
+                <span className="text-landing-muted/50 font-sans text-sm">{desc}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-landing-muted/40 mt-4">
+            No sign-up. No credentials. No PII.
+          </p>
+        </section>
+
+        {/* Details */}
+        <section className="mb-20">
+          <h2 className="font-serif text-xl mb-6 text-landing-cream">
+            Reference
+          </h2>
+          <Expandable title="Data model">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-landing-muted/20">
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Endpoint</th>
-                    <th className="text-left py-2 text-landing-muted/50 font-medium">Purpose</th>
+                  <tr className="border-b border-landing-muted/15">
+                    <th className="text-left py-1.5 pr-3 text-landing-muted/50">Field</th>
+                    <th className="text-left py-1.5 pr-3 text-landing-muted/50">Type</th>
+                    <th className="text-left py-1.5 text-landing-muted/50">Description</th>
                   </tr>
                 </thead>
-                <tbody className="text-landing-muted/70">
-                  {verificationEndpoints.map((row) => (
-                    <tr key={row.endpoint} className="border-b border-landing-muted/10">
-                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap">{row.endpoint}</td>
-                      <td className="py-2">{row.purpose}</td>
+                <tbody>
+                  {[
+                    ['hash', 'text', 'SHA-256 hash of the submitted bytes'],
+                    ['hash_algorithm', 'text', 'Always "sha256"'],
+                    ['origin_id', 'text', 'Stable external reference'],
+                    ['created_at', 'timestamp', 'Server time when the hash was received'],
+                    ['ots_proof', 'text', 'Base64-encoded .ots file (after confirmation)'],
+                    ['ots_status', 'text', '"pending" or "anchored"'],
+                    ['bitcoin_block', 'integer', 'Block height (after confirmation)'],
+                  ].map(([field, type, desc]) => (
+                    <tr key={field} className="border-b border-landing-muted/5">
+                      <td className="py-1.5 pr-3 text-landing-copper font-mono">{field}</td>
+                      <td className="py-1.5 pr-3 text-landing-muted/40">{type}</td>
+                      <td className="py-1.5">{desc}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              These endpoints are public. No authentication, no sign-up, and no personally identifiable information is required to verify a record.
-            </p>
-          </section>
+            <p className="mt-3 text-landing-muted/40 text-xs">No column for the file itself, filename, or any content metadata. The system cannot store what it does not receive.</p>
+          </Expandable>
 
-          {/* Section 13: Attestation Format */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Attestation Format (v1.0)
-            </h2>
-            <p className="mb-4">
-              When a Layer 3 attestation is confirmed, the Evidence Kit includes an <code className="font-mono text-sm text-landing-copper">attestation.json</code> file. This file carries the attestant's cryptographic signature and can be verified independently.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-landing-muted/20">
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Field</th>
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Type</th>
-                    <th className="text-left py-2 pr-4 text-landing-muted/50 font-medium">Req</th>
-                    <th className="text-left py-2 text-landing-muted/50 font-medium">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="text-landing-muted/70">
-                  {attestationJsonFields.map((row) => (
-                    <tr key={row.field} className="border-b border-landing-muted/10">
-                      <td className="py-2 pr-4 text-landing-copper whitespace-nowrap font-mono text-xs">{row.field}</td>
-                      <td className="py-2 pr-4 text-landing-muted/50 whitespace-nowrap">{row.type}</td>
-                      <td className="py-2 pr-4">{row.required ? <span className="text-landing-copper">yes</span> : <span className="text-landing-muted/40">no</span>}</td>
-                      <td className="py-2">{row.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 text-landing-muted/50 text-sm">
-              To verify an attestation independently: extract <code className="font-mono text-xs text-landing-copper">attestant_public_key</code>, then verify <code className="font-mono text-xs text-landing-copper">signature</code> against the concatenation of attestation_id + origin_id + hash + attested_at.
-            </p>
-          </section>
-
-          {/* Section 14: Terminology */}
-          <section>
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Terminology
-            </h2>
-            <p className="mb-4">
-              Canonical definitions used throughout documentation, SDKs, and the API. These terms have specific meanings in the context of anchoring and should not be conflated with their general usage.
-            </p>
-            <div className="space-y-3">
-              {glossaryTerms.map((item) => (
-                <div key={item.term} className="border-b border-landing-muted/10 pb-3">
-                  <dt className="text-landing-copper font-mono text-sm">{item.term}</dt>
-                  <dd className="text-landing-muted/70 text-sm mt-1">{item.definition}</dd>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Disclaimer */}
-          <section className="border-t border-landing-muted/10 pt-12">
-            <h2 className="text-sm font-medium tracking-wide text-landing-muted/70 uppercase mb-4">
-              Disclaimer
-            </h2>
-            <p className="text-landing-muted/60">
-              This page describes the technical properties of the Anchor Record mechanism as implemented by Umarise under the{' '}
-              <a
-                href="https://anchoring-spec.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-landing-copper underline underline-offset-2 hover:text-landing-cream/70 transition-colors"
-              >
-                Anchoring Specification (IEC)
+          <Expandable title="Certificate format (v1.3)">
+            <p>Each proof ZIP contains <code className="text-landing-copper">certificate.json</code>. Required fields: version, hash, hash_algorithm, origin_id, short_token, captured_at, created_at. Optional: sig_algorithm, identity_binding (L2+), revocation.</p>
+            <p className="mt-2">Full schema in the{' '}
+              <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors">
+                Anchoring Specification
               </a>.
-              It does not constitute legal advice. The evidential value of an Anchor Record depends on the jurisdiction, the nature of the dispute, and the evaluation of the adjudicating party.
             </p>
-            <p className="text-landing-muted/50 text-sm mt-4">
-              Document version 1.3, March 2026
-            </p>
-          </section>
+          </Expandable>
 
-        </div>
+          <Expandable title="Attestation format (v1.0)">
+            <p>When L3 attestation is confirmed, the ZIP includes <code className="text-landing-copper">attestation.json</code> with: attestation_id, origin_id, attested_by, attested_at, signature, attestant_public_key, and verify_url.</p>
+            <p className="mt-2">Verify independently: extract the public key, verify the signature against attestation_id + origin_id + hash + attested_at.</p>
+          </Expandable>
+
+          <Expandable title="Terminology">
+            <div className="space-y-2">
+              {[
+                ['Anchor', 'Cryptographic commitment of a SHA-256 hash to Bitcoin via OpenTimestamps.'],
+                ['Artifact', 'The original file. Never stored — only the hash is retained.'],
+                ['Evidence Kit', 'Self-contained ZIP: certificate.json + proof.ots + VERIFY.txt.'],
+                ['Origin', 'A unique registration event with origin_id (UUID) and short_token (8-char hex).'],
+                ['OTS', 'OpenTimestamps — open protocol for Bitcoin-anchored timestamps.'],
+              ].map(([term, def]) => (
+                <p key={term}>
+                  <span className="text-landing-copper">{term}</span>
+                  <span className="text-landing-muted/30 mx-1.5">—</span>
+                  {def}
+                </p>
+              ))}
+            </div>
+          </Expandable>
+        </section>
+
+        {/* Links */}
+        <section className="border-t border-landing-muted/10 pt-10 mb-10">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-landing-copper hover:text-landing-cream transition-colors">Specification ↗</a>
+            <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer" className="text-landing-copper hover:text-landing-cream transition-colors">Verifier ↗</a>
+            <Link to="/developers" className="text-landing-copper hover:text-landing-cream transition-colors">Get Started →</Link>
+            <Link to="/api-reference" className="text-landing-copper hover:text-landing-cream transition-colors">API Reference →</Link>
+          </div>
+        </section>
+
+        {/* Disclaimer */}
+        <p className="text-landing-muted/35 text-xs leading-relaxed">
+          This page describes the technical properties of the Anchor Record mechanism as implemented by Umarise under the{' '}
+          <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-landing-muted/50 transition-colors">
+            Anchoring Specification (IEC)
+          </a>.
+          It does not constitute legal advice. v1.3, March 2026.
+        </p>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-landing-muted/10 py-6 text-center text-sm text-landing-muted/40">
         <p>© {new Date().getFullYear()} Umarise</p>
       </footer>
