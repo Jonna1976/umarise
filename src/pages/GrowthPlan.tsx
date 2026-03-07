@@ -267,7 +267,7 @@ export default function GrowthPlan() {
                 De echte eindtest: developers gebruiken het zonder te weten wie het gebouwd heeft. Zoals bij DNS, TLS, Git.
               </p>
               <p className="text-xs text-landing-muted/40 mt-2">
-                Snelste winst: .proof container spec schrijven (+0.5). De rest vereist externe adoptie.
+                Snelste winst: één externe partij die .proof genereert of verifieert (+0.5). De rest vereist schaal.
               </p>
             </div>
           </section>
