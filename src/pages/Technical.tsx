@@ -138,7 +138,7 @@ const glossaryTerms = [
   { term: 'Anchor', definition: 'The act of cryptographically committing a SHA-256 hash to a public ledger (Bitcoin via OpenTimestamps). The anchor establishes existence in time.' },
   { term: 'Anchor Record', definition: 'A database entry linking a SHA-256 hash to a point in time, with a corresponding .ots proof file after Bitcoin confirmation.' },
   { term: 'Anchoring', definition: 'The process of embedding a cryptographic commitment in a public, append-only ledger. Defined normatively in the Anchoring Specification (IEC v1.0).' },
-  { term: 'Artifact', definition: 'The original file whose hash was anchored. Never stored by the system — only the hash is retained. Included in the Evidence Kit at the owner\'s discretion.' },
+  { term: 'Artifact', definition: 'The original file whose hash was anchored. Never stored by the system, only the hash is retained. Included in the Evidence Kit at the owner\'s discretion.' },
   { term: 'Attestation', definition: 'A Layer 3 assertion by a certified independent party confirming the timestamps and integrity of an anchor. Stored as attestation.json.' },
   { term: 'Certificate', definition: 'The certificate.json file (v1.3) carrying all metadata required for independent verification: hash, timestamps, identity binding, and revocation status.' },
   { term: 'Evidence Kit', definition: 'The self-contained ZIP bundle containing artifact (optional), certificate.json, proof.ots, attestation.json (if attested), and VERIFY.txt. The primary deliverable.' },
