@@ -72,6 +72,8 @@ import Changelog from "./pages/Changelog";
 import Ecosystem from "./pages/Ecosystem";
 import GrowthPlan from "./pages/GrowthPlan";
 import Blog from "./pages/Blog";
+import BlogProofOfExistence from "./pages/BlogProofOfExistence";
+import BlogAnchorBuildArtifacts from "./pages/BlogAnchorBuildArtifacts";
 import Passkey from "./pages/Passkey";
 import About from "./pages/About";
 
@@ -159,6 +161,8 @@ const App = () => (
             <Route path="/ecosystem" element={<Ecosystem />} />
             <Route path="/growth-plan" element={<InternalGate><GrowthPlan /></InternalGate>} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/proof-of-existence" element={<BlogProofOfExistence />} />
+            <Route path="/blog/anchor-build-artifacts" element={<BlogAnchorBuildArtifacts />} />
             <Route path="/passkey" element={<Passkey />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}
