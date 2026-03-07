@@ -22,3 +22,29 @@ jobs:
           file: build.tar.gz
         env:
           UMARISE_API_KEY: ${{ secrets.UMARISE_API_KEY }}
+
+      - name: Ensure downloadable artifact exists
+        if: always()
+        run: |
+          if [ -f build.tar.gz.proof ]; then
+            echo "ARTIFACT_PATH=build.tar.gz.proof" >> "$GITHUB_ENV"
+            echo "ARTIFACT_NAME=build.tar.gz.proof" >> "$GITHUB_ENV"
+          else
+            cat > build.tar.gz.anchor-status.json <<EOF
+          {
+            "proof_status": "pending",
+            "message": "Proof is pending Bitcoin confirmation. Re-run this workflow later to retrieve build.tar.gz.proof.",
+            "source_file": "build.tar.gz",
+            "generated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+            echo "ARTIFACT_PATH=build.tar.gz.anchor-status.json" >> "$GITHUB_ENV"
+            echo "ARTIFACT_NAME=build.tar.gz.anchor-status" >> "$GITHUB_ENV"
+          fi
+
+      - name: Upload proof/status artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.ARTIFACT_PATH }}
