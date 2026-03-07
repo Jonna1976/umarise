@@ -358,6 +358,27 @@ VERIFY.txt         # human-readable verification instructions`}</pre>
             </Expandable>
           </section>
 
+          {/* Complete data flow diagram */}
+          <section id="dataflow" className="mb-20 scroll-mt-24">
+            <Expandable title="Complete data flow">
+              <p className="mb-4 text-landing-muted/60">
+                End-to-end overview: from original file to anchored proof bundle, including the four assurance layers and three verification tracks.
+              </p>
+              <div className="rounded-lg overflow-hidden border border-landing-muted/10 bg-white">
+                <img 
+                  src="/docs/data-flow-diagram.png" 
+                  alt="Data flow diagram: Original File → SHA-256 → Hash → Path A (Partner API) / Path B (itexisted.app) → origin_attestations → OTS Worker → Bitcoin Blockchain → core_ots_proofs → ZIP Bundle (YOUR PROOF) → L1–L4 assurance levels + Track A/B/C verification" 
+                  className="w-full h-auto"
+                  loading="lazy"
+                />
+              </div>
+              <p className="mt-3 text-landing-muted/40 text-xs">
+                All three verification tracks implement the same specification:{' '}
+                <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-landing-copper underline underline-offset-2 hover:text-landing-cream transition-colors">anchoring-spec.org</a>
+              </p>
+            </Expandable>
+          </section>
+
           {/* Links — mobile only (desktop has them in sidebar) */}
           <section className="border-t border-landing-muted/10 pt-10 mb-10 lg:hidden">
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
