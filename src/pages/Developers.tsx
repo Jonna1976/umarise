@@ -3,6 +3,7 @@ import PageHeader from '@/components/PageHeader';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import GetStartedFlow from '@/components/api-reference/GetStartedFlow';
+import ArtifactPairVisual from '@/components/developers/ArtifactPairVisual';
 
 
 /**
@@ -86,23 +87,9 @@ export default function Developers() {
           </ul>
         </section>
 
-        {/* Self-Proving Artifact visual */}
-
-        {/* Self-Proving Artifact visual */}
+        {/* Artifact pair visual */}
         <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
-          <h2 className="font-serif text-xl mb-2 text-[hsl(var(--landing-cream))]">The Self-Proving Artifact</h2>
-          <p className="text-[13px] text-[hsl(var(--landing-muted))] mb-6">
-            The vision: proof becomes a property of the file itself.
-          </p>
-          <div className="rounded-lg overflow-hidden border border-[hsl(var(--landing-cream)/0.08)]">
-            <iframe
-              src="/docs/self-proving-artifact-visual.html"
-              className="w-full border-0"
-              style={{ height: '680px' }}
-              title="The Self-Proving Artifact"
-              loading="lazy"
-            />
-          </div>
+          <ArtifactPairVisual />
         </section>
       </main>
     </div>
