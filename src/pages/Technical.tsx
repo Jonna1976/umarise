@@ -143,7 +143,7 @@ const glossaryTerms = [
   { term: 'Certificate', definition: 'The certificate.json file (v1.3) carrying all metadata required for independent verification: hash, timestamps, identity binding, and revocation status.' },
   { term: 'Evidence Kit', definition: 'The self-contained ZIP bundle containing artifact (optional), certificate.json, proof.ots, attestation.json (if attested), and VERIFY.txt. The primary deliverable.' },
   { term: 'Hash', definition: 'A SHA-256 digest (64 hexadecimal characters) computed client-side. The only data transmitted to and stored by the system.' },
-  { term: 'IEC', definition: 'Independent Existence Commitment — the formal name for the Anchoring Specification. Canonical reference: anchoring-spec.org.' },
+  { term: 'IEC', definition: 'Independent Existence Commitment, the formal name for the Anchoring Specification. Canonical reference: anchoring-spec.org.' },
   { term: 'Origin', definition: 'A unique registration event. Each origin has an origin_id (UUID) and a short_token (8-character human-readable reference).' },
   { term: 'Origin ID', definition: 'A UUID assigned by the registry upon hash registration. Stable external reference used for lookups, proof retrieval, and verification.' },
   { term: 'OTS', definition: 'OpenTimestamps — an open protocol for creating Bitcoin-anchored timestamps. Produces .ots proof files that are independently verifiable.' },
