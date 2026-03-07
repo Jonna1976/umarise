@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Self-Proving Artifact</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0E0E0A;
+    color: #F0EAD6;
+    font-family: 'EB Garamond', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  .stage {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 720px;
+  }
+  .stage.active { display: flex; }
+
+  /* ── STAGE 1: TRAVEL TOGETHER ── */
+  .twin {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    max-width: 520px;
+    border: 1px solid #2A2A1A;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .twin-half {
+    flex: 1;
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    background: #161610;
+  }
+
+  .twin-half:first-child { border-right: 1px solid #2A2A1A; }
+
+  .twin-icon { width: 36px; height: 36px; opacity: 0.7; }
+
+  .twin-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #F0EAD6;
+  }
+
+  .twin-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #C9A96E;
+    opacity: 0.7;
+  }
+
+  .twin-half.proof .twin-name { color: #C9A96E; }
+
+  /* ── STAGE 2: ONE OBJECT — CIRCUMPUNCT ── */
+  .one-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 44px;
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .circumpunct-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .circumpunct-svg {
+    width: 130px;
+    height: 130px;
+  }
+
+  .circumpunct-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #C9A96E;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  .circumpunct-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #3A3A2A;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 3px;
+  }
+
+  /* Contents table */
+  .one-contents {
+    width: 100%;
+    background: #121210;
+    border: 1px solid #222218;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .one-header {
+    padding: 11px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: #2A2A1A;
+    text-transform: uppercase;
+    border-bottom: 1px solid #1A1A12;
+  }
+
+  .one-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 18px;
+    border-bottom: 1px solid #191912;
+  }
+
+  .one-row:last-of-type { border-bottom: none; }
+
+  .dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #C9A96E;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #7A7A5A;
+    flex: 1;
+  }
+
+  .row-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #4A5A4A;
+  }
+
+  .one-foot {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-top: 1px solid #1A1A12;
+    background: #0F0F0C;
+  }
+
+  .foot-l {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    color: #262616;
+    text-transform: uppercase;
+  }
+
+  .foot-r {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: #3A5A4A;
+    text-decoration: none;
+  }
+
+  /* ── CAPTION ── */
+  .caption {
+    margin-top: 36px;
+    text-align: center;
+    max-width: 400px;
+  }
+
+  .caption-title {
+    font-size: 20px;
+    font-style: italic;
+    color: #F0EAD6;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .caption-sub {
+    font-size: 14px;
+    color: #4A4A3A;
+    line-height: 1.8;
+  }
+
+  .caption-sub em { color: #C9A96E; font-style: normal; }
+
+  /* ── TOGGLE ── */
+  .toggle-wrap {
+    margin-top: 52px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #222218;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .toggle-btn {
+    padding: 10px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    color: #333322;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-btn.active { background: #181814; color: #C9A96E; }
+  .toggle-btn:hover:not(.active) { color: #5A5A44; }
+
+  .toggle-divider { width: 1px; height: 38px; background: #222218; }
+
+  .transition-note {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: #252515;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .wordmark {
+    position: fixed;
+    bottom: 24px;
+    right: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: #1E1E12;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+  <!-- STAGE 1 -->
+  <div class="stage active" id="stage1">
+    <div class="twin">
+      <div class="twin-half">
+        <svg class="twin-icon" viewBox="0 0 36 36" fill="none">
+          <rect x="6" y="3" width="18" height="24" rx="2" stroke="#F0EAD6" stroke-width="1.5"/>
+          <line x1="10" y1="11" x2="20" y2="11" stroke="#F0EAD6" stroke-width="1" opacity="0.35"/>
+          <line x1="10" y1="16" x2="20" y2="16" stroke="#F0EAD6" stroke-width="1" opacity="0.35"/>
+          <line x1="10" y1="21" x2="16" y2="21" stroke="#F0EAD6" stroke-width="1" opacity="0.35"/>
+        </svg>
+        <div class="twin-name">artifact</div>
+        <div class="twin-file">contract.pdf</div>
+      </div>
+      <div class="twin-half proof">
+        <svg class="twin-icon" viewBox="0 0 36 36" fill="none">
+          <path d="M18 5L31 10v10c0 7.5-6.5 12-13 14C11 32 4 27.5 4 20V10L17 5z" stroke="#C9A96E" stroke-width="1.5" fill="none"/>
+          <path d="M11 18l4.5 4.5L25 13" stroke="#C9A96E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="twin-name">artifact.proof</div>
+        <div class="twin-file">contract.pdf.proof</div>
+      </div>
+    </div>
+
+    <div class="caption">
+      <div class="caption-title">Two objects. One journey.</div>
+      <div class="caption-sub">The artifact and its proof travel side by side.<br>Inseparable — but still two things.</div>
+    </div>
+  </div>
+
+  <!-- STAGE 2 -->
+  <div class="stage" id="stage2">
+    <div class="one-wrap">
+
+      <div class="circumpunct-wrap">
+        <svg class="circumpunct-svg" viewBox="0 0 130 130" fill="none">
+          <!-- outer ring: the proof boundary -->
+          <circle cx="65" cy="65" r="58" stroke="#C9A96E" stroke-width="1.2" opacity="1"/>
+          <!-- middle ring: the bundle -->
+          <circle cx="65" cy="65" r="38" stroke="#C9A96E" stroke-width="0.6" opacity="0.3"/>
+          <!-- inner dot: the artifact — the origin point -->
+          <circle cx="65" cy="65" r="7" fill="#C9A96E" opacity="0.95"/>
+        </svg>
+
+        <div>
+          <div class="circumpunct-name">contract.pdf.proof</div>
+          <div class="circumpunct-sub">self-proving artifact</div>
+        </div>
+      </div>
+
+      <div class="one-contents">
+        <div class="one-header">contains</div>
+        <div class="one-row">
+          <div class="dot"></div>
+          <span class="row-label">artifact</span>
+          <span class="row-val">contract.pdf · 84 kb</span>
+        </div>
+        <div class="one-row">
+          <div class="dot"></div>
+          <span class="row-label">sha-256</span>
+          <span class="row-val">a1b2c3d4e5f6…</span>
+        </div>
+        <div class="one-row">
+          <div class="dot"></div>
+          <span class="row-label">proof.ots</span>
+          <span class="row-val">opentimestamps</span>
+        </div>
+        <div class="one-row">
+          <div class="dot"></div>
+          <span class="row-label">bitcoin anchor</span>
+          <span class="row-val">block 883421</span>
+        </div>
+        <div class="one-row">
+          <div class="dot"></div>
+          <span class="row-label">VERIFY.txt</span>
+          <span class="row-val">verify without us</span>
+        </div>
+        <div class="one-foot">
+          <span class="foot-l">the proof survives umarise</span>
+          <a class="foot-r" href="https://verify-anchoring.org">verify-anchoring.org →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="caption">
+      <div class="caption-title">One object. <em>Complete in itself.</em></div>
+      <div class="caption-sub">
+        Not a document with a badge.<br>
+        Not two files traveling together.<br><br>
+        The outer ring is the proof.<br>
+        The inner dot is the artifact.<br>
+        <em>One symbol. One object.</em>
+      </div>
+    </div>
+  </div>
+
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" id="btn1" onclick="show(1)">Travel Together</button>
+    <div class="toggle-divider"></div>
+    <button class="toggle-btn" id="btn2" onclick="show(2)">One Object</button>
+  </div>
+
+  <div class="transition-note" id="tnote">← vanochtend wisten wij dit nog niet</div>
+
+  <div class="wordmark">Umarise · 2026</div>
+
+<script>
+  function show(n) {
+    document.getElementById('stage1').classList.toggle('active', n === 1);
+    document.getElementById('stage2').classList.toggle('active', n === 2);
+    document.getElementById('btn1').classList.toggle('active', n === 1);
+    document.getElementById('btn2').classList.toggle('active', n === 2);
+    document.getElementById('tnote').textContent = n === 1
+      ? '← vanochtend wisten wij dit nog niet'
+      : 'het inzicht van vanochtend →';
+  }
+</script>
+</body>
+</html>
