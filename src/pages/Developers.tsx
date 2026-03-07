@@ -86,10 +86,7 @@ export default function Developers() {
           </ul>
         </section>
 
-        {/* Artifact pair visual */}
-        <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
-          <ArtifactPairVisual />
-        </section>
+        {/* Self-Proving Artifact visual */}
 
         {/* Self-Proving Artifact visual */}
         <section className="mt-20 pt-10 border-t border-[hsl(var(--landing-muted)/0.15)]">
