@@ -16,6 +16,46 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://umarise.com/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/blog/ai-provenance</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/blog/proof-objects</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/blog/anchor-build-artifacts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/blog/proof-of-existence</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/technical</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/anchor</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://umarise.com/creation-integrity</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://umarise.com/ecosystem</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -46,11 +86,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://umarise.com/blog</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://umarise.com/for/law</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -61,14 +96,9 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://umarise.com/connector</loc>
+    <loc>https://umarise.com/about</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://umarise.com/partnerships</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://umarise.com/privacy</loc>
