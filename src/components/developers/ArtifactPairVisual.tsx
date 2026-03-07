@@ -136,9 +136,9 @@ export default function ArtifactPairVisual() {
         {/* ARROW (slides right with artifact) */}
         <motion.div
           className="flex flex-col items-center gap-1.5 px-4 mt-[57px] shrink-0"
-          variants={slideVariants}
-          initial="initial"
-          animate="animate"
+          initial={{ x: 0, opacity: 1 }}
+          animate={{ x: 220, opacity: 0 }}
+          transition={slideTransition}
         >
           <div className="flex items-center">
             <div className="w-14 h-px bg-gradient-to-r from-[hsl(var(--landing-cream)/0.1)] to-[hsl(var(--landing-copper))]" />
