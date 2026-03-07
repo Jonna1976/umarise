@@ -384,6 +384,14 @@ export default function GrowthPlan() {
                 <p className="text-xs text-landing-muted/40 mt-1">Track A levert volume. Track B levert legitimiteit. Samen wordt het protocol.</p>
               </div>
             </div>
+
+            {/* Cooper insight */}
+            <div className="mt-8 pt-6 border-t border-landing-copper/10">
+              <p className="text-xs text-landing-muted/40 italic leading-relaxed">
+                De doorbraak komt nooit van alle partijen tegelijk. Zoek niet naar brede adoptie — zoek naar drie of vier partijen die zo zichtbaar zijn dat anderen vanzelf volgen. Eén grote juridische firma die het gebruikt in een zaak. Eén universiteit die het verplicht stelt voor datasets. Dat is genoeg om het evenwicht te kantelen.
+              </p>
+              <p className="text-xs text-landing-muted/25 mt-2">— coördinatieprobleem (Cooper)</p>
+            </div>
           </section>
 
           {/* Stripe 2014 parallel */}
