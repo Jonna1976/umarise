@@ -74,6 +74,8 @@ import GrowthPlan from "./pages/GrowthPlan";
 import Blog from "./pages/Blog";
 import BlogProofOfExistence from "./pages/BlogProofOfExistence";
 import BlogAnchorBuildArtifacts from "./pages/BlogAnchorBuildArtifacts";
+import BlogProofObjects from "./pages/BlogProofObjects";
+import BlogAIProvenance from "./pages/BlogAIProvenance";
 import Passkey from "./pages/Passkey";
 import About from "./pages/About";
 
@@ -163,6 +165,8 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/proof-of-existence" element={<BlogProofOfExistence />} />
             <Route path="/blog/anchor-build-artifacts" element={<BlogAnchorBuildArtifacts />} />
+            <Route path="/blog/proof-objects" element={<BlogProofObjects />} />
+            <Route path="/blog/ai-provenance" element={<BlogAIProvenance />} />
             <Route path="/passkey" element={<Passkey />} />
 
             {/* PROTECTED ROUTES - Behind PinGate */}

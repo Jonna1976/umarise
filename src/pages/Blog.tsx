@@ -3,12 +3,20 @@ import { Link } from 'react-router-dom';
 
 const posts = [
   {
-    slug: 'proof-of-existence',
-    title: 'How to prove a file existed at a specific time',
-    description: 'Anchor any file to Bitcoin with one API call. CLI, SDK, GitHub Action. Open protocol, zero vendor lock-in.',
+    slug: 'ai-provenance',
+    title: 'AI has a provenance problem',
+    description: 'AI produces artifacts at scale. There is no standard way to prove when any of them existed. Anchoring fixes that.',
     date: 'March 2026',
-    readTime: '4 min read',
-    tags: ['bitcoin', 'proof-of-existence', 'developer-tools'],
+    readTime: '6 min read',
+    tags: ['ai', 'provenance', 'proof-infrastructure'],
+  },
+  {
+    slug: 'proof-objects',
+    title: 'How Umarise turns files into proof objects',
+    description: 'A digital file has no intrinsic proof of its history. A .proof file changes that. Hash, anchor, verify. The proof travels with the artifact.',
+    date: 'March 2026',
+    readTime: '5 min read',
+    tags: ['cryptography', 'portable-proof', 'architecture'],
   },
   {
     slug: 'anchor-build-artifacts',
@@ -17,6 +25,14 @@ const posts = [
     date: 'March 2026',
     readTime: '3 min read',
     tags: ['ci-cd', 'github-actions', 'supply-chain'],
+  },
+  {
+    slug: 'proof-of-existence',
+    title: 'How to prove a file existed at a specific time',
+    description: 'Anchor any file to Bitcoin with one API call. CLI, SDK, GitHub Action. Open protocol, zero vendor lock-in.',
+    date: 'March 2026',
+    readTime: '4 min read',
+    tags: ['bitcoin', 'proof-of-existence', 'developer-tools'],
   },
 ];
 
