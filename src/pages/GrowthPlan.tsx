@@ -179,10 +179,10 @@ export default function GrowthPlan() {
                     <p><span className="text-green-400">✓</span> certificate.json v1.3 — schema gedocumenteerd met backward compatibility</p>
                     <p><span className="text-green-400">✓</span> V(B, P, L) → &#123;valid | invalid | unverifiable&#125; gedefinieerd</p>
                     <p><span className="text-green-400">✓</span> Semantic exclusions, independence requirement, ledger qualification</p>
-                    <p><span className="text-landing-muted/30">○</span> .proof container spec als apart document ("anyone can implement it")</p>
-                    <p><span className="text-landing-muted/30">○</span> Backward compatibility rules voor .proof formaat</p>
+                    <p><span className="text-green-400">✓</span> .proof container spec v1.0 — 16 secties, normatief, public domain</p>
+                    <p><span className="text-landing-muted/30">○</span> Backward compatibility rules voor toekomstige container versies</p>
                   </div>
-                  <p className="text-xs text-landing-muted/40 mb-2">Spec is er, maar .proof container is nog implementatie, geen spec.</p>
+                  <p className="text-xs text-landing-muted/40 mb-2">Spec is compleet. Container format is nu implementeerbaar door derden.</p>
                   <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
                     <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '70%' }} />
                   </div>
