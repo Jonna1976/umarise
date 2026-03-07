@@ -2,20 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText } from 'lucide-react';
 
-const fadeIn = (delay = 0) => ({
-  initial: { opacity: 0, y: 8 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.6, delay, ease: 'easeOut' as const },
-});
-
-const slideIn = (delay = 0) => ({
-  initial: { opacity: 0, x: -6 },
-  whileInView: { opacity: 1, x: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.4, delay, ease: 'easeOut' as const },
-});
-
 const layers = [
   { num: '1', label: 'artifact.{ext}', value: 'the original file (hash-verified)' },
   { num: '2', label: 'certificate.json', value: 'hash, origin_id, timestamps, device signature' },
@@ -49,7 +35,6 @@ function CircumpunctIcon({ className = '' }: { className?: string }) {
 export default function ArtifactPairVisual() {
   const [merged, setMerged] = useState(false);
 
-  // Auto-trigger merge animation after appearing in viewport
   useEffect(() => {
     const timer = setTimeout(() => setMerged(true), 6000);
     return () => clearTimeout(timer);
@@ -58,9 +43,15 @@ export default function ArtifactPairVisual() {
   return (
     <div className="flex flex-col items-center gap-12 py-8">
       {/* Animated pair → merged */}
-      <motion.div className="flex flex-col items-center gap-0" {...fadeIn()}>
+      <motion.div
+        className="flex flex-col items-center gap-0"
+        initial={{ opacity: 0, y: 8 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
         <div className="relative flex items-stretch justify-center" style={{ minHeight: 120, minWidth: 200 }}>
-          {/* Artifact card — slides right and fades out */}
+          {/* Artifact card */}
           <AnimatePresence>
             {!merged && (
               <motion.div
@@ -75,7 +66,7 @@ export default function ArtifactPairVisual() {
             )}
           </AnimatePresence>
 
-          {/* Gold spine — fades out */}
+          {/* Gold spine */}
           <AnimatePresence>
             {!merged && (
               <motion.div
@@ -86,7 +77,7 @@ export default function ArtifactPairVisual() {
             )}
           </AnimatePresence>
 
-          {/* Proof card — transforms into self-proving artifact */}
+          {/* Proof card → self-proving artifact */}
           <motion.div
             className="w-[200px] p-7 pb-6 flex flex-col gap-3 items-start border border-[hsl(var(--landing-cream)/0.15)] bg-[hsl(var(--landing-cream)/0.04)]"
             animate={{
@@ -146,7 +137,7 @@ export default function ArtifactPairVisual() {
           </motion.div>
         </div>
 
-        {/* Connector — "travel together" fades out */}
+        {/* "travel together" connector */}
         <AnimatePresence>
           {!merged && (
             <motion.div
@@ -162,34 +153,54 @@ export default function ArtifactPairVisual() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Proof layers */}
-      <motion.div className="w-[400px] max-w-full flex flex-col" {...fadeIn(0.15)}>
-        {layers.map((layer, i) => (
+      {/* Proof layers — revealed only after merge */}
+      <AnimatePresence>
+        {merged && (
           <motion.div
-            key={layer.num}
-            className={`flex items-center px-5 py-3.5 border border-[hsl(var(--landing-cream)/0.15)] gap-4 transition-colors hover:bg-[hsl(var(--landing-cream)/0.04)] ${
-              i === 0 ? 'rounded-t border-b-0' : i === layers.length - 1 ? 'rounded-b' : 'border-b-0'
-            }`}
-            {...slideIn(0.2 + i * 0.08)}
+            className="w-[400px] max-w-full flex flex-col"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
           >
-            <span className="font-mono text-[9px] text-[hsl(var(--landing-copper))] w-4 shrink-0">{layer.num}</span>
-            <div className="flex-1">
-              <div className="font-mono text-[11px] tracking-wider mb-0.5 text-[hsl(var(--landing-cream))]">{layer.label}</div>
-              <div className="font-mono text-[10px] tracking-wide opacity-55 text-[hsl(var(--landing-cream))]">{layer.value}</div>
+            {layers.map((layer, i) => (
+              <motion.div
+                key={layer.num}
+                className={`flex items-center px-5 py-3.5 border border-[hsl(var(--landing-cream)/0.15)] gap-4 transition-colors hover:bg-[hsl(var(--landing-cream)/0.04)] ${
+                  i === 0 ? 'rounded-t border-b-0' : i === layers.length - 1 ? 'rounded-b' : 'border-b-0'
+                }`}
+                initial={{ opacity: 0, x: -6 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.8 + i * 0.1, ease: 'easeOut' }}
+              >
+                <span className="font-mono text-[9px] text-[hsl(var(--landing-copper))] w-4 shrink-0">{layer.num}</span>
+                <div className="flex-1">
+                  <div className="font-mono text-[11px] tracking-wider mb-0.5 text-[hsl(var(--landing-cream))]">{layer.label}</div>
+                  <div className="font-mono text-[10px] tracking-wide opacity-55 text-[hsl(var(--landing-cream))]">{layer.value}</div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Truth table — only after merge */}
+      <AnimatePresence>
+        {merged && (
+          <motion.div
+            className="font-mono text-[11px] tracking-wider leading-relaxed space-y-1.5"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.4, ease: 'easeOut' }}
+          >
+            <div className="text-[hsl(var(--landing-cream))]">
+              artifact.proof <span className="text-[hsl(var(--landing-copper))]">= self-proving</span>
+            </div>
+            <div className="text-[hsl(var(--landing-cream))]">
+              artifact alone <span className="opacity-55">= no proof</span>
             </div>
           </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Truth table */}
-      <motion.div className="font-mono text-[11px] tracking-wider leading-relaxed space-y-1.5" {...fadeIn(0.3)}>
-        <div className="text-[hsl(var(--landing-cream))]">
-          artifact.proof <span className="text-[hsl(var(--landing-copper))]">= self-proving</span>
-        </div>
-        <div className="text-[hsl(var(--landing-cream))]">
-          artifact alone <span className="opacity-55">= no proof</span>
-        </div>
-      </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
