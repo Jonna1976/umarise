@@ -59,6 +59,7 @@ If any behavior in an implementation conflicts with this specification, the spec
 ```
 /                          → Current normative version (v1.0)
 /v1.0/                     → Permanent, citable v1.0
+/proof-container/          → Proof Container Specification v1.0
 /one-page/                 → Compact academic reference
 /appendix/why-anchoring/   → Non-normative context (informative only)
 ```

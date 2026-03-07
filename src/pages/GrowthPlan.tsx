@@ -97,15 +97,15 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Publieke proof-format spec</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">gedeeltelijk</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-400/10 text-green-400 font-mono">vervuld</span>
                   </div>
                   <div className="text-xs space-y-1 text-landing-muted/60 mb-2">
                     <p><span className="text-green-400">✓</span> IEC v1.0 — normatieve anchoring spec, frozen, public domain</p>
                     <p><span className="text-green-400">✓</span> certificate.json v1.3 — schema gedocumenteerd</p>
                     <p><span className="text-green-400">✓</span> V(B, P, L) → &#123;valid | invalid | unverifiable&#125;</p>
-                    <p><span className="text-landing-muted/30">○</span> .proof container spec als apart, implementeerbaar document</p>
+                    <p><span className="text-green-400">✓</span> Proof Container Spec v1.0 — 16 secties, implementeerbaar door derden</p>
                   </div>
-                  <p className="text-xs text-landing-muted/40">De anchoring-primitief is gespecificeerd. Het bewijsbundel-formaat is implementatie, nog geen spec.</p>
+                  <p className="text-xs text-landing-muted/40">Zowel de anchoring-primitief als het containerformaat zijn normatief gespecificeerd en publiek beschikbaar.</p>
                 </div>
               </div>
 
@@ -160,7 +160,7 @@ export default function GrowthPlan() {
 
           {/* Protocol Maturity Scorecard */}
           <section className="border border-landing-copper/30 rounded-lg p-6 bg-landing-copper/5">
-            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 8.5 / 10</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 9.0 / 10</h2>
             <p className="text-xs text-landing-muted/50 mb-6">De resterende 1,5 punt zit in vier gebieden. Adoptie alleen is niet genoeg — een protocol wint wanneer spec, ecosystem, defaults én use case tegelijk kloppen.</p>
             
             <div className="space-y-5">
@@ -172,19 +172,19 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Open, stabiele spec</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">70%</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-400/10 text-green-400 font-mono">90%</span>
                   </div>
                   <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
                     <p><span className="text-green-400">✓</span> anchoring-spec.org v1.0 — 18-sectie normatieve spec, frozen, public domain</p>
                     <p><span className="text-green-400">✓</span> certificate.json v1.3 — schema gedocumenteerd met backward compatibility</p>
                     <p><span className="text-green-400">✓</span> V(B, P, L) → &#123;valid | invalid | unverifiable&#125; gedefinieerd</p>
                     <p><span className="text-green-400">✓</span> Semantic exclusions, independence requirement, ledger qualification</p>
-                    <p><span className="text-landing-muted/30">○</span> .proof container spec als apart document ("anyone can implement it")</p>
-                    <p><span className="text-landing-muted/30">○</span> Backward compatibility rules voor .proof formaat</p>
+                    <p><span className="text-green-400">✓</span> .proof container spec v1.0 — 16 secties, normatief, public domain</p>
+                    <p><span className="text-landing-muted/30">○</span> Backward compatibility rules voor toekomstige container versies</p>
                   </div>
-                  <p className="text-xs text-landing-muted/40 mb-2">Spec is er, maar .proof container is nog implementatie, geen spec.</p>
+                  <p className="text-xs text-landing-muted/40 mb-2">Spec is compleet. Container format is nu implementeerbaar door derden.</p>
                   <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '70%' }} />
+                    <div className="bg-green-400/60 h-1.5 rounded-full" style={{ width: '90%' }} />
                   </div>
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function GrowthPlan() {
                 De echte eindtest: developers gebruiken het zonder te weten wie het gebouwd heeft. Zoals bij DNS, TLS, Git.
               </p>
               <p className="text-xs text-landing-muted/40 mt-2">
-                Snelste winst: .proof container spec schrijven (+0.5). De rest vereist externe adoptie.
+                Snelste winst: één externe partij die .proof genereert of verifieert (+0.5). De rest vereist schaal.
               </p>
             </div>
           </section>
