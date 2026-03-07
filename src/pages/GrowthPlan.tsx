@@ -172,7 +172,7 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Open, stabiele spec</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">70%</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-400/10 text-green-400 font-mono">90%</span>
                   </div>
                   <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
                     <p><span className="text-green-400">✓</span> anchoring-spec.org v1.0 — 18-sectie normatieve spec, frozen, public domain</p>
