@@ -17,6 +17,7 @@ export default function Kaartenbak() {
   const { items, isOpen, setOpen, addItems } = useKaartenbak();
   const [dragOver, setDragOver] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track which items have their artifact cached in IndexedDB
   const [cacheStatus, setCacheStatus] = useState<Record<string, boolean>>({});
@@ -184,8 +185,46 @@ export default function Kaartenbak() {
                 </svg>
               </div>
 
+              {/* Search */}
+              {items.length > 0 && (
+                <div className="relative mb-3">
+                  <svg viewBox="0 0 20 20" width={14} height={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ opacity: 0.35 }}>
+                    <circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="#C5935A" strokeWidth="1.5" />
+                    <line x1="12.5" y1="12.5" x2="17" y2="17" stroke="#C5935A" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or date…"
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 12,
+                      color: '#F5F0E8',
+                      background: 'rgba(197,147,90,0.06)',
+                      border: '1px solid rgba(197,147,90,0.12)',
+                      borderRadius: 6,
+                      padding: '8px 10px 8px 28px',
+                      width: '100%',
+                      outline: 'none',
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = 'rgba(197,147,90,0.3)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = 'rgba(197,147,90,0.12)'; }}
+                  />
+                </div>
+              )}
+
               {/* Anchor list */}
-              {items.map((item) => (
+              {items
+                .filter((item) => {
+                  if (!searchQuery.trim()) return true;
+                  const q = searchQuery.toLowerCase();
+                  const name = (item.fileName || '').toLowerCase();
+                  const date = formatDate(item.capturedAt).toLowerCase();
+                  const token = item.shortToken.toLowerCase();
+                  return name.includes(q) || date.includes(q) || token.includes(q);
+                })
+                .map((item) => (
                 <button
                   key={item.originId}
                   onClick={() => navigateToProof(item.shortToken)}
