@@ -83,6 +83,81 @@ export default function GrowthPlan() {
             </ul>
           </section>
 
+          {/* Protocol Adoption Criteria */}
+          <section className="border border-landing-cream/20 rounded-lg p-6 bg-landing-cream/[0.03]">
+            <h2 className="text-sm font-medium tracking-wide text-landing-cream/80 uppercase mb-2">Protocol-adoptie — 3 criteria</h2>
+            <p className="text-xs text-landing-muted/50 mb-6">Een primitive wordt pas infrastructuur als deze drie voorwaarden tegelijk kloppen. Niet eerder.</p>
+
+            <div className="space-y-6">
+              {/* Criterion 1: Spec */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-400/15 flex items-center justify-center">
+                  <span className="text-amber-400 font-mono text-sm font-bold">1</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-landing-cream/90 font-medium text-sm">Publieke proof-format spec</h3>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">gedeeltelijk</span>
+                  </div>
+                  <div className="text-xs space-y-1 text-landing-muted/60 mb-2">
+                    <p><span className="text-green-400">✓</span> IEC v1.0 — normatieve anchoring spec, frozen, public domain</p>
+                    <p><span className="text-green-400">✓</span> certificate.json v1.3 — schema gedocumenteerd</p>
+                    <p><span className="text-green-400">✓</span> V(B, P, L) → &#123;valid | invalid | unverifiable&#125;</p>
+                    <p><span className="text-landing-muted/30">○</span> .proof container spec als apart, implementeerbaar document</p>
+                  </div>
+                  <p className="text-xs text-landing-muted/40">De anchoring-primitief is gespecificeerd. Het bewijsbundel-formaat is implementatie, nog geen spec.</p>
+                </div>
+              </div>
+
+              {/* Criterion 2: Independent verifier */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-400/15 flex items-center justify-center">
+                  <span className="text-green-400 font-mono text-sm font-bold">2</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-landing-cream/90 font-medium text-sm">Minstens één onafhankelijke verifier</h3>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-400/10 text-green-400 font-mono">vervuld</span>
+                  </div>
+                  <div className="text-xs space-y-1 text-landing-muted/60 mb-2">
+                    <p><span className="text-green-400">✓</span> verify-anchoring.org — 100% client-side, Unlicense, forkbaar</p>
+                    <p><span className="text-green-400">✓</span> CLI offline verificatie: <code className="bg-landing-muted/10 px-1 rounded">umarise verify</code></p>
+                    <p><span className="text-green-400">✓</span> VERIFY.txt in elke bundel met handmatige stappen</p>
+                    <p><span className="text-green-400">✓</span> Reproduceerbaar via standaard tools: <code className="bg-landing-muted/10 px-1 rounded">sha256sum</code> + <code className="bg-landing-muted/10 px-1 rounded">ots verify</code></p>
+                  </div>
+                  <p className="text-xs text-landing-muted/40">Technisch onafhankelijk. Architecturaal: nul API calls naar Umarise. Kanttekening: alle verifiers zijn door ons gebouwd — geen externe implementaties.</p>
+                </div>
+              </div>
+
+              {/* Criterion 3: External usage */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-landing-muted/15 flex items-center justify-center">
+                  <span className="text-landing-muted/50 font-mono text-sm font-bold">3</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-landing-cream/90 font-medium text-sm">Gebruik buiten eigen systeem</h3>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-landing-muted/15 text-landing-muted/50 font-mono">open</span>
+                  </div>
+                  <div className="text-xs space-y-1 text-landing-muted/60 mb-2">
+                    <p><span className="text-green-400">✓</span> GitHub Action op Marketplace (anchor-action@v1)</p>
+                    <p><span className="text-green-400">✓</span> npm + PyPI packages gepubliceerd</p>
+                    <p><span className="text-green-400">✓</span> itexisted.app als werkende consumer app</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen derde partij die zelfstandig anchort en verifieert</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen externe tool die .proof als default genereert</p>
+                  </div>
+                  <p className="text-xs text-landing-muted/40">Dit is de open flank. Tooling en kanalen bestaan, maar adoptie buiten ons ecosysteem is nog niet meetbaar.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-landing-cream/10 mt-6 pt-4">
+              <p className="text-xs text-landing-muted/50 italic">
+                Een primitive wordt infrastructuur wanneer anderen het implementeren zonder te vragen. Criterium 3 bepaalt of dit een tool blijft of een laag wordt.
+              </p>
+            </div>
+          </section>
+
           {/* Protocol Maturity Scorecard */}
           <section className="border border-landing-copper/30 rounded-lg p-6 bg-landing-copper/5">
             <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 8.5 / 10</h2>
