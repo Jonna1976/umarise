@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { RotateCcw } from 'lucide-react';
 
 const layers = [
@@ -9,8 +9,7 @@ const layers = [
   { num: '4', label: 'VERIFY.txt', value: 'human-readable verification instructions' },
 ];
 
-/** Circumpunct SVG */
-function CircumpunctIcon({ flash }: { flash?: boolean }) {
+function CircumpunctIcon() {
   return (
     <svg viewBox="0 0 90 90" fill="none" className="w-[90px] h-[90px]">
       <motion.circle
@@ -21,20 +20,12 @@ function CircumpunctIcon({ flash }: { flash?: boolean }) {
         transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
         style={{ transformOrigin: '45px 45px' }}
       />
-      <motion.circle
-        cx="45" cy="45" r="40"
-        stroke="hsl(var(--landing-copper))"
-        strokeWidth="1.2"
-        animate={flash ? { filter: ['none', 'drop-shadow(0 0 8px hsl(var(--landing-copper)))', 'none'] } : {}}
-        transition={flash ? { duration: 0.6 } : {}}
-        opacity={0.9}
-      />
+      <circle cx="45" cy="45" r="40" stroke="hsl(var(--landing-copper))" strokeWidth="1.2" opacity={0.9} />
       <circle cx="45" cy="45" r="6" fill="hsl(var(--landing-copper))" />
     </svg>
   );
 }
 
-/** File icon SVG */
 function FileIcon() {
   return (
     <svg width="58" height="70" viewBox="0 0 58 70" fill="none">
@@ -46,194 +37,194 @@ function FileIcon() {
   );
 }
 
+/*
+  Timeline (all times from mount):
+  0.0s  – Only artifact visible (centered)
+  1.5s  – Arrow appears, artifact+arrow start sliding right
+  3.5s  – Circumpunct fades in at destination
+  4.5s  – Artifact+arrow fade out (absorbed into circumpunct)
+  5.0s  – "self-proving artifact" label + filename appear
+  5.5s  – Bundle rows stagger in
+  7.1s  – Equations appear
+*/
+
+type Step = 'artifact' | 'sliding' | 'arriving' | 'absorbed' | 'revealed';
+
 export default function ArtifactPairVisual() {
-  const [key, setKey] = useState(0);
-  const [rightVisible, setRightVisible] = useState(false);
-  const [flash, setFlash] = useState(false);
-  const [filenameVisible, setFilenameVisible] = useState(false);
-  const [bundleVisible, setBundleVisible] = useState(false);
+  const [step, setStep] = useState<Step>('artifact');
   const [visibleRows, setVisibleRows] = useState<number[]>([]);
-  const [equationsVisible, setEquationsVisible] = useState(false);
+  const [runKey, setRunKey] = useState(0);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const clearTimers = () => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
-  };
+  const clear = () => { timers.current.forEach(clearTimeout); timers.current = []; };
+  const at = (fn: () => void, ms: number) => { timers.current.push(setTimeout(fn, ms)); };
 
-  const schedule = (fn: () => void, ms: number) => {
-    timers.current.push(setTimeout(fn, ms));
-  };
-
-  const runAnimation = useCallback(() => {
-    clearTimers();
-    setRightVisible(false);
-    setFlash(false);
-    setFilenameVisible(false);
-    setBundleVisible(false);
+  const run = useCallback(() => {
+    clear();
+    setStep('artifact');
     setVisibleRows([]);
-    setEquationsVisible(false);
 
-    // Right side fades in while artifact is still sliding (1.2s into 4s slide)
-    schedule(() => setRightVisible(true), 1200);
-    // Flash when artifact "arrives" at circumpunct (~3.9s)
-    schedule(() => setFlash(true), 3900);
-    // Filename appears
-    schedule(() => setFilenameVisible(true), 4600);
-    // Bundle appears
-    schedule(() => setBundleVisible(true), 5000);
-    // Rows stagger in
-    for (let i = 0; i < 4; i++) {
-      schedule(() => setVisibleRows(prev => [...prev, i]), 5400 + i * 400);
-    }
-    // Equations
-    schedule(() => setEquationsVisible(true), 5400 + 4 * 400);
+    at(() => setStep('sliding'), 1500);
+    at(() => setStep('arriving'), 3500);
+    at(() => setStep('absorbed'), 4500);
+    at(() => setStep('revealed'), 5000);
+    for (let i = 0; i < 4; i++) at(() => setVisibleRows(p => [...p, i]), 5500 + i * 400);
   }, []);
 
-  useEffect(() => {
-    const t = setTimeout(runAnimation, 800);
-    return () => { clearTimeout(t); clearTimers(); };
-  }, [key, runAnimation]);
+  useEffect(() => { run(); return clear; }, [runKey, run]);
 
-  const replay = () => {
-    setKey(k => k + 1);
-  };
+  const replay = () => setRunKey(k => k + 1);
 
-  const slideEase = [0.6, 0, 0.35, 1] as const;
-  const slideTransition = { duration: 4, ease: slideEase as unknown as [number, number, number, number] };
+  const isSliding = step === 'sliding' || step === 'arriving';
+  const showCircumpunct = step === 'arriving' || step === 'absorbed' || step === 'revealed';
+  const showLabel = step === 'absorbed' || step === 'revealed';
+  const showBundle = step === 'revealed';
 
   return (
-    <div className="flex flex-col items-center gap-8 py-8 relative" key={key}>
-      {/* Replay button */}
+    <div className="relative py-8" key={runKey}>
       <button
         onClick={replay}
-        className="absolute top-2 right-2 w-8 h-8 rounded-full border border-[hsl(var(--landing-cream)/0.1)] flex items-center justify-center opacity-60 hover:opacity-100 hover:border-[hsl(var(--landing-copper)/0.3)] transition-all"
+        className="absolute top-2 right-2 w-8 h-8 rounded-full border border-[hsl(var(--landing-cream)/0.1)] flex items-center justify-center opacity-60 hover:opacity-100 hover:border-[hsl(var(--landing-copper)/0.3)] transition-all z-10"
         title="replay"
       >
         <RotateCcw className="w-3.5 h-3.5 text-[hsl(var(--landing-cream)/0.5)]" />
       </button>
 
-      {/* Main row */}
-      <div className="flex items-start justify-center gap-0 w-full max-w-[640px]">
-        {/* LEFT: Artifact (slides right) */}
+      {/* Stage — fixed height to prevent layout shift */}
+      <div className="relative flex justify-center" style={{ minHeight: 160 }}>
+
+        {/* Artifact + Arrow group — starts centered, slides right, fades out */}
         <motion.div
-          className="w-[160px] flex flex-col items-center gap-4"
-          initial={{ x: 0, opacity: 1 }}
-          animate={{ x: 220, opacity: 0 }}
-          transition={slideTransition}
+          className="flex items-center gap-4 absolute"
+          initial={{ x: -60, opacity: 1 }}
+          animate={
+            step === 'artifact'
+              ? { x: -60, opacity: 1 }
+              : step === 'sliding'
+                ? { x: 60, opacity: 1 }
+                : step === 'arriving'
+                  ? { x: 60, opacity: 1 }
+                  : { x: 60, opacity: 0 }
+          }
+          transition={
+            step === 'sliding'
+              ? { duration: 2, ease: [0.4, 0, 0.2, 1] }
+              : step === 'absorbed'
+                ? { duration: 0.8, ease: 'easeOut' }
+                : { duration: 0 }
+          }
         >
-          <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[hsl(var(--landing-cream))] h-[14px] flex items-center">
-            artifact
-          </span>
-          <div className="w-[90px] h-[90px] flex items-center justify-center">
+          {/* File icon column */}
+          <div className="flex flex-col items-center gap-3">
+            <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[hsl(var(--landing-cream))]">
+              artifact
+            </span>
             <FileIcon />
+            <span className="font-mono text-xs text-[hsl(var(--landing-copper))]">
+              contract.pdf
+            </span>
           </div>
-          <span className="font-mono text-xs text-[hsl(var(--landing-copper))] h-[18px] flex items-center">
-            contract.pdf
-          </span>
+
+          {/* Arrow — only visible once sliding starts */}
+          <motion.div
+            className="flex flex-col items-center gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isSliding || step === 'arriving' ? 1 : step === 'absorbed' ? 0 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center">
+              <div className="w-14 h-px bg-gradient-to-r from-[hsl(var(--landing-cream)/0.1)] to-[hsl(var(--landing-copper))]" />
+              <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-[hsl(var(--landing-copper))]" />
+            </div>
+            <span className="font-mono text-[8px] tracking-[0.16em] uppercase text-[hsl(var(--landing-cream))] whitespace-nowrap">
+              anchoring
+            </span>
+          </motion.div>
         </motion.div>
 
-        {/* ARROW (slides right with artifact) */}
+        {/* Circumpunct — appears at destination */}
         <motion.div
-          className="flex flex-col items-center gap-1.5 px-4 mt-[57px] shrink-0"
-          initial={{ x: 0, opacity: 1 }}
-          animate={{ x: 220, opacity: 0 }}
-          transition={slideTransition}
+          className="absolute flex flex-col items-center gap-3"
+          style={{ right: 'calc(50% - 130px)' }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={showCircumpunct ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <div className="flex items-center">
-            <div className="w-14 h-px bg-gradient-to-r from-[hsl(var(--landing-cream)/0.1)] to-[hsl(var(--landing-copper))]" />
-            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-[hsl(var(--landing-copper))]" />
-          </div>
-          <span className="font-mono text-[8px] tracking-[0.16em] uppercase text-[hsl(var(--landing-cream))] whitespace-nowrap">
-            anchoring
-          </span>
-        </motion.div>
-
-        {/* RIGHT: Self-proving artifact (fades in while artifact slides) */}
-        <div
-          className="w-[260px] flex flex-col items-center gap-4 transition-opacity duration-[800ms] ease-out"
-          style={{ opacity: rightVisible ? 1 : 0 }}
-        >
-          <span className="font-mono text-[9px] tracking-[0.25em] uppercase text-[hsl(var(--landing-cream))] h-[14px] flex items-center">
+          <motion.span
+            className="font-mono text-[9px] tracking-[0.25em] uppercase text-[hsl(var(--landing-cream))]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showLabel ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
             self-proving artifact
-          </span>
-          <div className="w-[90px] h-[90px] flex items-center justify-center">
-            <CircumpunctIcon flash={flash} />
-          </div>
-
-          {/* Proof filename */}
-          <span
-            className="font-mono text-xs text-[hsl(var(--landing-copper))] h-[18px] flex items-center transition-opacity duration-500"
-            style={{ opacity: filenameVisible ? 1 : 0 }}
+          </motion.span>
+          <CircumpunctIcon />
+          <motion.span
+            className="font-mono text-xs text-[hsl(var(--landing-copper))]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showLabel ? 1 : 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             contract.pdf.proof
-          </span>
+          </motion.span>
+        </motion.div>
+      </div>
 
-          {/* Bundle contents */}
-          <div
-            className="w-full bg-[hsl(var(--landing-deep))] border border-[hsl(var(--landing-cream)/0.08)] rounded-md overflow-hidden transition-all duration-[600ms]"
-            style={{
-              opacity: bundleVisible ? 1 : 0,
-              transform: bundleVisible ? 'translateY(0)' : 'translateY(8px)',
-            }}
-          >
-            {layers.map((layer, i) => (
-              <div
-                key={layer.num}
-                className={`flex items-start gap-3 px-3 py-2 transition-all duration-[400ms] ${i < layers.length - 1 ? 'border-b border-[hsl(var(--landing-cream)/0.04)]' : ''}`}
-                style={{
-                  opacity: visibleRows.includes(i) ? 1 : 0,
-                  transform: visibleRows.includes(i) ? 'translateY(0)' : 'translateY(6px)',
-                }}
-              >
-                <span className="font-mono text-[7.5px] text-[hsl(var(--landing-copper))] opacity-40 min-w-[10px] pt-px">{layer.num}</span>
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-mono text-[8.5px] text-[hsl(var(--landing-cream))] opacity-85">{layer.label}</span>
-                  <span className="font-mono text-[7.5px] text-[hsl(var(--landing-cream))] opacity-40">{layer.value}</span>
-                </div>
+      {/* Bundle + equations — below the stage */}
+      <div className="flex flex-col items-center mt-8">
+        <motion.div
+          className="w-[280px] bg-[hsl(var(--landing-deep))] border border-[hsl(var(--landing-cream)/0.08)] rounded-md overflow-hidden"
+          initial={{ opacity: 0, y: 8 }}
+          animate={showBundle ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+          transition={{ duration: 0.6 }}
+        >
+          {layers.map((layer, i) => (
+            <div
+              key={layer.num}
+              className={`flex items-start gap-3 px-3 py-2 transition-all duration-[400ms] ${i < layers.length - 1 ? 'border-b border-[hsl(var(--landing-cream)/0.04)]' : ''}`}
+              style={{
+                opacity: visibleRows.includes(i) ? 1 : 0,
+                transform: visibleRows.includes(i) ? 'translateY(0)' : 'translateY(6px)',
+              }}
+            >
+              <span className="font-mono text-[7.5px] text-[hsl(var(--landing-copper))] opacity-40 min-w-[10px] pt-px">{layer.num}</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-mono text-[8.5px] text-[hsl(var(--landing-cream))] opacity-85">{layer.label}</span>
+                <span className="font-mono text-[7.5px] text-[hsl(var(--landing-cream))] opacity-40">{layer.value}</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </motion.div>
 
-          {/* Equations */}
-          <div
-            className="flex flex-col gap-1.5 items-start w-full mt-3 transition-all duration-[600ms]"
-            style={{
-              opacity: equationsVisible ? 0.8 : 0,
-              transform: equationsVisible ? 'translateY(0)' : 'translateY(6px)',
-            }}
-          >
-            <div className="font-mono text-[10px] flex items-center">
-              <span className="text-[hsl(var(--landing-cream))] opacity-70">artifact.proof</span>
-              <span className="text-[hsl(var(--landing-cream))] opacity-30 mx-0.5">=</span>
-              <span className="text-[hsl(var(--landing-copper))]">self-proving</span>
-            </div>
-            <div className="font-mono text-[10px] flex items-center">
-              <span className="text-[hsl(var(--landing-cream))] opacity-70">artifact alone</span>
-              <span className="text-[hsl(var(--landing-cream))] opacity-30 mx-0.5">=</span>
-              <span className="text-[hsl(var(--landing-copper))] opacity-60">no proof</span>
-            </div>
-            <div className="mt-3.5 flex items-center gap-1.5">
-              <a
-                href="https://verify-anchoring.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono text-[9px] text-[hsl(var(--landing-cream))] opacity-40 hover:opacity-100 hover:text-[hsl(var(--landing-copper))] transition-all no-underline"
-              >
-                verify-anchoring.org
-              </a>
-              <span className="text-[hsl(var(--landing-cream))] opacity-20 text-[9px]">·</span>
-              <a
-                href="https://anchoring-spec.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono text-[9px] text-[hsl(var(--landing-cream))] opacity-40 hover:opacity-100 hover:text-[hsl(var(--landing-copper))] transition-all no-underline"
-              >
-                anchoring-spec.org
-              </a>
-            </div>
+        {/* Equations */}
+        <motion.div
+          className="flex flex-col gap-1.5 items-start w-[280px] mt-5"
+          initial={{ opacity: 0, y: 6 }}
+          animate={visibleRows.length === 4 ? { opacity: 0.8, y: 0 } : { opacity: 0, y: 6 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="font-mono text-[10px] flex items-center">
+            <span className="text-[hsl(var(--landing-cream))] opacity-70">artifact.proof</span>
+            <span className="text-[hsl(var(--landing-cream))] opacity-30 mx-0.5">=</span>
+            <span className="text-[hsl(var(--landing-copper))]">self-proving</span>
           </div>
-        </div>
+          <div className="font-mono text-[10px] flex items-center">
+            <span className="text-[hsl(var(--landing-cream))] opacity-70">artifact alone</span>
+            <span className="text-[hsl(var(--landing-cream))] opacity-30 mx-0.5">=</span>
+            <span className="text-[hsl(var(--landing-copper))] opacity-60">no proof</span>
+          </div>
+          <div className="mt-3.5 flex items-center gap-1.5">
+            <a href="https://verify-anchoring.org" target="_blank" rel="noopener noreferrer"
+              className="font-mono text-[9px] text-[hsl(var(--landing-cream))] opacity-40 hover:opacity-100 hover:text-[hsl(var(--landing-copper))] transition-all no-underline">
+              verify-anchoring.org
+            </a>
+            <span className="text-[hsl(var(--landing-cream))] opacity-20 text-[9px]">·</span>
+            <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer"
+              className="font-mono text-[9px] text-[hsl(var(--landing-cream))] opacity-40 hover:opacity-100 hover:text-[hsl(var(--landing-copper))] transition-all no-underline">
+              anchoring-spec.org
+            </a>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
