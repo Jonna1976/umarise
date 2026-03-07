@@ -74,6 +74,8 @@ import GrowthPlan from "./pages/GrowthPlan";
 import Blog from "./pages/Blog";
 import BlogProofOfExistence from "./pages/BlogProofOfExistence";
 import BlogAnchorBuildArtifacts from "./pages/BlogAnchorBuildArtifacts";
+import BlogProofObjects from "./pages/BlogProofObjects";
+import BlogAIProvenance from "./pages/BlogAIProvenance";
 import Passkey from "./pages/Passkey";
 import About from "./pages/About";
 
