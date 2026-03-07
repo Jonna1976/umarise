@@ -40,7 +40,6 @@ const sections = [
   { id: 'levels', label: 'Assurance levels' },
   { id: 'verification', label: 'Verification' },
   { id: 'reference', label: 'Reference' },
-  { id: 'dataflow', label: 'Data flow' },
 ];
 
 function useSectionObserver() {
