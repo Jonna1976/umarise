@@ -66,14 +66,8 @@ export default function ArtifactPairVisual() {
           >
             <span className="font-mono text-[9px] text-[hsl(var(--landing-copper))] w-4 shrink-0">{layer.num}</span>
             <div className="flex-1">
-              <div className={`font-mono text-[11px] tracking-wider mb-0.5 ${
-                layer.variant === 'gold' ? 'text-[hsl(var(--landing-copper))]' :
-                'text-[hsl(var(--landing-cream))]'
-              }`}>{layer.label}</div>
-              <div className={`font-mono text-[10px] tracking-wide opacity-55 ${
-                layer.variant === 'gold' ? 'text-[hsl(var(--landing-copper))]' :
-                'text-[hsl(var(--landing-cream))]'
-              }`}>{layer.value}</div>
+              <div className="font-mono text-[11px] tracking-wider mb-0.5 text-[hsl(var(--landing-cream))]">{layer.label}</div>
+              <div className="font-mono text-[10px] tracking-wide opacity-55 text-[hsl(var(--landing-cream))]">{layer.value}</div>
             </div>
           </motion.div>
         ))}
