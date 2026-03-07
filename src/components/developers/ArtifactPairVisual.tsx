@@ -16,10 +16,10 @@ const slideIn = (delay = 0) => ({
 });
 
 const layers = [
-  { num: '1', label: 'artifact hash', value: 'sha256: 9f3a4b2c…e7f1d8a0' },
-  { num: '2', label: 'timestamp anchor', value: 'Bitcoin block 884201, 2026-03-06' },
-  { num: '3', label: 'device signature', value: 'passkey · human anchored' },
-  { num: '4', label: 'verification metadata', value: 'anchoring-spec.org · v1' },
+  { num: '1', label: 'artifact.{ext}', value: 'the original file (hash-verified)' },
+  { num: '2', label: 'certificate.json', value: 'hash, origin_id, timestamps, device signature' },
+  { num: '3', label: 'proof.ots', value: 'Bitcoin anchor (OpenTimestamps binary)' },
+  { num: '4', label: 'VERIFY.txt', value: 'human-readable verification instructions' },
 ];
 
 export default function ArtifactPairVisual() {
