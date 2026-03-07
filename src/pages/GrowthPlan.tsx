@@ -414,7 +414,46 @@ export default function GrowthPlan() {
             </div>
           </section>
 
-          {/* Distributiekanalen */}
+          {/* Prijslijn */}
+          <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Prijslijn</h2>
+            <p className="text-xs text-landing-muted/50 mb-6">Particulier én ZZP gratis. API-integratie betaald. Eén lijn, geen twijfel.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="border border-landing-muted/10 rounded-lg p-4">
+                <p className="text-xs text-landing-muted/40 uppercase tracking-wide mb-2">Particulier / ZZP</p>
+                <p className="text-2xl font-mono text-landing-cream font-medium mb-1">Gratis</p>
+                <p className="text-xs text-landing-muted/50 leading-relaxed">Via itexisted.app of CLI. Geen account, geen limiet op verificatie. Bewijs is een publiek goed.</p>
+              </div>
+              <div className="border border-landing-copper/30 rounded-lg p-4 bg-landing-copper/5">
+                <p className="text-xs text-landing-copper uppercase tracking-wide mb-2">API-integratie</p>
+                <p className="text-2xl font-mono text-landing-copper font-medium mb-1">€0,10<span className="text-sm text-landing-muted/40">/anchor</span></p>
+                <p className="text-xs text-landing-muted/50 leading-relaxed">Prepaid credits. 100 gratis bij key-generatie. Bundels van 500 tot 50.000.</p>
+              </div>
+              <div className="border border-landing-muted/10 rounded-lg p-4">
+                <p className="text-xs text-landing-muted/40 uppercase tracking-wide mb-2">Certified</p>
+                <p className="text-2xl font-mono text-landing-cream font-medium mb-1">Op maat</p>
+                <p className="text-xs text-landing-muted/50 leading-relaxed">SLA, compliance-garanties, dedicated support. Zelfde primitive, hogere assurance.</p>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-landing-copper/10 space-y-2">
+              <div className="flex items-start gap-2 text-xs text-landing-muted/50">
+                <span className="text-landing-copper mt-0.5">→</span>
+                <p>Verificatie is altijd gratis, voor iedereen, zonder account.</p>
+              </div>
+              <div className="flex items-start gap-2 text-xs text-landing-muted/50">
+                <span className="text-landing-copper mt-0.5">→</span>
+                <p>De primitive is identiek over alle tiers. Prijs = assurance, niet functionaliteit.</p>
+              </div>
+              <div className="flex items-start gap-2 text-xs text-landing-muted/50">
+                <span className="text-landing-copper mt-0.5">→</span>
+                <p>Let's Encrypt model: gratis gebruik bouwt adoptie, betaald gebruik bouwt het bedrijf.</p>
+              </div>
+            </div>
+          </section>
+
+
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Hoe infrastructuur verspreidt</h2>
             <div className="space-y-4 text-sm">
