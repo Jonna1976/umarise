@@ -27,9 +27,21 @@ const layers = [
 function CircumpunctIcon({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 28 28" className={className} fill="none">
-      <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="0.9" opacity="0.9" />
-      <circle cx="14" cy="14" r="7.5" stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
-      <circle cx="14" cy="14" r="2.8" fill="currentColor" opacity="0.95" />
+      <motion.circle
+        cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="0.9"
+        animate={{ opacity: [0.9, 0.4, 0.9] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.circle
+        cx="14" cy="14" r="7.5" stroke="currentColor" strokeWidth="0.5"
+        animate={{ opacity: [0.3, 0.15, 0.3] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+      />
+      <motion.circle
+        cx="14" cy="14" r="2.8" fill="currentColor"
+        animate={{ opacity: [0.95, 0.5, 0.95] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+      />
     </svg>
   );
 }
