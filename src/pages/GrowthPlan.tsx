@@ -160,7 +160,7 @@ export default function GrowthPlan() {
 
           {/* Protocol Maturity Scorecard */}
           <section className="border border-landing-copper/30 rounded-lg p-6 bg-landing-copper/5">
-            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 8.5 / 10</h2>
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 9.0 / 10</h2>
             <p className="text-xs text-landing-muted/50 mb-6">De resterende 1,5 punt zit in vier gebieden. Adoptie alleen is niet genoeg — een protocol wint wanneer spec, ecosystem, defaults én use case tegelijk kloppen.</p>
             
             <div className="space-y-5">
