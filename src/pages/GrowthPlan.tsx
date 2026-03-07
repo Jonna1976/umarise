@@ -285,6 +285,127 @@ export default function GrowthPlan() {
             </div>
           </section>
 
+          {/* Parallelpad visualisatie */}
+          <section className="border border-landing-copper/20 rounded-lg p-6 bg-landing-copper/5">
+            <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Het Parallelpad</h2>
+            <p className="text-xs text-landing-muted/50 mb-8">Stripe deed het ook niet ofwel/ofwel. De early developer community was het bewijs dat het werkte, de grote namen kwamen daarna.</p>
+
+            <div className="relative">
+              {/* Central timeline line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-landing-copper/20 -translate-x-1/2 hidden md:block" />
+
+              {/* Phase labels */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-0 relative">
+                {/* Left track: Developer-first */}
+                <div className="md:pr-8 md:text-right space-y-6">
+                  <div>
+                    <p className="text-xs text-landing-copper uppercase tracking-wide font-medium mb-1">Track A — Developer-first</p>
+                    <p className="text-xs text-landing-muted/40">Parallelle adoptie. 6 minuten, niet 6 maanden.</p>
+                  </div>
+
+                  <div className="md:border-r md:border-landing-copper/15 md:pr-6 py-2">
+                    <div className="flex items-center gap-2 md:justify-end mb-1">
+                      <span className="text-green-400 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">CLI + SDK + GitHub Action</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">Developer integreert. Baas heeft geen keuze meer.</p>
+                  </div>
+
+                  <div className="md:border-r md:border-landing-copper/15 md:pr-6 py-2">
+                    <div className="flex items-center gap-2 md:justify-end mb-1">
+                      <span className="text-green-400 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Copy-paste adoptie</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">uses: anchor-action@v1 in een workflow → "oh handig" → klaar.</p>
+                  </div>
+
+                  <div className="md:border-r md:border-landing-copper/15 md:pr-6 py-2">
+                    <div className="flex items-center gap-2 md:justify-end mb-1">
+                      <span className="text-amber-400 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">.proof wordt verwacht</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">artifact + artifact.proof is normaal, zoals artifact + .sig</p>
+                  </div>
+
+                  <div className="md:border-r md:border-landing-copper/15 md:pr-6 py-2">
+                    <div className="flex items-center gap-2 md:justify-end mb-1">
+                      <span className="text-landing-muted/30 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Default in externe tools</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">CI tools, ML pipelines genereren .proof automatisch.</p>
+                  </div>
+                </div>
+
+                {/* Right track: Geloofwaardige partner */}
+                <div className="md:pl-8 space-y-6">
+                  <div>
+                    <p className="text-xs text-landing-copper uppercase tracking-wide font-medium mb-1">Track B — Zichtbare partner</p>
+                    <p className="text-xs text-landing-muted/40">Geloofwaardigheid voor het verhaal. 6-18 maanden.</p>
+                  </div>
+
+                  <div className="md:border-l md:border-landing-copper/15 md:pl-6 py-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-amber-400 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Één geloofwaardige naam</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">Credo AI, juridisch SaaS-platform, onderzoeksdatabank.</p>
+                  </div>
+
+                  <div className="md:border-l md:border-landing-copper/15 md:pl-6 py-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-landing-muted/30 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Platform waar bewijs al relevant is</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">Niet overtuigen, maar integreren waar de behoefte al bestaat.</p>
+                  </div>
+
+                  <div className="md:border-l md:border-landing-copper/15 md:pl-6 py-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-landing-muted/30 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Case study als bewijs</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">"X gebruikt Umarise" → developer vertrouwt de primitive.</p>
+                  </div>
+
+                  <div className="md:border-l md:border-landing-copper/15 md:pl-6 py-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-landing-muted/30 text-xs">●</span>
+                      <p className="text-sm text-landing-cream/90 font-medium">Institutionele acceptatie</p>
+                    </div>
+                    <p className="text-xs text-landing-muted/50">Auditors, rechtbanken accepteren .proof als geldig bewijs.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Convergence point */}
+              <div className="mt-8 pt-6 border-t border-landing-copper/15 text-center">
+                <p className="text-xs text-landing-copper font-mono mb-1">↓ convergentie</p>
+                <p className="text-sm text-landing-cream/90 font-medium">Developers gebruiken het zonder te weten wie het gebouwd heeft.</p>
+                <p className="text-xs text-landing-muted/40 mt-1">Track A levert volume. Track B levert legitimiteit. Samen wordt het protocol.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Stripe 2014 parallel */}
+          <section className="border border-landing-muted/10 rounded-lg p-6">
+            <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Stripe 2014 — het precedent</h2>
+            <div className="space-y-3 text-sm text-landing-muted/70">
+              <p>Stripe begon met developers only — maar dat was een bewuste keuze omdat developers de beslissers waren.</p>
+              <p>Een developer integreerde Stripe, en zijn baas had geen keuze meer. De adoptie liep via de technische laag omhoog naar de business.</p>
+              <p className="text-landing-cream/80">Voor Umarise is de vraag: wie is de equivalent van die developer? Dat is niet een juridische firma of een universiteit — dat is de developer die de API integreert in een platform waar bewijs al relevant is.</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-landing-muted/10 grid grid-cols-2 gap-4 text-xs font-mono">
+              <div>
+                <p className="text-landing-muted/40 mb-1">Stripe 2014</p>
+                <p className="text-landing-cream/60">developer → integratie → baas volgt</p>
+              </div>
+              <div>
+                <p className="text-landing-muted/40 mb-1">Umarise 2026</p>
+                <p className="text-landing-cream/60">developer → .proof in CI → organisatie volgt</p>
+              </div>
+            </div>
+          </section>
+
           {/* Distributiekanalen */}
           <section>
             <h2 className="text-sm font-medium tracking-wide text-landing-muted/50 uppercase mb-4">Hoe infrastructuur verspreidt</h2>
