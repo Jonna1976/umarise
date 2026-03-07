@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proof Container Specification v1.0 — Anchoring Specification</title>
+<meta name="description" content="Normative specification for the .proof container format: a portable, self-contained evidence bundle for anchoring proofs.">
+<link rel="canonical" href="https://anchoring-spec.org/proof-container/">
+<style>
+  :root { --bg: #fafaf8; --fg: #1a1a1a; --muted: #6b6b6b; --border: #e0e0e0; --accent: #8b6914; --code-bg: #f3f1ec; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.7; max-width: 740px; margin: 0 auto; padding: 3rem 1.5rem; }
+  h1 { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.1rem; font-weight: 600; margin-top: 3rem; margin-bottom: 0.75rem; color: var(--fg); }
+  h3 { font-size: 0.95rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  p { margin-bottom: 0.75rem; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.88em; background: var(--code-bg); padding: 0.15em 0.35em; border-radius: 3px; }
+  pre { background: var(--code-bg); padding: 1rem 1.25rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0; font-size: 0.85rem; line-height: 1.6; }
+  pre code { background: none; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+  th { font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.25rem; }
+  blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--muted); margin: 1rem 0; font-style: italic; }
+  .disclaimer { font-size: 0.8rem; color: var(--muted); font-style: italic; margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  a { color: var(--accent); }
+  .rfc { font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<h1>Proof Container Specification</h1>
+<p class="meta">
+  Version 1.0 &middot; Normative &middot; Public Domain (Unlicense)<br>
+  Parent: <a href="https://anchoring-spec.org/v1.0/">Anchoring Specification (IEC) v1.0</a>
+</p>
+
+<p class="rfc">The key words MUST, SHOULD, and MAY in this document are to be interpreted as described in <a href="https://www.rfc-editor.org/rfc/rfc2119">RFC 2119</a>.</p>
+
+<hr>
+
+<h2>1. Purpose</h2>
+<p>This specification defines the Proof Container: a portable, self-contained evidence bundle that packages an anchoring proof with its associated metadata into a single archive.</p>
+<p>A conformant Proof Container enables any party to verify the existence claim independently, without reliance on the proof issuer or any issuer-controlled infrastructure.</p>
+
+<hr>
+
+<h2>2. Scope</h2>
+<p>This specification defines the archive format and structure, required and optional files, file naming conventions, the certificate schema, verification semantics for the container, and the relationship to the Anchoring Specification (IEC).</p>
+<p>This specification does NOT define the anchoring process itself, ledger binding mechanisms, or identity/authorship/ownership semantics.</p>
+
+<hr>
+
+<h2>3. Definitions</h2>
+<table>
+<tr><th>Term</th><th>Definition</th></tr>
+<tr><td>Proof Container</td><td>A ZIP archive conforming to this specification</td></tr>
+<tr><td>Certificate</td><td>A JSON document containing immutable metadata about the anchor</td></tr>
+<tr><td>Artifact</td><td>The original byte sequence that was anchored</td></tr>
+<tr><td>Proof file</td><td>A binary ledger binding (e.g., OpenTimestamps <code>.ots</code> file)</td></tr>
+<tr><td>Attestation</td><td>An optional third-party cryptographic confirmation</td></tr>
+</table>
+
+<hr>
+
+<h2>4. Archive Format</h2>
+<p>A Proof Container MUST be a valid ZIP archive (ISO/IEC 21320-1:2015 or PKWARE APPNOTE.TXT compliant).</p>
+<p>A Proof Container SHOULD use DEFLATE compression.</p>
+<p>The file extension SHOULD be <code>.proof</code> or <code>.zip</code>. Implementations MUST accept both extensions.</p>
+
+<hr>
+
+<h2>5. Container Structure</h2>
+<p>A conformant Proof Container MUST contain:</p>
+<table>
+<tr><th>File</th><th>Required</th><th>Description</th></tr>
+<tr><td><code>certificate.json</code></td><td>MUST</td><td>Immutable anchor metadata</td></tr>
+<tr><td><code>VERIFY.txt</code></td><td>MUST</td><td>Human-readable verification instructions</td></tr>
+</table>
+
+<p>A conformant Proof Container MAY contain:</p>
+<table>
+<tr><th>File</th><th>Optional</th><th>Description</th></tr>
+<tr><td><code>proof.ots</code></td><td>MAY</td><td>Binary ledger binding (OpenTimestamps proof)</td></tr>
+<tr><td><code>artifact.{ext}</code></td><td>MAY</td><td>The original artifact</td></tr>
+<tr><td><code>attestation.json</code></td><td>MAY</td><td>Third-party attestation</td></tr>
+</table>
+
+<p>No other files are permitted at the root level of the archive.</p>
+
+<h3>5.1 File count</h3>
+<p>A conformant Proof Container contains between 2 (minimum: certificate + VERIFY.txt) and 5 (maximum: all files) entries.</p>
+
+<h3>5.2 Artifact naming</h3>
+<p>When present, the artifact MUST be named <code>artifact.{ext}</code> where <code>{ext}</code> corresponds to the file's media type. Only one artifact file is permitted per container.</p>
+
+<hr>
+
+<h2>6. Certificate Schema</h2>
+<p>The <code>certificate.json</code> file MUST be a valid JSON document containing the following required fields:</p>
+<pre><code>{
+  "version": "1.3",
+  "origin_id": "1916F13F",
+  "hash": "a1b2c3d4e5f6...",
+  "hash_algo": "SHA-256",
+  "captured_at": "2026-03-06T14:30:00.000Z",
+  "verify_url": "https://verify-anchoring.org",
+  "proof_included": true,
+  "proof_status": "anchored"
+}</code></pre>
+
+<h3>6.1 Required fields</h3>
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>version</code></td><td>string</td><td>Certificate schema version</td></tr>
+<tr><td><code>origin_id</code></td><td>string</td><td>Stable external reference identifier</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td>Hexadecimal hash of the artifact</td></tr>
+<tr><td><code>hash_algo</code></td><td>string</td><td>Hash algorithm identifier</td></tr>
+<tr><td><code>captured_at</code></td><td>string</td><td>ISO 8601 timestamp of anchor creation</td></tr>
+<tr><td><code>verify_url</code></td><td>string</td><td>URL of an independent reference verifier</td></tr>
+<tr><td><code>proof_included</code></td><td>boolean</td><td>Whether <code>proof.ots</code> is present</td></tr>
+<tr><td><code>proof_status</code></td><td>string</td><td><code>"pending"</code> or <code>"anchored"</code></td></tr>
+</table>
+
+<h3>6.2 Optional fields</h3>
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>claimed_by</code></td><td>string | null</td><td>Public key of the claiming credential</td></tr>
+<tr><td><code>signature</code></td><td>string | null</td><td>Cryptographic signature of the hash</td></tr>
+<tr><td><code>device_signature</code></td><td>string | null</td><td>WebAuthn signature over the hash</td></tr>
+<tr><td><code>device_public_key</code></td><td>string | null</td><td>SPKI public key of the signing device</td></tr>
+<tr><td><code>sig_algorithm</code></td><td>string | null</td><td>Signing algorithm identifier</td></tr>
+<tr><td><code>attestation_included</code></td><td>boolean</td><td>Whether <code>attestation.json</code> is present</td></tr>
+<tr><td><code>identity_binding</code></td><td>object | null</td><td>Identity assurance level</td></tr>
+<tr><td><code>revocation</code></td><td>object | null</td><td>Revocation status</td></tr>
+<tr><td><code>meta</code></td><td>object</td><td>Implementation metadata</td></tr>
+</table>
+
+<h3>6.3 Immutability</h3>
+<p>A certificate MUST NOT be modified after creation. If any field requires change, a new container with a new certificate MUST be generated.</p>
+
+<hr>
+
+<h2>7. Artifact Integrity</h2>
+<h3>7.1 Inclusion rule</h3>
+<p>When an artifact is included in the container, its hash MUST match the <code>hash</code> field in <code>certificate.json</code> using the algorithm specified in <code>hash_algo</code>.</p>
+<p>If the hash does not match, the artifact MUST NOT be included. An implementation MUST reject artifact inclusion on mismatch rather than including an unverified artifact.</p>
+
+<h3>7.2 Verification rule</h3>
+<p>A verifier receiving a container with an artifact MUST:</p>
+<ol>
+<li>Compute the hash of <code>artifact.{ext}</code> using the algorithm in <code>certificate.json → hash_algo</code></li>
+<li>Compare the result with <code>certificate.json → hash</code></li>
+<li>Report <code>valid</code> only if the hashes match exactly</li>
+</ol>
+
+<h3>7.3 Absence of artifact</h3>
+<p>A container without an artifact is valid. The certificate and proof file are sufficient for independent verification when the verifier possesses the original artifact separately.</p>
+
+<hr>
+
+<h2>8. Identity Binding</h2>
+<table>
+<tr><th>Level</th><th>Description</th><th>Evidence</th></tr>
+<tr><td><code>L1</code></td><td>Device binding only</td><td>Passkey/WebAuthn signature</td></tr>
+<tr><td><code>L2</code></td><td>Identity verified</td><td>KYC or video identification</td></tr>
+<tr><td><code>L3</code></td><td>Notarial attestation</td><td>Notarial act or equivalent</td></tr>
+</table>
+<p>Identity binding is NOT part of the anchoring claim. It is supplementary metadata. The existence proof remains valid regardless of identity binding status.</p>
+
+<hr>
+
+<h2>9. Attestation</h2>
+<p>The optional <code>attestation.json</code> file contains a third-party cryptographic confirmation.</p>
+
+<h3>9.1 Required fields</h3>
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>schema_version</code></td><td>string</td><td>Attestation schema version</td></tr>
+<tr><td><code>attestation_id</code></td><td>string</td><td>Unique attestation identifier</td></tr>
+<tr><td><code>origin_id</code></td><td>string</td><td>Reference to the anchored origin</td></tr>
+<tr><td><code>attested_by</code></td><td>string</td><td>Name of the attestant</td></tr>
+<tr><td><code>attested_at</code></td><td>string</td><td>ISO 8601 timestamp of attestation</td></tr>
+<tr><td><code>signature</code></td><td>string</td><td>Cryptographic signature by the attestant</td></tr>
+<tr><td><code>attestant_public_key</code></td><td>string</td><td>Public key for signature verification</td></tr>
+<tr><td><code>verify_url</code></td><td>string</td><td>URL for attestation verification</td></tr>
+</table>
+
+<h3>9.2 Independence</h3>
+<p>An attestation is independently verifiable using only the <code>attestant_public_key</code> and the signed data fields. No issuer infrastructure is required.</p>
+
+<hr>
+
+<h2>10. VERIFY.txt</h2>
+<p>The <code>VERIFY.txt</code> file MUST contain:</p>
+<ol>
+<li>A list of files in the container</li>
+<li>Instructions for hash verification using standard tools</li>
+<li>Instructions for ledger proof verification</li>
+<li>A reference to an independent verifier</li>
+<li>A statement of what the proof does and does not establish</li>
+</ol>
+
+<hr>
+
+<h2>11. Container Naming</h2>
+<p>Container filenames SHOULD follow the pattern:</p>
+<pre><code>origin-{TOKEN}-{name}-{YYYYMMDD}.proof</code></pre>
+<p>Implementations MUST NOT rely on the filename for verification. All verification data is contained within the archive.</p>
+
+<hr>
+
+<h2>12. Verification of a Proof Container</h2>
+<p>Verification follows the IEC verification function V(B, P, L) with the following mapping:</p>
+<table>
+<tr><th>IEC parameter</th><th>Container source</th></tr>
+<tr><td>B (artifact bytes)</td><td><code>artifact.{ext}</code> or externally provided</td></tr>
+<tr><td>P (proof bundle)</td><td><code>certificate.json</code> + <code>proof.ots</code></td></tr>
+<tr><td>L (ledger)</td><td>Bitcoin blockchain (via OpenTimestamps)</td></tr>
+</table>
+
+<hr>
+
+<h2>13. Backward Compatibility</h2>
+<p>Implementations MUST accept certificate versions <code>1.0</code> through <code>1.3</code>. Fields introduced in later versions are optional when reading earlier versions.</p>
+<p>Implementations MUST treat <code>.proof</code> and <code>.zip</code> extensions identically.</p>
+
+<hr>
+
+<h2>14. Security Considerations</h2>
+<p>The container does not provide confidentiality. Contents are not encrypted by default. The integrity of the container depends on the integrity of its constituent files. A corrupted ZIP archive renders the proof unverifiable, not invalid.</p>
+
+<hr>
+
+<h2>15. Relationship to IEC</h2>
+<p>This specification is a companion to the Anchoring Specification (IEC). It defines a container format for IEC-conformant proofs.</p>
+<p>The Anchoring Specification (IEC) is normative for anchoring semantics. This specification is normative for the container format only.</p>
+<blockquote>If any behavior in this specification conflicts with the Anchoring Specification, the Anchoring Specification prevails.</blockquote>
+
+<hr>
+
+<h2>16. Compliance</h2>
+<p>An implementation claiming conformance to this specification MUST:</p>
+<ol>
+<li>Produce containers containing at minimum <code>certificate.json</code> and <code>VERIFY.txt</code></li>
+<li>Enforce hash verification before artifact inclusion (Section 7.1)</li>
+<li>Accept both <code>.proof</code> and <code>.zip</code> extensions</li>
+<li>Include the disclaimer: "The specification is normative. This implementation is not."</li>
+</ol>
+
+<hr>
+
+<h2>How to cite</h2>
+<pre><code>Proof Container Specification, Version 1.0.
+Published: March 2026.
+Canonical URL: https://anchoring-spec.org/proof-container/
+Parent: Anchoring Specification (IEC) v1.0
+License: Public Domain (Unlicense)</code></pre>
+
+<p class="disclaimer">
+  Canonical publication: <a href="https://anchoring-spec.org/proof-container/">anchoring-spec.org/proof-container/</a><br>
+  The specification is normative. Implementations are not.
+</p>
+
+</body>
+</html>
