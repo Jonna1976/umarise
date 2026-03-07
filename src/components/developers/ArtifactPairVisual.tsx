@@ -65,17 +65,18 @@ export default function ArtifactPairVisual() {
     setVisibleRows([]);
     setEquationsVisible(false);
 
-    at(() => setPhase('animating'), 100);
-    at(() => setRightVisible(true), 1300);
-    at(() => setFlash(true), 4000);
-    at(() => setFilenameVisible(true), 4700);
-    at(() => setBundleVisible(true), 5100);
+    // 2.5s rust aan het begin
+    at(() => setPhase('animating'), 2500);
+    at(() => setRightVisible(true), 3700);
+    at(() => setFlash(true), 6400);
+    at(() => setFilenameVisible(true), 7100);
+    at(() => setBundleVisible(true), 7500);
     for (let i = 0; i < 4; i++) {
-      at(() => setVisibleRows(p => [...p, i]), 5500 + i * 400);
+      at(() => setVisibleRows(p => [...p, i]), 7900 + i * 400);
     }
-    at(() => setEquationsVisible(true), 5500 + 4 * 400);
-    // Auto-loop: wait 4s after last reveal, then restart
-    at(() => setRunKey(k => k + 1), 5500 + 4 * 400 + 4000);
+    at(() => setEquationsVisible(true), 7900 + 4 * 400);
+    // 6s rust aan het einde, dan opnieuw
+    at(() => setRunKey(k => k + 1), 7900 + 4 * 400 + 6000);
   }, []);
 
   useEffect(() => { run(); return clear; }, [runKey, run]);
