@@ -184,13 +184,10 @@ export default function ArtifactPairVisual() {
       {/* Truth table */}
       <motion.div className="font-mono text-[11px] tracking-wider leading-relaxed space-y-1.5" {...fadeIn(0.3)}>
         <div className="text-[hsl(var(--landing-cream))]">
-          artifact + artifact.proof <span className="text-[hsl(var(--landing-copper))]">= proof</span>
+          artifact.proof <span className="text-[hsl(var(--landing-copper))]">= self-proving</span>
         </div>
         <div className="text-[hsl(var(--landing-cream))]">
           artifact alone <span className="opacity-55">= no proof</span>
-        </div>
-        <div className="text-[hsl(var(--landing-cream))]">
-          artifact.proof alone <span className="opacity-55">= incomplete</span>
         </div>
       </motion.div>
     </div>
