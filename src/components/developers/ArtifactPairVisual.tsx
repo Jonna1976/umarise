@@ -126,7 +126,7 @@ export default function ArtifactPairVisual() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
                 >
-                  <div className="font-mono text-xs text-[hsl(var(--landing-copper))] tracking-wider">self-proving artifact</div>
+                  <div className="font-mono text-xs text-[hsl(var(--landing-cream))] tracking-wider">self-proving artifact</div>
                   <div className="font-mono text-[10px] text-[hsl(var(--landing-copper))] opacity-55 tracking-widest">contract.pdf.proof</div>
                 </motion.div>
               )}
