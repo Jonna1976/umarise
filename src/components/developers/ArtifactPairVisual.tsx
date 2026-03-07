@@ -16,11 +16,11 @@ const slideIn = (delay = 0) => ({
 });
 
 const layers = [
-  { num: '1', label: 'artifact hash', value: 'sha256: 9f3a4b2c…e7f1d8a0', variant: 'default' },
-  { num: '2', label: 'timestamp anchor', value: 'Bitcoin block 884201, 2026-03-06', variant: 'default' },
-  { num: '3', label: 'device signature', value: 'passkey · human anchored', variant: 'gold' },
-  { num: '4', label: 'verification metadata', value: 'anchoring-spec.org · v1', variant: 'default' },
-] as const;
+  { num: '1', label: 'artifact hash', value: 'sha256: 9f3a4b2c…e7f1d8a0' },
+  { num: '2', label: 'timestamp anchor', value: 'Bitcoin block 884201, 2026-03-06' },
+  { num: '3', label: 'device signature', value: 'passkey · human anchored' },
+  { num: '4', label: 'verification metadata', value: 'anchoring-spec.org · v1' },
+];
 
 export default function ArtifactPairVisual() {
   return (
@@ -66,14 +66,8 @@ export default function ArtifactPairVisual() {
           >
             <span className="font-mono text-[9px] text-[hsl(var(--landing-copper))] w-4 shrink-0">{layer.num}</span>
             <div className="flex-1">
-              <div className={`font-mono text-[11px] tracking-wider mb-0.5 ${
-                layer.variant === 'gold' ? 'text-[hsl(var(--landing-copper))]' :
-                'text-[hsl(var(--landing-cream))]'
-              }`}>{layer.label}</div>
-              <div className={`font-mono text-[10px] tracking-wide opacity-55 ${
-                layer.variant === 'gold' ? 'text-[hsl(var(--landing-copper))]' :
-                'text-[hsl(var(--landing-cream))]'
-              }`}>{layer.value}</div>
+              <div className="font-mono text-[11px] tracking-wider mb-0.5 text-[hsl(var(--landing-cream))]">{layer.label}</div>
+              <div className="font-mono text-[10px] tracking-wide opacity-55 text-[hsl(var(--landing-cream))]">{layer.value}</div>
             </div>
           </motion.div>
         ))}
