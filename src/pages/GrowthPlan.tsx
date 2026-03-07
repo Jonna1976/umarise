@@ -184,7 +184,7 @@ export default function GrowthPlan() {
                   </div>
                   <p className="text-xs text-landing-muted/40 mb-2">Spec is compleet. Container format is nu implementeerbaar door derden.</p>
                   <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '70%' }} />
+                    <div className="bg-green-400/60 h-1.5 rounded-full" style={{ width: '90%' }} />
                   </div>
                 </div>
               </div>
