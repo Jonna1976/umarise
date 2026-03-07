@@ -39,7 +39,7 @@ export default function ArtifactPairVisual() {
 
   // Auto-trigger merge animation after appearing in viewport
   useEffect(() => {
-    const timer = setTimeout(() => setMerged(true), 2200);
+    const timer = setTimeout(() => setMerged(true), 6000);
     return () => clearTimeout(timer);
   }, []);
 
