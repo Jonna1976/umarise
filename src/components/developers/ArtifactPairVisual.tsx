@@ -74,6 +74,8 @@ export default function ArtifactPairVisual() {
       at(() => setVisibleRows(p => [...p, i]), 5500 + i * 400);
     }
     at(() => setEquationsVisible(true), 5500 + 4 * 400);
+    // Auto-loop: wait 4s after last reveal, then restart
+    at(() => setRunKey(k => k + 1), 5500 + 4 * 400 + 4000);
   }, []);
 
   useEffect(() => { run(); return clear; }, [runKey, run]);
