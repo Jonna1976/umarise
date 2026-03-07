@@ -99,18 +99,8 @@ export default function ArtifactPairVisual() {
     setKey(k => k + 1);
   };
 
-  // The slide animation: artifact + arrow move right and fade out over 4s
-  const slideVariants = {
-    initial: { x: 0, opacity: 1 },
-    animate: {
-      x: 220,
-      opacity: 0,
-      transition: {
-        duration: 4,
-        ease: [0.6, 0, 0.35, 1], // same cubic-bezier as the HTML
-      },
-    },
-  };
+  const slideEase = [0.6, 0, 0.35, 1] as const;
+  const slideTransition = { duration: 4, ease: slideEase as unknown as [number, number, number, number] };
 
   return (
     <div className="flex flex-col items-center gap-8 py-8 relative" key={key}>
