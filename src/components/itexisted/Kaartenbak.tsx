@@ -17,6 +17,7 @@ export default function Kaartenbak() {
   const { items, isOpen, setOpen, addItems } = useKaartenbak();
   const [dragOver, setDragOver] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Track which items have their artifact cached in IndexedDB
   const [cacheStatus, setCacheStatus] = useState<Record<string, boolean>>({});
