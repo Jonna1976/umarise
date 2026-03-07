@@ -88,8 +88,8 @@ export default function GrowthPlan() {
             <h2 className="text-sm font-medium tracking-wide text-landing-copper uppercase mb-2">Protocol Maturity — 8.5 / 10</h2>
             <p className="text-xs text-landing-muted/50 mb-6">De resterende 1,5 punt zit in vier gebieden. Adoptie alleen is niet genoeg — een protocol wint wanneer spec, ecosystem, defaults én use case tegelijk kloppen.</p>
             
-            <div className="space-y-4">
-              {/* Factor 1 */}
+            <div className="space-y-5">
+              {/* Factor 1: Open spec — 70% */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-10 text-right">
                   <span className="text-landing-copper font-mono text-sm font-medium">0.5</span>
@@ -97,20 +97,24 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Open, stabiele spec</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">in progress</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">70%</span>
                   </div>
-                  <p className="text-xs text-landing-muted/60 mb-2">
-                    .proof is nu onze implementatie. Voor een protocol moet het een <em>Self-Proving Artifact Specification v1</em> worden — proof structure, hash algorithm, anchor format, verification steps, backward compatibility. Anyone can implement it.
-                  </p>
-                  <p className="text-xs text-landing-muted/40 font-mono">Zoals: TLS spec · Git object format · JWT · SBOM</p>
-                  <div className="mt-2 w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '60%' }} />
+                  <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
+                    <p><span className="text-green-400">✓</span> anchoring-spec.org v1.0 — 18-sectie normatieve spec, frozen, public domain</p>
+                    <p><span className="text-green-400">✓</span> certificate.json v1.3 — schema gedocumenteerd met backward compatibility</p>
+                    <p><span className="text-green-400">✓</span> V(B, P, L) → &#123;valid | invalid | unverifiable&#125; gedefinieerd</p>
+                    <p><span className="text-green-400">✓</span> Semantic exclusions, independence requirement, ledger qualification</p>
+                    <p><span className="text-landing-muted/30">○</span> .proof container spec als apart document ("anyone can implement it")</p>
+                    <p><span className="text-landing-muted/30">○</span> Backward compatibility rules voor .proof formaat</p>
                   </div>
-                  <p className="text-xs text-landing-muted/40 mt-1">anchoring-spec.org v1.0 ✓ · certificate.json v1.3 ✓ · .proof container spec ○</p>
+                  <p className="text-xs text-landing-muted/40 mb-2">Spec is er, maar .proof container is nog implementatie, geen spec.</p>
+                  <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
+                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '70%' }} />
+                  </div>
                 </div>
               </div>
 
-              {/* Factor 2 */}
+              {/* Factor 2: Onafhankelijke verifiers — 40% */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-10 text-right">
                   <span className="text-landing-copper font-mono text-sm font-medium">0.3</span>
@@ -118,23 +122,24 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Onafhankelijke verifiers</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">1 / 3</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">40%</span>
                   </div>
-                  <p className="text-xs text-landing-muted/60 mb-2">
-                    Protocol-signaal ontstaat wanneer anderen .proof kunnen verifiëren zonder onze tooling. Minimaal 3 onafhankelijke verifiers.
-                  </p>
-                  <div className="text-xs space-y-1 text-landing-muted/50">
-                    <p><span className="text-green-400">✓</span> verify-anchoring.org (client-side, Unlicense)</p>
-                    <p><span className="text-landing-muted/30">○</span> Python library</p>
-                    <p><span className="text-landing-muted/30">○</span> Go library of CLI van derde partij</p>
+                  <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
+                    <p><span className="text-green-400">✓</span> verify-anchoring.org — 100% client-side, Unlicense, forkbaar</p>
+                    <p><span className="text-green-400">✓</span> CLI <code className="bg-landing-muted/10 px-1 rounded">umarise verify</code> — offline OTS verificatie</p>
+                    <p><span className="text-green-400">✓</span> bash/python scripts (verify-anchor.sh, verify-anchor.py)</p>
+                    <p><span className="text-green-400">✓</span> VERIFY.txt in elke bundel met handmatige stappen</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen third-party verifier (alles door ons gebouwd)</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen Go/Rust/Python library van een derde partij</p>
                   </div>
-                  <div className="mt-2 w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '33%' }} />
+                  <p className="text-xs text-landing-muted/40 mb-2">Technisch onafhankelijk verifieerbaar, maar geen ecosystem buiten ons.</p>
+                  <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
+                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '40%' }} />
                   </div>
                 </div>
               </div>
 
-              {/* Factor 3 */}
+              {/* Factor 3: Default in tools — 20% */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-10 text-right">
                   <span className="text-landing-copper font-mono text-sm font-medium">0.4</span>
@@ -142,19 +147,23 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Default in tools</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-landing-muted/20 text-landing-muted/50 font-mono">todo</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-landing-muted/20 text-landing-muted/50 font-mono">20%</span>
                   </div>
-                  <p className="text-xs text-landing-muted/60 mb-2">
-                    De echte test: artifact → artifact.proof, automatisch. CI tools, dataset exports, ML pipelines, package managers.
-                  </p>
-                  <p className="text-xs text-landing-muted/40">TLS werd groot toen webservers het default maakten. Git werd groot toen hosting platforms Git default maakten.</p>
-                  <div className="mt-2 w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-landing-muted/20 h-1.5 rounded-full" style={{ width: '10%' }} />
+                  <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
+                    <p><span className="text-green-400">✓</span> GitHub Action op Marketplace (anchor-action@v1)</p>
+                    <p><span className="text-green-400">✓</span> npx @umarise/cli — zero-install</p>
+                    <p><span className="text-green-400">✓</span> anchoring-examples repo met workflow</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen externe tool heeft .proof als default</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen integratie in bestaande CI/dataset/ML tools</p>
+                  </div>
+                  <p className="text-xs text-landing-muted/40 mb-2">Wij bieden de tools, maar niemand anders genereert .proof automatisch.</p>
+                  <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
+                    <div className="bg-landing-muted/30 h-1.5 rounded-full" style={{ width: '20%' }} />
                   </div>
                 </div>
               </div>
 
-              {/* Factor 4 */}
+              {/* Factor 4: Dominante use case — 15% */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-10 text-right">
                   <span className="text-landing-copper font-mono text-sm font-medium">0.3</span>
@@ -162,14 +171,17 @@ export default function GrowthPlan() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-landing-cream/90 font-medium text-sm">Eén dominante use case</h3>
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 font-mono">kiezen</span>
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-landing-muted/20 text-landing-muted/50 font-mono">15%</span>
                   </div>
-                  <p className="text-xs text-landing-muted/60 mb-2">
-                    Nu: CI, AI, research, legal. Historisch wint één categorie eerst. Meest logisch: <strong className="text-landing-cream/80">software artifacts</strong> of <strong className="text-landing-cream/80">AI provenance</strong>.
-                  </p>
-                  <p className="text-xs text-landing-muted/40">Daar moeten de meeste anchors vandaan komen.</p>
-                  <div className="mt-2 w-full bg-landing-muted/10 rounded-full h-1.5">
-                    <div className="bg-amber-400/60 h-1.5 rounded-full" style={{ width: '25%' }} />
+                  <div className="text-xs space-y-1 text-landing-muted/50 mb-2">
+                    <p><span className="text-green-400">✓</span> CI/build artifacts technisch bewezen (GitHub Action werkt)</p>
+                    <p><span className="text-green-400">✓</span> Vier dev.to posts dekken CI, AI, research, legal</p>
+                    <p><span className="text-landing-muted/30">○</span> Geen meetbare concentratie van anchors in één categorie</p>
+                    <p><span className="text-landing-muted/30">○</span> Nog geen "dit is waar 80% van de anchors vandaan komt"</p>
+                  </div>
+                  <p className="text-xs text-landing-muted/40 mb-2">Breed gepositioneerd, niet gefocust. Meest logisch: <strong className="text-landing-cream/70">software artifacts</strong> of <strong className="text-landing-cream/70">AI provenance</strong>.</p>
+                  <div className="w-full bg-landing-muted/10 rounded-full h-1.5">
+                    <div className="bg-landing-muted/30 h-1.5 rounded-full" style={{ width: '15%' }} />
                   </div>
                 </div>
               </div>
@@ -178,6 +190,9 @@ export default function GrowthPlan() {
             <div className="border-t border-landing-copper/15 mt-6 pt-4">
               <p className="text-xs text-landing-muted/50 italic">
                 De echte eindtest: developers gebruiken het zonder te weten wie het gebouwd heeft. Zoals bij DNS, TLS, Git.
+              </p>
+              <p className="text-xs text-landing-muted/40 mt-2">
+                Snelste winst: .proof container spec schrijven (+0.5). De rest vereist externe adoptie.
               </p>
             </div>
           </section>
