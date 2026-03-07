@@ -79,6 +79,7 @@ export default function Landing() {
               <Link to="/technical" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Technical</Link>
               <Link to="/core" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Core</Link>
               <Link to="/creation-integrity" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Creation Integrity</Link>
+              <Link to="/blog" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Blog</Link>
               <a href="https://anchoring-spec.org" target="_blank" rel="noopener noreferrer" className="text-sm text-landing-muted/75 hover:text-landing-muted transition-colors">Specification (IEC) ↗</a>
             </div>
 
