@@ -1394,6 +1394,25 @@ const Architecture = () => {
             </ul>
           </div>
         </div>
+
+        {/* Architecture Flowchart */}
+        <div>
+          <SectionHeader icon={Compass} title="Architecture Flowchart" num={15} />
+          <p className="text-sm text-landing-cream/50 mb-4">
+            Detailed implementation flow: User Device → SHA-256 → registry → OTS Worker → Bitcoin → ZIP Bundle, including public endpoints, passkey binding, and proof container contents.
+          </p>
+          <div className="rounded-lg overflow-hidden border border-landing-cream/10 bg-white">
+            <img 
+              src="/docs/architecture-flowchart.png" 
+              alt="Architecture flowchart: User Device (PWA/SDK) → SHA-256 → origin_attestations → OTS Worker (Hetzner) → Bitcoin OP_RETURN → core_ots_proofs → ZIP Bundle (YOUR PROOF) containing certificate.json v1.3, artifact.ext, .ots proof file, VERIFY.txt, and optional attestation.json" 
+              className="w-full h-auto"
+              loading="lazy"
+            />
+          </div>
+          <p className="mt-3 text-xs text-landing-muted/40">
+            Source: Umarise architecture documentation, March 2026.
+          </p>
+        </div>
       </div>
     </div>
   );
